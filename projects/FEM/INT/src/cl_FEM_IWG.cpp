@@ -13,7 +13,80 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+            /*
+             * set field interpolator manager
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ] aIsMaster                 an enum for master or slave
+             */
+            void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                      mtk::Master_Slave            aIsMaster )
+            {
+            	// FIXME why does this not work?
+                //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterFIManager = aFieldInterpolatorManager;
+                        break;
+                    }
 
+                    case ( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlaveFIManager = aFieldInterpolatorManager;
+                        break;
+                    }
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
+                        break;
+                    }
+                }
+                //END FIXME
+
+                // loop over the the SP
+                for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
+                {
+                    if ( tSP != nullptr )
+                    {
+                        // set the field interpolator manager for the SP
+                        tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
+
+                        // set th efem set pointer for the SP
+                        tSP->set_set_pointer( mSet );
+                    }
+                }
+
+                // loop over the constitutive models
+                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+                {
+                    if ( tCM != nullptr )
+                    {
+                        // set the field interpolator manager for the CM
+                        tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                        // set the fem set pointe for the CM
+                        tCM->set_set_pointer( mSet );
+                    }
+                }
+
+                // loop over the properties
+                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+                {
+                    if ( tProp != nullptr )
+                    {
+                        // set the field interpolator manager for the property
+                        tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                        // set the fem set pointer for the property
+                        tProp->set_set_pointer( mSet );
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // set the size of the dof type list for the set
@@ -491,103 +564,47 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
 
 //------------------------------------------------------------------------------
 
-        void IWG::set_dof_field_interpolators( mtk::Master_Slave aIsMaster )
-        {
-            // set field interpolators for the SP
-            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get the list of dof types for the SP
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes = tSP->get_global_dof_type_list( aIsMaster );
-
-                    // get the number of dof type for the SP
-                    uint tNumDofTypes = tSPDofTypes.size();
-
-                    // set the size of the field interpolators list for the SP
-                    moris::Cell< Field_Interpolator* > tSPFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                    {
-                        // grab the field interpolator for the dof type
-                        tSPFIs( iDof ) = mFieldInterpolatorManager->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ), aIsMaster );
-                    }
-
-                    // set the field interpolators for the SP
-                    tSP->set_dof_field_interpolators( tSPFIs, aIsMaster );
-
-                    // set the field interpolator manager for the SP
-                    tSP->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    // set th efem set pointer for the SP
-                    tSP->set_set_pointer( mSet );
-                }
-            }
-
-            // set field interpolators for constitutive models
-            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get the list of dof types for the CM
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
-
-                    // get the number of dof type for the CM
-                    uint tNumDofTypes = tCMDofTypes.size();
-
-                    // set the size of the field interpolators list for the CM
-                    moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                    {
-                        // fill the field interpolators list for the CM
-                        tCMFIs( iDof ) = mFieldInterpolatorManager->get_field_interpolators_for_type( tCMDofTypes( iDof )( 0 ), aIsMaster );
-                    }
-
-                    // set the field interpolators for the CM
-                    tCM->set_dof_field_interpolators( tCMFIs );
-
-                    // set the field interpolator manager for the CM
-                    tCM->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    // set the fem set pointe for the CM
-                    tCM->set_set_pointer( mSet );
-                }
-            }
-
-            // set field interpolators for properties
-            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-            {
-                if ( tProp != nullptr )
-                {
-                    // get the list of dof types for the property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                    // get the number of dof type for the property
-                    uint tNumDofTypes = tPropDofTypes.size();
-
-                    // set the size of the field interpolators list for the property
-                    moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                    {
-                        tPropFIs( iDof ) = mFieldInterpolatorManager->get_field_interpolators_for_type( tPropDofTypes( iDof )( 0 ), aIsMaster );
-                    }
-
-                    // set the field interpolators for the property
-                    tProp->set_dof_field_interpolators( tPropFIs );
-
-                    // set the field interpolator manager for the property
-                    tProp->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    // set the fem set pointer for the property
-                    tProp->set_set_pointer( mSet );
-                }
-            }
-        }
+//        void IWG::set_dof_field_interpolators( mtk::Master_Slave aIsMaster )
+//        {
+//            // set field interpolators for the SP
+//            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
+//            {
+//                if ( tSP != nullptr )
+//                {
+//                    // set the field interpolator manager for the SP
+//                    tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
+//
+//                    // set th efem set pointer for the SP
+//                    tSP->set_set_pointer( mSet );
+//                }
+//            }
+//
+//            // set field interpolators for constitutive models
+//            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+//            {
+//                if ( tCM != nullptr )
+//                {
+//                    // set the field interpolator manager for the CM
+//                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+//
+//                    // set the fem set pointe for the CM
+//                    tCM->set_set_pointer( mSet );
+//                }
+//            }
+//
+//            // set field interpolators for properties
+//            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+//            {
+//                if ( tProp != nullptr )
+//                {
+//                    // set the field interpolator manager for the property
+//                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+//
+//                    // set the fem set pointer for the property
+//                    tProp->set_set_pointer( mSet );
+//                }
+//            }
+//        }
 
 //------------------------------------------------------------------------------
 
@@ -599,8 +616,8 @@ void IWG::check_dof_field_interpolators( mtk::Master_Slave aIsMaster )
         for( uint iFI = 0; iFI < mRequestedMasterGlobalDofTypes.size(); iFI++ )
         {
             // check that the field interpolator was set
-            MORIS_ASSERT( mFieldInterpolatorManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), aIsMaster ) != nullptr,
-                    "IWG::check_dof_field_interpolators - FI missing. " );
+            MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) ) != nullptr,
+                          "IWG::check_dof_field_interpolators - FI missing. " );
         }
     }
     else
@@ -609,7 +626,7 @@ void IWG::check_dof_field_interpolators( mtk::Master_Slave aIsMaster )
         for( uint iFI = 0; iFI < mRequestedSlaveGlobalDofTypes.size(); iFI++ )
         {
             // check that the field interpolator was set
-            MORIS_ASSERT( mFieldInterpolatorManager->get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iFI )( 0 ), aIsMaster ) != nullptr,
+            MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )->get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iFI )( 0 ) ) != nullptr,
                     "IWG::check_dof_field_interpolators - FI missing. " );
         }
     }
@@ -637,7 +654,7 @@ void IWG::compute_jacobian_FD( real                                             
 
         aJacobiansFD( 0 )( iFI ).set_size( tNumRows, tNumCols, 0.0 );
 
-        Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
+        Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
 
         // get number of master FI bases and fields
         uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -691,7 +708,7 @@ void IWG::compute_jacobian_FD( real                                             
 
                 // evaluate Jacobian
                 aJacobiansFD( 0 )( iFI ).get_column( tDofCounter )
-                                                   = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                 // update dof counter
                 tDofCounter++;
@@ -730,7 +747,7 @@ void IWG::compute_jacobian_FD( real                                             
         aJacobiansFD( 0 )( iFI ).set_size( tNumRowsMaster, tNumColsMaster, 0.0 );
         aJacobiansFD( 1 )( iFI ).set_size( tNumRowsSlave, tNumColsSlave, 0.0 );
 
-        Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
+        Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
 
         // get number of master FI bases and fields
         uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -782,13 +799,15 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Minus_Master
-                      =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Minus_Slave
                 =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // evaluate Jacobian
-                aJacobiansFD( 0 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                aJacobiansFD( 1 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                aJacobiansFD( 0 )( iFI ).get_column( tDofCounter )
+                = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                aJacobiansFD( 1 )( iFI ).get_column( tDofCounter )
+                = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                 // update dof counter
                 tDofCounter++;
@@ -812,7 +831,7 @@ void IWG::compute_jacobian_FD( real                                             
         aJacobiansFD( 0 )( tMasterNumDofType + iFI ).set_size( tNumRowsMaster, tNumColsMaster, 0.0 );
         aJacobiansFD( 1 )( tMasterNumDofType + iFI ).set_size( tNumRowsSlave, tNumColsSlave, 0.0 );
 
-        Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE );
+        Field_Interpolator * tFI = mSlaveFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
 
         // get number of master FI bases and fields
         uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -845,9 +864,9 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Plus_Master
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Plus_Slave
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // perturbation of the coefficent
                 tCoeffPert = tCoeff;
@@ -864,13 +883,15 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Minus_Master
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Minus_Slave
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // evaluate Jacobian
-                aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tDofCounter )
+                = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( tDofCounter )
+                = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                 // update dof counter
                 tDofCounter++;

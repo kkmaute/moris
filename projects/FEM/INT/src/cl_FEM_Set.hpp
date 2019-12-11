@@ -49,9 +49,11 @@ namespace MSI
     class Set : public MSI::Equation_Set
     {
     private:
+
+        // pointer to the corresponding mesh set
         moris::mtk::Set * mMeshSet = nullptr;
 
-        //! Mesh cluster
+        // list of mesh cluster pointers
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
 
         // space dimension
@@ -86,14 +88,17 @@ namespace MSI
         Geometry_Interpolator             * mMasterIGGeometryInterpolator = nullptr;
         Geometry_Interpolator             * mSlaveIGGeometryInterpolator  = nullptr;
 
-        Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+        // field interpolator manager pointers
+        Field_Interpolator_Manager * mMasterFIManager = nullptr;
+        Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
+        //Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
 
         // cell of pointers to IWG objects
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
         moris::Cell< std::shared_ptr< IWG > > mRequestedIWGs;
 
+        // enum for element type
         enum fem::Element_Type mElementType;
-
 
         // integration points
         Matrix< DDRMat > mIntegPoints;
@@ -101,7 +106,8 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
-        Matrix< DDSMat >               mDofTypeMap;
+        // map for the dof type
+        Matrix< DDSMat > mDofTypeMap;
 
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
@@ -158,11 +164,16 @@ namespace MSI
         void finalize( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
-
+        /**
+         * initialize the set
+         * @param[ in ] aIsResidual bool true if ???
+         */
         void initialize_set( const bool aIsResidual );
 
 //------------------------------------------------------------------------------
-
+        /**
+         * free the memory on the set
+         */
         void free_memory();
 
 //------------------------------------------------------------------------------
@@ -192,13 +203,6 @@ namespace MSI
          * one for both master and slave
          */
         void create_unique_dof_type_list();
-
-//------------------------------------------------------------------------------
-        /**
-         * create a unique property type list for the set
-         * one for the master, one for the slave
-         */
-        void create_property_type_list();
 
 //------------------------------------------------------------------------------
         /**
@@ -286,11 +290,11 @@ namespace MSI
 
 //------------------------------------------------------------------------------
          /**
-          * create field interpolators for the set
+          * create field interpolator managers for the set
           * @param[ in ] aModelSolverInterface model solver interface
           * ( only used to set the time levels )
           */
-         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
+         void create_field_interpolator_managers( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
         /**
@@ -357,9 +361,9 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * set the field interpolators for the IWGs
+         * set the field interpolator managers for the IWGs
          */
-        void set_IWG_field_interpolators();
+        void set_IWG_field_interpolator_managers();
 
 //------------------------------------------------------------------------------
         /**
@@ -514,10 +518,27 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-         Field_Interpolator_Manager * get_field_interpolators_manager( )
-         {
-             return mFieldInterpolatorManager;
-         };
+//         Field_Interpolator_Manager * get_field_interpolators_manager( )
+//         {
+//             return mFieldInterpolatorManager;
+//         };
+        Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                    return mMasterFIManager;
+
+                case ( mtk::Master_Slave::SLAVE ) :
+                    return mSlaveFIManager;
+
+                default :
+                {
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master or slave.");
+                    return mMasterFIManager;
+                }
+            }
+        };
 
 //------------------------------------------------------------------------------
         /**

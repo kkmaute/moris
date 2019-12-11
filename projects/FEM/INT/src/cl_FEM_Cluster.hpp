@@ -84,6 +84,11 @@ namespace moris
     public:
 //------------------------------------------------------------------------------
         /**
+         * trivial constructor
+         */
+        Cluster(){};
+
+        /**
          * constructor
          * @param[ in ] aElementType enum for element type (BULK, SIDESET, ...)
          * @param[ in ] aMeshCluster cluster pointer from mtk mesh
@@ -94,7 +99,6 @@ namespace moris
                  const mtk::Cluster              * aMeshCluster,
                        moris::Cell< Node_Base* > & aNodes,
                        Set                       * aSet );
-        Cluster(){};
 
 //------------------------------------------------------------------------------
         /**
@@ -136,26 +140,38 @@ namespace moris
          */
         moris::mtk::Vertex const * get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex );
 
-        moris::moris_index get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
-                                                             moris::mtk::Vertex const * aVertex );
+//------------------------------------------------------------------------------
+        /**
+         * get the ordinal of the right vertex on the facet
+         * @param[ in ] aCellIndexInCluster an index for the cell in the cluster
+         * @param[ in ] aVertex             a vertex pointer
+         */
+        moris::moris_index get_right_vertex_ordinal_on_facet( moris_index                aCellIndexInCluster,
+                                                              moris::mtk::Vertex const * aVertex );
 
 //------------------------------------------------------------------------------
         /**
-         * computes the jacobian on cluster
+         * compute the jacobian on cluster
          */
         void compute_jacobian();
 
 //------------------------------------------------------------------------------
         /**
-         * computes the residual on cluster
+         * compute the residual on cluster
          */
         void compute_residual();
 
 //------------------------------------------------------------------------------
         /**
-         * computes the jacobian and the residual on cluster
+         * compute the jacobian and the residual on cluster
          */
         void compute_jacobian_and_residual();
+
+//------------------------------------------------------------------------------
+        /**
+         * compute the quantity of interest on cluster
+         */
+        void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
 
 //------------------------------------------------------------------------------
         /**
@@ -168,6 +184,11 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        /**
+         * get the nodal pdof values on an element
+         * @param[ in ] aVertexIndex a vertex index
+         * @param[ in ] aDofType     a dof type
+         */
         real get_element_nodal_pdof_value( moris_index   aVertexIndex,
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
@@ -204,28 +225,15 @@ namespace moris
     protected:
 //------------------------------------------------------------------------------
         /**
-         * computes the cluster volume
+         * compute the cluster volume
          */
         real compute_volume();
 
 //------------------------------------------------------------------------------
         /**
-         * sets the field interpolators coefficients
+         * set the field interpolators coefficients
          */
         void set_field_interpolators_coefficients();
-
- //------------------------------------------------------------------------------
-        /**
-         * @Brief set the initial sizes and values for mJacobian
-         */
-         void initialize_mJacobian();
-
-//------------------------------------------------------------------------------
-         /**
-          * @Brief set the initial sizes and values for mResidual
-          */
-         void initialize_mResidual();
-
 
 //------------------------------------------------------------------------------
     };

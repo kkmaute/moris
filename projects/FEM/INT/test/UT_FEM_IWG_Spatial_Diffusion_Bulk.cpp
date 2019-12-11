@@ -192,16 +192,13 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
 
     // set IWG field interpolator manager
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-
-    // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -353,14 +350,12 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
 
-    // set IWG field interpolators
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    // set IWG field interpolator manager
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // set IWG geometry interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -516,14 +511,12 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
 
-    // set IWG field interpolators
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    // set IWG field interpolator manager
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // set IWG geometry interpolators
     tIWG->set_geometry_interpolator( &tGI );

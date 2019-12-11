@@ -69,7 +69,9 @@ namespace moris
             moris::Cell< Field_Interpolator* > mMasterFI;
             moris::Cell< Field_Interpolator* > mSlaveFI;
 
-            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+            // master and slave field interpolator managers
+            Field_Interpolator_Manager * mMasterFIManager = nullptr;
+            Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
@@ -125,12 +127,35 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /*
-             * set member set pointer
+             * set field interpolator manager
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ] aIsMaster                 an enum for master or slave
              */
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                 mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /*
+             * get field interpolator manager
+             * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ]  aIsMaster                 an enum for master or slave
+             */
+            Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
-                mFieldInterpolatorManager = aFieldInterpolatorManager;
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ) :
+                        return mMasterFIManager;
+
+                    case ( mtk::Master_Slave::SLAVE ) :
+                        return mSlaveFIManager;
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
+                        return mMasterFIManager;
+                    }
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -309,12 +334,6 @@ namespace moris
                     }
                 }
             };
-
-//------------------------------------------------------------------------------
-            /**
-             * set dof field interpolators
-             */
-            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster );
 
 //------------------------------------------------------------------------------
             /**

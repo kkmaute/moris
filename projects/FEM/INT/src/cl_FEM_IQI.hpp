@@ -49,7 +49,8 @@ namespace moris
             bool mGlobalDofBuild = true;
 
             // field interpolator manager pointer
-            Field_Interpolator_Manager * mFIManager = nullptr;
+            Field_Interpolator_Manager * mMasterFIManager = nullptr;
+            Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
@@ -103,9 +104,31 @@ namespace moris
              * set field interpolator manager pointer
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
              */
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                 mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /*
+             * get field interpolator manager
+             * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ]  aIsMaster                 an enum for master or slave
+             */
+            Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
-                mFIManager = aFieldInterpolatorManager;
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ) :
+                        return mMasterFIManager;
+
+                    case ( mtk::Master_Slave::SLAVE ) :
+                        return mSlaveFIManager;
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
+                        return mMasterFIManager;
+                    }
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -226,13 +249,13 @@ namespace moris
              */
             void build_global_dof_type_list();
 
-//------------------------------------------------------------------------------
-            /**
-             * set master or slave dof field interpolators for the IQI
-             * properties, constitutive models and stabilization parameters
-             * @param[ in ] aIsMaster an enum for master or slave
-             */
-            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+////------------------------------------------------------------------------------
+//            /**
+//             * set master or slave dof field interpolators for the IQI
+//             * properties, constitutive models and stabilization parameters
+//             * @param[ in ] aIsMaster an enum for master or slave
+//             */
+//            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**

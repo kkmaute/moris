@@ -499,7 +499,8 @@ namespace moris
                             }
 
                             // get the field interpolator
-                            fem::Field_Interpolator_Manager * tFIM= tFemSet->get_field_interpolators_manager();
+                            //fem::Field_Interpolator_Manager * tFIM = tFemSet->get_field_interpolators_manager();
+                            fem::Field_Interpolator_Manager * tFIM = tFemSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER );
                             fem::Field_Interpolator* tFieldInterp = tFIM->get_field_interpolators_for_type(tDofType);
 
                             // iterate through clusters in set

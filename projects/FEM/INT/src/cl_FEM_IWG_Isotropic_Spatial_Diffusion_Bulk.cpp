@@ -56,7 +56,7 @@ namespace moris
             if ( mMasterProp( tLoadIndex ) != nullptr )
             {
                 // get field interpolator for a given dof type
-                Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+                Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // compute contribution of body load to residual
                 mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
@@ -77,7 +77,7 @@ namespace moris
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM and property
             uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );

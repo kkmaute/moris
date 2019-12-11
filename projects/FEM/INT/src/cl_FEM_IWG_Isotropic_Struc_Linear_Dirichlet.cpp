@@ -47,7 +47,7 @@ namespace moris
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get SP, CM and property indices
             uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
@@ -99,7 +99,7 @@ namespace moris
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get SP, CM and property indices
             uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );

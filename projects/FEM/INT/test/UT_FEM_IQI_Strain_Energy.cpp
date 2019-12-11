@@ -164,16 +164,13 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
 
     // set IWG field interpolator manager
-    tIQI->mFIManager = &tFIManager;
-
-    // set IWG field interpolators
-    tIQI->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIQI->set_field_interpolator_manager( &tFIManager );
 
     // set IWG field interpolators
     tIQI->set_geometry_interpolator( &tGI );
