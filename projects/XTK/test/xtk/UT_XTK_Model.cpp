@@ -190,7 +190,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-            tXTKModel.mVerbose = true;
+            tXTKModel.mVerbose  =  false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -205,9 +205,6 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
 
             std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_conformal.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
-
-
-            std::cout<<"success"<<std::endl;
 
             // Access the Cut Mesh-------------------------------------------------------------
             Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
@@ -338,120 +335,6 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
         }
     }
 
-TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
-{
-    int tProcRank = 0;
-    int tProcSize = 0;
-    MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-    MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
-
-    if(tProcSize!=1)
-    {
-    SECTION("Regular Subdivision Method Parallel","[XTK][Parallel][n2]")
-    {
-        //     Geometry Engine Setup -----------------------
-        //     Using a Levelset Sphere as the Geometry
-        real tRadius = 0.25;
-        real tXCenter = 1.0;
-        real tYCenter = 1.0;
-        real tZCenter = 1.0;
-        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
-
-        // Create Mesh ---------------------------------
-        std::string tMeshFileName = "generated:1x1x4";
-        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName);
-
-        // Setup XTK Model -----------------------------
-        size_t tModelDimension = 3;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-
-        //Specify your decomposition methods and start cutting
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
-        tXTKModel.decompose(tDecompositionMethods);
-
-        Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
-
-        if(par_size() ==1)
-        {
-            CHECK(tCutMesh.get_num_child_meshes() == 2);
-        }
-
-        if(par_size() ==2)
-        {
-            if(par_rank() == 0)
-            {
-                CHECK(tCutMesh.get_num_child_meshes() == 2);
-            }
-            if(par_rank() == 1)
-            {
-                CHECK(tCutMesh.get_num_child_meshes() == 1);
-            }
-        }
-        if(par_size() ==4)
-        {
-            if(par_rank() == 0)
-            {
-                CHECK(tCutMesh.get_num_child_meshes() == 2);
-            }
-            else if(par_rank() == 1)
-            {
-                CHECK(tCutMesh.get_num_child_meshes() == 2);
-            }
-            else if(par_rank() == 2)
-            {
-                CHECK(tCutMesh.get_num_child_meshes() == 1);
-            }
-            else if(par_rank() == 3)
-            {
-                CHECK(tCutMesh.get_num_child_meshes() == 0);
-            }
-
-        }
-
-
-        delete tMeshData;
-
-    }
-
-    SECTION("Regular Subdivision and Node Hierarchy Method Parallel","[XTK][Parallel][n2]"){
-        if(tProcSize == 2)
-        {
-        // Geometry Engine Setup -----------------------
-        // Using a Levelset Sphere as the Geometry
-        real tRadius =  0.6;
-        real tXCenter = 1.0;
-        real tYCenter = 1.0;
-        real tZCenter = 1.0;
-        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
-
-        // Create Mesh ---------------------------------
-        std::string tMeshFileName = "generated:1x1x2";
-        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
-
-        // Setup XTK Model -----------------------------
-        size_t tModelDimension = 3;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-
-        //Specify your decomposition methods and start cutting
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        tXTKModel.decompose(tDecompositionMethods);
-
-        Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
-
-        CHECK(tCutMesh.get_num_child_meshes() == 2);
-
-
-        delete tMeshData;
-
-        }
-        }
-}
-}
-
 TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
 {
     /*
@@ -518,7 +401,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
 
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-    tXTKModel.mVerbose = true;
+    tXTKModel.mVerbose  =  false;
     /*
      * Decompose
      */
@@ -531,7 +414,6 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     // Collect all volumes
     moris::real tGlbSurf = 0.0;
     sum_all(tMySurfaceArea,tGlbSurf);
-    std::cout<<"Surface Area: "<<tGlbSurf<<std::endl;
 
 
     tXTKModel.perform_basis_enrichment(EntityRank::NODE);

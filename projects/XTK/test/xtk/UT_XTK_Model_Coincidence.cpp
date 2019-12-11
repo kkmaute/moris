@@ -70,7 +70,7 @@ TEST_CASE("Cylinders coincident with each other ","[COINCIDENT]")
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-            tXTKModel.mVerbose = true;
+            tXTKModel.mVerbose  =  false;
 
             //Specify your decomposition methods and start cutting
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
@@ -117,7 +117,7 @@ TEST_CASE("Plane coincident with background mesh ","[COINCIDENT_PLANE]")
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,

@@ -98,44 +98,6 @@ Background_Mesh::get_vertices_owner(moris::Matrix<moris::IndexMat> const & aVert
     return tVertexOwners;
 }
 
-moris::Matrix<moris::IdMat>
-Background_Mesh::get_vertex_sharing(moris::moris_index aVertexIndex) const
-
-{
-
-    if(mExternalMeshData.is_external_entity(aVertexIndex,EntityRank::NODE))
-    {
-        return mExternalMeshData.get_external_vertex_sharing(aVertexIndex);
-    }
-    else
-    {
-        moris::Matrix<moris::IndexMat> tSharedProcs;
-        mMeshData->get_processors_whom_share_entity(aVertexIndex,EntityRank::NODE,tSharedProcs);
-
-        return tSharedProcs;
-    }
-}
-
-moris::Matrix<moris::IdMat>
-Background_Mesh::get_vertices_sharing(moris::Matrix<moris::IndexMat> const & aVertexIndices) const
-{
-    moris::uint tNumVerts = aVertexIndices.numel();
-    moris::Matrix<moris::IdMat> tVerticesSharing(tNumVerts,par_size());
-    tVerticesSharing.fill(MORIS_ID_MAX);
-
-    // iterate through vertices
-    for(moris::uint  i = 0; i <tNumVerts; i++)
-    {
-        moris::Matrix<moris::IdMat> tVertexSharing = this->get_vertex_sharing(aVertexIndices(i));
-
-        if(tVertexSharing.numel() >0)
-        {
-            tVerticesSharing({i,i},{0,tVertexSharing.numel()-1}) = tVertexSharing.matrix_data();
-        }
-    }
-
-    return tVerticesSharing;
-}
 // ----------------------------------------------------------------------------------
 
 moris::Cell<moris::mtk::Vertex_XTK> const &
@@ -237,14 +199,13 @@ void
 Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    const & aNewNodeIds,
                                         Cell<moris_index>                    const & aNewNodeIndices,
                                         Cell<moris_index>                    const & aNewNodeOwningProc,
-                                        Cell<moris::Matrix< moris::IdMat  >> const & aNewNodeProcSharing,
                                         Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
 {
     // number of nodes prior to creating new ones
     moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
 
     // Batch create the new copied nodes in the mesh external data
-    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeOwningProc,aNewNodeProcSharing,aNewNodeCoordinates);
+    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeOwningProc,aNewNodeCoordinates);
 
     moris::uint tNumNewNodes = aNewNodeIds.size();
 
@@ -284,16 +245,13 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
     // get owners of existing nodes
     moris::Matrix<moris::IndexMat> tOwningProcs(aExistingNodeIndices.numel(),1);
 
-    moris::Cell<moris::Matrix<moris::IdMat>> tProcSharing(aExistingNodeIndices.numel());
-
     for(moris::uint i = 0; i < aExistingNodeIndices.numel(); i++)
     {
         tOwningProcs(i) = this->get_vertex_owner(aExistingNodeIndices(i));
-        tProcSharing(i) = this->get_vertex_sharing(aExistingNodeIndices(i));
     }
 
     // Batch create the new copied nodes in the mesh external data
-    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tOwningProcs,tProcSharing,tNewNodeCoords);
+    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tOwningProcs,tNewNodeCoords);
 
     moris::uint tNumNewNodes = aNewNodeIds.numel();
 
@@ -526,15 +484,14 @@ Background_Mesh::get_local_to_global_map(enum EntityRank aEntityRank) const
 {
     MORIS_ERROR(aEntityRank==EntityRank::NODE," This function is only implemented for node maps");
 
-    moris::Cell<moris::mtk::Vertex const *> tBackgroundVerts = mMeshData->get_all_vertices();
 
-    moris::uint tNumNodes = tBackgroundVerts.size();
+    moris::uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
 
     moris::Matrix<moris::IndexMat> tLocalToGlobalBM(1,tNumNodes);
 
     for(size_t i = 0; i<tNumNodes; i++)
     {
-        tLocalToGlobalBM(i) = tBackgroundVerts(i)->get_id();
+        tLocalToGlobalBM(i) = mMeshData->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
     }
 
     moris::Matrix<moris::IndexMat> const & tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();

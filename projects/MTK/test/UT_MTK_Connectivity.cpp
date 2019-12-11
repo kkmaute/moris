@@ -349,9 +349,6 @@ void check_normals(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, Matrix
 		Matrix< DDRMat > tFaceNormal = tCell.compute_outward_side_normal(i);
 
 		// Check face normal against expected vectors
-		moris::print(tFaceNormal,"Comp Face normal");
-		moris::print( aExpectedNormals[i] ," aExpectedNormals[i] ");
-
 		CHECK( all_true( aExpectedNormals[i] == tFaceNormal ) );
 	}
 }

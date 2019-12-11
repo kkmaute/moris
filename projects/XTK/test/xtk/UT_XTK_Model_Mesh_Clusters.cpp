@@ -40,7 +40,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-            tXTKModel.mVerbose = true;
+            tXTKModel.mVerbose  =  false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

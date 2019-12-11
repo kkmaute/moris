@@ -156,7 +156,7 @@ namespace xtk
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
             tXTKModel.mSameMesh = true;
-            tXTKModel.mVerbose = true;
+            tXTKModel.mVerbose  =  false;
 
             tXTKModel.set_HMR_mesh_ptr( tMesh );
 

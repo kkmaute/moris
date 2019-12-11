@@ -162,7 +162,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
          xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-         tXTKModel.mVerbose = true;
+         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -300,7 +300,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
          xtk::Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
          xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-         tXTKModel.mVerbose = true;
+         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};

@@ -36,8 +36,10 @@ class Cut_Mesh
 public:
     friend Model;
     Cut_Mesh(){};
-    Cut_Mesh(moris::uint aModelDim);
-    Cut_Mesh(moris::size_t aNumSimpleMesh,
+    Cut_Mesh(Model* aModel,
+             moris::uint aModelDim);
+    Cut_Mesh(Model* aModel,
+             moris::size_t aNumSimpleMesh,
              moris::size_t aModelDim);
     ~Cut_Mesh(){}
 
@@ -324,8 +326,37 @@ public:
     void
     setup_subphase_to_child_mesh_connectivity();
 
+
+    // assignment of subphase id functions
+    void
+    assign_subphase_ids();
+
+    void
+    setup_owned_shared_outward_subphase_id_communication(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
+                                                         Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
+                                                         Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets);
+
+    void
+    outward_communicate_subphase_ids(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
+                                     Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
+                                     Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets);
+
+    void
+    inward_receive_subphase_ids(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
+                                Cell<moris::Matrix<IdMat>> & aNotOwnedParentCellId,
+                                Cell<moris::Matrix<IdMat>> & aNumNotOwnedCellIdsOffsets);
+
+    void
+    assign_subphase_identifiers();
+
+
+
     Matrix<IndexMat> const &
     get_subphase_to_child_mesh_connectivity();
+
+
+    moris_id
+    get_subphase_id(moris_index aSubphaseIndex);
 
     uint
     get_bulk_phase_index(moris_index aSubPhaseIndex);
@@ -339,44 +370,31 @@ protected:
      * Tell cut mesh about groupings of its children meshes
      */
     void
-    add_child_mesh_groups(    Cell<Child_Mesh*>   & tOwnedNotSharedChildrenMeshes,
-                              Cell<Child_Mesh*>   & tOwnedSharedChildrenMeshes,
-                              Cell<Child_Mesh*>   & tNotOwnedSharedChildrenMeshes,
-                              Cell<Matrix<IdMat>> & tOwnedSharedOtherProcs,
-                              Cell<moris_id>      & tNotOwnedSharedOwningProc);
+    add_child_mesh_groups( Cell<Child_Mesh*>   & tOwnedChildrenMeshes,
+                           Cell<Child_Mesh*>   & tNotOwnedChildrenMeshes,
+                           Cell<moris_id>      & tNotOwnedOwningProc);
 
     /*!
      * Get the child meshes which are owned and not shared
      */
     Cell<Child_Mesh*> &
-    get_owned_not_shared_child_meshes();
-
-    /*!
-     * get the child meshes which are shared and owned
-     */
-    Cell<Child_Mesh*> &
-    get_owned_shared_child_meshes();
-
-    /*!
-     * For the meshes which are shared and owned,
-     * get the processors who share them
-     */
-    Cell<Matrix<IdMat>> &
-    get_owned_shared_child_meshes_sharing_procs();
+    get_owned_child_meshes();
 
     /*!
      * Get the child mesh which are not owned
      */
     Cell<Child_Mesh*> &
-    get_not_owned_shared_child_meshes();
+    get_not_owned_child_meshes();
 
     /*
      * Get the not owned children mesh owners
      */
     Cell<moris_id> &
-    get_not_owned_shared_child_owners();
+    get_not_owned_child_owners();
 
 private:
+    Model* mModel;
+
     // spatial dimension
     moris::uint mSpatialDim;
 
@@ -387,11 +405,9 @@ private:
 
 
     // Groupings of children meshes determined by parent cell information (pointers to the mChildrenMeshes data)
-    Cell<Child_Mesh*>   mOwnedNotSharedChildrenMeshes; /* All children meshes which are fully owned by this processor and not shared with another processor */
-    Cell<Child_Mesh*>   mOwnedSharedChildrenMeshes;    /* All children meshes which are shared with another processors and owned by this processor */
-    Cell<Child_Mesh*>   mNotOwnedSharedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
-    Cell<Matrix<IdMat>> mOwnedSharedOtherProcs;        /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
-    Cell<moris_id>      mNotOwnedSharedOwningProc;     /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
+    Cell<Child_Mesh*>   mOwnedChildrenMeshes;    /* All children meshes which are fully owned by this processor and not shared with another processor */
+    Cell<Child_Mesh*>   mNotOwnedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
+    Cell<moris_id>      mNotOwnedOwningProc;     /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
 
     // Interface elements
     Cell<Interface_Element> mInterfaceElements;

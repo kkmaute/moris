@@ -10,6 +10,7 @@
 
 // Standard Include
 #include <limits>
+#include <unordered_map>
 #include <mpi.h>
 #include <ctime>
 
@@ -75,8 +76,8 @@ public:
     bool mVerbose = false;
 
     // Forward declare the maximum value of moris::size_t and moris::real
-    moris::real REAL_MAX          = MORIS_REAL_MAX;
-    moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
+//    moris::real REAL_MAX          = MORIS_REAL_MAX;
+//    moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
 
     // friend classes
     friend class Enrichment;
@@ -243,7 +244,7 @@ public:
      * get spatial dimension of model
      */
     moris::uint
-    get_spatial_dim();
+    get_spatial_dim() const;
 
     /*!
      * returns the number of elements in the entire model
@@ -283,6 +284,13 @@ public:
 
     moris::Matrix<moris::IndexMat>
     get_element_to_subphase();
+
+    moris_id
+    get_subphase_id(moris_id aSubphaseIndex);
+
+    moris_index
+    get_subphase_index(moris_id aSubphaseId);
+
 
     //--------------------------------------------------------------------------------
 
@@ -347,8 +355,10 @@ private:
 
     // element to element neighborhood
     moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
-
     moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhase;
+
+    // local to global subphase map
+    std::unordered_map<moris::moris_id,moris::moris_index> mGlobalToLocalSubphaseMap;
 
 
     // Private Functions
@@ -391,42 +401,74 @@ private:
      * Parallel assignment of node request identifiers
      */
     void
-    assign_node_requests_identifiers(Decomposition_Data & tDecompData,
+    assign_node_requests_identifiers(Decomposition_Data & aDecompData,
                                      moris::moris_index   aMPITag);
 
     void
-    sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data & tDecompData,
-                                                  Cell<uint>         & aOwnedRequests,
-                                                  Cell<Cell<uint>>   & aSharedRequestFrom);
+    sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data                    & tDecompData,
+                                                  Cell<uint>                            & aOwnedRequests,
+                                                  Cell<Cell<uint>>                      & aNotOwnedRequests,
+                                                  Cell<uint>                            & aProcRanks,
+                                                  std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData);
 
     void
-    assign_node_requests_owned_identifiers_and_setup_send(Decomposition_Data & aDecompData,
-                                                          Cell<uint> const &       aOwnedRequest,
-                                                          Cell<Matrix<IndexMat>> & aSendData,
-                                                          moris::moris_id &        aNodeInd,
-                                                          moris::moris_id &        aNodeId);
+    assign_owned_request_identifiers(Decomposition_Data & aDecompData,
+                                     Cell<uint> const &       aOwnedRequest,
+                                     moris::moris_id &        aNodeInd,
+                                     moris::moris_id &        aNodeId);
 
-    void
-    outward_communicate_node_requests(Cell<Matrix<IndexMat>> & aSendData,
-                                      moris_index              aMPITag);
-
-    void
-    inward_receive_node_requests(Cell<Matrix<IndexMat>> & aReceiveData,
-                                 moris_index              aMPITag);
-
-    void
-    set_received_node_ids(Cell<Matrix<IndexMat>> & aReceiveData,
-                          Decomposition_Data &     aDecompData,
-                          moris::moris_id &        aNodeInd);
 
     /*!
-     * During the regular subdivision at the boundary of a processor mesh a hanging node can appear on a face. This happens if an element connected
-     * to a face on processor boundary is intersected but the element across the processor boundary is not. This function handles this case.
+     * Sets up the decomposition data request for node identifiers from owning proc
+     *
      */
     void
-    handle_hanging_nodes_in_reg_sub( Decomposition_Data & aDecompData,
-                                     moris::moris_id &    aNodeInd,
-                                     moris::moris_id &    aNodeId);
+    setup_outward_requests(Decomposition_Data              const & aDecompData,
+                           Cell<Cell<uint>>                const & aNotOwnedRequests,
+                           Cell<uint>                      const & aProcRanks,
+                           std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
+                           Cell<Matrix<IndexMat>>                & aSentRequests);
+
+    void
+    send_outward_requests(moris_index            const & aMPITag,
+                          Cell<uint>             const & aProcRanks,
+                          Cell<Matrix<IndexMat>> & aOutwardRequests);
+
+//    void
+//    assign_node_requests_owned_identifiers_and_setup_send(Decomposition_Data & aDecompData,
+//                                                          Cell<uint> const &       aOwnedRequest,
+//                                                          Cell<Matrix<IndexMat>> & aSendData,
+//                                                          moris::moris_id &        aNodeInd,
+//                                                          moris::moris_id &        aNodeId);
+
+    void
+    inward_receive_requests(moris_index            const & aMPITag,
+                            moris::uint                    aNumRows,
+                            Cell<Matrix<IndexMat>> &       aReceivedData,
+                            Cell<uint>             &       aProcRanksReceivedFrom);
+
+    void
+    prepare_request_answers( Decomposition_Data & aDecompData,
+                             Cell<Matrix<IndexMat>> const & aReceiveData,
+                             Cell<Matrix<IndexMat>>       & aReceivedRequestAnswers);
+
+    void
+    return_request_answers(  moris_index const & aMPITag,
+                             Cell<Matrix<IndexMat>> const & aRequestAnswers,
+                             Cell<uint>              const & aProcRanks);
+
+    void
+    inward_receive_request_answers(moris_index            const & aMPITag,
+                                   moris::uint            const & aNumRows,
+                                   Cell<uint>             const & aProcRanks,
+                                   Cell<Matrix<IndexMat>> &       aReceivedData);
+
+    void
+    handle_received_request_answers(Decomposition_Data & aDecompData,
+                                    Cell<Matrix<IndexMat>> const & aRequests,
+                                    Cell<Matrix<IndexMat>> const & aRequestAnswers,
+                                    moris::moris_id &    aNodeInd,
+                                    moris::moris_id &    aNodeId);
 
     /*
      * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
@@ -443,6 +485,23 @@ private:
      */
     void
     assign_child_element_identifiers();
+
+    void
+    prepare_child_element_identifier_requests(Cell<Cell<moris_id>>       & aNotOwnedChildMeshesToProcs,
+                                              Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
+                                              Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets,
+                                              Cell<uint >          & aProcRanks,
+                                              std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
+
+    void
+    prepare_child_cell_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+                                  Cell<Matrix<IndexMat>> & aReceivedParentCellNumChildren,
+                                  Cell<Matrix<IndexMat>> & aChildCellIdOffset);
+
+    void
+    handle_received_child_cell_id_request_answers( Cell<Cell<moris_index>> const & aChildMeshesInInNotOwned,
+                                                   Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
+                                                   moris::moris_id               & aCellId);
 
     /*!
      * Add children elements to local to global map
@@ -467,7 +526,7 @@ private:
      * setup cell id to index map
      */
     void
-    set_up_cell_glb_to_local_map();
+    setup_cell_glb_to_local_map();
 
     /*
     *
@@ -477,6 +536,30 @@ private:
     */
     void
     identify_local_subphase_clusters_in_child_meshes();
+
+    void
+    prepare_subphase_identifier_requests(Cell<Cell<moris_id>>       & aNotOwnedSubphasesToProcs,
+                                         Cell<Cell<moris_id>>       & aSubphaseCMIndices,
+                                         Cell<moris::Matrix<IdMat>> & aParentCellIds,
+                                         Cell<moris::Matrix<IdMat>> & aChildCellIds,
+                                         Cell<uint>                 & aProcRanks,
+                                         std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
+
+    void
+    prepare_subphase_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+                                Cell<Matrix<IndexMat>> & aFirstChildCellIds,
+                                Cell<Matrix<IndexMat>> & aSubphaseIds);
+
+    void
+    handle_received_subphase_id_request_answers( Cell<Cell<moris_index>>    const & aChildMeshesInNotOwned,
+                                                 Cell<Cell<moris_index>>    const & aCMSubphaseIndices,
+                                                 Cell<Matrix<IndexMat>>     const & aReceivedSubphaseIds);
+
+    void
+    assign_subphase_glob_ids();
+
+    void
+    setup_glob_to_loc_subphase_map();
 
 
     void
@@ -533,6 +616,11 @@ private:
                                          moris::Cell<std::string>           & aDesVarsName,
                                          moris::Matrix<moris::DDRMat>       & aNumDesVars,
                                          std::string                        & aNumDesVarsName) const;
+
+    void
+    extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
+                                        moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
+                                        moris::Cell<std::string>             & adxdpNames) const;
 
     // Enrichment computation functions -----------------------------------------------
 
@@ -680,42 +768,6 @@ private:
 
 
     // Internal Aura Construction ------------------------------------------------------
-    /*!
-     * Package up the elements in the aura
-     */
-    void
-    package_aura_block(Output_Options              const & aOutputOptions,
-                       Cell<std::string>                 & aAuraChildrenBlockNames,
-                       Cell<moris::Matrix<moris::IdMat>> & aAuraChildrenCellIdsByPhase,
-                       Cell<std::string>                 & aAuraNoChildrenBlockNames,
-                       Cell<moris::Matrix<moris::IdMat>> & aAuraNoChildrenCellIdsByPhase);
-
-    /*
-     * setup the block names
-     */
-    void
-    setup_aura_block_names(Output_Options              const & aOutputOptions,
-                           Cell<std::string>                 & aAuraChildrenBlockNames,
-                           Cell<std::string>                 & aAuraNoChildrenBlockNames);
-
-    /*
-     * place cells into aura blocks
-     */
-    void
-    setup_aura_cells_into_blocks(Output_Options              const & aOutputOptions,
-                                 Cell<std::string>                 & aAuraChildrenBlockNames,
-                                 Cell<moris::Matrix<moris::IdMat>> & aAuraChildrenCellIdsByPhase,
-                                 Cell<std::string>                 & aAuraNoChildrenBlockNames,
-                                 Cell<moris::Matrix<moris::IdMat>> & aAuraNoChildrenCellIdsByPhase);
-
-    moris_index
-    get_aura_block_index(Output_Options const & aOutputOptions,
-                         moris_index            aBulkPhase,
-                         moris_index            aProcessorRank,
-                         moris_index            aNumBulkPhases);
-
-
-
 
     /*
      * Returns the number of phases to output given the output options

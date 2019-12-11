@@ -175,6 +175,84 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
     }
 }
 
+template <typename Size_T_Matrix>
+inline
+void receive_col_known(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
+             size_t aNumCols,
+             int aSendingProc,
+             int aTag)
+{
+    // The number of rows is known but the number of columns depends on the sending message
+    // Need to probe
+    MPI_Status tStatus;
+    int tFlag = 0;
+    int tNumSent = 0;
+    MPI_Iprobe(aSendingProc, aTag, MPI_COMM_WORLD, &tFlag, &tStatus);
+
+    if(tStatus.MPI_ERROR==0)
+    {
+        MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
+
+
+        size_t tNumRows = tNumSent / aNumCols;
+
+        // Resize the matrix
+        aReceivingMatrix.resize(tNumRows, aNumCols);
+
+        MPI_Recv(aReceivingMatrix.data(), tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, MPI_COMM_WORLD, &tStatus);
+
+    }
+
+    else
+    {
+        std::cout<<"No message received! Expected from processor "<<aSendingProc<< " to " << moris::par_rank()<<std::endl;
+        aReceivingMatrix.resize(0,0);
+    }
+}
+
+inline
+moris::moris_id
+allocate_ids(moris::size_t aNumIdstoAllocate,
+             moris::size_t tStart = 1)
+{
+    int tProcRank = moris::par_rank();
+    int tProcSize = moris::par_size();
+
+    // size_t is defined as uint here because of aNumRequested
+    //Initialize gathered information outputs (information which will be scattered across processors)
+    moris::Cell<moris::moris_id> aGatheredInfo;
+    moris::Cell<moris::moris_id> tFirstId(1);
+    moris::Cell<moris::moris_id> tNumIdsRequested(1);
+
+    tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
+
+    xtk::gather(tNumIdsRequested,aGatheredInfo);
+
+    moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
+
+    moris::moris_id tFirstAvailableId = tStart;
+
+    if(tProcRank == 0)
+    {
+        // Loop over entities print the number of entities requested by each processor
+        for (int iProc = 0; iProc < tProcSize; ++iProc)
+        {
+            // Give each processor their desired amount of IDs
+            tProcFirstID(iProc) = tFirstAvailableId;
+
+            // Increment the first available node ID
+            tFirstAvailableId = tFirstAvailableId+aGatheredInfo(iProc);
+        }
+
+    }
+
+    xtk::scatter(tProcFirstID,tFirstId);
+
+
+    return tFirstId(0);
+}
+
+
 
 
 }

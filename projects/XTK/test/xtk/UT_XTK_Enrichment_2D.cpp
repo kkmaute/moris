@@ -112,7 +112,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -141,18 +141,15 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         // get the enriched meshes
         Enriched_Integration_Mesh   const & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        tEnrIntegMesh.print();
-        tEnrInterpMesh.print();
-
 
         // Check the basis to enriched basis table
         moris::Cell<moris::Matrix<moris::IndexMat>> tGoldCoeffToEnrCoeff(6);
-        tGoldCoeffToEnrCoeff(0) = {{0},{6},{7}};
-        tGoldCoeffToEnrCoeff(1) = {{1},{8},{9},{10}};
-        tGoldCoeffToEnrCoeff(2) = {{2},{11},{12},{13}};
-        tGoldCoeffToEnrCoeff(3) = {{3},{14},{15}};
-        tGoldCoeffToEnrCoeff(4) = {{4},{16},{17}};
-        tGoldCoeffToEnrCoeff(5) = {{5},{18},{19}};
+        tGoldCoeffToEnrCoeff(0) = {{0,1,2}};
+        tGoldCoeffToEnrCoeff(1) = {{3,4,5,6}};
+        tGoldCoeffToEnrCoeff(2) = {{7,8,9,10}};
+        tGoldCoeffToEnrCoeff(3) = {{11,12,13}};
+        tGoldCoeffToEnrCoeff(4) = {{14,15,16}};
+        tGoldCoeffToEnrCoeff(5) = {{17,18,19}};
 
         for(moris::uint i = 0; i < tEnrInterpMesh.get_num_background_coefficients(); i++)
         {
@@ -185,20 +182,13 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         // Expected interpolation vertices
         moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
-        tGoldInterpCoeff(0) = {{0,10,2,3}};
-        tGoldInterpCoeff(1) = {{6,1,11,14}};
-        tGoldInterpCoeff(2) = {{7,9,12,15}};
-        tGoldInterpCoeff(3) = {{1,4,5,11}};
-        tGoldInterpCoeff(4) = {{8,16,18,13}};
-        tGoldInterpCoeff(5) = {{ 9,17,19,12}};
+        tGoldInterpCoeff(0) = {{0,6,7,11}};
+        tGoldInterpCoeff(1) = {{1,3,8,12}};
+        tGoldInterpCoeff(2) = {{2,5,9,13}};
+        tGoldInterpCoeff(3) = {{3,14,17,8}};
+        tGoldInterpCoeff(4) = {{4,15,18,10}};
+        tGoldInterpCoeff(5) = {{ 5,16,19,9}};
 
-
-        tGoldCoeffToEnrCoeff(0) = {{0},{6},{7}};
-        tGoldCoeffToEnrCoeff(1) = {{1},{8},{9},{10}};
-        tGoldCoeffToEnrCoeff(2) = {{2},{11},{12},{13}};
-        tGoldCoeffToEnrCoeff(3) = {{3},{14},{15}};
-        tGoldCoeffToEnrCoeff(4) = {{4},{16},{17}};
-        tGoldCoeffToEnrCoeff(5) = {{5},{18},{19}};
         // iterate through cells and get cell clusters
         for(moris::uint i = 0; i < tCells.size() ; i++ )
         {
@@ -234,7 +224,6 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
                 tVertexInterpInds(j) = tIndices(0);
             }
-
             CHECK(all_true(tVertexInterpInds == tGoldInterpCoeff(i)));
         }
 

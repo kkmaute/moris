@@ -368,7 +368,7 @@ TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET
 
         // Create MORIS mesh using MTK database
         Mesh* tMeshWithSideSets = create_mesh( MeshType::STK, fileName2, NULL );
-        tMeshWithSideSets->mVerbose = true;
+        tMeshWithSideSets->mVerbose = false;
 
         moris::Cell<std::string> tGoldSideSetNames = {{"surface_1"},
                                                       {"surface_2"},
@@ -528,8 +528,6 @@ TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName3,EntityRank::ELEMENT)(0)==-11.0);
 
     // Verify Field numbers
-    std::cout<<"Mesh1->get_num_fields(EntityRank::NODE)  = "<<Mesh1->get_num_fields(EntityRank::NODE) <<std::endl;
-
     CHECK(Mesh1->get_num_fields(EntityRank::NODE) == 3); /*1 for coordinate field*/
     CHECK(Mesh1->get_num_fields(EntityRank::ELEMENT) == 1);
 

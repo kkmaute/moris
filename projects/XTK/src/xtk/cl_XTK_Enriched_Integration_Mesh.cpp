@@ -539,7 +539,7 @@ Enriched_Integration_Mesh::print_block_sets(moris::uint aVerbosityLevel) const
 }
 //------------------------------------------------------------------------------
 void
-Enriched_Integration_Mesh::print_side_sets() const
+Enriched_Integration_Mesh::print_side_sets(moris::uint aVerbosityLevel) const
 {
     std::cout<<"\nSide Sets:"<<std::endl;
     std::cout<<"    Num Side Sets: "<<this->get_num_side_sets()<<std::endl;
@@ -872,13 +872,11 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 // get child cell pointers
                 moris::Cell<moris::mtk::Cell const *> tChildCells = this->get_mtk_cells_loc_inds(tChildCellInds);
 
-                moris::Cell<moris_index> const & tSubPhaseIndidces = tChildMesh->get_subphase_indices();
-
                 // create a side cluster for each subphase in this child mesh
                 moris::Cell<xtk::Side_Cluster*> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
                 for(moris::uint  iSP = 0; iSP < tChildMesh->get_num_subphase_bins(); iSP++)
                 {
-                    MORIS_ASSERT(tEnrichedCellsOfBaseCell(iSP)->get_subphase_index() == tSubPhaseIndidces(iSP),"Enriched interpolation cell subphases associated with a base cell should be in ascending order.");
+                    MORIS_ASSERT(tEnrichedCellsOfBaseCell(iSP)->get_subphase_index() == tChildMesh->get_subphase_indices()(iSP),"Enriched interpolation cell subphases associated with a base cell should be in ascending order.");
 
                     tSideClustersForCM(iSP) = new Side_Cluster();
                     tSideClustersForCM(iSP)->mInterpolationCell = tEnrichedCellsOfBaseCell(iSP);
@@ -1015,8 +1013,6 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
         }
     }
     register_double_side_set_names(tDoubleInterfaceSideNames);
-
-    moris::print(mBulkPhaseToDblSideIndex,"mBulkPhaseToDblSideIndex");
 }
 
 moris_index
@@ -1121,8 +1117,6 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
             mDoubleSideSets(tDoubleSideSetIndex).push_back(tDblSideCluster);
 
         }
-
-        tChildMesh->print_double_sides_between_subphases(2);
 
         // remove from child mesh to not store twice
         tChildMesh->delete_double_sides_interface_sets();

@@ -92,7 +92,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
-        tMeshData->mVerbose = true;
+        tMeshData->mVerbose = false;
         std::string tMeshOutputFile2 = "./xtk_exo/xtk_cell_cluster_bm.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
@@ -109,7 +109,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose  = true;
+        tXTKModel.mVerbose  = false;
         /*
          * Decompose
          */

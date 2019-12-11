@@ -42,7 +42,6 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
     {
         std::string tPrefix = std::getenv("MORISROOT");
         std::string tMeshFileName = tPrefix + "projects/FEM/MDL/test/data/2_Blocks_1x2x1.g";
-        std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
 
         moris::mtk::Scalar_Field_Info<DDRMat> tNodeField;
         std::string tFieldName = "Temp_Field";

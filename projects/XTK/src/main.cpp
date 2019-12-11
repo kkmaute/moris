@@ -242,7 +242,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
 
           // setup the XTK model
           Model tXTKModel(3,tMeshData,tGeometryEngine);
-          tXTKModel.mVerbose = true;
+          tXTKModel.mVerbose  =  false;
 
           // decompose the mesh
           tOpTimer = std::clock();

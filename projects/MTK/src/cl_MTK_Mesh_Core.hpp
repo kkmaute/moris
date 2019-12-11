@@ -663,7 +663,7 @@ public:
      * @param[in]  - Entity Rank
      * @param[out] - Processors whom share an entity vector
      */
-    virtual
+//    virtual
     void
     get_processors_whom_share_entity(moris_index       aEntityIndex,
                                      enum EntityRank   aEntityRank,

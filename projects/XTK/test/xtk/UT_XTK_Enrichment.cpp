@@ -87,7 +87,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
-        tMeshData->mVerbose = true;
+        tMeshData->mVerbose = false;
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
@@ -106,7 +106,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
         /*
          * Decompose
          */
@@ -220,7 +220,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
-        tMeshData->mVerbose = true;
+        tMeshData->mVerbose = false;
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
@@ -239,7 +239,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose  = true;
+        tXTKModel.mVerbose  = false;
 
         /*
          * Decompose

@@ -648,6 +648,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             moris::Matrix< moris::IndexMat > tActiveElements({{0,1,2,3}});
             moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,4,1);
             moris::Matrix< moris::IndexMat > tElementPhase(1,4,0);
+            moris::moris_index  tMaxFloodFill = 0;
             moris::Matrix< moris::IndexMat > tElementSubphase =
             flood_fill( tChildMesh.get_element_to_element(),
                         tElementPhase,
@@ -655,6 +656,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
                         tIncludedElementMarker,
                         tNumPhases,
                         tMax,
+                        tMaxFloodFill,
                         true);
 
             moris::Matrix< moris::IndexMat > tExpElementSubphase(1,4,0);
@@ -830,6 +832,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             moris::Matrix< moris::IndexMat > tActiveElements({{0,1,2,3,4,5}});
             moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,6,1);
             moris::Matrix< moris::IndexMat > tElementPhase(1,6,0);
+            moris::moris_index  tMaxFloodFill = 0;
             moris::Matrix< moris::IndexMat > tElementSubphase =
             flood_fill( tChildMesh.get_element_to_element(),
                         tElementPhase,
@@ -837,6 +840,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
                         tIncludedElementMarker,
                         tNumPhases,
                         tMax,
+                        tMaxFloodFill,
                         true);
 
             moris::Matrix< moris::IndexMat > tExpElementSubphase(1,6,0);
@@ -991,14 +995,16 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,2,1);
         moris::Matrix< moris::IndexMat > tElementPhase(1,2,0);
 
+        moris::moris_index  tMaxFloodFill = 0;
         moris::Matrix< moris::IndexMat > tElementSubphase =
-                flood_fill( tChildMesh.get_element_to_element(),
-                            tElementPhase,
-                            tActiveElements,
-                            tIncludedElementMarker,
-                            tNumPhases,
-                            tMax,
-                            true);
+        flood_fill( tChildMesh.get_element_to_element(),
+                    tElementPhase,
+                    tActiveElements,
+                    tIncludedElementMarker,
+                    tNumPhases,
+                    tMax,
+                    tMaxFloodFill,
+                    true);
 
         moris::Matrix< moris::IndexMat > tExpElementSubphase(1,2,0);
         CHECK(equal_to(tExpElementSubphase,tElementSubphase));
@@ -1157,15 +1163,16 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         moris::Matrix< moris::IndexMat > tActiveElements({{0,1,2}});
         moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,3,1);
         moris::Matrix< moris::IndexMat > tElementPhase(1,3,0);
-
+        moris::moris_index  tMaxFloodFill = 0;
         moris::Matrix< moris::IndexMat > tElementSubphase =
-                flood_fill( tChildMesh.get_element_to_element(),
-                            tElementPhase,
-                            tActiveElements,
-                            tIncludedElementMarker,
-                            tNumPhases,
-                            tMax,
-                            true);
+        flood_fill( tChildMesh.get_element_to_element(),
+                    tElementPhase,
+                    tActiveElements,
+                    tIncludedElementMarker,
+                    tNumPhases,
+                    tMax,
+                    tMaxFloodFill,
+                    true);
 
         moris::Matrix< moris::IndexMat > tExpElementSubphase(1,3,0);
         CHECK(equal_to(tExpElementSubphase,tElementSubphase));
