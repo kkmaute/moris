@@ -301,6 +301,8 @@ namespace moris
             MORIS_ASSERT( false, "set_visualization_set(), not implemented for base clase" );
         }
 
+//------------------------------------------------------------------------------
+
         virtual void compute_quantitiy_of_interest( Matrix< DDRMat >      * aElementFieldValues,
                                                     Matrix< DDRMat >      * aNodalFieldValues,
                                                     moris::real           * aGlobalScalar,
