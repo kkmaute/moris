@@ -31,6 +31,10 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
+
+
+#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+
 using namespace moris;
 
 
@@ -100,9 +104,9 @@ namespace xtk
 
 
               // set  up the geometry/geometry engine
-              Discrete_Level_Set tLevelSetMesh(tMeshData,tScalarFieldNames);
-              Phase_Table        tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-              Geometry_Engine    tGEIn(tLevelSetMesh,tPhaseTable);
+              moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,tScalarFieldNames);
+              moris::ge::GEN_Phase_Table        tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+              moris::ge::GEN_Geometry_Engine    tGEIn(tLevelSetMesh,tPhaseTable);
               tGEIn.mComputeDxDp = true;
               tGEIn.mThresholdValue = 0.0;
               // Setup XTK Model -----------------------------
@@ -117,8 +121,8 @@ namespace xtk
               // compute sensitivities
               tXTKModel.compute_sensitivity();
 
-              Geometry_Engine const & tGEOut          = tXTKModel.get_geom_engine();
-              Background_Mesh       & tBackgroundMesh = tXTKModel.get_background_mesh();
+              moris::ge::GEN_Geometry_Engine const & tGEOut          = tXTKModel.get_geom_engine();
+              Background_Mesh & tBackgroundMesh = tXTKModel.get_background_mesh();
 
               // store the xtk computed derivative
               if( i == 0)

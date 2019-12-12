@@ -19,6 +19,10 @@ namespace moris
   {
   class Mesh_Manager
   {
+  private:
+      moris::Cell<Interpolation_Mesh*> mInterpolationMesh;
+      moris::Cell<Integration_Mesh*>   mIntegrationMesh;
+
   public:
 
       Mesh_Manager(){};
@@ -54,9 +58,7 @@ namespace moris
           return mIntegrationMesh(aMeshIndex);
       }
 
-  private:
-      moris::Cell<Interpolation_Mesh*> mInterpolationMesh;
-      moris::Cell<Integration_Mesh*>   mIntegrationMesh;
+
   };
 
 }

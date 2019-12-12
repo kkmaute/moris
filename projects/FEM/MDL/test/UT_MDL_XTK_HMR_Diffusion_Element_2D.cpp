@@ -31,9 +31,8 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -90,7 +89,8 @@ CircleFunc(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                    moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                    moris::Cell< fem::Field_Interpolator* > & aDvFI,
                                     fem::Geometry_Interpolator             * aGeometryInterpolator )
 {
     return aCoeff( 0 );
@@ -167,7 +167,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2 In 2D","[XTK_HM
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine,tModelDimension);
 //        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        // Do the cutting
 //        tXTKModel.decompose(tDecompositionMethods);
@@ -378,7 +378,16 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2 In 2D","[XTK_HM
 //        {
 //            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
 //            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-//
+// Model(       mtk::Mesh_Manager*                                                                 aMesh,
+//        const uint                                                                               aBSplineOrder,
+//        const moris::Cell< moris_index >                                                       & aSetList,
+//        const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
+//        const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
+//        const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
+//        const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
+//        const moris_index                                                                        aMeshPairIndex = 0,
+//        const bool                                                                               aUseMultigrid = false );
+
 //            tSTKIntegSol(i) = tIntegSol(tMyIndex);
 //        }
 //
@@ -470,7 +479,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model  With STK Lag Order 1 In 2D
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine,tModelDimension);
 //        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        // Do the cutting
 //        tXTKModel.decompose(tDecompositionMethods);

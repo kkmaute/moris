@@ -38,6 +38,10 @@
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere_Box.hpp"
 
 // select namespaces
 using namespace moris;
@@ -59,12 +63,12 @@ get_index_in_cell(Cell<std::string> & aLabels,
 }
 
 
-Geometry*
+moris::ge::GEN_Geometry*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
   enum Geometry_Type tGeomType = aXTKProblemParams.mGeometryType;
 
-  Geometry* tGeometry = nullptr;
+  moris::ge::GEN_Geometry* tGeometry = nullptr;
   switch (tGeomType)
   {
     case Geometry_Type::SPHERE:
@@ -93,7 +97,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
       tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
       moris::real tZc =aXTKProblemParams.mRealGeomParams(tPos);
 
-      tGeometry = new Sphere(tR,tXc,tYc,tZc);
+      tGeometry = new moris::ge::Sphere(tR,tXc,tYc,tZc);
 
       break;
 
@@ -130,7 +134,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
         tNormals(2) = aXTKProblemParams.mRealGeomParams(tPos);
 
-        tGeometry = new Plane<3>(tCenters,tNormals);
+        tGeometry = new moris::ge::Plane<3>(tCenters,tNormals);
 
         break;
     }
@@ -167,7 +171,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
         moris::real tNexp = aXTKProblemParams.mRealGeomParams(tPos);
 
-        tGeometry = new Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
+        tGeometry = new moris::ge::Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
 
         break;
     }
@@ -232,13 +236,15 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
          // setup the geometry
          //TODO: support multiple geometries
          tOpTimer = std::clock();
-         Geometry* tGeometry = geometry_parse_factory(aXTKProblemParams);
+         moris::ge::GEN_Geometry* tGeometry = geometry_parse_factory(aXTKProblemParams);
          tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
           // setup the geometry engine
           //TODO: support multiple geometries, and different phase tables
-          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
+//          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
+         moris::ge::GEN_Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
 
           // setup the XTK model
           Model tXTKModel(3,tMeshData,tGeometryEngine);

@@ -81,6 +81,8 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         Matrix< DDRMat > tSol;
         tNonlinearSolverManager1.get_full_solution( tSol );
 
+        print(tSol,"tSol");
+
         CHECK( equal_to( tSol( 0, 0 ), 0.03510531645, 1.0e+08 ) );
         CHECK( equal_to( tSol( 1, 0 ), 0.011710521925, 1.0e+08 ) );
         CHECK( equal_to( tSol( 2, 0 ), 0.036574625191, 1.0e+08 ) );

@@ -2146,6 +2146,7 @@ namespace moris
                 // collect all elements on this level
                 this->collect_elements_on_level_including_aura( l, tElementList );
 
+
                 // loop over all elements
                 for( Background_Element_Base* tElement : tElementList )
                 {

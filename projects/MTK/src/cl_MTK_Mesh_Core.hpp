@@ -29,6 +29,7 @@ class Lagrange_Mesh_Base;
 
 namespace mtk
 {
+class Set;
 class Mesh :  public std::enable_shared_from_this< Mesh >
 {
 protected:
@@ -89,6 +90,17 @@ public:
     uint
     get_num_entities(
             enum EntityRank aEntityRank) const = 0;
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by index
+     */
+    virtual moris::mtk::Set *
+    get_block_by_index( moris::uint aBlockIndex) const
+    {
+        MORIS_ASSERT( false ,"get_block_by_index(), not implemented for base class");
+        return nullptr;
+    };
 
     //------------------------------------------------------------------------------
     // end of pure virtual functions in section 1
@@ -507,6 +519,15 @@ public:
                                      Matrix< IndexMat > & aElementIndices )
     {
         MORIS_ERROR(0,"get_elements_in_support_of_basis not implemented");
+    }
+
+    virtual
+    void
+    get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+                                       const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                                             moris::Matrix< IndexMat > & aNodeIndices )
+    {
+        MORIS_ERROR(0,"get_nodes_in_bounding_box(), not implemented");
     }
 
     //------------------------------------------------------------------------------
@@ -1018,10 +1039,10 @@ public:
     Matrix< IndexMat >
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const
-                             {
+    {
         MORIS_ERROR(0," get_set_entity_loc_inds has no base implementation");
         return Matrix< IndexMat >(0,0);
-                             }
+    }
 
 
     /*
@@ -1179,6 +1200,16 @@ public:
             aCells(i) = &this->get_mtk_cell(aCellInds(i));
         }
     }
+
+//    virtual
+//    void get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+//                                            const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+//                                                  moris::Matrix< IndexMat > & aNodeIndices )
+//    {
+//         MORIS_ERROR(false, "get_nodes_indices_in_bounding_box(), not implemented for this mesh");
+//    }
+
+
 };
 }
 }

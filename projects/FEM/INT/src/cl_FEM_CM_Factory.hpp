@@ -44,7 +44,7 @@ namespace moris
         /**
          * create a constitutive model
          */
-        Constitutive_Model * create_CM( Constitutive_Type aConstitutiveType );
+        std::shared_ptr< Constitutive_Model > create_CM( Constitutive_Type aConstitutiveType );
 
 //------------------------------------------------------------------------------
     };

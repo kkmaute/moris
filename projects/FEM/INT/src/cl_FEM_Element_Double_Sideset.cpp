@@ -2,6 +2,7 @@
 
 #include "cl_FEM_Element_Double_Sideset.hpp" //FEM/INT/src
 #include "cl_FEM_Set.hpp"                    //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "fn_FEM_Rotation_Matrix.hpp"        //FEM/INT/src
 
 namespace moris
@@ -67,11 +68,9 @@ namespace moris
             // get number of field interpolator and properties for master and slave
             uint tMasterNumFI   = mSet->get_number_of_field_interpolators();
             uint tSlaveNumFI    = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
-            uint tMasterNumProp = mSet->get_number_of_properties();
-            uint tSlaveNumProp  = mSet->get_number_of_properties( mtk::Master_Slave::SLAVE );
 
             // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_IWGs();
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -108,21 +107,13 @@ namespace moris
                 // set evaluation point for master and slave field interpolator
                 for ( uint iFI = 0; iFI < tMasterNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolators( mtk::Master_Slave::MASTER )( iFI )->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER )
+                                                   ->set_space_time( tMasterGlobalIntegPoint );
                 }
                 for ( uint iFI = 0; iFI < tSlaveNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iFI )->set_space_time( tSlaveGlobalIntegPoint );
-                }
-
-                // reset properties
-                for ( uint iProp = 0; iProp < tMasterNumProp; iProp++ )
-                {
-                    mSet->get_properties()( iProp )->reset_eval_flags();
-                }
-                for ( uint iProp = 0; iProp < tSlaveNumProp; iProp++ )
-                {
-                    mSet->get_properties( mtk::Master_Slave::SLAVE )( iProp )->reset_eval_flags();
+                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mSlaveDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE )
+                                                   ->set_space_time( tMasterGlobalIntegPoint );
                 }
 
                 // compute the integration point weight // fixme both side?
@@ -135,19 +126,19 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
                     // set the normal for the IWG
-                    mSet->get_IWGs()( iIWG )->set_normal( tNormal );
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
                     // compute residual at integration point
-                    moris::Cell< Matrix< DDRMat > > tResidual;
-                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual );
+                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
 
-                    // add contribution to jacobian from evaluation point
-                    mSet->mResidual( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
-                                     { 0, 0 } ) += tWStar * tResidual( 0 );
-                    mSet->mResidual( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 1 ) },
-                                     { 0, 0 } ) += tWStar * tResidual( 1 );
+                    // compute jacobian at integration point
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
+
             }
 //            // print residual for check
 //            print( mSet->mResidual, " mResidual " );
@@ -193,11 +184,9 @@ namespace moris
             // get number of field interpolator and properties for master and slave
             uint tMasterNumFI   = mSet->get_number_of_field_interpolators();
             uint tSlaveNumFI    = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
-            uint tMasterNumProp = mSet->get_number_of_properties();
-            uint tSlaveNumProp  = mSet->get_number_of_properties( mtk::Master_Slave::SLAVE );
 
             // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_IWGs();
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -234,21 +223,15 @@ namespace moris
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tMasterNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolators()( iFI )->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER )
+                                                   ->set_space_time( tMasterGlobalIntegPoint );
+//                    mSet->get_field_interpolators()( iFI )->set_space_time( tMasterGlobalIntegPoint );
                 }
                 for ( uint iFI = 0; iFI < tSlaveNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolators( mtk::Master_Slave::SLAVE  )( iFI )->set_space_time( tSlaveGlobalIntegPoint );
-                }
-
-                // reset properties
-                for ( uint iProp = 0; iProp < tMasterNumProp; iProp++ )
-                {
-                    mSet->get_properties()( iProp )->reset_eval_flags();
-                }
-                for ( uint iProp = 0; iProp < tSlaveNumProp; iProp++ )
-                {
-                    mSet->get_properties( mtk::Master_Slave::SLAVE )( iProp )->reset_eval_flags();
+                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mSlaveDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE )
+                                                   ->set_space_time( tMasterGlobalIntegPoint );
+//                    mSet->get_field_interpolators( mtk::Master_Slave::SLAVE  )( iFI )->set_space_time( tSlaveGlobalIntegPoint );
                 }
 
                 // compute the integration point weight // fixme both side?
@@ -261,13 +244,14 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
                     // set the normal for the IWG
-                    mSet->get_IWGs()( iIWG )->set_normal( tNormal );
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
                     // compute residual at integration point
-                    moris::Cell< moris::Cell< Matrix< DDRMat > > > tJacobians;
-                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians );
-//                    print( tJacobians(0), "tJacobians" );
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
 
 //                    real tPerturbation = 1E-6;
 //                    Cell< Matrix< DDRMat > > tJacobiansFD;
@@ -276,21 +260,6 @@ namespace moris
 //                                                                   mSet->get_IWG_field_interpolators( mtk::Master_Slave::SLAVE )( iIWG ),
 //                                                                   tPerturbation );
 //                    print( tJacobiansFD(0), "tJacobiansFD" );
-
-                    // loop over the IWG active dof types
-                    uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_global_dof_type_list().size()
-                                    + mSet->get_IWGs()( iIWG )->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-                    for ( uint iIWGFI = 0; iIWGFI < tNumIWGDof; iIWGFI++ )
-                    {
-                        // add contribution to jacobian from evaluation point
-                        mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ),      mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
-                                         { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
-                                       += tWStar * tJacobians( 0 )( iIWGFI );
-
-                        mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 1 ) },
-                                         { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
-                                       += tWStar * tJacobians( 1 )( iIWGFI );
-                    }
                 }
             }
 //            // print jacobian for check

@@ -39,6 +39,8 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
         PetscInitializeNoArguments();
     }
 
+    moris::Cell< enum MSI::Dof_Type > tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
+
     // delete pointers if they already exist
     this->delete_pointers();
 
@@ -50,7 +52,7 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
 
     // create map object FIXME ask liner problem for map
     mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
-                                   aSolverInterface->get_my_local_global_map(),
+                                   aSolverInterface->get_my_local_global_map( tRequesedDofTypes ),
                                    aSolverInterface->get_constr_dof());
 
     // create map object FIXME ask liner problem for map
@@ -67,6 +69,7 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
     }
 
     //---------------------------arc-length vectors---------------------------------
+    //FIXME wrong map used. please fix
     mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
 
     mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
@@ -121,7 +124,12 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
+    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );       // FIXME delete
+    mDummyFullVector->vec_put_scalar( 0.0 );
+    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
+
     //---------------------------arc-length vectors---------------------------------
+    //FIXME wrong map used. please fix
     mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
     mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
@@ -191,6 +199,7 @@ Nonlinear_Problem::~Nonlinear_Problem()
     if( mIsMasterSystem )
     {
         delete( mFullVector );
+//        delete( mDummyFullVector );
 
         delete( mJacVals );
         delete( mJacVals0 );

@@ -8,6 +8,7 @@
 
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"   //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -46,12 +47,13 @@ namespace moris
                     uint tNumOfNodes = tVertices.size();
 
                     // assign node object
-                    mNodeObj.resize( tNumOfNodes, nullptr );
+                    mNodeObj.resize( 1 );
+                    mNodeObj( 0 ).resize( tNumOfNodes, nullptr );
 
                     // fill node objects
                     for( uint i = 0; i < tNumOfNodes; i++)
                     {
-                        mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+                        mNodeObj( 0 )( i ) = aNodes( tVertices( i )->get_index() );
                     }
 
                     // set size of Weak BCs
@@ -86,12 +88,13 @@ namespace moris
                     uint tNumOfNodes = tVertices.size();
 
                     // assign node object
-                    mNodeObj.resize( tNumOfNodes, nullptr );
+                    mNodeObj.resize( 1 );
+                    mNodeObj( 0 ).resize( tNumOfNodes, nullptr );
 
                     // fill node objects
                     for( uint i = 0; i < tNumOfNodes; i++)
                     {
-                        mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+                        mNodeObj( 0 )( i ) = aNodes( tVertices( i )->get_index() );
                     }
 
                     // set size of Weak BCs
@@ -132,26 +135,26 @@ namespace moris
                     moris::Cell< mtk::Vertex* > tSlaveVertices  = mSlaveInterpolationCell->get_vertex_pointers();
 
                     // get number of nodes from cell
-                    uint tNumOfNodes = tMasterVertices.size() + tSlaveVertices.size();
+                    uint tNumOfNodesMaster = tMasterVertices.size();
+                    uint tNumOfNodesSlave = tSlaveVertices.size();
 
                     // assign node object
-                    mNodeObj.resize( tNumOfNodes, nullptr );
+                    mNodeObj.resize( 2 );
+                    mNodeObj( 0 ).resize( tNumOfNodesMaster, nullptr );
+                    mNodeObj( 1 ).resize( tNumOfNodesSlave , nullptr );
 
                     // fill node objects
-                    uint tNodeCounter = 0;
-                    for( uint i = 0; i < tMasterVertices.size(); i++)
+                    for( uint Ik = 0; Ik < tNumOfNodesMaster; Ik++)
                     {
-                        mNodeObj( tNodeCounter ) = aNodes( tMasterVertices( i )->get_index() );
-                        tNodeCounter++;
+                        mNodeObj( 0 )( Ik ) = aNodes( tMasterVertices( Ik )->get_index() );
                     }
-                    for( uint i = 0; i < tSlaveVertices.size(); i++)
+                    for( uint Ik = 0; Ik < tNumOfNodesSlave; Ik++)
                     {
-                        mNodeObj( tNodeCounter ) = aNodes( tSlaveVertices( i )->get_index() );
-                        tNodeCounter++;
+                        mNodeObj( 1 )( Ik ) = aNodes( tSlaveVertices( Ik )->get_index() );
                     }
 
                     // set size of Weak BCs
-                    mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+                    mNodalWeakBCs.set_size( tNumOfNodesMaster, 1 );             // FIXME  replace this
 
                     // element factory
                     fem::Element_Factory tElementFactory;
@@ -250,8 +253,7 @@ namespace moris
             // init normal
             Matrix < DDRMat > tNormal;
 
-//FIXME: UNCOMMENT ONCE WE HAVE THE 2D NORMALS WORKING
-//            // if interpolation cell is linear
+            // if interpolation cell is linear
 //            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
 //            {
 //                // get normal from the mesh
@@ -295,46 +297,53 @@ namespace moris
         void Cluster::set_field_interpolators_coefficients()
          {
              // get number of master dof types
-             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
+//             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
 
              // loop on the master dof types
-             for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
+             for( uint iDOF = 0; iDOF < mSet->mMasterDofTypes.size(); iDOF++ )
              {
                  // get the ith dof type group
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
 
                  // get the pdof values for the ith dof type group
+                 Cell< Matrix< DDRMat > > tCoeff_Original;
                  Matrix< DDRMat > tCoeff;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
-                 // get number of coefficients for master
-                 uint tMasterNumCoeff = mSet->get_field_interpolators()( iDOF )->get_number_of_space_time_coefficients();
+                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
+
+                 // reshape tCoeffs into the order the cluster expects them
+                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+
+                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::MASTER )
+                                                ->set_coeff( tCoeff );
 
                  // set the field coefficients
-                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff( { 0, tMasterNumCoeff - 1 }, { 0, 0 } ) );
+//                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
              }
 
              // get number of slave dof types
-             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
+//             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
 
              // loop on the slave dof types
-             for( uint iDOF = 0; iDOF < tSlaveNumDofTypes; iDOF++ )
+             for( uint iDOF = 0; iDOF < mSet->mSlaveDofTypes.size(); iDOF++ )
              {
                  // get the ith dof type group
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
 
                  // get the pdof values for the ith dof type group
+                 Cell< Matrix< DDRMat > > tCoeff_Original;
                  Matrix< DDRMat > tCoeff;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
-                 // get total number of coefficients
-                 uint tNumCoeff = tCoeff.numel();
+                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
-                 // get number of coefficients for slave
-                 uint tSlaveNumCoeff = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_space_time_coefficients();
+                 // reshape tCoeffs into the order the cluster expects them
+                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+
+                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::SLAVE )
+                                                ->set_coeff( tCoeff );
 
                  // set the field coefficients
-                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff( { tNumCoeff - tSlaveNumCoeff, tNumCoeff - 1 }, { 0, 0 } ) );
+//                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
              }
          }
 
@@ -355,7 +364,7 @@ namespace moris
              }
 
              //Fixme do this only once
-             this->get_my_pdof_values();
+             this->compute_my_pdof_values();
 
              // init the jacobian //fixme still ok?
              mSet->initialize_mJacobian();
@@ -363,12 +372,17 @@ namespace moris
              // set the field interpolators coefficients
              this->set_field_interpolators_coefficients();
 
+             // FIXME should not be like this
+             mSet->set_IWG_field_interpolators();
+             mSet->set_IWG_geometry_interpolators();
+
              // loop over the elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
                  // compute the jacobian for the element
                  mElements( iElem )->compute_jacobian();
              }
+//             print( mSet->mJacobian,"Jacobian");
          }
 
 //------------------------------------------------------------------------------
@@ -387,7 +401,7 @@ namespace moris
             }
 
             //Fixme do this only once
-            this->get_my_pdof_values();
+            this->compute_my_pdof_values();
 
             // init the residual
             mSet->initialize_mResidual();
@@ -395,12 +409,17 @@ namespace moris
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolators();
+            mSet->set_IWG_geometry_interpolators();
+
             // loop over the elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
                 // compute the residual for the element
                 mElements( iElem )->compute_residual();
             }
+//            print( mSet->mResidual,"Residual");
         }
 
 //------------------------------------------------------------------------------
@@ -419,7 +438,7 @@ namespace moris
              }
 
              //Fixme do this only once
-             this->get_my_pdof_values();
+             this->compute_my_pdof_values();
 
              // init the jacobian
              mSet->initialize_mJacobian();
@@ -429,6 +448,10 @@ namespace moris
 
              // set the field interpolators coefficients
              this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IWG_field_interpolators();
+             mSet->set_IWG_geometry_interpolators();
 
              // loop over the elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
@@ -456,6 +479,7 @@ namespace moris
             // return cluster volume value
             return tClusterVolume;
         }
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

@@ -30,6 +30,15 @@ namespace MSI
         UNDEFINED, //< Undefined
         END_ENUM//
     };
+
+    enum class Dv_Type
+    {
+        LS1,        //< Level set 1
+        LS2,        //< Level set 2
+        DENSITY,    //< Density
+        UNDEFINED, //< Undefined
+        END_ENUM//
+    };
 }
 }
 

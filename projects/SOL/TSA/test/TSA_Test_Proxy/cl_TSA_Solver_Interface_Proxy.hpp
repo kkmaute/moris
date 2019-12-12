@@ -40,6 +40,7 @@ namespace tsa
         moris::sint mNY;
 
         moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
+        Cell< moris::Cell< enum MSI::Dof_Type > > mListSecundaryOfDofTypes;
 
         moris::real mk = 2;
         Matrix< DDRMat> mT;
@@ -74,6 +75,16 @@ namespace tsa
            mListOfDofTypes = aListOfDofTypes;
         };
 
+        moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+        {
+           return mListOfDofTypes;
+        };
+
+        void set_secundary_dof_types( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+        {
+            mListSecundaryOfDofTypes = aListOfDofTypes;
+        };
+
         // local dimension of the problem
         uint get_max_num_global_dofs(){ return 1; };
 
@@ -86,8 +97,18 @@ namespace tsa
         // local-to-global map
         Matrix< DDSMat > get_my_local_global_map()
         {
-                mMyGlobalElements.resize(1,1);
-                mMyGlobalElements(0,0)=0;
+            mMyGlobalElements.resize(1,1);
+            mMyGlobalElements(0,0)=0;
+
+            return mMyGlobalElements;
+        };
+
+        // ----------------------------------------------------------------------------------------------
+        // local-to-global map
+        moris::Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes )
+        {
+            mMyGlobalElements.resize(1,1);
+            mMyGlobalElements(0,0)=0;
 
             return mMyGlobalElements;
         };

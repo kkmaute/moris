@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp"
+#include "cl_FEM_Set.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
@@ -9,96 +11,110 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-
-        IWG_Isotropic_Spatial_Diffusion_Dirichlet::IWG_Isotropic_Spatial_Diffusion_Dirichlet()
-        {
-            // FIXME set a penalty
-            mGamma = 1.0;
-        }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( real tWStar )
         {
+#ifdef DEBUG
             // check field interpolators, properties, constitutive models
-            this->check_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
+#endif
 
-            // compute flux
-            Matrix< DDRMat > tFlux;
-            mMasterCM( 0 )->eval_flux( tFlux );
+            // get index for a given dof type
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // compute conductivity matrix
-            Matrix< DDRMat > tK;
-            mMasterCM( 0 )->eval_const( tK );
+            // get field interpolatopr for a given dof type
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get SP, CM, property indices
+            uint tDirichletIndex  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
+            uint tNitscheIndex    = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
 
             // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
 
-            // set residual size
-            this->set_residual( aResidual );
+            // get start and end indices for residual assembly
+            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tFlux, mNormal )
-                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * tJump
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
+            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
+                 + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
+                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tJump ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( real tWStar )
         {
+#ifdef DEBUG
             // check field interpolators, properties, constitutive models
-            this->check_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
+#endif
 
-//            // compute flux
-//            Matrix< DDRMat > tFlux;
-//            mMasterCM( 0 )->eval_flux( tFlux );
+            // get index for a residual dof type
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // compute conductivity matrix
-            Matrix< DDRMat > tK;
-            mMasterCM( 0 )->eval_const( tK );
+            // get field interpolator for residual dof type
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get SP, CM, property indices
+            uint tDirichletIndex  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
+            uint tNitscheIndex    = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
 
             // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
+            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
 
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterFI( 0 )->N()
-                                 + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+            if ( mResidualDofTypeRequested )
+            {
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                += (   mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFI->N()
+                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) * tWStar;
+            }
 
             // compute the jacobian for indirect dof dependencies through properties
-            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
+                // get the dof type
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                // get index for the df type
+                uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
+
                 // if dependency on the dof type
-                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                if ( mMasterProp( tDirichletIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) )
-                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                    += ( -1.0 * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
+                         - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType ) ) * tWStar;
                 }
 
                 // if dependency on the dof type
-                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
-                    // evaluate stress derivative
-                    Matrix< DDRMat > tdFlux;
-                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFlux );
-
-                    // evaluate constitutive matrix derivative
-                    Matrix< DDRMat > tdK;
-                    mMasterCM( 0 )->eval_dConstdDOF( mMasterGlobalDofTypes( iDOF ), tdK );
-
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdFlux
-                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tdK * tJump( 0 ) ;
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                    += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
+                         + mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ) * tWStar;
+                }
+
+                // if dependency on the dof type
+                if ( mStabilizationParam( tNitscheIndex )->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution to jacobian
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                    += ( trans( tFI->N() ) * tJump( 0 ) * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
                 }
             }
         }
@@ -107,67 +123,7 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // check field interpolators, properties, constitutive models
-            this->check_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
-
-            // compute flux
-            Matrix< DDRMat > tFlux;
-            mMasterCM( 0 )->eval_flux( tFlux );
-
-            // compute conductivity matrix
-            Matrix< DDRMat > tK;
-            mMasterCM( 0 )->eval_const( tK );
-
-            // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-
-            // set residual size
-            this->set_residual( aResidual );
-
-            // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tFlux, mNormal )
-                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * tJump
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
-
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
-
-            // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterFI( 0 )->N()
-                                 + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
-
-            // compute the jacobian for indirect dof dependencies through properties
-            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
-            {
-                // if dependency on the dof type
-                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
-                {
-                    // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) )
-                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
-                }
-
-                // if dependency on the dof type
-                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
-                {
-                    // evaluate stress derivatives
-                    Matrix< DDRMat > tdFlux;
-                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFlux );
-
-                    // evaluate constitutive matrix derivatives
-                    Matrix< DDRMat > tdK;
-                    mMasterCM( 0 )->eval_dConstdDOF( mMasterGlobalDofTypes( iDOF ), tdK );
-
-                    // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdFlux
-                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tdK * tJump( 0 ) ;
-                }
-            }
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

@@ -29,6 +29,8 @@ using namespace ge;
 
 TEST_CASE("Finite_Difference_Checks_01","[moris],[GE],[FD_on_circle]")
 {
+if(par_size()<=1)
+{
         /*
          * Steps for FD check:
          *  (1) at initial configuration, compute and store:
@@ -234,8 +236,9 @@ TEST_CASE("Finite_Difference_Checks_01","[moris],[GE],[FD_on_circle]")
 //        std::string tOutputFile = "./ge_finite_diff_ut.exo";
 //        tInterpMesh1->create_output_mesh(tOutputFile);
         // clean up
-        delete tInterpMesh1;
+        //delete tInterpMesh1;
         delete tIntegMesh1;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -244,6 +247,8 @@ TEST_CASE("Finite_Difference_Checks_01","[moris],[GE],[FD_on_circle]")
 
 TEST_CASE("Finite_Difference_Checks_02","[moris],[GE],[FD_on_sphere]")
 {
+    if(par_size()<=1)
+    {
         uint aNumElemTypes = 1;     // hex
         uint aNumDim = 3;           // specify number of spatial dimensions
 
@@ -323,6 +328,7 @@ TEST_CASE("Finite_Difference_Checks_02","[moris],[GE],[FD_on_sphere]")
         Matrix< DDRMat > tGlobalPos(2,3);
         tGlobalPos.get_row( 0 ) = tGeom->get_my_mesh()->get_integration_mesh( 0 )->get_node_coordinate( 0 ).get_row(0);
         tGlobalPos.get_row( 1 ) = tGeom->get_my_mesh()->get_integration_mesh( 0 )->get_node_coordinate( 1 ).get_row(0);
+
         Matrix< DDRMat > tTHat = {{0},
                                   {1}};
         Matrix< DDRMat > tUHat = {{ tLSVals(0) },
@@ -393,13 +399,13 @@ TEST_CASE("Finite_Difference_Checks_02","[moris],[GE],[FD_on_sphere]")
         REQUIRE( tdXGamma_dphi_FD(0,0) == Approx(tdXGamma_dphi(1,0)));
         REQUIRE( tdXGamma_dphi_FD(0,1) == Approx(tdXGamma_dphi(1,1)));
         //------------------------------------------------------------------------------
-        //TODO add test for dxgamma/dp
 
 //        std::string tOutputFile = "./ge_finite_diff_ut.exo";
 //        tInterpMesh1->create_output_mesh(tOutputFile);
         // clean up
-        delete tInterpMesh1;
+        //delete tInterpMesh1;
         delete tIntegMesh1;
+    }
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

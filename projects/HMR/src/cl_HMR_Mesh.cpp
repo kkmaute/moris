@@ -722,12 +722,23 @@ namespace moris
         {
 
             mMesh->get_my_elements_in_basis_support( aMeshIndex, aBasisIndex, aElementIndices );
-
         }
+
+//-------------------------------------------------------------------------------
+
         uint
         Mesh::get_num_basis_functions(const uint aMeshIndex)
         {
             return mMesh->get_bspline_mesh(aMeshIndex)->get_number_of_indexed_basis();
+        }
+
+//-------------------------------------------------------------------------------
+
+        void Mesh::get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+                                                      const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                                                            moris::Matrix< IndexMat > & aNodeIndices )
+        {
+            mMesh->calculate_nodes_indices_in_bounding_box( aPoint, aBoundingBoxSize, aNodeIndices );
         }
 
 //-----------------------------------------------------------------------------

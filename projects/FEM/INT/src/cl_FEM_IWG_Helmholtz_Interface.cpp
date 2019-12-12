@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Helmholtz_Interface.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "fn_trans.hpp"
 
@@ -23,7 +25,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Helmholtz_Interface::compute_residual( real tWStar )
         {
             // set the field interpolator
             Field_Interpolator* vN = mMasterFI( 0 );
@@ -31,16 +33,17 @@ namespace moris
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
 
-            // set residual size
-            this->set_residual( aResidual );
+
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the residual
-            aResidual( 0 ) = - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal;
+            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+                    += - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal * tWStar;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Helmholtz_Interface::compute_jacobian( real tWStar )
         {
             // set the field interpolator
             Field_Interpolator* vN = mMasterFI( 0 );
@@ -48,11 +51,12 @@ namespace moris
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
 
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the jacobian
-            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->Bx();
+            mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                    += - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->dnNdxn( 1 ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
@@ -60,23 +64,23 @@ namespace moris
         void IWG_Helmholtz_Interface::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set the field interpolator
-            Field_Interpolator* vN = mMasterFI( 0 );
-
-            //FIXME set the interface normal
-            Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
-
-            // set resiaul size
-            this->set_residual( aResidual );
-
-            // compute the residual
-            aResidual( 0 ) = - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal;
-
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
-
-            // compute the residual
-            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->Bx();
+//            // set the field interpolator
+//            Field_Interpolator* vN = mMasterFI( 0 );
+//
+//            //FIXME set the interface normal
+//            Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
+//
+//            // set resiaul size
+//            this->set_residual( aResidual );
+//
+//            // compute the residual
+//            aResidual( 0 ) = - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal;
+//
+//            // set the jacobian size
+//            this->set_jacobian( aJacobians );
+//
+//            // compute the residual
+//            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->dnNdxn( 1 );
         }
 
 //------------------------------------------------------------------------------

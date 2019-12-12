@@ -1404,8 +1404,8 @@ Child_Mesh::setup_template_interface_facets(Mesh_Modification_Template & aMeshMo
         enum EntityRank tFacetRank = this->get_facet_rank();
 
         // current index
-        moris::Matrix<moris::IndexMat> * tParentFacetOrds;
-        moris::Matrix<moris::DDSTMat> * tParentFacetRanks;
+        moris::Matrix<moris::IndexMat> * tParentFacetOrds = nullptr;
+        moris::Matrix<moris::DDSTMat> * tParentFacetRanks = nullptr;
         if(tFacetRank == EntityRank::FACE)
         {
             tParentFacetOrds =  & aMeshModTemplate.mNewParentFaceOrdinals;

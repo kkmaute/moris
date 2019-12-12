@@ -31,7 +31,7 @@ namespace ge
     public:
         /*
          * The constructor will require a {geom_rep,mesh} pair and will create the initial information table
-         * which can then be adjusted (e.g. if additional vertices are added).
+         * (if told to) which can then be adjusted (e.g. if additional vertices are added).
          */
         PDV_Info(std::shared_ptr< Geometry > & aGeomPointer,
                                   moris_index  aMyMeshIndex = 0,
@@ -56,6 +56,13 @@ namespace ge
             return mIsInitialized;
         }
         //------------------------------------------------------------------------------
+        /*
+         * @brief reinitialize the data tables
+         *
+         * @param[in] aGeomPointer - pointer to the geometry object
+         * @param[in] aSubIndex    - index of the sub-geometry type within the given geometry pointer
+         *
+         */
         void reinitialize_data_table( std::shared_ptr< Geometry > & aGeomPointer, moris_index aSubIndex )
         {
             this->initialize_data_tables( aGeomPointer, aSubIndex );
@@ -125,11 +132,11 @@ namespace ge
 
             if( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC )
             {
-                MORIS_ASSERT( mMyGeomRep->check_if_sensitivity_function_is_set( aSubIndex ),"ge::Nodal_Info::get_field_vals() - analytic sensitivity function not set " );
+                MORIS_ASSERT( mMyGeomRep->check_if_sensitivity_function_is_set( aSubIndex ),"ge::PDV_Info::get_field_vals() - analytic sensitivity function not set " );
             }
 
             auto tCellItt = mMyMap.find(aNodeIndex);
-            MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
+            MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::PDV_Info::get_field_vals() - requested index not valid " );
             return mMyNodalSensitivities(aSubIndex)( tCellItt->second );
         };
 
@@ -171,7 +178,7 @@ namespace ge
             }
 
             auto tCellItt = mMyMap.find(aNodeIndex);
-            MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
+            MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::PDV_Info::get_field_vals() - requested index not valid " );
             return mMyNodalNormals( tCellItt->second );
         };
         //------------------------------------------------------------------------------
@@ -189,7 +196,7 @@ namespace ge
                 this->initialize_data_tables( mMyGeomRep, aSubIndex );
             }
 
-            MORIS_ASSERT( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC, "ge::Nodal_Info::add_vertex_and_value(): currently only set up for analytic geometry type " );
+            MORIS_ASSERT( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC, "ge::PDV_Info::add_vertex_and_value(): currently only set up for analytic geometry type " );
 
             //fixme tNewInd == end of map
             moris_index tNewInd = aVertex.get_index();
@@ -224,7 +231,7 @@ namespace ge
             }
             default :
             {
-                MORIS_ERROR( false, "Nodal_Info::add_vertex_and_value(): geometry type not supported " );
+                MORIS_ERROR( false, "PDV_Info::add_vertex_and_value(): geometry type not supported " );
                 break;
             }
 
@@ -273,7 +280,7 @@ namespace ge
         Matrix< DDRMat > get_intersection_sensitivity( Intersection_Object* aIntersectionObject,
                                                        moris_index          aWhichIntersection = 0 )
         {
-            MORIS_ASSERT( aIntersectionObject->get_field_sens_vals_cell().size() > (uint)aWhichIntersection, "ge::Nodal_Info::get_intersection_sensitivity() - sensitivity values have not been calculated or the intersection index is out of bounds " );
+            MORIS_ASSERT( aIntersectionObject->get_field_sens_vals_cell().size() > (uint)aWhichIntersection, "ge::PDV_Info::get_intersection_sensitivity() - sensitivity values have not been calculated or the intersection index is out of bounds " );
             return aIntersectionObject->get_field_sensitivity_vals( aWhichIntersection );
         }
         //------------------------------------------------------------------------------
@@ -293,12 +300,6 @@ namespace ge
         {
             Matrix<DDRMat> tdxgamma_dphi   = this->get_intersection_sensitivity( aIntersectionObject, aWhichIntersection );
             Cell< Matrix<DDRMat> >tdphi_dp = this->get_sensitivity_vals(  );
-//
-//print( tdxgamma_dphi,"tdxgamma_dphi" );
-//print( tdphi_dp(0),"tdphi_dp(0)" );
-//print( tdphi_dp(1), "tdphi_dp(1)" );
-//print( tdphi_dp(2), "tdphi_dp(2)" );
-//print( tdphi_dp(3), "tdphi_dp(3)" );
 
             Matrix<DDRMat> tdxgamma_dp(1,1);
             for(uint i=0; i<tdxgamma_dphi.n_rows(); ++i)
@@ -336,7 +337,7 @@ namespace ge
             {
                 mMyMap[n] = aGeomPointer->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_index();
             }
-            //fixme get_number_of_sub_types() is set up for the analytic types, need to implement in the other geom rep types
+            //fixme get_number_of_sub_types() is set up for analytic, SDF types, need to implement in discrete type
             mMyNodalFieldVals.set_size( tNumNodes, aGeomPointer->get_number_of_sub_types() );
 
             mMyNodalSensitivities.resize( aGeomPointer->get_number_of_sub_types() );
@@ -345,6 +346,7 @@ namespace ge
             {
                 mMyNodalSensitivities(i).resize( tNumNodes, moris::Matrix<DDRMat>(0,0) );
             }
+
             uint tLength = aGeomPointer->get_number_of_sub_types();
             for( uint i=0; i<tLength; ++i )
             {
@@ -374,14 +376,14 @@ namespace ge
                 {
                     for (uint n=0; n<aNumNodes; ++n)
                     {
-                        mMyNodalFieldVals( n,aSubIndex ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_coords() );
+                        mMyNodalFieldVals( n,aSubIndex ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_coords(), aSubIndex );
                     }
                 }
                 break;
             }
             case(GeomType::DISCRETE) :
             {
-                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_val_table(): mapper for DISCRETE geom type is only set for an hmr mesh right now" );
+                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "PDV_Info::create_node_val_table() - mapper for DISCRETE geom type is only set for an hmr mesh right now" );
                 /*
                  * terminology is kind of confusing:
                  *  *mMyGeomRep->get_target_field() gives the target field to map
@@ -391,13 +393,13 @@ namespace ge
                 // default is to map from a node field to a B-spline field, this can be changed if necessary
                 tMyMapper.perform_mapping( mMyGeomRep->get_my_target_field()->get_label(), EntityRank::NODE, mMyGeomRep->get_my_output_field()->get_label(), mMyGeomRep->get_my_output_field()->get_bspline_rank() );
 
-                //fixme: get_coefficients() returns a matrix of values, need to incorporate these into the nodal value table somehow...
+                //fixme: get_coefficients() returns a matrix of values, need to incorporate these into the node value table somehow...
                 mMyNodalFieldVals = mMyGeomRep->get_my_output_field()->get_coefficients();
                 break;
             }
             case(GeomType::SDF) :
             {
-                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_val_tables():  currently only set for hmr meshes" );
+                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR, "PDV_Info::create_node_val_tables() - currently only set for hmr meshes" );
 
                 for(uint n=0; n<aNumNodes; ++n)
                 {
@@ -407,7 +409,7 @@ namespace ge
             }
             default :
             {
-                MORIS_ERROR( false, "Nodal_Info::create_node_val_table(): geometry type not supported " );
+                MORIS_ERROR( false, "PDV_Info::create_node_val_table() - geometry type not supported " );
             }
 
             }
@@ -460,12 +462,12 @@ namespace ge
                     mMyNodalSensitivities( aSubIndex)(n) = tZeros;
                 }
 
-                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_sensitivity_tables():  currently only set for hmr meshes" );
+                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "PDV_Info::create_node_sensitivity_tables() - currently only set for hmr meshes" );
                 break;
             }
             default :
             {
-                MORIS_ASSERT( false, "Nodal_Info::create_node_sensitivity_table(): geometry type not supported " );
+                MORIS_ASSERT( false, "PDV_Info::create_node_sensitivity_table() - geometry type not supported " );
             }
 
             }
@@ -480,7 +482,7 @@ namespace ge
         //fixme needs to be implemented
         void create_node_normals_table()
         {
-            MORIS_ASSERT(false, "ge::Nodal_Info::create_nodal_normals_table(): not implemented...yet ");
+            MORIS_ASSERT(false, "ge::PDV_Info::create_nodal_normals_table() - not implemented...yet ");
         };
         //------------------------------------------------------------------------------
         std::shared_ptr< Geometry > mMyGeomRep;

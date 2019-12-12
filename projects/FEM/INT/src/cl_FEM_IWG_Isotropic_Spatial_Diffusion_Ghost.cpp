@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"
+#include "cl_FEM_Set.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
@@ -12,39 +14,65 @@ namespace moris
 //------------------------------------------------------------------------------
         IWG_Isotropic_Spatial_Diffusion_Ghost::IWG_Isotropic_Spatial_Diffusion_Ghost()
         {
-            // FIXME set a penalty
-            mGammaGhost = 1.0;
+            // set size for the stabilization parameter pointer cell
+            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // FIXME set mesh parameter
-            // Mesh parameter or parameters which it depends on must be fed to IWG from outside
-            mMeshParameter = 1;
-
-            // FIXME set order of Shape functions
-            // Order must be fed to IWG from outside
-            mOrder = 3;
-
+            // populate the stabilization map
+            mStabilizationMap[ "GhostDisplOrder1" ] = IWG_Stabilization_Type::GHOST_DISPL_1;
+            mStabilizationMap[ "GhostDisplOrder2" ] = IWG_Stabilization_Type::GHOST_DISPL_2;
+            mStabilizationMap[ "GhostDisplOrder3" ] = IWG_Stabilization_Type::GHOST_DISPL_3;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( real aWStar )
         {
+#ifdef DEBUG
+            // check master and slave field interpolators
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
+
+            // get the master field interpolator for the residual dof type
+            Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get the slave field interpolator for the residual dof type
+            Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // FIXME the order should be set differently
+            switch ( tFIMaster->get_space_interpolation_order() )
+            {
+                case( mtk::Interpolation_Order::LINEAR ):
+                {
+                    mOrder = 1;
+                    break;
+                }
+                case( mtk::Interpolation_Order::QUADRATIC ):
+                {
+                    mOrder = 2;
+                    break;
+                }
+                case( mtk::Interpolation_Order::CUBIC ):
+                {
+                    mOrder = 3;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    break;
+                }
+            }
+
             // check, if order is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
 
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // get master index for residual dof type
+            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
-            // set residual cell size
-            this->set_residual_double( aResidual );
+            // get slave index for residual dof type
+            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
             // loop over the interpolation order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -53,36 +81,74 @@ namespace moris
                  Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
 
                  // premultiply common terms
-                 Matrix< DDRMat > tPreMultiply = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 )      // coefficients
+                 Matrix< DDRMat > tPreMultiply = mStabilizationParam( iOrder - 1 )->val()( 0 )                                                         // penalty
                                                * trans( tNormalMatrix ) * tNormalMatrix                                // normals
-                                               * ( mMasterFI( 0 )->gradx( iOrder ) - mSlaveFI( 0 )->gradx( iOrder ) ); // jump in iOrder order spatial gradient
+                                               * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ); // jump in iOrder order spatial gradient
 
-                 // compute master and slave residuals
-                 aResidual( 0 ).matrix_data() +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply;
-                 aResidual( 1 ).matrix_data() += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply;
+                 // compute master residual
+                 mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
+                 +=   trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * aWStar;
+
+                 // compute slave residual
+                 mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
+                 += - trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply* aWStar;
             }
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian( real aWStar )
         {
+
+#ifdef DEBUG
+            // check master and slave field interpolators
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
+
+            // get the master field interpolator for residual dof type
+            Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get the slave field interpolator for residual dof type
+            Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // FIXME the order should be set differently
+            switch ( tFIMaster->get_space_interpolation_order() )
+            {
+                case( mtk::Interpolation_Order::LINEAR ):
+                {
+                    mOrder = 1;
+                    break;
+                }
+                case( mtk::Interpolation_Order::QUADRATIC ):
+                {
+                    mOrder = 2;
+                    break;
+                }
+                case( mtk::Interpolation_Order::CUBIC ):
+                {
+                    mOrder = 3;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    break;
+                }
+            }
+
             // check, if order is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian - Ghost stabilization for this order not supported yet. " );
 
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // get master index for residual dof type
+            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
+            // get slave dof for residual dof type
+            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
-            // set the jacobian cell size
-            this->set_jacobian_double( aJacobians );
+            // get number of master dependencies
+            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // loop over the interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -91,14 +157,59 @@ namespace moris
                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
 
                 // premultiply common terms
-                Matrix< DDRMat > tPreMultiply = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 ) // coefficients
-                                              * trans( tNormalMatrix ) * tNormalMatrix;                          // normals
+                Matrix< DDRMat > tPreMultiply = mStabilizationParam( iOrder - 1 )->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix;
 
-                // compute Jacobian
-                aJacobians( 0 )( 0 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply        * mMasterFI( 0 )->dnNdxn( iOrder );
-                aJacobians( 0 )( 1 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * -1.0 * mSlaveFI( 0 )->dnNdxn( iOrder );
-                aJacobians( 1 )( 0 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply        * mMasterFI( 0 )->dnNdxn( iOrder );
-                aJacobians( 1 )( 1 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply * -1.0 * mSlaveFI( 0 )->dnNdxn( iOrder );
+                // compute Jacobian direct dependencies
+                if ( mResidualDofTypeRequested )
+                {
+                    // dRM/dM
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) } )
+                    +=   trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * tFIMaster->dnNdxn( iOrder ) * aWStar;
+
+                    // dRM/dS
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) } )
+                    += - trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * tFISlave->dnNdxn( iOrder ) * aWStar;
+
+                    // dRS/dM
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) } )
+                    += - trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply * tFIMaster->dnNdxn( iOrder ) * aWStar;
+
+                    // dRS/dS
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) } )
+                    +=   trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply * tFISlave->dnNdxn( iOrder ) * aWStar;
+                }
+
+                // compute the jacobian for indirect dof dependencies through master properties
+                for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+                {
+                    // get the dof type
+                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                    // get the index for the dof type
+                    sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+
+                    // if dependency on the dof type
+                    if ( mStabilizationParam( iOrder - 1 )->check_dof_dependency( tDofType ) )
+                    {
+                        // premultiply common terms
+                        Matrix< DDRMat > tPreMultiply2 = trans( tNormalMatrix ) * tNormalMatrix
+                                                         * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) )
+                                                         * mStabilizationParam( iOrder - 1 )->dSPdMasterDOF( tDofType );
+
+                        // add contribution to jacobian
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                        +=   trans( tFIMaster->dnNdxn( iOrder ) )  * tPreMultiply2 * aWStar;
+
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                        += - trans( tFISlave->dnNdxn( iOrder ) ) * tPreMultiply2 * aWStar;
+                    }
+                }
             }
         }
 
@@ -106,52 +217,7 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                    moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // check, if order is supported
-            MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
-
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
-
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
-            // set residual cell size
-            this->set_residual_double( aResidual );
-
-            // set the jacobian cell size
-            this->set_jacobian_double( aJacobians );
-
-            // loop over interpolation orders
-            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
-            {
-                 // get normal matrix
-                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
-
-                 // premultiply common terms
-                 Matrix< DDRMat > tPreMultiplyRes = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 )      // coefficients
-                                                  * trans( tNormalMatrix ) * tNormalMatrix                                // normals
-                                                  * ( mMasterFI( 0 )->gradx( iOrder ) - mSlaveFI( 0 )->gradx( iOrder ) ); // jump in iOrder order spatial gradient
-
-                 // compute master and slave residuals
-                 aResidual( 0 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiplyRes;
-                 aResidual( 1 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiplyRes;
-
-                 // premultiply common terms
-                 Matrix< DDRMat > tPreMultiplyJac = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 ) // coefficients
-                                                  * trans( tNormalMatrix ) * tNormalMatrix;                          // normals
-
-                 // compute master and slave Jacobian
-                 aJacobians( 0 )( 0 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiplyJac        * mMasterFI( 0 )->dnNdxn( iOrder );
-                 aJacobians( 0 )( 1 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiplyJac * -1.0 * mSlaveFI( 0 )->dnNdxn( iOrder );
-                 aJacobians( 1 )( 0 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiplyJac        * mMasterFI( 0 )->dnNdxn( iOrder );
-                 aJacobians( 1 )( 1 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiplyJac * -1.0 * mSlaveFI( 0 )->dnNdxn( iOrder );
-            }
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
@@ -160,100 +226,159 @@ namespace moris
             // init the normal matrix
             Matrix< DDRMat > tNormalMatrix;
 
+            // get spatial dimensions
+            uint tSpaceDim = mNormal.numel();
+
             // switch on the ghost order
             switch( aOrderGhost )
             {
                 case ( 1 ):
                 {
-                    return tNormalMatrix = trans( mNormal );
+                    switch ( tSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            tNormalMatrix = trans( mNormal );
+                            break;
+                        }
+                        case ( 3 ):
+                        {
+                            tNormalMatrix = trans( mNormal );
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            break;
+                        }
+                    }
                     break;
                 }
 
                 case ( 2 ):
                 {
-                    // set the normal matrix size
-                    tNormalMatrix.set_size( 3, 6, 0.0 );
+                    switch ( tSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 2, 3, 0.0 );
 
-                    // fill the normal matrix
-                    tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 1 ) = mNormal( 1 );
-                    tNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            // fill the normal matrix
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
 
-                    tNormalMatrix( 0, 3 ) = mNormal( 1 );
-                    tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            tNormalMatrix( 0, 2 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 2 ) = mNormal( 0 );
 
-                    tNormalMatrix( 1, 3 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 5 ) = mNormal( 2 );
+                            break;
+                        }
+                        case ( 3 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 3, 6, 0.0 );
 
-                    tNormalMatrix( 2, 4 ) = mNormal( 1 );
-                    tNormalMatrix( 2, 5 ) = mNormal( 0 );
+                            // fill the normal matrix
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            tNormalMatrix( 2, 2 ) = mNormal( 2 );
 
-                    return tNormalMatrix;
+                            tNormalMatrix( 1, 3 ) = mNormal( 2 );
+                            tNormalMatrix( 2, 3 ) = mNormal( 1 );
+
+                            tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            tNormalMatrix( 2, 4 ) = mNormal( 0 );
+
+                            tNormalMatrix( 0, 5 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 5 ) = mNormal( 0 );
+
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            break;
+                        }
+                    }
                     break;
                 }
 
                 case ( 3 ):
                 {
-                    // set the normal matrix size
-                    tNormalMatrix.set_size( 6, 10, 0.0 );
+                    switch ( tSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 3, 4, 0.0 );
 
-                    tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 1 ) = mNormal( 1 );
-                    tNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
 
-                    tNormalMatrix( 0, 3 ) = mNormal( 1 );
-                    tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            tNormalMatrix( 0, 2 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 3 ) = mNormal( 0 );
 
-                    tNormalMatrix( 1, 5 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 6 ) = mNormal( 2 );
+                            real tSqrtOf2 = std::sqrt( 2 );
 
-                    tNormalMatrix( 2, 7 ) = mNormal( 0 );
-                    tNormalMatrix( 2, 8 ) = mNormal( 1 );
+                            tNormalMatrix( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
 
-                    real tSqrtOf2 = std::sqrt( 2 );
+                            break;
+                        }
+                        case ( 3 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 6, 10, 0.0 );
 
-                    tNormalMatrix( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
-                    tNormalMatrix( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
-                    tNormalMatrix( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            tNormalMatrix( 2, 2 ) = mNormal( 2 );
 
-                    tNormalMatrix( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
-                    tNormalMatrix( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
-                    tNormalMatrix( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 0, 3 ) = mNormal( 1 );
+                            tNormalMatrix( 0, 4 ) = mNormal( 2 );
 
-                    tNormalMatrix( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
-                    tNormalMatrix( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
-                    tNormalMatrix( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
+                            tNormalMatrix( 1, 5 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 6 ) = mNormal( 2 );
 
-                    return tNormalMatrix;
+                            tNormalMatrix( 2, 7 ) = mNormal( 0 );
+                            tNormalMatrix( 2, 8 ) = mNormal( 1 );
+
+                            real tSqrtOf2 = std::sqrt( 2 );
+
+                            tNormalMatrix( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
+                            tNormalMatrix( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+
+                            tNormalMatrix( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
+                            tNormalMatrix( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
+                            tNormalMatrix( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+
+                            tNormalMatrix( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
+                            tNormalMatrix( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
+
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            break;
+                        }
+                    }
                     break;
                 }
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - \n"
-                                        "Ghost stabilization for this order not supported yet." );
-                    return tNormalMatrix;
+                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - order not supported." );
                     break;
                 }
             }
+
+            return tNormalMatrix;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order ( uint aOrder )
-        {
-            // check that the order is supported
-            MORIS_ERROR( aOrder < 4 , "IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order - \n"
-                                      "Ghost stabilization for this order not supported yet." );
-            // set the order
-            mOrder = aOrder;
-        }
-
-//------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::set_penalty_factor ( real aGamma )
-        {
-            mGammaGhost = aGamma;
-        }
-
 //        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
 //        {
 //            // check, if order of shape functions is supported

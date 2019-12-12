@@ -142,7 +142,7 @@ namespace xtk
 
                 default:
                 {
-                    std::cout<<"Unhandled phase table structure";
+                    MORIS_ASSERT(0,"Unhandled phase table structure");
                     return 0;
                     break;
                 }

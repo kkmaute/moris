@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 
@@ -30,7 +32,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Helmholtz_Bulk2::compute_residual( real tWStar )
         {
             // set field interpolator
             Field_Interpolator* vN  = mMasterFI( 0 );
@@ -56,17 +58,17 @@ namespace moris
                 tDiracFilter = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
             }
 
-            // set residual size
-            this->set_residual( aResidual );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the residual
-            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
+            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+                         += ( mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
+                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter  ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Helmholtz_Bulk2::compute_jacobian( real tWStar )
         {
             // set field interpolator
             Field_Interpolator* vN  = mMasterFI( 0 );
@@ -79,7 +81,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -92,23 +94,23 @@ namespace moris
 
             // compute Dirac filter and derivative wrt phi / norm( phi )
             real tDiracFilter = 0.0;
-            real tDDiracFilter = 0.0;
+//            real tDDiracFilter = 0.0;
             if ( phi->val()( 0 ) < 3 * mHe )
             {
                 real tTanh = std::tanh( mSharpParam * phi->val()( 0 ) / tNormPhi );
                 tDiracFilter  = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
-                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
+//                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
             }
 
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
-
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             // compute the jacobian j_vN_vN
-            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
+            mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                    += mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 ) + trans( vN->N() ) * vN->N() * tDiracFilter * tWStar;
 
-            // compute the jacobian j_vN_phi
-            aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
-                                 * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            // compute the jacobian j_vN_phi //FIXME
+//            aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
+//                                 * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------
@@ -116,54 +118,54 @@ namespace moris
         void IWG_Helmholtz_Bulk2::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* vN  = mMasterFI( 0 );
-            Field_Interpolator* phi = mMasterFI( 1 );
-
-            //FIXME set unfiltered velocity value
-            uint tVNBases = vN->get_number_of_space_time_bases();
-            uint tVNFields = vN->get_number_of_fields();
-            Matrix< DDRMat > aVHat( tVNBases, tVNFields, 1.0 );
-
-            // compute norm( phi ) and derivative wrt phiHat
-            real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
-
-            // If all values of level set in this element are the same,
-            // then gradient is zero, protect from going to NAN/inf
-            if( tNormPhi < 1.0e-12 )
-            {
-                tNormPhi = 1.0e-12;
-                uint tNPhiCoeff = phi->get_number_of_space_time_coefficients();
-                tDNormPhiDPhiHat.set_size( tNPhiCoeff, 1, 0.0 );
-            }
-
-            // compute Dirac filter and derivative wrt phi / norm( phi )
-            real tDiracFilter = 0.0;
-            real tDDiracFilter = 0.0;
-            if ( phi->val()( 0 ) < 3 * mHe )
-            {
-                real tTanh = std::tanh( mSharpParam * phi->val()( 0 ) / tNormPhi );
-                tDiracFilter  = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
-                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
-            }
-
-            // set residual size
-            this->set_residual( aResidual );
-
-            // compute the residual r_vN
-            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
-
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
-
-            // compute the jacobian j_vN_vN
-            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
-
-           // compute the jacobian j_vN_phi
-           aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
-                               * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+//            // set field interpolator
+//            Field_Interpolator* vN  = mMasterFI( 0 );
+//            Field_Interpolator* phi = mMasterFI( 1 );
+//
+//            //FIXME set unfiltered velocity value
+//            uint tVNBases = vN->get_number_of_space_time_bases();
+//            uint tVNFields = vN->get_number_of_fields();
+//            Matrix< DDRMat > aVHat( tVNBases, tVNFields, 1.0 );
+//
+//            // compute norm( phi ) and derivative wrt phiHat
+//            real tNormPhi                     = norm( phi->gradx( 1 ) );
+//            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
+//
+//            // If all values of level set in this element are the same,
+//            // then gradient is zero, protect from going to NAN/inf
+//            if( tNormPhi < 1.0e-12 )
+//            {
+//                tNormPhi = 1.0e-12;
+//                uint tNPhiCoeff = phi->get_number_of_space_time_coefficients();
+//                tDNormPhiDPhiHat.set_size( tNPhiCoeff, 1, 0.0 );
+//            }
+//
+//            // compute Dirac filter and derivative wrt phi / norm( phi )
+//            real tDiracFilter = 0.0;
+//            real tDDiracFilter = 0.0;
+//            if ( phi->val()( 0 ) < 3 * mHe )
+//            {
+//                real tTanh = std::tanh( mSharpParam * phi->val()( 0 ) / tNormPhi );
+//                tDiracFilter  = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
+//                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
+//            }
+//
+//            // set residual size
+//            this->set_residual( aResidual );
+//
+//            // compute the residual r_vN
+//            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
+//                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
+//
+//            // set the jacobian size
+//            this->set_jacobian( aJacobians );
+//
+//            // compute the jacobian j_vN_vN
+//            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 ) + trans( vN->N() ) * vN->N() * tDiracFilter;
+//
+//           // compute the jacobian j_vN_phi
+//           aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
+//                               * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------

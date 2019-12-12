@@ -31,9 +31,9 @@ TEST_CASE( "moris::find_unique", "[linalgebra],[find_unique]" )
 
         Matrix< DDNIMat > C = find_unique(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 0 ) );
-        REQUIRE( moris::equal_to( C(1,0), 2 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 0 );
+        REQUIRE( C(1,0) == 2 );
+        REQUIRE( C(2,0) == 4 );
     }
     SECTION( "find unique values of uint col vector" )
     {
@@ -48,9 +48,9 @@ TEST_CASE( "moris::find_unique", "[linalgebra],[find_unique]" )
 
         Matrix< DDNIMat > C = find_unique(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 0 ) );
-        REQUIRE( moris::equal_to( C(1,0), 2 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 0 );
+        REQUIRE( C(1,0) == 2 );
+        REQUIRE( C(2,0) == 4 );
     }
 
     SECTION( "find unique values of real row vector" )
@@ -66,9 +66,9 @@ TEST_CASE( "moris::find_unique", "[linalgebra],[find_unique]" )
 
         Matrix< DDNIMat > C = find_unique(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 0 ) );
-        REQUIRE( moris::equal_to( C(1,0), 2 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 0 );
+        REQUIRE( C(1,0) == 2 );
+        REQUIRE( C(2,0) == 4 );
     }
 
     SECTION( "find unique values of real col vector" )
@@ -84,11 +84,9 @@ TEST_CASE( "moris::find_unique", "[linalgebra],[find_unique]" )
 
         Matrix< DDNIMat > C = find_unique(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 0 ) );
-        REQUIRE( moris::equal_to( C(1,0), 2 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 0 );
+        REQUIRE( C(1,0) == 2 );
+        REQUIRE( C(2,0) == 4 );
     }
-
-
     }
 }

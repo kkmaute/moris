@@ -53,9 +53,6 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
 {
     if(par_size() == 1 )
     {
-        //std::cout<<" Create a 3D mesh of HEX8 "<<std::endl;
-        // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-
         // Define the Interpolation Mesh
         std::string tInterpString = "generated:1x1x1";
 
@@ -85,31 +82,11 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
 
         //std::cout<<" Create the IWGs "<<std::endl;
         // Create the IWGs -----------------------------------------------------------
-
-        // input a cell of IWG types to be created
-        Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HJTEST };
-
-        // number of IWGs to be created
-        uint tNumOfIWGs = tIWGTypeList.size();
-
-        // a factory to create the IWGs
+        // create a L2 IWG
         fem::IWG_Factory tIWGFactory;
-
-        // create a cell of IWGs for the problem considered
-        moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
-
-        // loop over the IWG types
-        for( uint iIWG = 0; iIWG < tNumOfIWGs; iIWG++)
-        {
-            // create an IWG with the factory for the ith IWG type
-            tIWGs( iIWG ) = tIWGFactory.create_IWGs( tIWGTypeList( iIWG ) );
-
-            // set residual dof type
-            tIWGs( iIWG )->set_residual_dof_type( { MSI::Dof_Type::LS1 } );
-
-            // set active dof type
-            tIWGs( iIWG )->set_dof_type_list( {{ MSI::Dof_Type::LS1 }} );
-        }
+        std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::HJTEST );
+        tIWG->set_residual_dof_type( { MSI::Dof_Type::LS1 } );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::LS1 }}, mtk::Master_Slave::MASTER );
 
         //std::cout<<" Create the elements "<<std::endl;
         // Create the elements -------------------------------------------------------
@@ -120,19 +97,16 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // get the mesh set from the integration mesh
         moris::mtk::Set * tMeshSet = tIntegMesh->get_block_by_index( 0 );
 
-        // create a property user defined info storage
-        moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
-
-        // create a constitutive user defined info storage
-        moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
+        // define set info
+         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+         tSetInfo( 0 ).set_mesh_index( 0 );
+         tSetInfo( 0 ).set_set_type( fem::Element_Type::BULK );
+         tSetInfo( 0 ).set_IWGs( { tIWG } );
 
         // create a set
-        tFEMSets( 0 ) = new fem::Set( tMeshSet,
-                                     fem::Element_Type::BULK,
-                                     tIWGs,
-                                     tPropertyUserDefinedInfo,
-                                     tConstitutiveUserDefinedInfo,
-                                     tNodes );
+         tFEMSets( 0 ) = new fem::Set( tMeshSet,
+                                       tSetInfo( 0 ),
+                                       tNodes );
 
         //std::cout<<" Create the model solver interface "<<std::endl;
         // Create the model solver interface -----------------------------------------
@@ -185,19 +159,13 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // Clean up -----------------------------------------------------------------
 
         // delete mesh pointer
-        delete tInterpMesh;
+        //delete tInterpMesh;
         delete tIntegMesh;
 
         // delete node pointers
         for( fem::Node_Base* tNode : tNodes )
         {
             delete tNode;
-        }
-
-        // delete IWG pointers
-        for( fem::IWG* tIWG : tIWGs )
-        {
-            delete tIWG;
         }
 
         // delete model solver interface pointer

@@ -6,12 +6,46 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+	additional/cl_GEN_Interpolation.hpp
+	additional/cl_GEN_Basis_Function.hpp
+	additional/cl_GEN_Edge_Topology.hpp
+	additional/cl_GEN_Enums.hpp
+	additional/cl_GEN_Hexahedron_8_Topology.hpp
+	additional/cl_GEN_Hexahedron_8_Basis_Function.hpp
+	additional/cl_GEN_Linear_Basis_Functions.hpp
+	additional/cl_GEN_Matrix_Base_Utilities.hpp
+	additional/cl_GEN_Pending_Node.hpp
+	additional/cl_GEN_Phase_Table.hpp
+	additional/cl_GEN_Quad_4_Basis_Function.hpp
+	additional/cl_GEN_Quad_4_Topology.hpp
+	additional/cl_GEN_Topology.hpp
+	additional/fn_GEN_approximatate.hpp
+	additional/fn_GEN_bubble_sort.hpp
+	
+	field/cl_GEN_Field.hpp
+	field/cl_GEN_Field_User_Defined.hpp
+	field/cl_GEN_Field_Factory.hpp
+    
+	geomeng/cl_GEN_Enums.hpp
+	geomeng/cl_GEN_Geometry_Engine.hpp
+	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
+	geomeng/cl_GEN_Geometry_Object.hpp
+	geomeng/fn_GEN_triangle_geometry.hpp
+	
+	geometry/fn_bounding_box.hpp
+	geometry/cl_GEN_Circle.hpp
+	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
+	geometry/cl_GEN_Discrete_Level_Set.hpp
+	geometry/cl_GEN_Geometry.hpp
+	geometry/cl_GEN_Geom_Data.hpp
+	geometry/cl_GEN_Geom_Field.hpp
+	geometry/cl_GEN_Sphere.hpp
+	
 	cl_GE_Analytic.hpp
 	cl_GE_Core.hpp
 	cl_GE_Discrete.hpp
 	cl_GE_Element.hpp
 	cl_GE_Enums.hpp
-	cl_GE_Factory.cpp
 	cl_GE_Factory.hpp
 	cl_GE_Geometry_Library.hpp
 	cl_GE_Geometry.hpp
@@ -20,9 +54,25 @@ set(HEADERS
 	cl_GE_Main.hpp
 	cl_GE_Nodal_Info.hpp
 	cl_GE_Node.hpp
+	cl_GE_Property.hpp
 	cl_GE_SDF.hpp
+	
+    )
+    
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "field"
+    "geomeng"
+    "geometry"
     )
 
+# Include depedency directories
+foreach(GEN_INCLUDE ${GEN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDE})
+endforeach()
+
+include_directories(${MORIS_PACKAGE_DIR}/GEN/include)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 
@@ -33,9 +83,10 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-	${LINALG}-lib
 	${COM}-lib
+# 	${GEN}-lib
 	${INT}-lib
+	${LINALG}-lib
 	${MAP}-lib
 	${SDF}-lib
     )

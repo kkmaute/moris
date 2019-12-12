@@ -19,8 +19,6 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-
 #include "cl_Matrix.hpp"        //LINALG
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
@@ -83,8 +81,6 @@ namespace moris
                 tMeshModelHelper.mColorListSideSet.resize( 2 );
 
                 tMeshModelHelper.compute_unique_node_lists();
-
-
 
                 delete tInterpMesh;
                 delete tIntegMesh;

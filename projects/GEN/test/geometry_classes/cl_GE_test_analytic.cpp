@@ -7,6 +7,7 @@
 
 #include "catch.hpp"
 
+#include "HDF5_Tools.hpp"
 //------------------------------------------------------------------------------
 // FEM includes
 #include "cl_FEM_Enums.hpp"
@@ -24,6 +25,7 @@
 #include "cl_Matrix.hpp"
 #include "fn_all_true.hpp"
 #include "fn_equal_to.hpp"
+#include "fn_norm.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 
@@ -36,6 +38,12 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "cl_MTK_Vertex.hpp"
+
+// HMR includes
+#include "cl_HMR.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
+#include "HMR_Globals.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -155,24 +163,34 @@ TEST_CASE("analytic_functionalities_test_01","[GE],[analytic_functionalities_2D]
             tPDVInfo->add_vertex_and_value( tNewNode, tSubIndex );
 
             Matrix< DDRMat > tNodeVal = tGeometryEngine.get_field_vals( tMyGeomIndex,tNewNode.get_index(), tSubIndex );
-            print( tNodeVal, "tNodaVal" );
             REQUIRE( tNodeVal(0,0) == Approx( 0.1071 ) );
 
             //------------------------------------------------------------------------------
             /*
              * ------------------------------------------------------------
-             * 4) determine the intersection points along edges [1] and [4]
+             * 4) determine the inters
+
+             * ection points along edges [1] and [4].36 m
              * ------------------------------------------------------------
              */
 
             // edge [1]:
-            Matrix< DDRMat > tGlobalPos = {{0,0},{1,0}};    // edge [1] goes form (0,0) to (1,0)
+            Matrix< DDRMat > tGlobalPos = {{0,0},
+                                           {1,0}};    // edge [1] goes form (0,0) to (1,0)
             Matrix< DDRMat > tTHat = {{0},{1}};
             Matrix< DDRMat > tUHat = {{ tLSVals(0) },{ tLSVals(1) }};
 
             Intersection_Object_Line tIntersectionObject;
 
             tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
+            /*
+             * tPDVInfo->check_for_intersection( &tIntersectionObject );
+             *      flag inside the tIntersectionObject telling if it is intersected or not
+             *
+             * moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+             *      first check the intersection flag, if it is intersected, then continue
+             */
+
             moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
 
             Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
@@ -192,10 +210,6 @@ TEST_CASE("analytic_functionalities_test_01","[GE],[analytic_functionalities_2D]
              * check determined values
              * --------------------------------------------------------
              */
-//            CHECK( equal_to( tLSVals(0)(0,0), -0.60 ) );
-//            CHECK( equal_to( tLSVals(1)(0,0),  0.40 ) );
-//            CHECK( equal_to( tLSVals(2)(0,0),  (std::sqrt(2)-0.6)) );
-//            CHECK( equal_to( tLSVals(3)(0,0),  0.40 ) );
             CHECK( equal_to( tLSVals(0), -0.60 ) );
             CHECK( equal_to( tLSVals(1),  0.40 ) );
             CHECK( equal_to( tLSVals(2),  (std::sqrt(2)-0.6)) );
@@ -230,13 +244,15 @@ TEST_CASE("analytic_functionalities_test_01","[GE],[analytic_functionalities_2D]
 //            std::string tOutputFile = "./analytic_functionalities_2D.exo";
 //            tInterpMesh1->create_output_mesh(tOutputFile);
             // clean up
-            delete tInterpMesh1;
+            //delete tInterpMesh1;
             delete tIntegMesh1;
 
-        }
+        }   // end analytic_functionalities_2D
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+
 TEST_CASE("analytic_functionalities_test_02","[GE],[analytic_functionalities_3D]")
         {
     uint aNumElemTypes = 1;     // hex
@@ -340,12 +356,19 @@ TEST_CASE("analytic_functionalities_test_02","[GE],[analytic_functionalities_3D]
 
 //    print( tTemp2, "intersection sensitivity w.r.t pdv" );
     //------------------------------------------------------------------------------
-//    std::string tOutputFile = "./ge_finite_diff_ut.exo";
+//    std::string tOutputFile = "./ge_analytic_test.exo";
 //    tInterpMesh1->create_output_mesh(tOutputFile);
     // clean up
-    delete tInterpMesh1;
+    //delete tInterpMesh1;
     delete tIntegMesh1;
-        }
+        }   // end analytic_functionalities_3D
+
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+
+
+
 
 

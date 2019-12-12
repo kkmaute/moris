@@ -59,9 +59,12 @@ Model::~Model()
 
 }
 
+/*
+ * using the general geometry engine
+ */
 Model::Model(uint aModelDimension,
              moris::mtk::Interpolation_Mesh* aMeshData,
-             Geometry_Engine & aGeometryEngine,
+             moris::ge::GEN_Geometry_Engine & aGeometryEngine,
              bool aLinkGeometryOnConstruction) :
                                           mSameMesh(false),
                                           mModelDimension(aModelDimension),
@@ -82,6 +85,30 @@ Model::Model(uint aModelDimension,
 
     mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine.get_num_geometries());
 }
+
+//Model::Model(uint aModelDimension,
+//             moris::mtk::Interpolation_Mesh* aMeshData,
+//             Geometry_Engine & aGeometryEngine,
+//             bool aLinkGeometryOnConstruction) :
+//                                          mSameMesh(false),
+//                                          mModelDimension(aModelDimension),
+//                                          mBackgroundMesh(aMeshData,aGeometryEngine),
+//                                          mCutMesh(mModelDimension),
+//                                          mGeometryEngine(aGeometryEngine),
+//                                          mEnrichment(nullptr),
+//                                          mGhostStabilization(nullptr),
+//                                          mEnrichedInterpMesh(0,nullptr),
+//                                          mEnrichedIntegMesh(0,nullptr),
+//                                          mConvertedToTet10s(false)
+//{
+//
+//    if(aLinkGeometryOnConstruction == true)
+//    {
+//        link_background_mesh_to_geometry_objects();
+//    }
+//
+//    mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine.get_num_geometries());
+//}
 
 
 void
@@ -344,7 +371,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             {
 
                 // Initialize geometry objects
-                Cell<Geometry_Object> tGeoObjects;
+                Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
 
                 // Get the child mesh that is active
                 Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,j));
@@ -561,7 +588,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             {
 
                 // Initialize geometry objects
-                Cell<Geometry_Object> tGeoObjects;
+                Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
 
                 // Get the child mesh that is active
                 Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,j));
@@ -1862,7 +1889,7 @@ void  Model::run_first_cut_routine(enum TemplateType const &          aTemplateT
     moris::Matrix< moris::DDRMat > tAllNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
 
     // Intersected elements are flagged via the Geometry_Engine
-    Cell<Geometry_Object> tGeoObjects;
+    Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
     mGeometryEngine.is_intersected(tAllNodeCoords, tElementToNodeConnInd, 0,tGeoObjects);
 
     // Count number intersected
@@ -4670,7 +4697,7 @@ Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const
 
         if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
         {
-            Geometry_Object const & tNodeGeoObj = mGeometryEngine.get_geometry_object(tNodeIndex);
+            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine.get_geometry_object(tNodeIndex);
 
             moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
 
@@ -4723,7 +4750,7 @@ Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const 
 
         if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
         {
-            Geometry_Object const & tNodeGeoObj = mGeometryEngine.get_geometry_object(tNodeIndex);
+            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine.get_geometry_object(tNodeIndex);
 
             moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
 

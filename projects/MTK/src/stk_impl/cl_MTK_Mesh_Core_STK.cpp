@@ -760,8 +760,7 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
-    enum CellTopology
-    Mesh_Core_STK::get_blockset_topology(const  std::string & aSetName)
+    enum CellTopology Mesh_Core_STK::get_blockset_topology(const std::string & aSetName )
     {
         // Get pointer to field defined by input name
         stk::mesh::Part* const tSetPart = mSTKMeshData->mMtkMeshMetaData->get_part( aSetName );

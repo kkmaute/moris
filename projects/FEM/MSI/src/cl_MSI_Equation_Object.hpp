@@ -11,6 +11,9 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+#include "cl_MTK_Enums.hpp"                 //FEM/INT/src
+
+
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
@@ -18,28 +21,43 @@
 namespace moris
 {
 class Dist_Vector;
+    namespace mtk
+    {
+        class Set;
+        class Cluster;
+    }
     namespace fem
     {
         class Node_Base;
         class Element;
+    }
+    namespace vis
+    {
+        enum class Output_Type;
+        enum class Field_Type;
     }
     namespace MSI
     {
         class Pdof;
         class Pdof_Host;
         class Equation_Set;
+        class Dof_Manager;
         class Equation_Object
         {
 //-------------------------------------------------------------------------------------------------
         protected:
 //-------------------------------------------------------------------------------------------------
-            moris::Cell< fem::Node_Base * >         mNodeObj;
-            moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
+            moris::Cell< moris::Cell< fem::Node_Base * > >        mNodeObj;
+            moris::Cell< moris::Cell< Pdof_Host * > >             mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
+            moris::Cell< moris::Cell< moris::Cell< Pdof* > > >     mFreePdofList;         // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
+            moris::Cell< moris::Cell< Matrix< DDSMat > > >         mUniqueAdofTypeList;
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
+
+            moris::Cell< moris::Cell< moris::map < moris::uint, moris::uint > > > mUniqueAdofMapList;     // Map to
 
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
@@ -48,13 +66,13 @@ class Dist_Vector;
 
             Dist_Vector * mSolVec = nullptr;
 
-            Model_Solver_Interface * mModelSolverInterface = nullptr;
-
             moris::uint mEqnObjInd;
 
             Matrix< DDRMat > mTime;
 
             Equation_Set * mEquationBlock;
+
+            moris::uint mNumPdofSystems = 0;
 
             friend class fem::Element;
 
@@ -68,7 +86,7 @@ class Dist_Vector;
             {};
 
 //-------------------------------------------------------------------------------------------------
-            Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs );
+            Equation_Object( const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -83,30 +101,32 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void set_model_solver_interface_pointer( Model_Solver_Interface * aModelSolverInterface)
-            {
-                mModelSolverInterface = aModelSolverInterface;
-            };
-
-//-------------------------------------------------------------------------------------------------
-
             Matrix< DDRMat > & get_pdof_values( )
             {
-                this->get_my_pdof_values();
+                this->compute_my_pdof_values();
 
                 return mPdofValues;
             };
 
-
 //-------------------------------------------------------------------------------------------------
+
             /**
-             * @brief Returns the number of nodes, elements and ghosts related to this equation object.
+             * @brief Returns the number of nodes, elements and ghosts related to this equation object. This function is only for unit test purposes.
              *
              */
             // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
-            moris::uint get_num_pdof_hosts() { return mNodeObj.size(); }
+            moris::uint get_num_pdof_hosts()
+            {
+                moris::uint tNumPdofHosts = 0;
+                for( uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
+                {
+                    tNumPdofHosts = tNumPdofHosts + mNodeObj( Ik ).size();
+                }
+                return tNumPdofHosts;
+            }
 
 //------------------------------------------------------------------------------------------------
+
             /**
              * @brief Returns the maximal pdof host (node) index of this equation object
              *
@@ -114,6 +134,7 @@ class Dist_Vector;
             moris::uint get_max_pdof_hosts_ind();
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list.
              *  This function is tested by the test [Eqn_Obj_create_pdof_host]
@@ -129,6 +150,7 @@ class Dist_Vector;
                                              moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * @brief This function creates a list of pdof pointers related to this equation object. This function is tested by the test [Eqn_Obj_create_my_pdof_list]
              * [Dof_Mgn_create_unique_dof_type_map_matrix]
@@ -159,11 +181,17 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > > & aPADofMap );
+
+            void build_PADofMap_1( Matrix< DDRMat > & aPADofMap );
+
+//-------------------------------------------------------------------------------------------------
+
             /**
-             * @brief Get function for the pdof values of this particular equation object
+             * @brief Compute function for the pdof values of this particular equation object
              *
              */
-            void get_my_pdof_values( );
+            void compute_my_pdof_values( );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -174,7 +202,13 @@ class Dist_Vector;
              * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
              */
             void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
-                                           Matrix< DDRMat >             & aRequestedPdofValues);
+                                           Cell< Matrix< DDRMat > >     & aRequestedPdofValues,
+                                     const mtk::Master_Slave              aIsMaster = mtk::Master_Slave::MASTER );
+
+//-------------------------------------------------------------------------------------------------
+
+            void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
+                                            Matrix< DDRMat >         & aReshapedPdofValues );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -191,11 +225,20 @@ class Dist_Vector;
                                             Dist_Vector * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
-            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
-            {
-                aEqnObjAdofId = mUniqueAdofList;
-            };
+
+            void add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual );
+
 //-------------------------------------------------------------------------------------------------
+//            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
+//            {
+//                aEqnObjAdofId = mUniqueAdofList;
+//            };
+
+//-------------------------------------------------------------------------------------------------
+            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId );
+
+//-------------------------------------------------------------------------------------------------
+
             /**
              * returns a moris::Mat with indices of vertices that are connected to this element
              */
@@ -217,18 +260,21 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual void compute_residual()
             {
                 MORIS_ERROR( false, "this function does nothing");
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual void compute_jacobian_and_residual()
             {
                 MORIS_ERROR( false, "this function does nothing");
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
             {
                 MORIS_ERROR( false, "this function does nothing");
@@ -236,6 +282,7 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual moris::real compute_element_average_of_scalar_field()
             {
                 MORIS_ERROR( false, "this function does nothing");
@@ -243,6 +290,7 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * return Neumann boundary conditions, writable version
              */
@@ -279,12 +327,13 @@ class Dist_Vector;
 //            }
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * how many nodes are connected to this element
              */
             uint get_num_nodes() const
             {
-                return mNodeObj.size();
+                return mNodeObj( 0 ).size();
             }
 
 //-------------------------------------------------------------------------------------------------
@@ -294,6 +343,21 @@ class Dist_Vector;
             {
                 MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing");
                 return 0.0;
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            virtual void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
+            {
+                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base clase" );
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            virtual void compute_quantitiy_of_interest( enum vis::Output_Type aOutputType,
+                                                        enum vis::Field_Type    aFieldType)
+            {
+                MORIS_ASSERT( false, "compute_quantitiy_of_interest(), not implemented for base clase" );
             }
         };
     }

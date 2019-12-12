@@ -98,7 +98,7 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
         REQUIRE(tBlock1->get_integration_cell_interpolation_order()   == mtk::Interpolation_Order::LINEAR);
 
 
-        delete tInterpMesh;
+        //delete tInterpMesh;
         delete tIntegMesh;
     }
 }

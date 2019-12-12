@@ -34,21 +34,23 @@ namespace moris
         {
         private:
             //! List of equation blocks
-            Cell< MSI::Equation_Set * >      mEquationBlocks;
+            Cell< MSI::Equation_Set * >     mEquationBlocks;
 
             //! List of equation objects
-            moris::Cell< Equation_Object * >   mEquationObjectList;
+            moris::Cell< Equation_Object * > mEquationObjectList;
 
             //! Dof manager object
-            Dof_Manager                        mDofMgn;
+            Dof_Manager                      mDofMgn;
 
             //! Pointer to Mesh. Only used in multigrid
-            mtk::Mesh                        * mMesh;
+            mtk::Mesh                      * mMesh;
 
             //! Multigrid object pointer
             Multigrid * mMultigrid = nullptr;
 
             Param_List< boost::variant< bool, sint, real  > > mMSIParameterList;
+
+            MSI::MSI_Solver_Interface * mSolverInterface;
 
             friend class MSI_Solver_Interface;
 
@@ -57,6 +59,9 @@ namespace moris
             void set_solver_parameters();
 
      public:
+
+         Model_Solver_Interface( ){ };
+
         Model_Solver_Interface( moris::Cell < Equation_Object* > & aListEqnObj ) : mEquationObjectList( aListEqnObj )
         {
             this->set_solver_parameters();
@@ -145,10 +150,11 @@ namespace moris
 
         void finalize( const bool aUseMultigrid = false )
         {
-            for ( Equation_Object* tElement : mEquationObjectList )
+            for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
             {
-                tElement->set_model_solver_interface_pointer( this );
+                mEquationBlocks( Ik )->set_model_solver_interface( this );
             }
+
             mDofMgn.initialize_pdof_host_list( mEquationObjectList );
 
             mDofMgn.create_adofs();
@@ -267,6 +273,20 @@ namespace moris
         moris::uint get_time_levels_for_type( const enum Dof_Type aDofType )
         {
             return mDofMgn.get_time_levels_for_type( aDofType );
+        };
+
+//------------------------------------------------------------------------------
+
+        void set_solver_interface( MSI::MSI_Solver_Interface * aSolverInterface )
+        {
+            mSolverInterface = aSolverInterface;
+        };
+
+//------------------------------------------------------------------------------
+
+        MSI::MSI_Solver_Interface * get_solver_interface()
+        {
+            return mSolverInterface;
         };
 
 //------------------------------------------------------------------------------

@@ -53,7 +53,7 @@ namespace moris
         // Loop over the blocks
         for( uint Ik = 0; Ik < tNumBlocks; Ik++ )
         {
-            mVerticesOnBlock( Ik ) = mIntegrationMesh->get_block_by_index( Ik )->get_num_vertieces_on_set();
+            mVerticesOnBlock( Ik ) = mIntegrationMesh->get_block_by_index( Ik )->get_num_vertieces_on_set( true );
         }
 
         //==========================================================================
@@ -66,7 +66,7 @@ namespace moris
         // Loop over the side sets
         for( uint Ik = 0; Ik < tNumSideSets; Ik++ )
         {
-            mVerticesOnSideSet( Ik ) = mIntegrationMesh->get_side_set_by_index( Ik )->get_num_vertieces_on_set();
+            mVerticesOnSideSet( Ik ) = mIntegrationMesh->get_side_set_by_index( Ik )->get_num_vertieces_on_set( true);
         }
 
         MORIS_ASSERT( mVerticesOnBlock.min() != -1, "negative number of vertices on block");
@@ -150,17 +150,15 @@ namespace moris
         {
             for( uint Ia = 0; Ia<VertexIndOnColor( Ii ).numel(); ++Ia )
             {
-                mNodes( tCounter3 ) = new fem::Node( &mIntegrationMesh->get_mtk_vertex( VertexIndOnColor( Ii )( 0, Ia ) ) );
+                mNodes( tCounter3 ) = new fem::Node( &mIntegrationMesh->get_mtk_vertex( VertexIndOnColor( Ii )( Ia ) ) );
 
                 mNodes( tCounter3 )->set_index( tCounter3 );
 
-                mVertexColorToNodeIndMap( Ii )( VertexIndOnColor( Ii )( 0, Ia ) = tCounter3 );
+                mVertexColorToNodeIndMap( Ii )( VertexIndOnColor( Ii )( Ia ) = tCounter3 );
 
-                mNodeToVertexIndMap( tCounter3++, 0 ) = VertexIndOnColor( Ii )( 0, Ia );
+                mNodeToVertexIndMap( tCounter3++, 0 ) = VertexIndOnColor( Ii )( Ia );
             }
         }
-
-        print( mNodeToVertexIndMap, "mNodeToVertexIndMap");
 
         this->assign_node_ids();
 
@@ -210,15 +208,15 @@ namespace moris
         // Loop over the block colors
         for( uint Ik = 0; Ik < mColorListBlock.size(); Ik++ )
         {
-            Matrix< DDSMat >tVertInds( 1, aNumMaxVertPerColor( Ik ,0 ) );
+            Matrix< DDSMat >tVertInds( 1,aNumMaxVertPerColor( Ik ,0 ) );
             uint tCounter = 0;
 
             // Loop over the blocks
             for( uint Ij = 0; Ij < mColorListBlock( Ik ).length(); Ij++ )
             {
                 //FIXME rewrite for more readability
-                tVertInds( { 0, 0 }, { tCounter, tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 ) - 1 } ) =
-                        mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block().matrix_data();
+                tVertInds(  { 0, 0 }, { tCounter, tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 ) - 1 } ) =
+                        mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block( true ).matrix_data();
 
                 tCounter = tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 );
             }
@@ -228,7 +226,7 @@ namespace moris
             {
                 //FIXME rewrite for more readability
                 tVertInds( { 0, 0 }, { tCounter, tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 ) - 1 } ) =
-                        mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block().matrix_data();
+                        mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block( true ).matrix_data();
 
                 tCounter = tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 );
             }

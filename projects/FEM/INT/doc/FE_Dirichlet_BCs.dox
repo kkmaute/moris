@@ -1,0 +1,179 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Dirichlet_BCs Dirichlet Boundary Condition
+
+Consider the following:
+
+\f[
+R = -   \int_{\partial \Omega} \delta u 	   \sigma n      		   \: d\Omega 
+	\pm \int_{\partial \Omega} \delta \sigma   \left| u \right| \: d\Omega 
+	+   \gamma \int_{\partial \Omega} \delta u \left| u \right| \: d\Omega
+\f] 
+Where \f$ \left| u \right| \f$ denotes the jump operator. In practice, this is computed as:
+
+\f[ 
+R = -\sum N^T t \pm \sum \hat{t} \left| u \right| + \gamma \sum N^T \left| u \right|
+\f]
+
+Taking a closer look at each term, we define where the computations are carried out and what modifications are made to speed up the computations.
+
+We first introduce the new forms of the following:
+
+\f[ 
+\hat{n} = \begin{bmatrix}
+			n_1	&	0	&	n_2	\\
+	 		0	&	n_2	&	n_1
+	 	  \end{bmatrix}	
+\f]
+\f[
+u = \begin{bmatrix}
+	 u_{x_1}	&	u_{y_1}	\\
+	 \vdots		&	\vdots	\\
+	 u_{x_4}	&	u_{y_4}
+ 	 \end{bmatrix}	
+\f]
+\f[
+\mathcal{B} = \begin{bmatrix}
+	 \frac{\partial N_1}{\partial x}	&	...	&	\frac{\partial N_4}{\partial x}	\\
+	 \frac{\partial N_1}{\partial y}	&	...	&	\frac{\partial N_4}{\partial y}	
+	 \end{bmatrix}	 
+\f]
+
+<b>TERM 01:</b>	
+
+\f[
+-\sum N^T t
+\f]
+Where \f$ N \f$ is the shape function matrix which comes from the Field Interpolator and has the form:
+
+\f[
+N = \begin{bmatrix}
+	N_1 & ... & N_4 & 0 & ...& 0	\\
+	0	& ... & 0   & N_1 & ... & N_4 
+	\end{bmatrix}
+\f]
+
+We redefine the traction vector \f$ t = \hat{n} \sigma\f$ from using the new form of the normal shown above. To get \f$ \sigma \f$, we use Hooke's law: \f$ \sigma = \mathcal{C} \epsilon \f$, where \f$ \mathcal{C} \f$ is the material tensor. 
+The computations for \f$ t \f$ are done in the constitutive model (CM) class and require some notes:
+
+\f$ \epsilon = \mathcal{B} u \f$ where \f$ \mathcal{B} \f$ is defined as the reshaped version shown above. Using the \f$ \mathcal{B} \f$ matrix allows for approximately \f$ 66\% \f$ less computations as we have gotten rid of all the zero 
+multiplications. This results in a matrix for \f$ \epsilon \f$ which must be reshaped into the vector form; also done in the constitutive model. For example, if we have a 2D problem, 
+
+\f[ 
+\epsilon = \begin{bmatrix} 
+			\epsilon_{11} & \epsilon_{12}	\\
+			\epsilon_{12} & \epsilon_{22}
+		  \end{bmatrix}
+		 \to 
+		 \begin{bmatrix}
+		 \epsilon_{11}	\\
+		 \epsilon_{22}	\\
+		 2 \epsilon_{12}
+		 \end{bmatrix}
+\f]
+
+Once done, \f$ \sigma \f$ can then be computed directly via Hooke's law and the traction is then determined in the new form \f$ t = \hat{n} \sigma \f$. 
+These computations result in a residual of the form:
+
+\f[
+R = \begin{bmatrix}
+	R_{x_1} \\
+	\vdots	\\
+	R_{x_4} \\
+	R_{y_1} \\
+	\vdots	\\
+	R_{y_4}
+	\end{bmatrix}	
+\f] 
+
+<b>TERM 02:</b>
+
+\f[
+\sum \hat{t} \left| u \right|
+\f]
+
+We have defined a new form of the traction vector using the forms set up previously: \f$ \hat{t} = B^T \mathcal{C} \hat{n}^T \f$. Where the \f$ B \f$ matrix has the classical form:
+
+\f[
+B = \begin{bmatrix}
+	\frac{\partial N_1}{\partial x}	&	0	&	\frac{\partial N_2}{\partial x} & 0 & ... & \frac{\partial N_4}{\partial x}	&	0	\\
+	0 & \frac{\partial N_1}{\partial y}	&	0	&	\frac{\partial N_2}{\partial y} & ... &	0	&	\frac{\partial N_4}{\partial y}	\\
+	\frac{\partial N_1}{\partial y}	&	\frac{\partial N_1}{\partial x}	&	\frac{\partial N_2}{\partial y}	&	\frac{\partial N_2}{\partial x}	&	...	&	\frac{\partial N_4}{\partial y}	&	\frac{\partial N_4}{\partial x}
+	\end{bmatrix}
+\f]
+
+The multiplications needed to define the \f$ \hat{t} \f$ vector are all carried out in the CM and then the summation is performed in the IWG. This results in a residual of the same form as Term 01 so that they may be added directly in 
+the IWG. 
+
+<b>TERM 03:</b>
+
+\f[
+\gamma \sum N^T \left| u \right|
+\f]
+
+Here, \f$ \gamma \f$ is a scalar value, \f$ N \f$ is the shape function matrix of the form shown above, and \f$ \left| u \right| \f$ is the jump term. The entire Term 03 is directly computed in the IWG as no additional 
+manipulation is required. 
+
+The table below gives an overview of what is computed in the CM and what is computed in the IWG:
+
+CM		       								   					 | IWG         
+:--------------------------------------------------------------- | :--------------------------------------------------------
+\f$ \epsilon = \mathcal{B} u \;\; \mbox{reshape of }\epsilon \f$ | \f$ \left| u \right| \mbox{(jump operator)} \f$  
+\f$ \sigma = \mathcal{C} \epsilon \f$ 		   					 | \f$ \mbox{Term 01: } \sum N^T t \f$
+\f$ t = \hat{n} \sigma \f$ 			      	   					 | \f$ \mbox{Term 02: } \sum \hat{t} \left| u \right| \f$  
+\f$ \hat{t} = B^T \mathcal{C} \hat{n}^T	\f$	   					 | \f$ \mbox{Term 03: } \gamma \sum N^T \left| u \right| \f$
+  
+<b> Applying a Fixed Boundary Condition e.g. </b>
+
+We introfuce a modified identity tensor \f$ \mathcal{I} \f$ which is applied in the IWG and zeros out residual components as needed. For example, say we want to apply a fixed boundary condition in the y-direction. Then, looking at the 
+first term in the residual equation:
+
+\f[
+-\sum N^T t \to -\sum N^T \mathcal{I} t
+\f]
+
+Where, for this example, the modified identity tensor is:
+
+\f[
+\mathcal{I} = \begin{bmatrix}
+				0	&	0	\\
+				0	&	1
+			  \end{bmatrix}
+\f] 
+
+For completeness, look at the actual matrix multiplication being performed to result in Term 01 of the residual equation (here we assume a 2D problem with quad-4 elements):
+
+\f[
+\mbox{Term 01} = \begin{bmatrix}
+				 N_1		&	0		\\
+				 \vdots	&	\vdots	\\
+				 N_4		& 	0		\\
+				 0		&	N_1		\\
+				 \vdots	&	\vdots	\\
+				 0		&	N_4
+				 \end{bmatrix}
+				 \begin{bmatrix}
+				 0	&	0	\\
+				 0	&	1	
+				 \end{bmatrix}
+				 \begin{bmatrix}
+				 t_1	\\
+				 t_2
+				 \end{bmatrix}
+				 =
+				 \begin{bmatrix}
+				 0	\\
+				 \vdots	\\
+				 0	\\
+				 R_{y_1}	\\
+				 \vdots	\\
+				 R_{y_4}
+				 \end{bmatrix} 	
+\f]
+
+The \f$ \mathcal{I} \f$ tensor is analogously applied to Term 02 and Term 03 in the IWG to result in the final form of the residual. 
+
+*/
+}
+}

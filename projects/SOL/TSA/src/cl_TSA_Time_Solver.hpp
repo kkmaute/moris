@@ -25,6 +25,10 @@ namespace NLA
 }
 namespace tsa
 {
+    class Time_Solver;
+
+    typedef std::function< bool ( moris::tsa::Time_Solver * ) > Output_Criteria;
+
     class Time_Solver_Algorithm;
     class Time_Solver
     {
@@ -47,6 +51,10 @@ namespace tsa
         Dist_Vector * mFullVector = nullptr;
 
         Map_Class * mFullMap = nullptr;
+
+        moris::Cell< moris::uint >     mOutputIndices;
+        moris::Cell< Output_Criteria > mOutputCriteriaPointer;
+
 
 //        //! Reference norm
 //        moris::real mRefNorm = -1.0;
@@ -133,6 +141,8 @@ namespace tsa
          */
         void set_solver_interface( Solver_Interface * aSolverInterface ){ mSolverInterface = aSolverInterface; };
 
+        //--------------------------------------------------------------------------------------------------
+
         Solver_Interface * get_solver_interface(){ return mSolverInterface; };
 
         //--------------------------------------------------------------------------------------------------
@@ -200,6 +210,15 @@ namespace tsa
          * @param[in] rSolverDatabase Poiner to the solver database
          */
         void set_solver_warehouse( NLA::SOL_Warehouse * aSolverWarehouse );
+
+        //--------------------------------------------------------------------------------------------------
+
+        void set_output( const uint aOutputIndex,
+                               Output_Criteria aOutputCriteria );
+
+        //--------------------------------------------------------------------------------------------------
+
+        void check_for_outputs();
 
         //--------------------------------------------------------------------------------------------------
 

@@ -28,14 +28,17 @@ set(TEST_SOURCES
     UT_FEM_Set.cpp
     UT_FEM_Element.cpp
     UT_FEM_Property.cpp
-    UT_FEM_Property_User_Defined_Info.cpp
     UT_FEM_IWG.cpp
-    UT_FEM_IWG_User_Defined_Info.cpp
     UT_FEM_CM.cpp
+    UT_FEM_CM_Diff_Lin_Iso.cpp
     UT_FEM_IWG_Spatial_Diffusion_Bulk.cpp
     UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
-    UT_FEM_Constitutive_User_Defined_Info.cpp
+    UT_FEM_IWG_Spatial_Diffusion_Ghost.cpp
+    UT_FEM_IWG_Spatial_Diffusion_Virtual_Work_Ghost.cpp
+    UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
+    UT_FEM_IWG_Struc_Linear_Interface.cpp
+    UT_FEM_IQI_Strain_Energy.cpp
     )
 
 # List test dependencies

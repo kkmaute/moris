@@ -7,7 +7,7 @@ set(TEST_SOURCES
 	cl_MTK_Mesh.cpp
 	cl_MTK_Blocks.cpp
 	cl_MTK_Side_Set.cpp
-	cl_MTK_Exodus_IO_Helper.cpp
+	#cl_MTK_Exodus_IO_Helper.cpp
 	cl_MTK_Mesh_From_Data.cpp
 	cl_MTK_Vertex.cpp
 	cl_MTK_Cell.cpp
@@ -16,6 +16,7 @@ set(TEST_SOURCES
 	cl_MTK_Interpolation_Mesh.cpp
 	cl_MTK_Cell_Cluster.cpp
 	cl_MTK_Double_Side_Cluster.cpp
+	cl_MTK_Writer_Exodus_Test.cpp
 	UT_MTK_Connectivity.cpp
 	UT_MTK_Mesh_Comm_Maps.cpp)
 

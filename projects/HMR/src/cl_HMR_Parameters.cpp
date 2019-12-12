@@ -30,6 +30,8 @@ namespace moris
         tParameterList.insert( "domain_sidesets", std::string( "" ) );
         tParameterList.insert( "lagrange_output_meshes", std::string( "" ) );
 
+        tParameterList.insert( "lagrange_input_meshes", std::string( "" ) );
+
         tParameterList.insert( "refinement_buffer", 0 );
         tParameterList.insert( "staircase_buffer", 0 );
 
@@ -51,7 +53,7 @@ namespace moris
         tParameterList.insert( "use_refinement_interrelation", 0 );
         tParameterList.insert( "renumber_lagrange_nodes", 0 );
 
-        tParameterList.insert( "initial_bspline_refinement", 0 );
+        tParameterList.insert( "initial_refinement", 0 );
         tParameterList.insert( "additional_lagrange_refinement", 0 );
 
         tParameterList.insert( "max_refinement_level", -1 );
@@ -107,9 +109,9 @@ namespace moris
             {
                 aParameterList.set( "lagrange_orders", tSecond( k ) );
             }
-            else if( tKey == "initial_bspline_refinement" )
+            else if( tKey == "initial_refinement" )
             {
-                aParameterList.set( "initial_bspline_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+                aParameterList.set( "initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
             }
             else if ( tKey == "severity_level" )
             {
@@ -176,6 +178,7 @@ namespace moris
         string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
         string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+        string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
         string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
         string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
         string_to_mat( aParameterList.get< std::string >("bspline_orders"), mBSplineOrders );
@@ -195,7 +198,7 @@ namespace moris
         this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
 
 //        // set minimum initial refinement
-//        this->set_initial_refinement( aParameterList.get< sint >("initial_bspline_refinement") );
+        this->set_initial_refinement( aParameterList.get< sint >("initial_refinement") );
 //        this->set_additional_lagrange_refinement( aParameterList.get< sint >( "additional_lagrange_refinement" ) );
 
         this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
@@ -230,7 +233,7 @@ namespace moris
         tParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
 
         // initial refinement
-        tParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_refinement() );
+        tParameterList.set( "initial_refinement",     ( sint ) aParameters->get_initial_refinement() );
         tParameterList.set( "additional_lagrange_refinement", ( sint )  aParameters->get_additional_lagrange_refinement()  );
         tParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
 

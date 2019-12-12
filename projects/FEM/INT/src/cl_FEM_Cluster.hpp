@@ -42,6 +42,8 @@ namespace moris
         // pointer to the mesh cluster
         const mtk::Cluster* mMeshCluster = nullptr;
 
+        const mtk::Cluster * mVisMeshCluster = nullptr;
+
         // time sideset information
         Matrix< IndexMat > mListOfTimeOrdinals;
 
@@ -104,7 +106,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * gets the IG cell local coordinates on the side wrt to the IP cell
+         * get the IG cell local coordinates on the side wrt to the IP cell
          * @param[ in ] aCellIndexInCluster index of the IG cell within the cluster
          * @param[ in ] aSideOrdinal        ordinal for the side
          * @param[ in ] aIsMaster           enum for master or slave
@@ -131,7 +133,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * gets the index of the vertex associated with a given master vertex
+         * get the index of the vertex associated with a given master vertex
          * @param[ in ] aLeftVertex mesh vertex pointer
          */
         moris::mtk::Vertex const * get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex );
@@ -172,11 +174,17 @@ namespace moris
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
             // get pdofs values for the element
-            this->get_my_pdof_values();
+            this->compute_my_pdof_values();
 
             // get a specific dof type pdofs values
             Matrix< DDRMat > tPdofValues;
-            this->get_my_pdof_values( aDofType, tPdofValues );
+
+            moris::Cell< Matrix< DDRMat > > tPdofValues_Original;
+
+            this->get_my_pdof_values( aDofType, tPdofValues_Original );
+
+            // reshape tCoeffs into the order the cluster expects them
+            this->reshape_pdof_values( tPdofValues_Original, tPdofValues );
 
             // select the required nodal value
             Matrix< IndexMat > tElemVerticesIndices = mMasterInterpolationCell->get_vertex_inds();
@@ -192,6 +200,15 @@ namespace moris
                 }
             }
             return tPdofValues( tVertexIndex );
+        }
+
+//------------------------------------------------------------------------------
+
+        void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
+        {
+            mVisMeshCluster = aVisMeshCluster;
+
+
         }
 
 //------------------------------------------------------------------------------
@@ -219,6 +236,15 @@ namespace moris
           * @Brief set the initial sizes and values for mResidual
           */
          void initialize_mResidual();
+
+//------------------------------------------------------------------------------
+
+         void compute_quantitiy_of_interest( enum vis::Output_Type aOutputType,
+                                             enum vis::Field_Type  aFieldType )
+         {
+
+         }
+
 
 //------------------------------------------------------------------------------
     };

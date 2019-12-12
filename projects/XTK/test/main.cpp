@@ -34,7 +34,7 @@ main( int    argc,
     gMorisComm.initialize(&argc, &argv);
 
     // Severity level 0 - all outputs
-    gLogger.initialize( 0 );
+    gLogger.initialize( 2 );
 
     Kokkos::initialize(argc, argv);
 

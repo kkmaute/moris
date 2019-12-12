@@ -31,11 +31,7 @@ namespace moris
         class Cell;
         class Set;
         class Field_Interpolator;
-        class IWG_User_Defined_Info;
-        class Constitutive_User_Defined_Info;
-        class Property_User_Defined_Info;
-        enum class IWG_Type;
-        enum class Property_Type;
+        class Set_User_Info;
     }
 
     namespace dla
@@ -107,6 +103,8 @@ namespace moris
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
+            map< moris_index, moris_index >   mMeshSetToFemSetMap;
+
             Matrix< DDRMat> mSolHMR;
 
             tsa::Time_Solver * mTimeSolver;
@@ -116,27 +114,19 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
-           /**
-            * constructor
-            * @param[ in ] aMesh  Mesh for this problem
-            * @param[ in ] aBSplineOrder            ???
-            * @param[ in ] aSetList                 cell of mesh set indices
-            * @param[ in ] aSetTypeList             cell of set type enum ( BULK, SIDESET, ...)
-            * @param[ in ] aIWGUserDefinedInfo      cell of cell of IWG user defined info
-            * @param[ in ] aPropertyUserDefinedInfo cell of property user defined info
-            * @param[ in ] aMeshPairIndex           ???
-            * @param[ in ] aUseMultigrid            bool for multigrid use
-            *
-            */
-            Model(       mtk::Mesh_Manager*                                                                 aMesh,
-                   const uint                                                                               aBSplineOrder,
-                   const moris::Cell< moris_index >                                                       & aSetList,
-                   const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
-                   const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
-                   const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
-                   const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
-                   const moris_index                                                                        aMeshPairIndex = 0,
-                   const bool                                                                               aUseMultigrid = false );
+            /**
+             * constructor
+             * @param[ in ] aMesh          mesh for this problem
+             * @param[ in ] aBSplineOrder  ???
+             * @param[ in ] aSetInfo       cell of set user info
+             * @param[ in ] aMeshPairIndex ???
+             * @param[ in ] aUseMultigrid  bool for multigrid use
+             */
+            Model(       mtk::Mesh_Manager*                  aMeshManager,
+                   const uint                                aBSplineIndex,
+                         moris::Cell< fem::Set_User_Info > & aSetInfo,
+                   const moris_index                         aMeshPairIndex = 0,
+                   const bool                                aUseMultigrid  = false );
 
 //------------------------------------------------------------------------------
             /**
@@ -160,6 +150,20 @@ namespace moris
              * @param[ in ] aOrder an order
              */
             void set_dof_order( const uint aOrder );
+
+//------------------------------------------------------------------------------
+            /**
+             * get equation sets for test
+             */
+            moris::Cell< fem::Set * > & get_equation_sets( )
+            {
+                return mFemSets;
+            };
+
+            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            {
+                return mMeshSetToFemSetMap;
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -241,7 +245,7 @@ namespace moris
            bool dof_type_is_in_list( enum MSI::Dof_Type                  aDofTypeToFind,
                                      moris::Cell< enum MSI::Dof_Type > & aDofList );
 
-
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace mdl */

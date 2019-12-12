@@ -65,6 +65,7 @@ namespace NLA
         Solver_Interface * mSolverInterface;
 
         Dist_Vector * mFullVector = nullptr;
+        Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
 
         Map_Class   * mMap = nullptr;
         Map_Class   * mMapFull = nullptr;               //FIXME replace with marketplace

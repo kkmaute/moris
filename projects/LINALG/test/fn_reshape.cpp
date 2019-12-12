@@ -31,12 +31,12 @@ TEST_CASE(
     A( 5, 0 ) = 4;
 
     Matrix< DDUMat > C = moris::reshape(A,2,3);
-    REQUIRE( moris::equal_to( C(0,0), 1 ) );
-    REQUIRE( moris::equal_to( C(1,0), 2 ) );
-    REQUIRE( moris::equal_to( C(0,1), 3 ) );
-    REQUIRE( moris::equal_to( C(1,1), 2 ) );
-    REQUIRE( moris::equal_to( C(0,2), 2 ) );
-    REQUIRE( moris::equal_to( C(1,2), 4 ) );
+    REQUIRE( C(0,0) == 1 );
+    REQUIRE( C(1,0) == 2 );
+    REQUIRE( C(0,1) == 3 );
+    REQUIRE( C(1,1) == 2 );
+    REQUIRE( C(0,2) == 2 );
+    REQUIRE( C(1,2) == 4 );
     }
 
     SECTION( "reshape of real row vector" )
@@ -69,12 +69,12 @@ TEST_CASE(
     A( 0, 5 ) = 2;
 
     Matrix< DDUMat > C = reshape(A,2,3);
-    REQUIRE( moris::equal_to( C(0,0), 1 ) );
-    REQUIRE( moris::equal_to( C(1,0), 2 ) );
-    REQUIRE( moris::equal_to( C(0,1), 2 ) );
-    REQUIRE( moris::equal_to( C(1,1), 3 ) );
-    REQUIRE( moris::equal_to( C(0,2), 1 ) );
-    REQUIRE( moris::equal_to( C(1,2), 2 ) );
+    REQUIRE( C(0,0) == 1 );
+    REQUIRE( C(1,0) == 2 );
+    REQUIRE( C(0,1) == 2 );
+    REQUIRE( C(1,1) == 3 );
+    REQUIRE( C(0,2) == 1 );
+    REQUIRE( C(1,2) == 2 );
     }
 
     SECTION( "reshape of real col vector" )
@@ -117,7 +117,6 @@ TEST_CASE(
      REQUIRE( moris::equal_to( C(0,2), 2.1 ) );
      REQUIRE( moris::equal_to( C(0,3), 3.1 ) );
      }
-
 }
 }
 
