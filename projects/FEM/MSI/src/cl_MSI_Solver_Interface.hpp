@@ -20,22 +20,28 @@ namespace mtk
 {
     class Mesh;
 }
+namespace mdl
+{
+    class Model;
+}
 
     namespace MSI
     {
         class MSI_Solver_Interface : public moris::Solver_Interface
         {
         private:
-                moris::MSI::Model_Solver_Interface * mMSI= nullptr;
-                moris::MSI::Dof_Manager            * mDofMgn= nullptr;
+                moris::MSI::Model_Solver_Interface * mMSI = nullptr;
+                moris::MSI::Dof_Manager            * mDofMgn = nullptr;
 
-                Dist_Vector                        * mSolutionVector= nullptr;
-                Dist_Vector                        * mPrevSolutionVector= nullptr;
+                Dist_Vector                        * mSolutionVector = nullptr;
+                Dist_Vector                        * mPrevSolutionVector = nullptr;
                 Dist_Vector                        * mExactSolFromFile = nullptr;
                 Matrix< DDRMat>  mTime;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
                 Cell< moris::Cell< enum MSI::Dof_Type > > mListOfSecundaryDofTypes;
+
+                mdl::Model * mModel = nullptr;
 
         public:
             MSI_Solver_Interface( )
@@ -50,7 +56,6 @@ namespace mtk
                 mTime = { {0.0}, {1.0} };
 
                 mMSI->set_solver_interface( this );
-
             };
 
 //------------------------------------------------------------------------------
@@ -65,10 +70,18 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
+            void set_model( mdl::Model * aModel )
+            {
+                mModel = aModel;
+            }
+
+//------------------------------------------------------------------------------
+
             void get_exact_solution_from_hdf5_and_calculate_error( const char* aFilename );
 
-            void get_residual_vector_for_output( const char* aFilename );
+//------------------------------------------------------------------------------
 
+            void get_residual_vector_for_output( const char* aFilename );
 
 //------------------------------------------------------------------------------
 
@@ -110,10 +123,8 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
-            void initiate_output( const uint aOutputIndex )
-            {
-                MORIS_ERROR( false, " connect initiate_output to FEM");
-            };
+            void initiate_output( const uint aOutputIndex,
+                                  const uint aTime );
 
 //------------------------------------------------------------------------------
 
@@ -229,6 +240,8 @@ namespace mtk
                  mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                  mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix, mSolutionVector );
              };
+
+//------------------------------------------------------------------------------
 
              void get_element_matrix( const moris::uint      & aMyBlockInd,
                                       const moris::uint      & aMyElementInd,

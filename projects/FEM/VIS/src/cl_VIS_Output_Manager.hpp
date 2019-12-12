@@ -56,7 +56,7 @@ namespace moris
             moris::Cell< enum Field_Type >  mFieldType;
 
             //! Output enums
-            moris::Cell< enum Output_Type > mEnum;
+            moris::Cell< enum Output_Type > mOutputType;
         };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace moris
 
             bool mOnlyPrimary = false;
 
-            Writer_Exodus *  mWriter = nullptr;
+            moris::Cell< Writer_Exodus * >  mWriter;
 
         protected:
 
@@ -83,13 +83,6 @@ namespace moris
             {
                 mListOfRequestedBlocks = { { 0, 1, 2, 3 } };
                 mOnlyPrimary = false ;
-
-//                this->create_visualization_meshes();
-//
-//
-//                this->set_visualization_sets();
-//
-//                mWriter = new Writer_Exodus(mVisMesh( 0 ));
 
             };
 
@@ -102,9 +95,24 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
+            void delete_pointers( const uint aVisMeshIndex )
+            {
+                delete ( mVisMesh( aVisMeshIndex ) );
+
+                mVisMesh( aVisMeshIndex ) = nullptr;
+
+                delete ( mWriter( aVisMeshIndex ) );
+
+                mWriter( aVisMeshIndex ) = nullptr;
+            }
+
+//-----------------------------------------------------------------------------------------------------------
+
             void end_writing( const uint aVisMeshIndex )
             {
-                mWriter->close_file();
+                mWriter( aVisMeshIndex )->close_file();
+
+                this->delete_pointers( aVisMeshIndex );
             }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -152,39 +160,8 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            void write_field( const uint aVisMeshIndex )
-            {
-                moris::Cell<std::string> tElementalFieldNames(1);
-                tElementalFieldNames(0) = "pressure";
-
-                //-------------------------------------------------------------------------------------------
-
-                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mVisMesh( 0 )->get_block_set_cells("HMR_dummy_c_p0");
-
-                uint tNumElements = tElementsInBlock.size();
-                moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);
-
-
-                for(uint Ik = 0; Ik<tNumElements;Ik++)
-                {
-                    tetField( Ik ) = Ik;
-                }
-
-                //-------------------------------------------------------------------------------------------
-//                for ( uint Ik = 0; Ik<4;Ik++ )
-//                {
-//                    moris::Matrix<moris::DDRMat> tetField = mVisualizationSets( 0 )( Ik )->calculate_elemental_values();
-//
-//                    mWriter->set_elemental_fields(tElementalFieldNames);
-//                    mWriter->set_time(0.0);
-//                    mWriter->write_elemental_field( Ik, "pressure", tetField);
-//                }
-
-                mWriter->set_elemental_fields(tElementalFieldNames);
-                mWriter->set_time(0.0);
-                mWriter->write_elemental_field("HMR_dummy_c_p0", "pressure", tetField);
-            }
-
+            void write_field( const uint         aVisMeshIndex,
+                                    mdl::Model * aModel );
 
 //-----------------------------------------------------------------------------------------------------------
 

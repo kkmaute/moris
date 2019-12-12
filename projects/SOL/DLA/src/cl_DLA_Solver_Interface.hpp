@@ -91,7 +91,8 @@ public:
         return moris::Cell< enum MSI::Dof_Type >(0);
     };
 
-    virtual void initiate_output( const uint aOutputIndex )
+    virtual void initiate_output( const uint aOutputIndex,
+                                  const uint aTime )
     {
         MORIS_ERROR( false, "Solver_Interface::initiate_output: not set.");
     };

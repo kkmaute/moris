@@ -266,11 +266,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                         1,
                         tSetInfo );
 
-                moris::Cell< MSI::Equation_Set * > tEquationSets(tModel->get_equation_sets().size());
-                for(moris::uint iSet = 0; iSet < tModel->get_equation_sets().size(); iSet++ )
-                {
-                    tEquationSets( iSet ) = tModel->get_equation_sets()( iSet );
-                }
 
                 Output_Manager tOutputData;
 
