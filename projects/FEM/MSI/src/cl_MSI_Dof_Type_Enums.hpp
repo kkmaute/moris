@@ -27,6 +27,7 @@ namespace MSI
         VX,     //< X-Velocity
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
+        P,
         UNDEFINED, //< Undefined
         END_ENUM//
     };

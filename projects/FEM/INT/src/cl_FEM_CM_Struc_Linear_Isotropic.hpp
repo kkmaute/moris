@@ -40,7 +40,12 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, CM_Struc_Linear_Isotropic::Property_Type > mPropertyMap;
 
+        private:
+            // Plane stress or plane strain
+            Model_Type mModelType = Model_Type::UNDEFINED;
+
 //------------------------------------------------------------------------------
+        public:
             /*
              * trivial constructor
              */
@@ -180,6 +185,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * Sets the option to use a plane stress or plane strain elasticity model
+             *
+             * @param aModelType Either Model_Type::PLANE_STRESS or Model_Type::PLANE_STRAIN. Default
+             * is Model_Type::UNDEFINED which uses neither.
+             */
+            void set_model_type(Model_Type aModelType);
 
 //------------------------------------------------------------------------------
         };

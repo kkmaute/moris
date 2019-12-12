@@ -150,11 +150,9 @@ namespace moris
             {
                 case ( 2 ):
                 {
-                    uint tPlainStrainOrStress = 1;
-
-                    switch ( tPlainStrainOrStress )
+                    switch ( mModelType )
                     {
-                        case ( 1 ):
+                        case ( Model_Type::PLANE_STRESS ):
                         {
                             moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1 - std::pow( tNu, 2));
 
@@ -167,7 +165,7 @@ namespace moris
                             mConst( 2, 2 ) = tPre * 0.5 * (1.0 - tNu );
                             break;
                         }
-                        case ( 2 ):
+                        case ( Model_Type::PLANE_STRAIN ):
                         {
                             moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
@@ -189,7 +187,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_const - In 2D only plain strain or plain stress implemented");
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_const - In 2D only plane stress and plane strain implemented");
                         }
                 }
                 break;
@@ -391,43 +389,46 @@ namespace moris
             {
                 case ( 2 ):
                 {
-                    uint tPlainStrainOrStress = 1;
-
-                    switch ( tPlainStrainOrStress )
+                    switch ( mModelType )
                     {
-                        case ( 1 ):
+                        case ( Model_Type::PLANE_STRESS ):
                         {
                             aTheramlExpansionVector.set_size( 3, 1, 0.0);
                             aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
                             aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
                             break;
                         }
-                        case ( 2 ):
+                        case ( Model_Type::PLANE_STRAIN ):
                         {
-                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - plain strain not implemented");
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - plane strain not implemented");
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - In 2D only plain strain or plain stress implemented");
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - In 2D only plane stress and plane strain implemented");
                         }
+                    }
+                    break;
                 }
-                break;
-            }
-            case( 3 ):
-            {
-                aTheramlExpansionVector.set_size( 6, 1, 0.0);
-                aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
-                aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
-                aTheramlExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - Flattening of strain tensor only implemented in 2 and 3 D");
+                case( 3 ):
+                {
+                    aTheramlExpansionVector.set_size( 6, 1, 0.0);
+                    aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                    aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
+                    aTheramlExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - Flattening of strain tensor only implemented in 2 and 3 D");
+                }
             }
         }
-    }
+
+        void CM_Struc_Linear_Isotropic::set_model_type(Model_Type aModelType)
+        {
+            mModelType = aModelType;
+        }
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

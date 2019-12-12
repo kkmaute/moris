@@ -97,6 +97,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -287,6 +288,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -478,6 +480,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -673,6 +676,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
