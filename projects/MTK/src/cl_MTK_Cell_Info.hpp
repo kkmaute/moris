@@ -76,6 +76,26 @@ class Cell_Info
 	moris::Matrix<moris::IndexMat>
 	get_node_map_outward_normal(moris::uint aSideOrdinal) const  = 0;
 
+	// ---------------------------------------------------------------------------------
+	/*
+	 * Returns the adjacent facet of the given
+	 */
+	virtual
+	moris::uint
+	get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+	{
+	    MORIS_ERROR(0,"get_adjacent_side_ordinal only makes sense for hex/quad type cells");
+	    return MORIS_UINT_MAX;
+	}
+
+	// ---------------------------------------------------------------------------------
+	virtual
+	Matrix<DDRMat>
+	get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const
+	{
+            MORIS_ERROR(0,"get_loc_coord_on_side_ordinal not implemented for given cell info type");
+            return Matrix<DDRMat>(0,0);
+	}
         // ---------------------------------------------------------------------------------
 	virtual
 	moris::Matrix<moris::IndexMat>
@@ -92,6 +112,15 @@ class Cell_Info
 	moris::real
 	compute_cell_size( moris::mtk::Cell const * aCell ) const = 0;
 	// ---------------------------------------------------------------------------------
+
+	virtual
+	void
+	eval_N( const Matrix< DDRMat > & aXi,
+	              Matrix< DDRMat > & aNXi ) const
+	{
+	        MORIS_ERROR(0,"get edge to face map not implemented for this type of cell info");
+	}
+
 //        /*!
 //         * Compute the surface area of side of 3D cell or the arc length of side of 2d cell
 //         */

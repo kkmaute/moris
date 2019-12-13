@@ -80,7 +80,7 @@ namespace xtk
           {
               std::string tPrefix;
               tPrefix = std::getenv("MORISROOT");
-              std::string tMeshFileName = tPrefix + "/TestExoFiles/single_tet_mesh.e";
+              std::string tMeshFileName = tPrefix + "projects/XTK/test/test_exodus_files/single_tet_mesh.e";
               Cell<std::string> tScalarFieldNames = {"lsf"};
 
               // Declare scalar node field

@@ -132,6 +132,26 @@ public:
         return *mRightSideCluster;
     }
 
+    /*!
+     * Returns the left side cluster
+     */
+    moris::mtk::Side_Cluster &
+    get_left_side_cluster()
+    {
+        return *mLeftSideCluster;
+    }
+
+    //----------------------------------------------------------------
+
+    /*!
+     * Returns the left side cluster in this double sided side cluster
+     */
+    moris::mtk::Side_Cluster &
+    get_right_side_cluster()
+    {
+        return *mRightSideCluster;
+    }
+
     //##############################################
     // Vertex Pair Access
     //##############################################

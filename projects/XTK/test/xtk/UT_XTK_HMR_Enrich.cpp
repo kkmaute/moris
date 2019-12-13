@@ -312,8 +312,6 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         Enriched_Integration_Mesh & tEnrInteg = tXTKModel.get_enriched_integ_mesh(0);
-        tEnrInteg.print_cell_clusters(1);
-        tEnrInteg.print_double_side_sets();
 
         // Declare the fields related to enrichment strategy in output options
         Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();

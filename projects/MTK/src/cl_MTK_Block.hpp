@@ -104,9 +104,8 @@ namespace moris
                 }
 #endif
 
-                unique( tVerticesOnBlock, mVerticesOnBlock);
 
-//                print(mVerticesOnBlock,"mNumVerticesOnBlock");
+                unique( tVerticesOnBlock, mVerticesOnBlock);
 
                 mNumVerticesOnBlock = mVerticesOnBlock.numel();
             };

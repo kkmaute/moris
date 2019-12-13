@@ -17,7 +17,8 @@ Side_Cluster::Side_Cluster():
             mChildMesh(nullptr),
             mIntegrationCells(0,nullptr),
             mIntegrationCellSideOrdinals(0,0),
-            mVerticesInCluster(0,nullptr)
+            mVerticesInCluster(0,nullptr),
+            mVertexLocalCoords(0)
             {}
 //----------------------------------------------------------------
 bool
@@ -73,7 +74,14 @@ Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex co
 {
     MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
 
+    if(mChildMesh != nullptr)
+    {
     return mChildMesh->get_parametric_coordinates(aVertex->get_index());
+    }
+    else
+    {
+        return mVertexLocalCoords(this->get_vertex_cluster_index(aVertex));
+    }
 }
 //----------------------------------------------------------------
 
@@ -81,13 +89,13 @@ moris::moris_index
 Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const
 {
 
-    if(mTrivial)
+    if(mTrivial ||  mChildMesh == nullptr)
     {
-    auto tIter = mVertexIdToLocalIndex.find(aVertex->get_id());
+        auto tIter = mVertexIdToLocalIndex.find(aVertex->get_id());
 
-    MORIS_ERROR(tIter != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
+        MORIS_ERROR(tIter != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
 
-    return tIter->second;
+        return tIter->second;
     }
 
     else
@@ -122,12 +130,21 @@ Side_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
 }
 //----------------------------------------------------------------
 void
+Side_Cluster::print_vertex_map() const
+{
+    for(auto i :mVertexIdToLocalIndex)
+    {
+        std::cout<<"Vertex Id: "<<i.first<<" | Cluster Index: "<<i.second<< std::endl;
+    }
+}
+//----------------------------------------------------------------
+void
 Side_Cluster::finalize_setup()
 {
     moris::Cell<moris::mtk::Vertex const *> const & tVerticesInCluster = this->get_vertices_in_cluster();
 
     // add to map if trivial otherwise the child mesh takes care of this
-    if(mTrivial)
+    if(mTrivial || mChildMesh == nullptr)
     {
         for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
         {

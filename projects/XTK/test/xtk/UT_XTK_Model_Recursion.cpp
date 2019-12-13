@@ -8,125 +8,13 @@
  *      Author: ktdoble
  */
 
-#include <memory>
-#include <mpi.h>
 #include "catch.hpp"
-#include "cl_Logger.hpp"
-
-
-#include "xtk/cl_XTK_Child_Mesh.hpp"
-
-
-#include "cl_Sphere.hpp"
-#include "geometry/cl_Plane.hpp"
-// XTKL: Mesh Includes
-#include "cl_Mesh_Enums.hpp"
-#include "fn_verify_tet_topology.hpp"
-
-// XTKL: Geometry  Include
-#include "cl_Cell.hpp"
-
-// XTKL: Linear Algebra Includes
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "fn_all_true.hpp"
-#include "op_equal_equal.hpp"
 
 #include "cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Phase_Table.hpp"
-#include "cl_XTK_Cut_Mesh.hpp"
-#include "cl_XTK_Face_Registry.hpp"
-
-#include "fn_local_child_mesh_flood_fill.hpp"
-#include "fn_mesh_flood_fill.hpp"
-#include "fn_generate_element_to_element.hpp"
-
+#include "cl_Plane.hpp"
 using namespace moris;
 namespace xtk
 {
-TEST_CASE("Phase Table","[Phase_Table]")
-        {
-
-    Matrix< IndexMat > tPhaseTableData (
-            {{0,0},
-        {0,1},
-        {1,0},
-        {1,1}});
-
-    Cell<std::string> tPhaseNames = {"m0","m1","m2"};
-
-    // TODO: figure out how to check a throw in this constructor
-    //    CHECK_THROWS(Phase_Table(tPhaseTableData,tPhaseNames));
-
-    tPhaseNames = {"m0","m1","m2","m3"};
-
-    Phase_Table tPhaseTable (tPhaseTableData,tPhaseNames);
-    Matrix< IndexMat > tRow(0,0);
-
-    size_t tIndex = 0;
-    for(size_t iR = 0; iR<tPhaseTableData.n_rows(); iR++ )
-    {
-        tRow = tPhaseTableData.get_row(iR);
-
-        tIndex = tPhaseTable.get_phase_index(tRow);
-
-        CHECK(tIndex == iR);
-    }
-//
-//#ifdef DEBUG
-//    (tRow)(0,0) = 2;
-//    CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
-//    (tRow)(0,0) = 0;
-//    (tRow)(0,1) = 2;
-//
-//    CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
-//#endif
-
-
-    // Check a 3 phase problem
-
-    tPhaseTableData = Matrix< IndexMat >(
-            {{0,0,0},
-        {0,0,1},
-        {0,1,0},
-        {0,1,1},
-        {1,0,0},
-        {1,0,1},
-        {1,1,0},
-        {1,1,1}});
-
-
-    // TODO: figure out how to check a throw in this constructor
-    //    CHECK_THROWS(Phase_Table(tPhaseTableData,tPhaseNames));
-
-    tPhaseNames = {"m0","m1","m2","m3","m4","m5","m6","m7"};
-
-    Phase_Table tPhaseTable2 (tPhaseTableData,tPhaseNames);
-
-    //Check indices are correct
-    tRow = Matrix< IndexMat >(1,tPhaseTableData.n_cols());
-    for(size_t iR = 0; iR<tPhaseTableData.n_rows(); iR++ )
-    {
-        tRow = tPhaseTableData.get_row(iR);
-
-        tIndex = tPhaseTable2.get_phase_index(tRow);
-
-        CHECK(tIndex == iR);
-    }
-
-#ifdef DEBUG
-    (tRow)(0,0) = 2;
-
-    CHECK_THROWS(tPhaseTable2.get_phase_index(tRow));
-    (tRow)(0,0) = 0;
-    (tRow)(0,1) = 2;
-
-    CHECK_THROWS(tPhaseTable2.get_phase_index(tRow));
-#endif
-
-
-        }
-
 
 TEST_CASE("Autogenerate Exponential Base 2 Table","[AUTO_PHASE_TABLE]")
 {
@@ -230,7 +118,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         real tYn1 = 1.0;
         real tZn1 = 0.0;
 
-        Plane tPlane1(tXc1,tYc1,tZc1,tXn1,tYn1,tZn1);
+        Plane<3> tPlane1(tXc1,tYc1,tZc1,tXn1,tYn1,tZn1);
 
 
         real tXc2 = 0.55;
@@ -240,7 +128,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         real tYn2 = 0.0;
         real tZn2 = 1.0;
 
-        Plane tPlane2(tXc2,tYc2,tZc2,tXn2,tYn2,tZn2);
+        Plane<3> tPlane2(tXc2,tYc2,tZc2,tXn2,tYn2,tZn2);
 
         real tXc3 = 0.7;
         real tYc3 = 0.7;
@@ -249,7 +137,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         real tYn3 = 0.0;
         real tZn3 = 1.0;
 
-        Plane tPlane3(tXc3,tYc3,tZc3,tXn3,tYn3,tZn3);
+        Plane<3> tPlane3(tXc3,tYc3,tZc3,tXn3,tYn3,tZn3);
 
 
         Phase_Table tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);

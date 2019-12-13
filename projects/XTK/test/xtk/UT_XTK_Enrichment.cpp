@@ -122,8 +122,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         // get the enriched interpolation mesh
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
-        Cell<Interpolation_Cell_Unzipped> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
-
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

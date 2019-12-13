@@ -372,7 +372,7 @@ public:
     get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
                                                    moris::moris_index aCellIndex) const
     {
-        Matrix<IdMat> tElementFaces = get_entity_connected_to_entity_loc_inds(aCellIndex,EntityRank::ELEMENT, EntityRank::FACE);
+        Matrix<IdMat> tElementFaces = get_entity_connected_to_entity_loc_inds(aCellIndex,EntityRank::ELEMENT, this->get_facet_rank());
 
         moris_index tOrdinal = MORIS_INDEX_MAX;
         for(moris_index iOrd = 0; iOrd<(moris_index)tElementFaces.numel(); iOrd++)

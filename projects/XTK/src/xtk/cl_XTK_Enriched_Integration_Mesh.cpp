@@ -12,6 +12,9 @@
 #include "cl_XTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
+
+#include <memory>
 
 namespace xtk
 {
@@ -20,6 +23,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
                                                      moris::moris_index aInterpIndex):
                 mModel(aXTKModel),
                 mMeshIndexInModel(aInterpIndex),
+                mCellClusters(0,nullptr),
                 mFields(0),
                 mFieldLabelToIndex(2)
 {
@@ -51,21 +55,6 @@ Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
     }
     mListofDoubleSideSets.clear();
 
-    for(auto p:mCellClusters)
-    {
-        delete p;
-    }
-    mCellClusters.clear();
-
-    for(auto p:mSideSets)
-    {
-        for(auto q:p)
-        {
-            delete q;
-        }
-
-        p.clear();
-    }
 
     for(auto p:mDoubleSideClusters)
     {
@@ -73,10 +62,6 @@ Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
     }
     mDoubleSideClusters.clear();
 
-    for(auto p:mDoubleSideSingleSideClusters)
-    {
-        delete p;
-    }
     mDoubleSideSingleSideClusters.clear();
 
 }
@@ -100,12 +85,12 @@ Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank ) const
     {
         case(EntityRank::NODE):
             {
-            return mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE) + mModel->mEnrichedInterpMesh(mMeshIndexInModel)->get_num_entities(EntityRank::NODE);
+            return mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE);
             break;
             }
         case(EntityRank::ELEMENT):
             {
-            return mModel->get_num_elements_unzipped();
+            return mModel->get_num_elements_total();
             break;
             }
         default:
@@ -135,11 +120,10 @@ Enriched_Integration_Mesh::get_all_vertices() const
 {
     moris::uint tNumNodes = this->get_num_entities(EntityRank::NODE);
     Cell<mtk::Vertex const *> tVertices(tNumNodes);
-    moris::Cell<moris::mtk::Vertex_XTK> const & tXTKVertices = mModel->mBackgroundMesh.get_all_vertices();
 
     for(moris::uint i = 0; i < tNumNodes; i++)
     {
-        tVertices(i) = & tXTKVertices(i);
+        tVertices(i) = &mModel->mBackgroundMesh.get_mtk_vertex(i);
     }
     return tVertices;
 }
@@ -220,6 +204,11 @@ Enriched_Integration_Mesh::get_set_names(enum EntityRank aSetEntityRank) const
 {
     switch(aSetEntityRank)
     {
+        case(EntityRank::NODE):
+            {
+            return moris::Cell<std::string>(0);;
+            break;
+            }
         case(EntityRank::EDGE):
             {
             MORIS_ASSERT(this->get_facet_rank() == EntityRank::EDGE,"side sets are defined on edges in 2d");
@@ -238,12 +227,155 @@ Enriched_Integration_Mesh::get_set_names(enum EntityRank aSetEntityRank) const
             break;
             }
         default:
-            MORIS_ERROR(0,"Currently only supporting block and side sets in XTK enriched integration meshes");
+            MORIS_ERROR(0,"Currently only supporting block, node and side sets in XTK enriched integration meshes");
 
             return moris::Cell<std::string>(0);
             break;
     }
 }
+Matrix< IndexMat >
+Enriched_Integration_Mesh::get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                                    std::string     aSetName) const
+{
+    switch(aSetEntityRank)
+    {
+        case(EntityRank::NODE):
+            {
+            return Matrix< IndexMat >(0,0);
+            break;
+            }
+        case(EntityRank::EDGE):
+            {
+            MORIS_ASSERT(this->get_facet_rank() == EntityRank::EDGE,"side sets are defined on edges in 2d");
+            return Matrix< IndexMat >(0,0);
+            break;
+            }
+        case(EntityRank::FACE):
+            {
+            MORIS_ASSERT(this->get_facet_rank() == EntityRank::FACE,"side sets are defined on faces in 3d");
+            return Matrix< IndexMat >(0,0);
+            break;
+            }
+        case(EntityRank::ELEMENT):
+            {
+
+            return this->get_block_entity_loc_inds(aSetName);
+
+            break;
+            }
+        default:
+            MORIS_ERROR(0,"Currently only supporting block, node and side sets in XTK enriched integration meshes");
+
+            return Matrix< IndexMat >(0,0);
+            break;
+    }
+}
+
+void
+Enriched_Integration_Mesh::get_sideset_elems_loc_inds_and_ords( const  std::string & aSetName,
+                                                                Matrix< IndexMat > & aElemIndices,
+                                                                Matrix< IndexMat > & aSidesetOrdinals ) const
+{
+    // get the index
+    moris_index tSideSetIndex = this->get_side_set_index(aSetName);
+
+    // get the cell clusters
+    moris::Cell<mtk::Cluster const *> tSideClusters = this->get_side_set_cluster(tSideSetIndex);
+
+    // iterate through side clusters and count number of sides in set
+    moris::uint tNumSides = 0;
+    for(auto iCluster:tSideClusters)
+    {
+        tNumSides = tNumSides + iCluster->get_num_primary_cells();
+    }
+
+    // size outputs
+    aElemIndices.resize(1,tNumSides);
+    aSidesetOrdinals.resize(1,tNumSides);
+
+    // reset count
+    tNumSides = 0;
+    for(auto iCluster:tSideClusters)
+    {
+        Matrix<IndexMat> tSideOrdinals = iCluster->get_cell_side_ordinals();
+        Matrix<IndexMat> tCellIndices  = iCluster->get_primary_cell_indices_in_cluster();
+
+        aElemIndices({0,0},{tNumSides,tNumSides+tCellIndices.numel()-1}) = tCellIndices.matrix_data();
+        aSidesetOrdinals({0,0},{tNumSides,tNumSides+tCellIndices.numel()-1}) = tSideOrdinals.matrix_data();
+
+        tNumSides = tNumSides + tSideOrdinals.numel();
+    }
+
+}
+//------------------------------------------------------------------------------
+moris_id
+Enriched_Integration_Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
+{
+   MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have max id");
+
+   moris::uint tNumEntities = this->get_num_entities(aEntityRank);
+
+   moris_id tLocalMaxId = 0;
+
+   for(moris::uint i = 0; i < tNumEntities; i++)
+   {
+       moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+
+       if(tId > tLocalMaxId)
+       {
+           tLocalMaxId = tId;
+       }
+   }
+
+   moris_id tGlobalMaxId = 0;
+   moris::max_all(tLocalMaxId,tGlobalMaxId);
+   return tGlobalMaxId;
+}
+//------------------------------------------------------------------------------
+Matrix< IndexMat >
+Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string     aSetName) const
+{
+    // ge tindex
+    moris_index tBlockIndex = this->get_block_set_index(aSetName);
+
+    // get clusters in block
+    moris::Cell<mtk::Cluster const *> tCellClusters =  this->get_cell_clusters_in_set(tBlockIndex);
+
+    // iterate through clusters and count all primary integration cells
+    moris::uint tCount = 0;
+    for(auto it: tCellClusters)
+    {
+        tCount = tCount + it->get_num_primary_cells();
+    }
+
+    // allocate output
+    Matrix<IndexMat> tCellIndices(1,tCount);
+
+    // reset count to use it for something else
+    tCount = 0;
+
+    // iterate through clusters and collect all primary integration cell indices
+    for(auto it: tCellClusters)
+    {
+        // get primary cell clusters
+        moris::Matrix<moris::IndexMat> tPrimaryCellIndices = it->get_primary_cell_indices_in_cluster();
+
+        tCellIndices({0,0},{tCount,tCount+tPrimaryCellIndices.numel()-1}) = tPrimaryCellIndices.matrix_data();
+
+        tCount = tCount + tPrimaryCellIndices.numel();
+    }
+
+    return tCellIndices;
+}
+
+//------------------------------------------------------------------------------
+enum CellTopology
+Enriched_Integration_Mesh::get_blockset_topology(const  std::string & aSetName)
+{
+    moris_index tIndex = this->get_block_set_index(aSetName);
+    return mBlockSetTopology(tIndex);
+}
+
 //------------------------------------------------------------------------------
 Matrix<IdMat>
 Enriched_Integration_Mesh::convert_indices_to_ids(Matrix<IndexMat> const & aIndices,
@@ -379,7 +511,7 @@ Enriched_Integration_Mesh::get_side_set_cluster(moris_index aSideSetOrdinal) con
 
     for(moris::uint i = 0; i <tNumSideClustersInSet; i++)
     {
-        tSideClustersInSet(i) = mSideSets(aSideSetOrdinal)(i);
+        tSideClustersInSet(i) = mSideSets(aSideSetOrdinal)(i).get();
     }
 
     return tSideClustersInSet;
@@ -435,7 +567,11 @@ moris::Cell<mtk::Cluster const*>
 Enriched_Integration_Mesh::get_double_side_set_cluster(moris_index aSideSetOrdinal) const
 {
     MORIS_ASSERT(aSideSetOrdinal<(moris_index)mDoubleSideSetLabels.size(),"Double side set ordinal out of bounds");
-    return mDoubleSideSets(aSideSetOrdinal);
+    moris::Cell<mtk::Cluster const*> tDblSideClusters;
+    tDblSideClusters.data() = std::vector<mtk::Cluster const *>(mDoubleSideSets(aSideSetOrdinal).cbegin(),
+            mDoubleSideSets(aSideSetOrdinal).cend());
+
+    return tDblSideClusters;
 }
 //------------------------------------------------------------------------------
 uint
@@ -467,7 +603,7 @@ Enriched_Integration_Mesh::print_cell_clusters(moris::uint aVerbosityLevel) cons
     std::cout<<"\nCell Clusters:"<<std::endl;
     for(moris::uint i =0; i <mCellClusters.size(); i++)
     {
-        xtk::Cell_Cluster* tCluster = mCellClusters(i);
+        xtk::Cell_Cluster* tCluster = mCellClusters(i).get();
         std::string tTrivialStr = "f";
         if(tCluster->is_trivial())
         {
@@ -583,6 +719,78 @@ Enriched_Integration_Mesh::print_double_side_clusters(moris::uint aVerbosityLeve
         std::cout<<mDoubleSideClusters(i)<<std::endl;
     }
 }
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Integration_Mesh::create_side_set_from_dbl_side_set(moris_index const & aDblSideSetIndex,
+                                                             std::string const & aSideSetName)
+{
+    Cell<moris_index> tSideSetIndex = this->register_side_set_names({aSideSetName});
+
+    moris::Cell<mtk::Double_Side_Cluster*> & tDblSideClusters = mDoubleSideSets(aDblSideSetIndex);
+
+    moris::uint tCount = 0;
+
+    for(moris::uint i = 0 ; i < tDblSideClusters.size(); i++)
+    {
+        // get the index
+        moris_index tMasterIndex = mDoubleSideSetsMasterIndex(aDblSideSetIndex)(i);
+        moris_index tSlaveIndex  = mDoubleSideSetsSlaveIndex(aDblSideSetIndex)(i);
+
+        mSideSets(tSideSetIndex(0)).push_back( mDoubleSideSingleSideClusters(tMasterIndex) );
+        mSideSets(tSideSetIndex(0)).push_back( mDoubleSideSingleSideClusters(tSlaveIndex) );
+        tCount++;
+
+    }
+
+    this->commit_side_set(tSideSetIndex(0));
+
+    return tSideSetIndex(0);
+}
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(moris_index const & aSideSetIndex,
+                                                                   std::string const & aBlockSetName,
+                                                                   enum CellTopology   aCellTopo)
+{
+
+    moris::Cell<std::shared_ptr<xtk::Side_Cluster>> & tSideClusters = mSideSets(aSideSetIndex);
+
+    Cell<moris_index> tBlockSetIndex = this->register_block_set_names_with_cell_topo({aBlockSetName},aCellTopo);
+
+
+    std::unordered_map<moris_index, moris_index> tIpCellInSet;
+    for(moris::uint i = 0 ; i < tSideClusters.size(); i++)
+    {
+        // cast to xtk side cluster
+        xtk::Side_Cluster* tSideCluster = tSideClusters(i).get();
+
+        if(tIpCellInSet.find(tSideCluster->mIntegrationCells(0)->get_id()) == tIpCellInSet.end())
+        {
+            // create a new cell cluster
+            std::shared_ptr<xtk::Cell_Cluster>  tCellCluster = std::make_shared< Cell_Cluster >();
+
+            // get the ith enriched interpolation cell
+            tCellCluster->mInterpolationCell = tSideCluster->mInterpolationCell;
+
+            // mark as trivial
+            tCellCluster->mTrivial = true;
+
+            // add interp cell as integration cell
+            tCellCluster->mPrimaryIntegrationCells.append(tSideCluster->mIntegrationCells);
+
+            mCellClusters.push_back(tCellCluster);
+
+            mPrimaryBlockSetClusters(tBlockSetIndex(0)).push_back( tCellCluster.get() );
+
+            tIpCellInSet[tSideCluster->mIntegrationCells(0)->get_id()] = i;
+
+        }
+    }
+
+    this->commit_block_set(tBlockSetIndex(0));
+
+    return tBlockSetIndex(0);
+}
 
 //------------------------------------------------------------------------------
 std::string
@@ -641,6 +849,74 @@ Enriched_Integration_Mesh::add_field_data(moris::moris_index       aFieldIndex,
 {
     mFields(aFieldIndex).mFieldData = aFieldData.copy();
 }
+
+//------------------------------------------------------------------------------
+moris_id
+Enriched_Integration_Mesh::allocate_entity_ids(moris::size_t  aNumReqs,
+                                               enum EntityRank aEntityRank)
+{
+    MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have ids");
+
+    moris_id tGlobalMax = this->get_max_entity_id(aEntityRank);
+
+    int tProcRank = par_rank();
+    int tProcSize = par_size();
+
+    moris::Cell<moris::moris_id> aGatheredInfo;
+    moris::Cell<moris::moris_id> tFirstId(1);
+    moris::Cell<moris::moris_id> tNumIdsRequested(1);
+
+    tNumIdsRequested(0) = (moris::moris_id)aNumReqs;
+
+    xtk::gather(tNumIdsRequested,aGatheredInfo);
+
+    moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
+
+    if(tProcRank == 0)
+    {
+        // Loop over entities print the number of entities requested by each processor
+        for (int iProc = 0; iProc < tProcSize; ++iProc)
+        {
+            // Give each processor their desired amount of IDs
+            tProcFirstID(iProc) = tGlobalMax;
+
+            // Increment the first available node ID
+            tGlobalMax = tGlobalMax+aGatheredInfo(iProc);
+        }
+
+    }
+
+    xtk::scatter(tProcFirstID,tFirstId);
+
+    return tFirstId(0);
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::commit_double_side_set(moris_index const & aDoubleSideSetIndex)
+{
+
+    MORIS_ASSERT(mListofDoubleSideSets.size() == (uint)aDoubleSideSetIndex,"Committing double side set failed. aDoubleSideSetIndex needs to be equivalent to the size of the list of double side sets");
+    mListofDoubleSideSets.resize( mListofDoubleSideSets.size()+1, nullptr );
+
+    mListofDoubleSideSets( aDoubleSideSetIndex ) = new moris::mtk::Double_Side_Set(mDoubleSideSetLabels(aDoubleSideSetIndex), this->get_double_side_set_cluster( aDoubleSideSetIndex ), this->get_spatial_dim());
+}
+void
+Enriched_Integration_Mesh::commit_side_set(moris_index const & aSideSetIndex)
+{
+    MORIS_ASSERT(mListofSideSets.size() == (uint)aSideSetIndex,"Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of double side sets");
+    mListofSideSets.resize( mListofSideSets.size()+1, nullptr );
+
+    mListofSideSets( aSideSetIndex ) = new moris::mtk::Side_Set(mSideSetLabels(aSideSetIndex), this->get_side_set_cluster( aSideSetIndex ), this->get_spatial_dim());
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::commit_block_set(moris_index const & aBlockSetIndex)
+{
+    MORIS_ASSERT(mListofBlocks.size() == (uint)aBlockSetIndex,"Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of double side sets");
+    mListofBlocks.resize( mListofBlocks.size()+1, nullptr );
+
+    mListofBlocks( aBlockSetIndex ) = new moris::mtk::Block(mBlockSetNames(aBlockSetIndex), this->get_cell_clusters_in_set( aBlockSetIndex ), this->get_spatial_dim());
+}
 //------------------------------------------------------------------------------
 void
 Enriched_Integration_Mesh::setup_cell_clusters()
@@ -653,43 +929,54 @@ Enriched_Integration_Mesh::setup_cell_clusters()
     moris::uint tNumInterpCells = tEnrInterpMesh->get_num_entities(EntityRank::ELEMENT);
 
     // allocate cell cluster member data
-    mCellClusters.resize(tNumInterpCells);
+    mCellClusters.resize(tNumInterpCells,nullptr);
+
+    // Allocate subphase index to cluster index
+    mSubphaseIndexToClusterIndex.resize(1,tNumInterpCells);
 
     // reference the enriched cells
-    Cell<Interpolation_Cell_Unzipped> const & tEnrichedInterpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
+    Cell<Interpolation_Cell_Unzipped*> const & tEnrichedInterpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
 
     // iterate through interpolation cells to create cell clusters
     for(moris::uint i = 0; i <tNumInterpCells; i++)
     {
+        // index
+        moris_index tInterpCellIndex = tEnrichedInterpCells(i)->get_index();
+
         // create a new cell cluster
-        mCellClusters(i) = new Cell_Cluster();
+        mCellClusters(tInterpCellIndex) = std::make_shared< Cell_Cluster >();
+
 
         // get the ith enriched interpolation cell
-        mCellClusters(i)->mInterpolationCell = & tEnrichedInterpCells(i);
+        mCellClusters(tInterpCellIndex)->mInterpolationCell = tEnrichedInterpCells(i);
+
+
+        // ad subphase index to cluster index to subphase index data
+        mSubphaseIndexToClusterIndex(i) = mCellClusters(tInterpCellIndex)->get_xtk_interpolation_cell()->get_subphase_index();
 
         // base cell
-        moris::mtk::Cell const * tBaseInterpCell = mCellClusters(i)->mInterpolationCell->get_base_cell();
+        moris::mtk::Cell const * tBaseInterpCell = mCellClusters(tInterpCellIndex)->mInterpolationCell->get_base_cell();
 
         // ask background mesh if the base cell has children (the opposite answer to this question is the trivial flag)
-        mCellClusters(i)->mTrivial = !tBackgroundMesh.entity_has_children(tBaseInterpCell->get_index(),EntityRank::ELEMENT);
+        mCellClusters(tInterpCellIndex)->mTrivial = !tBackgroundMesh.entity_has_children(tBaseInterpCell->get_index(),EntityRank::ELEMENT);
 
         // if it has children get a pointer to the child mesh
-        if(!mCellClusters(i)->mTrivial)
+        if(!mCellClusters(tInterpCellIndex)->mTrivial)
         {
             // subphase index
-            moris_index tProcSubphaseIndex = mCellClusters(i)->mInterpolationCell->get_subphase_index();
+            moris_index tProcSubphaseIndex = mCellClusters(tInterpCellIndex)->mInterpolationCell->get_subphase_index();
 
 
             moris_index tChildMeshIndex = tBackgroundMesh.child_mesh_index(tBaseInterpCell->get_index(),EntityRank::ELEMENT);
-            mCellClusters(i)->mChildMesh = & tCutMesh.get_child_mesh(tChildMeshIndex);
+            mCellClusters(tInterpCellIndex)->mChildMesh = & tCutMesh.get_child_mesh(tChildMeshIndex);
 
-            moris_index tSubphaseIndex = mCellClusters(i)->mChildMesh->get_subphase_loc_index(tProcSubphaseIndex);
+            moris_index tSubphaseIndex = mCellClusters(tInterpCellIndex)->mChildMesh->get_subphase_loc_index(tProcSubphaseIndex);
 
             // access the subphase information
-            Cell<moris::Matrix< moris::IndexMat >> tSubPhaseGroups = mCellClusters(i)->mChildMesh->get_subphase_groups();
+            Cell<moris::Matrix< moris::IndexMat >> tSubPhaseGroups = mCellClusters(tInterpCellIndex)->mChildMesh->get_subphase_groups();
 
             // child cell proc inds
-            Matrix<IndexMat> const & tChildCellInds = mCellClusters(i)->mChildMesh->get_element_inds();
+            Matrix<IndexMat> const & tChildCellInds = mCellClusters(tInterpCellIndex)->mChildMesh->get_element_inds();
 
 
             // convert to cell indices as child mesh returns them ordered by cm index
@@ -703,29 +990,27 @@ Enriched_Integration_Mesh::setup_cell_clusters()
             }
 
             // get cells in primary subphase
-            mCellClusters(i)->mPrimaryIntegrationCells = this->get_mtk_cells_loc_inds(tSubPhaseGroups(tSubphaseIndex));
+            mCellClusters(tInterpCellIndex)->mPrimaryIntegrationCells = this->get_mtk_cells_loc_inds(tSubPhaseGroups(tSubphaseIndex));
 
             // add other cells to void subphase
             for(moris::uint iSp = 0; iSp < tSubPhaseGroups.size(); iSp++ )
             {
                 if(iSp != (uint) tSubphaseIndex)
                 {
-                    mCellClusters(i)->mVoidIntegrationCells.append(this->get_mtk_cells_loc_inds(tSubPhaseGroups(iSp)));
+                    mCellClusters(tInterpCellIndex)->mVoidIntegrationCells.append(this->get_mtk_cells_loc_inds(tSubPhaseGroups(iSp)));
                 }
             }
 
-            mCellClusters(i)->mVerticesInCluster = this->get_mtk_vertices_loc_inds(mCellClusters(i)->mChildMesh->get_node_indices());
+            mCellClusters(tInterpCellIndex)->mVerticesInCluster = this->get_mtk_vertices_loc_inds(mCellClusters(tInterpCellIndex)->mChildMesh->get_node_indices());
 
         }
 
         // trivial case, the enriched interpolation cell becomes the primary cell
         else
         {
-            mCellClusters(i)->mPrimaryIntegrationCells.push_back(mCellClusters(i)->mInterpolationCell->get_base_cell());
+            mCellClusters(tInterpCellIndex)->mPrimaryIntegrationCells.push_back(mCellClusters(tInterpCellIndex)->mInterpolationCell->get_base_cell());
         }
-
     }
-
 }
 //------------------------------------------------------------------------------
 void
@@ -750,10 +1035,13 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
         moris::Cell<std::string> tPhaseChildBlockSetNames = this->split_set_name_by_bulk_phase(tChildNoChildSetNames(0));
         moris::Cell<std::string> tPhaseNoChildBlockSetNames = this->split_set_name_by_bulk_phase(tChildNoChildSetNames(1));
 
+        // topology enums
+        enum CellTopology tChildTopo   = mModel->get_cut_mesh().get_child_element_topology();
+        enum CellTopology tParentTopo  = mModel->get_background_mesh().get_parent_cell_topology();
 
         // add block set names to member data
-        Cell<moris_index> tChildBlockSetOrds   = this->register_block_set_names(tPhaseChildBlockSetNames);
-        Cell<moris_index> tNoChildBlockSetOrds = this->register_block_set_names(tPhaseNoChildBlockSetNames);
+        Cell<moris_index> tChildBlockSetOrds   = this->register_block_set_names_with_cell_topo(tPhaseChildBlockSetNames,tChildTopo);
+        Cell<moris_index> tNoChildBlockSetOrds = this->register_block_set_names_with_cell_topo(tPhaseNoChildBlockSetNames,tParentTopo);
 
         // get the cells in this block
         moris::Cell<moris::mtk::Cell const*> tCellsInBlock = tBackgroundMesh.get_mesh_data().get_block_set_cells(tBlockSetsNames(iBS));
@@ -873,12 +1161,12 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 moris::Cell<moris::mtk::Cell const *> tChildCells = this->get_mtk_cells_loc_inds(tChildCellInds);
 
                 // create a side cluster for each subphase in this child mesh
-                moris::Cell<xtk::Side_Cluster*> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
+                moris::Cell<std::shared_ptr<xtk::Side_Cluster>> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
                 for(moris::uint  iSP = 0; iSP < tChildMesh->get_num_subphase_bins(); iSP++)
                 {
                     MORIS_ASSERT(tEnrichedCellsOfBaseCell(iSP)->get_subphase_index() == tChildMesh->get_subphase_indices()(iSP),"Enriched interpolation cell subphases associated with a base cell should be in ascending order.");
 
-                    tSideClustersForCM(iSP) = new Side_Cluster();
+                    tSideClustersForCM(iSP) = std::make_shared< Side_Cluster >();
                     tSideClustersForCM(iSP)->mInterpolationCell = tEnrichedCellsOfBaseCell(iSP);
                     tSideClustersForCM(iSP)->mTrivial = false;
                     tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals = Matrix<IndexMat>(1,tChildCellIdsOnFace.numel());
@@ -918,11 +1206,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                         // add
                         mSideSets(tSideSetOrd).push_back(tSideClustersForCM(iSP));
                     }
-                    // otherwise delete
-                    else
-                    {
-                        delete tSideClustersForCM(iSP);
-                    }
+
                 }
             }
 
@@ -938,8 +1222,8 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
 
                 // create a new side cluster in the side set assoicate with this bulk phase
                 moris_index tIndex = mSideSets(tSideSetOrd).size();
-                mSideSets(tSideSetOrd).push_back(new Side_Cluster());
-                Side_Cluster* tSideCluster = mSideSets(tSideSetOrd)(tIndex);
+                mSideSets(tSideSetOrd).push_back(std::make_shared< Side_Cluster >());
+                std::shared_ptr<Side_Cluster> tSideCluster = mSideSets(tSideSetOrd)(tIndex);
 
                 // set trivial flag
                 tSideCluster->mTrivial = tTrivial;
@@ -951,7 +1235,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 tSideCluster->mChildMesh = nullptr;
 
                 // integration cell is the same as the interpolation cell in this case
-                tSideCluster->mIntegrationCells = moris::Cell<moris::mtk::Cell const *>(1,tSideCluster->mInterpolationCell);
+                tSideCluster->mIntegrationCells = moris::Cell<moris::mtk::Cell const *>(1,tSideCluster->mInterpolationCell->get_base_cell());
 
                 // side ordinal
                 tSideCluster->mIntegrationCellSideOrdinals = Matrix<IndexMat>({{tSideOrd}});
@@ -1003,7 +1287,7 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
         for(moris::moris_index iP1 = iP0+1; iP1 < (moris_index)tNumBulkPhases; iP1++)
         {
 
-            std::string tInterfaceSideSetName = get_dbl_interface_side_set_name(iP0,iP1);
+            std::string tInterfaceSideSetName = this->get_dbl_interface_side_set_name(iP0,iP1);
 
             tDoubleInterfaceSideNames.push_back(tInterfaceSideSetName);
 
@@ -1012,7 +1296,7 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
             tCount++;
         }
     }
-    register_double_side_set_names(tDoubleInterfaceSideNames);
+    this->register_double_side_set_names(tDoubleInterfaceSideNames);
 }
 
 moris_index
@@ -1068,8 +1352,8 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
             moris::Cell<moris::Cell<moris_index>> tDblSideClustCellFacetOrds  = tChildMesh->get_double_side_interface_cell_pairs_facet_ords(iDI);
 
             // create a new side cluster for each of the pairs
-            Side_Cluster* tLeftSideCluster  = new Side_Cluster();
-            Side_Cluster* tRightSideCluster = new Side_Cluster();
+            std::shared_ptr<xtk::Side_Cluster> tLeftSideCluster  = std::make_shared< Side_Cluster >();
+            std::shared_ptr<xtk::Side_Cluster> tRightSideCluster = std::make_shared< Side_Cluster >();
 
             // paired local child mesh subphase indices
             moris_index tSubphaseIndex0 = tDblSideClustSubphaseCMInds(0);
@@ -1107,11 +1391,13 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
             moris_index tDoubleSideSetIndex = this->get_dbl_side_set_index(tSubphaseBulkPhases(tSubphaseIndex0),tSubphaseBulkPhases(tSubphaseIndex1));
 
             // add to a place to store
+            mDoubleSideSetsMasterIndex(tDoubleSideSetIndex).push_back(mDoubleSideSingleSideClusters.size());
             mDoubleSideSingleSideClusters.push_back(tLeftSideCluster);
+            mDoubleSideSetsSlaveIndex(tDoubleSideSetIndex).push_back(mDoubleSideSingleSideClusters.size());
             mDoubleSideSingleSideClusters.push_back(tRightSideCluster);
 
             // create double side set
-            mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tLeftSideCluster,tRightSideCluster,tChildMesh->get_vertices());
+            mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tLeftSideCluster.get(),tRightSideCluster.get(),tChildMesh->get_vertices());
 
             mDoubleSideClusters.push_back(tDblSideCluster);
             mDoubleSideSets(tDoubleSideSetIndex).push_back(tDblSideCluster);
@@ -1154,7 +1440,8 @@ Enriched_Integration_Mesh::split_set_name_by_child_no_child(std::string aBaseNam
 }
 //------------------------------------------------------------------------------
 Cell<moris_index>
-Enriched_Integration_Mesh::register_block_set_names(moris::Cell<std::string> const & aBlockSetNames)
+Enriched_Integration_Mesh::register_block_set_names_with_cell_topo(moris::Cell<std::string> const & aBlockSetNames,
+                                                                   enum CellTopology                aBlockTopology)
 {
     uint tNumSetsToRegister = aBlockSetNames.size();
 
@@ -1167,12 +1454,12 @@ Enriched_Integration_Mesh::register_block_set_names(moris::Cell<std::string> con
         tBlockSetOrds(i) = mBlockSetNames.size();
 
         mBlockSetNames.push_back(aBlockSetNames(i));
+        mBlockSetTopology.push_back(aBlockTopology);
         MORIS_ASSERT(mBlockSetLabelToOrd.find(aBlockSetNames(i)) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh");
         mBlockSetLabelToOrd[aBlockSetNames(i)] = tBlockSetOrds(i) ;
     }
 
     mPrimaryBlockSetClusters.resize(mPrimaryBlockSetClusters.size() + tNumSetsToRegister);
-
     return tBlockSetOrds;
 }
 //------------------------------------------------------------------------------
@@ -1218,7 +1505,8 @@ Enriched_Integration_Mesh::register_double_side_set_names(moris::Cell<std::strin
     }
 
     mDoubleSideSets.resize(mDoubleSideSets.size() + tNumSetsToRegister);
-
+    mDoubleSideSetsMasterIndex.resize(mDoubleSideSetsMasterIndex.size() + tNumSetsToRegister);
+    mDoubleSideSetsSlaveIndex.resize(mDoubleSideSetsSlaveIndex.size() + tNumSetsToRegister);
     return tDblSideSetOrds;
 }
 //------------------------------------------------------------------------------
@@ -1301,7 +1589,7 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
                                 moris::Cell<xtk::Interpolation_Cell_Unzipped const * > tEnrichedCellsOfBaseCell = tEnrInterpMesh->get_enriched_cells_from_base_cell(tBaseCell);
 
                                 // create a side cluster for each subphase in this child mesh
-                                moris::Cell<xtk::Side_Cluster*> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
+                                moris::Cell<std::shared_ptr<xtk::Side_Cluster>> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
 
                                 // child cell indices
                                 Matrix<IndexMat> const & tChildCellInds = tChildMesh->get_element_inds();
@@ -1313,7 +1601,7 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
                                 {
                                     MORIS_ASSERT(tEnrichedCellsOfBaseCell(iSP)->get_subphase_index() == tChildMesh->get_subphase_indices()(iSP),"Enriched interpolation cell subphases associated with a base cell should be in ascending order.");
 
-                                    tSideClustersForCM(iSP) = new Side_Cluster();
+                                    tSideClustersForCM(iSP) = std::make_shared< Side_Cluster >();
                                     tSideClustersForCM(iSP)->mInterpolationCell = tEnrichedCellsOfBaseCell(iSP);
                                     tSideClustersForCM(iSP)->mTrivial = false;
                                     tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals = Matrix<IndexMat>(1,tSideSetCellsAndOrds.n_rows());
@@ -1345,11 +1633,6 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
 
                                         // add
                                         mSideSets(tSideSetOrd).push_back(tSideClustersForCM(iSP));
-                                    }
-                                    // otherwise delete
-                                    else
-                                    {
-                                        delete tSideClustersForCM(iSP);
                                     }
                                 }
                             }

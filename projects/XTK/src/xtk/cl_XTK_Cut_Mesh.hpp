@@ -327,30 +327,6 @@ public:
     setup_subphase_to_child_mesh_connectivity();
 
 
-    // assignment of subphase id functions
-    void
-    assign_subphase_ids();
-
-    void
-    setup_owned_shared_outward_subphase_id_communication(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
-                                                         Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
-                                                         Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets);
-
-    void
-    outward_communicate_subphase_ids(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
-                                     Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
-                                     Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets);
-
-    void
-    inward_receive_subphase_ids(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
-                                Cell<moris::Matrix<IdMat>> & aNotOwnedParentCellId,
-                                Cell<moris::Matrix<IdMat>> & aNumNotOwnedCellIdsOffsets);
-
-    void
-    assign_subphase_identifiers();
-
-
-
     Matrix<IndexMat> const &
     get_subphase_to_child_mesh_connectivity();
 

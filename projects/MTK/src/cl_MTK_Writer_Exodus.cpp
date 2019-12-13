@@ -200,7 +200,7 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     int tNumNodeSets = tNodeSetNames.size();
 
     // Number of side sets
-    moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
+    moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(mMesh->get_facet_rank());
     int tNumSideSets = tSideSetNames.size();
 
     // Number of elements
@@ -308,7 +308,7 @@ void Writer_Exodus::write_node_sets()
 void Writer_Exodus::write_blocks()
 {
     // Start the element maps
-    mMtkExodusElementIndexMap.set_size(mMesh->get_num_elems(), 1, 0);
+    mMtkExodusElementIndexMap.set_size(mMesh->get_num_elems()+1, 1, 0);
     moris::Matrix<moris::IdMat> tElementIdMap(0, 1, 0);
     moris::uint tElementIdMapStartIndex = 0;
 
@@ -409,7 +409,7 @@ void Writer_Exodus::write_blocks()
 void Writer_Exodus::write_side_sets()
 {
     // Get side set names
-    moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
+    moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(mMesh->get_facet_rank());
 
     // Write side sets
     for (moris::uint tSideSetIndex = 0; tSideSetIndex < tSideSetNames.size(); tSideSetIndex++)

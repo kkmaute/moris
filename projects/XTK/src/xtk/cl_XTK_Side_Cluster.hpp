@@ -36,7 +36,9 @@ public:
     moris_index                                     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
 
 
+    void print_vertex_map() const;
     friend class Enriched_Integration_Mesh;
+    friend class Ghost_Stabilization;
 protected:
     bool                                        mTrivial;
     Interpolation_Cell_Unzipped const *         mInterpolationCell;
@@ -45,6 +47,7 @@ protected:
     moris::Matrix<moris::IndexMat>              mIntegrationCellSideOrdinals;
     moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
+    moris::Cell<moris::Matrix<moris::DDRMat>>   mVertexLocalCoords;
 
     void
     finalize_setup();

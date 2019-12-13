@@ -8,6 +8,7 @@
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 //#include "cl_Geom_Field.hpp"
 //#include "cl_Plane.hpp"
@@ -24,6 +25,7 @@
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "cl_Matrix.hpp"        //LINALG
 #include "linalg_typedefs.hpp"
@@ -136,9 +138,27 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-//        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+
+//        tXTKModel.print_subphase_neighborhood();
+
+
+        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         // output to exodus file ----------------------------------------------------------
+        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
+
+
+
+         // Declare the fields related to enrichment strategy in output options
+         Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+
+        // output solution and meshes
         xtk::Output_Options tOutputOptions;
         tOutputOptions.mAddNodeSets = false;
         tOutputOptions.mAddSideSets = true;
@@ -147,13 +167,25 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
         // add solution field to integration mesh
         std::string tIntegSolFieldName = "solution";
         tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
+        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
 
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_ig.e";
-        tCutMeshData->create_output_mesh(tMeshOutputFile);
+        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh1);
 
-        delete tCutMeshData;
+        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_ig_stk.e";
+        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
+        // Write mesh
+        Writer_Exodus writer(&tEnrIgMesh);
+        writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
+
+        delete tIntegMesh1;
     }
 }
 
@@ -187,7 +219,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          tParameters.set_working_pattern( 3 );
 
          tParameters.set_refinement_buffer( 2 );
-         tParameters.set_staircase_buffer( 2);
+         tParameters.set_staircase_buffer( 2 );
 
          Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
@@ -238,6 +270,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
         // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
 
          // Declare the fields related to enrichment strategy in output options
          Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();

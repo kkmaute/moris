@@ -119,6 +119,26 @@ Cell_Info_Hex27::get_node_to_facet_map(moris::uint aSideOrdinal) const
     return this->get_node_to_face_map(aSideOrdinal);
 }
 // ----------------------------------------------------------------------------------
+moris::uint
+Cell_Info_Hex27::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+{
+    switch (aSideOrdinal)
+    {
+        case(0):{ return 2; break; }
+        case(1):{ return 3; break; }
+        case(2):{ return 0; break; }
+        case(3):{ return 1; break; }
+        case(4):{ return 5; break; }
+        case(5):{ return 4; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid side ordinal specified");
+            return MORIS_UINT_MAX;
+            break;
+        }
+    }
+}
+// ----------------------------------------------------------------------------------
 inline
 moris::Matrix<moris::IndexMat>
 Cell_Info_Hex27::get_node_map_outward_normal(moris::uint aSideOrdinal) const

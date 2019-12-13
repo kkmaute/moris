@@ -29,6 +29,8 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
+#include "cl_MTK_Writer_Exodus.hpp"
+
 #include "cl_Matrix.hpp"        //LINALG
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
@@ -746,6 +748,29 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+
+        // Write mesh
+        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+
+        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(6,"ghost_ss_0");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_0", CellTopology::HEX8);
+
+        tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(7,"ghost_ss_1");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_1", CellTopology::HEX8);
+
+        tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(8,"ghost_ss_2");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_2", CellTopology::HEX8);
+
+        tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(9,"ghost_ss_3");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_3", CellTopology::HEX8);
+
+        Writer_Exodus writer(&tEnrIgMesh);
+        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();

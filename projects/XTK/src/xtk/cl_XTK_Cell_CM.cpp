@@ -1,20 +1,19 @@
 /*
- * cl_MTK_Cell_XTK_Impl.cpp
+ * cl_MTK_Cell_XTK_CM_Impl.cpp
  *
  *  Created on: Feb 19, 2019
  *      Author: doble
  */
 
-#include "cl_MTK_Cell_XTK_Impl.hpp"
+#include "cl_XTK_Cell_CM.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-namespace moris
-{
-namespace mtk
+
+namespace xtk
 {
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-    Cell_XTK::Cell_XTK(moris::moris_id       aElementId,
+    Cell_XTK_CM::Cell_XTK_CM(moris::moris_id       aElementId,
                        moris::moris_index    aElementIndex,
                        moris::moris_index    aElementOwner,
                        moris::moris_index    aCMElementIndex,
@@ -28,11 +27,11 @@ namespace mtk
                            mBackgroundMeshPtr(aBackgroundMeshPtr)
                            {}
 
-    moris::Cell< Vertex* >
-    Cell_XTK::get_vertex_pointers() const
+    moris::Cell< mtk::Vertex* >
+    Cell_XTK_CM::get_vertex_pointers() const
     {
         Matrix< IndexMat > tVertexIndices = this->get_vertex_inds();
-        moris::Cell< Vertex* > tVertices(tVertexIndices.numel());
+        moris::Cell< mtk::Vertex* > tVertices(tVertexIndices.numel());
 
         for(moris::uint  i = 0; i < tVertices.size(); i++)
         {
@@ -45,12 +44,12 @@ namespace mtk
     // Cell get functions
     // ----------------------------------------------------------------------------------
     Matrix< DDRMat >
-    Cell_XTK::get_vertex_coords() const
+    Cell_XTK_CM::get_vertex_coords() const
     {
         return mBackgroundMeshPtr->get_selected_node_coordinates_loc_inds(this->get_vertex_inds());
     }
 
 }
-}
+
 
 

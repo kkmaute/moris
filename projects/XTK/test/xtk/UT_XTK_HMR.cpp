@@ -8,7 +8,7 @@
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
-
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 //#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
@@ -18,11 +18,13 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Checker.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "cl_Matrix.hpp"        //LINALG
 #include "linalg_typedefs.hpp"
@@ -75,12 +77,12 @@ moris::real
 LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
 
-    real mXn = 0;
-    real mYn = 0;
+    real mXn = 0.0;
+    real mYn = 0.0;
     real mZn = 1.0;
     real mXc = 1.0;
     real mYc = 1.0;
-    real mZc = 1.51;
+    real mZc = -0.1;
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
 }
 
@@ -103,10 +105,10 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tParameters.set_output_meshes( { {0} } );
 
-        tParameters.set_lagrange_orders  ( { {3} });
+        tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set_bspline_orders   ( { {3} } );
+        tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
         tParameters.set_union_pattern( 2 );
@@ -139,7 +141,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tHMR.finalize();
 
-//        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
+        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_ghost_interp.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
@@ -199,6 +201,9 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
+        // perform ghost stabilization
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+
 
         xtk::Output_Options tOutputOptions;
         tOutputOptions.mAddNodeSets = false;
@@ -214,6 +219,28 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         std::string tOutputFile = "./xtk_exo/xtk_hmr_cut.exo";
         tIntegMesh1->create_output_mesh(tOutputFile);
+
+        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs", CellTopology::HEX8);
+
+        // Write mesh
+        Writer_Exodus writer(&tEnrIgMesh);
+        writer.write_mesh("", "./xtk_exo/xtk_test_3d_ghost.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
+        // check the mesh
+        mtk::Mesh_Checker tMeshCheck;
+        CHECK(tMeshCheck.verify_double_side_sets(&tEnrIgMesh));
+
+
+        // get the double side cluster associated with ghost 0
+
+
+
 
 
         delete tIntegMesh1;

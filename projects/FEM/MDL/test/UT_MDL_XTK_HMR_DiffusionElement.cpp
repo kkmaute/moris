@@ -36,6 +36,7 @@
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "cl_Matrix.hpp"        //LINALG
 #include "linalg_typedefs.hpp"
@@ -165,7 +166,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         moris::hmr::Parameters tParameters;
 
-        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {4} } );
+        tParameters.set_number_of_elements_per_dimension( { {4}, {4}, {4} } );
         tParameters.set_domain_dimensions({ {1}, {1}, {2} });
         tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
         tParameters.set_bspline_truncation( true );
@@ -437,7 +438,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         moris::hmr::Parameters tParameters;
 
-        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {4} } );
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {2} } );
         tParameters.set_domain_dimensions({ {1}, {1}, {2} });
         tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
         tParameters.set_bspline_truncation( true );
@@ -445,10 +446,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         tParameters.set_output_meshes( { {0} } );
 
-        tParameters.set_lagrange_orders  ( { {2} });
+        tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
         tParameters.set_union_pattern( 2 );
@@ -507,6 +508,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
@@ -709,7 +711,19 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
-        //    delete tInterpMesh1;
+        // Write mesh
+        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss");
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs", CellTopology::HEX8);
+
+        Writer_Exodus writer(&tEnrIgMesh);
+        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
+
         delete tModel;
         delete tIntegMesh1;
     }
