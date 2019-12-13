@@ -9,14 +9,16 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_flux()
         {
             // compute flux
             mFlux = this->constitutive() * this->strain();
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_traction( const Matrix< DDRMat > & aNormal )
         {
             Matrix< DDRMat > tNormal;
@@ -28,7 +30,8 @@ namespace moris
             mTraction = tNormal * this->flux();
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_testTraction( const Matrix< DDRMat > & aNormal )
         {
             Matrix< DDRMat > tNormal;
@@ -40,7 +43,8 @@ namespace moris
             mTestTraction = trans( this->testStrain() ) * this->constitutive() * trans( tNormal );
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_strain()
         {
             // compute displacement gradient
@@ -94,7 +98,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_testStrain()
         {
@@ -139,89 +143,19 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_const()
         {
             uint tNuIndex = static_cast< uint >( Property_Type::NU );
-            moris::real tNu = mProperties( tNuIndex )->val()( 0 );
-
-            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
-            switch ( mSpaceDim )
-            {
-                case ( 2 ):
-                {
-                    switch ( mModelType )
-                    {
-                        case ( Model_Type::PLANE_STRESS ):
-                        {
-                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1 - std::pow( tNu, 2));
-
-                            // compute conductivity matrix
-                            mConst.set_size( 3, 3, 0.0 );
-                            mConst( 0, 0 ) = tPre;
-                            mConst( 1, 1 ) = tPre;
-                            mConst( 0, 1 ) = tPre * tNu;
-                            mConst( 1, 0 ) = tPre * tNu;
-                            mConst( 2, 2 ) = tPre * 0.5 * (1.0 - tNu );
-                            break;
-                        }
-                        case ( Model_Type::PLANE_STRAIN ):
-                        {
-                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
-
-                            mConst.set_size( 4, 4, 0.0 );
-                            mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
-                            mConst( 0, 1 ) = tPre * tNu;
-                            mConst( 0, 2 ) = tPre * tNu;
-
-                            mConst( 1, 0 ) = tPre * tNu;
-                            mConst( 1, 1 ) = tPre * ( 1.0 - tNu );
-                            mConst( 1, 2 ) = tPre * tNu;
-
-                            mConst( 2, 0 ) = tPre * tNu;
-                            mConst( 2, 1 ) = tPre * tNu;
-                            mConst( 2, 2 ) = tPre * ( 1.0 - tNu );
-
-                            mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
-                            break;
-                        }
-                        default:
-                        {
-                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_const - In 2D only plane stress and plane strain implemented");
-                        }
-                }
-                break;
-            }
-            case( 3 ):
-            {
-                moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
-
-                mConst.set_size( 6, 6, 0.0 );
-                mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
-                mConst( 0, 1 ) = tPre * tNu;
-                mConst( 0, 2 ) = tPre * tNu;
-
-                mConst( 1, 0 ) = tPre * tNu;
-                mConst( 1, 1 ) = tPre * ( 1.0 - tNu );
-                mConst( 1, 2 ) = tPre * tNu;
-
-                mConst( 2, 0 ) = tPre * tNu;
-                mConst( 2, 1 ) = tPre * tNu;
-                mConst( 2, 2 ) = tPre * ( 1.0 - tNu );
-
-                mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
-                mConst( 4, 4 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
-                mConst( 5, 5 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_strain - Flattening of strain tensor only implemented in 2 and 3 D");
-            }
+            moris::real tNu = mProperties(tNuIndex)->val()(0);
+            uint tEmodIndex = static_cast< uint >( Property_Type::EMOD );
+            moris::real tEmod = mProperties(tEmodIndex)->val()(0);
+            (this->*mConstFunc)(tEmod, tNu);
         }
-    }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
@@ -252,7 +186,8 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                             const Matrix< DDRMat >             & aNormal )
         {
@@ -271,7 +206,8 @@ namespace moris
             mdTractiondDof( tDofIndex ) = tNormal * this->dFluxdDOF( aDofTypes );
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                                 const Matrix< DDRMat >             & aNormal,
                                                                 const Matrix< DDRMat >             & aJump )
@@ -304,7 +240,8 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
@@ -337,14 +274,14 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dConstdDOF - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::flatten_normal( const Matrix< DDRMat > & aNormal,
                                                               Matrix< DDRMat > & aFlattenedNormal)
@@ -381,6 +318,8 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector )
         {
             uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
@@ -389,7 +328,7 @@ namespace moris
             {
                 case ( 2 ):
                 {
-                    switch ( mModelType )
+                    switch ( mPlaneType )
                     {
                         case ( Model_Type::PLANE_STRESS ):
                         {
@@ -425,11 +364,232 @@ namespace moris
             }
         }
 
-        void CM_Struc_Linear_Isotropic::set_model_type(Model_Type aModelType)
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::set_space_dim( uint aSpaceDim )
         {
-            mModelType = aModelType;
+            // check that space dimension is 1, 2, 3
+            MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "Constitutive_Model::set_space_dim - wrong space dimension.");
+
+            // set space dimension
+            mSpaceDim = aSpaceDim;
+
+            // Function pointers
+            set_function_pointers();
         }
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::set_model_type(Model_Type aModelType)
+        {
+            // Store model type based on input
+            if (aModelType == Model_Type::PLANE_STRESS or aModelType == Model_Type::PLANE_STRAIN)
+            {
+                mPlaneType = aModelType;
+            }
+            else if (aModelType == Model_Type::FULL or aModelType == Model_Type::HYDROSTATIC or aModelType == Model_Type::DEVIATORIC)
+            {
+                mTensorType = aModelType;
+            }
+            else
+            {
+                MORIS_ASSERT(false, "Specified linear isotropic elasticity model type that doesn't exist");
+            }
+
+            // Function pointers
+            this->set_function_pointers();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::set_function_pointers()
+        {
+            switch(mSpaceDim)
+            {
+                case(2):
+                {
+                    switch(mPlaneType)
+                    {
+                        case(Model_Type::PLANE_STRESS):
+                        {
+                            switch(mTensorType)
+                            {
+                                case(Model_Type::FULL):
+                                {
+                                    mConstFunc = &CM_Struc_Linear_Isotropic::full_plane_stress;
+                                    break;
+                                }
+                                case(Model_Type::DEVIATORIC):
+                                {
+                                    mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_plane_stress;
+                                    break;
+                                }
+                                default:
+                                {
+                                    MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane stress");
+                                }
+                            }
+                            break;
+                        }
+                        case(Model_Type::PLANE_STRAIN):
+                        {
+                            switch(mTensorType)
+                            {
+                                case(Model_Type::FULL):
+                                {
+                                    mConstFunc = &CM_Struc_Linear_Isotropic::full_plane_strain;
+                                    break;
+                                }
+                                case(Model_Type::DEVIATORIC):
+                                {
+                                    mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_plane_strain;
+                                    break;
+                                }
+                                default:
+                                {
+                                    MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
+                                }
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "Linear isotropic elasticity in 2d requires plane stress or plane strain models");
+                        }
+                    }
+                    break;
+                }
+                case(3):
+                {
+                    switch(mTensorType)
+                    {
+                        case(Model_Type::FULL):
+                        {
+                            mConstFunc = &CM_Struc_Linear_Isotropic::full_3d;
+                            break;
+                        }
+                        case(Model_Type::DEVIATORIC):
+                        {
+                            mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_3d;
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Linear isotropic elasticity implemented only for 2d and 3d");
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::full_plane_stress(moris::real aEmod, moris::real aNu)
+        {
+            moris::real tPre = aEmod / (1 - std::pow( aNu, 2));
+            mConst.set_size( 3, 3, 0.0 );
+
+            mConst( 0, 0 ) = tPre;
+            mConst( 1, 1 ) = tPre;
+            mConst( 0, 1 ) = tPre * aNu;
+            mConst( 1, 0 ) = tPre * aNu;
+            mConst( 2, 2 ) = tPre * 0.5 * (1.0 - aNu );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::deviatoric_plane_stress(moris::real aEmod, moris::real aNu)
+        {
+            moris::real tPre = aEmod / (1 - std::pow( aNu, 2));
+            mConst.set_size( 3, 3, 0.0 );
+
+            mConst( 0, 0 ) = tPre * (1 - aNu) / 2.0;
+            mConst( 1, 1 ) = tPre * (1 - aNu) / 2.0;
+            mConst( 0, 1 ) = tPre * (aNu - 1) / 2.0;
+            mConst( 1, 0 ) = tPre * (aNu - 1) / 2.0;
+            mConst( 2, 2 ) = tPre * 0.5 * (1.0 - aNu );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::full_plane_strain(moris::real aEmod, moris::real aNu)
+        {
+            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            mConst.set_size( 4, 3, 0.0 );
+
+            mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
+            mConst( 0, 1 ) = tPre * aNu;
+            mConst( 1, 0 ) = tPre * aNu;
+            mConst( 1, 1 ) = tPre * ( 1.0 - aNu );
+            mConst( 2, 0 ) = tPre * aNu;
+            mConst( 2, 1 ) = tPre * aNu;
+            mConst( 3, 2 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::deviatoric_plane_strain(moris::real aEmod, moris::real aNu)
+        {
+            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            mConst.set_size( 4, 3, 0.0 );
+
+            mConst( 0, 0 ) = tPre * (2 - 4 * aNu) / 3.0;
+            mConst( 0, 1 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 1, 0 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 1, 1 ) = tPre * (2 - 4 * aNu) / 3.0;
+            mConst( 2, 0 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 2, 1 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 3, 2 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::full_3d(moris::real aEmod, moris::real aNu)
+        {
+            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            mConst.set_size( 6, 6, 0.0 );
+
+            mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
+            mConst( 0, 1 ) = tPre * aNu;
+            mConst( 0, 2 ) = tPre * aNu;
+            mConst( 1, 0 ) = tPre * aNu;
+            mConst( 1, 1 ) = tPre * ( 1.0 - aNu );
+            mConst( 1, 2 ) = tPre * aNu;
+            mConst( 2, 0 ) = tPre * aNu;
+            mConst( 2, 1 ) = tPre * aNu;
+            mConst( 2, 2 ) = tPre * ( 1.0 - aNu );
+            mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 4, 4 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 5, 5 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::deviatoric_3d(moris::real aEmod, moris::real aNu)
+        {
+            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            mConst.set_size( 6, 6, 0.0 );
+
+            mConst( 0, 0 ) = tPre * (2 - 4 * aNu) / 3.0;
+            mConst( 0, 1 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 0, 2 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 1, 0 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 1, 1 ) = tPre * (2 - 4 * aNu) / 3.0;
+            mConst( 1, 2 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 2, 0 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 2, 1 ) = tPre * (2 * aNu - 1) / 3.0;
+            mConst( 2, 2 ) = tPre * (2 - 4 * aNu) / 3.0;
+            mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 4, 4 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 5, 5 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */

@@ -121,9 +121,11 @@ namespace moris
 
         enum class Model_Type
         {
-            UNDEFINED,
-            PLANE_STRESS, // plane stress model
-            PLANE_STRAIN, // plane strain model
+            PLANE_STRESS,
+            PLANE_STRAIN,
+            FULL,
+            HYDROSTATIC, // not implemented yet
+            DEVIATORIC,
             MAX_ENUM
         };
 
