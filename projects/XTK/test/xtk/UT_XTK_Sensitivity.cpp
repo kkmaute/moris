@@ -79,7 +79,7 @@ namespace xtk
           for(size_t i = 0; i<3; i++)
           {
               std::string tPrefix;
-              tPrefix = std::getenv("XTKROOT");
+              tPrefix = std::getenv("MORISROOT");
               std::string tMeshFileName = tPrefix + "/TestExoFiles/single_tet_mesh.e";
               Cell<std::string> tScalarFieldNames = {"lsf"};
 
