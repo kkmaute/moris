@@ -25,7 +25,7 @@ public:
     {
 
     }
-
+    //------------------------------------------------------------------------------
     /*
      * Stores geometry objects in the geometry object manager associated with nodes
      */
@@ -48,7 +48,7 @@ public:
             mNodeToGeomObjectMap[aNodeIndices(0,i)] = i + tNumExistingGeometryObjects;
         }
     }
-
+    //------------------------------------------------------------------------------
     /*
      * Returns the geometry object associated with the specified node index
      */
@@ -62,7 +62,7 @@ public:
 
         return mGeometryObjects(tGOIndex);
     }
-
+    //------------------------------------------------------------------------------
      void
      link_to_node_to_another_nodes_geometry_object(moris::moris_index aNodeIndexWithGeomObj,
                                                    moris::moris_index aNodeIndexToLink)
@@ -74,8 +74,7 @@ public:
          mNodeToGeomObjectMap[aNodeIndexToLink] = tGOIndex;
 
      }
-
-
+     //------------------------------------------------------------------------------
      /*
       * Returns the geometry object associated with the specified node index
       * Const version of above
@@ -90,7 +89,7 @@ public:
 
          return mGeometryObjects(tGOIndex);
      }
-
+     //------------------------------------------------------------------------------
 private:
     // Geometry objects
     moris::Cell<GEN_Geometry_Object> mGeometryObjects;

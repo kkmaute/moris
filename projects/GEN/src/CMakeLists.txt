@@ -73,22 +73,45 @@ foreach(GEN_INCLUDE ${GEN_INCLUDES})
 endforeach()
 
 include_directories(${MORIS_PACKAGE_DIR}/GEN/include)
+
+#FIXME: Remove this once xtk has removed subdirectories from its package
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )    
+    
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()   
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 
 # List library source files
 set(LIB_SOURCES
     cl_GE_Factory.cpp
+    
+	geomeng/cl_GEN_Geometry_Engine.cpp
+	
     )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${COM}-lib
-# 	${GEN}-lib
 	${INT}-lib
 	${LINALG}-lib
 	${MAP}-lib
 	${SDF}-lib
+	${XTK}-lib
     )
 
 # Set the output path for library

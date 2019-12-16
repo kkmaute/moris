@@ -6,34 +6,14 @@
  */
 
 #include "catch.hpp"
-#include "HDF5_Tools.hpp"
-
-#include "typedefs.hpp"
-
-// LINALG
-#include "fn_norm.hpp"
-
-// HMR includes
-#include "cl_HMR.hpp"
-#include "cl_HMR_Database.hpp"
-#include "cl_HMR_Field.hpp"
-#include "HMR_Globals.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_Geom_Field.hpp"
+#include "typedefs.hpp"
 
-#include "cl_GE_Geometry_Library.hpp"
-#include "cl_GE_Core.hpp"
-#include "cl_GE_Factory.hpp"
-
-#include "../src/geometry/cl_GEN_Circle.hpp"
-#include "../src/geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
-#include "../src/geometry/cl_GEN_Geom_Data.hpp"
-#include "../src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../src/geometry/cl_GEN_Geometry.hpp"
-#include "../src/geometry/cl_GEN_Multi_Geometry.hpp"
-#include "../src/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -45,22 +25,42 @@
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Data_STK.hpp"
+#include "cl_MTK_Mesh_Core_STK.hpp"
+#include "cl_MTK_Interpolation_Mesh_STK.hpp"
+#include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Double_Side_Cluster.hpp"
+#include "cl_MTK_Double_Side_Cluster_Input.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
+#include "cl_MTK_Side_Cluster_Input.hpp"
 
-#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
-#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
-#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
+#include "cl_Matrix.hpp"        //LINALG
+#include "linalg_typedefs.hpp"
+#include "fn_equal_to.hpp" // ALG/src
+
 #include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
+#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
+
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -78,38 +78,39 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "linalg_typedefs.hpp"
+#include "fn_norm.hpp"
+
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Data.hpp"
 
 using namespace moris;
 namespace ge
 {
 
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return aParameters( 0 );
-        }
-
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
                                     moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
                                     moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
                                     fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return aCoeff( 0 );
-        }
-
-
-real testShellFunc( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell< moris::real > aConst )
 {
-    real thickness = 0.1;
+    return aCoeff( 0 );
+}
 
-    auto circleSrf = norm( aPoint ) - 1;
+moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+            {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
+            {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
+}
 
-    auto shell = moris::ge::shell_tor( circleSrf, -thickness );
-
-    return shell;
+moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    Matrix< DDRMat > tCenter{ { -10, -10 } };
+    return    norm( aPoint - tCenter ) - 0.001;
 }
 
 int user_defined_refinement(       hmr::Element             * aElement,
@@ -190,6 +191,7 @@ int user_defined_refinement(       hmr::Element             * aElement,
     return aDoRefine;
 }
 
+//------------------------------------------------------------------------------
 TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 {
     uint tLagrangeMeshIndex = 0;
@@ -232,7 +234,7 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     tDatabase->update_bspline_meshes();
     tDatabase->update_lagrange_meshes();
 
-    uint tNumberOfFibers      = 10;
+    uint tNumberOfFibers      = 1;
     uint tNumberOfRefinements = 1;
     std::cout<<"-------------------------------------"<<std::endl;
     std::cout<<"number of fibers being analyzed:  "<<tNumberOfFibers<<std::endl;
@@ -343,7 +345,6 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //    tPropNuPlate->set_parameters( { {{ 0.0 }} } );
     tPropNuPlate->set_val_function( tConstValFunction );
 
-
     std::shared_ptr< fem::Property > tPropEModFibers = std::make_shared< fem::Property >();
     tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
 //    tPropEModFibers->set_parameters( { {{ 100 }} } );
@@ -354,25 +355,35 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //    tPropNuFibers->set_parameters( { {{ 0.0 }} } );          // Poinson's ratio
     tPropNuFibers->set_val_function( tConstValFunction );
 
-    //==============================
+    //======================================================
     // create the boundary conditions and loading properties
-    //==============================
+    //======================================================
     // symmetry boundary conditions
-    std::shared_ptr< fem::Property > tPropDirichletUX = std::make_shared< fem::Property >();    // fix displacement to be zero in x
-    tPropDirichletUX->set_parameters( { {{ 0.0 }} } );
-    tPropDirichletUX->set_val_function( tConstValFunction );
-    tPropDirichletUX->set_dof_type( MSI::Dof_Type::UX );
+    std::shared_ptr< fem::Property > tPropDirichletUX_ss4 = std::make_shared< fem::Property >();    // fix displacement to be zero in x
+    tPropDirichletUX_ss4->set_parameters( { {{ 0.0 }, {1.0}, {1.0}} } );
+    tPropDirichletUX_ss4->set_val_function( tConstValFunction );
 
-    std::shared_ptr< fem::Property > tPropDirichletUY = std::make_shared< fem::Property >();    // fix displacement to be zero in y
-    tPropDirichletUY->set_parameters( { {{ 0.0 }} } );
-    tPropDirichletUY->set_val_function( tConstValFunction );
-    tPropDirichletUY->set_dof_type( MSI::Dof_Type::UY );
+    std::shared_ptr< fem::Property > tPropDirichletUX_ss4_select = std::make_shared< fem::Property >();    // fix displacement to be zero in x
+    tPropDirichletUX_ss4_select->set_parameters( { {{ 1.0 }, {0.0}, {0.0}} } );
+    tPropDirichletUX_ss4_select->set_val_function( tMValFunction );
 
-    std::shared_ptr< fem::Property > tPropDirichletUZ = std::make_shared< fem::Property >();    // fix displacement to be zero in z
-    tPropDirichletUZ->set_parameters( { {{ 0.0 }} } );
-    tPropDirichletUZ->set_val_function( tConstValFunction );
-    tPropDirichletUZ->set_dof_type( MSI::Dof_Type::UZ );
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::Property > tPropDirichletUY_ss1 = std::make_shared< fem::Property >();    // fix displacement to be zero in y
+    tPropDirichletUY_ss1->set_parameters( { {{ 1.0 }, {0.0}, {1.0}} } );
+    tPropDirichletUY_ss1->set_val_function( tConstValFunction );
 
+    std::shared_ptr< fem::Property > tPropDirichletUY_ss1_select = std::make_shared< fem::Property >();    // fix displacement to be zero in y
+    tPropDirichletUY_ss1_select->set_parameters( { {{ 0.0 }, {1.0}, {0.0}} } );
+    tPropDirichletUY_ss1_select->set_val_function( tMValFunction );
+
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::Property > tPropDirichletUZ_ss5 = std::make_shared< fem::Property >();    // fix displacement to be zero in z
+    tPropDirichletUZ_ss5->set_parameters( { {{ 1.0 }, {1.0}, {0.0}} } );
+    tPropDirichletUZ_ss5->set_val_function( tConstValFunction );
+
+    std::shared_ptr< fem::Property > tPropDirichletUZ_ss5_select = std::make_shared< fem::Property >();    // fix displacement to be zero in y
+    tPropDirichletUZ_ss5_select->set_parameters( { {{ 0.0 }, {0.0}, {1.0}} } );
+    tPropDirichletUZ_ss5_select->set_val_function( tMValFunction );
     //==============================
     // loading on free end
     std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
@@ -385,13 +396,23 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 
     std::shared_ptr< fem::Constitutive_Model > tCMPlate = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMPlate->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY , MSI::Dof_Type::UZ }} );
-    tCMPlate->set_properties( { tPropEModPlate, tPropNuPlate } );
+    tCMPlate->set_property( tPropEModPlate, "YoungsModulus" );
+    tCMPlate->set_property( tPropNuPlate, "PoissonRatio" );
     tCMPlate->set_space_dim( 3 );
 
     std::shared_ptr< fem::Constitutive_Model > tCMFibers = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMFibers->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY , MSI::Dof_Type::UZ }} );
-    tCMFibers->set_properties( { tPropEModFibers, tPropNuFibers } );
-    tCMFibers->set_space_dim( 3 );
+    tCMPlate->set_property( tPropEModFibers, "YoungsModulus" );
+    tCMPlate->set_property( tPropNuFibers, "PoissonRatio" );
+    tCMPlate->set_space_dim( 3 );
+
+    //==============================
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
+    tSPDirichletNitsche->set_property( tPropEModPlate, "Material", mtk::Master_Slave::MASTER );
 
     //==============================
     // define the IWGs
@@ -400,35 +421,41 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     std::shared_ptr< fem::IWG > tIWGPlate = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
     tIWGPlate->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGPlate->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tIWGPlate->set_constitutive_models( { tCMPlate }, mtk::Master_Slave::MASTER );
+    tIWGPlate->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::IWG > tIWGFibers = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
     tIWGFibers->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGFibers->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tIWGFibers->set_constitutive_models( { tCMFibers }, mtk::Master_Slave::MASTER );
+    tIWGFibers->set_constitutive_model( tCMFibers, "ElastLinIso", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::IWG > tIWGDirichletFixedUx = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWGDirichletFixedUx->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGDirichletFixedUx->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tIWGDirichletFixedUx->set_constitutive_models( { tCMPlate }, mtk::Master_Slave::MASTER );
-    tIWGDirichletFixedUx->set_properties( { tPropDirichletUX });
+    tIWGDirichletFixedUx->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+    tIWGDirichletFixedUx->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUx->set_property( tPropDirichletUX_ss4, "Dirichlet", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUx->set_property( tPropDirichletUX_ss4_select, "Select", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::IWG > tIWGDirichletFixedUy = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWGDirichletFixedUy->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGDirichletFixedUy->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tIWGDirichletFixedUy->set_constitutive_models( { tCMPlate }, mtk::Master_Slave::MASTER );
-    tIWGDirichletFixedUy->set_properties( { tPropDirichletUY });
+    tIWGDirichletFixedUy->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+    tIWGDirichletFixedUy->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUy->set_property( tPropDirichletUY_ss1, "Dirichlet", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUy->set_property( tPropDirichletUY_ss1_select, "Select", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::IWG > tIWGDirichletFixedUz = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWGDirichletFixedUz->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGDirichletFixedUz->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tIWGDirichletFixedUz->set_constitutive_models( { tCMPlate }, mtk::Master_Slave::MASTER );
-    tIWGDirichletFixedUz->set_properties( { tPropDirichletUZ });
+    tIWGDirichletFixedUz->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+    tIWGDirichletFixedUz->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUz->set_property( tPropDirichletUZ_ss5, "Dirichlet", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUz->set_property( tPropDirichletUZ_ss5_select, "Select", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
     tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+    tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
     //==============================
     // create a list of active block-sets
@@ -457,37 +484,31 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
     tSetDirichletFixed01.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed02;
     tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p1") );
     tSetDirichletFixed02.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed03;
     tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p2") );
     tSetDirichletFixed03.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed04;
     tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p2") );
     tSetDirichletFixed04.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed05;
     tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
     tSetDirichletFixed05.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed06;
     tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
     tSetDirichletFixed06.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 
     //==============================
     // symmetry boundary conditions on side-set 1 ( fix Uy = 0 )
@@ -593,10 +614,6 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     tSetInfo( 11 ) = tSetDirichletFixed10;
     tSetInfo( 12 ) = tSetDirichletFixed11;
     tSetInfo( 13 ) = tSetDirichletFixed12;
-//    tSetInfo( 14 ) = tSetNeumann01;
-//    tSetInfo( 15 ) = tSetNeumann02;
-//    tSetInfo( 16 ) = tSetNeumann03;
-//    tSetInfo( 17 ) = tSetNeumann04;
     tSetInfo( 14 ) = tSetDirichletFixed13;
     tSetInfo( 15 ) = tSetDirichletFixed14;
     tSetInfo( 16 ) = tSetDirichletFixed15;
@@ -620,14 +637,17 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     // STEP 1: create linear solver and algorithm
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    moris::Cell< enum MSI::Dof_Type > tDofTypesU( 3 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;   tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
+    moris::Cell< enum MSI::Dof_Type > tDofTypesU( 3 );
+    tDofTypesU( 0 ) = MSI::Dof_Type::UX;
+    tDofTypesU( 1 ) = MSI::Dof_Type::UY;
+    tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
 
     dla::Solver_Factory  tSolFactory;
     std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
     tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
     tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-    tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
+    tLinearSolverAlgorithm->set_param("AZ_max_iter") = 1000;
     tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
     tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
     tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
@@ -679,8 +699,9 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     //------------------------------------------------------------------------------
     tTimeSolver.solve();
 
-//    std::cout<<" Solution Vector "<<std::endl;
-//    tNonlinearProblem->get_full_vector()->print();
+    Matrix< DDRMat > tSolVec;
+    tNonlinearSolverMain.get_full_solution(tSolVec);
+    print( tSolVec, " Solution Vector ");
 
     // output solution and meshes
     xtk::Output_Options tOutputOptions;
@@ -706,7 +727,8 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
     Matrix<DDRMat> tSTKIntegSolUZ(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
 
-    for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+    uint tNumIntegNodes = tIntegMesh1->get_num_entities(EntityRank::NODE);
+    for(moris::uint i = 0; i < tNumIntegNodes; i++)
     {
         moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
         tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));

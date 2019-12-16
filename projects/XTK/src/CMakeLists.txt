@@ -153,6 +153,7 @@ set(LIB_DEPENDENCIES
 	${MTK}-lib
 	${ALG}-lib
 	${CHR}-lib
+	${GEN}-lib
     )
 
 # Set the output path for library

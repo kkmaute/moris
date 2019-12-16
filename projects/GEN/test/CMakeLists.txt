@@ -20,6 +20,7 @@ set(TEST_SOURCES
     #geometry_classes/cl_GE_test_sdf.cpp
 
 	new_impl_test/cl_General_Functionalities.cpp
+	#new_impl_test/cl_Parameter_Sweep.cpp
     )
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
@@ -65,7 +66,6 @@ set(TEST_DEPENDENCIES
     ${GEN}-lib
     ${INT}-lib
     #${MTK}-lib
-    ${XTK}-lib
     ${MORIS_BASE_LIBS}
     )
 
