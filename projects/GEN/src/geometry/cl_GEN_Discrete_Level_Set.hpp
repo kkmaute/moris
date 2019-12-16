@@ -37,7 +37,7 @@ public:
     }
 
 
-    Discrete_Level_Set( moris::mtk::Mesh*         aMeshWithLevelSetFields,
+    Discrete_Level_Set( moris::mtk::Interpolation_Mesh*  aMeshWithLevelSetFields,
                         moris::Cell<std::string> const & aFieldNames) :
                             mNumLevelSets(aFieldNames.size()),
                             mActiveLevelSetIndex(0),
@@ -135,7 +135,7 @@ public:
         return mLevelSetFieldNames;
     }
 
-    moris::mtk::Mesh*  get_level_set_mesh()
+    moris::mtk::Interpolation_Mesh*  get_level_set_mesh()
     {
         return mLevelSetMesh;
     }
@@ -147,7 +147,7 @@ private:
     // TODO: test multiple level set meshes
     // Right now keeping it simple and assuming all the level set data is applied as field on the same mesh
     // Cell<std::shared_ptr<mesh::Mesh_Data<moris::real,moris::size_t>>> mLevelSetMesh;
-    moris::mtk::Mesh* mLevelSetMesh;
+    moris::mtk::Interpolation_Mesh* mLevelSetMesh;
 
 
 

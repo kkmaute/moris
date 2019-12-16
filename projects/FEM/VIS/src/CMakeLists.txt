@@ -6,7 +6,7 @@ set(${VIS}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_VIS_Output_Data.hpp
+    cl_VIS_Output_Manager.hpp
     cl_VIS_Visualization_Mesh.hpp
     cl_VIS_Vertex_Visualization.hpp
     cl_VIS_Cell_Visualization.hpp
@@ -19,8 +19,9 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-    cl_VIS_Output_Data.cpp
+    cl_VIS_Output_Manager.cpp
     cl_VIS_Cell_Cluster_Visualization.cpp
+    cl_VIS_Factory.cpp
  )
 
 # List library dependencies
@@ -30,6 +31,7 @@ set(LIB_DEPENDENCIES
     ${CON}-lib
     ${HMR}-lib
     ${MTK}-lib
+    #${MDL}-lib
    )
 
 # Set the output path for library

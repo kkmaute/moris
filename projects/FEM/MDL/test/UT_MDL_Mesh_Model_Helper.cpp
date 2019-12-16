@@ -82,9 +82,7 @@ namespace moris
 
                 tMeshModelHelper.compute_unique_node_lists();
 
-
-
-                //delete tInterpMesh;
+                delete tInterpMesh;
                 delete tIntegMesh;
             }
         }

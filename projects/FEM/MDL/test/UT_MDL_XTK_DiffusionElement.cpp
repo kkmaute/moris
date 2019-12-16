@@ -119,7 +119,6 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
         xtk::Model tXTKModel(tModelDimension,tInterpMesh1,tGeometryEngine);
-        tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -300,10 +299,6 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                                         {+4.50e+01},
                                         {+4.50e+01},
                                         {+4.50e+01},
-                                        {+5.00e+00},
-                                        {+5.00e+00},
-                                        {+5.00e+00},
-                                        {+5.00e+00},
                                         {+6.50e+01},
                                         {+6.50e+01},
                                         {+6.50e+01},
@@ -311,11 +306,13 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                                         {+8.50e+01},
                                         {+8.50e+01},
                                         {+8.50e+01},
-                                        {+8.50e+01}};
-
+                                        {+8.50e+01},
+                                        {+5.00e+00},
+                                        {+5.00e+00},
+                                        {+5.00e+00},
+                                        {+5.00e+00}};
         // verify solution
         CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
-
 
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -397,7 +394,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
         xtk::Model tXTKModel(tModelDimension,tInterpMesh1,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

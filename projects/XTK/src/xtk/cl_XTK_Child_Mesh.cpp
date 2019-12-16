@@ -1404,8 +1404,8 @@ Child_Mesh::setup_template_interface_facets(Mesh_Modification_Template & aMeshMo
         enum EntityRank tFacetRank = this->get_facet_rank();
 
         // current index
-        moris::Matrix<moris::IndexMat> * tParentFacetOrds;
-        moris::Matrix<moris::DDSTMat> * tParentFacetRanks;
+        moris::Matrix<moris::IndexMat> * tParentFacetOrds = nullptr;
+        moris::Matrix<moris::DDSTMat> * tParentFacetRanks = nullptr;
         if(tFacetRank == EntityRank::FACE)
         {
             tParentFacetOrds =  & aMeshModTemplate.mNewParentFaceOrdinals;
@@ -1734,6 +1734,14 @@ Child_Mesh::get_element_phase_indices() const
     return mElementPhaseIndices;
 }
 // ---------------------------------------------------------------------------------
+moris_index
+Child_Mesh::get_element_subphase_id(moris::size_t const & aEntityIndex) const
+{
+    MORIS_ASSERT(aEntityIndex<get_num_entities(EntityRank::ELEMENT),"EntityIndex out of bounds, aEntityIndex should be a child mesh local index");
+    MORIS_ASSERT(mHasPhaseInfo,"Elemental phase information not set");
+    return mSubPhaseBinId(mElementBinIndex(aEntityIndex));
+}
+// ---------------------------------------------------------------------------------
 moris::size_t
 Child_Mesh::get_num_subphase_bins() const
 {
@@ -1756,6 +1764,12 @@ Cell<moris_index> const &
 Child_Mesh::get_subphase_indices( ) const
 {
     return mSubPhaseBinIndices;
+}
+// ---------------------------------------------------------------------------------
+moris::Matrix<moris::IndexMat> const &
+Child_Mesh::get_subphase_ids( ) const
+{
+    return mSubPhaseBinId;
 }
 // ---------------------------------------------------------------------------------
 moris_index
@@ -1949,6 +1963,13 @@ Child_Mesh::set_elemental_subphase( moris::moris_index                     & aSu
                         moris::Matrix< moris::IndexMat > const & aElementSubPhase)
 {
     this->construct_subphase_bins(aSubPhaseIndex,aElementSubPhase);
+}
+
+void
+Child_Mesh::set_subphase_id(moris_id const & aSubphaseIndex,
+                             moris_id & aSubphaseId)
+{
+    mSubPhaseBinId(aSubphaseIndex) = aSubphaseId;
 }
 // ---------------------------------------------------------------------------------
 moris::Matrix< moris::IndexMat > const &
@@ -3240,6 +3261,7 @@ Child_Mesh::construct_subphase_bins( moris::moris_index                     & aS
     mElementBinIndex = aElementSubPhase.copy();
 
     moris::Matrix< moris::DDSTMat > tBinSizeCounter(1,tNumBins,0);
+    mSubPhaseBinId                = moris::Matrix<moris::IndexMat>(1,tNumBins);
     mSubPhaseBinIndices           = Cell<moris::moris_index>(tNumBins);
     mSubPhaseBins                 = Cell<moris::Matrix< moris::IndexMat >>(tNumBins);
     mSubphaseBasisEnrichmentLevel = Cell<Cell< moris_index >>(tNumBins);
@@ -3247,8 +3269,16 @@ Child_Mesh::construct_subphase_bins( moris::moris_index                     & aS
     for(moris::size_t i = 0; i<tNumBins; i++)
     {
         mSubPhaseBins(i) = moris::Matrix< moris::IndexMat >(1,tNumElements);
-        mSubPhaseBinIndices(i) = aSubPhaseIndex;
-        aSubPhaseIndex++;
+
+        if(i == 0)
+        {
+            mSubPhaseBinIndices(0) = mParentElementIndex;
+        }
+        else
+        {
+            mSubPhaseBinIndices(i) = aSubPhaseIndex;
+            aSubPhaseIndex++;
+        }
     }
 
     // Place the elements into bins;

@@ -31,12 +31,15 @@ TEST_CASE("Box problem","[Box_FRF]")
         moris::real slot_w = 0.75;
 
         // bottom  back left corner off set
-        moris::real tXOff = 2.0;
-        moris::real tYOff = 2.0;
+        moris::real tXOff = 2.04;
+        moris::real tYOff = 2.05;
         moris::real tZOff = 4.02;
 
         // box sphere exponent
         moris::real tNExp = 10;
+
+        // beta of KS
+        moris::real tBeta = 4;
 
         // Bottom Plate
         moris::real tSx = Depth/2;
@@ -94,7 +97,6 @@ TEST_CASE("Box problem","[Box_FRF]")
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tSubAssembly,tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
-        tGeometryEngine.mComputeDxDp = false;
 
         std::string tPrefix = std::getenv("MORISROOT");
         std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/frf_background.exo";
@@ -108,7 +110,7 @@ TEST_CASE("Box problem","[Box_FRF]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
 
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
         tXTKModel.decompose(tDecompositionMethods);
 
 

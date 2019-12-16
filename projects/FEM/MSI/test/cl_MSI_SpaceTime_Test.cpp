@@ -53,9 +53,6 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
 {
     if(par_size() == 1 )
     {
-        //std::cout<<" Create a 3D mesh of HEX8 "<<std::endl;
-        // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-
         // Define the Interpolation Mesh
         std::string tInterpString = "generated:1x1x1";
 

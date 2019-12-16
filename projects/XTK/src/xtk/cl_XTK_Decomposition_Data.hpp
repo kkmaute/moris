@@ -182,7 +182,6 @@ namespace xtk
         moris_index
         register_new_request(moris_index             aParentEntityIndex,
                              moris_index             aParentEntityOwner,
-                             moris::Matrix<IdMat>    aParentEntitySharing,
                              enum EntityRank         aParentEntityRank,
                              Matrix<DDRMat>  const & aNewNodeCoord,
                              Topology *              aParentTopology,
@@ -198,7 +197,6 @@ namespace xtk
             tNewNodeIndex.push_back(MORIS_INDEX_MAX);
             tNewNodeId.push_back(MORIS_INDEX_MAX);
             tNewNodeOwner.push_back(aParentEntityOwner);
-            tNewNodeSharing.push_back(aParentEntitySharing);
 
             // add node parent information
             tNewNodeParentIndex.push_back(aParentEntityIndex);
@@ -252,7 +250,6 @@ namespace xtk
         register_new_request(moris_index             aParentEntityIndex,
                              moris_index             aSecondaryIdentifier,
                              moris_index             aParentEntityOwner,
-                             moris::Matrix<IdMat>    aParentEntitySharing,
                              enum EntityRank         aParentEntityRank,
                              Matrix<DDRMat>  const & aNewNodeCoord,
                              Topology *              aParentTopology,
@@ -268,7 +265,6 @@ namespace xtk
             tNewNodeId.push_back(MORIS_INDEX_MAX);
 
             tNewNodeOwner.push_back(aParentEntityOwner);
-            tNewNodeSharing.push_back(aParentEntitySharing);
 
             // add node parent information
             tNewNodeParentIndex.push_back(aParentEntityIndex);
@@ -381,7 +377,7 @@ namespace xtk
 
             for(moris::uint  i = 0 ; i < tNewNodeId.size(); i++)
             {
-                std::cout<<"Node Id: "<< tNewNodeId(i)<<"| Node Index: "<<tNewNodeIndex(i)<<"| Coords: "<<tNewNodeCoordinate(i)(0)<<" "<<tNewNodeCoordinate(i)(1)<<" "<<tNewNodeCoordinate(i)(2)<<std::endl;
+                std::cout<<"Node Id: "<<std::setw(8)<< tNewNodeId(i)<<" | Node Index: "<<std::setw(8)<<tNewNodeIndex(i)<<" | Coords: "<<std::setw(8)<<tNewNodeCoordinate(i)(0)<<" "<<std::setw(8)<<tNewNodeCoordinate(i)(1)<<" "<<std::setw(8)<<tNewNodeCoordinate(i)(2)<<std::endl;
             }
         }
 
@@ -407,7 +403,6 @@ namespace xtk
 
         // new node owner
         Cell<moris_index>    tNewNodeOwner;
-        Cell<Matrix<IdMat>>  tNewNodeSharing;
 
         // hanging nodes between procs
         Cell<moris_index> tNewNodeHangingFlag;

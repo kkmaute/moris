@@ -81,8 +81,6 @@ public:
         // populate the cell owner field
         this->populate_cell_owner_field_on_mesh(aMesh);
 
-        // populate the cells on procs field
-        this->populate_cells_on_proc_field_on_mesh(aMesh);
     }
 
     void
@@ -99,57 +97,6 @@ public:
 
         // add to mesh
         aMesh->add_mesh_field_real_scalar_data_loc_inds(mCellOwnersFields.get_field_name(),EntityRank::ELEMENT,tCellOwnerField);
-    }
-
-    void
-    populate_cells_on_proc_field_on_mesh(moris::mtk::Mesh* aMesh)
-    {
-        moris::uint tNumCells = aMesh->get_num_entities(EntityRank::ELEMENT);
-
-        moris::Cell<moris::Cell<moris::real>> tCellsOnProcs(par_size());
-
-        moris::uint tMyRank = par_rank();
-
-        for(moris::uint i = 0; i < tNumCells; i++)
-        {
-            moris::Matrix<moris::IndexMat> tProcsSharing;
-            aMesh->get_processors_whom_share_entity(i,EntityRank::ELEMENT,tProcsSharing);
-
-            // always add cell to cells on the current proc
-            tCellsOnProcs(tMyRank).push_back(i);
-
-            // iterate through sharing procs
-            for(moris::uint j = 0; j < tProcsSharing.numel(); j++ )
-            {
-                if(tProcsSharing(j) != (moris_id)tMyRank)
-                {
-                    // add cell index as being on other processor
-                    tCellsOnProcs(tProcsSharing(j)).push_back(i);
-                }
-            }
-        }
-
-        // add field to mesh
-        moris::Matrix<moris::DDRMat> tFlagCellsOnProc(tNumCells,1);
-
-        for(moris::uint  i = 0; i <(uint) par_size(); i++)
-        {
-            if(tCellsOnProcs.size() > 0)
-            {
-                // reset the flag matrix
-                tFlagCellsOnProc.fill(0);
-
-                //iterate through cells in tCellsOnProc for this procs
-                for(moris::uint j = 0; j < tCellsOnProcs(i).size(); j++)
-                {
-                    tFlagCellsOnProc(tCellsOnProcs(i)(j)) = 1;
-                }
-
-                aMesh->add_mesh_field_real_scalar_data_loc_inds(mCellsOnProcFields(i).get_field_name(),EntityRank::ELEMENT,tFlagCellsOnProc);
-
-            }
-        }
-
     }
 
 

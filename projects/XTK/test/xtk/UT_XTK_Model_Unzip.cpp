@@ -123,7 +123,7 @@ TEST_CASE("XTK Model Unzip Interface","[unzip_xtk]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         moris::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,

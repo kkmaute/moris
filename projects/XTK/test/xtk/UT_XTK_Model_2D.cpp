@@ -71,7 +71,7 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
@@ -83,9 +83,6 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
         // Do some testing
         size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
         size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
-
-        // 2 element was subdivided
-        std::cout<<"tNumNodesAfterDecompositionXTK = "<<tNumNodesAfterDecompositionXTK<<std::endl;
 
         CHECK(tNumNodesAfterDecompositionXTK == 10); /* two duplicates from the shared nodes*/
         CHECK(tNumElementsAfterDecompositionXTK == 8);
@@ -101,10 +98,6 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
                                                                    {0.5, 0.5},
                                                                    {1.5, 0.5}};
         CHECK(equal_to(tNodeCoordinates,tExpectedNodeCoordinates));
-
-        // Compute area of the final mesh
-
-
 
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_2d.e";
@@ -162,7 +155,7 @@ TEST_CASE("2D Conformal Subdivision","[CM_2D_LIN]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 2;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -247,7 +240,7 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
@@ -259,9 +252,6 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
         // Do some testing
         size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
         size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
-
-        // 2 element was subdivided
-        std::cout<<"tNumNodesAfterDecompositionXTK = "<<tNumNodesAfterDecompositionXTK<<std::endl;
 
         CHECK(tNumNodesAfterDecompositionXTK == 10); /* two duplicates from the shared nodes*/
         CHECK(tNumElementsAfterDecompositionXTK == 8);
@@ -345,7 +335,7 @@ TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -357,9 +347,6 @@ TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
         // Do some testing
         size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
         size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
-
-        // 2 element was subdivided
-        std::cout<<"tNumNodesAfterDecompositionXTK = "<<tNumNodesAfterDecompositionXTK<<std::endl;
 
         CHECK(tNumNodesAfterDecompositionXTK == 16);
         CHECK(tNumElementsAfterDecompositionXTK == 16);

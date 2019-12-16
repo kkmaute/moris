@@ -21,10 +21,20 @@
 namespace moris
 {
 class Dist_Vector;
+    namespace mtk
+    {
+        class Set;
+        class Cluster;
+    }
     namespace fem
     {
         class Node_Base;
         class Element;
+    }
+    namespace vis
+    {
+        enum class Output_Type;
+        enum class Field_Type;
     }
     namespace MSI
     {
@@ -333,6 +343,21 @@ class Dist_Vector;
             {
                 MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing");
                 return 0.0;
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            virtual void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
+            {
+                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base clase" );
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            virtual void compute_quantitiy_of_interest( enum vis::Output_Type aOutputType,
+                                                        enum vis::Field_Type    aFieldType)
+            {
+                MORIS_ASSERT( false, "compute_quantitiy_of_interest(), not implemented for base clase" );
             }
         };
     }

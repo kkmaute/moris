@@ -84,7 +84,7 @@ TEST_CASE("Regular Subdivision QUAD4","[REG_SUB_TEMPLATE_QUAD4]")
 
     moris::Matrix< moris::IndexMat > tActiveElements({{0, 1, 2, 3}});
     moris::Matrix< moris::IndexMat > tIncludedElementMarker(1, 4, 1);
-
+    moris::moris_index  tMaxFloodFill = 0;
     // Run flood fill Algorithm to ensure that the floodfill can traverse the mesh
     moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
                                                                     tElementPhase,
@@ -92,6 +92,7 @@ TEST_CASE("Regular Subdivision QUAD4","[REG_SUB_TEMPLATE_QUAD4]")
                                                                     tIncludedElementMarker,
                                                                     tNumPhases,
                                                                     tMax,
+                                                                    tMaxFloodFill,
                                                                     true);
 
 

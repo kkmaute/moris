@@ -156,7 +156,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 
     moris::Matrix< moris::IndexMat > tActiveElements({{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23}});
     moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,24,1);
-
+    moris::moris_index tMaxFloodFill = 0;
     // Run flood fill Algorithm to ensure that the floodfill can traverse the mesh
     moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
                                                                     tElementPhase,
@@ -164,6 +164,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
                                                                     tIncludedElementMarker,
                                                                     tNumPhases,
                                                                     tMax,
+                                                                    tMaxFloodFill,
                                                                     true);
 
 

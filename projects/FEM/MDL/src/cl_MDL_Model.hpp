@@ -21,7 +21,12 @@ namespace moris
 //------------------------------------------------------------------------------
     namespace mtk
     {
-    class Mesh_Manager;
+       class Mesh_Manager;
+    }
+
+    namespace vis
+    {
+       class Output_Manager;
     }
 
     namespace fem
@@ -68,7 +73,7 @@ namespace moris
         class Model
         {
             // pointer to reference mesh
-            mtk::Mesh_Manager* mMeshManager;
+            mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
 
             // list of node pointers
@@ -94,18 +99,22 @@ namespace moris
             moris::uint                       mBSplineIndex = 0;
 
             // model solver interface pointer
-            MSI::Model_Solver_Interface * mModelSolverInterface;
+            MSI::Model_Solver_Interface * mModelSolverInterface = nullptr;
 
             // solver interface pointer
-            MSI::MSI_Solver_Interface   * mSolverInterface;
+            MSI::MSI_Solver_Interface   * mSolverInterface = nullptr;
 
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
+            map< moris_index, moris_index >   mMeshSetToFemSetMap;
+
             Matrix< DDRMat> mSolHMR;
 
-            tsa::Time_Solver * mTimeSolver;
+            tsa::Time_Solver * mTimeSolver = nullptr;
+
+            vis::Output_Manager * mOutputManager = nullptr;
 
             bool mUseMultigrid = false;
 
@@ -153,9 +162,14 @@ namespace moris
             /**
              * get equation sets for test
              */
-            moris::Cell< fem::Set * > get_equation_sets( )
+            moris::Cell< fem::Set * > & get_equation_sets( )
             {
                 return mFemSets;
+            };
+
+            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            {
+                return mMeshSetToFemSetMap;
             };
 
 //------------------------------------------------------------------------------
@@ -227,6 +241,11 @@ namespace moris
             * @param[ in ] aDofType a dof type for outputting
             */
            Matrix<DDRMat> get_solution_for_integration_mesh_output( enum MSI::Dof_Type aDofType );
+
+//------------------------------------------------------------------------------
+
+           void output_solution( const uint aVisMeshIndex,
+                                 const real aTime );
 
 //------------------------------------------------------------------------------
            /*!

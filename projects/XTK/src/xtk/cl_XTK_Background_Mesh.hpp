@@ -83,13 +83,6 @@ public:
     moris::Matrix<moris::IndexMat>
     get_vertices_owner(moris::Matrix<moris::IndexMat> const & aVertexIndices) const;
 
-
-    moris::Matrix<moris::IdMat>
-    get_vertex_sharing(moris::moris_index aVertexIndex) const;
-
-    moris::Matrix<moris::IdMat>
-    get_vertices_sharing(moris::Matrix<moris::IndexMat> const & aVertexIndices) const;
-
     moris::Cell<moris::mtk::Vertex_XTK> const &
     get_all_vertices();
 
@@ -153,7 +146,6 @@ public:
     batch_create_new_nodes(Cell<moris_index>                    const & aNewNodeIds,
                            Cell<moris_index>                    const & aNewNodeIndices,
                            Cell<moris_index>                    const & aNewNodeOwningProc,
-                           Cell<moris::Matrix< moris::IdMat  >> const & aNewNodeProcSharing,
                            Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates);
 
     /*!

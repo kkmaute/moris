@@ -438,9 +438,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 
             moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
             tParMesh->create_output_mesh(tMeshOutputFile);
-            std::cout<<"Num elements = "<<tParMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-            std::cout<<"Num nodes = "<<tParMesh->get_num_entities(EntityRank::NODE)<<std::endl;
-
             delete tParMesh;
         }
         else if(par_rank() == 2)

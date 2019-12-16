@@ -232,7 +232,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 //       std::string tPrefix = std::getenv("MORISROOT");
 //       std::string tMeshFileName = tPrefix + "build/3x1.g";
 //       std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
-//
+
 //       moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
 //       std::string tFieldName1 = "Temp_Field";
 //       tNodeField1.set_field_name( tFieldName1 );
@@ -262,9 +262,6 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
          xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
-//       xtk::Model tXTKModel(2, tInterpolationMesh, tGeometryEngine);
-
-        tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -275,9 +272,6 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-        tEnrInterpMesh.print_enriched_cells();
-        tEnrIntegMesh.print_double_side_sets(2);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -649,7 +643,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
 
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -1007,7 +1001,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 
         xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
 
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};

@@ -315,6 +315,15 @@ public:
     //------------------------------------------------------------------------------
     moris::Matrix< moris::IndexMat >
     get_node_adv_indices_analytic();
+
+    //------------------------------------------------------------------------------
+    moris::uint
+    get_num_design_variables() const
+    {
+        MORIS_ASSERT(mGeometry.size() == 1,"get num design variables only implemented on 1 geometry meshes");
+        MORIS_ASSERT(mGeometry(0)->is_analytic(),"get num design variables only implemented on analytic geometries");
+        return mGeometry(0)->get_num_des_vars();
+    }
     //------------------------------------------------------------------------------
     /*
      * @brief Returns the ADV indices of the provided nodes

@@ -207,7 +207,7 @@ using namespace tsa;
 
             if( tIsOutput )
             {
-                mSolverInterface->initiate_output( mOutputIndices( tCounter ) );
+                mSolverInterface->initiate_output( mOutputIndices( tCounter ), 0.0 );
             }
 
             tCounter++;

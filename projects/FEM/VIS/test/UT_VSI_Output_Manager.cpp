@@ -20,7 +20,7 @@
 #include "cl_MDL_Model.hpp"
 #include "cl_VIS_Factory.hpp"
 #include "cl_VIS_Visualization_Mesh.hpp"
-#include "cl_VIS_Output_Data.hpp"
+#include "cl_VIS_Output_Manager.hpp"
 #undef protected
 #undef private
 
@@ -150,7 +150,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-                tXTKModel.mVerbose = true;
+                tXTKModel.mVerbose = false;
 
                 //Specify decomposition Method and Cut Mesh ---------------------------------------
                 Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -160,8 +160,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-                tEnrIntegMesh.print();
 
                 // place the pair in mesh manager
                 mtk::Mesh_Manager tMeshManager;
@@ -266,19 +264,33 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                         1,
                         tSetInfo );
 
-                moris::Cell< MSI::Equation_Set * > tEquationSets(tModel->get_equation_sets().size());
-                for(moris::uint iSet = 0; iSet < tModel->get_equation_sets().size(); iSet++ )
-                {
-                    tEquationSets( iSet ) = tModel->get_equation_sets()( iSet );
-                }
 
-                Output_Data tOutputData( tEquationSets,
-                        &tMeshManager,
-                        0 );
+                Output_Manager tOutputData;
 
-                tOutputData.write_mesh();
+                tOutputData.set_outputs( 0,
+                                            VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                            "Output_Vis_Mesh.exo",
+                                            { "HMR_dummy_c_p0", "HMR_dummy_n_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p1"},
+                                            { 0, 1, 2, 3 },
+                                            { "pressure" },
+                                            { Field_Type::ELEMENTAL },
+                                            { Output_Type::UX } );
 
-                tOutputData.write_field();
+                tOutputData.create_visualization_mesh( 0,
+                                                       &tMeshManager,
+                                                        0 );
+
+                tOutputData.set_visualization_sets( 0,
+                                             tModel );
+
+                tOutputData.write_mesh( 0,
+                                        0.0);
+
+                tOutputData.end_writing( 0 );
+//
+//                tOutputData.write_mesh();
+
+//                tOutputData.write_field();
 
 
 

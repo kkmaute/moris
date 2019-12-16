@@ -750,8 +750,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
-        tEnrIntegMesh.print_side_sets();
-
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);

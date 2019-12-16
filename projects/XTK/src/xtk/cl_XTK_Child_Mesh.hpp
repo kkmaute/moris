@@ -566,6 +566,9 @@ public:
     moris::Matrix< moris::IndexMat > const &
     get_element_phase_indices() const;
 
+    moris_index
+    get_element_subphase_id(moris::size_t const & aEntityIndex) const;
+
     moris::size_t
     get_num_subphase_bins() const;
 
@@ -577,6 +580,9 @@ public:
 
     Cell<moris_index> const &
     get_subphase_indices( ) const;
+
+    moris::Matrix<moris::IndexMat> const &
+    get_subphase_ids( ) const;
 
     moris_index
     get_subphase_loc_index(moris_index aSubPhaseIndex) const;
@@ -612,6 +618,10 @@ public:
     void
     set_elemental_subphase( moris::moris_index                     & aSubPhaseIndex,
                             moris::Matrix< moris::IndexMat > const & aElementSubPhase);
+
+    void
+    set_subphase_id(moris_id const & aSubphaseIndex,
+                     moris_id & aSubphaseId);
 
     /*
      * Returns the elemental subphase values
@@ -929,13 +939,14 @@ private:
     moris::Matrix< moris::IndexMat >       mElementBinIndex;
     Cell<moris::moris_index>               mBinBulkPhase;
 
+    moris::Matrix<moris::IndexMat>         mSubPhaseBinId; /*glob id of subphase bin*/
     Cell<moris_index>                      mSubPhaseBinIndices; /*proc index of subphase bin*/
     Cell<moris::Matrix< moris::IndexMat >> mSubPhaseBins;
     Cell<Cell< moris_index >>              mSubphaseBasisIndices;
     Cell<Cell< moris_index >>              mSubphaseBasisEnrichmentLevel;
 
     // Double side set between subphases
-    Cell<Cell< moris_index >> mDoubleSideSetSubphaseInds;
+    Cell<Cell< moris_index >>       mDoubleSideSetSubphaseInds;
     Cell<Cell<Cell< moris_index >>> mDoubleSideSetCellPairs;
     Cell<Cell<Cell< moris_index >>> mDoubleSideSetFacetPairs;
 

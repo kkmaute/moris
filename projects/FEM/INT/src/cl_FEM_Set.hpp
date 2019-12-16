@@ -24,6 +24,8 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
 
+#include "cl_VIS_Output_Enums.hpp"
+
 namespace moris
 {
 namespace mtk
@@ -50,6 +52,8 @@ namespace MSI
     {
     private:
         moris::mtk::Set * mMeshSet = nullptr;
+
+        moris::mtk::Set * mVisMeshSet = nullptr;
 
         //! Mesh cluster
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
@@ -101,7 +105,9 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
-        Matrix< DDSMat >               mDofTypeMap;
+        Matrix< DDSMat >        mDofTypeMap;
+
+        moris::Matrix< DDSMat > mCellAssemblyMap;
 
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
@@ -164,6 +170,10 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void free_memory();
+
+//------------------------------------------------------------------------------
+
+        void set_visualization_set( moris::mtk::Set * aVisMeshSet );
 
 //------------------------------------------------------------------------------
         /**
@@ -602,6 +612,14 @@ namespace MSI
                 mDofTypeMap( static_cast< int >( tDofType( Ii ) ), 0 ) = Ii;
             }
         }
+
+//------------------------------------------------------------------------------
+
+        void compute_quantitiy_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+                                            Matrix< DDRMat >      * aNodalFieldValues,
+                                            moris::real           * aGlobalScalar,
+                                            enum vis::Output_Type   aOutputType,
+                                            enum vis::Field_Type    aFieldType );
 
     };
 //------------------------------------------------------------------------------

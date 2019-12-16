@@ -218,7 +218,7 @@ TEST_CASE("2D XTK WITH HMR Thermal Property 2D","[XTK_HMR_thermal_property_2D]")
 //
 //        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
 //
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -591,7 +591,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //
 //        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
 //
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -1037,7 +1037,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //
 //        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
 //
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};

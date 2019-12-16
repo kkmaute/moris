@@ -41,8 +41,7 @@ public:
     Entity() :
             mGlbId(MORIS_ID_MAX),
             mLocInd(MORIS_ID_MAX),
-            mOwningProc(MORIS_ID_MAX),
-            mSharingProcs(0,0)
+            mOwningProc(MORIS_ID_MAX)
     {
 
     }
@@ -55,13 +54,11 @@ public:
     void set_entity_identifiers(moris::moris_id                     aGlbId,
                                 moris::moris_id                     aLocInd,
                                 moris::moris_id                     aOwnerProc,
-                                moris::Matrix<moris::IdMat> const & aSharingProcs,
                                 enum moris::EntityRank              aEntityRank)
     {
         mGlbId        = aGlbId;
         mLocInd       = aLocInd;
         mOwningProc   = aOwnerProc;
-        mSharingProcs = aSharingProcs.copy();
         mEntityRank   = aEntityRank;
     }
 
@@ -104,12 +101,6 @@ public:
         return mOwningProc;
     }
 
-    moris::Matrix<moris::IdMat> const &
-    get_entity_sharing() const
-    {
-        return mSharingProcs;
-    }
-
     moris::Matrix< moris::DDRMat > const &
     get_entity_coords() const
     {
@@ -130,7 +121,6 @@ private:
     moris::moris_id              mGlbId;
     moris::moris_id              mLocInd;
     moris::moris_id              mOwningProc;
-    moris::Matrix<moris::IdMat>  mSharingProcs;
     moris::size_t                mNumFields;
     enum moris::EntityRank       mEntityRank;
     moris::Matrix< moris::DDRMat > mFieldData;
@@ -203,7 +193,6 @@ public:
     batch_create_new_nodes_external_data(Cell<moris_index>                    const & aNewNodeIds,
                                          Cell<moris_index>                    const & aNewNodeIndices,
                                          Cell<moris_index>                    const & aNewNodeOwners,
-                                         Cell<moris::Matrix< moris::IdMat >>  const & aSharingProcs,
                                          Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
     {
         moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
@@ -228,7 +217,7 @@ public:
             tOwner  = aNewNodeOwners(j);
 
             mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-            mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,aSharingProcs(j),moris::EntityRank::NODE);
+            mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,moris::EntityRank::NODE);
             mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_coords(aNewNodeCoordinates(j));
             j++;
         }
@@ -238,7 +227,6 @@ public:
     batch_create_new_nodes_external_data(moris::Matrix< moris::IndexMat >    const & aNewNodeIds,
                                          moris::Matrix< moris::IndexMat >    const & aNewNodeIndices,
                                          moris::Matrix< moris::IndexMat >    const & aNewNodeOwners,
-                                         Cell<moris::Matrix< moris::IdMat >> const & aSharingProcs,
                                          moris::Matrix< moris::DDRMat >      const & aNewNodeCoordinates)
     {
         moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
@@ -262,7 +250,7 @@ public:
             tId     = aNewNodeIds(j);
             tOwner  = aNewNodeOwners(j);
             mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-            mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,tOwner,aSharingProcs(j),moris::EntityRank::NODE);
+            mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,tOwner,moris::EntityRank::NODE);
             mExternalEntities(tEntRankInd)(i).set_entity_coords(aNewNodeCoordinates.get_row(j));
             j++;
         }
@@ -312,14 +300,6 @@ public:
         moris::moris_index tExternalIndex = this->get_external_entity_index(aEntityIndex,EntityRank::NODE);
 
         return mExternalEntities(0)(tExternalIndex).get_entity_owner();
-    }
-
-    moris::Matrix<moris::IdMat> const &
-    get_external_vertex_sharing(moris::moris_index aEntityIndex) const
-    {
-        moris::moris_index tExternalIndex = this->get_external_entity_index(aEntityIndex,EntityRank::NODE);
-
-        return mExternalEntities(0)(tExternalIndex).get_entity_sharing();
     }
 
     moris::moris_id get_glb_entity_id_from_entity_loc_index_external_data(moris::moris_id aEntityIndex, enum EntityRank aEntityRank) const

@@ -141,6 +141,16 @@ public:
         return mBasisEnrichmentIndices;
     }
 
+    /*!
+     * Returns the subphases indices in enriched basis functions support
+     */
+    Cell<moris::Matrix< moris::IndexMat >> const &
+    get_subphases_loc_inds_in_enriched_basis() const;
+    /*!
+     * Returns the subphases ids in enriched basis functions support
+     */
+    Cell<moris::Matrix< moris::IndexMat >>
+    get_subphases_glb_id_in_enriched_basis() const;
 
 //    void
 //    create_multilevel_enrichments();
@@ -184,6 +194,9 @@ private:
     Cell<moris::Matrix< moris::IndexMat >> mElementEnrichmentLevel;
     Cell<moris::Matrix< moris::IndexMat >> mElementIndsInBasis;
 
+    // For each enriched basis function, the subphase indices in support
+    Cell<moris::Matrix< moris::IndexMat >> mSubphaseIndsInEnrichedBasis;
+
     // element to basis and enrichment level connectivity
     // for a given element, the basis function and enrichment level of that basis function
     // (transpose of mElementIndsInBasis)
@@ -193,6 +206,7 @@ private:
 
     // Basis enrichment level indics
     moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
+    moris::Matrix<moris::IndexMat> mEnrichedBasisIndexToId;
 
     // Unintersected Parent Cell, Basis interpolating in them and corresponding enrichment level
     // outer cell corresponds to interp cell index
@@ -243,7 +257,8 @@ private:
     assign_subphase_bin_enrichment_levels_in_basis_support(moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
                                                            IndexMap &                               aSubPhaseIndexToSupportIndex,
                                                            moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
-                                                           moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals);
+                                                           moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals,
+                                                           moris_index                            & aMaxEnrichmentLevel);
 
 
     void
@@ -255,7 +270,29 @@ private:
                                                           moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals);
 
     void
-    assign_enrichment_level_identifiers();
+    construct_enriched_basis_to_subphase_connectivity(moris::Cell<moris::Matrix< moris::IndexMat >> const & aSubPhaseBinEnrichment,
+                                                      moris::Cell<moris::Matrix< moris::IndexMat >> const & aSubphaseClusterIndicesInSupport,
+                                                      moris::Cell<moris_index>                      const & aMaxEnrichmentLevel);
+
+    /*!
+     * Assign the enrichment level local identifiers
+     */
+    void
+    assign_enriched_coefficients_identifiers(moris::Cell<moris_index> const & aMaxEnrichmentLevel);
+
+
+    Cell<moris_id>
+    get_max_integration_cell_id_in_basis_support(moris_index aBasisIndex);
+
+    void
+    communicate_basis_information_with_owner(Cell<Cell<moris_index>> const        & aBasisIdToBasisOwner,
+                                             Cell<Cell<moris_index>> const        & aMaxSubphaseIdToBasisOwner,
+                                             Cell<moris::Matrix<moris::IndexMat>> & aEnrichedBasisId);
+
+    void
+    set_received_enriched_basis_ids(Cell<moris::Matrix<moris::IndexMat>> const & aReceivedEnrichedIds,
+                                    Cell<Cell<moris_index>> const & aBasisIndexToBasisOwner);
+
 
     moris::size_t
     count_elements_in_support(moris::Matrix< moris::IndexMat > const & aParentElementsInSupport);
@@ -263,6 +300,10 @@ private:
     void
     construct_element_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
                                             moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasisEnrichmentLevel);
+
+    bool
+    subphase_is_in_support(moris_index aSubphaseIndex,
+                           moris_index aEnrichedBasisIndex);
 
     void
     print_basis_support_debug(moris_index aBasisIndex,

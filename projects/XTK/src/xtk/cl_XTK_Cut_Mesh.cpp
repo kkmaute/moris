@@ -7,23 +7,28 @@
 
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_Matrix.hpp"
-
+#include "cl_XTK_Model.hpp"
+#include "cl_MPI_Tools.hpp"
 namespace xtk
 {
 // ----------------------------------------------------------------------------------
-Cut_Mesh::Cut_Mesh(moris::uint aModelDim) :
-                                           mSpatialDim(aModelDim),
-                                           mNumberOfChildrenMesh(0),
-                                           mChildrenMeshes(0),
-                                           mNumEntities(4,0),
-                                           mChildElementTopo(CellTopology::TET4){}
+Cut_Mesh:: Cut_Mesh(Model* aModel,
+                    moris::uint aModelDim) :
+                mModel(aModel),
+                mSpatialDim(aModelDim),
+                mNumberOfChildrenMesh(0),
+                mChildrenMeshes(0),
+                mNumEntities(4,0),
+                mChildElementTopo(CellTopology::TET4){}
 // ----------------------------------------------------------------------------------
-Cut_Mesh::Cut_Mesh(moris::size_t aNumSimpleMesh,
+Cut_Mesh::Cut_Mesh(Model* aModel,
+                   moris::size_t aNumSimpleMesh,
                    moris::size_t aModelDim) :
-                           mSpatialDim(aModelDim),
-                           mNumberOfChildrenMesh(aNumSimpleMesh),
-                           mChildrenMeshes(aNumSimpleMesh),
-                           mChildElementTopo(CellTopology::TET4)
+                mModel(aModel),
+                mSpatialDim(aModelDim),
+                mNumberOfChildrenMesh(aNumSimpleMesh),
+                mChildrenMeshes(aNumSimpleMesh),
+                mChildElementTopo(CellTopology::TET4)
 {
     for(moris::size_t i = 0; i <aNumSimpleMesh; i++)
     {
@@ -689,6 +694,208 @@ Cut_Mesh::setup_subphase_to_child_mesh_connectivity()
             mSubPhaseIndexToChildMeshSubphaseIndex(tCMSubphaseIndices(iSP)) = iSP;
         }
     }
+    this->assign_subphase_ids();
+}
+
+void
+Cut_Mesh::assign_subphase_ids()
+{
+//    // count not owned subphase ids
+//    Cell<Child_Mesh*> const & tNotOwnedChildMeshes = this->get_not_owned_shared_child_meshes();
+//
+//
+//    // make requests for not owned information
+//    Cell<moris::Matrix<IdMat>> tNotOwnedSubphaseIds
+//
+//
+//    // prepare outward communication of owned not shared child meshes
+//    // Child meshes subphase id container
+//    Cell<moris::Matrix<IdMat>> tOwnedSubphaseIds(0);
+//
+//    // parent cell of child meshes
+//    Cell<moris::Matrix<IdMat>> tOwnedParentCellId(0);
+//
+//    // offsets
+//    Cell<moris::Matrix<IdMat>> tNumOwnedCellIdsOffsets(0);
+//
+//    // call function to set up the data with child element ids
+//    this->setup_owned_shared_outward_subphase_id_communication(tOwnedSubphaseIds, tOwnedParentCellId, tNumOwnedCellIdsOffsets);
+//
+//    // communicate child element ids
+//    this->outward_communicate_subphase_ids(tOwnedSubphaseIds,tOwnedParentCellId,tNumOwnedCellIdsOffsets);
+//
+//    barrier();
+//
+//    // receive information
+//    Cell<moris::Matrix<IdMat>> tNotOwnedCellIds(0);
+//    Cell<moris::Matrix<IdMat>> tNotOwnedParentCellId(0);
+//    Cell<moris::Matrix<IdMat>> tNumNotOwnedCellIdsOffsets(0);
+//    this->inward_receive_subphase_ids(tNotOwnedCellIds, tNotOwnedParentCellId, tNumNotOwnedCellIdsOffsets);
+//
+//    barrier();
+//
+//    moris_id tStart = 0;
+//
+//    for(moris::uint i = 0; i < (uint)par_size(); i++)
+//    {
+//        moris::uint tNumChildMesh = tNotOwnedParentCellId(i).numel();
+//
+//        tStart = 0;
+//        for(moris::uint iCM = 0; iCM < tNumChildMesh; iCM++)
+//        {
+//            // Parent cell index
+//            moris_id tParentCellIndex = mModel->get_background_mesh().get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tNotOwnedParentCellId(i)(iCM),EntityRank::ELEMENT);
+//
+//            moris_id tFirstId = tNotOwnedCellIds(i)(tStart+1);
+//
+//            Child_Mesh & tChildMesh = this->get_child_mesh(mModel->get_background_mesh().child_mesh_index(tParentCellIndex,EntityRank::ELEMENT));
+//
+//            moris_id tCellId = mModel->get_background_mesh().get_mesh_data().get_glb_entity_id_from_entity_loc_index(tChildMesh.get_parent_element_index(),EntityRank::ELEMENT);
+//
+//            // set indices
+//            tChildMesh.set_subphase_ids(tCellId,tFirstId);
+//
+//            // offset
+//            tStart = tNumNotOwnedCellIdsOffsets(i)(iCM+1)+1;
+//        }
+//    }
+}
+
+void
+Cut_Mesh::setup_owned_shared_outward_subphase_id_communication(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
+                                                               Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
+                                                               Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets)
+{
+//    Cell<Child_Mesh*> const & tOwnedSharedChildMeshes = this->get_owned_shared_child_meshes();
+//
+//    // size input data
+//    moris::uint tNumOwnedSharedChildCells = 0;
+//    for(moris::size_t i = 0; i<tOwnedSharedChildMeshes.size(); i++)
+//    {
+//        // count the number of child cells in the owned/shared child meshes
+//        tNumOwnedSharedChildCells += tOwnedSharedChildMeshes(i)->get_num_entities(EntityRank::ELEMENT);
+//    }
+//
+//    // resize
+//    aOwnedSubphaseIds.resize(par_size(),moris::Matrix<IdMat>(1,tNumOwnedSharedChildCells));
+//    aOwnedParentCellId.resize(par_size(),moris::Matrix<IdMat>(1,tOwnedSharedChildMeshes.size()));
+//    aNumOwnedCellIdsOffsets.resize(par_size(),moris::Matrix<IdMat>(1,tOwnedSharedChildMeshes.size()+1,0));
+//
+//    // useful counters for setting up data
+//    Cell<moris::uint> tStarts(par_size(),0);
+//    Cell<moris::uint> tEnds  (par_size(),0);
+//    Cell<moris::uint> tCounts(par_size(),0);
+//
+//    for(moris::size_t i = 0; i<tOwnedSharedChildMeshes.size(); i++)
+//    {
+//        // parent cell
+//        moris_index tParentCellIndex = tOwnedSharedChildMeshes(i)->get_parent_element_index();
+//        moris_index tParentCellId    = mModel->get_background_mesh().get_mesh_data().get_glb_entity_id_from_entity_loc_index(tParentCellIndex,EntityRank::ELEMENT);
+//
+//        // processors that share the parent cell
+//        Matrix<IndexMat> tProcsWhomShareParentCell(1,1);
+//        mModel->get_background_mesh().get_mesh_data().get_processors_whom_share_entity(tParentCellIndex,EntityRank::ELEMENT,tProcsWhomShareParentCell);
+//
+//        // child element ids
+//        moris::Matrix<IdMat> const & tSubphaseIds = tOwnedSharedChildMeshes(i)->get_subphase_ids();
+//
+//        // iterate through shared procesors
+//        for(moris::size_t j = 0; j < tProcsWhomShareParentCell.numel(); j++)
+//        {
+//            // processor rank
+//            moris_index tProcRank = tProcsWhomShareParentCell(j);
+//
+//            // figure out the end in matrix of these ids
+//            tEnds(tProcRank) = tStarts(tProcRank) + tSubphaseIds.numel() - 1;
+//
+//            // set data
+//            aOwnedSubphaseIds(tProcRank)({0,0},{tStarts(tProcRank),tEnds(tProcRank)}) = tSubphaseIds.matrix_data();
+//            aOwnedParentCellId(tProcRank)(tCounts(tProcRank)) = tParentCellId;
+//            aNumOwnedCellIdsOffsets(tProcRank)(tCounts(tProcRank)+1) = tEnds(tProcRank);
+//
+//            // update the start and counts
+//            tStarts(tProcRank) = tEnds(tProcRank)+1;
+//            tCounts(tProcRank)++;
+//        }
+//    }
+//
+//    // size out extra space
+//    for(moris::uint i =0 ; i < (uint)par_size(); i++)
+//    {
+//        if(tEnds(i) > 0 )
+//        {
+//            aOwnedSubphaseIds(i).resize(1,tEnds(i)+1);
+//            aOwnedParentCellId(i).resize(1,tCounts(i));
+//            aNumOwnedCellIdsOffsets(i).resize(1,tCounts(i)+1);
+//        }
+//        else
+//        {
+//            aOwnedSubphaseIds(i).resize(0,0);
+//            aOwnedParentCellId(i).resize(0,0);
+//            aNumOwnedCellIdsOffsets(i).resize(0,0);
+//        }
+//    }
+}
+
+void
+Cut_Mesh::outward_communicate_subphase_ids(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
+                                        Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
+                                        Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets)
+{
+    moris_index tTagChildCellsTags = 1114;
+    moris_index tOwnerParentIdTags = 1115;
+    moris_index tOffsetsTags       = 1116;
+
+    for(moris::uint i = 0; i < aOwnedSubphaseIds.size(); i++)
+    {
+        if(aOwnedSubphaseIds(i).numel()>0 && i != (uint)par_rank())
+        {
+            // send child element ids
+            nonblocking_send(aOwnedSubphaseIds(i),aOwnedSubphaseIds(i).n_rows(),aOwnedSubphaseIds(i).n_cols(),i,tTagChildCellsTags);
+            // send element parent ids
+            nonblocking_send(aOwnedParentCellId(i),aOwnedParentCellId(i).n_rows(),aOwnedParentCellId(i).n_cols(),i,tOwnerParentIdTags);
+            // send element parent ids
+            nonblocking_send(aNumOwnedCellIdsOffsets(i),aNumOwnedCellIdsOffsets(i).n_rows(),aNumOwnedCellIdsOffsets(i).n_cols(),i,tOffsetsTags);
+        }
+    }
+}
+
+void
+Cut_Mesh::inward_receive_subphase_ids(Cell<moris::Matrix<IdMat>> & aOwnedSubphaseIds,
+                                        Cell<moris::Matrix<IdMat>> & aNotOwnedParentCellId,
+                                        Cell<moris::Matrix<IdMat>> & aNumNotOwnedCellIdsOffsets)
+{
+    moris::moris_index tNumRow = 1;
+    moris::moris_index tParRank = par_rank();
+
+    moris_index tTagChildCellsTags = 1114;
+    moris_index tOwnerParentIdTags = 1115;
+    moris_index tOffsetsTags       = 1116;
+
+    aOwnedSubphaseIds.resize(par_size());
+    aNotOwnedParentCellId.resize(par_size());
+    aNumNotOwnedCellIdsOffsets.resize(par_size());
+
+    for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+    {
+        if((moris_index)i != tParRank)
+        {
+            // if there is a sent message from a processor go receive it
+            if(sent_message_exists(i,tTagChildCellsTags))
+            {
+                // assert that the other communications exists
+                MORIS_ERROR(sent_message_exists(i,tOwnerParentIdTags) && sent_message_exists(i,tOffsetsTags),"The first message contains subphase ids, this was not accompanied with the parent element id and offsets");
+
+                aOwnedSubphaseIds(i).resize(1,1);
+                aNotOwnedParentCellId(i).resize(1,1);
+                aNumNotOwnedCellIdsOffsets(i).resize(1,1);
+
+                receive(aOwnedSubphaseIds(i),tNumRow, i,tTagChildCellsTags);
+                receive(aNotOwnedParentCellId(i),tNumRow, i,tOwnerParentIdTags);
+                receive(aNumNotOwnedCellIdsOffsets(i),tNumRow, i,tOffsetsTags);
+            }
+        }
+    }
 }
 
 uint
@@ -711,7 +918,7 @@ Cut_Mesh::populate_subphase_vector(moris::Matrix<moris::IndexMat> & aSubphase)
     {
         Child_Mesh & tChildMesh = this->get_child_mesh(i);
         moris::Matrix<moris::IndexMat> const & tElementInds = tChildMesh.get_element_inds();
-        Cell<moris_index> const & tSubphaseInds = tChildMesh.get_subphase_indices();
+        moris::Matrix<moris::IndexMat> const & tSubphaseInds = tChildMesh.get_subphase_ids();
         for(moris::uint iCE = 0; iCE < tElementInds.numel(); iCE++)
         {
             aSubphase(tElementInds(iCE)) = tSubphaseInds(tChildMesh.get_element_subphase_index(iCE));
@@ -727,50 +934,43 @@ Cut_Mesh::get_subphase_to_child_mesh_connectivity()
     return mSubPhaseIndexToChildMesh;
 }
 
+// ----------------------------------------------------------------------------------
+
+moris_id
+Cut_Mesh::get_subphase_id(moris_index aSubphaseIndex)
+{
+    moris_index tChildMeshIndex   = mSubPhaseIndexToChildMesh(aSubphaseIndex);
+    moris_index tChildMeshSPIndex = mSubPhaseIndexToChildMeshSubphaseIndex(aSubphaseIndex);
+    return mChildrenMeshes(tChildMeshIndex).get_subphase_ids()(tChildMeshSPIndex);
+}
 
 // ----------------------------------------------------------------------------------
 void
-Cut_Mesh::add_child_mesh_groups(    Cell<Child_Mesh*>   & tOwnedNotSharedChildrenMeshes,
-                                    Cell<Child_Mesh*>   & tOwnedSharedChildrenMeshes,
-                                    Cell<Child_Mesh*>   & tNotOwnedSharedChildrenMeshes,
-                                    Cell<Matrix<IdMat>> & tOwnedSharedOtherProcs,
-                                    Cell<moris_id>      & tNotOwnedSharedOwningProc)
+Cut_Mesh::add_child_mesh_groups(    Cell<Child_Mesh*>   & tOwnedChildrenMeshes,
+                                    Cell<Child_Mesh*>   & tNotOwnedChildrenMeshes,
+                                    Cell<moris_id>      & tNotOwnedOwningProc)
 {
-    mOwnedNotSharedChildrenMeshes = tOwnedNotSharedChildrenMeshes;
-    mOwnedSharedChildrenMeshes    = tOwnedSharedChildrenMeshes;
-    mNotOwnedSharedChildrenMeshes = tNotOwnedSharedChildrenMeshes;
-    mOwnedSharedOtherProcs        = tOwnedSharedOtherProcs;
-    mNotOwnedSharedOwningProc     = tNotOwnedSharedOwningProc;
+    mOwnedChildrenMeshes    = tOwnedChildrenMeshes;
+    mNotOwnedChildrenMeshes = tNotOwnedChildrenMeshes;
+    mNotOwnedOwningProc     = tNotOwnedOwningProc;
 }
 // ----------------------------------------------------------------------------------
 Cell<Child_Mesh*> &
-Cut_Mesh::get_owned_not_shared_child_meshes()
+Cut_Mesh::get_owned_child_meshes()
 {
-    return mOwnedNotSharedChildrenMeshes;
+    return mOwnedChildrenMeshes;
 }
 // ----------------------------------------------------------------------------------
 Cell<Child_Mesh*> &
-Cut_Mesh::get_owned_shared_child_meshes()
+Cut_Mesh::get_not_owned_child_meshes()
 {
-    return mOwnedSharedChildrenMeshes;
-}
-// ----------------------------------------------------------------------------------
-Cell<Matrix<IdMat>> &
-Cut_Mesh::get_owned_shared_child_meshes_sharing_procs()
-{
-    return mOwnedSharedOtherProcs;
-}
-// ----------------------------------------------------------------------------------
-Cell<Child_Mesh*> &
-Cut_Mesh::get_not_owned_shared_child_meshes()
-{
-    return mNotOwnedSharedChildrenMeshes;
+    return mNotOwnedChildrenMeshes;
 }
 // ----------------------------------------------------------------------------------
 Cell<moris_id> &
-Cut_Mesh::get_not_owned_shared_child_owners()
+Cut_Mesh::get_not_owned_child_owners()
 {
-    return mNotOwnedSharedOwningProc;
+    return mNotOwnedOwningProc;
 }
 // ----------------------------------------------------------------------------------
 void
