@@ -56,17 +56,18 @@ namespace moris
             std::cout << aTitle + ": \n";
             std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << "\n";
 
-            std::cout<<std::left<<std::setw(8)<<"";
+            std::cout<<std::right<<std::setw(5)<<"";
             for(size_t c = 0; c < tNumColumns; c++)
             {
-                std::cout<<std::left<<std::setw(8)<<c;
+                std::cout<<std::right<<std::setw(12)<<c;
             }
 
             std::cout<<"\n";
+            std::cout<<"--------";
 
             for(size_t c = 0; c < tNumColumns+1; c++)
             {
-                std::cout<<"--------";
+                std::cout<<"-------------";
             }
 
             std::cout<<"\n";

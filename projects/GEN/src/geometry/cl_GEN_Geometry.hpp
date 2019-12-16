@@ -55,6 +55,12 @@ public:
      *                             ANALYTIC GEOMETRY INTERFACE
      * **************************************************************************************
      */
+    virtual
+    moris::uint get_num_des_vars() const
+    {
+        MORIS_ERROR(0,"Number of design variables not implemented");
+        return 0;
+    }
 
     /*
      * Given a node coordinate, the geometry needs to return the distance to the nearest function.

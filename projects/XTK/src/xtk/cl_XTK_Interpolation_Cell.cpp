@@ -60,5 +60,10 @@ Interpolation_Cell::compute_outward_side_normal(moris::moris_index aSideOrdinal)
     return tUnitOutwardNormal;
 }
 
+void Interpolation_Cell::set_id(moris_id aId)
+{
+    mCellId = aId;
+}
+
 }
 

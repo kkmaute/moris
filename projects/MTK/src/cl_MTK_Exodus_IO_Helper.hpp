@@ -557,9 +557,6 @@ namespace mtk
           for (size_t i = 0; i < mNodeSetIds.size(); ++i)
           {
               ex_get_set_param(mExoFileId, EX_NODE_SET, mNodeSetIds[i], &mNodeSetNEntries[i], &mNodeSetDistFactors[i]);
-              if (mVerbose) {
-                  std::cout << "node set " << mNodeSetIds[i] << " has " << mNodeSetNEntries[i]<< " nodes\n";
-              }
 
               mNodeSetNodeIds[i] = Matrix<IndexMat>(1,mNodeSetNEntries[i]);
               ex_get_set(mExoFileId, EX_NODE_SET, mNodeSetIds[i],
@@ -692,10 +689,6 @@ namespace mtk
           // Put the side set data into the new file
           for (size_t i = 0; i < mNodeSetIds.size(); ++i) {
               ex_put_set_param(aNewExoFileId, EX_NODE_SET, mNodeSetIds[i], mNodeSetNEntries[i], mNodeSetDistFactors[i]);
-              if (par_rank() == 0) {
-                  std::cout << "node set " << mNodeSetIds[i] << " has " << mNodeSetNEntries[i]
-                          << " nodes\n";
-              }
 
               ex_put_set(aNewExoFileId, EX_NODE_SET, mNodeSetIds[i],
                          mNodeSetNodeIds[i].data(), nullptr);

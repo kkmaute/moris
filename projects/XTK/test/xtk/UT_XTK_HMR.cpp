@@ -146,8 +146,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
 
-        std::cout<<"NumFacets = "<<tLMB->mFacets.size()<<std::endl;
-
 
         for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
         {
@@ -170,11 +168,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
                     {
                         tSlaveId = tSlaveId + 1;
                     }
-//
-//                    std::cout<<"M Id = "   <<std::setw(12)<<tMasterId<< " L = "<<std::setw(2)<<tMaster->get_level();
-//                    std::cout<<" A = "<<std::setw(2)<<tMaster->is_active()<<" R = "<<std::setw(2)<<tMaster->is_refined()<<" P = "<<std::setw(2)<<tMaster->is_padding();
-//                    std::cout<<" | S Id = "<<std::setw(12)<<tSlaveId << " L = "<<std::setw(2)<<tSlave->get_level();
-//                    std::cout<<" A = "<<std::setw(2)<<tSlave->is_active()<<" R = "<<std::setw(2)<<tSlave->is_refined()<<" P = "<<std::setw(2)<<tSlave->is_padding()<<std::endl;
                 }
             }
         }
@@ -198,7 +191,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose  =  false;
 
         // Do the cutting
         tXTKModel.decompose(tDecompositionMethods);

@@ -174,19 +174,6 @@ Enriched_Interpolation_Mesh::get_communication_table() const
     return mXTKModel->get_background_mesh().get_mesh_data().get_communication_table();
 }
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 uint
 Enriched_Interpolation_Mesh::get_num_elements()
 {
@@ -198,6 +185,34 @@ Enriched_Interpolation_Mesh::get_enriched_coefficients_at_background_coefficient
 {
     MORIS_ASSERT(aBackgroundCoeffIndex< (moris_index)mCoeffToEnrichCoeffs.size(), "Background coefficient index out of bounds. Be sure this is not an enriched coefficient index passed in.");
     return mCoeffToEnrichCoeffs(aBackgroundCoeffIndex);
+}
+Cell<Matrix<IndexMat>> const &
+Enriched_Interpolation_Mesh::get_enriched_coefficients_to_background_coefficients() const
+{
+    return mCoeffToEnrichCoeffs;
+}
+//------------------------------------------------------------------------------
+Matrix<IndexMat> const &
+Enriched_Interpolation_Mesh::get_enriched_coefficient_local_to_global_map() const
+{
+    return mEnrichCoeffLocToGlob;
+}
+//------------------------------------------------------------------------------
+Matrix<IndexMat>
+Enriched_Interpolation_Mesh::get_background_coefficient_local_to_global_map() const
+{
+    moris::mtk::Mesh & tBackgroundMeshData = mXTKModel->get_background_mesh().get_mesh_data();
+
+    moris::uint tNumBackgroundCoeffs = tBackgroundMeshData.get_num_entities(mBasisRank);
+
+    Matrix<IndexMat> tCoefficientLocalToGlobal(1,tNumBackgroundCoeffs);
+
+    for(moris::uint i = 0; i < tNumBackgroundCoeffs; i++)
+    {
+        tCoefficientLocalToGlobal(i) = tBackgroundMeshData.get_glb_entity_id_from_entity_loc_index((moris_index) i, mBasisRank);
+    }
+
+    return tCoefficientLocalToGlobal;
 }
 //------------------------------------------------------------------------------
 uint
@@ -359,6 +374,35 @@ Enriched_Interpolation_Mesh::convert_ids_to_indices(Matrix<IdMat> const & aIds,
 
 //------------------------------------------------------------------------------
 void
+Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(Matrix<IndexMat> const & aEnrichedIndices,
+                                                                   Matrix<IdMat>          & aEnrichedIds) const
+{
+    aEnrichedIds.resize(aEnrichedIndices.n_rows(),aEnrichedIndices.n_cols());
+
+    for(moris::uint i = 0; i < aEnrichedIndices.n_rows(); i++)
+    {
+        for(moris::uint j = 0; j < aEnrichedIndices.n_cols(); j++)
+        {
+            aEnrichedIds(i,j) = mEnrichCoeffLocToGlob(aEnrichedIndices(i,j));
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(Cell<Matrix<IndexMat>> const & aEnrichedIndices,
+                                                                   Cell<Matrix<IdMat>>          & aEnrichedIds) const
+{
+    aEnrichedIds.resize(aEnrichedIndices.size());
+
+    for(moris::uint i = 0; i < aEnrichedIndices.size(); i++)
+    {
+        this->convert_enriched_basis_indices_to_ids(aEnrichedIndices(i),aEnrichedIds(i));
+    }
+}
+
+//------------------------------------------------------------------------------
+void
 Enriched_Interpolation_Mesh::print() const
 {
     std::cout<<"\n-------------------------------------"<<std::endl;
@@ -433,6 +477,7 @@ Enriched_Interpolation_Mesh::finalize_setup()
 {
     this->assign_vertex_interpolation_ids();
     this->setup_local_to_global_maps();
+    this->make_parallel_consistent();
 }
 //------------------------------------------------------------------------------
 void
@@ -495,8 +540,24 @@ Enriched_Interpolation_Mesh::setup_cell_maps()
     }
 }
 //------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::make_parallel_consistent()
+{
+    this->assign_enriched_basis_ids();
+    this->assign_enriched_interpolation_cell_ids();
+}
 //------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::assign_enriched_basis_ids()
+{
+
+}
 //------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::assign_enriched_interpolation_cell_ids()
+{
+
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

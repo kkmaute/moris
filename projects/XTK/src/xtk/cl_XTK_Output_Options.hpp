@@ -54,6 +54,7 @@ std::string mPhaseFieldName;
 
 // Sensitivity Options
 bool mPackageDxDpSparsely;
+bool mPackageDxDpDensely;
 std::string mDxDpName;
 std::string mDxDpIndicesName;
 std::string mDxDpNumIndicesName;

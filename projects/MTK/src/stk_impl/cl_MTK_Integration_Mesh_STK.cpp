@@ -555,9 +555,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     {
         mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim());
     }
-
-
-    moris::print(mSideSetLabels,"mSideSetLabels");
 }
 
 // ----------------------------------------------------------------------------

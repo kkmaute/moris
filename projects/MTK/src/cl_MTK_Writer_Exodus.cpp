@@ -45,14 +45,17 @@ void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileNa
 
 void Writer_Exodus::set_nodal_fields(moris::Cell<std::string> aFieldNames)
 {
-    // Write the number of nodal fields
-    ex_put_variable_param(mExoid, EX_NODAL, aFieldNames.size());
-
-    // Write the nodal field names and store as a map
-    for (moris::uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++)
+    if (aFieldNames.size() > 0)
     {
-        ex_put_variable_name(mExoid, EX_NODAL, tFieldIndex + 1, aFieldNames(tFieldIndex).c_str());
-        mNodalFieldNamesMap[aFieldNames(tFieldIndex)] = tFieldIndex;
+        // Write the number of nodal fields
+        ex_put_variable_param(mExoid, EX_NODAL, aFieldNames.size());
+
+        // Write the nodal field names and store as a map
+        for (moris::uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++)
+        {
+            ex_put_variable_name(mExoid, EX_NODAL, tFieldIndex + 1, aFieldNames(tFieldIndex).c_str());
+            mNodalFieldNamesMap[aFieldNames(tFieldIndex)] = tFieldIndex;
+        }
     }
 }
 
@@ -60,14 +63,17 @@ void Writer_Exodus::set_nodal_fields(moris::Cell<std::string> aFieldNames)
 
 void Writer_Exodus::set_elemental_fields(moris::Cell<std::string> aFieldNames)
 {
-    // Write the number of elemental fields
-    ex_put_variable_param(mExoid, EX_ELEM_BLOCK, aFieldNames.size());
-
-    // Write the elemental field names and store as a map
-    for (moris::uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++)
+    if (aFieldNames.size() > 0)
     {
-        ex_put_variable_name(mExoid, EX_ELEM_BLOCK, tFieldIndex + 1, aFieldNames(tFieldIndex).c_str());
-        mElementalFieldNamesMap[aFieldNames(tFieldIndex)] = tFieldIndex;
+        // Write the number of elemental fields
+        ex_put_variable_param(mExoid, EX_ELEM_BLOCK, aFieldNames.size());
+
+        // Write the elemental field names and store as a map
+        for (moris::uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++)
+        {
+            ex_put_variable_name(mExoid, EX_ELEM_BLOCK, tFieldIndex + 1, aFieldNames(tFieldIndex).c_str());
+            mElementalFieldNamesMap[aFieldNames(tFieldIndex)] = tFieldIndex;
+        }
     }
 }
 
@@ -75,14 +81,17 @@ void Writer_Exodus::set_elemental_fields(moris::Cell<std::string> aFieldNames)
 
 void Writer_Exodus::set_global_variables(moris::Cell<std::string> aVariableNames)
 {
-    // Write the number of global fields
-    ex_put_variable_param(mExoid, EX_GLOBAL, aVariableNames.size());
-
-    // Write the global field names and store as a map
-    for (moris::uint tVariableIndex = 0; tVariableIndex < aVariableNames.size(); tVariableIndex++)
+    if (aVariableNames.size() > 0)
     {
-        ex_put_variable_name(mExoid, EX_GLOBAL, tVariableIndex + 1, aVariableNames(tVariableIndex).c_str());
-        mGlobalVariableNamesMap[aVariableNames(tVariableIndex)] = tVariableIndex;
+        // Write the number of global fields
+        ex_put_variable_param(mExoid, EX_GLOBAL, aVariableNames.size());
+
+        // Write the global field names and store as a map
+        for (moris::uint tVariableIndex = 0; tVariableIndex < aVariableNames.size(); tVariableIndex++)
+        {
+            ex_put_variable_name(mExoid, EX_GLOBAL, tVariableIndex + 1, aVariableNames(tVariableIndex).c_str());
+            mGlobalVariableNamesMap[aVariableNames(tVariableIndex)] = tVariableIndex;
+        }
     }
 }
 
@@ -95,7 +104,8 @@ void Writer_Exodus::set_time(moris::real aTimeValue)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Writer_Exodus::write_nodal_field(std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues)
+void Writer_Exodus::write_nodal_field(       std::string                    aFieldName,
+                                       const moris::Matrix<moris::DDRMat> & aFieldValues)
 {
     // Field name to index
     moris::uint tMapSize = mNodalFieldNamesMap.size();
@@ -114,8 +124,9 @@ void Writer_Exodus::write_nodal_field(std::string aFieldName, moris::Matrix<mori
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Writer_Exodus::write_elemental_field(std::string aBlockName, std::string aFieldName,
-        moris::Matrix<moris::DDRMat> aFieldValues)
+void Writer_Exodus::write_elemental_field(       std::string                    aBlockName,
+                                                 std::string                    aFieldName,
+                                           const moris::Matrix<moris::DDRMat> & aFieldValues)
 {
     // Block name to index
     moris::uint tMapSize = mBlockNamesMap.size();
@@ -142,7 +153,8 @@ void Writer_Exodus::write_elemental_field(std::string aBlockName, std::string aF
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Writer_Exodus::write_global_variable(std::string aVariableName, moris::real aVariableValue)
+void Writer_Exodus::write_global_variable(       std::string   aVariableName,
+                                           const moris::real & aVariableValue)
 {
     // Variable name to index
     moris::uint tMapSize = mGlobalVariableNamesMap.size();
@@ -203,8 +215,6 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
 
     // Initialize database
     ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets, tNumSideSets);
-
-    std::cout << "database" << std::endl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

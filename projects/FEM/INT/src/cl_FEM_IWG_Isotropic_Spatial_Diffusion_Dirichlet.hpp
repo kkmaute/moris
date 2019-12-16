@@ -8,6 +8,8 @@
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_
 #define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_
 
+#include <map>
+
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 

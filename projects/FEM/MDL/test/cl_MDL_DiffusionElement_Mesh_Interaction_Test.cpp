@@ -81,12 +81,8 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
     if(par_size() == 1 )
     {
         // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-        std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
-        //------------------------------------------------------------------------------
-
         std::string tPrefix = std::getenv("MORISROOT");
         std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets.g";
-        std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
 
         moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
         std::string tFieldName1 = "Temp_Field";
@@ -302,14 +298,8 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 {
     if(par_size() == 1 )
     {
-        // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-        std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
-        //------------------------------------------------------------------------------
-
         std::string tPrefix = std::getenv("MORISROOT");
         std::string tMeshFileName = tPrefix + "projects/FEM/MDL/test/data/Block_7x8x9.g";
-
-        std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 
         moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
         std::string tFieldName1 = "Temp_Field";
@@ -516,9 +506,6 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 {
     if( par_size() == 2 )
     {
-        gLogger.set_severity_level( 0 );
-        // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-        std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
         //------------------------------------------------------------------------------
 
         moris::uint tLagrangeMeshIndex = 0;
@@ -783,8 +770,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 {
     if( (par_size() == 1) || (par_size() == 2) )
     {
-        // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-        std::cout<<" Create a 3D mesh of HEX8 using HMR "<<std::endl;
         //------------------------------------------------------------------------------
 
         moris::uint tLagrangeMeshIndex = 0;
@@ -1063,8 +1048,6 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 {
     if( par_size() == 1 )
     {
-        // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-        std::cout<<" Create a 3D mesh of HEX8 using HMR "<<std::endl;
         //------------------------------------------------------------------------------
 
         moris::uint tLagrangeMeshIndex = 0;

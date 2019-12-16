@@ -69,6 +69,8 @@ public:
     mtk::Interpolation_Order
     get_interpolation_order() const{ return mCellInfo->get_cell_interpolation_order();};
 
+    void set_id(moris_id aId);
+
 private:
     moris_id               mCellId;
     moris_id               mCellIndex;

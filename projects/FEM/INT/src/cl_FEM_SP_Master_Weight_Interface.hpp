@@ -8,6 +8,8 @@
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_SP_MASTER_WEIGHT_INTERFACE_HPP_
 #define PROJECTS_FEM_INT_SRC_CL_FEM_SP_MASTER_WEIGHT_INTERFACE_HPP_
 
+#include <map>
+
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 

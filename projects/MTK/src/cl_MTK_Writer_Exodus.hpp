@@ -93,7 +93,8 @@ public:
      *  @param aFieldName The name of the field being written
      *  @param aFieldValues Matrix of values to write for this field.
      */
-    void write_nodal_field(std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues);
+    void write_nodal_field(       std::string                    aFieldName,
+                            const moris::Matrix<moris::DDRMat> & aFieldValues);
 
     /**
      *  Writes a field to the mesh elements at the current time step.
@@ -102,7 +103,9 @@ public:
      *  @param aFieldName The name of the field being written
      *  @param aFieldValues Matrix of values to write
      */
-    void write_elemental_field(std::string aBlockName, std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues);
+    void write_elemental_field(       std::string                    aBlockName,
+                                      std::string                    aFieldName,
+                                const moris::Matrix<moris::DDRMat> & aFieldValues);
 
     /**
      *  Writes a global variable at the current time step.
@@ -110,7 +113,8 @@ public:
      *  @param aVariableName The name of the variable being written
      *  @param aVariableValue The value of the global variable
      */
-    void write_global_variable(std::string aVariableName, moris::real aVariableValue);
+    void write_global_variable(       std::string   aVariableName,
+                                const moris::real & aVariableValue);
 
     /**
      *  Opens an Exodus file and stores the ID for future operations

@@ -191,7 +191,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(), tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         // Do the cutting
         tXTKModel.decompose(tDecompositionMethods);

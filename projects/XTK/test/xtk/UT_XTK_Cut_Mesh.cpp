@@ -71,7 +71,7 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     // Initialize an Cut Mesh with 2 simple meshes that are 3d
     size_t tModelDim = 3;
     size_t tNumSimpleMesh = 2;
-    Cut_Mesh tCutMesh(tNumSimpleMesh, tModelDim);
+    Cut_Mesh tCutMesh(nullptr,tNumSimpleMesh, tModelDim);
 
     // Make sure the correct number of simple meshes have been created
     REQUIRE(tCutMesh.get_num_child_meshes() == 2);
@@ -169,7 +169,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-    tXTKModel.mVerbose = true;
+    tXTKModel.mVerbose  =  false;
 
     // Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
@@ -227,7 +227,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-    tXTKModel.mVerbose = true;
+    tXTKModel.mVerbose  =  false;
 
     // Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

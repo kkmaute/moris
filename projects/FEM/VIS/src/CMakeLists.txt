@@ -31,6 +31,7 @@ set(LIB_DEPENDENCIES
     ${CON}-lib
     ${HMR}-lib
     ${MTK}-lib
+    #${MDL}-lib
    )
 
 # Set the output path for library
