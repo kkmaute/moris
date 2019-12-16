@@ -13,6 +13,55 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+        /**
+         * reset evaluation flags
+         */
+        void IQI::reset_eval_flags()
+        {
+            // reset properties
+            for ( std::shared_ptr< Property > tProp : mMasterProp )
+            {
+                if ( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Property > tProp : mSlaveProp )
+            {
+                if( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+
+            // reset constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+
+            // reset stabilization parameters
+            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            {
+                if( tSP != nullptr )
+                {
+                    tSP->reset_eval_flags();
+                }
+            }
+        }
+
 //------------------------------------------------------------------------------
         void IQI::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
                                                   mtk::Master_Slave            aIsMaster )

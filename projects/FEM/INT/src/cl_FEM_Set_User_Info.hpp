@@ -16,6 +16,7 @@ namespace moris
     namespace fem
     {
     class IWG;
+    class IQI;
 
 //------------------------------------------------------------------------------
         /**
@@ -31,6 +32,9 @@ namespace moris
         // cell of IWG pointers
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
 
+        // cell of IQIs pointers
+        moris::Cell< std::shared_ptr< IQI > > mIQIs;
+
         // set mesh index
         uint mMeshIndex;
 
@@ -39,20 +43,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * constructor
+             * trivial constructor
              */
             Set_User_Info(){};
 
 //------------------------------------------------------------------------------
             /**
-             * destructor
+             * trivial destructor
              */
              ~Set_User_Info(){};
 
 //------------------------------------------------------------------------------
             /**
-             * set property type
-             * @param[ in ] aPropertyType property type
+             * set set type
+             * @param[ in ] aSetType an enum for the set type
              */
             void set_set_type( fem::Element_Type aSetType )
             {
@@ -62,7 +66,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * return set type
-             * @param[ out ] mSetType set type
+             * @param[ out ] mSetType n enum for the set type
              */
             fem::Element_Type get_set_type()
             {
@@ -81,7 +85,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set the mesh index
+             * get the mesh index
              * @param[ out ] mMeshIndex mesh index for set
              */
             uint get_mesh_index()
@@ -108,6 +112,26 @@ namespace moris
             {
                 return mIWGs;
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * set IQIs
+             * @param[ in ] aIQIs list of IQI pointers
+             */
+            void set_IQIs( const moris::Cell< std::shared_ptr< fem::IQI > > & aIQIs )
+            {
+                mIQIs = aIQIs;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get IQIs
+             * @param[ out ] mIQIs list of IQI pointers
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_IQIs() const
+            {
+                return mIQIs;
+              }
 
 //------------------------------------------------------------------------------
         };

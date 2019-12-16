@@ -14,6 +14,7 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
         {
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
@@ -32,10 +33,11 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
+
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
@@ -58,12 +60,12 @@ namespace moris
             // selection matrix
             Matrix< DDRMat > tM;
 
+
             // set a default selection matrix if needed
             if ( mMasterProp( tSelectIndex ) == nullptr )
             {
                 // get spatial dimension
                 uint tSpaceDim = tFI->get_dof_type().size();
-
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
@@ -83,11 +85,11 @@ namespace moris
             mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
             += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
                  + mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tJump
-                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * tWStar;
+                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * aWStar;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
@@ -134,7 +136,7 @@ namespace moris
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                 += (   mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tFI->N()
-                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * tWStar;
+                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * aWStar;
             }
 
             // compute the jacobian for indirect dof dependencies through properties
@@ -164,7 +166,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                   += ( - trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * tWStar;
+                   += ( - trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * aWStar;
 //                        + mMasterCM( tElastLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tM * tJump ) * tWStar;
                 }
 

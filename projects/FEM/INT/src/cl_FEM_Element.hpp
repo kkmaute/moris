@@ -136,30 +136,32 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest
-         * @param[ in ] aQIComputeType an enum for computation type
+         * @param[ in ] aOutputType an enum for the output type
+         * @param[ in ] aFieldType  an enum for computation/field type
          */
-        void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType )
+        void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+                                           enum vis::Field_Type  aFieldType  )
         {
-            switch ( aQIComputeType )
+            switch ( aFieldType )
             {
-                case ( fem::QI_Compute_Type::GLOBAL ) :
+                case ( vis::Field_Type::GLOBAL ) :
                 {
-                    this->compute_quantity_of_interest_global();
+                    this->compute_quantity_of_interest_global( aOutputType );
                     break;
                 }
-                case ( fem::QI_Compute_Type::NODAL ) :
+                case ( vis::Field_Type::NODAL ) :
                 {
-                    this->compute_quantity_of_interest_nodal();
+                    this->compute_quantity_of_interest_nodal( aOutputType );
                     break;
                 }
-                case ( fem::QI_Compute_Type::ELEMENTAL ) :
+                case ( vis::Field_Type::ELEMENTAL ) :
                 {
-                    this->compute_quantity_of_interest_elemental();
+                    this->compute_quantity_of_interest_elemental( aOutputType );
                     break;
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "Element::compute_quatity_of_interest - unknow QI compute type." );
+                    MORIS_ERROR( false, "Element::compute_quatity_of_interest - unknow field type." );
                     break;
                 }
             }
@@ -168,8 +170,9 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in a global way
+         * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_global()
+        void compute_quantity_of_interest_global( enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - this function does nothing." );
         }
@@ -177,8 +180,9 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in a nodal way
+         * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_nodal()
+        void compute_quantity_of_interest_nodal( enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - this function does nothing." );
         }
@@ -186,8 +190,9 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in an elemental way
+         * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_elemental()
+        void compute_quantity_of_interest_elemental( enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - this function does nothing." );
         }

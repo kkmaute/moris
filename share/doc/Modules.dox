@@ -211,6 +211,9 @@ FEM Module description.
 
 */
 
+/** @addtogroup FE_Dirichlet_BCs
+	@ingroup FE_Module */
+
 /** @addtogroup FE_Model
     @ingroup FE_Module */
     

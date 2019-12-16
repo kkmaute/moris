@@ -15,40 +15,24 @@ namespace moris
 {
 namespace mtk
 {
-class Interpolation_Mesh_STK : public Mesh_Core_STK, public Interpolation_Mesh
+class Interpolation_Mesh_STK :  public Mesh_Core_STK, public Interpolation_Mesh
 {
     // Functions only valid for interpolation mIntegrationMeshes
 
 public:
-    Interpolation_Mesh_STK(std::shared_ptr<Mesh_Data_STK> aSTKMeshData):
-        Mesh_Core_STK(aSTKMeshData)
-    {
-
-    }
+    Interpolation_Mesh_STK(std::shared_ptr<Mesh_Data_STK> aSTKMeshData);
 
     Interpolation_Mesh_STK(
             std::string    aFileName,
             MtkMeshData*   aSuppMeshData,
-            const bool     aCreateFacesAndEdges = true ):
-                Mesh_Core_STK(aFileName,aSuppMeshData,aCreateFacesAndEdges)
+            const bool     aCreateFacesAndEdges = true );
 
-    {
+    Interpolation_Mesh_STK(MtkMeshData & aMeshData );
 
-    }
-
-    Interpolation_Mesh_STK(MtkMeshData & aMeshData ):
-                Mesh_Core_STK(aMeshData)
-
-    {
-
-    }
-
+    ~Interpolation_Mesh_STK();
 
     std::shared_ptr<Mesh_Data_STK>
-    get_stk_data_shared_pointer()
-    {
-        return mSTKMeshData;
-    }
+    get_stk_data_shared_pointer();
 
 
 };

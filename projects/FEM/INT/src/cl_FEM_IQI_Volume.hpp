@@ -30,7 +30,11 @@ namespace moris
             /*
              *  constructor
              */
-            IQI_Volume(){};
+            IQI_Volume()
+            {
+                // set IQI type
+                mIQIType = vis::Output_Type::VOLUME;
+            };
 
 //------------------------------------------------------------------------------
             /**

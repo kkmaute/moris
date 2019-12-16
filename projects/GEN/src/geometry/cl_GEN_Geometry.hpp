@@ -73,7 +73,7 @@ public:
     virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate(moris::size_t const & aRowIndex,
                                                                                 moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
-        std::cout<<"evaluate_sensitivity_dx_dp not implemented. This could be due to a geometry not being based on an analytic expression.";
+        MORIS_ASSERT(false,"cl_GEN_Geometry::evaluate_sensitivity_dphi_dp_with_coordinate() - Not implemented. This could be due to a geometry not being based on an analytic expression...");
         return moris::Matrix< moris::DDRMat >();
     }
 

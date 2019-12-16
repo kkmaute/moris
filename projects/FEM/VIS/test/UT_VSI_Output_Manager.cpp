@@ -20,7 +20,7 @@
 #include "cl_MDL_Model.hpp"
 #include "cl_VIS_Factory.hpp"
 #include "cl_VIS_Visualization_Mesh.hpp"
-#include "cl_VIS_Output_Data.hpp"
+#include "cl_VIS_Output_Manager.hpp"
 #undef protected
 #undef private
 
@@ -272,13 +272,32 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                     tEquationSets( iSet ) = tModel->get_equation_sets()( iSet );
                 }
 
-                Output_Data tOutputData( tEquationSets,
-                        &tMeshManager,
-                        0 );
+                Output_Manager tOutputData;
 
-                tOutputData.write_mesh();
+                tOutputData.set_outputs( 0,
+                                            VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                            "Output_Vis_Mesh.exo",
+                                            { "HMR_dummy_c_p0", "HMR_dummy_n_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p1"},
+                                            { 0, 1, 2, 3 },
+                                            { "pressure" },
+                                            { Field_Type::ELEMENTAL },
+                                            { Output_Type::UX } );
 
-                tOutputData.write_field();
+                tOutputData.create_visualization_mesh( 0,
+                                                       &tMeshManager,
+                                                        0 );
+
+                tOutputData.set_visualization_sets( 0,
+                                             tModel );
+
+                tOutputData.write_mesh( 0,
+                                        0.0);
+
+                tOutputData.end_writing( 0 );
+//
+//                tOutputData.write_mesh();
+
+//                tOutputData.write_field();
 
 
 

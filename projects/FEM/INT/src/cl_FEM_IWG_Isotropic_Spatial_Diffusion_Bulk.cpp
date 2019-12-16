@@ -129,6 +129,13 @@ namespace moris
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual - Not implemented." );
         }
 
+////------------------------------------------------------------------------------
+//        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+//                                                                   moris::Cell< Matrix< DDRMat > >                & aResidual )
+//        {
+//            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv - Not implemented." );
+//        }
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

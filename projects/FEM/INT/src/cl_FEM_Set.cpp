@@ -272,8 +272,11 @@ namespace moris
         // create the field interpolators
         this->create_field_interpolator_managers( aModelSolverInterface );
 
-        // set field interpolators for the IWGs
+        // set field interpolator managers for the IWGs
         this->set_IWG_field_interpolator_managers();
+
+        // set field interpolator managers for the IQIs
+        this->set_IQI_field_interpolator_managers();
     }
 
 //------------------------------------------------------------------------------
@@ -293,6 +296,17 @@ namespace moris
             tCounter += tActiveDofType.size();
         }
 
+        // loop over the IQIs
+        for ( std::shared_ptr< IQI > tIQI : mIQIs )
+        {
+            // get an IWG non unique dof type list
+            moris::Cell< MSI::Dof_Type >  tActiveDofType;
+            tIQI->get_non_unique_global_dof_type_list( tActiveDofType );
+
+            // update dof type counter
+            tCounter += tActiveDofType.size();
+        }
+
         // set max size for the dof type list
         mEqnObjDofTypeList.reserve( tCounter );
 
@@ -302,6 +316,17 @@ namespace moris
             // get non unique dof type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
             tIWG->get_non_unique_dof_types( tActiveDofType );
+
+            // populate the corresponding EqnObj dof type list
+            mEqnObjDofTypeList.append( tActiveDofType );
+        }
+
+        // loop over the IQIs
+        for ( std::shared_ptr< IQI > tIQI : mIQIs )
+        {
+            // get non unique dof type list
+            moris::Cell< MSI::Dof_Type > tActiveDofType;
+            tIQI->get_non_unique_global_dof_type_list( tActiveDofType );
 
             // populate the corresponding EqnObj dof type list
             mEqnObjDofTypeList.append( tActiveDofType );
@@ -332,12 +357,14 @@ namespace moris
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
-            // get dof types for property
-            moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster = tIWG->get_global_dof_type_list();
+            // get master dof types for the IWG
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
+            = tIWG->get_global_dof_type_list();
 
-            // loop over the IWG active dof type
+            // loop over the IWG active master dof type
             for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
             {
+                // get set index for the treated master dof type
                 sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
 
                 // if dof enum not in the list
@@ -351,11 +378,14 @@ namespace moris
                 }
             }
 
-            moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+            // get slave dof types for the IWG
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
+            = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
-            // loop over the IWG active dof type
+            // loop over the IWG active slave dof type
             for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
             {
+                // get set index for the treated slave dof type
                 sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
 
                 // if dof enum not in the list
@@ -369,6 +399,54 @@ namespace moris
                 }
             }
         }
+
+        // loop over the IQIs
+        for ( std::shared_ptr< IQI > tIQI : mIQIs )
+        {
+            // get master dof types for the IWG
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
+            = tIQI->get_global_dof_type_list();
+
+            // loop over the IQI active master dof type
+            for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
+            {
+                // get set index for the treated master dof type
+                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
+
+                // if dof enum not in the list
+                if ( tMasterCheckList( tDofTypeindex ) != 1 )
+                {
+                    // put the dof type in the checklist
+                    tMasterCheckList( tDofTypeindex ) = 1;
+
+                    // put the dof type in the global type list
+                    mMasterDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                }
+            }
+
+            // get slave dof types for the IQI
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
+            = tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+
+            // loop over the IWG active slave dof type
+            for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
+            {
+                // get set index for the treated slave dof type
+                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
+
+                // if dof enum not in the list
+                if ( tSlaveCheckList( tDofTypeindex ) != 1 )
+                {
+                    // put the dof type in the checklist
+                    tSlaveCheckList( tDofTypeindex ) = 1;
+
+                    // put the dof type in the global type list
+                    mSlaveDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                }
+            }
+        }
+
+        // shrink list to fit to number of unique dof types
         mMasterDofTypes.shrink_to_fit();
         mSlaveDofTypes .shrink_to_fit();
     }
@@ -481,6 +559,42 @@ namespace moris
             {
                 // set IWG slave IP geometry interpolator
                 tIWG->set_geometry_interpolator( mSlaveIPGeometryInterpolator, mtk::Master_Slave::SLAVE );
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------
+    void Set::set_IQI_field_interpolator_managers()
+    {
+        // loop over the IQIs
+        for ( std::shared_ptr< IQI > tIQI : mIQIs )
+        {
+            // set IQI master FI manager
+            tIQI->set_field_interpolator_manager( mMasterFIManager );
+
+            // if double sideset, set slave
+            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            {
+                // set IQI slave FI manager
+                tIQI->set_field_interpolator_manager( mSlaveFIManager, mtk::Master_Slave::SLAVE );
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------
+    void Set::set_IQI_geometry_interpolators()
+    {
+        // loop over the IQIs
+        for ( std::shared_ptr< IQI > tIQI : mIQIs )
+        {
+            // set iQI master IP geometry interpolator
+            tIQI->set_geometry_interpolator( mMasterIPGeometryInterpolator );
+
+            // if double sideset, set slave
+            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            {
+                // set IQI slave IP geometry interpolator
+                tIQI->set_geometry_interpolator( mSlaveIPGeometryInterpolator, mtk::Master_Slave::SLAVE );
             }
         }
     }
@@ -1124,6 +1238,66 @@ namespace moris
     {
         return this->get_unique_dof_type_list().size();
     }
+
+//------------------------------------------------------------------------------
+
+    void Set::set_visualization_set( moris::mtk::Set * aVisMeshSet )
+    {
+         // set vis mesh pointer
+         mVisMeshSet = aVisMeshSet;
+
+         uint tNumClustersOnSets = mVisMeshSet->get_num_clusters_on_set();
+
+         // set vis clusters to clusters
+         for( uint Ik = 0; Ik < tNumClustersOnSets; Ik++ )
+         {
+             mEquationObjList( Ik )->set_visualization_cluster( mVisMeshSet->get_clusters_by_index( Ik ) );
+         }
+
+         // build set element map
+         uint tNumCells = mVisMeshSet->get_num_cells_on_set( false );
+
+         moris::Matrix< DDSMat > tCellIndex = mVisMeshSet->get_cell_inds_on_block( false );
+
+         sint tMaxIndex = tCellIndex.max();
+//         sint tMinIndex = tCellIndex.min();
+
+         mCellAssemblyMap.set_size( tMaxIndex + 1, 1, -1 );
+
+         for( uint Ik = 0; Ik < tNumCells; Ik++ )
+         {
+             mCellAssemblyMap( tCellIndex( Ik ) ) = Ik;
+         }
+    }
+
+//------------------------------------------------------------------------------
+    void Set::compute_quantity_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+                                            Matrix< DDRMat >      * aNodalFieldValues,
+                                            moris::real           * aGlobalScalar,
+                                            enum vis::Output_Type   aOutputType,
+                                            enum vis::Field_Type    aFieldType )
+    {
+        mSetElementalValues = *aElementFieldValues;
+        mSetNodalValues     = *aNodalFieldValues;
+        mSetGlobalValues    = *aGlobalScalar;
+
+        uint tNumCells = mVisMeshSet->get_num_cells_on_set( false );
+
+        mSetElementalValues.set_size( tNumCells, 1, 0.0 );
+
+        for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
+        {
+            mEquationObjList( Ik )->compute_quantity_of_interest( aOutputType, aFieldType );
+        }
+
+        aElementFieldValues = &mSetElementalValues;
+        aNodalFieldValues   = &mSetNodalValues;
+        aGlobalScalar       = &mSetGlobalValues;
+    }
+
+//------------------------------------------------------------------------------
+
+
 
 //------------------------------------------------------------------------------
 

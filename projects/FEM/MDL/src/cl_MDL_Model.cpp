@@ -132,6 +132,8 @@ namespace moris
             // create a list of clusters
             moris::mtk::Set * tMeshSet;
 
+            mMeshSetToFemSetMap[ aSetInfo( iSet ).get_mesh_index() ] = tFemSetCounter;
+
             switch ( aSetInfo( iSet ).get_set_type() )
             {
                 case( fem::Element_Type::BULK ):

@@ -39,6 +39,7 @@ namespace moris
     {
 
     protected:
+
         // pointer to the mesh cluster
         const mtk::Cluster* mMeshCluster = nullptr;
 
@@ -59,6 +60,20 @@ namespace moris
 
         // list of pointers to element
         moris::Cell< fem::Element * > mElements;
+
+        // pointer to the visualization mesh cluster
+        const mtk::Cluster * mVisMeshCluster = nullptr;
+
+        // list of pointers to the master and slave mesh visualization cells
+        moris::Cell< mtk::Cell const * > mMasterVisCells;
+        moris::Cell< mtk::Cell const * > mSlaveVisCells;
+
+        // master and slave side ordinal information
+        Matrix< IndexMat > mMasterVisListOfSideOrdinals;
+        Matrix< IndexMat > mSlaveVisListOfSideOrdinals;
+
+        // list of pointers to element
+        moris::Cell< fem::Element * > mVisElements;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
@@ -115,14 +130,16 @@ namespace moris
          */
         moris::Matrix< moris::DDRMat > get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
                                                                                       moris::moris_index aSideOrdinal,
-                                                                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+                                                                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER,
+                                                                                      bool aIsVis = false );
 
 //------------------------------------------------------------------------------
         /**
          * get the IG cell local coordinates wrt IP cell
          * @param[ in ] aPrimaryCellIndexInCluster index of the IG cell within the cluster
          */
-        moris::Matrix< moris::DDRMat > get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster );
+        moris::Matrix< moris::DDRMat > get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster,
+                                                                                              bool aIsVis = false );
 
 //------------------------------------------------------------------------------
         /**
@@ -170,8 +187,13 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute the quantity of interest on cluster
+         * @param[ in ] aOutputType an enum for output type
+         * @param[ in ] aFieldType  an enum for computation/return type
+         *                          GLOBAL, NODAL, ELEMENTAL
          */
-        void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
+        //void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
+        void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+                                           enum vis::Field_Type  aFieldType );
 
 //------------------------------------------------------------------------------
         /**
@@ -219,6 +241,93 @@ namespace moris
                 }
             }
             return tPdofValues( tVertexIndex );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * set visualization cluster
+         * @param[ in ] aVisMeshCluster a pointer to a visualization mesh cluster
+         */
+        void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
+        {
+            // set a visualization cluster
+            mVisMeshCluster = aVisMeshCluster;
+
+            // get the visualization cells
+            mMasterVisCells = mVisMeshCluster->get_primary_cells_in_cluster();
+
+            // create an element factory
+            fem::Element_Factory tElementFactory;
+
+            // set size for the visualization element list
+            uint tNumMasterVisCells = mMasterVisCells.size();
+            mVisElements.resize( tNumMasterVisCells, nullptr );
+
+             // switch on the element type
+             switch ( mElementType )
+             {
+                 case ( fem::Element_Type::BULK ) :
+                 {
+                     // loop over the visualization cells
+                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
+                     {
+                         // create an element
+                         mVisElements( Ik )
+                         = tElementFactory.create_element( mElementType,
+                                                           mMasterVisCells( Ik ),
+                                                           mSet,
+                                                           this,
+                                                           Ik );
+                     }
+                     break;
+                 }
+                 case ( fem::Element_Type::SIDESET ) :
+                 {
+                     // set the side ordinals for the IG cells in the cluster
+                     mMasterVisListOfSideOrdinals = mVisMeshCluster->get_cell_side_ordinals();
+
+                     // loop over the visualization cells
+                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
+                     {
+                         // create an element
+                         mVisElements( Ik )
+                         = tElementFactory.create_element( mElementType,
+                                                           mMasterVisCells( Ik ),
+                                                           mSet,
+                                                           this,
+                                                           Ik );
+                     }
+                     break;
+                 }
+                 case ( fem::Element_Type::DOUBLE_SIDESET ) :
+                 {
+                     // fill the slave visualization cells
+                     mSlaveVisCells  = mVisMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE );
+
+                     // set the side ordinals for the master and slave vis cells
+                     mMasterVisListOfSideOrdinals = mVisMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
+                     mSlaveVisListOfSideOrdinals  = mVisMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
+
+                     // loop over the visualization cells
+                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
+                     {
+                         // create an element
+                         mVisElements( Ik )
+                         = tElementFactory.create_element( mElementType,
+                                                           mMasterVisCells( Ik ),
+                                                           mSlaveVisCells( Ik ),
+                                                           mSet,
+                                                           this,
+                                                           Ik );
+                     }
+                     break;
+                 }
+                 default :
+                 {
+                     MORIS_ERROR( false, "Cluster::set_visualization_cluster - undefined element type" );
+                     break;
+                 }
+             }
         }
 
 //------------------------------------------------------------------------------

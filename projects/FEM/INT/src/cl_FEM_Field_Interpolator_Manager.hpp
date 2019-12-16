@@ -45,20 +45,32 @@ namespace moris
         // dof type list for the FI manager
         const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & mDofTypes;
 
-        // list of field intepolators
-        moris::Cell< Field_Interpolator* > mFI;
-
         // pointer to the equation set
         MSI::Equation_Set * mEquationSet = nullptr;
 
         // enum for master or slave
         mtk::Master_Slave mIsMaster;
 
-        // maximum number of field interpolators
-        moris::uint mMaxNumFieldInterpolators;
-
         // dof type map
         moris::Matrix< DDSMat > mDofTypeMap;
+
+        // list of field intepolators
+        moris::Cell< Field_Interpolator* > mFI;
+
+        // maximum number of field interpolators
+        moris::uint mMaxNumDofFI;
+
+        // dof type list for the FI manager
+        const moris::Cell< moris::Cell< enum MSI::Dv_Type > > mDvTypes;
+
+        // dof type map
+        moris::Matrix< DDSMat > mDvTypeMap;
+
+        // list of field intepolators
+        moris::Cell< Field_Interpolator* > mDvFI;
+
+        // maximum number of field interpolators
+        moris::uint mMaxNumDvFI;
 
 //------------------------------------------------------------------------------
     public:
@@ -73,9 +85,30 @@ namespace moris
                                           mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER )
         : mDofTypes( aDofTypes ),
           mEquationSet( aEquationSet ),
+          mIsMaster( aIsMaster )
+        {
+            // set the dof type map
+            mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
+
+            // maximum number of dof field interpolators
+            mMaxNumDofFI =  mEquationSet->get_num_unique_dof_types();
+        };
+
+        Field_Interpolator_Manager( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+                                    const moris::Cell< moris::Cell< enum MSI::Dv_Type > >  & aDvTypes,
+                                          MSI::Equation_Set                                * aEquationSet,
+                                          mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER )
+        : mDofTypes( aDofTypes ),
+          mEquationSet( aEquationSet ),
           mIsMaster( aIsMaster ),
-          mMaxNumFieldInterpolators( mEquationSet->get_num_unique_dof_types() )
-        {};
+          mDvTypes( aDvTypes )
+        {
+            // set the dof type map
+            mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
+
+            // maximum number of dof field interpolators
+            mMaxNumDofFI =  mEquationSet->get_num_unique_dof_types();
+        };
 //------------------------------------------------------------------------------
         /**
          * constructor
@@ -89,9 +122,14 @@ namespace moris
                                           mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER )
         : mDofTypes( aDofTypes ),
           mEquationSet( aEquationSet ),
-          mIsMaster( aIsMaster ),
-          mMaxNumFieldInterpolators( mEquationSet->get_num_unique_dof_types() )
-        {};
+          mIsMaster( aIsMaster )
+        {
+            // set the dof type map
+            mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
+
+            // maximum number of dof field interpolators
+            mMaxNumDofFI = mEquationSet->get_num_unique_dof_types();
+        };
 
 //------------------------------------------------------------------------------
         /**
@@ -125,7 +163,7 @@ namespace moris
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             // set the size of the cell of field interpolators
-            mFI.resize( mMaxNumFieldInterpolators, nullptr );
+            mFI.resize( mMaxNumDofFI, nullptr );
 
             // loop over the dof type groups
             for( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
@@ -162,7 +200,7 @@ namespace moris
          */
         moris::uint get_max_num_field_interpolators()
         {
-            return mMaxNumFieldInterpolators;
+            return mMaxNumDofFI;
         }
 
 //------------------------------------------------------------------------------

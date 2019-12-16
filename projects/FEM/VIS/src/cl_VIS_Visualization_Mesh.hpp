@@ -45,16 +45,16 @@ public:
     Visualization_Mesh( moris::Cell< moris::mtk::Set * >            aListofBlocks,
                         moris::Cell< moris::Cell< mtk::Cell * > >   aCellsOnBlock,
                         moris::Cell< moris::Cell< mtk::Vertex * > > aVerticesOnBlock,
-						const bool                                  aOnlyPrimary ) : mListofBlocks( aListofBlocks ),
+                        const bool                                  aOnlyPrimary ) : mListofBlocks( aListofBlocks ),
                                                                                      mCellsOnBlock( aCellsOnBlock ),
                                                                                      mVerticesOnBlock( aVerticesOnBlock ),
                                                                                      mOnlyPrimary( aOnlyPrimary )
     {
         this->create_block_name_list();
     }
-	
-	// ----------------------------------------------------------------------------
-		
+
+    // ----------------------------------------------------------------------------
+
     ~Visualization_Mesh()
     {
     };
@@ -63,26 +63,29 @@ public:
     //##############################################
 
     // ----------------------------------------------------------------------------
-	
+
     moris::Cell<std::string> get_set_names(enum EntityRank aSetEntityRank) const
     {
-        uint tNumBlocks = this->get_num_blocks();
-
         moris::Cell<std::string> tSetNames;
-
-        tSetNames.resize( tNumBlocks );
-
-        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        if (aSetEntityRank == EntityRank::ELEMENT)
         {
-            moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+            uint tNumBlocks = this->get_num_blocks();
 
-            tSetNames( Ik ) = tSet->get_set_name();
+            tSetNames.resize( tNumBlocks );
+
+            for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+            {
+                moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+
+                tSetNames( Ik ) = tSet->get_set_name();
+            }
         }
+
         return tSetNames;
     }
-	
+
     // ----------------------------------------------------------------------------
-		
+
     void create_block_name_list()
     {
         uint tNumBlocks = this->get_num_blocks();
@@ -94,8 +97,8 @@ public:
             mBlockNameToIndexMap[ tSet->get_set_name() ] = Ik;
         }
     }
-	
-	// ----------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------
 //    /*
 //     * Get a cell cluster related to an interpolation
 //     * cell
@@ -144,7 +147,7 @@ public:
     }
 
     // ----------------------------------------------------------------------------
-	
+
     uint get_num_elems() const
     {
         uint tNumBlocks = this->get_num_blocks();

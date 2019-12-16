@@ -17,6 +17,7 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
+#include "cl_VIS_Output_Enums.hpp"
 
 #include "fn_reshape.hpp"
 
@@ -36,6 +37,9 @@ namespace moris
 
             // FEM set pointer
             fem::Set * mSet = nullptr;
+
+            // IQI type
+            enum vis::Output_Type mIQIType;
 
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -88,6 +92,21 @@ namespace moris
              * destructor
              */
             ~IQI(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * get IQI type
+             */
+            enum vis::Output_Type get_IQI_type()
+            {
+                return mIQIType;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * rest evaluation flags for the IQI
+             */
+            void reset_eval_flags();
 
 //------------------------------------------------------------------------------
             /*

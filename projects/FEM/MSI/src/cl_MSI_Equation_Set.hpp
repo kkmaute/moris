@@ -13,13 +13,21 @@
 
 #include "cl_Map.hpp"
 
+#include "cl_MTK_Enums.hpp"
+
 
 namespace moris
 {
-namespace mtk
-{
-   class Cell;
-}
+    namespace mtk
+    {
+       class Cell;
+       class Set;
+    }
+    namespace vis
+    {
+        enum class Output_Type;
+        enum class Field_Type;
+    }
     namespace MSI
     {
     class Model_Solver_Interface;
@@ -66,6 +74,10 @@ namespace mtk
         Model_Solver_Interface * mModelSolverInterface = nullptr;
 
         bool mIsEmptySet = false;    //FIXME this flag is a hack. find better solution
+
+        Matrix< DDRMat > mSetElementalValues;
+        Matrix< DDRMat > mSetNodalValues;
+        moris::real      mSetGlobalValues;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -282,6 +294,46 @@ namespace mtk
             return moris::Cell< moris::Cell< enum MSI::Dof_Type > >(0);
         };
 
+//------------------------------------------------------------------------------
+
+        virtual void set_visualization_set( moris::mtk::Set * aVisMeshSet )
+        {
+            MORIS_ASSERT( false, "set_visualization_set(), not implemented for base clase" );
+        }
+
+        virtual void compute_quantity_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+                                                   Matrix< DDRMat >      * aNodalFieldValues,
+                                                   moris::real           * aGlobalScalar,
+                                                   enum vis::Output_Type   aOutputType,
+                                                   enum vis::Field_Type    aFieldType)
+        {
+            MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
+        }
+
+        //------------------------------------------------------------------------------
+                /**
+                 * get dof type map
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                Matrix< DDSMat > & get_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    switch ( aIsMaster )
+                    {
+                        case ( mtk::Master_Slave::MASTER ):
+                        {
+                            return mMasterDofTypeMap;
+                        }
+                        case( mtk::Master_Slave::SLAVE ):
+                        {
+                            return mSlaveDofTypeMap;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "Set::get_dof_type_map - can only be MASTER or SLAVE");
+                            return mMasterDofTypeMap;
+                        }
+                    }
+                }
 
 //------------------------------------------------------------------------------
 

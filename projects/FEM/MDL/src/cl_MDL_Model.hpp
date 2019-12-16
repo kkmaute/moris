@@ -103,6 +103,8 @@ namespace moris
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
+            map< moris_index, moris_index >   mMeshSetToFemSetMap;
+
             Matrix< DDRMat> mSolHMR;
 
             tsa::Time_Solver * mTimeSolver;
@@ -153,9 +155,14 @@ namespace moris
             /**
              * get equation sets for test
              */
-            moris::Cell< fem::Set * > get_equation_sets( )
+            moris::Cell< fem::Set * > & get_equation_sets( )
             {
                 return mFemSets;
+            };
+
+            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            {
+                return mMeshSetToFemSetMap;
             };
 
 //------------------------------------------------------------------------------
