@@ -35,7 +35,7 @@ namespace moris
     class Set;
 //------------------------------------------------------------------------------
     /**
-     * \brief element class that communicates with the mesh interface
+     * Field interpolator manager
      */
     class Field_Interpolator_Manager
     {
@@ -109,6 +109,7 @@ namespace moris
             // maximum number of dof field interpolators
             mMaxNumDofFI =  mEquationSet->get_num_unique_dof_types();
         };
+
 //------------------------------------------------------------------------------
         /**
          * constructor
