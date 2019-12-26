@@ -345,18 +345,16 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-            Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+            Field_Interpolator_Manager tMasterFIManager( tDummy, tSet, mtk::Master_Slave::MASTER );
+            Field_Interpolator_Manager tSlaveFIManager( tDummy, tSet, mtk::Master_Slave::SLAVE );
 
             // populate the field interpolator manager
-            tFIManager.mMasterFI = tMasterFIs;
-            tFIManager.mSlaveFI  = tSlaveFIs;
+            tMasterFIManager.mFI = tMasterFIs;
+            tSlaveFIManager.mFI  = tSlaveFIs;
 
             // set IWG field interpolator manager
-            tIWG->mFieldInterpolatorManager = &tFIManager;
-
-            // set IWG field interpolators
-            tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tMasterFIManager );
+            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
             // set IWG geometry interpolator
             tIWG->set_geometry_interpolator( &tGI );

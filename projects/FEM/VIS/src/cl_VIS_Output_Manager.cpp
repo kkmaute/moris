@@ -332,11 +332,11 @@ namespace moris
                 // elemental field values
                 Matrix< DDRMat > tElementValues;
 
-                tEquationSets( tEquationSetIndex )->compute_quantitiy_of_interest( &tElementValues,
-                                                                                   &tNodalValues,
-                                                                                   &tGlobalValue,
-                                                                                   mOutputData( aVisMeshIndex ).mOutputType( Ik ),
-                                                                                   mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
+                tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( &tElementValues,
+                                                                                  &tNodalValues,
+                                                                                  &tGlobalValue,
+                                                                                  mOutputData( aVisMeshIndex ).mOutputType( Ik ),
+                                                                                  mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
 
                 if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
                 {

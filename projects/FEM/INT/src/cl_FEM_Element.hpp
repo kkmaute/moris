@@ -55,38 +55,60 @@ namespace moris
 
         Set      * mSet     = nullptr;
         Cluster  * mCluster = nullptr;
+
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
+        /**
+         * trivial constructor
+         */
         Element(){};
 
-        Element( const mtk::Cell * aCell,
-                 Set             * aSet,
-                 Cluster         * aCluster,
-                 moris::moris_index tCellIndexInCluster ) : mSet( aSet ),
-                                                            mCluster( aCluster )
+//------------------------------------------------------------------------------
+        /**
+         * constructor for master only
+         * @param[ in ] aCell               a mesh cell pointer
+         * @param[ in ] aSet                a fem set pointer
+         * @param[ in ] aCluster            a mesh cluster pointer
+         * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
+         */
+        Element( const mtk::Cell    * aCell,
+                 Set                * aSet,
+                 Cluster            * aCluster,
+                 moris::moris_index   aCellIndexInCluster ) : mSet( aSet ),
+                                                              mCluster( aCluster )
         {
             // fill the cell index in cluster
-            mCellIndexInCluster = tCellIndexInCluster;
+            mCellIndexInCluster = aCellIndexInCluster;
 
             // fill the bulk mtk::Cell pointer //FIXME
             mMasterCell = aCell;
         };
 
-        Element( const mtk::Cell  * aMasterCell,
-                 const mtk::Cell  * aSlaveCell,
-                 Set              * aSet,
-                 Cluster          * aCluster,
-                 moris::moris_index tCellIndexInCluster ) : mSet( aSet ),
-                                                            mCluster( aCluster )
+//------------------------------------------------------------------------------
+        /**
+         * constructor for slave only
+         * @param[ in ] aMasterCell         a master mesh cell pointer
+         * @param[ in ] aSlaveCell          a slave mesh cell pointer
+         * @param[ in ] aSet                a fem set pointer
+         * @param[ in ] aCluster            a mesh cluster pointer
+         * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
+         */
+        Element( const mtk::Cell    * aMasterCell,
+                 const mtk::Cell    * aSlaveCell,
+                 Set                * aSet,
+                 Cluster            * aCluster,
+                 moris::moris_index   aCellIndexInCluster ) : mSet( aSet ),
+                                                              mCluster( aCluster )
         {
             // fill the cell index in cluster
-            mCellIndexInCluster = tCellIndexInCluster;
+            mCellIndexInCluster = aCellIndexInCluster;
 
             // fill the master and slave cell pointers
             mMasterCell = aMasterCell;
             mSlaveCell  = aSlaveCell;
         };
+
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
@@ -94,16 +116,86 @@ namespace moris
         virtual ~Element(){};
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian
+         */
         virtual void compute_jacobian() = 0;
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute residual
+         */
         virtual void compute_residual() = 0;
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian and residual
+         */
         virtual void compute_jacobian_and_residual() = 0;
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest
+         * @param[ in ] aOutputType an enum for the output type
+         * @param[ in ] aFieldType  an enum for computation/field type
+         */
+        void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+                                           enum vis::Field_Type  aFieldType  )
+        {
+            switch ( aFieldType )
+            {
+                case ( vis::Field_Type::GLOBAL ) :
+                {
+                    this->compute_quantity_of_interest_global( aOutputType );
+                    break;
+                }
+                case ( vis::Field_Type::NODAL ) :
+                {
+                    this->compute_quantity_of_interest_nodal( aOutputType );
+                    break;
+                }
+                case ( vis::Field_Type::ELEMENTAL ) :
+                {
+                    this->compute_quantity_of_interest_elemental( aOutputType );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Element::compute_quatity_of_interest - unknow field type." );
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a global way
+         * @param[ in ] aOutputType an enum for the output type
+         */
+        void compute_quantity_of_interest_global( enum vis::Output_Type aOutputType )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - this function does nothing." );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a nodal way
+         * @param[ in ] aOutputType an enum for the output type
+         */
+        void compute_quantity_of_interest_nodal( enum vis::Output_Type aOutputType )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - this function does nothing." );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in an elemental way
+         * @param[ in ] aOutputType an enum for the output type
+         */
+        void compute_quantity_of_interest_elemental( enum vis::Output_Type aOutputType )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - this function does nothing." );
+        }
 
 //------------------------------------------------------------------------------
         /**

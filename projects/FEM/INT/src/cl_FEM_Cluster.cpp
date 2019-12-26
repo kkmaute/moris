@@ -18,9 +18,10 @@ namespace moris
         Cluster::Cluster( const Element_Type                aElementType,
                           const mtk::Cluster              * aMeshCluster,
                                 moris::Cell< Node_Base* > & aNodes,
-                                Set                       * aSet ) : MSI::Equation_Object( aSet ),
-                                                                     mSet( aSet ),
-                                                                     mElementType( aElementType )
+                                Set                       * aSet )
+        : MSI::Equation_Object( aSet ),
+          mSet( aSet ),
+          mElementType( aElementType )
         {
             // fill the cell cluster pointer
             mMeshCluster = aMeshCluster;
@@ -113,7 +114,6 @@ namespace moris
                                                                           mSet,
                                                                           this,
                                                                           Ik );
-
                     }
                     break;
                 }
@@ -187,19 +187,23 @@ namespace moris
                 delete tElements;
             }
             mElements.clear();
+
+            for( auto tElements : mVisElements )
+            {
+                delete tElements;
+            }
+            mVisElements.clear();
         }
 
 //------------------------------------------------------------------------------
         moris::Matrix< moris::DDRMat > Cluster::get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
                                                                                                moris::moris_index aSideOrdinal,
-                                                                                               mtk::Master_Slave  aIsMaster )
+                                                                                               mtk::Master_Slave  aIsMaster,
+                                                                                               bool               aIsVis )
         {
             // check that side cluster
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
                           "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side or double side cluster.");
-
-            // check that the mesh cluster was set
-            MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
 
             // is trivial master or slave?
             bool tIsTrivial = mSet->mIsTrivialMaster;
@@ -218,19 +222,31 @@ namespace moris
             // if non trivial cluster
             else
             {
-                // get the side param coords from the side cluster
-                return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
+                if ( !aIsVis )
+                {
+                    // check that the mesh cluster was set
+                    MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
+
+                    // get the side param coords from the side cluster
+                    return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
+                }
+                else
+                {
+                    // check that the mesh cluster was set
+                    MORIS_ASSERT( mVisMeshCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
+
+                    // get the side param coords from the side cluster
+                    return mVisMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
+                }
             }
         }
 
 //------------------------------------------------------------------------------
-        moris::Matrix< moris::DDRMat > Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster )
+        moris::Matrix< moris::DDRMat > Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster,
+                                                                                                       bool aIsVis )
         {
             // check that bulk cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
-
-            // check that the mesh cluster was set
-            MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
 
             // if trivial cluster IP cell = IG cell
             if( mSet->mIsTrivialMaster )
@@ -241,8 +257,22 @@ namespace moris
             // if non trivial cluster
             else
             {
-                // get the side param coords from the side cluster
-                return mMeshCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellIndexInCluster );
+                if ( !aIsVis )
+                {
+                    // check that the mesh cluster was set
+                    MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
+
+                    // get the side param coords from the side cluster
+                    return mMeshCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellIndexInCluster );
+                }
+                else
+                {
+                    // check that the mesh cluster was set
+                    MORIS_ASSERT( mVisMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
+
+                    // get the side param coords from the side cluster
+                    return mVisMeshCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellIndexInCluster );
+                }
             }
         }
 
@@ -278,16 +308,15 @@ namespace moris
 
             // get the paired vertex on the right
             return mMeshCluster->get_left_vertex_pair( aLeftVertex );
-
         }
 
+//------------------------------------------------------------------------------
         moris::moris_index Cluster::get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
                                                                      moris::mtk::Vertex const * aVertex )
         {
             // check that a double sided cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
                           "Cluster::get_left_vertex_pair - not a double side cluster.");
-
 
             // return the index of the paired vertex on the right
             return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
@@ -297,10 +326,10 @@ namespace moris
         void Cluster::set_field_interpolators_coefficients()
          {
              // get number of master dof types
-//             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
+             uint tMasterNumDofTypes = mSet->mMasterDofTypes.size();
 
              // loop on the master dof types
-             for( uint iDOF = 0; iDOF < mSet->mMasterDofTypes.size(); iDOF++ )
+             for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
              {
                  // get the ith dof type group
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
@@ -314,18 +343,16 @@ namespace moris
                  // reshape tCoeffs into the order the cluster expects them
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
-                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::MASTER )
-                                                ->set_coeff( tCoeff );
-
-                 // set the field coefficients
-//                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
+                 // set field interpolator coefficients
+                 mSet->mMasterFIManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ) )
+                                       ->set_coeff( tCoeff );
              }
 
              // get number of slave dof types
-//             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
+             uint tSlaveNumDofTypes = mSet->mSlaveDofTypes.size();
 
              // loop on the slave dof types
-             for( uint iDOF = 0; iDOF < mSet->mSlaveDofTypes.size(); iDOF++ )
+             for( uint iDOF = 0; iDOF < tSlaveNumDofTypes; iDOF++ )
              {
                  // get the ith dof type group
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
@@ -339,11 +366,9 @@ namespace moris
                  // reshape tCoeffs into the order the cluster expects them
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
-                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::SLAVE )
-                                                ->set_coeff( tCoeff );
-
                  // set the field coefficients
-//                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
+                 mSet->mSlaveFIManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ) )
+                                      ->set_coeff( tCoeff );
              }
          }
 
@@ -373,7 +398,7 @@ namespace moris
              this->set_field_interpolators_coefficients();
 
              // FIXME should not be like this
-             mSet->set_IWG_field_interpolators();
+             mSet->set_IWG_field_interpolator_managers();
              mSet->set_IWG_geometry_interpolators();
 
              // loop over the elements
@@ -410,7 +435,7 @@ namespace moris
             this->set_field_interpolators_coefficients();
 
             // FIXME should not be like this
-            mSet->set_IWG_field_interpolators();
+            mSet->set_IWG_field_interpolator_managers();
             mSet->set_IWG_geometry_interpolators();
 
             // loop over the elements
@@ -450,7 +475,7 @@ namespace moris
              this->set_field_interpolators_coefficients();
 
              // FIXME should not be like this
-             mSet->set_IWG_field_interpolators();
+             mSet->set_IWG_field_interpolator_managers();
              mSet->set_IWG_geometry_interpolators();
 
              // loop over the elements
@@ -461,6 +486,55 @@ namespace moris
 
                  // compute the residual for the element
                  mElements( iElem )->compute_residual();
+             }
+         }
+
+//------------------------------------------------------------------------------
+        //void Cluster::compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType )
+        void Cluster::compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+                                                    enum vis::Field_Type  aFieldType )
+        {
+            // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
+            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
+            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_time_coeff( this->mTime );
+
+            // if double side cluster
+             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+             {
+                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
+                 mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
+                 mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_coeff( this->mTime );
+             }
+
+             // FIXME do this only once
+             this->compute_my_pdof_values();
+
+             // set the field interpolators coefficients
+             this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->get_requested_IQI( aOutputType )
+                 ->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
+             mSet->get_requested_IQI( aOutputType )
+                 ->set_geometry_interpolator( mSet->get_IP_geometry_interpolator() );
+
+             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+             {
+                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
+                 mSet->get_requested_IQI( aOutputType )
+                     ->set_field_interpolator_manager( mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE ) );
+                 mSet->get_requested_IQI( aOutputType )
+                     ->set_geometry_interpolator( mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE) );
+             }
+
+             // FIXME choose between visualization and integration
+             // flag to choose between mVisElements and mElements
+
+             // loop over the elements
+             for ( uint iElem = 0; iElem < mVisElements.size(); iElem++ )
+             {
+                 // compute the quantity of interest for the element
+                 mVisElements( iElem )->compute_quantity_of_interest( aOutputType, aFieldType );
              }
          }
 

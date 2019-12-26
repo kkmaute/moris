@@ -354,10 +354,10 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            virtual void compute_quantitiy_of_interest( enum vis::Output_Type aOutputType,
+            virtual void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
                                                         enum vis::Field_Type    aFieldType)
             {
-                MORIS_ASSERT( false, "compute_quantitiy_of_interest(), not implemented for base clase" );
+                MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
             }
         };
     }

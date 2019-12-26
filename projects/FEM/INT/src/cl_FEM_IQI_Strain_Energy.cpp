@@ -14,6 +14,9 @@ namespace moris
 //------------------------------------------------------------------------------
         IQI_Strain_Energy::IQI_Strain_Energy()
         {
+            // set IQI type
+            mIQIType = vis::Output_Type::STRAIN_ENERGY;
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
