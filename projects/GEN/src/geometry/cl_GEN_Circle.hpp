@@ -47,15 +47,15 @@ public:
         aNumCols = 4;
     }
 
-    moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
-                                              moris::Matrix< moris::DDRMat > const & aCoordinates) const
+    moris::real evaluate_field_value_with_coordinate( moris::size_t const & aRowIndex,
+                                                      moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
 
 //        moris::real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
 //                            + (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
 //                              - (mRadius * mRadius);
         /*
-         * the below form linearlizes the circle equation
+         * the below form linearizes the circle equation
          */
         Matrix< DDRMat > tCoord( 1,2 );
         tCoord(0) = aCoordinates(aRowIndex, 0); tCoord(1) = aCoordinates(aRowIndex, 1);

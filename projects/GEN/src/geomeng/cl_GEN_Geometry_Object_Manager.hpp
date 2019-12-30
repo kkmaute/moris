@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "cl_GEN_Geometry_Object.hpp"
-#include"cl_Matrix.hpp"
+#include "cl_Matrix.hpp"
 
 
 namespace moris
@@ -30,8 +30,8 @@ public:
      * Stores geometry objects in the geometry object manager associated with nodes
      */
     void
-    store_geometry_objects(moris::Matrix< moris::IndexMat > const & aNodeIndices,
-                           moris::Cell<GEN_Geometry_Object>            const & aGeometryObjects)
+    store_geometry_objects( moris::Matrix< moris::IndexMat > const & aNodeIndices,
+                            moris::Cell<GEN_Geometry_Object> const & aGeometryObjects )
     {
         moris::size_t tNumExistingGeometryObjects = mGeometryObjects.size();
         moris::size_t tNumNewGeometryObjects = aNodeIndices.n_cols();
@@ -55,7 +55,7 @@ public:
     GEN_Geometry_Object &
     get_geometry_object_from_manager(moris::moris_index const & aNodeIndex)
     {
-        MORIS_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex)!=mNodeToGeomObjectMap.end(),
+        MORIS_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex) != mNodeToGeomObjectMap.end(),
                    "Node index does not have an associated geometry object");
 
         moris::moris_index tGOIndex = mNodeToGeomObjectMap[aNodeIndex];

@@ -534,7 +534,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         // output solution and meshes
         xtk::Output_Options tOutputOptions;
         tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = false;
+        tOutputOptions.mAddSideSets = true;
         tOutputOptions.mAddClusters = false;
 
         // add solution field to integration mesh
@@ -781,7 +781,6 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
-
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk3;

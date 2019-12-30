@@ -91,8 +91,10 @@ public:
 
                 if( outside_bounding_box_check( aPoint,xa,xb,0.5) == false )    // bounding box check
                 {
-                    real rada = 0.18;
-                    real radb = 0.18;
+//                    real rada = 0.18;
+//                    real radb = 0.18;
+                    real rada = -0.75;
+                    real radb = -0.75;
 
                     xn.set_row(0,xb);
 
@@ -177,8 +179,10 @@ public:
             xa.set_row(0,mAllFibers(aFiberIndex).get_column(aCylinderIndex));
             xb.set_row(0,mAllFibers(aFiberIndex).get_column(aCylinderIndex+1));
 
-            real rada = 0.18;
-            real radb = 0.18;
+//            real rada = 0.18;
+//            real radb = 0.18;
+            real rada = -0.75;
+            real radb = -0.75;
 
             xn.set_row(0,xb);
 

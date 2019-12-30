@@ -23,22 +23,25 @@
 #include "linalg_typedefs.hpp"
 
 // GE
-#include "../projects/GEN/src/additional/cl_GEN_Basis_Function.hpp"
-#include "../projects/GEN/src/additional/cl_GEN_Interpolaton.hpp"
-#include "../projects/GEN/src/additional/cl_GEN_Pending_Node.hpp"
-#include "../projects/GEN/src/additional/cl_GEN_Phase_Table.hpp"
-#include "../projects/GEN/src/additional/fn_GEN_approximate.hpp"
+#include "../additional/cl_GEN_Basis_Function.hpp"
+#include "../additional/cl_GEN_Interpolaton.hpp"
+#include "../additional/cl_GEN_Pending_Node.hpp"
+#include "../additional/cl_GEN_Phase_Table.hpp"
+#include "../additional/fn_GEN_approximate.hpp"
 
-#include "../projects/GEN/src/field/cl_GEN_Field.hpp"
-#include "../projects/GEN/src/field/cl_GEN_Field_User_Defined.hpp"
+#include "../field/cl_GEN_Field.hpp"
+#include "../field/cl_GEN_Field_User_Defined.hpp"
 
-#include "cl_GEN_Enums.hpp"
 #include "cl_GEN_Geometry_Object.hpp"
 #include "cl_GEN_Geometry_Object_Manager.hpp"
+#include "cl_GEN_Pdv_Host.hpp"
+#include "cl_GEN_Pdv_Host_Manager.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../geometry/cl_GEN_Geometry.hpp"
+#include "../geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
+#include "../geometry/cl_GEN_Geometry.hpp"
+
+#include "../property/cl_GEN_Property.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -106,7 +109,7 @@ public:
                          moris::ge::GEN_Phase_Table const & aPhaseTable,
                          moris::uint aSpatialDim = 3 );
 
-    GEN_Geometry_Engine()
+    GEN_Geometry_Engine(  )
     {
     }
 
@@ -116,12 +119,33 @@ public:
     bool        mComputeDxDp; // Should be turned off if a sensitivity has not been implemented
     moris::uint mSpatialDim;
 
+
+    //------------------------------------------------------------------------------
     /*
-     * Initial allocation of geometry objects, this creates a geometry object for each node coordinate.
+     * @brief set the pdv type and associated property lists
+     *
+     * The user needs to be sure that the entry in aPdvList is associated with the same entry in aPropertyList.
+     *
+     * e.g.
+     * aPdvList = { GEN_PDV::DENSITY, GEN_PDV::MODULUS }
+     * aPropertyList = { property 1, property 2 }
+     *
+     * property 1 must correspond to DENSITY and property 2 must correspond to MODULUS
+     */
+
+    void set_pdv_property_list( const Cell< enum GEN_PDV >  aPdvList,
+                                const Cell< GEN_Property* > aPropertyList );
+    //------------------------------------------------------------------------------
+    /*
+     * @brief Initial allocation of geometry objects, this creates a geometry object for each node coordinate.
      * In this case, aNodeCoords needs to be ordered by proc indices.
      */
-    void
-    initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes);
+    void initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes);
+    //------------------------------------------------------------------------------
+    /*
+     * @brief initial allocation of pdv hosts, creates a pdv host for each node coordinate
+     */
+    void initialize_pdv_hosts_for_background_mesh_nodes(moris::size_t const & aNumNodes);
     //------------------------------------------------------------------------------
     void
     initialize_geometry_object_phase_values(moris::Matrix< moris::DDRMat > const & aNodeCoords);
@@ -130,16 +154,18 @@ public:
      * @brief Creates a geometry object association for pending nodes
      * These nodes have node indices and parent information
      */
-    void
-    associate_new_nodes_with_geometry_object(Cell<Pending_Node> & aNewNodes,
-                                             bool aInterfaceNodes);
+    void associate_new_nodes_with_geometry_object( Cell<Pending_Node> & aNewNodes,
+                                                   bool                 aInterfaceNodes );
     //------------------------------------------------------------------------------
-    void
-    create_new_node_geometry_objects(Cell< moris_index >  const & aNewNodeIndices,
-                                     bool                         aStoreParentTopo,
-                                     Cell<xtk::Topology*>      const & aParentTopo,
-                                     Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
-                                     Cell<Matrix<DDRMat>> const & aGlobalNodeCoord);
+    void associate_new_nodes_with_pdv_hosts( Cell< Pending_Node > & aNewNodes,
+                                             bool                   aInterfaceNodes );
+
+    //------------------------------------------------------------------------------
+    void create_new_node_geometry_objects(Cell< moris_index >  const & aNewNodeIndices,
+                                          bool                         aStoreParentTopo,
+                                          Cell<xtk::Topology*> const & aParentTopo,
+                                          Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
+                                          Cell<Matrix<DDRMat>> const & aGlobalNodeCoord);
     //------------------------------------------------------------------------------
     /**
      * @brief Links new nodes with an existing geometry object. This is used for unzipped interfaces
@@ -148,9 +174,8 @@ public:
      * @param[in] aNodesIndicesToLink - Node indices to link to the corresponding nodes in aNodesIndicesWithGeomObj
      */
 
-    void
-    link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
-                                                 Matrix< IndexMat > const & aNodesIndicesToLink );
+    void link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
+                                                      Matrix< IndexMat > const & aNodesIndicesToLink );
     //------------------------------------------------------------------------------
     /**
      * @brief is_intersected checks to see if an entity provided to it intersects a geometry field. Intersects in this context
@@ -162,10 +187,10 @@ public:
      *                                   0 - No information on interface required
      *                                   1 - information on interface required
      */
-    void is_intersected(moris::Matrix< moris::DDRMat > const &   aNodeCoords,
-                        moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
-                        moris::size_t                            aCheckType,
-                        Cell<GEN_Geometry_Object> &              aGeometryObjects);
+    void is_intersected( moris::Matrix< moris::DDRMat > const &   aNodeCoords,
+                         moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
+                         moris::size_t                            aCheckType,
+                         Cell<GEN_Geometry_Object> &              aGeometryObjects );
     //------------------------------------------------------------------------------
     /*!
      * @brief Computes the interface sensitivity of the provided node indices. After this call,
@@ -176,43 +201,39 @@ public:
      * @param[in] aGeomIndex - Geometry Index
      * @param[in] aGlbCoord  - bool to calculate the global coordinate of the intersection point
      */
-    void
-    compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
-                                   Matrix< DDRMat >   const & aNodeCoords,
-                                   moris_index                aGeomIndex,
-                                   bool               const   aGlbCoord = false );
+    void compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
+                                        Matrix< DDRMat >   const & aNodeCoords,
+                                        moris_index                aGeomIndex,
+                                        bool               const   aGlbCoord = false );
     //------------------------------------------------------------------------------
     /*
      * @brief Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
      * and the global coordinate if needed
      */
-    void
-    get_intersection_location(moris::real const &                      aIsocontourThreshold,
-                              moris::real const &                      aPerturbationThreshold,
-                              moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
-                              moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
-                              moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                              moris::Matrix< moris::DDRMat > &         aIntersectionLocalCoordinates,
-                              moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
-                              bool                                     aCheckLocalCoordinate = true,
-                              bool                                     aComputeGlobalCoordinate = false);
+    void get_intersection_location( moris::real const &                      aIsocontourThreshold,
+                                    moris::real const &                      aPerturbationThreshold,
+                                    moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
+                                    moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
+                                    moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+                                    moris::Matrix< moris::DDRMat > &         aIntersectionLocalCoordinates,
+                                    moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
+                                    bool                                     aCheckLocalCoordinate = true,
+                                    bool                                     aComputeGlobalCoordinate = false );
     //------------------------------------------------------------------------------
-    void
-    compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
-                                     moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                     moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
-                                     moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                     moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                     moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                     moris::Matrix< moris::DDRMat >         & aDxDp );
+    void compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
+                                          moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
+                                          moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
+                                          moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
+                                          moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+                                          moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
+                                          moris::Matrix< moris::DDRMat >         & aDxDp );
     //------------------------------------------------------------------------------
-    void
-    compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                       moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                       moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                       moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                       moris::Matrix< moris::DDRMat >         & aDxDp,
-                                       moris::Matrix< moris::IndexMat >       & aADVIndices );
+    void compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+                                            moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
+                                            moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
+                                            moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
+                                            moris::Matrix< moris::DDRMat >         & aDxDp,
+                                            moris::Matrix< moris::IndexMat >       & aADVIndices );
     //------------------------------------------------------------------------------
     /**
      * @brief Returns a reference to the geometry object at the provided index
@@ -303,27 +324,17 @@ public:
     /*
      * @brief Returns the active geometry index
      */
-    moris::size_t get_active_geometry_index()
-    {
-        return mActiveGeometryIndex;
-    }
+    moris::size_t get_active_geometry_index();
     //------------------------------------------------------------------------------
     /*
      * @brief Advance the active geometry index
      */
     void advance_geometry_index();
     //------------------------------------------------------------------------------
-    moris::Matrix< moris::IndexMat >
-    get_node_adv_indices_analytic();
+    moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
     //------------------------------------------------------------------------------
-    moris::uint
-    get_num_design_variables() const
-    {
-        MORIS_ASSERT(mGeometry.size() == 1,"get num design variables only implemented on 1 geometry meshes");
-        MORIS_ASSERT(mGeometry(0)->is_analytic(),"get num design variables only implemented on analytic geometries");
-        return mGeometry(0)->get_num_des_vars();
-    }
+    moris::uint get_num_design_variables() const;
     //------------------------------------------------------------------------------
     /*
      * @brief Returns the ADV indices of the provided nodes
@@ -334,12 +345,14 @@ public:
     moris::size_t
     get_num_design_vars_analytic();
     //------------------------------------------------------------------------------
+    Pdv_Host_Manager get_pdv_hosts();
+    //------------------------------------------------------------------------------
     /*
      * @brief register a mesh to be used for later computation(s)
      */
-    moris_index set_mesh( mtk::Mesh_Manager* aMesh );
+    moris_index register_mesh( mtk::Mesh_Manager* aMesh );
 
-    moris_index set_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh ); //fixme: this needs to be deleted and the GE should only be able to register an mtk mesh pair
+    moris_index register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh ); //fixme: this needs to be deleted and the GE should only be able to register an mtk mesh pair
     //------------------------------------------------------------------------------
     /*
      * @brief register a field or cell of fields for later computation
@@ -363,7 +376,11 @@ public:
     Matrix< DDRMat > get_cylinder_vals( moris_index aWhichMesh,
                                         GEN_CylinderWithEndCaps* aFiber,
                                         uint aNumberOfFibers ); //FIXME this is currently only setup to work with an HMR member mesh
+
     //------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
+
 
 private:
     GEN_Geometry &
@@ -372,8 +389,8 @@ private:
     /**
      * @brief compute_intersection_info, calculates the relevant intersection information placed in the geometry object
      * @param[in]  aEntityNodeInds - node to entity connectivity
-     * @param[in]  aNodeVars      - node level set values
-     * @param[in]  aCheckType     - if a entity local location is necessary 1, else 0.
+     * @param[in]  aNodeVars       - node level set values
+     * @param[in]  aCheckType      - if a entity local location is necessary 1, else 0.
      * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
      **/
     bool
@@ -397,6 +414,9 @@ private:    // member data
     // Contains all the geometry objects
     Geometry_Object_Manager mGeometryObjects;
 
+    // Contains all the pdv hosts
+    Pdv_Host_Manager mPdvHosts;
+
     // Phase Table
     moris::ge::GEN_Phase_Table mPhaseTable;
 
@@ -411,6 +431,10 @@ private:    // member data
 
     moris::Cell< GEN_Field* > mFields;
     //------------------------------------------------------------------------------
+    Cell< enum GEN_PDV >  mPdvList{{ GEN_PDV::END_ENUM }};
+    Cell< GEN_Property* > mPropertyList{{ nullptr }};
+    //------------------------------------------------------------------------------
+
 };
 }
 }

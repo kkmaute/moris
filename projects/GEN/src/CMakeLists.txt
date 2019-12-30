@@ -26,10 +26,10 @@ set(HEADERS
 	field/cl_GEN_Field_User_Defined.hpp
 	field/cl_GEN_Field_Factory.hpp
     
-	geomeng/cl_GEN_Enums.hpp
 	geomeng/cl_GEN_Geometry_Engine.hpp
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp
+	geomeng/cl_GEN_Pdv_Host.hpp
 	geomeng/fn_GEN_triangle_geometry.hpp
 	
 	geometry/fn_bounding_box.hpp
@@ -40,6 +40,8 @@ set(HEADERS
 	geometry/cl_GEN_Geom_Data.hpp
 	geometry/cl_GEN_Geom_Field.hpp
 	geometry/cl_GEN_Sphere.hpp
+	
+	property/cl_GEN_Property.hpp
 	
 	cl_GE_Analytic.hpp
 	cl_GE_Core.hpp
@@ -65,6 +67,7 @@ set(GEN_INCLUDES
     "field"
     "geomeng"
     "geometry"
+    "property"
     )
 
 # Include depedency directories
@@ -101,6 +104,9 @@ set(LIB_SOURCES
     cl_GE_Factory.cpp
     
 	geomeng/cl_GEN_Geometry_Engine.cpp
+	geomeng/cl_GEN_Geometry_Object.cpp
+	
+	property/cl_GEN_Property.cpp
 	
     )
 

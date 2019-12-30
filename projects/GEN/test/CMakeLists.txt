@@ -5,22 +5,23 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    #cl_Fiber_Problem.cpp
+  #  cl_Fiber_Problem.cpp
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
     cl_GE_test.cpp
     UT_Bounding_Box.cpp
-    #UT_Finite_Difference_Checks.cpp
+  #  UT_Finite_Difference_Checks.cpp
     UT_GE_HMR_Interaction.cpp
     UT_GE_Properties.cpp
     
-    #geometry_classes/cl_GE_test_analytic.cpp
-    #geometry_classes/cl_GE_test_discrete.cpp
-    #geometry_classes/cl_GE_test_sdf.cpp
+   # geometry_classes/cl_GE_test_analytic.cpp
+   # geometry_classes/cl_GE_test_discrete.cpp
+   # geometry_classes/cl_GE_test_sdf.cpp
 
 	new_impl_test/cl_General_Functionalities.cpp
-	#new_impl_test/cl_Parameter_Sweep.cpp
+   # new_impl_test/cl_Parameter_Sweep.cpp
+    new_impl_test/cl_Pdv_Tests.cpp
     )
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
@@ -51,6 +52,7 @@ set(GEN_INCLUDES
     "field"
     "geomeng"
     "geometry"
+    "property"
     )
 
 # Include depedency directories
@@ -65,7 +67,7 @@ set(TEST_DEPENDENCIES
     ${ALG}-lib
     ${GEN}-lib
     ${INT}-lib
-    #${MTK}-lib
+  # ${MTK}-lib
     ${MORIS_BASE_LIBS}
     )
 

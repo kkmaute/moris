@@ -127,12 +127,11 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
         //------------------------------------------------------------------------------
         uint tNumNodes = tInterpMesh->get_num_nodes();
         Matrix< DDRMat > tLSVals( tNumNodes,1 );
-        moris::Cell<moris::mtk::Vertex const *> tAllVerices = tInterpMesh->get_all_vertices();
 
         Matrix< DDRMat > tAllCoords( tNumNodes, 3 );
         for(uint i=0; i<tNumNodes; i++ )
         {
-            tAllCoords.set_row( i,tAllVerices(i)->get_coords() );
+            tAllCoords.set_row( i,tIntegMesh->get_node_coordinate(i) );
         }
 
         real tXcenter = 5.0;
@@ -222,8 +221,10 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
         real tYcenter = 0.0;
         real tZcenter = 0.0;
 
-        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
-                                     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9 }};
+//        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
+//                                     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9 }};
+        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2 }};
+
         uint tNumIters = tAllRadii.n_cols();
         //------------------------------------------------------------------------------
         for(uint iIter=0; iIter<tNumIters; iIter++)    // loop over radii values
@@ -261,12 +262,10 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
             // get level-set field and add to integration mesh output
             uint tNumNodes = tIntegMesh1->get_num_entities(EntityRank::NODE);
 
-            moris::Cell< moris::mtk::Vertex const * > tAllVerices = tIntegMesh1->get_all_vertices();
-
             Matrix< DDRMat > tAllCoords( tNumNodes, 3 );
             for(uint i=0; i<tNumNodes; i++ )
             {
-                tAllCoords.set_row( i,tAllVerices(i)->get_coords() );
+                tAllCoords.set_row( i,tIntegMesh1->get_node_coordinate(i) );
             }
 
             tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
@@ -281,23 +280,15 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
 
             //------------------------------------------------------------------------------
             // output solution to mesh
-//            std::string s = std::to_string(iIter);
-//            std::string tMeshOutputFile = "circle" + s +".e";
-//
-//            tIntegMesh1->create_output_mesh(tMeshOutputFile);
+            std::string s = std::to_string(iIter);
+            std::string tMeshOutputFile = "circle" + s +".e";
+
+            tIntegMesh1->create_output_mesh(tMeshOutputFile);
             //------------------------------------------------------------------------------
             delete tIntegMesh1;
-            for(uint k=0; k<tAllVerices.size(); k++)
-            {
-                delete tAllVerices(k);
-            }
         }
-        //------------------------------------------------------------------------------
     }
 }
 }   // end ge namespace
 }   // end moris namespace
-
-
-
 
