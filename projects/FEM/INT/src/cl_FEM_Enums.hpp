@@ -142,7 +142,7 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-        enum class IQ_Compute_Type
+        enum class QI_Compute_Type
         {
             UNDEFINED,
             GLOBAL,

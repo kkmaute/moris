@@ -15,6 +15,123 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
+        /**
+         * reset evaluation flags
+         */
+        void IQI::reset_eval_flags()
+        {
+            // reset properties
+            for ( std::shared_ptr< Property > tProp : mMasterProp )
+            {
+                if ( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Property > tProp : mSlaveProp )
+            {
+                if( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+
+            // reset constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+
+            // reset stabilization parameters
+            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            {
+                if( tSP != nullptr )
+                {
+                    tSP->reset_eval_flags();
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void IQI::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                  mtk::Master_Slave            aIsMaster )
+        {
+            // FIXME why does this not work?
+            //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
+
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    mMasterFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                case ( mtk::Master_Slave::SLAVE ) :
+                {
+                    mSlaveFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
+                    break;
+                }
+            }
+            //END FIXME
+
+            // loop over the the SP
+            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
+            {
+                if ( tSP != nullptr )
+                {
+                    // set the field interpolator manager for the SP
+                    tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
+
+                    // set th efem set pointer for the SP
+                    tSP->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the constitutive models
+            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+            {
+                if ( tCM != nullptr )
+                {
+                    // set the field interpolator manager for the CM
+                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointe for the CM
+                    tCM->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the properties
+            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+            {
+                if ( tProp != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointer for the property
+                    tProp->set_set_pointer( mSet );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         void IQI::get_non_unique_global_dof_type_list( moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // init counter for dof types
@@ -303,7 +420,7 @@ namespace moris
                         sint tDofTypeindex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
 
                         // if dof enum not in the list
-                        if ( tCheckList( tDofTypeindex) != 1 )
+                        if ( tCheckList( tDofTypeindex ) != 1 )
                         {
                             // put the dof type in the checklist
                             tCheckList( tDofTypeindex ) = 1;
@@ -427,110 +544,113 @@ namespace moris
             mSlaveGlobalDofTypes.shrink_to_fit();
         }
 
-//------------------------------------------------------------------------------
-        // FIXME the mFIManager needs to be use by
-        // properties, CM and SP
-        // FIXME why not master and slave together?
-        void IQI::set_dof_field_interpolators( mtk::Master_Slave aIsMaster )
-        {
-            // set field interpolators for the SP
-            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get the list of dof types for the SP
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes
-                    = tSP->get_global_dof_type_list( aIsMaster );
-
-                    // get the number of dof type for the SP
-                    uint tNumDofTypes = tSPDofTypes.size();
-
-                    // set the size of the field interpolators list for the SP
-                    moris::Cell< Field_Interpolator* > tSPFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                    {
-                        // grab the field interpolator for the dof type
-                        tSPFIs( iDof ) = mFIManager->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ), aIsMaster );
-                    }
-
-                    // set the field interpolators for the SP
-                    tSP->set_dof_field_interpolators( tSPFIs, aIsMaster );
-
-                    // set the field interpolator manager for the SP
-                    tSP->set_field_interpolator_manager( mFIManager );
-
-                    // set th efem set pointer for the SP
-                    tSP->set_set_pointer( mSet );
-                }
-            }
-
-            // set field interpolators for constitutive models
-            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get the list of dof types for the CM
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes
-                    = tCM->get_global_dof_type_list();
-
-                    // get the number of dof type for the CM
-                    uint tNumDofTypes = tCMDofTypes.size();
-
-                    // set the size of the field interpolators list for the CM
-                    moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                    {
-                        // fill the field interpolators list for the CM
-                        tCMFIs( iDof ) = mFIManager->get_field_interpolators_for_type( tCMDofTypes( iDof )( 0 ), aIsMaster );
-                    }
-
-                    // set the field interpolators for the CM
-                    tCM->set_dof_field_interpolators( tCMFIs );
-
-                    // set the field interpolator manager for the CM
-                    tCM->set_field_interpolator_manager( mFIManager );
-
-                    // set the fem set pointe for the CM
-                    tCM->set_set_pointer( mSet );
-                }
-            }
-
-            // set field interpolators for properties
-            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-            {
-                if ( tProp != nullptr )
-                {
-                    // get the list of dof types for the property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes
-                    = tProp->get_dof_type_list();
-
-                    // get the number of dof type for the property
-                    uint tNumDofTypes = tPropDofTypes.size();
-
-                    // set the size of the field interpolators list for the property
-                    moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                    {
-                        tPropFIs( iDof ) = mFIManager->get_field_interpolators_for_type( tPropDofTypes( iDof )( 0 ), aIsMaster );
-                    }
-
-                    // set the field interpolators for the property
-                    tProp->set_dof_field_interpolators( tPropFIs );
-
-                    // set the field interpolator manager for the property
-                    tProp->set_field_interpolator_manager( mFIManager );
-
-                    // set the fem set pointer for the property
-                    tProp->set_set_pointer( mSet );
-                }
-            }
-        }
+////------------------------------------------------------------------------------
+//        // FIXME the mFIManager needs to be use by
+//        // properties, CM and SP
+//        // FIXME why not master and slave together?
+//        void IQI::set_dof_field_interpolators( mtk::Master_Slave aIsMaster )
+//        {
+//            // set field interpolators for the SP
+//            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
+//            {
+//                if ( tSP != nullptr )
+//                {
+//                    // get the list of dof types for the SP
+//                    moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes
+//                    = tSP->get_global_dof_type_list( aIsMaster );
+//
+//                    // get the number of dof type for the SP
+//                    uint tNumDofTypes = tSPDofTypes.size();
+//
+//                    // set the size of the field interpolators list for the SP
+//                    moris::Cell< Field_Interpolator* > tSPFIs( tNumDofTypes, nullptr );
+//
+//                    // loop over the dof types
+//                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+//                    {
+//                        // grab the field interpolator for the dof type
+//                        tSPFIs( iDof ) = this->get_field_interpolator_manager( aIsMaster )
+//                                             ->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ) );
+//                    }
+//
+//                    // set the field interpolators for the SP
+//                    tSP->set_dof_field_interpolators( tSPFIs, aIsMaster );
+//
+//                    // set the field interpolator manager for the SP
+//                    tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
+//
+//                    // set th efem set pointer for the SP
+//                    tSP->set_set_pointer( mSet );
+//                }
+//            }
+//
+//            // set field interpolators for constitutive models
+//            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+//            {
+//                if ( tCM != nullptr )
+//                {
+//                    // get the list of dof types for the CM
+//                    moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes
+//                    = tCM->get_global_dof_type_list();
+//
+//                    // get the number of dof type for the CM
+//                    uint tNumDofTypes = tCMDofTypes.size();
+//
+//                    // set the size of the field interpolators list for the CM
+//                    moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
+//
+//                    // loop over the dof types
+//                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+//                    {
+//                        // fill the field interpolators list for the CM
+//                        tCMFIs( iDof ) = this->get_field_interpolator_manager( aIsMaster )
+//                                             ->get_field_interpolators_for_type( tCMDofTypes( iDof )( 0 ) );
+//                    }
+//
+//                    // set the field interpolators for the CM
+//                    tCM->set_dof_field_interpolators( tCMFIs );
+//
+//                    // set the field interpolator manager for the CM
+//                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+//
+//                    // set the fem set pointe for the CM
+//                    tCM->set_set_pointer( mSet );
+//                }
+//            }
+//
+//            // set field interpolators for properties
+//            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+//            {
+//                if ( tProp != nullptr )
+//                {
+//                    // get the list of dof types for the property
+//                    moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes
+//                    = tProp->get_dof_type_list();
+//
+//                    // get the number of dof type for the property
+//                    uint tNumDofTypes = tPropDofTypes.size();
+//
+//                    // set the size of the field interpolators list for the property
+//                    moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
+//
+//                    // loop over the dof types
+//                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+//                    {
+//                        tPropFIs( iDof ) = this->get_field_interpolator_manager( aIsMaster )
+//                                               ->get_field_interpolators_for_type( tPropDofTypes( iDof )( 0 ) );
+//                    }
+//
+//                    // set the field interpolators for the property
+//                    tProp->set_dof_field_interpolators( tPropFIs );
+//
+//                    // set the field interpolator manager for the property
+//                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+//
+//                    // set the fem set pointer for the property
+//                    tProp->set_set_pointer( mSet );
+//                }
+//            }
+//        }
 
 // //------------------------------------------------------------------------------
 //        void IQI::get_non_unique_global_dv_type_list( moris::Cell< MSI::Dv_Type > & aDvTypes )

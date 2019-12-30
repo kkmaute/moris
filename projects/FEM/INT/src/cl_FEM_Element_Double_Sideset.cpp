@@ -107,13 +107,13 @@ namespace moris
                 // set evaluation point for master and slave field interpolator
                 for ( uint iFI = 0; iFI < tMasterNumFI; iFI++ )
                 {
-                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER )
-                                                   ->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
+                                          ->set_space_time( tMasterGlobalIntegPoint );
                 }
                 for ( uint iFI = 0; iFI < tSlaveNumFI; iFI++ )
                 {
-                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mSlaveDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE )
-                                                   ->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->mSlaveFIManager->get_field_interpolators_for_type( mSet->mSlaveDofTypes( iFI )( 0 ) )
+                                         ->set_space_time( tMasterGlobalIntegPoint );
                 }
 
                 // compute the integration point weight // fixme both side?
@@ -223,14 +223,13 @@ namespace moris
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tMasterNumFI; iFI++ )
                 {
-                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER )
-                                                   ->set_space_time( tMasterGlobalIntegPoint );
-//                    mSet->get_field_interpolators()( iFI )->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
+                                          ->set_space_time( tMasterGlobalIntegPoint );
                 }
                 for ( uint iFI = 0; iFI < tSlaveNumFI; iFI++ )
                 {
-                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mSlaveDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE )
-                                                   ->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->mSlaveFIManager->get_field_interpolators_for_type( mSet->mSlaveDofTypes( iFI )( 0 ) )
+                                         ->set_space_time( tMasterGlobalIntegPoint );
 //                    mSet->get_field_interpolators( mtk::Master_Slave::SLAVE  )( iFI )->set_space_time( tSlaveGlobalIntegPoint );
                 }
 

@@ -7,6 +7,12 @@
 #include "cl_FEM_CM_Factory.hpp" //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp" //FEM/INT/src
 
+#define protected public
+#define private   public
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#undef protected
+#undef private
 
 moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
@@ -91,8 +97,29 @@ namespace moris
             tFIs( 0 )->set_coeff( tUHat0 );
             tFIs( 0 )->set_space_time({{0.0}, {0.0}, {-1.0}});
 
+            // create a set
+            //MSI::Equation_Set * tSet = new fem::Set();
+            fem::Set tSet;
+
+            // set size for the set EqnObjDofTypeList
+            tSet.mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+            // set size and populate the set dof type map
+            tSet.mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tSet.mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+            // set size and populate the set master dof type map
+            tSet.mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+            // create a field interpolator manager
+            Cell< Cell < MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }};
+            Field_Interpolator_Manager tFIManager( tDofTypes, &tSet );
+            tFIManager.mFI = tFIs;
+
             // set field interpolators
-            tCMMasterDiffLinIso->set_dof_field_interpolators( tFIs );
+            tCMMasterDiffLinIso->set_field_interpolator_manager( &tFIManager );
+            //tCMMasterDiffLinIso->set_dof_field_interpolators( tFIs );
             tCMMasterDiffLinIso->set_geometry_interpolator( &tGI );
 
             // check flux-------------------------------------------------------------------
@@ -188,11 +215,13 @@ namespace moris
             // clean up
             //------------------------------------------------------------------------------
             // delete the field interpolator pointers
-            for( Field_Interpolator* tFI : tFIs )
-            {
-                delete tFI;
-            }
+//            for( Field_Interpolator* tFI : tFIs )
+//            {
+//                delete tFI;
+//            }
             tFIs.clear();
+
+            //delete tSet;
 
         }/* TEST_CASE */
 
