@@ -77,9 +77,13 @@ void Time_Solver_Algorithm::finalize()
     // create map object
     Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 
+
+
     if ( mIsMasterTimeSolver )
     {
         mSolverInterface = mSolverWarehouse->get_solver_interface();
+
+        std::cout<<"Number of Dofs "<<mSolverInterface->get_my_local_global_overlapping_map().numel()<<std::endl;
 
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
 
@@ -94,6 +98,8 @@ void Time_Solver_Algorithm::finalize()
     {
         mSolverInterface = mMyTimeSolver->get_solver_interface();
 //        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
+
+        std::cout<<"Number of Dofs "<<mSolverInterface->get_my_local_global_overlapping_map().numel()<<std::endl;
 
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
     }

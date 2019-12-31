@@ -91,10 +91,10 @@ public:
 
                 if( outside_bounding_box_check( aPoint,xa,xb,0.5) == false )    // bounding box check
                 {
-//                    real rada = 0.18;
-//                    real radb = 0.18;
-                    real rada = -0.75;
-                    real radb = -0.75;
+                    real rada = 0.18;
+                    real radb = 0.18;
+//                    real rada = 0.75;
+//                    real radb = 0.75;
 
                     xn.set_row(0,xb);
 
@@ -179,10 +179,10 @@ public:
             xa.set_row(0,mAllFibers(aFiberIndex).get_column(aCylinderIndex));
             xb.set_row(0,mAllFibers(aFiberIndex).get_column(aCylinderIndex+1));
 
-//            real rada = 0.18;
-//            real radb = 0.18;
-            real rada = -0.75;
-            real radb = -0.75;
+            real rada = 0.18;
+            real radb = 0.18;
+//            real rada = 0.75;
+//            real radb = 0.75;
 
             xn.set_row(0,xb);
 
@@ -282,10 +282,11 @@ public:
 private:    // private functions
     //------------------------------------------------------------------------------
 
-    void readFiberData()
+    void readFiberData(  )
     {
         std::string tMorisRoot = std::getenv("MORISROOT");     // get root from environment
         std::string tHdf5FilePath = tMorisRoot + "/projects/GEN/test/hdf5_files/allFibers.hdf5" ;
+
         hid_t tFileID = open_hdf5_file( tHdf5FilePath );
         herr_t tStatus = 0; // error handler
 
