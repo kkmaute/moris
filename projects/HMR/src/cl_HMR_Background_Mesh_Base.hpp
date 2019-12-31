@@ -204,6 +204,42 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+          /**
+            * Returns a pointer to an element in the list of active elements.
+            * Note that the index of an element potentially changes after
+            * refinement.
+            *
+            * @param[in] aIndex   index on element list
+            *                     ( might change after refinement )
+            *
+            * @return pointer to element in mActiveElements
+            *
+            */
+           Background_Element_Base * get_element_including_aura( const luint & aIndex )
+           {
+               return mActiveElementsIncludingAura( aIndex );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * Returns a pointer to an element in the list of active elements.
+            * Note that the index of an element potentially changes after
+            * refinement. ( const version )
+            *
+            * @param[in] aIndex   index on element list
+            *                     ( might change after refinement )
+            *
+            * @return pointer to element in mActiveElements
+            *
+            */
+           const Background_Element_Base * get_element_including_aura( const luint & aIndex ) const
+           {
+               return mActiveElementsIncludingAura( aIndex );
+           }
+
+//--------------------------------------------------------------------------------
+
             /**
              * Returns a pointer to an element in the list of active elements.
              * Note that the index of an element potentially changes after

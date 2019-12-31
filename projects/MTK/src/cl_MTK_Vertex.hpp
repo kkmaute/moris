@@ -64,7 +64,6 @@ namespace moris
             {
                 MORIS_ERROR( false,"Function not implemented in base vertex");
                 return gNoID;
-
             }
 
 //------------------------------------------------------------------------------

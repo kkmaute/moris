@@ -983,16 +983,13 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
 
     // set IWG field interpolator manager
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-
-    // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );

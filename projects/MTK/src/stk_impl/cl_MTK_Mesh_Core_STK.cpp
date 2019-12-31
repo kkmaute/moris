@@ -1101,9 +1101,7 @@ namespace mtk
                 mSTKMeshData->mMeshReader->begin_output_step( fh, mTimeStamp );
                 mSTKMeshData->mMeshReader->write_defined_output_fields( fh );
                 mSTKMeshData->mMeshReader->end_output_step( fh );
-
             }
-
 
         if(aAddElemCmap && par_size() > 1)
         {

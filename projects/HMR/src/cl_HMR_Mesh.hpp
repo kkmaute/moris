@@ -139,6 +139,10 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            uint get_num_elemens_including_aura() const ;
+
+//-------------------------------------------------------------------------------
+
             uint get_num_nodes() const;
 
 //-------------------------------------------------------------------------------
@@ -251,6 +255,8 @@ namespace moris
                     moris_index     aEntityIndex,
                     enum EntityRank aEntityRank) const ;
 
+            moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
+
 //-------------------------------------------------------------------------------
             moris_index get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
@@ -321,14 +327,16 @@ namespace moris
 
             mtk::Cell & get_mtk_cell( moris_index aElementIndex )
             {
-                return *mMesh->get_element( aElementIndex );
+//                return *mMesh->get_element( aElementIndex );
+                return *mMesh->get_element_including_aura( aElementIndex );
             }
 
 //-------------------------------------------------------------------------------
 
             mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const
             {
-                return *mMesh->get_element( aElementIndex );
+//                return *mMesh->get_element( aElementIndex );
+                return *mMesh->get_element_including_aura( aElementIndex );
             }
 //-------------------------------------------------------------------------------
 
@@ -437,6 +445,10 @@ private:
 //-------------------------------------------------------------------------------
 
             void setup_entity_global_to_local_map(enum EntityRank aEntityRank);
+
+//-------------------------------------------------------------------------------
+
+            void setup_element_global_to_local_map();
 
 
 //-------------------------------------------------------------------------------

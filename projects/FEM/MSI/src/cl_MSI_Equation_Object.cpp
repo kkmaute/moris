@@ -498,7 +498,9 @@ namespace moris
         this->build_PADofMap_1( tTMatrix );
 
 //        print( tTMatrix,"tTMatrix");
-//        print( tJacobian,"tJacobian");
+//        print( mEquationBlock->get_jacobian(),"tJacobian");
+
+
 
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->get_jacobian() * tTMatrix;

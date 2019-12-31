@@ -904,7 +904,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 tDatabase->get_background_mesh()->perform_refinement(0 );
             }
 
-           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+//           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
             // manually select output pattern
             tDatabase->set_activation_pattern( 1 );

@@ -66,6 +66,10 @@ namespace moris
         Matrix< DDRMat> & tNodeIDs = mMesh->get_real_scalar_field_data( 2 );
         tNodeIDs.set_size( tNumberOfNodes, 1 );
 
+        // forth field is node Inds
+//        Matrix< DDRMat> & tElementIndices = mMesh->get_real_scalar_field_data( 3 );
+//        tElementIndices.set_size( tNumberOfElements, 1 );
+
         // initialize topology field
         mElementTopology.set_size( tNumberOfElements, tNumberOfNodesPerElement );
 
@@ -112,6 +116,9 @@ namespace moris
 
             // save owners of element
             tElementOwners( e ) = tElement->get_owner();
+
+            // save index of element
+//            tElementIndices( e ) = tElement->get_index();
         }
 
         // loop over all nodes
