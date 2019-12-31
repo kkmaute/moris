@@ -88,6 +88,8 @@ namespace moris
                     // get number of nodes from cell
                     uint tNumOfNodes = tVertices.size();
 
+                    std::cout<< aNodes.size() <<" num nodes"<<std::endl;
+
                     // assign node object
                     mNodeObj.resize( 1 );
                     mNodeObj( 0 ).resize( tNumOfNodes, nullptr );
@@ -95,6 +97,7 @@ namespace moris
                     // fill node objects
                     for( uint i = 0; i < tNumOfNodes; i++)
                     {
+                        std::cout<< tVertices( i )->get_index() <<" vertex index"<<std::endl;
                         mNodeObj( 0 )( i ) = aNodes( tVertices( i )->get_index() );
                     }
 

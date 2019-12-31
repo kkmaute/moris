@@ -68,6 +68,9 @@ namespace moris
         //! number of active elements used by this proc
         luint mNumberOfElements = 0;
 
+        //! number of active elements used by this proc including Aura
+        luint mNumberOfElementsInclusingAura = 0;
+
         //! refinement pattern this mesh relates to
         const uint  mActivationPattern;
 
@@ -163,6 +166,20 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         /**
+         * returns the number of active elements including aura proc
+         * ( refers to initialization or last call of update_mesh)
+         *
+         * @return luint
+         */
+        luint get_number_of_elements_including_aura() const
+        {
+            //return mNumberOfElements;
+            return mBackgroundMesh->get_number_of_active_elements_on_proc_including_aura();
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
          * returns a pointer to an active element
          *
          * @param[in] aElementIndex  number of active element
@@ -186,6 +203,35 @@ namespace moris
         const Element * get_element( const luint & aElementIndex ) const
         {
             return mAllElementsOnProc( mBackgroundMesh->get_element( aElementIndex )
+                                                      ->get_memory_index() );
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns a pointer to an active element
+         *
+         * @param[in] aElementIndex  number of active element
+         *
+         * @return const Element*   pointer to node
+         */
+        Element * get_element_including_aura( const luint aElementIndex )
+        {
+            return mAllElementsOnProc( mBackgroundMesh->get_element_including_aura( aElementIndex )
+                                                      ->get_memory_index() );
+        }
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns a pointer to an active element ( const version )
+         *
+         * @param[in] aElementIndex  number of active element
+         *
+         * @return const Element*   pointer to node
+         */
+        const Element * get_element_including_aura( const luint & aElementIndex ) const
+        {
+            return mAllElementsOnProc( mBackgroundMesh->get_element_including_aura( aElementIndex )
                                                       ->get_memory_index() );
         }
 

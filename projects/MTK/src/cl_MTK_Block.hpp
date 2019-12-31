@@ -106,7 +106,17 @@ namespace moris
 
                 unique( tVerticesOnBlock, mVerticesOnBlock);
 
-//                print(mVerticesOnBlock,"mNumVerticesOnBlock");
+                //FIXME delete this if statement the unique bud in aramdillo is fixed.
+                if ( tVerticesOnBlock.n_rows() != mVerticesOnBlock.n_rows() )
+                {
+                    tVerticesOnBlock = mVerticesOnBlock;
+                    mVerticesOnBlock.set_size( 1, mVerticesOnBlock.numel() );
+
+                    for( uint Ik = 0; Ik < tVerticesOnBlock.numel(); Ik++ )
+                    {
+                        mVerticesOnBlock( Ik ) = tVerticesOnBlock( Ik );
+                    }
+                }
 
                 mNumVerticesOnBlock = mVerticesOnBlock.numel();
             };

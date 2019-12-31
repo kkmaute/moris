@@ -184,23 +184,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         moris::uint tBplineMeshIndex = 0;
         moris::uint tLagrangeMeshInex = 0;
 
-//        ParameterList tParameters = create_hmr_parameter_list();
-//
-//        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
-//        tParameters.set( "domain_dimensions", "3, 3" );
-//        tParameters.set( "domain_offset", "-1.5, -1.5" );
-//
-//        tParameters.set( "truncate_bsplines", 1 );
-//        tParameters.set( "bspline_orders", "1" );
-//        tParameters.set( "lagrange_orders", "1" );
-//
-//        tParameters.set( "use_multigrid", 1 );
-//
-//        tParameters.set( "refinement_buffer", 3 );
-//        tParameters.set( "staircase_buffer", 1 );
-//
-//        tParameters.set("domain_sidesets", "1, 2, 3, 4" );
-
         // The parameter object controls the behavior of HMR.
         moris::hmr::Parameters tParameters;
 
@@ -222,8 +205,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set_staircase_buffer( 1 );
 
         tParameters.set_initial_refinement( 1 );
-
-        //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };

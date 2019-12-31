@@ -743,13 +743,15 @@ namespace moris
             this->select_activation_pattern();
 
             // get numbner of active elements
-            moris_index tNumberOfElements = this->get_number_of_elements();
+//            moris_index tNumberOfElements = this->get_number_of_elements();
+            moris_index tNumberOfElements = this->get_number_of_elements_including_aura();
 
             // loop over all active elements
             for ( moris_index e = 0; e < tNumberOfElements; ++e )
             {
                 // write index into active element
-                this->get_element( e )->set_index( e );
+//                this->get_element( e )->set_index( e );
+                this->get_element_including_aura( e )->set_index( e );
             }
         }
 

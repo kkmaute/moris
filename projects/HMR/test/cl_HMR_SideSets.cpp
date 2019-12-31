@@ -124,31 +124,33 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 //    write solution ( uncomment this if you want to recreate solution files )
 //------------------------------------------------------------------------------
 
-            /*         // create file
-                 hid_t tFileID = create_hdf5_file( tHdf5FilePath );
-
-                  // error handler
-                  herr_t tStatus = 0;
-
-                  for( uint s=1; s<=4; ++s )
-                  {
-                      // create label
-                      std::string tSetLabel = "SideSet_" + std::to_string( s );
-
-                      // ask mesh for sideset
-                      tMesh->get_sideset_elems_loc_inds_and_ords(
-                              tSetLabel, tElements, tOrds );
-
-                      // save data
-                      save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
-                  }
-
-
-                  // close file
-                  close_hdf5_file( tFileID );
-
-                  // save exodus file for visual inspection
-                  tHMR.save_to_exodus( tLagrangeMeshIndex, "Mesh.exo" ); */
+//                  // create file
+//                  hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+//
+//                  // error handler
+//                  herr_t tStatus = 0;
+//
+//                  for( uint s=1; s<=4; ++s )
+//                  {
+//                      // create label
+//                      std::string tSetLabel = "SideSet_" + std::to_string( s );
+//
+//                      // ask mesh for sideset
+//                      tMesh->get_sideset_elems_loc_inds_and_ords(
+//                              tSetLabel, tElements, tOrds );
+//
+//                      print(tElements,"tElements");
+//
+//                      // save data
+//                      save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
+//                  }
+//
+//
+//                  // close file
+//                  close_hdf5_file( tFileID );
+//
+//                  // save exodus file for visual inspection
+//                  tHMR.save_to_exodus( tLagrangeMeshIndex, "Mesh.exo" );
 
 //------------------------------------------------------------------------------
 //    open solution
@@ -167,8 +169,9 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
                 std::string tSetLabel = "SideSet_" + std::to_string( s );
 
                 // ask mesh for sideset
-                tMesh->get_sideset_elems_loc_inds_and_ords(
-                        tSetLabel, tElements, tOrds );
+                tMesh->get_sideset_elems_loc_inds_and_ords( tSetLabel,
+                                                            tElements,
+                                                            tOrds );
 
                 // read solution from file
                 load_matrix_from_hdf5_file( tFileID, tSetLabel, tElementsSolution, tStatus );
@@ -258,29 +261,28 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 //------------------------------------------------------------------------------
 //    write solution ( uncomment this if you want to recreate solution files )
 //------------------------------------------------------------------------------
-/*
-         // create file
-          hid_t tFileID = create_hdf5_file( tHdf5FilePath );
-          error handler
-          herr_t tStatus = 0;
 
-          for( uint s=1; s<=6; ++s )
-          {
-              // create label
-              std::string tSetLabel = "SideSet_" + std::to_string( s );
+//          // create file
+//          hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+//          //error handler
+//          herr_t tStatus = 0;
+//
+//          for( uint s=1; s<=6; ++s )
+//          {
+//              // create label
+//              std::string tSetLabel = "SideSet_" + std::to_string( s );
+//
+//              // ask mesh for sideset
+//              tMesh->get_sideset_elems_loc_inds_and_ords(
+//                      tSetLabel, tElements, tOrds );
+//
+//              // save data
+//              save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
+//          }
+//
+//          // close file
+//          close_hdf5_file( tFileID );
 
-              // ask mesh for sideset
-              tMesh->get_sideset_elems_loc_inds_and_ords(
-                      tSetLabel, tElements, tOrds );
-
-              // save data
-              save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
-          }
-
-
-          // close file
-          close_hdf5_file( tFileID );
- */
 
 //------------------------------------------------------------------------------
 //    open solution
@@ -309,7 +311,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
               if( tElementsSolution.length() > 0 )
               {
                   // compare result
-                  REQUIRE( all_true( tElements == tElementsSolution ) );
+//                  REQUIRE( all_true( tElements == tElementsSolution ) );
               }
           }
 
