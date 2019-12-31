@@ -198,11 +198,11 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
     //  HMR Parameters setup
     hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-//    tParameters.set( "number_of_elements_per_dimension", "80, 40, 16" );
-//    tParameters.set( "domain_dimensions",                "40, 20, 8" );
+//    tParameters.set( "number_of_elements_per_dimension", "80, 40, 20" );
+//    tParameters.set( "domain_dimensions",                "40, 20, 10" );
 //    tParameters.set( "domain_offset",                    "-0, -0, -0" );
-    tParameters.set( "number_of_elements_per_dimension", "20, 10, 4" );
-    tParameters.set( "domain_dimensions",                "40, 20, 8" );
+    tParameters.set( "number_of_elements_per_dimension", "20, 10, 5" );
+    tParameters.set( "domain_dimensions",                "40, 20, 10" );
     tParameters.set( "domain_offset",                    "-0, -0, -0" );
 
     tParameters.set( "domain_sidesets",                    "1, 2, 3, 4, 5, 6" );
@@ -842,14 +842,14 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     //  HMR Parameters setup
     hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-//    tParameters.set( "number_of_elements_per_dimension", "80, 40, 16" );
-//    tParameters.set( "domain_dimensions",                "40, 20, 8" );
-//    tParameters.set( "domain_offset",                    "-0, -0, -0" );
-    tParameters.set( "number_of_elements_per_dimension", "20, 10, 4" );
-    tParameters.set( "domain_dimensions",                "40, 20, 8" );
+    tParameters.set( "number_of_elements_per_dimension", "40, 20, 5" );
+    tParameters.set( "domain_dimensions",                "40, 20, 5" );
     tParameters.set( "domain_offset",                    "-0, -0, -0" );
+//    tParameters.set( "number_of_elements_per_dimension", "80, 40, 10" );
+//    tParameters.set( "domain_dimensions",                "40, 20, 5" );
+//    tParameters.set( "domain_offset",                    "-0, -0, -0" );
 
-    tParameters.set( "domain_sidesets",                    "1, 2, 3, 4, 5, 6" );
+    tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
 
     tParameters.set( "truncate_bsplines", 1 );
     tParameters.set( "lagrange_orders", "1" );
@@ -859,7 +859,6 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
 
     tParameters.set( "lagrange_output_meshes", "0" );
     tParameters.set( "lagrange_input_meshes", "0" );
-
 
     tParameters.set( "lagrange_to_bspline", "0" );
 
@@ -881,8 +880,8 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tDatabase->update_bspline_meshes();
     tDatabase->update_lagrange_meshes();
 
-    uint tNumberOfFibers      = 1;
-    uint tNumberOfRefinements = 1;
+    uint tNumberOfFibers      = 100;
+    uint tNumberOfRefinements = 2;
     std::cout<<"-------------------------------------"<<std::endl;
     std::cout<<"number of fibers being analyzed:  "<<tNumberOfFibers<<std::endl;
     std::cout<<"number of refinements performed:  "<<tNumberOfRefinements<<std::endl;
@@ -936,8 +935,8 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     moris::ge::GEN_Geom_Data tGeomData( tFieldData( 0 ) );  // fiber LS values as field data
     //==============================
     real tRadius  = 10.0;
-    real tXcenter = -10000.0;
-    real tYcenter = -10000.0;
+    real tXcenter = 0.0;//-1000.0;
+    real tYcenter = 0.0;//-1000.0;
     moris::ge::Circle tHoleGeom( tRadius, tXcenter, tYcenter );
 
     moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tGeomData, &tHoleGeom };
@@ -946,11 +945,28 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
     moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
     xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
-    tXTKModel.mVerbose = true;
+    tXTKModel.mVerbose = false;
 
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
-
+    //=============================== temporary ============================================
+//    // output solution and meshes
+//    xtk::Output_Options tOutputOptions1;
+//    tOutputOptions1.mAddNodeSets = false;
+//    tOutputOptions1.mAddSideSets = true;
+//    tOutputOptions1.mAddClusters = false;
+//
+//    std::string tIntegSolFieldNameUX = "UX";
+//    std::string tIntegSolFieldNameUY = "UY";
+//    std::string tIntegSolFieldNameUZ = "UZ";
+//    tOutputOptions1.mRealNodeExternalFieldNames = { tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameUZ };
+//
+//    moris::mtk::Integration_Mesh* tIntegMesh11 = tXTKModel.get_output_mesh(tOutputOptions1);
+//
+//    std::string tMeshOutputFile1 = "./fibersGeomCheck.e";
+//    tIntegMesh11->create_output_mesh(tMeshOutputFile1);
+//    delete tIntegMesh11;
+    //============================= end temporary ==========================================
     tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
     xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -963,43 +979,58 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     // create the material properties
     std::shared_ptr< fem::Property > tPropEModPlate = std::make_shared< fem::Property >();
 //    tPropEModPlate->set_parameters( { {{ 1220000 }} } );   // 1.22*10^6 Pa
-    tPropEModPlate->set_parameters( { {{ 1.0 }} } );
+    tPropEModPlate->set_parameters( { {{ 100 }} } );
     tPropEModPlate->set_val_function( tConstValFunction );
 
     std::shared_ptr< fem::Property > tPropNuPlate = std::make_shared< fem::Property >();
-//    tPropNuPlate->set_parameters( { {{ 0.4 }} } );   // Poinson's ratio
-    tPropNuPlate->set_parameters( { {{ 0.3 }} } );
+    tPropNuPlate->set_parameters( { {{ 0.4 }} } );   // Poinson's ratio
     tPropNuPlate->set_val_function( tConstValFunction );
 
-//    std::shared_ptr< fem::Property > tPropEModFibers = std::make_shared< fem::Property >();
-////    tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
-//    tPropEModFibers->set_parameters( { {{ 1.0 }} } );
-//    tPropEModFibers->set_val_function( tConstValFunction );
-//
-//    std::shared_ptr< fem::Property > tPropNuFibers = std::make_shared< fem::Property >();
-////    tPropNuFibers->set_parameters( { {{ 0.4 }} } );          // Poinson's ratio
-//    tPropNuFibers->set_parameters( { {{ 0.3 }} } );
-//    tPropNuFibers->set_val_function( tConstValFunction );
+    std::shared_ptr< fem::Property > tPropEModFibers = std::make_shared< fem::Property >();
+//    tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
+    tPropEModFibers->set_parameters( { {{ 100 }} } );
+    tPropEModFibers->set_val_function( tConstValFunction );
+
+    std::shared_ptr< fem::Property > tPropNuFibers = std::make_shared< fem::Property >();
+    tPropNuFibers->set_parameters( { {{ 0.4 }} } );          // Poinson's ratio
+    tPropNuFibers->set_val_function( tConstValFunction );
 
     //======================================================
     // create the boundary conditions and loading properties
     //======================================================
     // symmetry boundary conditions
     std::shared_ptr< fem::Property > tPropDirichletUX_ss4 = std::make_shared< fem::Property >();    // fix displacement to be zero in x
-//    tPropDirichletUX_ss4->set_parameters( { {{ 0.0 }, {1.0}, {1.0}} } );
-    tPropDirichletUX_ss4->set_parameters( { {{ 0.0 }, {0.0}, {0.0}} } );
+    tPropDirichletUX_ss4->set_parameters( { {{ 0.0 }, {1.0}, {1.0}} } );
+//    tPropDirichletUX_ss4->set_parameters( { {{ 0.0 }, {0.0}, {0.0}} } );
     tPropDirichletUX_ss4->set_val_function( tConstValFunction );
 
     std::shared_ptr< fem::Property > tPropDirichletUX_ss4_select = std::make_shared< fem::Property >();    // fix displacement to be zero in x
-//    tPropDirichletUX_ss4_select->set_parameters( { {{ 1.0 }, {0.0}, {0.0}} } );
-    tPropDirichletUX_ss4_select->set_parameters( { {{ 1.0 }, {1.0}, {1.0}} } );
+    tPropDirichletUX_ss4_select->set_parameters( { {{ 1.0 }, {0.0}, {0.0}} } );
+//    tPropDirichletUX_ss4_select->set_parameters( { {{ 1.0 }, {1.0}, {1.0}} } );
     tPropDirichletUX_ss4_select->set_val_function( tMValFunction );
+
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::Property > tPropDirichletUY_ss1 = std::make_shared< fem::Property >();    // fix displacement to be zero in y
+    tPropDirichletUY_ss1->set_parameters( { {{ 1.0 }, {0.0}, {1.0}} } );
+    tPropDirichletUY_ss1->set_val_function( tConstValFunction );
+
+    std::shared_ptr< fem::Property > tPropDirichletUY_ss1_select = std::make_shared< fem::Property >();    // fix displacement to be zero in y
+    tPropDirichletUY_ss1_select->set_parameters( { {{ 0.0 }, {1.0}, {0.0}} } );
+    tPropDirichletUY_ss1_select->set_val_function( tMValFunction );
+
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::Property > tPropDirichletUZ_ss5 = std::make_shared< fem::Property >();    // fix displacement to be zero in z
+    tPropDirichletUZ_ss5->set_parameters( { {{ 1.0 }, {1.0}, {0.0}} } );
+    tPropDirichletUZ_ss5->set_val_function( tConstValFunction );
+
+    std::shared_ptr< fem::Property > tPropDirichletUZ_ss5_select = std::make_shared< fem::Property >();    // fix displacement to be zero in y
+    tPropDirichletUZ_ss5_select->set_parameters( { {{ 0.0 }, {0.0}, {1.0}} } );
+    tPropDirichletUZ_ss5_select->set_val_function( tMValFunction );
 
     //==============================
     // loading on free end
     std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-//    tPropNeumann->set_parameters( {{{ 1000000 } , { 0.0 }, {0.0}}} );  // 1.0 MPa traction applied in the x-direction
-    tPropNeumann->set_parameters( {{{ 10 } , { 0.0 }, {0.0}}} );  // 1.0 MPa traction applied in the x-direction
+    tPropNeumann->set_parameters( {{{ 1000000 } , { 0.0 }, {0.0}}} );  // 1.0 MPa traction applied in the x-direction
     tPropNeumann->set_val_function( tConstValFunction );
 
     //==============================
@@ -1012,14 +1043,35 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tCMPlate->set_property( tPropNuPlate, "PoissonRatio" );
     tCMPlate->set_space_dim( 3 );
 
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::Constitutive_Model > tCMFibers = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMFibers->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY , MSI::Dof_Type::UZ }} );
+    tCMFibers->set_property( tPropEModFibers, "YoungsModulus" );
+    tCMFibers->set_property( tPropNuFibers, "PoissonRatio" );
+    tCMFibers->set_space_dim( 3 );
+
     //==============================
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     //------------------------------------------------------------------------------
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheBCs = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    tSPDirichletNitscheBCs->set_parameters( { {{ 10.0 }} } );
+    tSPDirichletNitscheBCs->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitscheBCs->set_property( tPropEModPlate, "Material", mtk::Master_Slave::MASTER );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterfaceFibersToPlate = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+    tSPNitscheInterfaceFibersToPlate->set_parameters( { {{ 100.0 }} } );
+    tSPNitscheInterfaceFibersToPlate->set_property( tPropEModFibers, "Material", mtk::Master_Slave::MASTER );
+    tSPNitscheInterfaceFibersToPlate->set_property( tPropEModPlate, "Material", mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterfaceFibersToPlate = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+    tSPMasterWeightInterfaceFibersToPlate->set_property( tPropEModFibers, "Material", mtk::Master_Slave::MASTER );
+    tSPMasterWeightInterfaceFibersToPlate->set_property( tPropEModPlate, "Material", mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterfaceFibersToPlate = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+    tSPSlaveWeightInterfaceFibersToPlate->set_property( tPropEModFibers, "Material", mtk::Master_Slave::MASTER );
+    tSPSlaveWeightInterfaceFibersToPlate->set_property( tPropEModPlate, "Material", mtk::Master_Slave::SLAVE );
+
 
     //==============================
     // define the IWGs
@@ -1044,9 +1096,42 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
     tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
-    //------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------
+    std::shared_ptr< fem::IWG > tIWGFibers = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+    tIWGFibers->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+    tIWGFibers->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+    tIWGFibers->set_constitutive_model( tCMFibers, "ElastLinIso", mtk::Master_Slave::MASTER );
+
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::IWG > tIWGDirichletFixedUy = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    tIWGDirichletFixedUy->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+    tIWGDirichletFixedUy->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+    tIWGDirichletFixedUy->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
+    tIWGDirichletFixedUy->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUy->set_property( tPropDirichletUY_ss1, "Dirichlet", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUy->set_property( tPropDirichletUY_ss1_select, "Select", mtk::Master_Slave::MASTER );
+
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::IWG > tIWGDirichletFixedUz = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    tIWGDirichletFixedUz->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+    tIWGDirichletFixedUz->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+    tIWGDirichletFixedUz->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
+    tIWGDirichletFixedUz->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUz->set_property( tPropDirichletUZ_ss5, "Dirichlet", mtk::Master_Slave::MASTER );
+    tIWGDirichletFixedUz->set_property( tPropDirichletUZ_ss5_select, "Select", mtk::Master_Slave::MASTER );
+
+    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::IWG > tIWGFiberInterfacePlateBulk = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+    tIWGFiberInterfacePlateBulk->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+    tIWGFiberInterfacePlateBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }}, mtk::Master_Slave::MASTER );
+    tIWGFiberInterfacePlateBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }}, mtk::Master_Slave::SLAVE );
+    tIWGFiberInterfacePlateBulk->set_stabilization_parameter( tSPNitscheInterfaceFibersToPlate, "NitscheInterface" );
+    tIWGFiberInterfacePlateBulk->set_stabilization_parameter( tSPMasterWeightInterfaceFibersToPlate, "MasterWeightInterface" );
+    tIWGFiberInterfacePlateBulk->set_stabilization_parameter( tSPSlaveWeightInterfaceFibersToPlate, "SlaveWeightInterface" );
+    tIWGFiberInterfacePlateBulk->set_constitutive_model( tCMFibers, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWGFiberInterfacePlateBulk->set_constitutive_model( tCMPlate , "ElastLinIso", mtk::Master_Slave::SLAVE  );
+
     //==============================
     // create a list of active block-sets
 //    std::string tInterfaceSideSetName    = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 0 );
@@ -1070,38 +1155,153 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tBulkPlate01.set_IWGs( { tIWGPlate } );
 
     //==============================
+    // bulk for fibers
+    fem::Set_User_Info tBulkFibers00;
+    tBulkFibers00.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+    tBulkFibers00.set_set_type( fem::Element_Type::BULK );
+    tBulkFibers00.set_IWGs( { tIWGFibers } );
+
+    fem::Set_User_Info tBulkFibers01;
+    tBulkFibers01.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+    tBulkFibers01.set_set_type( fem::Element_Type::BULK );
+    tBulkFibers01.set_IWGs( { tIWGFibers } );
+
+    //==============================
     // symmetry boundary conditions on side-set 4 ( fix Ux = 0 )
+    fem::Set_User_Info tSetDirichletFixed00;
+    tSetDirichletFixed00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+    tSetDirichletFixed00.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed00.set_IWGs( { tIWGDirichletFixedUx } );
+
+    fem::Set_User_Info tSetDirichletFixed01;
+    tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p1") );
+    tSetDirichletFixed01.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx } );
+
+    fem::Set_User_Info tSetDirichletFixed02;
+    tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p3") );
+    tSetDirichletFixed02.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx } );
+
+    fem::Set_User_Info tSetDirichletFixed03;
+    tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
+    tSetDirichletFixed03.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx } );
+
+    //==============================
+    // symmetry boundary conditions on side-set 1 ( fix Uy = 0 )
+    fem::Set_User_Info tSetDirichletFixed04;
+    tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p1") );
+    tSetDirichletFixed04.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUy } );
+
     fem::Set_User_Info tSetDirichletFixed05;
-    tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p3") );
+    tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_c_p1") );
     tSetDirichletFixed05.set_set_type( fem::Element_Type::SIDESET );
-    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx } );
+    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUy } );
 
     fem::Set_User_Info tSetDirichletFixed06;
-    tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
+    tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p3") );
     tSetDirichletFixed06.set_set_type( fem::Element_Type::SIDESET );
-    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx } );
+    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUy } );
+
+    fem::Set_User_Info tSetDirichletFixed07;
+    tSetDirichletFixed07.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_c_p3") );
+    tSetDirichletFixed07.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed07.set_IWGs( { tIWGDirichletFixedUy } );
+
+    //==============================
+    // symmetry boundary conditions on side-set 5 ( fix Uz = 0 )
+    fem::Set_User_Info tSetDirichletFixed08;
+    tSetDirichletFixed08.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+    tSetDirichletFixed08.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed08.set_IWGs( { tIWGDirichletFixedUz } );
+
+    fem::Set_User_Info tSetDirichletFixed09;
+    tSetDirichletFixed09.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+    tSetDirichletFixed09.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed09.set_IWGs( { tIWGDirichletFixedUz } );
+
+    fem::Set_User_Info tSetDirichletFixed10;
+    tSetDirichletFixed10.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p3") );
+    tSetDirichletFixed10.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed10.set_IWGs( { tIWGDirichletFixedUz } );
+
+    fem::Set_User_Info tSetDirichletFixed11;
+    tSetDirichletFixed11.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p3") );
+    tSetDirichletFixed11.set_set_type( fem::Element_Type::SIDESET );
+    tSetDirichletFixed11.set_IWGs( { tIWGDirichletFixedUz } );
 
     //==============================
     // Neumann load on side-set 2
+    fem::Set_User_Info tSetNeumann00;
+    tSetNeumann00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+    tSetNeumann00.set_set_type( fem::Element_Type::SIDESET );
+    tSetNeumann00.set_IWGs( { tIWGNeumann } );
+
+    fem::Set_User_Info tSetNeumann01;
+    tSetNeumann01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p1") );
+    tSetNeumann01.set_set_type( fem::Element_Type::SIDESET );
+    tSetNeumann01.set_IWGs( { tIWGNeumann } );
+
+    fem::Set_User_Info tSetNeumann02;
+    tSetNeumann02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3") );
+    tSetNeumann02.set_set_type( fem::Element_Type::SIDESET );
+    tSetNeumann02.set_IWGs( { tIWGNeumann } );
+
     fem::Set_User_Info tSetNeumann03;
-    tSetNeumann03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3") );
+    tSetNeumann03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p3") );
     tSetNeumann03.set_set_type( fem::Element_Type::SIDESET );
     tSetNeumann03.set_IWGs( { tIWGNeumann } );
 
-    fem::Set_User_Info tSetNeumann04;
-    tSetNeumann04.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p3") );
-    tSetNeumann04.set_set_type( fem::Element_Type::SIDESET );
-    tSetNeumann04.set_IWGs( { tIWGNeumann } );
+    //==============================
+    // interface(s)
+    fem::Set_User_Info tInterfaceFibersToPlate;
+    tInterfaceFibersToPlate.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index("dbl_iside_p0_1_p1_3") );
+    tInterfaceFibersToPlate.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+    tInterfaceFibersToPlate.set_IWGs( { tIWGFiberInterfacePlateBulk } );
+
+    fem::Set_User_Info tInterfaceFibersToBoundary00;
+    tInterfaceFibersToBoundary00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+    tInterfaceFibersToBoundary00.set_set_type( fem::Element_Type::SIDESET );
+    tInterfaceFibersToBoundary00.set_IWGs( { tIWGDirichletFixedUz } );
+
+    fem::Set_User_Info tInterfaceFibersToBoundary01;
+    tInterfaceFibersToBoundary01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+    tInterfaceFibersToBoundary01.set_set_type( fem::Element_Type::SIDESET );
+    tInterfaceFibersToBoundary01.set_IWGs( { tIWGDirichletFixedUz } );
 
     //==============================
     // create a cell of set info
-    moris::Cell< fem::Set_User_Info > tSetInfo( 6 );
+    moris::Cell< fem::Set_User_Info > tSetInfo( 23 );
     tSetInfo( 0 )  = tBulkPlate00;
     tSetInfo( 1 )  = tBulkPlate01;
-    tSetInfo( 2 )  = tSetDirichletFixed05;
-    tSetInfo( 3 )  = tSetDirichletFixed06;
-    tSetInfo( 4 )  = tSetNeumann03;
-    tSetInfo( 5 )  = tSetNeumann04;
+
+    tSetInfo( 2 )  = tBulkFibers00;
+    tSetInfo( 3 )  = tBulkFibers01;
+
+    tSetInfo( 4 )  = tSetDirichletFixed00;
+    tSetInfo( 5 )  = tSetDirichletFixed01;
+    tSetInfo( 6 )  = tSetDirichletFixed02;
+    tSetInfo( 7 )  = tSetDirichletFixed03;
+    tSetInfo( 8 )  = tSetDirichletFixed04;
+    tSetInfo( 9 )  = tSetDirichletFixed05;
+    tSetInfo( 10 ) = tSetDirichletFixed06;
+    tSetInfo( 11 ) = tSetDirichletFixed07;
+    tSetInfo( 12 ) = tSetDirichletFixed08;
+    tSetInfo( 13 ) = tSetDirichletFixed09;
+    tSetInfo( 14 ) = tSetDirichletFixed10;
+    tSetInfo( 15 ) = tSetDirichletFixed11;
+
+    tSetInfo( 16 ) = tSetNeumann00;
+    tSetInfo( 17 ) = tSetNeumann01;
+    tSetInfo( 18 ) = tSetNeumann02;
+    tSetInfo( 19 ) = tSetNeumann03;
+
+    tSetInfo( 20 ) = tInterfaceFibersToPlate;
+
+    tSetInfo( 21 ) = tInterfaceFibersToBoundary00;
+    tSetInfo( 22 ) = tInterfaceFibersToBoundary01;
 
     //------------------------------------------------------------------------------
     // create model
@@ -1127,10 +1327,10 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
     tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;    // AZ_none
     tLinearSolverAlgorithm->set_param("AZ_max_iter") = 1000;
-//    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
+//    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
     tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-    tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
+    tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 1;
 //    tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;  // precondition the system,
 
     dla::Linear_Solver tLinSolver;
