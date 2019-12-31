@@ -311,6 +311,28 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * returns a node pointer
+             */
+            Basis * get_node_by_index_including_aura( const uint & aIndex )
+            {
+                MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
+                return mAllBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns a node pointer ( const version )
+             */
+            const Basis * get_node_by_index_including_aura( const uint & aIndex ) const
+            {
+                MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
+                return mAllBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
              * returns the refinement pattern index of the B-Spline mesh
              */
             auto get_bspline_pattern( const uint aMeshIndex ) const

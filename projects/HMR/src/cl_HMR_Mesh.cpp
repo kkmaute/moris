@@ -223,10 +223,10 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-//        uint Mesh::get_num_nodes_without_aura() const
-//        {
-//            return mMesh->get_number_of_nodes_on_proc_without_aura();
-//        }
+        uint Mesh::get_num_nodes_including_aura() const
+        {
+            return mMesh->get_number_of_nodes_on_proc_including_aura();
+        }
 
 //-----------------------------------------------------------------------------
 
@@ -1116,7 +1116,7 @@ namespace moris
             return EntityRank::FACE;
         }
 
-        //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *>
         Mesh::get_all_vertices() const
@@ -1128,6 +1128,23 @@ namespace moris
             for(moris::uint  i = 0; i < tNumVertices; i++)
             {
                 tVertices(i) = &get_mtk_vertex((moris_index)i);
+            }
+
+            return tVertices;
+        }
+
+//-----------------------------------------------------------------------------
+
+        moris::Cell<moris::mtk::Vertex const *>
+        Mesh::get_all_vertices_including_aura() const
+        {
+            uint tNumVertices = this->get_num_nodes_including_aura();
+
+            moris::Cell<moris::mtk::Vertex const *> tVertices (tNumVertices);
+
+            for(moris::uint  i = 0; i < tNumVertices; i++)
+            {
+                tVertices(i) = &get_mtk_vertex_including_aura( ( moris_index ) i );
             }
 
             return tVertices;
