@@ -59,7 +59,7 @@ namespace moris
                     mStrain( 0, 0 ) = tGradx( 0, 0 );
                     mStrain( 1, 0 ) = tGradx( 1, 1 );
                     mStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 );
-                     break;
+                    break;
                 }
                 case( 3 ):
                 {
@@ -84,8 +84,8 @@ namespace moris
             if ( mProperties( tCTEIndex ) != nullptr )
             {
                 // build thermal expansion vector
-                Matrix< DDRMat > tTheramlExpansionVector;
-                this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+                Matrix< DDRMat > tThermalExpansionVector;
+                this->get_isotropic_thermal_expansion_vector( tThermalExpansionVector );
 
                 // get reference Temperature
                 moris::real tTref = mProperties( tTempRefIndex )->val()( 0 );
@@ -94,7 +94,7 @@ namespace moris
                 moris::real tTgp = mDofFI( 1 )->val()( 0 );
 
                 // add thermal contribution to the strain
-                mStrain.matrix_data() += tTheramlExpansionVector * ( - tTgp + tTref );
+                mStrain.matrix_data() += tThermalExpansionVector * ( - tTgp + tTref );
             }
         }
 
@@ -152,6 +152,55 @@ namespace moris
             uint tEmodIndex = static_cast< uint >( Property_Type::EMOD );
             moris::real tEmod = mProperties(tEmodIndex)->val()(0);
             (this->*mConstFunc)(tEmod, tNu);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris::real CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus()
+        {
+            uint tNuIndex = static_cast< uint >( Property_Type::NU );
+            moris::real tNu = mProperties(tNuIndex)->val()(0);
+            uint tEmodIndex = static_cast< uint >( Property_Type::EMOD );
+            moris::real tEmod = mProperties(tEmodIndex)->val()(0);
+
+            switch(mSpaceDim)
+            {
+                case(2):
+                {
+                    switch(mPlaneType)
+                    {
+                        case(Model_Type::PLANE_STRESS):
+                        {
+                            return 2 * (1 - tNu) / tEmod;
+                        }
+                        default: // no break, proceed to 3D
+                        {}
+                    }
+                }
+                default:
+                {
+                    return 3 * (1 - 2 * tNu) / tEmod;
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris::Matrix<moris::DDRMat> CM_Struc_Linear_Isotropic::eval_B_flat()
+        {
+            moris::Matrix<moris::DDRMat> tB = mDofFI( 0 )->dnNdxn( 1 );
+            moris::Matrix<moris::DDRMat> tBf(1, tB.numel(), 0.0);
+
+            uint tInd = 0;
+            for (uint tRow = 0; tRow < tB.n_rows(); tRow++)
+            {
+                for (uint tCol = 0; tCol < tB.n_cols(); tCol++)
+                {
+                    tBf(tInd) = tB(tRow, tCol);
+                    tInd++;
+                }
+            }
+            return tBf;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -267,10 +316,10 @@ namespace moris
             if ( mProperties( tCTEIndex ) != nullptr && aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
             {
                 // build thermal expansion vector
-                Matrix< DDRMat > tTheramlExpansionVector;
-                this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+                Matrix< DDRMat > tThermalExpansionVector;
+                this->get_isotropic_thermal_expansion_vector( tThermalExpansionVector );
 
-                mdStraindDof( tDofIndex ).matrix_data() += (- 1.0 ) * tTheramlExpansionVector * mDofFI( tDofIndex )->NBuild();
+                mdStraindDof( tDofIndex ).matrix_data() += (- 1.0 ) * tThermalExpansionVector * mDofFI( tDofIndex )->NBuild();
             }
         }
 
@@ -320,7 +369,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector )
+        void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aThermalExpansionVector )
         {
             uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
 
@@ -332,9 +381,9 @@ namespace moris
                     {
                         case ( Model_Type::PLANE_STRESS ):
                         {
-                            aTheramlExpansionVector.set_size( 3, 1, 0.0);
-                            aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
-                            aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
+                            aThermalExpansionVector.set_size( 3, 1, 0.0);
+                            aThermalExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                            aThermalExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
                             break;
                         }
                         case ( Model_Type::PLANE_STRAIN ):
@@ -351,10 +400,10 @@ namespace moris
                 }
                 case( 3 ):
                 {
-                    aTheramlExpansionVector.set_size( 6, 1, 0.0);
-                    aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
-                    aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
-                    aTheramlExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
+                    aThermalExpansionVector.set_size( 6, 1, 0.0);
+                    aThermalExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                    aThermalExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
+                    aThermalExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
                     break;
                 }
                 default:
@@ -505,14 +554,14 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::deviatoric_plane_stress(moris::real aEmod, moris::real aNu)
         {
-            moris::real tPre = aEmod / (1 - std::pow( aNu, 2));
+            moris::real tPre = aEmod / ((1 + aNu) * 2.0);
             mConst.set_size( 3, 3, 0.0 );
 
-            mConst( 0, 0 ) = tPre * (1 - aNu) / 2.0;
-            mConst( 1, 1 ) = tPre * (1 - aNu) / 2.0;
-            mConst( 0, 1 ) = tPre * (aNu - 1) / 2.0;
-            mConst( 1, 0 ) = tPre * (aNu - 1) / 2.0;
-            mConst( 2, 2 ) = tPre * 0.5 * (1.0 - aNu );
+            mConst( 0, 0 ) = tPre;
+            mConst( 1, 1 ) = tPre;
+            mConst( 0, 1 ) = -tPre;
+            mConst( 1, 0 ) = -tPre;
+            mConst( 2, 2 ) = tPre;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -520,7 +569,7 @@ namespace moris
         void CM_Struc_Linear_Isotropic::full_plane_strain(moris::real aEmod, moris::real aNu)
         {
             moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
-            mConst.set_size( 4, 3, 0.0 );
+            mConst.set_size( 4, 4, 0.0 );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -535,23 +584,23 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::deviatoric_plane_strain(moris::real aEmod, moris::real aNu)
         {
-            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
-            mConst.set_size( 4, 3, 0.0 );
+            moris::real tPre = aEmod / (3.0 * (1.0 + aNu ));
+            mConst.set_size( 4, 4, 0.0 );
 
-            mConst( 0, 0 ) = tPre * (2 - 4 * aNu) / 3.0;
-            mConst( 0, 1 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 1, 0 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 1, 1 ) = tPre * (2 - 4 * aNu) / 3.0;
-            mConst( 2, 0 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 2, 1 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 3, 2 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 0, 0 ) = tPre * 4.0;
+            mConst( 0, 1 ) = tPre;
+            mConst( 1, 0 ) = tPre;
+            mConst( 1, 1 ) = tPre * 4.0;
+            mConst( 2, 0 ) = tPre;
+            mConst( 2, 1 ) = tPre;
+            mConst( 3, 2 ) = tPre * 3.0 / 2.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::full_3d(moris::real aEmod, moris::real aNu)
         {
-            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu );
             mConst.set_size( 6, 6, 0.0 );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
@@ -572,21 +621,21 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::deviatoric_3d(moris::real aEmod, moris::real aNu)
         {
-            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            moris::real tPre = aEmod / (3.0 * (1.0 + aNu ));
             mConst.set_size( 6, 6, 0.0 );
 
-            mConst( 0, 0 ) = tPre * (2 - 4 * aNu) / 3.0;
-            mConst( 0, 1 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 0, 2 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 1, 0 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 1, 1 ) = tPre * (2 - 4 * aNu) / 3.0;
-            mConst( 1, 2 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 2, 0 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 2, 1 ) = tPre * (2 * aNu - 1) / 3.0;
-            mConst( 2, 2 ) = tPre * (2 - 4 * aNu) / 3.0;
-            mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
-            mConst( 4, 4 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
-            mConst( 5, 5 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 0, 0 ) = tPre * 4.0;
+            mConst( 0, 1 ) = tPre;
+            mConst( 0, 2 ) = tPre;
+            mConst( 1, 0 ) = tPre;
+            mConst( 1, 1 ) = tPre * 4.0;
+            mConst( 1, 2 ) = tPre;
+            mConst( 2, 0 ) = tPre;
+            mConst( 2, 1 ) = tPre;
+            mConst( 2, 2 ) = tPre * 4.0;
+            mConst( 3, 3 ) = tPre * 3.0 / 2.0;
+            mConst( 4, 4 ) = tPre * 3.0 / 2.0;
+            mConst( 5, 5 ) = tPre * 3.0 / 2.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------

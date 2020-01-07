@@ -1,10 +1,3 @@
-/*
- * cl_FEM_CM_Struc_Linear_Isotropic.hpp
- *
- *  Created on: Sep 17, 2019
- *      Author: noel
- */
-
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_
 
@@ -45,9 +38,6 @@ namespace moris
             Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
             void (moris::fem::CM_Struc_Linear_Isotropic:: *mConstFunc)(moris::real, moris::real) = &CM_Struc_Linear_Isotropic::full_3d;
 
-//            uint mSpaceDim; // spatial dimensions
-
-
         //--------------------------------------------------------------------------------------------------------------
         public:
             /*
@@ -68,7 +58,7 @@ namespace moris
                 mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
 
                 // set function pointers
-                this->set_function_pointers();
+                this->set_space_dim(3);
 
             };
 
@@ -96,7 +86,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux
-             * @param[ in ] aFlux a matrix to fill with evaluation
              */
             void eval_flux();
 
@@ -123,29 +112,41 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain
-             * @param[ in ] aStrain a matrix to fill with evaluation
              */
             void eval_strain();
 
         //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test strain
-             * @param[ in ] aTestStrain a matrix to fill with evaluation
              */
             void eval_testStrain();
 
         //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix
-             * @param[ in ] aConst a matrix to fill with evaluation
              */
             void eval_const();
 
         //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * evaluate the inverse of the bulk modulus, K
+             * @return 1/K
+             */
+            moris::real eval_inv_bulk_modulus();
+
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * evaluate the B matrix from the field interpolator and make it flattened to a 1 x ?
+             * @return "flattened" B (not voigt notation B)
+             */
+            moris::Matrix<moris::DDRMat> eval_B_flat();
+
+            //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-             * @param[ in ] adFluxdDOF a matrix to fill with derivative evaluation
              */
             void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 

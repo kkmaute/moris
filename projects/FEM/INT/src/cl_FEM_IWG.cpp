@@ -462,7 +462,6 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                 if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes )
                 {
                     mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
-
                     break;
                 }
             }
@@ -480,7 +479,6 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
             if( mResidualDofType( 0 ) == tDofTypes )
             {
                 mResidualDofTypeRequested = true;
-                break;
             }
         }
     }
@@ -630,10 +628,11 @@ void IWG::compute_jacobian_FD( real                                             
     // loop over the IWG dof types
     for( uint iFI = 0; iFI < tNumDofType; iFI++ )
     {
-        uint tDofIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
+        uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+        uint tDepIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
 
         uint tNumRows = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ) + 1;
-        uint tNumCols = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ) + 1;
+        uint tNumCols = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepIndex, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepIndex, 0 ) + 1;
 
         aJacobiansFD( 0 )( iFI ).set_size( tNumRows, tNumCols, 0.0 );
 

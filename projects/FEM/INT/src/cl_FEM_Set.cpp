@@ -220,6 +220,8 @@ namespace moris
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
         {
+            mIsResidual = aIsResidual;
+
             this->create_residual_dof_assembly_map();
 
             this->create_dof_assembly_map( aIsResidual );
@@ -859,32 +861,93 @@ namespace moris
     {
         if ( !mJacobianExist )
         {
-            uint tNumCoeff = 0;
-
-            moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes = this->get_requested_dof_types();
-
-            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            if( !mIsResidual )
             {
-                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+                uint tNumCoeff = 0;
 
-                if( tDofIndex != -1 )
-                {
-                    tNumCoeff += mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER )
-                                                                      ->get_number_of_space_time_coefficients();
+                moris::Cell<enum MSI::Dof_Type> tRequestedDofTypes = this->get_requested_dof_types();
+
+                for (uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++) {
+                    sint tDofIndex = this->get_dof_index_for_type(tRequestedDofTypes(Ik), mtk::Master_Slave::MASTER);
+
+                    if (tDofIndex != -1) {
+                        tNumCoeff += mFieldInterpolatorManager->get_field_interpolators_for_type(tRequestedDofTypes(Ik),
+                                                                                                 mtk::Master_Slave::MASTER)
+                                ->get_number_of_space_time_coefficients();
+                    }
+
+                    tDofIndex = this->get_dof_index_for_type(tRequestedDofTypes(Ik), mtk::Master_Slave::SLAVE);
+
+                    if (tDofIndex != -1) {
+                        tNumCoeff += mFieldInterpolatorManager->get_field_interpolators_for_type(tRequestedDofTypes(Ik),
+                                                                                                 mtk::Master_Slave::SLAVE)
+                                ->get_number_of_space_time_coefficients();
+                    }
                 }
 
-                tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE  );
+                mJacobian.set_size(tNumCoeff, tNumCoeff, 0.0);
 
-                if( tDofIndex != -1 )
-                {
-                    tNumCoeff += mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE  )
-                                                                                            ->get_number_of_space_time_coefficients();
-                }
+                mJacobianExist = true;
             }
+            else
+            {
+                uint tNumCols = 0;
+                uint tNumRows = 0;
 
-            mJacobian.set_size( tNumCoeff, tNumCoeff, 0.0 );
+                moris::Cell<enum MSI::Dof_Type> tRequestedDofTypes = this->get_requested_dof_types();
 
-            mJacobianExist = true;
+                for (uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++)
+                {
+                    sint tDofIndex = this->get_dof_index_for_type(tRequestedDofTypes(Ik), mtk::Master_Slave::MASTER);
+
+                    if (tDofIndex != -1) {
+                        tNumCols += mFieldInterpolatorManager->get_field_interpolators_for_type(tRequestedDofTypes(Ik),
+                                                                                                 mtk::Master_Slave::MASTER)
+                                ->get_number_of_space_time_coefficients();
+                    }
+
+                    tDofIndex = this->get_dof_index_for_type(tRequestedDofTypes(Ik), mtk::Master_Slave::SLAVE);
+
+                    if (tDofIndex != -1) {
+                        tNumCols += mFieldInterpolatorManager->get_field_interpolators_for_type(tRequestedDofTypes(Ik),
+                                                                                                 mtk::Master_Slave::SLAVE)
+                                ->get_number_of_space_time_coefficients();
+                    }
+                }
+
+                Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
+
+                for ( auto tSecDofTypesI : tSecDofTypes)
+                {
+                    for (uint Ik = 0; Ik < tSecDofTypesI.size(); Ik++)
+                    {
+                        sint tDofIndex = this->get_dof_index_for_type(tSecDofTypesI(Ik),
+                                                                      mtk::Master_Slave::MASTER);
+
+                        if (tDofIndex != -1)
+                        {
+                            tNumRows += mFieldInterpolatorManager->get_field_interpolators_for_type(
+                                            tSecDofTypesI(Ik),
+                                            mtk::Master_Slave::MASTER)
+                                    ->get_number_of_space_time_coefficients();
+                        }
+
+                        tDofIndex = this->get_dof_index_for_type(tSecDofTypesI(Ik), mtk::Master_Slave::SLAVE);
+
+                        if (tDofIndex != -1)
+                        {
+                            tNumRows += mFieldInterpolatorManager->get_field_interpolators_for_type(
+                                            tSecDofTypesI(Ik),
+                                            mtk::Master_Slave::SLAVE)
+                                    ->get_number_of_space_time_coefficients();
+                        }
+                    }
+                }
+
+                mJacobian.set_size( tNumCols, tNumRows, 0.0 );
+
+                mJacobianExist = true;
+            }
         }
         else
         {

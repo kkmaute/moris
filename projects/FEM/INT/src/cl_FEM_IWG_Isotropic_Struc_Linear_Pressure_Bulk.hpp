@@ -1,12 +1,5 @@
-/*
- * cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
- *
- *  Created on: Okt 06, 2019
- *      Author: schmidt
- */
-
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_BULK_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -22,7 +15,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Struc_Linear_Bulk : public IWG
+        class IWG_Isotropic_Struc_Linear_Pressure_Bulk : public IWG
         {
 
 //------------------------------------------------------------------------------
@@ -30,7 +23,6 @@ namespace moris
 
             enum class IWG_Property_Type
             {
-                LOAD,
                 MAX_ENUM
             };
 
@@ -59,13 +51,13 @@ namespace moris
             /*
              * constructor
              */
-            IWG_Isotropic_Struc_Linear_Bulk();
+            IWG_Isotropic_Struc_Linear_Pressure_Bulk();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Struc_Linear_Bulk(){};
+            ~IWG_Isotropic_Struc_Linear_Pressure_Bulk(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -147,4 +139,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_BULK_HPP_ */

@@ -94,8 +94,6 @@ namespace moris
             {
                 case ( mtk::Master_Slave::MASTER ):
                 {
-//                    MORIS_ASSERT( mMasterDofTypeMap( static_cast< int >( aDofType ) ) != -1, "Set::get_dof_index_for_type(), dof type does not exist in map " );
-
                     MORIS_ASSERT( static_cast< uint >( aDofType ) < mMasterDofTypeMap.numel(), "Set::get_dof_index_for_type(), dof type does not exist in map " );
 
                     return mMasterDofTypeMap( static_cast< int >( aDofType ) );

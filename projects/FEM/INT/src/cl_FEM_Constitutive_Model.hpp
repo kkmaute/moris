@@ -497,10 +497,10 @@ namespace moris
              * @param[ in ] aPropertyString a string describing the property
              */
             virtual void set_property( std::shared_ptr< fem::Property > aProperty,
-                                       std::string                      aPropertyType ) = 0;
-//            {
-//                MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
-//            }
+                                       std::string                      aPropertyType )
+            {
+                MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
+            }
 
             virtual void set_model_type(fem::Model_Type aModelType)
             {

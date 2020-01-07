@@ -570,8 +570,19 @@ namespace moris
                         // reshape tCoeffs into the order the cluster expects them
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
+                        Matrix< DDRMat > tCoeff1( tCoeff.numel(),1, 0.0);
+                        //fixme get rid of for loop
+                        uint tCounter=0;
+                        for( uint Ik = 0; Ik<tCoeff.n_cols(); Ik++)
+                        {
+                            for( uint Ii = 0; Ii<tCoeff.n_rows(); Ii++)
+                            {
+                                tCoeff1(tCounter++) = tCoeff(Ii,Ik);
+                            }
+                        }
+
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff1;
                     }
 
                     tDofIndex = mEquationBlock->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
@@ -600,7 +611,7 @@ namespace moris
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                     }
                 }
             }
@@ -638,7 +649,7 @@ namespace moris
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                     }
 
                     tDofIndex = mEquationBlock->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
@@ -667,7 +678,7 @@ namespace moris
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                     }
                 }
             }

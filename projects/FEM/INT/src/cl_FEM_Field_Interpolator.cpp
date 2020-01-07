@@ -539,6 +539,26 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        moris::real Field_Interpolator::div()
+        {
+            // check that mUHat is set
+            MORIS_ASSERT( mUHat.numel() > 0,  "Field_Interpolator::div - mUHat  is not set." );
+
+            // evaluate gradient
+            Matrix< DDRMat > tGradx = this->gradx(1);
+
+            // evaluate divergence
+            moris::real tDivergence = 0;
+            for (uint tIndex = 0; tIndex < tGradx.n_rows(); tIndex++)
+            {
+                tDivergence += tGradx(tIndex, tIndex);
+            }
+            return tDivergence;
+        }
+
+//------------------------------------------------------------------------------
+
         Matrix< DDRMat > Field_Interpolator::gradt( const uint & aDerivativeOrder )
         {
             // check that mUHat is set
