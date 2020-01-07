@@ -13,8 +13,6 @@
 // XTKL: Container includes
 #include "cl_Cell.hpp"
 
-// XTKL: Linear Algebra Includes
-//#include "cl_GEN_Enums.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_Matrix.hpp"
 

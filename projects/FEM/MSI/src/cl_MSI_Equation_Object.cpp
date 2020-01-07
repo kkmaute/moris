@@ -687,6 +687,7 @@ namespace moris
 
         Matrix< DDRMat > tMyValues;
 
+
         // Extract this equation objects adof values from solution vector
         mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 

@@ -55,7 +55,7 @@ namespace moris
                     mStrain( 0, 0 ) = tGradx( 0, 0 );
                     mStrain( 1, 0 ) = tGradx( 1, 1 );
                     mStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 );
-                     break;
+                    break;
                 }
                 case( 3 ):
                 {
@@ -169,7 +169,7 @@ namespace moris
                         }
                         case ( 2 ):
                         {
-                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / ( (1.0 + tNu ) * (1.0 - 2.0 * tNu ) ) ;
 
                             mConst.set_size( 4, 4, 0.0 );
                             mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -196,7 +196,7 @@ namespace moris
             }
             case( 3 ):
             {
-                moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                moris::real tPre = ( mProperties( tEModIndex )->val()( 0 ) ) / ( (1.0 + tNu ) * (1.0 - 2.0 * tNu ) ) ;
 
                 mConst.set_size( 6, 6, 0.0 );
                 mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -211,9 +211,9 @@ namespace moris
                 mConst( 2, 1 ) = tPre * tNu;
                 mConst( 2, 2 ) = tPre * ( 1.0 - tNu );
 
-                mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
-                mConst( 4, 4 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
-                mConst( 5, 5 ) = tPre * ( 1.0 - 2.0 * tNu ) / 2.0;
+                mConst( 3, 3 ) = tPre * ( ( 1.0 - 2.0 * tNu ) / 2.0 );
+                mConst( 4, 4 ) = tPre * ( ( 1.0 - 2.0 * tNu ) / 2.0 );
+                mConst( 5, 5 ) = tPre * ( ( 1.0 - 2.0 * tNu ) / 2.0 );
                 break;
             }
             default:
