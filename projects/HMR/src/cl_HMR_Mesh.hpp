@@ -147,6 +147,10 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            uint get_num_nodes_including_aura() const;
+
+//-------------------------------------------------------------------------------
+
             uint get_num_edges() const;
 
 //-------------------------------------------------------------------------------
@@ -325,6 +329,20 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            mtk::Vertex & get_mtk_vertex_including_aura( moris_index aVertexIndex )
+            {
+                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            mtk::Vertex const & get_mtk_vertex_including_aura( moris_index aVertexIndex ) const
+            {
+                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
             mtk::Cell & get_mtk_cell( moris_index aElementIndex )
             {
 //                return *mMesh->get_element( aElementIndex );
@@ -351,6 +369,11 @@ namespace moris
 
             moris::Cell<moris::mtk::Vertex const *>
             get_all_vertices() const;
+
+//-------------------------------------------------------------------------------
+
+            moris::Cell<moris::mtk::Vertex const *>
+            get_all_vertices_including_aura() const;
 
 //-------------------------------------------------------------------------------
 
