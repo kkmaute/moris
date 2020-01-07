@@ -366,6 +366,10 @@ namespace moris
                 {
                     mParameterList.set(  "additional_lagrange_refinement", ( sint ) std::stoi( tSecond( k ) ) );
                 }
+                else if ( tKey == "use_number_aura" )
+                {
+                    mParameterList.set(  "use_number_aura", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
                 else if ( tKey == "use_multigrid" )
                 {
                     mParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );

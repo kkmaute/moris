@@ -75,12 +75,6 @@ namespace moris
         // list of pointers to element
         moris::Cell< fem::Element * > mVisElements;
 
-        //! node indices of this element
-        //  @node: MTK interface returns copy of vertices. T
-        //         storing the indices in private matrix is faster,
-        //         but might need more memory
-        moris::Matrix< IndexMat > mNodeIndices;
-
         // number of IWG on the cluster
         uint mNumOfIWGs;
 

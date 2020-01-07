@@ -202,12 +202,12 @@ public:
 //        MORIS_ASSERT(this->get_num_elems() == aInterpolationMesh.get_num_elems(),"Mismatch elements between integration and interpolation mesh");
         MORIS_ASSERT(this->get_num_elemens_including_aura() == aInterpolationMesh.get_num_elemens_including_aura(),"Mismatch elements between integration and interpolation mesh");
 
-//        // get the cell rank
-//        enum EntityRank tCellRank = this->get_cell_rank();
-//
-//        // number of interpolation cells
-//        moris::uint tNumInterpCells = aInterpolationMesh.get_num_entities(tCellRank);
-        moris::uint tNumInterpCells = aInterpolationMesh.get_num_elemens_including_aura();
+        // get the cell rank
+        enum EntityRank tCellRank = this->get_cell_rank();
+
+        // number of interpolation cells
+        moris::uint tNumInterpCells = aInterpolationMesh.get_num_entities(tCellRank);
+//        moris::uint tNumInterpCells = aInterpolationMesh.get_num_elemens_including_aura();
 
         // size member data
         mCellClusters.resize( tNumInterpCells );
@@ -221,7 +221,7 @@ public:
             // integration cell (only primary cells here)
 //            moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,tCellRank);
             mtk::Cell const * tPrimaryCell = &this->get_mtk_cell( i );
-            mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
+            mCellClusters(i).add_primary_integration_cell( tPrimaryCell );
         }
     }
 
@@ -231,8 +231,9 @@ public:
     setup_blockset_with_cell_clusters()
     {
         // construct integration to cell cluster relationship
-//        moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(this->get_num_entities(EntityRank::ELEMENT),MORIS_INDEX_MAX);
-        moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(this->get_num_elemens_including_aura(),MORIS_INDEX_MAX);
+        moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex( this->get_num_entities(EntityRank::ELEMENT), MORIS_INDEX_MAX );
+
+//        std::cout<<tPrimaryIntegrationCellToClusterIndex.size()<<std::endl;
 
         // iterate through clusters
         for(moris::uint  i = 0; i < mCellClusters.size(); i++)
@@ -243,7 +244,7 @@ public:
             // iterate through primary cells
             for(moris::uint j = 0; j <tCellCluster.get_num_primary_cells(); j++)
             {
-                moris::moris_index tCellIndex = tPrimaryCells(j)->get_index();
+                moris::moris_index tCellIndex = tPrimaryCells( j )->get_index();
 
                 MORIS_ASSERT( tPrimaryIntegrationCellToClusterIndex( tCellIndex ) == MORIS_INDEX_MAX,
                         "Integration cell can only appear as a primary cell in one cell cluster" );

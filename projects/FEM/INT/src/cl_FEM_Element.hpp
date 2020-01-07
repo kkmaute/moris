@@ -47,12 +47,6 @@ namespace moris
 
         moris::moris_index mCellIndexInCluster;
 
-        //! node indices of this element
-        //  @node: MTK interface returns copy of vertices. T
-        //         storing the indices in private matrix is faster,
-        //         but might need more memory
-        moris::Matrix< IndexMat > mNodeIndices;
-
         Set      * mSet     = nullptr;
         Cluster  * mCluster = nullptr;
 
