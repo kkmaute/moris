@@ -20,7 +20,7 @@ namespace moris
 {
     namespace ge
     {
-    //------------------------------------------------------------------------------
+
         class GEN_Pdv_Host
         {
         private:
@@ -36,10 +36,13 @@ namespace moris
             Cell< GEN_Property* > mProperties;
 
             // pdv to property map ( key - pdv enum, val - property index )
-            std::unordered_map< moris::moris_index, moris::moris_index > mPdvToPropertyMap;
+            std::unordered_map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
+
             //------------------------------------------------------------------------------
         public:
-            GEN_Pdv_Host(){};
+            //------------------------------------------------------------------------------
+            GEN_Pdv_Host()
+            {};
 
             /*
              * NOTE:
@@ -62,29 +65,31 @@ namespace moris
 
                 for( uint i=0; i<tNumPdvs; i++ )
                 {
-                    mPdvToPropertyMap[ (moris_index)aPdvList(i) ] = i;
+                    mPdvToPropertyMap[ aPdvList(i) ] = i;
                 }
             };
             //------------------------------------------------------------------------------
-            ~GEN_Pdv_Host(){};
+            virtual ~GEN_Pdv_Host(){};
 
 
             //------------------------------------------------------------------------------
             void create_association( Cell< enum GEN_PDV >  aPdvList,
                                      Cell< GEN_Property* > aPropertyList )
             {
-                mPdvList = aPdvList;
-                mProperties = aPropertyList;
+                mPdvList.append(aPdvList);
+                mProperties.append(aPropertyList);
 
                 uint tNumPdvs = aPdvList.size();
                 MORIS_ASSERT( tNumPdvs == aPropertyList.size(),"cl_GEN_Pdv_Host() - input pdv list does not match the size of the input property list" );
 
                 for( uint i=0; i<tNumPdvs; i++ )
                 {
-                    mPdvToPropertyMap[ (moris_index)aPdvList(i) ] = i;
+                    mPdvToPropertyMap[ aPdvList(i) ] = i;
                 }
             };
+
             //------------------------------------------------------------------------------
+
             void set_parent_entity_index( moris::moris_index aEntityIndex )
             {
                 mParentEntityIndex = aEntityIndex;
@@ -138,9 +143,11 @@ namespace moris
             void get_pdv_values( const enum GEN_PDV aPdvType,
                                  Matrix< DDRMat > & aPdvValueMatrix )
             {
-                auto tSearch = mPdvToPropertyMap.find( (moris_index)aPdvType );
+                auto tSearch = mPdvToPropertyMap.find( aPdvType );
 
-                aPdvValueMatrix = mProperties( tSearch->second )->val();
+                moris::moris_index tPDVIndex = tSearch->second;
+
+                aPdvValueMatrix = mProperties( tPDVIndex )->val();
             }
             //------------------------------------------------------------------------------
         };

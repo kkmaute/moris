@@ -23,9 +23,12 @@ namespace ge
 //                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
 //                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
 
+//typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+//                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
+//                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
+
 typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
+                                          moris::Cell< fem::Field_Interpolator* > & aDvFI ) > PropertyFunc;
 //------------------------------------------------------------------------------
 class GEN_Property
 {
@@ -87,7 +90,7 @@ public:
     {  };
 
     //------------------------------------------------------------------------------
-    virtual ~GEN_Property(){};
+    virtual ~GEN_Property( ){};
 
     //------------------------------------------------------------------------------
     void set_pdv_type( enum GEN_PDV aPdvType )      //FIXME: use the 'set_dv_type()' function?
@@ -95,7 +98,7 @@ public:
         mPdvType = aPdvType;
     }
 
-    enum GEN_PDV get_pdv_type()
+    enum GEN_PDV get_pdv_type( )
     {
         MORIS_ASSERT( mPdvType == GEN_PDV::END_ENUM, "cl_GEN_Property::get_pdv_type() - pdv type not set" );
         return mPdvType;
@@ -115,7 +118,7 @@ public:
      * get parameters
      * @param[ out ] mParameters list of parameters for property evaluation
      */
-    const moris::Cell< moris::Matrix< DDRMat > > & get_parameters() const
+    const moris::Cell< moris::Matrix< DDRMat > > & get_parameters( ) const
     {
         return mParameters;
     };
@@ -135,7 +138,7 @@ public:
      * get val function
      * @param[ out ] mValFunction function for property evaluation
      */
-    const PropertyFunc & get_val_function() const
+    const PropertyFunc & get_val_function( ) const
     {
         return mValFunction;
     };
@@ -174,7 +177,7 @@ public:
      * get dv derivative functions
      * @param[ out ] aDvDerFunctions list function for property derivatives wrt dv
      */
-    const moris::Cell< PropertyFunc > & get_dv_derivative_functions() const
+    const moris::Cell< PropertyFunc > & get_dv_derivative_functions( ) const
     {
         return mDvDerFunctions;
     };
@@ -194,7 +197,7 @@ public:
      * get geometry interpolator
      * @param[ out ] mGeometryInterpolator geometry interpolator pointer
      */
-    fem::Geometry_Interpolator * get_geometry_interpolator() const
+    fem::Geometry_Interpolator * get_geometry_interpolator( ) const
     {
         return mGeometryInterpolator;
     };
@@ -332,7 +335,7 @@ public:
      * return a list of dv types
      * @param[ out ] mDvTypes list of dv type
      */
-    const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list() const
+    const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( ) const
     {
         return mDvTypes;
     };
@@ -341,14 +344,14 @@ public:
     /**
      * build a dv type map
      */
-    void build_dv_type_map();
+    void build_dv_type_map( );
 
     //------------------------------------------------------------------------------
     /**
      * get a dv type map
      * @param[ out ] mDvTypeMap map of the dv types
      */
-    const moris::Matrix< DDSMat > & get_dv_type_map() const
+    const moris::Matrix< DDSMat > & get_dv_type_map( ) const
     {
         return mDvTypeMap;
     }
@@ -373,7 +376,7 @@ public:
      * get dv field interpolators
      * @param[ out ] mDvFI cell of dv field interpolator pointers
      */
-    const moris::Cell< fem::Field_Interpolator* > & get_dv_field_interpolators() const
+    const moris::Cell< fem::Field_Interpolator* > & get_dv_field_interpolators( ) const
     {
         return mDvFI;
     }
@@ -382,13 +385,13 @@ public:
     /**
      * check that dv field interpolators are assigned
      */
-    void check_dv_field_interpolators();
+    void check_dv_field_interpolators( );
 
     //------------------------------------------------------------------------------
     /**
      * reset evaluation flags
      */
-    void reset_eval_flags()
+    void reset_eval_flags( )
     {
         // reset the property value
         mPropEval = true;
@@ -405,13 +408,13 @@ public:
      * get the property value
      * @param[ out ] aVal matrix with property value
      */
-    const Matrix< DDRMat > & val();
+    const Matrix< DDRMat > & val( );
 
     //------------------------------------------------------------------------------
     /**
      * evaluate property in terms of coefficients and variables
      */
-    void eval_Prop();
+    void eval_Prop( );
 
     //------------------------------------------------------------------------------
 //    /**

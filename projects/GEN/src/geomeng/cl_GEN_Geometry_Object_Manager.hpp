@@ -90,6 +90,11 @@ public:
          return mGeometryObjects(tGOIndex);
      }
      //------------------------------------------------------------------------------
+     uint get_num_geom_obj()
+     {
+         return mGeometryObjects.size();
+     }
+     //------------------------------------------------------------------------------
 private:
     // Geometry objects
     moris::Cell<GEN_Geometry_Object> mGeometryObjects;

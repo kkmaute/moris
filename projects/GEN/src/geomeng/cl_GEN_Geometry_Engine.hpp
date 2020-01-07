@@ -93,7 +93,7 @@ void compute_dx_dp_with_linear_basis( moris::Matrix< moris::DDRMat >  & aDPhiADp
   aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
 
 }
-
+//------------------------------------------------------------------------------
 
 class GEN_Geometry_Engine
 {
@@ -147,8 +147,7 @@ public:
      */
     void initialize_pdv_hosts_for_background_mesh_nodes(moris::size_t const & aNumNodes);
     //------------------------------------------------------------------------------
-    void
-    initialize_geometry_object_phase_values(moris::Matrix< moris::DDRMat > const & aNodeCoords);
+    void initialize_geometry_object_phase_values(moris::Matrix< moris::DDRMat > const & aNodeCoords);
     //------------------------------------------------------------------------------
     /*
      * @brief Creates a geometry object association for pending nodes
@@ -166,6 +165,11 @@ public:
                                           Cell<xtk::Topology*> const & aParentTopo,
                                           Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
                                           Cell<Matrix<DDRMat>> const & aGlobalNodeCoord);
+    //------------------------------------------------------------------------------
+    void create_new_node_pdv_hosts( Cell< moris_index >  const & aNewNodeIndices,
+                                    bool                         aStoreParentTopo,
+                                    Cell<xtk::Topology*> const & aParentTopo,
+                                    Cell<Matrix<DDRMat>> const & aGlobalNodeCoord );
     //------------------------------------------------------------------------------
     /**
      * @brief Links new nodes with an existing geometry object. This is used for unzipped interfaces
@@ -345,7 +349,9 @@ public:
     moris::size_t
     get_num_design_vars_analytic();
     //------------------------------------------------------------------------------
-    Pdv_Host_Manager get_pdv_hosts();
+    Pdv_Host_Manager* get_pdv_hosts();
+
+    Geometry_Object_Manager* get_all_geom_obj();
     //------------------------------------------------------------------------------
     /*
      * @brief register a mesh to be used for later computation(s)
@@ -383,8 +389,7 @@ public:
 
 
 private:
-    GEN_Geometry &
-    ActiveGeometry() const;
+    GEN_Geometry & ActiveGeometry() const;
     //------------------------------------------------------------------------------
     /**
      * @brief compute_intersection_info, calculates the relevant intersection information placed in the geometry object
@@ -393,19 +398,17 @@ private:
      * @param[in]  aCheckType      - if a entity local location is necessary 1, else 0.
      * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
      **/
-    bool
-    compute_intersection_info(moris::moris_index               const & aEntityIndex,
-                              moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                              moris::Matrix< moris::DDRMat >   const & aNodeCoords,
-                              moris::size_t const &                    aCheckType,
-                              moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
-                              GEN_Geometry_Object              &       aGeometryObject );
+    bool compute_intersection_info( moris::moris_index               const & aEntityIndex,
+                                    moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
+                                    moris::Matrix< moris::DDRMat >   const & aNodeCoords,
+                                    moris::size_t                    const & aCheckType,
+                                    moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
+                                    GEN_Geometry_Object                    & aGeometryObject );
     //------------------------------------------------------------------------------
-    void
-    interpolate_level_set_value_to_child_node_location(xtk::Topology const & aParentTopology,
-                                                       moris::size_t const &                                              aGeometryIndex,
-                                                       moris::Matrix< moris::DDRMat > const &                                aNodeLocalCoordinate,
-                                                       moris::Matrix< moris::DDRMat > & aLevelSetValues);
+    void interpolate_level_set_value_to_child_node_location( xtk::Topology                  const & aParentTopology,
+                                                             moris::size_t                  const & aGeometryIndex,
+                                                             moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
+                                                             moris::Matrix< moris::DDRMat >       & aLevelSetValues );
     //------------------------------------------------------------------------------
 private:    // member data
     moris::size_t mActiveGeometryIndex;
@@ -434,6 +437,7 @@ private:    // member data
     Cell< enum GEN_PDV >  mPdvList{{ GEN_PDV::END_ENUM }};
     Cell< GEN_Property* > mPropertyList{{ nullptr }};
     //------------------------------------------------------------------------------
+    bool mPdvsInitialized = false;
 
 };
 }

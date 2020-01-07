@@ -68,30 +68,34 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
     // Place these in the geometry object manager
     mGeometryObjects.store_geometry_objects(tNodeIndex,tGeometryObjects);
 
+    // initialize pdv hosts if they have not been already
+    if( !mPdvsInitialized )
+    {
+        this->initialize_pdv_hosts_for_background_mesh_nodes( aNumNodes );
+    }
 }
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes( moris::size_t const & aNumNodes )
 {
-    MORIS_ASSERT( mPdvList(0) != GEN_PDV::END_ENUM,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
+    MORIS_ASSERT( mPdvList(0)      != GEN_PDV::END_ENUM,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
     MORIS_ASSERT( mPropertyList(0) != nullptr,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
 
     // allocate the pdv hosts
     Cell< GEN_Pdv_Host > tPdvHosts( aNumNodes );
-    for ( uint k=0; k<aNumNodes; k++ )
-    {
-        tPdvHosts(k).create_association( mPdvList, mPropertyList );
-    }
 
     // associate each pdv host with a row in the phase table
     Matrix< IndexMat > tNodeIndex( 1, aNumNodes );
     for( size_t i=0; i<aNumNodes; i++ )
     {
+        tPdvHosts(i).create_association( mPdvList, mPropertyList ); // FIXME: this association map needs to be in the manager, not the individual hosts
+
         tPdvHosts(i).set_phase_val_row(i);
         tNodeIndex( 0, i ) = i;
     }
-
     // place in the pdv host manager
     mPdvHosts.store_pdv_hosts( tNodeIndex, tPdvHosts );
+
+    mPdvsInitialized = true;
 }
 //------------------------------------------------------------------------------
 
@@ -179,35 +183,35 @@ void GEN_Geometry_Engine::associate_new_nodes_with_geometry_object( Cell<Pending
 }
 
 //------------------------------------------------------------------------------
-void GEN_Geometry_Engine::associate_new_nodes_with_pdv_hosts( Cell< Pending_Node > & aNewNodes,
-                                                              bool                   aInterfaceNodes )
-{
-    // allocate space
-    moris::size_t tNumNewNodes  = aNewNodes.size();
-    moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
-
-    // add space to the node phase value table
-    mNodePhaseVals.resize( tNumNewNodes+tNumCurrNodes, mGeometry.size() );
-
-    Cell< GEN_Pdv_Host > tPdvHosts( tNumNewNodes );
-
-    moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNewNodes);
-    for(moris::size_t i = 0; i<tNumNewNodes; i++)
-    {
-        tPdvHosts(i).set_phase_val_row( i+tNumCurrNodes );
-        tNodeIndex(0,i) = aNewNodes(i).get_node_index();
-        if( aInterfaceNodes )
-        {
-            tPdvHosts(i).set_parent_entity_topology( aNewNodes(i).get_parent_topology_ptr() );
-        }
-    }
-
-    if( tNumNewNodes !=0 )
-    {
-        mPdvHosts.store_pdv_hosts( tNodeIndex,tPdvHosts );
-    }
-
-}
+//void GEN_Geometry_Engine::associate_new_nodes_with_pdv_hosts( Cell< Pending_Node > & aNewNodes,
+//                                                              bool                   aInterfaceNodes )
+//{
+//    // allocate space
+//    moris::size_t tNumNewNodes  = aNewNodes.size();
+//    moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
+//
+//    // add space to the node phase value table
+//    mNodePhaseVals.resize( tNumNewNodes+tNumCurrNodes, mGeometry.size() );
+//
+//    Cell< GEN_Pdv_Host > tPdvHosts( tNumNewNodes );
+//
+//    moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNewNodes);
+//    for(moris::size_t i = 0; i<tNumNewNodes; i++)
+//    {
+//        tPdvHosts(i).set_phase_val_row( i+tNumCurrNodes );
+//        tNodeIndex(0,i) = aNewNodes(i).get_node_index();
+//        if( aInterfaceNodes )
+//        {
+//            tPdvHosts(i).set_parent_entity_topology( aNewNodes(i).get_parent_topology_ptr() );
+//        }
+//    }
+//
+//    if( tNumNewNodes !=0 )
+//    {
+//        mPdvHosts.store_pdv_hosts( tNodeIndex,tPdvHosts );
+//    }
+//
+//}
 
 //------------------------------------------------------------------------------
 
@@ -261,6 +265,51 @@ void GEN_Geometry_Engine::create_new_node_geometry_objects( Cell< moris_index > 
 
 //------------------------------------------------------------------------------
 
+void GEN_Geometry_Engine::create_new_node_pdv_hosts( Cell< moris_index >  const & aNewNodeIndices,
+                                                     bool                         aStoreParentTopo,
+                                                     Cell<xtk::Topology*> const & aParentTopo,
+                                                     Cell<Matrix<DDRMat>> const & aGlobalNodeCoord )
+{
+    // Allocate space
+    moris::size_t tNumNewNodes = aNewNodeIndices.size();
+    moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
+
+    // add space to the node phase value table
+    mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes,mGeometry.size());
+
+    Cell< GEN_Pdv_Host > tPdvHostObjects( tNumNewNodes );
+
+    moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNewNodes);
+    for(moris::size_t i = 0; i<tNumNewNodes; i++)
+    {
+        tPdvHostObjects(i).set_phase_val_row(i+tNumCurrNodes);
+        tNodeIndex(0,i) = aNewNodeIndices(i);
+
+        if(aStoreParentTopo)
+        {
+            tPdvHostObjects(i).set_parent_entity_topology(aParentTopo(i)->copy());
+        }
+
+    }
+
+    if(tNumNewNodes !=0)
+    {
+        mPdvHosts.store_pdv_hosts( tNodeIndex, tPdvHostObjects );
+    }
+
+    for(moris::size_t j = 0; j<get_num_geometries(); j++)
+    {
+
+        for(moris::size_t i = 0; i<tNumNewNodes; i++ )
+        {
+//            tPdvHostObjects(i).create_association( aGlobalNodeCoord(i) );
+        }
+
+    }
+}
+
+//------------------------------------------------------------------------------
+
 void GEN_Geometry_Engine::link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
                                                                        Matrix< IndexMat > const & aNodesIndicesToLink )
 {
@@ -301,7 +350,7 @@ void GEN_Geometry_Engine::is_intersected( moris::Matrix< moris::DDRMat > const &
         //Populate the intersection flag of this element with a bool
         moris::Matrix< moris::IndexMat > tRow = aNodetoEntityConn.get_row(i);
         moris::Matrix< moris::IndexMat > tNodeADVIndices;
-        bool tIsIntersected = compute_intersection_info(i,tRow, aNodeCoords, aCheckType,tNodeADVIndices,aGeometryObjects(tIntersectedCount));
+        bool tIsIntersected = compute_intersection_info( i,tRow, aNodeCoords, aCheckType, tNodeADVIndices, aGeometryObjects(tIntersectedCount) );
 
         if(tIsIntersected)
         {
@@ -310,7 +359,7 @@ void GEN_Geometry_Engine::is_intersected( moris::Matrix< moris::DDRMat > const &
     }
 
     // resize
-    aGeometryObjects.resize(tIntersectedCount, GEN_Geometry_Object());
+    aGeometryObjects.resize( tIntersectedCount, GEN_Geometry_Object() );
 }
 
 //------------------------------------------------------------------------------
@@ -755,10 +804,16 @@ GEN_Geometry_Engine::get_num_design_vars_analytic()
 
     return tNumDVs;
 }
+//------------------------------------------------------------------------------
 
-Pdv_Host_Manager GEN_Geometry_Engine::get_pdv_hosts(  )
+Pdv_Host_Manager* GEN_Geometry_Engine::get_pdv_hosts(  )
 {
-    return mPdvHosts;
+    return &mPdvHosts;
+}
+
+Geometry_Object_Manager* GEN_Geometry_Engine::get_all_geom_obj()
+{
+    return &mGeometryObjects;
 }
 
 //------------------------------------------------------------------------------
@@ -776,7 +831,7 @@ moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mes
 }
 
 //------------------------------------------------------------------------------
-
+// ----- FIXME: these functions are going to be phased out via the pdv hosts -----
 moris_index GEN_Geometry_Engine::register_field( GEN_Field* aField )
 {
     mFields.push_back( aField );
@@ -787,8 +842,6 @@ void GEN_Geometry_Engine::set_field_cell( moris::Cell< GEN_Field* > aFieldCell )
 {
     mFields = aFieldCell;
 }
-
-//------------------------------------------------------------------------------
 
 void GEN_Geometry_Engine::calc_field_vals_at_nodes( moris_index        aMeshIndex,
                                                     moris_index        aFieldIndex,
@@ -805,7 +858,7 @@ void GEN_Geometry_Engine::calc_field_vals_at_nodes( moris_index        aMeshInde
         aNodeVals(k) = mFields( aFieldIndex )->eval_function( mMesh( aMeshIndex )->get_interpolation_mesh( aMeshIndexInManager )->get_node_coordinate(k) );
     }
 }
-
+// ----- end -----
 //------------------------------------------------------------------------------
 
 Matrix< DDRMat > GEN_Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,

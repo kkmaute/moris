@@ -30,6 +30,7 @@ set(HEADERS
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp
 	geomeng/cl_GEN_Pdv_Host.hpp
+	geomeng/cl_GEN_Pdv_Host_Manager.hpp
 	geomeng/fn_GEN_triangle_geometry.hpp
 	
 	geometry/fn_bounding_box.hpp

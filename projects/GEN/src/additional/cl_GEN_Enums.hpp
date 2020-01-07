@@ -18,7 +18,10 @@ namespace moris
             XCOORD,
             YCOORD,
             ZCOORD,
+
+            RADIUS,
             DENSITY,
+            TEMP,
 
             END_ENUM
         };

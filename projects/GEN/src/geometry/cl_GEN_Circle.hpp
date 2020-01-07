@@ -12,6 +12,8 @@
 
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
+
+#include "../additional/cl_GEN_Enums.hpp"
 #include "../geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
@@ -31,21 +33,23 @@ public:
             mXCenter(aXCenter),
             mYCenter(aYCenter)
     {
-
+        mPdvList.resize(1);
+        mPdvList(0) = GEN_PDV::RADIUS;
     }
-
+    //------------------------------------------------------------------------------
 
     bool is_analytic() const
     {
         return true;
     }
-
+    //------------------------------------------------------------------------------
 
     void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
     {
         aNumRows = 1;
         aNumCols = 4;
     }
+    //------------------------------------------------------------------------------
 
     moris::real evaluate_field_value_with_coordinate( moris::size_t const & aRowIndex,
                                                       moris::Matrix< moris::DDRMat > const & aCoordinates ) const
@@ -65,7 +69,7 @@ public:
         moris::real tFunctionValue = norm( tCoord-tCenter ) - mRadius;
         return tFunctionValue;
     }
-
+    //------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate( moris::size_t                  const & aRowIndex,
                                                                                  moris::Matrix< moris::DDRMat > const & aCoordinates ) const
@@ -118,11 +122,32 @@ public:
 
         return tSensitivityDxDp;
     }
+    //------------------------------------------------------------------------------
+    void get_pdv_values( const enum GEN_PDV aPdvType,
+                         Matrix< DDRMat > & aPdvValueMatrix )
+    {
+        switch(aPdvType)
+        {
+        case(GEN_PDV::RADIUS)   :
+               {
+                   aPdvValueMatrix.resize( 1,1 );
+                   aPdvValueMatrix( 0, 0 ) = mRadius;
+                   break;
+               }
+        default   :
+               {
+                   MORIS_ERROR( false, "Circle::get_pdv_values() - requested pdv type does not exist for this geometry " );
+                   break;
+               }
+        }
+    }
 
 private:
     moris::real mRadius;
     moris::real mXCenter;
     moris::real mYCenter;
+
+    Cell< enum GEN_PDV > mPdvList;
 };
 
 }

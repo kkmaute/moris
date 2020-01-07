@@ -190,7 +190,7 @@ void GEN_Property::eval_Prop()
     MORIS_ASSERT( mValFunction != nullptr, "Property::eval_Prop - mValFunction not assigned. " );
 
     // check that mGeometryInterpolator was assigned
-//    MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_Prop - mGeometryInterpolator not assigned. " );   // FIXME: need to comment this assert back in
+//    MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_Prop - mGeometryInterpolator not assigned. " );
 
     // check that the field interpolators are set
 //    this->check_dof_field_interpolators();
@@ -198,7 +198,8 @@ void GEN_Property::eval_Prop()
 
     // use mValFunction to evaluate the property
 //    mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
-    mProp = mValFunction( mParameters, mDvFI, mGeometryInterpolator );
+//    mProp = mValFunction( mParameters, mDvFI, mGeometryInterpolator );
+    mProp = mValFunction( mParameters, mDvFI );
 }
 
 //------------------------------------------------------------------------------
@@ -293,9 +294,11 @@ void GEN_Property::eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType )
 //                                                          mDvFI,
 //                                                          mGeometryInterpolator );
 
-    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
-                                                          mDvFI,
-                                                          mGeometryInterpolator );
+//    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
+//                                                          mDvFI,
+//                                                          mGeometryInterpolator );
+
+    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters, mDvFI );
 }
 
 //------------------------------------------------------------------------------
