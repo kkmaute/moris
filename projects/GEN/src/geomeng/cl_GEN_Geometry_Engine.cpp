@@ -77,8 +77,8 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes( moris::size_t const & aNumNodes )
 {
-    MORIS_ASSERT( mPdvList(0)      != GEN_PDV::END_ENUM,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
-    MORIS_ASSERT( mPropertyList(0) != nullptr,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
+//    MORIS_ASSERT( mPdvList(0)      != GEN_PDV::END_ENUM,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
+//    MORIS_ASSERT( mPropertyList(0) != nullptr,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
 
     // allocate the pdv hosts
     Cell< GEN_Pdv_Host > tPdvHosts( aNumNodes );
@@ -87,13 +87,12 @@ void GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes( moris:
     Matrix< IndexMat > tNodeIndex( 1, aNumNodes );
     for( size_t i=0; i<aNumNodes; i++ )
     {
-        tPdvHosts(i).create_association( mPdvList, mPropertyList ); // FIXME: this association map needs to be in the manager, not the individual hosts
-
         tPdvHosts(i).set_phase_val_row(i);
         tNodeIndex( 0, i ) = i;
     }
     // place in the pdv host manager
     mPdvHosts.store_pdv_hosts( tNodeIndex, tPdvHosts );
+    mPdvHosts.create_association( mPdvList, mPropertyList );
 
     mPdvsInitialized = true;
 }

@@ -151,15 +151,16 @@ namespace moris
             Matrix< DDRMat > tLSVals( tNumNodes, 1 );
             Matrix< DDRMat > tDensityVals( tNumNodes, 1 );
             Matrix< DDRMat > tTempVals( tNumNodes, 1 );
+
             for( uint i=0; i<tNumNodes; i++ )
             {
                 tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
                 tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
 
-                tAllPdvHosts->get_pdv_host_from_manager(i).get_pdv_values( GEN_PDV::DENSITY, tDensPdvVals(i) );
+                tAllPdvHosts->get_pdv_values( i, GEN_PDV::DENSITY, tDensPdvVals(i) );
                 tDensityVals(i) = tDensPdvVals(i)(0,0);
 
-                tAllPdvHosts->get_pdv_host_from_manager(i).get_pdv_values( GEN_PDV::TEMP, tTempPdvVals(i) );
+                tAllPdvHosts->get_pdv_values( i, GEN_PDV::TEMP, tTempPdvVals(i) );
                 tTempVals(i) = tTempPdvVals(i)(0,0);
             }
             //----- check node values -----
@@ -231,8 +232,8 @@ namespace moris
             //============================ end manual calls ========================================
 
             //------------------------------------------------------------------------------
-            std::string tOutputFile = "./pdvCheck.exo";
-            tInterpMesh->create_output_mesh(tOutputFile);
+//            std::string tOutputFile = "./pdvCheck.exo";
+//            tInterpMesh->create_output_mesh(tOutputFile);
             delete tInterpMesh;
             delete tIntegMesh;
             //------------------------------------------------------------------------------

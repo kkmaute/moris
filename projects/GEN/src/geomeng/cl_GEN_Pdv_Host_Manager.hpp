@@ -91,17 +91,16 @@ namespace moris
              //------------------------------------------------------------------------------
              void get_all_node_indices( Matrix< IndexMat > aNodeIndices )
              {
-                 uint tNumIndices = this->get_num_pdv_hosts();
-                 aNodeIndices.resize( tNumIndices,1 );
-
-                 for( auto i : mNodeToPdvHostMap )
-                 {
-                     uint tCount = 0;
-                     std::cout<<"count:  "<<tCount<<std::endl;
-                     aNodeIndices(0) = i.first;
-                     tCount++;
-                 }
-
+//                 uint tNumIndices = this->get_num_pdv_hosts();
+//                 aNodeIndices.resize( tNumIndices,1 );
+//
+//                 for( auto i : mNodeToPdvHostMap )
+//                 {
+//                     uint tCount = 0;
+//                     std::cout<<"count:  "<<tCount<<std::endl;
+//                     aNodeIndices(0) = i.first;
+//                     tCount++;
+//                 }
              }
              //------------------------------------------------------------------------------
              void create_association( Cell< enum GEN_PDV >  aPdvList,
@@ -117,7 +116,23 @@ namespace moris
                  {
                      mPdvToPropertyMap[ aPdvList(i) ] = i;
                  }
+
+                 uint tNumHosts = mPdvHosts.size();
+                 for(uint j=0; j<tNumHosts; j++)
+                 {
+                     this->get_pdv_host_from_manager( j ).set_property_list( mProperties );
+                 }
              };
+             //------------------------------------------------------------------------------
+             void get_pdv_values( moris_index        aNodeIndex,
+                                  const enum GEN_PDV aPdvType,
+                                  Matrix< DDRMat > & aPdvValueMatrix )
+             {
+                 auto tSearch = mPdvToPropertyMap.find( aPdvType );
+
+                 moris::moris_index tPropIndex = tSearch->second;
+                 this->get_pdv_host_from_manager( aNodeIndex ).eval_pdv_property( tPropIndex, aPdvValueMatrix );
+             }
              //------------------------------------------------------------------------------
 
         private:
@@ -126,9 +141,8 @@ namespace moris
 
             // Node to pdv host map (key - node index, val - pdv object index)
             std::unordered_map< moris::moris_index, moris::moris_index > mNodeToPdvHostMap;
-
-            Cell< enum GEN_PDV > mPdvList;
-
+            //------------------------------------------------------------------------------
+            Cell< enum GEN_PDV >  mPdvList;
             Cell< GEN_Property* > mProperties;
 
             // pdv to property map ( key - pdv enum, val - property index )

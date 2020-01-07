@@ -23,6 +23,12 @@ namespace moris
 
         class GEN_Pdv_Host
         {
+            /*
+             * host has list of property pointers
+             * manager knows the association
+             * manager tells host which property in the list to evaluate
+             */
+
         private:
             //------------------------------------------------------------------------------
             moris::moris_index mParentEntityIndex;
@@ -31,8 +37,8 @@ namespace moris
             // Parent topology
             std::shared_ptr< xtk::Topology > mParentTopology = nullptr;
 
-            Cell< enum GEN_PDV > mPdvList;
-
+            //------------------------------------------------------------------------------
+            Cell< enum GEN_PDV >  mPdvList;
             Cell< GEN_Property* > mProperties;
 
             // pdv to property map ( key - pdv enum, val - property index )
@@ -130,6 +136,14 @@ namespace moris
             }
             //------------------------------------------------------------------------------
             /*
+             * @brief set the list of property pointers
+             */
+            void set_property_list( Cell< GEN_Property* > & aPropList )
+            {
+                mProperties = aPropList;
+            }
+            //------------------------------------------------------------------------------
+            /*
              * @brief returns a cell of the pdv types associated with the object
              */
             Cell< enum GEN_PDV > get_pdv_types(  )
@@ -148,6 +162,12 @@ namespace moris
                 moris::moris_index tPDVIndex = tSearch->second;
 
                 aPdvValueMatrix = mProperties( tPDVIndex )->val();
+            }
+            //------------------------------------------------------------------------------
+            void eval_pdv_property( const moris_index  aPropIndex,
+                                    Matrix< DDRMat > & aPdvValueMatrix )
+            {
+                aPdvValueMatrix = mProperties( aPropIndex )->val();
             }
             //------------------------------------------------------------------------------
         };
