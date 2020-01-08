@@ -437,7 +437,6 @@ private:    // member data
     Cell< enum GEN_PDV >  mPdvList{{ GEN_PDV::END_ENUM }};
     Cell< GEN_Property* > mPropertyList{{ nullptr }};
     //------------------------------------------------------------------------------
-    bool mPdvsInitialized = false;
 
 };
 }
