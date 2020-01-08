@@ -418,10 +418,9 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighborIndex,
-                                            const bool           & aUseInverseAura,
-                                                  Cell< Basis* > & aBasisList )
+        void Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighborIndex,
+                                                 const bool           & aUseInverseAura,
+                                                       Cell< Basis* > & aBasisList )
         {
             // clear basis list
             aBasisList.clear();
@@ -435,7 +434,7 @@ namespace moris
                 // get element list from background mesh
                 mBackgroundMesh->collect_active_elements_from_aura( aProcNeighborIndex,
                                                                     aUseInverseAura,
-                                                                    tBackElements);
+                                                                    tBackElements );
 
                 // initialize basis counter
                 luint tBasisCount = 0;
@@ -742,16 +741,28 @@ namespace moris
             // select activation pattern
             this->select_activation_pattern();
 
-            // get numbner of active elements
-//            moris_index tNumberOfElements = this->get_number_of_elements();
-            moris_index tNumberOfElements = this->get_number_of_elements_including_aura();
-
-            // loop over all active elements
-            for ( moris_index e = 0; e < tNumberOfElements; ++e )
+            // get number of active elements
+            if( mParameters->use_number_aura() )
             {
-                // write index into active element
-//                this->get_element( e )->set_index( e );
-                this->get_element_including_aura( e )->set_index( e );
+                moris_index tNumberOfElements = this->get_number_of_elements_including_aura();
+
+                // loop over all active elements
+                for ( moris_index e = 0; e < tNumberOfElements; ++e )
+                {
+                    // write index into active element
+                    this->get_element_including_aura( e )->set_index( e );
+                }
+            }
+            else
+            {
+                moris_index tNumberOfElements = this->get_number_of_elements();
+
+                // loop over all active elements
+                for ( moris_index e = 0; e < tNumberOfElements; ++e )
+                {
+                    // write index into active element
+                    this->get_element( e )->set_index( e );
+                }
             }
         }
 

@@ -61,9 +61,6 @@ namespace moris
             //! index on local proc for MTK
             luint            mLocalIndex = gNoEntityID;
 
-            //! index on local proc including aura
-            luint            mIndexIncludingAura = gNoEntityID;
-
             //! flag telling if node is used by owned elements
             bool             mUsedFlag = false;
 
@@ -183,16 +180,6 @@ namespace moris
             virtual moris_index get_index() const
             {
                 return mLocalIndex;
-            }
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * MTK Interface: returns a local proc index of the vertex
-             */
-            virtual moris_index get_index_including_aura() const
-            {
-                return mIndexIncludingAura;
             }
 
 //------------------------------------------------------------------------------
@@ -413,12 +400,6 @@ namespace moris
                 mLocalIndex = aIndex;
             }
 
-//------------------------------------------------------------------------------
-
-            void set_local_index_including_aura( const luint & aIndex )
-            {
-                mIndexIncludingAura = aIndex;
-            }
 
 //------------------------------------------------------------------------------
 

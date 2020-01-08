@@ -70,7 +70,6 @@ namespace moris
 
             luint mNumberOfUsedAndOwnedNodes      = 0;
             luint mNumberOfUsedNodes              = 0;
-            luint mNumberOfUsedNodesIncludingAura = 0;
 
         public:
             //! Cell containing facets
@@ -252,16 +251,6 @@ namespace moris
             auto get_number_of_nodes_on_proc() const -> decltype ( mNumberOfUsedNodes )
             {
                 return mNumberOfUsedNodes;
-            }
-
-// ----------------------------------------------------------------------------
-
-            /**
-             * returns the number of nodes owned and shared on current proc
-             */
-            auto get_number_of_nodes_on_proc_including_aura() const -> decltype ( mNumberOfUsedNodesIncludingAura )
-            {
-                return mNumberOfUsedNodesIncludingAura;
             }
 
 // ----------------------------------------------------------------------------

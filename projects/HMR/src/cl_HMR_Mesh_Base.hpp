@@ -69,7 +69,7 @@ namespace moris
         luint mNumberOfElements = 0;
 
         //! number of active elements used by this proc including Aura
-        luint mNumberOfElementsInclusingAura = 0;
+        luint mNumberOfElementsIncludingAura = 0;
 
         //! refinement pattern this mesh relates to
         const uint  mActivationPattern;

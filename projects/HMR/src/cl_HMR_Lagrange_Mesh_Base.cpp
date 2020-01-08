@@ -340,7 +340,7 @@ namespace moris
 
             // reset element counter
             mNumberOfElements = 0;
-            mNumberOfElementsInclusingAura = 0;
+            mNumberOfElementsIncludingAura = 0;
 
             // loop over all active elements on proc
             for ( luint e = 0; e < tNumberOfElements; ++e )
@@ -371,8 +371,9 @@ namespace moris
                         tElement->get_basis( k )->use_owned_and_shared();
                     }
 
+
                     // increment element counter including aura
-                    ++mNumberOfElementsInclusingAura;
+                    ++mNumberOfElementsIncludingAura;
 
                     // loop over all nodes of this element
                     for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
@@ -395,6 +396,7 @@ namespace moris
                     }
                 }
             }
+
             // make sure that number of nodes is correct
             MORIS_ERROR( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
         }
@@ -491,26 +493,49 @@ namespace moris
                 // get my rank
                 moris_id tMyRank = par_rank();
 
-                for( auto tNode : mAllBasisOnProc )
+                if( mParameters->use_number_aura() )
                 {
-                    // test if node is used by current setup
-                    if ( tNode->is_used() )
+                    for( auto tNode : mAllBasisOnProc )
                     {
-                        // test if node is owned
-                        if ( tNode->get_owner() == tMyRank )
+                        // test if node is used by current setup
+                        if ( tNode->is_used() )
                         {
-                            tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                            // test if node is owned
+                            if ( tNode->get_owner() == tMyRank )
+                            {
+                                tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                            }
+                        }
+                        if ( tNode->is_use_owned_and_shared() )
+                        {
+                            // set local index of node including aura
+                            tNode->set_local_index( mNumberOfUsedNodes++ );
                         }
 
-                        // set local index of node
-                        tNode->set_local_index( mNumberOfUsedNodes++ );
+                        // make sure that this basis is not flagged
+                        tNode->unflag();
                     }
+                }
+                else
+                {
+                    for( auto tNode : mAllBasisOnProc )
+                    {
+                        // test if node is used by current setup
+                        if ( tNode->is_used() )
+                        {
+                            // test if node is owned
+                            if ( tNode->get_owner() == tMyRank )
+                            {
+                                tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                            }
 
-                    // set local index of node including aura
-                    tNode->set_local_index_including_aura( mNumberOfUsedNodesIncludingAura++ );
+                            // set local index of node
+                            tNode->set_local_index( mNumberOfUsedNodes++ );
+                        }
 
-                    // make sure that this basis is not flagged
-                    tNode->unflag();
+                        // make sure that this basis is not flagged
+                        tNode->unflag();
+                    }
                 }
 
                 // STEP 1: Set ID of the nodes that I own
@@ -524,7 +549,7 @@ namespace moris
 
                 // calculate node offset table
                 Matrix< DDLUMat > tNodeOffset( tNumberOfProcs, 1, 0 );
-                for( moris_id p=1; p<tNumberOfProcs; ++p )
+                for( moris_id p = 1; p < tNumberOfProcs; ++p )
                 {
                     tNodeOffset( p ) = tNodeOffset( p-1 ) + tNodesOwnedPerProc( p-1 );
                 }
@@ -578,10 +603,21 @@ namespace moris
                         for( Basis* tNode : tNodes )
                         {
                             // test if node belongs to neighbor
-                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                            if( mParameters->use_number_aura() )
                             {
-                                // increment counter
-                                ++tCount;
+                                if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
+                                {
+                                    // increment counter
+                                    ++tCount;
+                                }
+                            }
+                            else
+                            {
+                                if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                                {
+                                    // increment counter
+                                    ++tCount;
+                                }
                             }
                         }
 
@@ -594,11 +630,22 @@ namespace moris
                         // fill matrix with IDs
                         for( Basis * tNode : tNodes )
                         {
-                            // test if node nelongs to neighbor
-                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                            // test if node belongs to neighbor
+                            if( mParameters->use_number_aura() )
                             {
-                                // increment counter
-                                tSendID( p )( tCount++ ) = tNode->get_hmr_id();
+                                if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
+                                {
+                                    // increment counter
+                                    tSendID( p )( tCount++ ) = tNode->get_hmr_id();
+                                }
+                            }
+                            else
+                            {
+                                 if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                                 {
+                                      // increment counter
+                                      tSendID( p )( tCount++ ) = tNode->get_hmr_id();
+                                  }
                             }
                         }
                     } // end neighbor exists
@@ -682,9 +729,19 @@ namespace moris
 
                         for( Basis* tNode : tNodes )
                         {
-                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                            if( mParameters->use_number_aura() )
                             {
-                                tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
+                                {
+                                    tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                }
+                            }
+                            else
+                            {
+                                if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                                {
+                                    tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                }
                             }
                         }
                     }
@@ -1557,15 +1614,31 @@ namespace moris
             // reset max level
             mMaxLevel = 0;
 
-            for( auto tNode : mAllBasisOnProc )
+            if( mParameters->use_number_aura() )
             {
-                if ( tNode->is_used() )
+                for( auto tNode : mAllBasisOnProc )
                 {
-                    mNodes( tCount++ ) = tNode;
+                    if ( tNode->is_use_owned_and_shared() )
+                    {
+                        mNodes( tCount++ ) = tNode;
 
-                    mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
+                        mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
+                    }
                 }
             }
+            else
+            {
+                for( auto tNode : mAllBasisOnProc )
+                {
+                    if ( tNode->is_used() )
+                    {
+                        mNodes( tCount++ ) = tNode;
+
+                        mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
+                    }
+                }
+            }
+
 
             MORIS_ERROR( tCount == mNumberOfUsedNodes, "Number Of used Nodes does not match" );
         }
