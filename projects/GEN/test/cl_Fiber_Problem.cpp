@@ -349,8 +349,8 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     //------------------------------------------------------------------------------
     // create the material properties
     std::shared_ptr< fem::Property > tPropEModPlate = std::make_shared< fem::Property >();
-//    tPropEModPlate->set_parameters( { {{ 1220000 }} } );   // 1.22*10^6 Pa
-    tPropEModPlate->set_parameters( { {{ 100 }} } );
+    tPropEModPlate->set_parameters( { {{ 1220000 }} } );   // 1.22*10^6 Pa
+//    tPropEModPlate->set_parameters( { {{ 100 }} } );
     tPropEModPlate->set_val_function( tConstValFunction );
 
     std::shared_ptr< fem::Property > tPropNuPlate = std::make_shared< fem::Property >();
@@ -358,8 +358,8 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tPropNuPlate->set_val_function( tConstValFunction );
 
     std::shared_ptr< fem::Property > tPropEModFibers = std::make_shared< fem::Property >();
-//    tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
-    tPropEModFibers->set_parameters( { {{ 100 }} } );
+    tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
+//    tPropEModFibers->set_parameters( { {{ 100 }} } );
     tPropEModFibers->set_val_function( tConstValFunction );
 
     std::shared_ptr< fem::Property > tPropNuFibers = std::make_shared< fem::Property >();

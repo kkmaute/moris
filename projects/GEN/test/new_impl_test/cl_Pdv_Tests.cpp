@@ -163,15 +163,13 @@ namespace moris
                 tAllPdvHosts->get_pdv_values( i, GEN_PDV::TEMP, tTempPdvVals(i) );
                 tTempVals(i) = tTempPdvVals(i)(0,0);
             }
+
             //----- check node values -----
-            REQUIRE( tDensityVals(0) = 1234 );
-            REQUIRE( tDensityVals(1) = 1234 );
-            REQUIRE( tDensityVals(2) = 1234 );
-            REQUIRE( tDensityVals(3) = 1234 );
-            REQUIRE( tTempVals(0) = 99 );
-            REQUIRE( tTempVals(1) = 99 );
-            REQUIRE( tTempVals(2) = 99 );
-            REQUIRE( tTempVals(3) = 99 );
+            for(uint i=0; i<tNumNodes; i++)
+            {
+                REQUIRE( tDensPdvVals(i)(0,0) = 1234 );
+                REQUIRE( tTempPdvVals(i)(0,0) = 99 );
+            }
             //-----------------------------
             tInterpMesh->add_mesh_field_real_scalar_data_loc_inds(tField00Name, EntityRank::NODE, tLSVals);         // add LS values to mesh
             tInterpMesh->add_mesh_field_real_scalar_data_loc_inds(tField01Name, EntityRank::NODE, tDensityVals);    // add density values to mesh
@@ -245,148 +243,140 @@ namespace moris
     {
         if(par_size()<=1)
         {
-//            uint tNumElemTypes = 1;     // quad
-//            uint tNumDim = 2;           // specify number of spatial dimensions
-//
-//            Matrix< IdMat > tElementConnQuad = {{ 1, 2, 3, 4 }};   // specify element connectivity of quad for mesh
-//
-//            Matrix< IdMat > tElemLocalToGlobalQuad = {{ 1 }};      // specify the local to global element map for quads
-//
-//            Matrix< DDRMat > tCoords = {{ 0.0, 0.0 },
-//                                        { 1.0, 0.0 },
-//                                        { 1.0, 1.0 },
-//                                        { 0.0, 1.0 }};             // Node coordinate matrix
-//
-//            Matrix< IdMat > tNodeLocalToGlobal = {{ 1, 2, 3, 4 }}; // specify the local to global map
-//            //------------------------------------------------------------------------------
-//            // create MORIS mesh using MTK database
-//            mtk::MtkMeshData tMeshData( tNumElemTypes );
-//            tMeshData.CreateAllEdgesAndFaces = true;
-//            tMeshData.SpatialDim = & tNumDim;
-//            tMeshData.ElemConn(0) = & tElementConnQuad;
-//            //------------------------------------------------------------------------------
-//            tMeshData.NodeCoords = & tCoords;
-//            tMeshData.LocaltoGlobalElemMap(0) = & tElemLocalToGlobalQuad;
-//            tMeshData.LocaltoGlobalNodeMap = & tNodeLocalToGlobal;
-//            //------------------------------------------------------------------------------
-//            // declare scalar node field for the circle LS
-//            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField00;
-//            std::string tField00Name = "circle";
-//            tNodeField00.set_field_name(tField00Name);
-//            tNodeField00.set_field_entity_rank(EntityRank::NODE);
-//
-//            // declare scalar node field for the density
-//            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField01;
-//            std::string tField01Name = "density";
-//            tNodeField01.set_field_name(tField01Name);
-//            tNodeField01.set_field_entity_rank(EntityRank::NODE);
-//
-//            // declare scalar node field for the temperature
-//            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField02;
-//            std::string tField02Name = "temperature";
-//            tNodeField02.set_field_name(tField02Name);
-//            tNodeField02.set_field_entity_rank(EntityRank::NODE);
-//
-//            // initialize field information container
-//            moris::mtk::MtkFieldsInfo tFieldsInfo;
-//            // Place the node field into the field info container
-//            add_field_for_mesh_input(&tNodeField00,tFieldsInfo);
-//            add_field_for_mesh_input(&tNodeField01,tFieldsInfo);
-//            add_field_for_mesh_input(&tNodeField02,tFieldsInfo);
-//
-//            // declare some supplementary fields
-//            tMeshData.FieldsInfo = &tFieldsInfo;
-//
-//            // create mesh pair
-//            mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
-//            mtk::Integration_Mesh*   tIntegMesh  = create_integration_mesh_from_interpolation_mesh( MeshType::STK,tInterpMesh );
-//
-//            // place the pair in mesh manager
-//            mtk::Mesh_Manager tMeshManager;
-//            uint tMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
-//            //------------------------------------------------------------------------------
-//            //------------------------------------------------------------------------------
-//            Cell< enum GEN_PDV >  tPdvList(2);
-//            tPdvList(0) = GEN_PDV::DENSITY;
-//            tPdvList(1) = GEN_PDV::TEMP;
-//
-//            std::shared_ptr< GEN_Property > tConstDensityProp = std::make_shared< GEN_Property >();
-//            tConstDensityProp->set_parameters( { {{ 1234 }} } );
-//            tConstDensityProp->set_val_function( tConstValFunction );
-//
-//            std::shared_ptr< GEN_Property > tConstTempProp = std::make_shared< GEN_Property >();
-//            tConstTempProp->set_parameters( { {{ 99 }} } );
-//            tConstTempProp->set_val_function( tConstValFunction );
-//
-//            Cell< GEN_Property* > tPropertyList(2);
-//            tPropertyList(0) = tConstDensityProp.get();
-//            tPropertyList(1) = tConstTempProp.get();
-//
-//            //------------------------------------------------------------------------------
-//            real tRadius  = 0.6;
-//            real tXcenter = 0;
-//            real tYcenter = 0;
-//            moris::ge::Circle tCircle( tRadius, tXcenter, tYcenter );
-//            moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tCircle };
-//
-//            moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
-//            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tNumDim );
-//
-//            tGENGeometryEngine.set_pdv_property_list( tPdvList, tPropertyList );
-//
-//            xtk::Model tXTKModel( tNumDim, tInterpMesh, tGENGeometryEngine );
-//            tXTKModel.mVerbose = false;
-//
-//            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
-//            tXTKModel.decompose(tDecompositionMethods);
-//
-//            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
-//
-//            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh( );
-//            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh( );
-//            uint tEnrMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
-//
-//            moris::ge::GEN_Geometry_Engine tXTKGeomEng = tXTKModel.get_geom_engine();
-//
-//            Pdv_Host_Manager* tAllPdvHosts = tXTKGeomEng.get_pdv_hosts();
-//            uint tNumPdvObj = tAllPdvHosts->get_num_pdv_hosts();
-//
-//
-//            Matrix< IndexMat > tIndices;
-//            tAllPdvHosts->get_all_node_indices( tIndices );
-//            print( tIndices,"tIndices" );
-//
-//
-//
-//
-//
-//            uint tNumNodes = tEnrInterpMesh.get_num_nodes();
-//std::cout<<tNumNodes<<std::endl;
-//            Cell< Matrix< DDRMat > > tDensPdvVals( tNumNodes );
-//            Cell< Matrix< DDRMat > > tTempPdvVals( tNumNodes );
-//
-//            for( uint i=0; i<tNumNodes; i++ )
-//            {
-//                std::cout<<"iteration:  "<<i<<std::endl;
-//                tAllPdvHosts->get_pdv_host_from_manager(i).get_pdv_values( GEN_PDV::DENSITY, tDensPdvVals(i) );
-//                tAllPdvHosts->get_pdv_host_from_manager(i).get_pdv_values( GEN_PDV::TEMP, tTempPdvVals(i) );
-//
-//            }
-//            print( tDensPdvVals(0),"tDensPdvVals(0)" );
-//            //----- check node values -----
-//            REQUIRE( tDensPdvVals(0)(0,0) = 1234 );
-//            REQUIRE( tDensPdvVals(1)(0,0) = 1234 );
-//            REQUIRE( tDensPdvVals(2)(0,0) = 1234 );
-//            REQUIRE( tDensPdvVals(3)(0,0) = 1234 );
-//            REQUIRE( tTempPdvVals(0)(0,0) = 99 );
-//            REQUIRE( tTempPdvVals(1)(0,0) = 99 );
-//            REQUIRE( tTempPdvVals(2)(0,0) = 99 );
-//            REQUIRE( tTempPdvVals(3)(0,0) = 99 );
-//            //-----------------------------
-//
-//            //------------------------------------------------------------------------------
-//            delete tInterpMesh;
-//            delete tIntegMesh;
+            uint tNumElemTypes = 1;     // quad
+            uint tNumDim = 2;           // specify number of spatial dimensions
+
+            Matrix< IdMat > tElementConnQuad = {{ 1, 2, 3, 4 }};   // specify element connectivity of quad for mesh
+
+            Matrix< IdMat > tElemLocalToGlobalQuad = {{ 1 }};      // specify the local to global element map for quads
+
+            Matrix< DDRMat > tCoords = {{ 0.0, 0.0 },
+                                        { 1.0, 0.0 },
+                                        { 1.0, 1.0 },
+                                        { 0.0, 1.0 }};             // Node coordinate matrix
+
+            Matrix< IdMat > tNodeLocalToGlobal = {{ 1, 2, 3, 4 }}; // specify the local to global map
+            //------------------------------------------------------------------------------
+            // create MORIS mesh using MTK database
+            mtk::MtkMeshData tMeshData( tNumElemTypes );
+            tMeshData.CreateAllEdgesAndFaces = true;
+            tMeshData.SpatialDim = & tNumDim;
+            tMeshData.ElemConn(0) = & tElementConnQuad;
+            //------------------------------------------------------------------------------
+            tMeshData.NodeCoords = & tCoords;
+            tMeshData.LocaltoGlobalElemMap(0) = & tElemLocalToGlobalQuad;
+            tMeshData.LocaltoGlobalNodeMap = & tNodeLocalToGlobal;
+            //------------------------------------------------------------------------------
+            // declare scalar node field for the circle LS
+            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField00;
+            std::string tField00Name = "circle";
+            tNodeField00.set_field_name(tField00Name);
+            tNodeField00.set_field_entity_rank(EntityRank::NODE);
+
+            // declare scalar node field for the density
+            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField01;
+            std::string tField01Name = "density";
+            tNodeField01.set_field_name(tField01Name);
+            tNodeField01.set_field_entity_rank(EntityRank::NODE);
+
+            // declare scalar node field for the temperature
+            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField02;
+            std::string tField02Name = "temperature";
+            tNodeField02.set_field_name(tField02Name);
+            tNodeField02.set_field_entity_rank(EntityRank::NODE);
+
+            // initialize field information container
+            moris::mtk::MtkFieldsInfo tFieldsInfo;
+            // Place the node field into the field info container
+            add_field_for_mesh_input(&tNodeField00,tFieldsInfo);
+            add_field_for_mesh_input(&tNodeField01,tFieldsInfo);
+            add_field_for_mesh_input(&tNodeField02,tFieldsInfo);
+
+            // declare some supplementary fields
+            tMeshData.FieldsInfo = &tFieldsInfo;
+
+            // create mesh pair
+            mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
+            mtk::Integration_Mesh*   tIntegMesh  = create_integration_mesh_from_interpolation_mesh( MeshType::STK,tInterpMesh );
+
+            // place the pair in mesh manager
+            mtk::Mesh_Manager tMeshManager;
+            uint tMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
+            //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+            Cell< enum GEN_PDV >  tPdvList(2);
+            tPdvList(0) = GEN_PDV::DENSITY;
+            tPdvList(1) = GEN_PDV::TEMP;
+
+            std::shared_ptr< GEN_Property > tConstDensityProp = std::make_shared< GEN_Property >();
+            tConstDensityProp->set_parameters( { {{ 1234 }} } );
+            tConstDensityProp->set_val_function( tConstValFunction );
+
+            std::shared_ptr< GEN_Property > tConstTempProp = std::make_shared< GEN_Property >();
+            tConstTempProp->set_parameters( { {{ 99 }} } );
+            tConstTempProp->set_val_function( tConstValFunction );
+
+            Cell< GEN_Property* > tPropertyList(2);
+            tPropertyList(0) = tConstDensityProp.get();
+            tPropertyList(1) = tConstTempProp.get();
+
+            //------------------------------------------------------------------------------
+            real tRadius  = 0.6;
+            real tXcenter = 0;
+            real tYcenter = 0;
+            moris::ge::Circle tCircle( tRadius, tXcenter, tYcenter );
+            moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tCircle };
+
+            moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tNumDim );
+
+            tGENGeometryEngine.set_pdv_property_list( tPdvList, tPropertyList );
+
+            xtk::Model tXTKModel( tNumDim, tInterpMesh, tGENGeometryEngine );
+            tXTKModel.mVerbose = false;
+
+            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
+            tXTKModel.decompose(tDecompositionMethods);
+
+            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+
+            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh( );
+            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh( );
+            uint tEnrMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
+
+            // --------- create the pdv objects for the new enriched mesh ---------
+            moris::ge::GEN_Geometry_Engine tXTKGeomEng = tXTKModel.get_geom_engine();
+
+            uint tNumNodes = tEnrInterpMesh.get_num_nodes();
+
+            tXTKGeomEng.initialize_pdv_hosts_for_background_mesh_nodes( tNumNodes );
+
+            Pdv_Host_Manager* tAllPdvHosts = tXTKGeomEng.get_pdv_hosts();
+            // --------------------------------------------------------------------
+            Matrix< IndexMat > tIndices;
+            tAllPdvHosts->get_all_node_indices(tIndices);
+
+            Cell< Matrix< DDRMat > > tDensPdvVals( tNumNodes );
+            Cell< Matrix< DDRMat > > tTempPdvVals( tNumNodes );
+
+            uint tIters = tIndices.n_rows();
+            for( uint i=0; i<tIters; i++ )
+            {
+                tAllPdvHosts->get_pdv_values( tIndices(i), GEN_PDV::TEMP, tTempPdvVals(i) );
+                tAllPdvHosts->get_pdv_values( tIndices(i), GEN_PDV::DENSITY, tDensPdvVals(i) );
+            }
+
+            //----- check node values -----
+            for(uint i=0; i<tIters; i++)
+            {
+                REQUIRE( tDensPdvVals(i)(0,0) = 1234 );
+                REQUIRE( tTempPdvVals(i)(0,0) = 99 );
+            }
+            //-----------------------------
+
+            //------------------------------------------------------------------------------
+            delete tInterpMesh;
+            delete tIntegMesh;
         }
     }
 

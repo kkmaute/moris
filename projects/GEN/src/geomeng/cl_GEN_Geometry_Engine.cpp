@@ -68,15 +68,11 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
     // Place these in the geometry object manager
     mGeometryObjects.store_geometry_objects(tNodeIndex,tGeometryObjects);
 
-    // initialize pdv hosts if they have not been already
-    if( !mPdvsInitialized )
-    {
-        this->initialize_pdv_hosts_for_background_mesh_nodes( aNumNodes );
-    }
 }
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes( moris::size_t const & aNumNodes )
 {
+    // FIXME: move these asserts to the appropriate place - need to be able to use the GE without pdvs (pure geometry)
 //    MORIS_ASSERT( mPdvList(0)      != GEN_PDV::END_ENUM,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
 //    MORIS_ASSERT( mPropertyList(0) != nullptr,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
 
@@ -94,7 +90,6 @@ void GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes( moris:
     mPdvHosts.store_pdv_hosts( tNodeIndex, tPdvHosts );
     mPdvHosts.create_association( mPdvList, mPropertyList );
 
-    mPdvsInitialized = true;
 }
 //------------------------------------------------------------------------------
 
