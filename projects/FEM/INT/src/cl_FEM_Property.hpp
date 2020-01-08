@@ -35,8 +35,8 @@ namespace moris
         {
         protected :
 
-            // FIXME used? field interpolator manager pointer
-            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+            // field interpolator manager pointer
+            Field_Interpolator_Manager * mFIManager = nullptr;
 
             // FIXME used? FEM set pointer
             Set * mSet = nullptr;
@@ -105,10 +105,7 @@ namespace moris
              * set field interpolator manager
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
              */
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
-            {
-                mFieldInterpolatorManager = aFieldInterpolatorManager;
-            }
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager );
 
 //------------------------------------------------------------------------------
             /*

@@ -37,6 +37,8 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "cl_VIS_Output_Manager.hpp"
+
 #include "op_equal_equal.hpp"
 
 // fixme: temporary
@@ -267,6 +269,10 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+
+        mSolverInterface->set_model( this );
+
+
 
         if( par_rank() == 0)
         {
@@ -501,7 +507,8 @@ namespace moris
                             }
 
                             // get the field interpolator
-                            fem::Field_Interpolator_Manager * tFIM= tFemSet->get_field_interpolators_manager();
+                            //fem::Field_Interpolator_Manager * tFIM = tFemSet->get_field_interpolators_manager();
+                            fem::Field_Interpolator_Manager * tFIM = tFemSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER );
                             fem::Field_Interpolator* tFieldInterp = tFIM->get_field_interpolators_for_type(tDofType);
 
                             // iterate through clusters in set
@@ -650,6 +657,32 @@ namespace moris
                 }
             }
             return tDofInList;
+        }
+
+//------------------------------------------------------------------------------
+
+        void Model::output_solution( const uint aVisMeshIndex,
+                                     const real aTime )
+        {
+            // create the visualization mesh for this index
+            mOutputManager->create_visualization_mesh( aVisMeshIndex,
+                                                       mMeshManager,
+                                                       mMeshPairIndex );
+
+            // set the visualization sets to the equation sets
+            mOutputManager->set_visualization_sets( aVisMeshIndex,
+                                                    this );
+
+            // Write the mesh to file
+            mOutputManager->write_mesh( aVisMeshIndex,
+                                        aTime );
+
+            // write requested fields
+//               mOutputManager->write_field( aVisMeshIndex,
+//                                            this );
+
+            // end writing and delete vis mesh
+            mOutputManager->end_writing( aVisMeshIndex );
         }
 
     } /* namespace mdl */

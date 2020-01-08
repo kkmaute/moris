@@ -40,6 +40,7 @@ set(LIB_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${HMR}-lib
+    #${MDL}-lib
    )
 
 # Set the output path for library

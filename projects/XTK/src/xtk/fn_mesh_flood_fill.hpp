@@ -44,6 +44,7 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
             moris::Matrix< moris::IndexMat > const & aElementsToInclude,
             moris::size_t                            aNumPhases,
             moris::moris_index                       aDummyValue,
+            moris::moris_index                     & aMaxValueAssigned,
             bool aIncludeAllElements = false)
             {
 
@@ -257,9 +258,10 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
         }
     }
 
+    aMaxValueAssigned = tCurrentSubphase - 1;
+
     return tElementSubphase;
             }
-// Full Mesh Version
 
 }
 

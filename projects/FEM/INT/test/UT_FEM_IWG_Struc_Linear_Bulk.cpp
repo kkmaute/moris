@@ -202,17 +202,15 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
     
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
+    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
+    Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
     
     // populate the field interpolator manager
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
     
     // set IWG field interpolator manager
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-    
-    // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIWG->set_field_interpolator_manager(&tFIManager);
     
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -394,17 +392,15 @@ TEST_CASE( "IWG_Elasticity_Bulk_with_Pressure", "[IWG_Pressure_Bulk]" )
     tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }, {MSI::Dof_Type::P}};
 
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
+    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
+    Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
 
     // set IWG field interpolator manager
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-
-    // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIWG->set_field_interpolator_manager(&tFIManager);
 
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -569,17 +565,15 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
     
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
+    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
+    Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
     
     // populate the field interpolator manager
-    tFIManager.mMasterFI = tFIs;
+    tFIManager.mFI = tFIs;
     
     // set IWG field interpolator manager
-    tIWG->mFieldInterpolatorManager = &tFIManager;
-    
-    // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIWG->set_field_interpolator_manager(&tFIManager);
     
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );

@@ -135,15 +135,15 @@ namespace moris
         tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-        Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
-        tFIManager.mMasterFI = tMasterDofFI;
+        Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        tFIManager.mFI = tMasterDofFI;
 //        tFIManager.mSlaveFI = tSlaveDofFI;
 
         // build master and slave global dof type list
         tIWG->get_global_dof_type_list();
 
         // set IWG field interpolators
-        tIWG->mFieldInterpolatorManager = &tFIManager;
+        tIWG->mMasterFIManager = &tFIManager;
 //
 //        // build master and slave global dv type list
 //        tIWG->build_global_dv_type_list();

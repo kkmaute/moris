@@ -56,6 +56,13 @@ public:
      * **************************************************************************************
      */
 
+    virtual
+    moris::uint get_num_des_vars() const
+    {
+        MORIS_ERROR(0,"Number of design variables not implemented");
+        return 0;
+    }
+
     /*
      * Given a node coordinate, the geometry needs to return the distance to the nearest function.
      */
@@ -103,7 +110,7 @@ public:
      */
     virtual
     moris::Matrix< moris::DDRMat >
-    evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum moris::EntityRank aEntityRank)
+    evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex)
     {
 //        std::cout<<" evaluate_sensitivity_dx_dp not implemented. This could be due to a geometry not being based on a mesh.";
         return moris::Matrix< moris::DDRMat >(1,1,0);

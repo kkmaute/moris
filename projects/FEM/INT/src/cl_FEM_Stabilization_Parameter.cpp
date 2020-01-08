@@ -13,6 +13,75 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+        void Stabilization_Parameter::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                                      mtk::Master_Slave            aIsMaster )
+        {
+    //        // FIXME why does this not work?
+            //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
+
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    mMasterFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                case ( mtk::Master_Slave::SLAVE ) :
+                {
+                    mSlaveFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default :
+                {
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_field_interpolator_manager - can only be master or slave");
+                    break;
+                }
+            }
+
+            // FIXME
+            // get the list of dof types for the SP
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes
+            = this->get_global_dof_type_list( aIsMaster );
+
+            // get the number of dof type for the SP
+            uint tNumDofTypes = tSPDofTypes.size();
+
+            // set the size of the field interpolators list for the SP
+            this->get_dof_field_interpolators( aIsMaster ).resize( tNumDofTypes, nullptr );
+
+            // loop over the dof types
+            for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+            {
+                // grab the field interpolator for the dof type
+                this->get_dof_field_interpolators( aIsMaster )( iDof )
+                = this->get_field_interpolator_manager( aIsMaster )
+                      ->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ) );
+            }
+            // END FIXME
+
+            // loop over the underlying constitutive models
+            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+            {
+                if ( tCM != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+                }
+            }
+
+            // loop over the underlying properties
+            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+            {
+                if ( tProp != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
         void Stabilization_Parameter::get_non_unique_global_dof_type_list

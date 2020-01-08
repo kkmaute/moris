@@ -83,7 +83,6 @@
 #include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
 #include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
-
 namespace moris
 {
 moris::real
@@ -227,7 +226,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         // Do the cutting
         tXTKModel.decompose(tDecompositionMethods);
@@ -402,8 +401,6 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
 
 
-//        moris::print_fancy(tIntegSol,"tIntegSol");
-
         // add solution field to integration mesh
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
 
@@ -411,8 +408,6 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
 //
-        print_fancy(tFullSol,"Full Solution");
-
         // verify solution
 //        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
         tModel->output_solution( "Circle" );
@@ -505,22 +500,16 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
         tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         // Do the cutting
         tXTKModel.decompose(tDecompositionMethods);
 
-        std::cout<<"mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE) = "<<tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE) <<std::endl;
-
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
-        std::cout<<"post mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE) = "<<tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE) <<std::endl;
-
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-        std::cout<<"tEnrIntegMesh = "<<tEnrIntegMesh.get_num_nodes()<<std::endl;
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -710,19 +699,12 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
         tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
 
-
-        print_fancy(tSTKIntegSol,"tSTKIntegSol");
-//        print_fancy(tIntegSol,"tIntegSol");
-
-
         // add solution field to integration mesh
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
 
 
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
-
-        print_fancy(tFullSol,"Full Solution");
 
         std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
@@ -824,7 +806,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
 //        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
 //        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        // Do the cutting
 //        tXTKModel.decompose(tDecompositionMethods);
@@ -1118,7 +1100,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
 //        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
 //        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        // Do the cutting
 //        tXTKModel.decompose(tDecompositionMethods);

@@ -149,8 +149,9 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 size_t tModelDimension = 2;
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-                tXTKModel.mVerbose = true;
+                tXTKModel.mVerbose = false;
 
                 //Specify decomposition Method and Cut Mesh ---------------------------------------
                 Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -160,8 +161,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-                tEnrIntegMesh.print();
 
                 // place the pair in mesh manager
                 mtk::Mesh_Manager tMeshManager;
@@ -266,11 +265,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                         1,
                         tSetInfo );
 
-                moris::Cell< MSI::Equation_Set * > tEquationSets(tModel->get_equation_sets().size());
-                for(moris::uint iSet = 0; iSet < tModel->get_equation_sets().size(); iSet++ )
-                {
-                    tEquationSets( iSet ) = tModel->get_equation_sets()( iSet );
-                }
 
                 Output_Manager tOutputData;
 
@@ -331,6 +325,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 //                writer.close_file();
             }
     }
+
     }
 }
 

@@ -75,9 +75,9 @@ namespace moris
 
         bool mIsEmptySet = false;    //FIXME this flag is a hack. find better solution
 
-        Matrix< DDRMat > * mSetElementalValues;
-        Matrix< DDRMat > * mSetNodalValues;
-        moris::real     * mSetGlobalValues;
+        Matrix< DDRMat > mSetElementalValues;
+        Matrix< DDRMat > mSetNodalValues;
+        moris::real      mSetGlobalValues;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -299,13 +299,39 @@ namespace moris
             MORIS_ASSERT( false, "set_visualization_set(), not implemented for base clase" );
         }
 
-        virtual void compute_quantitiy_of_interest( Matrix< DDRMat >      * aElementFieldValues,
-                                                    Matrix< DDRMat >      * aNodalFieldValues,
-                                                    moris::real           * aGlobalScalar,
-                                                    enum vis::Output_Type   aOutputType,
-                                                    enum vis::Field_Type    aFieldType)
+//------------------------------------------------------------------------------
+        virtual void compute_quantity_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+                                                   Matrix< DDRMat >      * aNodalFieldValues,
+                                                   moris::real           * aGlobalScalar,
+                                                   enum vis::Output_Type   aOutputType,
+                                                   enum vis::Field_Type    aFieldType)
         {
-            MORIS_ASSERT( false, "compute_quantitiy_of_interest(), not implemented for base clase" );
+            MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dof type map
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        Matrix< DDSMat > & get_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterDofTypeMap;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveDofTypeMap;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_dof_type_map - can only be MASTER or SLAVE");
+                    return mMasterDofTypeMap;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

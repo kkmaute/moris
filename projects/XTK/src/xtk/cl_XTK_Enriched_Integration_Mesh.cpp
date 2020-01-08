@@ -539,7 +539,7 @@ Enriched_Integration_Mesh::print_block_sets(moris::uint aVerbosityLevel) const
 }
 //------------------------------------------------------------------------------
 void
-Enriched_Integration_Mesh::print_side_sets() const
+Enriched_Integration_Mesh::print_side_sets(moris::uint aVerbosityLevel) const
 {
     std::cout<<"\nSide Sets:"<<std::endl;
     std::cout<<"    Num Side Sets: "<<this->get_num_side_sets()<<std::endl;
@@ -1013,8 +1013,6 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
         }
     }
     register_double_side_set_names(tDoubleInterfaceSideNames);
-
-    moris::print(mBulkPhaseToDblSideIndex,"mBulkPhaseToDblSideIndex");
 }
 
 moris_index
@@ -1119,8 +1117,6 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
             mDoubleSideSets(tDoubleSideSetIndex).push_back(tDblSideCluster);
 
         }
-
-        tChildMesh->print_double_sides_between_subphases(2);
 
         // remove from child mesh to not store twice
         tChildMesh->delete_double_sides_interface_sets();

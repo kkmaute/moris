@@ -134,7 +134,7 @@ TEST_CASE("Tet background mesh analytic cylinder","[TET_START_CYLINDER]")
     Geometry_Engine tGeometryEngine(tMultiCylinder,tPhaseTable);
 
     // Load the mesh
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/tet_cube_mesh.e";
     moris::Cell<std::string> tFieldNames;
     mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
@@ -190,7 +190,7 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
      */
 
     // Specify the mesh information and how to build it
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/tet_cube_mesh.e";
     moris::Cell<std::string> tFieldNames;
     mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;

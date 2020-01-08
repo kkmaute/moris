@@ -195,7 +195,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 ////         xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 ////         xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-////         tXTKModel.mVerbose = true;
+////         tXTKModel.mVerbose = false;
 ////
 ////        //Specify decomposition Method and Cut Mesh ---------------------------------------
 ////        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -539,7 +539,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////     xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 ////     xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 ////     xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-////     tXTKModel.mVerbose = true;
+////     tXTKModel.mVerbose = false;
 ////
 ////    //Specify decomposition Method and Cut Mesh ---------------------------------------
 ////    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -859,7 +859,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////     xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 ////     xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 ////     xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-////     tXTKModel.mVerbose = true;
+////     tXTKModel.mVerbose = false;
 ////
 ////    //Specify decomposition Method and Cut Mesh ---------------------------------------
 ////    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -1162,7 +1162,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //     xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 //     xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 //     xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-//     tXTKModel.mVerbose = true;
+//     tXTKModel.mVerbose = false;
 //
 //    //Specify decomposition Method and Cut Mesh ---------------------------------------
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -1485,7 +1485,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    xtk::Geometry_Engine tGeometryEngine(tStar,tPhaseTable, 2);
 //
 //     xtk::Model tXTKModel(2, tInterpMesh, tGeometryEngine);
-//     tXTKModel.mVerbose = true;
+//     tXTKModel.mVerbose = false;
 //
 //    //Specify decomposition Method and Cut Mesh ---------------------------------------
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -1807,7 +1807,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    xtk::Geometry_Engine tGeometryEngine(tStar,tPhaseTable, 2);
 //
 //     xtk::Model tXTKModel(2, tInterpMesh.get(), tGeometryEngine);
-//     tXTKModel.mVerbose = true;
+//     tXTKModel.mVerbose = false;
 //
 //    //Specify decomposition Method and Cut Mesh ---------------------------------------
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -2089,7 +2089,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    xtk::Geometry_Engine tGeometryEngine(tStar,tPhaseTable, 2);
 //
 //     xtk::Model tXTKModel(2, tInterpMesh, tGeometryEngine);
-//     tXTKModel.mVerbose = true;
+//     tXTKModel.mVerbose = false;
 //
 //    //Specify decomposition Method and Cut Mesh ---------------------------------------
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -2435,7 +2435,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //     xtk::Model tXTKModel(2, tInterpMesh.get(), tGeometryEngine);
 //
-//     tXTKModel.mVerbose = true;
+//     tXTKModel.mVerbose = false;
 //
 //    //Specify decomposition Method and Cut Mesh ---------------------------------------
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -2784,7 +2784,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //     xtk::Model tXTKModel(2, tInterpMesh.get(), tGeometryEngine);
 //     tXTKModel.mSameMesh = true;
-//     tXTKModel.mVerbose = true;
+//     tXTKModel.mVerbose = false;
 //
 //    //Specify decomposition Method and Cut Mesh ---------------------------------------
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};

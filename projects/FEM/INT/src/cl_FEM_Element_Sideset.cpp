@@ -62,8 +62,8 @@ namespace moris
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
-                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER )
-                                                   ->set_space_time( tGlobalIntegPoint );
+                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
+                                          ->set_space_time( tGlobalIntegPoint );
                 }
 
                 // compute the integration point weight
@@ -138,8 +138,8 @@ namespace moris
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
-                    mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER )
-                                                   ->set_space_time( tGlobalIntegPoint );
+                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
+                                          ->set_space_time( tGlobalIntegPoint );
 //                    mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
                 }
 

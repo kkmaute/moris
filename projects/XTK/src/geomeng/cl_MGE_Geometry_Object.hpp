@@ -23,6 +23,7 @@ class Geometry_Object
 {
 public:
     Geometry_Object():
+        mSensitivityDxDp(0,0),
         mAllParentNodesOnInterface(false),
         mHasParentNodesOnInterface(false)
     {
@@ -30,6 +31,7 @@ public:
 
 
     Geometry_Object(moris::moris_index aParentEntityIndex)
+    :mSensitivityDxDp(0,0)
     {
         mParentEntityIndex = aParentEntityIndex;
     }

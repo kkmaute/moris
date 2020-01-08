@@ -64,6 +64,9 @@ namespace moris
             //! flag telling if node is used by owned elements
             bool             mUsedFlag = false;
 
+            //! flag telling if node is used by owned and shared elements
+            bool             mUsedOwnedAndSharedFlag = false;
+
             //  array containing connected elements
             moris::Cell< Element * > mElements;
 
@@ -133,11 +136,11 @@ namespace moris
              *
              * @return void
              */
-            void add_node_sharing(moris_id aSharedProcRank)
+            void add_node_sharing( moris_id aSharedProcRank )
             {
                 uint tNumShared = mSharingProcs.n_rows();
-                mSharingProcs.resize(tNumShared+1,1);
-                mSharingProcs(tNumShared,0) = aSharedProcRank;
+                mSharingProcs.resize( tNumShared + 1, 1 );
+                mSharingProcs( tNumShared, 0 ) = aSharedProcRank;
             }
 // -----------------------------------------------------------------------------
             /**
@@ -147,7 +150,7 @@ namespace moris
              */
             bool has_node_sharing()
             {
-                if(mSharingProcs.numel()>0)
+                if( mSharingProcs.numel()>0 )
                 {
                     return true;
                 }
@@ -397,6 +400,7 @@ namespace moris
                 mLocalIndex = aIndex;
             }
 
+
 //------------------------------------------------------------------------------
 
             /**
@@ -425,7 +429,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * sets the used flag of this basis to true
+             * sets the used flag of this basis to false
              *
              * @return void
              */
@@ -445,6 +449,43 @@ namespace moris
                 -> decltype( mUsedFlag )
             {
                 return mUsedFlag;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the owned and shared used flag of this basis to true
+             *
+             * @return void
+             */
+            void use_owned_and_shared()
+            {
+                mUsedOwnedAndSharedFlag = true;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the owned and shared used flag of this basis to false
+             *
+             * @return void
+             */
+            void unuse_owned_and_shared()
+            {
+                mUsedOwnedAndSharedFlag = false;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * tells if this basis, owned and shared,is used by curreny proc
+             *
+             * @return bool
+             */
+            auto is_use_owned_and_shared() const
+                -> decltype( mUsedOwnedAndSharedFlag )
+            {
+                return mUsedOwnedAndSharedFlag;
             }
 
 //------------------------------------------------------------------------------

@@ -267,6 +267,7 @@ namespace moris
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi;
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
+
             tdNSpacedXi = trans( tdNSpacedXi );
 
             // evaluate NTime for the field time interpolation

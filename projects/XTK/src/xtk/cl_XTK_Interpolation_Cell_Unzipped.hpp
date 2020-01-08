@@ -67,9 +67,15 @@ public:
      */
     moris_index
     get_bulkphase_index() const;
-
+    //------------------------------------------------------------------------------
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
     get_xtk_interpolation_vertices() const;
+    //------------------------------------------------------------------------------
+
+
+    // friend class
+    friend class Enrichment;
+
 
 private:
     moris::mtk::Cell*                                  mBaseCell;

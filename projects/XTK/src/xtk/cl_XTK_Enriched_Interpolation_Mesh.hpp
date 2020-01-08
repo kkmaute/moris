@@ -66,7 +66,25 @@ public:
      */
     Matrix<IndexMat> const &
     get_enriched_coefficients_at_background_coefficient(moris_index aBackgroundCoeffIndex) const;
-
+    //------------------------------------------------------------------------------
+    /*!
+     * get the enriched coefficients at all the background mesh coefficients
+     */
+    Cell<Matrix<IndexMat>> const &
+    get_enriched_coefficients_to_background_coefficients() const;
+    //------------------------------------------------------------------------------
+    /*!
+     * get the local enriched coefficient to global map
+     */
+    Matrix<IndexMat> const &
+    get_enriched_coefficient_local_to_global_map() const;
+    //------------------------------------------------------------------------------
+    /*!
+     * Return the vector of background coefficient local to global
+     */
+    Matrix<IndexMat>
+    get_background_coefficient_local_to_global_map() const;
+    //------------------------------------------------------------------------------
     uint
     get_num_background_coefficients() const;
 
@@ -116,6 +134,17 @@ public:
     Matrix<IndexMat> convert_ids_to_indices(Matrix<IdMat> const & aIds,
                                             enum EntityRank       aEntityRank) const;
     //------------------------------------------------------------------------------
+    /*!
+     * convert enriched
+     */
+    //------------------------------------------------------------------------------
+    void
+    convert_enriched_basis_indices_to_ids(Matrix<IndexMat> const & aEnrichedIndices,
+                                          Matrix<IdMat>          & aEnrichedIds) const;
+
+    void
+    convert_enriched_basis_indices_to_ids(Cell<Matrix<IndexMat>> const & aEnrichedIndices,
+                                          Cell<Matrix<IdMat>>          & aEnrichedIds) const;
 
     // Print functions
     void print() const;
@@ -132,6 +161,12 @@ public:
 protected:
     // Model pointer
     Model* mXTKModel;
+
+    // basis rank
+    enum EntityRank mBasisRank;
+
+    // mesh index
+    moris_index mMeshIndex;
 
     // enriched interpolation vertices
     moris::uint                         mNumVerts;
@@ -152,6 +187,9 @@ protected:
 
     // basis coefficient to enriched basis coefficient
     moris::Cell<moris::Matrix<moris::IndexMat>> mCoeffToEnrichCoeffs;
+
+    // local to global enriched basis vector
+    moris::Matrix<moris::IdMat> mEnrichCoeffLocToGlob;
 
     // Entity maps
     Cell<Matrix< IdMat >>                          mLocalToGlobalMaps;
@@ -195,6 +233,14 @@ protected:
     void setup_local_to_global_maps();
     void setup_vertex_maps();
     void setup_cell_maps();
+
+    //------------------------------------------------------------------------------
+    // Parallel functions
+    //------------------------------------------------------------------------------
+    void make_parallel_consistent();
+    void assign_enriched_basis_ids();
+    void assign_enriched_interpolation_cell_ids();
+
 };
 
 

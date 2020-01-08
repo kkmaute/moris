@@ -14,11 +14,11 @@ set(TEST_SOURCES
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
-	${ALG}-lib
-	${NLA}-lib
-	${MSI}-lib
-	${MDL}-lib
+    test-libs
+    ${ALG}-lib
+    ${NLA}-lib
+    ${MSI}-lib
+    #${MDL}-lib
     ${MORIS_BASE_LIBS}
     )
     
@@ -35,12 +35,12 @@ set_target_properties(${MSI_TEST} PROPERTIES OUTPUT_NAME ${MSI_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(MSI_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${MSI_TEST_PROCS})
-		set(MSI_PARALLEL_TEST ${MSI_TEST}-${PROCS}-procs)
-		add_test(NAME ${MSI_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${MSI_TEST}>)
-	endforeach()
+    set(MSI_TEST_PROCS ${MORIS_TEST_PROCS})
+    foreach(PROCS ${MSI_TEST_PROCS})
+        set(MSI_PARALLEL_TEST ${MSI_TEST}-${PROCS}-procs)
+        add_test(NAME ${MSI_PARALLEL_TEST} 
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${MSI_TEST}>)
+    endforeach()
 endif()
 
 

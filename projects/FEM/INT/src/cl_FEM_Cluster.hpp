@@ -39,10 +39,9 @@ namespace moris
     {
 
     protected:
+
         // pointer to the mesh cluster
         const mtk::Cluster* mMeshCluster = nullptr;
-
-        const mtk::Cluster * mVisMeshCluster = nullptr;
 
         // time sideset information
         Matrix< IndexMat > mListOfTimeOrdinals;
@@ -62,11 +61,19 @@ namespace moris
         // list of pointers to element
         moris::Cell< fem::Element * > mElements;
 
-        //! node indices of this element
-        //  @node: MTK interface returns copy of vertices. T
-        //         storing the indices in private matrix is faster,
-        //         but might need more memory
-        moris::Matrix< IndexMat > mNodeIndices;
+        // pointer to the visualization mesh cluster
+        const mtk::Cluster * mVisMeshCluster = nullptr;
+
+        // list of pointers to the master and slave mesh visualization cells
+        moris::Cell< mtk::Cell const * > mMasterVisCells;
+        moris::Cell< mtk::Cell const * > mSlaveVisCells;
+
+        // master and slave side ordinal information
+        Matrix< IndexMat > mMasterVisListOfSideOrdinals;
+        Matrix< IndexMat > mSlaveVisListOfSideOrdinals;
+
+        // list of pointers to element
+        moris::Cell< fem::Element * > mVisElements;
 
         // number of IWG on the cluster
         uint mNumOfIWGs;
@@ -86,6 +93,11 @@ namespace moris
     public:
 //------------------------------------------------------------------------------
         /**
+         * trivial constructor
+         */
+        Cluster(){};
+
+        /**
          * constructor
          * @param[ in ] aElementType enum for element type (BULK, SIDESET, ...)
          * @param[ in ] aMeshCluster cluster pointer from mtk mesh
@@ -96,7 +108,6 @@ namespace moris
                  const mtk::Cluster              * aMeshCluster,
                        moris::Cell< Node_Base* > & aNodes,
                        Set                       * aSet );
-        Cluster(){};
 
 //------------------------------------------------------------------------------
         /**
@@ -113,14 +124,16 @@ namespace moris
          */
         moris::Matrix< moris::DDRMat > get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
                                                                                       moris::moris_index aSideOrdinal,
-                                                                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+                                                                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER,
+                                                                                      bool aIsVis = false );
 
 //------------------------------------------------------------------------------
         /**
          * get the IG cell local coordinates wrt IP cell
          * @param[ in ] aPrimaryCellIndexInCluster index of the IG cell within the cluster
          */
-        moris::Matrix< moris::DDRMat > get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster );
+        moris::Matrix< moris::DDRMat > get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster,
+                                                                                              bool aIsVis = false );
 
 //------------------------------------------------------------------------------
         /**
@@ -138,26 +151,43 @@ namespace moris
          */
         moris::mtk::Vertex const * get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex );
 
-        moris::moris_index get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
-                                                             moris::mtk::Vertex const * aVertex );
+//------------------------------------------------------------------------------
+        /**
+         * get the ordinal of the right vertex on the facet
+         * @param[ in ] aCellIndexInCluster an index for the cell in the cluster
+         * @param[ in ] aVertex             a vertex pointer
+         */
+        moris::moris_index get_right_vertex_ordinal_on_facet( moris_index                aCellIndexInCluster,
+                                                              moris::mtk::Vertex const * aVertex );
 
 //------------------------------------------------------------------------------
         /**
-         * computes the jacobian on cluster
+         * compute the jacobian on cluster
          */
         void compute_jacobian();
 
 //------------------------------------------------------------------------------
         /**
-         * computes the residual on cluster
+         * compute the residual on cluster
          */
         void compute_residual();
 
 //------------------------------------------------------------------------------
         /**
-         * computes the jacobian and the residual on cluster
+         * compute the jacobian and the residual on cluster
          */
         void compute_jacobian_and_residual();
+
+//------------------------------------------------------------------------------
+        /**
+         * compute the quantity of interest on cluster
+         * @param[ in ] aOutputType an enum for output type
+         * @param[ in ] aFieldType  an enum for computation/return type
+         *                          GLOBAL, NODAL, ELEMENTAL
+         */
+        //void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
+        void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+                                           enum vis::Field_Type  aFieldType );
 
 //------------------------------------------------------------------------------
         /**
@@ -170,6 +200,11 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        /**
+         * get the nodal pdof values on an element
+         * @param[ in ] aVertexIndex a vertex index
+         * @param[ in ] aDofType     a dof type
+         */
         real get_element_nodal_pdof_value( moris_index   aVertexIndex,
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
@@ -203,48 +238,105 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
+        /**
+         * set visualization cluster
+         * @param[ in ] aVisMeshCluster a pointer to a visualization mesh cluster
+         */
         void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
         {
+            // set a visualization cluster
             mVisMeshCluster = aVisMeshCluster;
 
+            // get the visualization cells
+            mMasterVisCells = mVisMeshCluster->get_primary_cells_in_cluster();
 
+            // create an element factory
+            fem::Element_Factory tElementFactory;
+
+            // set size for the visualization element list
+            uint tNumMasterVisCells = mMasterVisCells.size();
+            mVisElements.resize( tNumMasterVisCells, nullptr );
+
+             // switch on the element type
+             switch ( mElementType )
+             {
+                 case ( fem::Element_Type::BULK ) :
+                 {
+                     // loop over the visualization cells
+                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
+                     {
+                         // create an element
+                         mVisElements( Ik )
+                         = tElementFactory.create_element( mElementType,
+                                                           mMasterVisCells( Ik ),
+                                                           mSet,
+                                                           this,
+                                                           Ik );
+                     }
+                     break;
+                 }
+                 case ( fem::Element_Type::SIDESET ) :
+                 {
+                     // set the side ordinals for the IG cells in the cluster
+                     mMasterVisListOfSideOrdinals = mVisMeshCluster->get_cell_side_ordinals();
+
+                     // loop over the visualization cells
+                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
+                     {
+                         // create an element
+                         mVisElements( Ik )
+                         = tElementFactory.create_element( mElementType,
+                                                           mMasterVisCells( Ik ),
+                                                           mSet,
+                                                           this,
+                                                           Ik );
+                     }
+                     break;
+                 }
+                 case ( fem::Element_Type::DOUBLE_SIDESET ) :
+                 {
+                     // fill the slave visualization cells
+                     mSlaveVisCells  = mVisMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE );
+
+                     // set the side ordinals for the master and slave vis cells
+                     mMasterVisListOfSideOrdinals = mVisMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
+                     mSlaveVisListOfSideOrdinals  = mVisMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
+
+                     // loop over the visualization cells
+                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
+                     {
+                         // create an element
+                         mVisElements( Ik )
+                         = tElementFactory.create_element( mElementType,
+                                                           mMasterVisCells( Ik ),
+                                                           mSlaveVisCells( Ik ),
+                                                           mSet,
+                                                           this,
+                                                           Ik );
+                     }
+                     break;
+                 }
+                 default :
+                 {
+                     MORIS_ERROR( false, "Cluster::set_visualization_cluster - undefined element type" );
+                     break;
+                 }
+             }
         }
 
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
         /**
-         * computes the cluster volume
+         * compute the cluster volume
          */
         real compute_volume();
 
 //------------------------------------------------------------------------------
         /**
-         * sets the field interpolators coefficients
+         * set the field interpolators coefficients
          */
         void set_field_interpolators_coefficients();
-
- //------------------------------------------------------------------------------
-        /**
-         * @Brief set the initial sizes and values for mJacobian
-         */
-         void initialize_mJacobian();
-
-//------------------------------------------------------------------------------
-         /**
-          * @Brief set the initial sizes and values for mResidual
-          */
-         void initialize_mResidual();
-
-//------------------------------------------------------------------------------
-
-         void compute_quantitiy_of_interest( enum vis::Output_Type aOutputType,
-                                             enum vis::Field_Type  aFieldType )
-         {
-
-         }
-
 
 //------------------------------------------------------------------------------
     };

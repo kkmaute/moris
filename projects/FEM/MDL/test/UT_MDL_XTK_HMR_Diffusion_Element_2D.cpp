@@ -167,7 +167,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2 In 2D","[XTK_HM
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine,tModelDimension);
 //        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        // Do the cutting
 //        tXTKModel.decompose(tDecompositionMethods);
@@ -479,7 +479,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model  With STK Lag Order 1 In 2D
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine,tModelDimension);
 //        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
+//        tXTKModel.mVerbose = false;
 //
 //        // Do the cutting
 //        tXTKModel.decompose(tDecompositionMethods);

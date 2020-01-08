@@ -105,6 +105,7 @@ private:
     moris::real mYCenter;
     moris::real mZCenter;
     moris::real mNexp;
+
 };
 }
 

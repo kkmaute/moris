@@ -152,6 +152,7 @@ set(LIB_SOURCES
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
     cl_FEM_Property.cpp
+    cl_FEM_Constitutive_Model.cpp
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp

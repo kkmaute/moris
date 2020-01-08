@@ -52,7 +52,6 @@ public:
     mtk::Cell const &         get_mtk_cell( moris_index aElementIndex ) const;
     Matrix< IdMat >           get_communication_table() const;
     moris::Cell<std::string>  get_set_names(enum EntityRank aSetEntityRank) const;
-
     //------------------------------------------------------------------------------
     // end mesh core functions
     //------------------------------------------------------------------------------
@@ -156,6 +155,10 @@ public:
      */
     xtk::Cell_Cluster const &
     get_xtk_cell_cluster(mtk::Cell const & aInterpCell) const;
+    //------------------------------------------------------------------------------
+    // Debug
+    //------------------------------------------------------------------------------
+
 
     //------------------------------------------------------------------------------
     // Printing
@@ -163,7 +166,7 @@ public:
     void print() const;
     void print_cell_clusters(moris::uint aVerbosityLevel = 0) const;
     void print_block_sets(moris::uint aVerbosityLevel = 0) const;
-    void print_side_sets() const;
+    void print_side_sets(moris::uint aVerbosityLevel = 0) const;
     void print_double_side_sets(moris::uint aVerbosityLevel = 0) const;
     void print_double_side_clusters(moris::uint aVerbosityLevel = 0) const;
 
@@ -266,6 +269,9 @@ private:
     bool
     field_exists(std::string              aLabel,
                  enum moris::EntityRank   aEntityRank);
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    // Parallel functions
     //------------------------------------------------------------------------------
 };
 }

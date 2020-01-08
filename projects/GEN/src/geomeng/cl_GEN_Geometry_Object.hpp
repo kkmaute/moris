@@ -11,11 +11,15 @@
 // Standard library includes
 #include <memory> // for shared_ptr
 
-// Matrix Include
 #include "cl_Matrix.hpp"
 
-// Parent topology
-//#include "../additional/cl_GEN_Topology.hpp"
+// GE includes
+#include "../additional/cl_GEN_Enums.hpp"
+
+#include "../property/cl_GEN_Property.hpp"
+
+// XTK includes
+#include "cl_XTK_Topology.hpp"
 
 namespace moris
 {
@@ -25,167 +29,110 @@ class GEN_Geometry_Object
 {
 public:
     GEN_Geometry_Object():
-        mAllParentNodesOnInterface(false),
-        mHasParentNodesOnInterface(false)
-    {
-    }
+        mAllParentNodesOnInterface( false ),
+        mHasParentNodesOnInterface( false )
+    {    }
 
 
-    GEN_Geometry_Object(moris::moris_index aParentEntityIndex)
+    GEN_Geometry_Object( moris::moris_index aParentEntityIndex )
     {
         mParentEntityIndex = aParentEntityIndex;
     }
 
     ~GEN_Geometry_Object()
-    {
+    {    }
 
-    }
+    //------------------------------------------------------------------------------
+    void set_phase_val_row( moris::moris_index aPhaseValRowIndex );
 
-
-    void
-    set_phase_val_row(moris::moris_index aPhaseValRowIndex)
-    {
-        mPhaseValIndex = aPhaseValRowIndex;
-    }
-
-    moris::moris_index
-    get_phase_val_row() const
-    {
-        return mPhaseValIndex;
-    }
-
+    moris::moris_index get_phase_val_row() const;
+    //------------------------------------------------------------------------------
 
     /**
      * This tells the geometry object which entity index it is associated with. At this point, the dimension of this parent
      * entity is up to the user to keep track of.
      * @param[in] aEntityIndex - Parent entity index
      */
-    void set_parent_entity_index(moris::moris_index aEntityIndex)
-    {
-        mParentEntityIndex = aEntityIndex;
-    }
+    void set_parent_entity_index( moris::moris_index aEntityIndex );
 
-    moris::moris_index const & get_parent_entity_index()
-    {
-        return mParentEntityIndex;
-    }
+    moris::moris_index const & get_parent_entity_index();
+    //------------------------------------------------------------------------------
 
-    /** Currently set_interface_lcl_coord is only needed for an edge and requires only 1 value,
+    /**
+     * Currently set_interface_lcl_coord is only needed for an edge and requires only 1 value,
      * In future  want to extend to different dimension entities
      */
-    void set_interface_loc_coord(moris::real const & aLclCoord)
-    {
-        mInterfaceLclCoords = aLclCoord;
-    }
+    void set_interface_loc_coord( moris::real const & aLclCoord );
+
+    moris::real const & get_interface_lcl_coord( );
+    //------------------------------------------------------------------------------
 
     /**
      * Global coordinate of interface point
      */
-    void set_interface_glb_coord(moris::Matrix< moris::DDRMat > const & aGlbCoord)
-    {
-        mInterfaceGlbCoords = aGlbCoord.copy();
-    }
+    void set_interface_glb_coord( moris::Matrix< moris::DDRMat > const & aGlbCoord );
+
+    moris::Matrix< moris::DDRMat > const & get_interface_glb_coord( );
+    //------------------------------------------------------------------------------
 
     /**
-     * Sensitivity with respect to design relevant design variables hosted in the geometry engine
+     * Sensitivity with respect to relevant design variables hosted in the geometry engine
      */
-    void set_sensitivity_dx_dp(moris::Matrix< moris::DDRMat > const & aSensitivitydxdp)
-    {
-        mSensitivityDxDp = aSensitivitydxdp.copy();
-    }
+    void set_sensitivity_dx_dp( moris::Matrix< moris::DDRMat > const & aSensitivitydxdp );
 
-    moris::Matrix< moris::DDRMat > const &
-    get_sensitivity_dx_dp() const
-    {
-        return mSensitivityDxDp;
-    }
+    moris::Matrix< moris::DDRMat > const & get_sensitivity_dx_dp() const;
+    //------------------------------------------------------------------------------
 
-    void set_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeADVIndices)
-    {
-        mNodeADVIndices = aNodeADVIndices.copy();
-    }
+    void set_node_adv_indices( moris::Matrix< moris::IndexMat > const & aNodeADVIndices );
 
-    moris::Matrix< moris::IndexMat > const &
-    get_node_adv_indices() const
-    {
-        return mNodeADVIndices;
-    }
+    moris::Matrix< moris::IndexMat > const & get_node_adv_indices() const;
+    //------------------------------------------------------------------------------
 
-    moris::real const & get_interface_lcl_coord()
-    {
-        return mInterfaceLclCoords;
-    }
+    void mark_all_nodes_as_on_interface( );
+    //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat > const &
-    get_interface_glb_coord()
-    {
-        return mInterfaceGlbCoords;
-    }
+    void mark_node_as_on_interface( moris::moris_index aNodeOrdinal );
+    //------------------------------------------------------------------------------
 
-    void
-    mark_all_nodes_as_on_interface()
-    {
-        mAllParentNodesOnInterface = true;
-        mHasParentNodesOnInterface = true;
-    }
+    void mark_nodes_as_not_on_interface( );
+    //------------------------------------------------------------------------------
 
-    //
-    void
-    mark_node_as_on_interface(moris::moris_index aNodeOrdinal)
-    {
-        mNodesOnInterface.push_back(aNodeOrdinal);
-        mHasParentNodesOnInterface = true;
-    }
+    bool all_parent_nodes_on_interface( );
+    //------------------------------------------------------------------------------
 
-    void
-    mark_nodes_as_not_on_interface()
-    {
-        mHasParentNodesOnInterface = false;
-    }
+    bool has_parent_nodes_on_interface( );
+    //------------------------------------------------------------------------------
 
-    bool
-    all_parent_nodes_on_interface()
-    {
-        return mAllParentNodesOnInterface;
-    }
+    void set_parent_entity_topology( std::shared_ptr<xtk::Topology> tParentTopo );
+    //------------------------------------------------------------------------------
 
-    bool
-    has_parent_nodes_on_interface()
-    {
-        return mHasParentNodesOnInterface;
-    }
+    xtk::Topology const & get_parent_entity_topology( );
+    //------------------------------------------------------------------------------
+    void register_pdv_type( enum GEN_PDV aPdvType );
 
-    void
-    set_parent_entity_topology(std::shared_ptr<xtk::Topology> tParentTopo)
-    {
-        MORIS_ASSERT(mParentTopology == nullptr,
-                     "Geometry object parent entity topology has already been set");
-        mParentTopology = tParentTopo;
-    }
+    void set_pdv_list( moris::Cell< enum GEN_PDV > aPdvList );
 
-    xtk::Topology const &
-    get_parent_entity_topology()
-    {
-        MORIS_ASSERT(mParentTopology != nullptr,
-                     "Geometry object parent entity topology has not been set, either this is not an interface geometry object or set_parent_entity_topology was not called");
+    moris::Cell< enum GEN_PDV > get_pdv_list( );
 
-        return (*mParentTopology);
-    }
+    //------------------------------------------------------------------------------
+
+    real get_pdv_val( const enum GEN_PDV aPdvType );
 
 
-
+    //------------------------------------------------------------------------------
 private:
     moris::moris_index mPhaseValIndex;
-
+    //------------------------------------------------------------------------------
     moris::real                      mInterfaceLclCoords;
     moris::moris_index               mParentEntityIndex;
     moris::Matrix< moris::DDRMat >   mSensitivityDxDp;
     moris::Matrix< moris::IndexMat > mNodeADVIndices;
     moris::Matrix< moris::DDRMat >   mInterfaceGlbCoords;
 
+    //------------------------------------------------------------------------------
     // Parent topology
     std::shared_ptr< xtk::Topology > mParentTopology = nullptr;
-
+    //------------------------------------------------------------------------------
     // Information about coincidence (along an edge)
     bool                            mAllParentNodesOnInterface;
     bool                            mHasParentNodesOnInterface;

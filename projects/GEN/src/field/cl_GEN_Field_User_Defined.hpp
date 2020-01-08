@@ -12,22 +12,24 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
+#include "cl_FEM_Field_Interpolator.hpp"
+
 #include "cl_GEN_Field.hpp"
 
 
 namespace moris{
 namespace ge{
 
-//typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-//                                          moris::Cell< fem::Field_Interpolator* > & aDofFI,
-//                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
-//                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
+//typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >                & aCoeff,
+//                                          moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+//                                          moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+//                                          moris::fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
 
 typedef std::function< real ( Matrix< DDRMat > const & aCoeff,
                               Matrix< DDRMat > const & aParam ) > PropertyFunction_noFieldInterp;
 
 
-class GEN_Field_User_Defined    :   public GEN_Field
+class GEN_Field_User_Defined    :   public GEN_Field    //fixme: this should take in a property at construction and use the property to perform evaluations
 {
 private:
     PropertyFunction_noFieldInterp mValFunc;
@@ -38,20 +40,16 @@ private:
 
 public:
     GEN_Field_User_Defined(  )
-    {
-    }
+    {    }
 
     GEN_Field_User_Defined( PropertyFunction_noFieldInterp aValFunc,
                             Matrix< DDRMat >               aCoeff ) :
                                 mValFunc( aValFunc ),
                                 mCoeffList( aCoeff )
-
-    {
-    }
+    {    }
 
     ~GEN_Field_User_Defined(  )
     {
-
     }
     //------------------------------------------------------------------------------
     void set_coeff_list( Matrix< DDRMat > & aCoeff )

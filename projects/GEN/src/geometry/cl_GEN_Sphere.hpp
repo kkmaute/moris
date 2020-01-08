@@ -11,7 +11,7 @@
 #include <cmath>
 
 #include "cl_Matrix.hpp"
-#include "../geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 namespace moris
 {
@@ -97,7 +97,9 @@ public:
             sign = 1.0;
         }
         else
+        {
             std::cout << "zero denominator detected";
+        }
 
         tSensitivityDxDp(0, 1) = mRadius / std::sqrt(std::abs(tSqrt));
 
@@ -113,7 +115,9 @@ public:
             sign = 1.0;
         }
         else
+        {
             std::cout << "zero denominator detected";
+        }
 
         tSensitivityDxDp(0, 2) = sign * mRadius / std::sqrt(std::abs(tSqrt));
 

@@ -12,6 +12,10 @@
 #include "cl_Matrix.hpp"
 #include <Sacado.hpp>
 #include <Kokkos_Core.hpp>
+#include "cl_SphereBox_AD.hpp"
+#include "cl_Multi_Geometry_KS_AD.hpp"
+#include "cl_Geometry.hpp"
+#include "cl_Geometry_AD.hpp"
 
 template <typename ScalarType>
 using ScalarArray3DT = typename Kokkos::View<ScalarType***>;
@@ -175,5 +179,132 @@ TEST_CASE("Automatic Differentiation Circle","[AD_Circle]")
 
 
 }
+
+TEST_CASE("AD Sphere Box","[AD_Spherebox]")
+{
+    // setup design variables
+    Sacado::Fad::DFad<moris::real> Width  = 6.00;
+    Sacado::Fad::DFad<moris::real> Depth  = 6.00;
+    Sacado::Fad::DFad<moris::real> Height = 6.00;
+    Sacado::Fad::DFad<moris::real> H_thk  = 1.10;
+    Sacado::Fad::DFad<moris::real> V_thk  = 1.10;
+    Sacado::Fad::DFad<moris::real> slot_w = 0.75;
+
+    // declare as independent variables
+    Width.diff(0,5);
+    Depth.diff(1,5);
+    Height.diff(2,5);
+    H_thk.diff(3,6);
+    V_thk.diff(4,6);
+    slot_w.diff(5,6);
+
+    std::cout<<"Number of derivatives = "<<Width.size()<<std::endl;
+
+    std::cout<<"Design Variables:"<<std::endl;
+    std::cout<<"\nWidth  = " << Width <<std::endl;
+    std::cout<<"Depth  = " << Depth <<std::endl;
+    std::cout<<"Height = " << Height<<std::endl;
+    std::cout<<"H_thk  = " << H_thk <<std::endl;
+    std::cout<<"V_thk  = " << V_thk <<std::endl;
+    std::cout<<"slot_w = " << slot_w<<std::endl;
+
+    // Set parameters which do not have derivatives
+    // bottom  back left corner off set
+    moris::real tXOff = 2.0;
+    moris::real tYOff = 2.0;
+    moris::real tZOff = 4.02;
+
+    // box sphere exponent
+    moris::real tNExp = 10;
+
+    // Bottom Plate
+    Sacado::Fad::DFad<moris::real>  tSx = Depth/2;
+    Sacado::Fad::DFad<moris::real>  tSy = Width/2;
+    Sacado::Fad::DFad<moris::real>  tSz = V_thk/2;
+    Sacado::Fad::DFad<moris::real>  tCx = Depth/2 + tXOff;
+    Sacado::Fad::DFad<moris::real>  tCy = Width/2 + tYOff;
+    Sacado::Fad::DFad<moris::real>  tCz = V_thk/2 + tZOff;
+
+    xtk::Sphere_Box_AD tBottomPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
+    tBottomPlate.print();
+
+
+    // right plate (pos y face)
+    Sacado::Fad::DFad<moris::real> tSx2 = Depth/2;
+    Sacado::Fad::DFad<moris::real> tSy2 = H_thk/2;
+    Sacado::Fad::DFad<moris::real> tSz2 = Height/2-V_thk*0.75;
+    Sacado::Fad::DFad<moris::real> tCx2 = Depth/2 + tXOff;
+    Sacado::Fad::DFad<moris::real> tCy2 = Width - H_thk/2 + tYOff;
+    Sacado::Fad::DFad<moris::real> tCz2 = Height/2 + tZOff;
+    xtk::Sphere_Box_AD tRightPlate(tSx2,tSy2,tSz2,tCx2,tCy2,tCz2,tNExp);
+    tRightPlate.print();
+
+    moris::Matrix<moris::DDRMat> tCoords {{ 5, 3, 6.2}, {5,5,4.57}};
+
+    Sacado::Fad::DFad<moris::real>  tPhiA;
+    tBottomPlate.ad_sensitivity_evaluation(0,tCoords,tPhiA);
+
+    std::cout<<"tPhiA = "<<tPhiA<<std::endl;
+
+    Sacado::Fad::DFad<moris::real>  tPhiB;
+    tBottomPlate.ad_sensitivity_evaluation(1,tCoords,tPhiB);
+    std::cout<<"tPhiB = "<<tPhiB<<std::endl;
+
+
+    Sacado::Fad::DFad<moris::real> xsi = (tPhiA + tPhiB) / (tPhiA-tPhiB);
+    std::cout<<"xsi = "<<xsi<<std::endl;
+    Sacado::Fad::DFad<moris::real> tN1 = 0.5*(1-xsi);
+    Sacado::Fad::DFad<moris::real> tN2 = 0.5*(1+xsi);
+
+    std::cout<<"tXGamma1 = "<<tN1<<std::endl;
+    std::cout<<"tXGamma2 = "<<tN2<<std::endl;
+
+    Sacado::Fad::DFad<moris::real> tXGamma1 = tN1*tCoords(0,0) + tN2*tCoords(1,0);
+    Sacado::Fad::DFad<moris::real> tXGamma2 = tN1*tCoords(0,1) + tN2*tCoords(1,1);
+    Sacado::Fad::DFad<moris::real> tXGamma3 = tN1*tCoords(0,2) + tN2*tCoords(1,2);
+
+    std::cout<<"tXGamma1 = "<<tXGamma1<<std::endl;
+    std::cout<<"tXGamma2 = "<<tXGamma2<<std::endl;
+    std::cout<<"tXGamma3 = "<<tXGamma3<<std::endl;
+
+
+    std::cout<<"\n----------------------------------------------"<<std::endl;
+    std::cout<<"KS - Geometry 2 Plates:"<<std::endl;
+    // create a KS multigeometry
+    moris::real tBeta = 50;
+    moris::Cell<xtk::Geometry_AD*> tGeomVect = {&tBottomPlate,&tRightPlate};
+
+    xtk::Multi_Geometry_KS_AD tMultiGeometryAD(tGeomVect,tBeta,6);
+
+    tMultiGeometryAD.ad_sensitivity_evaluation(0,tCoords,tPhiA);
+
+    std::cout<<"tPhiA = "<<tPhiA<<std::endl;
+
+    tMultiGeometryAD.ad_sensitivity_evaluation(1,tCoords,tPhiB);
+    std::cout<<"tPhiB = "<<tPhiB<<std::endl;
+
+    moris::Matrix<moris::DDRMat> tDPhiADp = tMultiGeometryAD.evaluate_sensitivity_dphi_dp_with_coordinate(0,tCoords);
+
+    print(tDPhiADp,"tDPhiADp");
+
+    xsi = (tPhiA + tPhiB) / (tPhiA-tPhiB);
+    std::cout<<"xsi = "<<xsi<<std::endl;
+    tN1 = 0.5*(1-xsi);
+    tN2 = 0.5*(1+xsi);
+
+    std::cout<<"tN1 = "<<tN1<<std::endl;
+    std::cout<<"tN2 = "<<tN2<<std::endl;
+
+    tXGamma1 = tN1*tCoords(0,0) + tN2*tCoords(1,0);
+    tXGamma2 = tN1*tCoords(0,1) + tN2*tCoords(1,1);
+    tXGamma3 = tN1*tCoords(0,2) + tN2*tCoords(1,2);
+
+    std::cout<<"tXGamma1 = "<<tXGamma1<<std::endl;
+    std::cout<<"tXGamma2 = "<<tXGamma2<<std::endl;
+    std::cout<<"tXGamma3 = "<<tXGamma3<<std::endl;
+
+
+}
+
 }
 

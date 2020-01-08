@@ -31,14 +31,17 @@ namespace moris
          */
         class Stabilization_Parameter
         {
-
+//------------------------------------------------------------------------------
         protected :
+
+//------------------------------------------------------------------------------
 
             // fem set pointer
             fem::Set * mSet = nullptr;
 
             // field interpolator manager pointer
-            Field_Interpolator_Manager * mFIManager = nullptr;
+            Field_Interpolator_Manager * mMasterFIManager = nullptr;
+            Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // cluster pointer
             fem::Cluster * mCluster;
@@ -129,15 +132,44 @@ namespace moris
             virtual ~Stabilization_Parameter(){};
 
 //------------------------------------------------------------------------------
+            /*
+             * set field interpolator manager pointer
+             * @param[ in ] aFieldInteprolatorManager a field interpolator manager pointer
+             */
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                 mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
 
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+//------------------------------------------------------------------------------
+            /*
+             * get field interpolator manager pointer
+             * @param[ out ] aFieldInteprolatorManager a field interpolator manager pointer
+             */
+            Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
-                mFIManager = aFieldInterpolatorManager;
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ) :
+                    {
+                        return mMasterFIManager;
+                    }
+
+                    case ( mtk::Master_Slave::SLAVE ) :
+                    {
+                        return mSlaveFIManager;
+                    }
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "Stabilization_Parameter::get_field_interpolator_manager - can only be master or slave");
+                        return mMasterFIManager;
+                    }
+                }
             }
 
 //------------------------------------------------------------------------------
             /*
              * set member set pointer
+             * @param[ in ] aSetPointer a fem set pointer
              */
             void set_set_pointer( Set * aSetPointer )
             {
@@ -514,63 +546,63 @@ namespace moris
                 // set field interpolators
                 this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
 
-                // set field interpolators for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if( tCM != nullptr )
-                    {
-                        // get the list of dof types for the CM
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
-
-                        // get the number of dof type for the CM
-                        uint tNumDofTypes = tCMDofTypes.size();
-
-                        // set the size of the field interpolators list for the CM
-                        moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-
-                        // loop over the dof types
-                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                        {
-                            // get the dof type index in set
-                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
-
-                            // fill the field interpolators list for the CM
-                            tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
-                        }
-
-                        // set the field interpolators for the CM
-                        tCM->set_dof_field_interpolators( tCMFIs );
-                    }
-                }
-
-                // set field interpolators for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if( tProp != nullptr )
-                    {
-                        // get the list of dof types for the property
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                        // get the number of dof type for the property
-                        uint tNumDofTypes = tPropDofTypes.size();
-
-                        // set the size of the field interpolators list for the property
-                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                        // loop over the dof types
-                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                        {
-                            // get the dof type index in SP
-                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
-
-                            // fill the field interpolators list for the property
-                            tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
-                        }
-
-                        // set the field interpolators for the property
-                        tProp->set_dof_field_interpolators( tPropFIs );
-                    }
-                }
+//                // set field interpolators for constitutive models
+//                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+//                {
+//                    if( tCM != nullptr )
+//                    {
+//                        // get the list of dof types for the CM
+//                        moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
+//
+//                        // get the number of dof type for the CM
+//                        uint tNumDofTypes = tCMDofTypes.size();
+//
+//                        // set the size of the field interpolators list for the CM
+//                        moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
+//
+//                        // loop over the dof types
+//                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+//                        {
+//                            // get the dof type index in set
+//                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
+//
+//                            // fill the field interpolators list for the CM
+//                            tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
+//                        }
+//
+//                        // set the field interpolators for the CM
+//                        tCM->set_dof_field_interpolators( tCMFIs );
+//                    }
+//                }
+//
+//                // set field interpolators for properties
+//                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+//                {
+//                    if( tProp != nullptr )
+//                    {
+//                        // get the list of dof types for the property
+//                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
+//
+//                        // get the number of dof type for the property
+//                        uint tNumDofTypes = tPropDofTypes.size();
+//
+//                        // set the size of the field interpolators list for the property
+//                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
+//
+//                        // loop over the dof types
+//                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+//                        {
+//                            // get the dof type index in SP
+//                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+//
+//                            // fill the field interpolators list for the property
+//                            tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
+//                        }
+//
+//                        // set the field interpolators for the property
+//                        tProp->set_dof_field_interpolators( tPropFIs );
+//                    }
+//                }
             }
 
 //------------------------------------------------------------------------------
@@ -634,13 +666,6 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-            void set_constitutive_models( moris::Cell< std::shared_ptr< Constitutive_Model > > aConstitutiveModels,
-                                          mtk::Master_Slave                                    aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                this->get_constitutive_models( aIsMaster ) = aConstitutiveModels;
-            }
-
-//------------------------------------------------------------------------------
             virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                                                  std::string                           aConstitutiveString,
                                                  mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
@@ -678,12 +703,6 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-            void set_properties( moris::Cell< std::shared_ptr< Property > > aProperties,
-                                 mtk::Master_Slave                          aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                this->get_properties( aIsMaster ) = aProperties;
-            }
-
             virtual void set_property( std::shared_ptr< Property > aProperty,
                                        std::string                 aPropertyString,
                                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )

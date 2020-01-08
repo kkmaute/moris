@@ -73,23 +73,17 @@ public:
     /**
      * returns the type enum of this mesh
      */
-    virtual MeshType
-    get_mesh_type() const = 0;
+    virtual MeshType get_mesh_type() const = 0;
 
     //------------------------------------------------------------------------------
 
-    virtual
-    uint
-    get_spatial_dim() const = 0;
+    virtual uint get_spatial_dim() const = 0;
 
     //------------------------------------------------------------------------------
     /*
      * Get number of entities for specified rank
      */
-    virtual
-    uint
-    get_num_entities(
-            enum EntityRank aEntityRank) const = 0;
+    virtual uint get_num_entities( enum EntityRank aEntityRank) const = 0;
 
     // ----------------------------------------------------------------------------
     /*
@@ -111,9 +105,7 @@ public:
     /*
      * Get number of nodes
      */
-    virtual
-    uint
-    get_num_nodes() const
+    virtual uint get_num_nodes() const
     {
         return get_num_entities(EntityRank::NODE);
     }
@@ -121,9 +113,7 @@ public:
     /*
      * Get number of edges
      */
-    virtual
-    uint
-    get_num_edges() const
+    virtual uint get_num_edges() const
     {
         return get_num_entities(EntityRank::EDGE);
     }
@@ -131,9 +121,7 @@ public:
     /*
      * Get number of faces
      */
-    virtual
-    uint
-    get_num_faces() const
+    virtual uint get_num_faces() const
     {
         return get_num_entities(EntityRank::FACE);
     }
@@ -141,9 +129,7 @@ public:
     /*
      * Get number of elements
      */
-    virtual
-    uint
-    get_num_elems() const
+    virtual uint get_num_elems() const
     {
         return get_num_entities(EntityRank::ELEMENT);
     }
@@ -684,7 +670,7 @@ public:
      * @param[in]  - Entity Rank
      * @param[out] - Processors whom share an entity vector
      */
-    virtual
+//    virtual
     void
     get_processors_whom_share_entity(moris_index       aEntityIndex,
                                      enum EntityRank   aEntityRank,
@@ -1088,32 +1074,27 @@ public:
         return tBlockSetCells;
     }
 
-
+//-------------------------------------------------------------------------------
     /*
      * Returns the cell index and side ordinals in a provided side set name
      */
-    virtual
-    void
-    get_sideset_elems_loc_inds_and_ords(
-            const  std::string     & aSetName,
-            Matrix< IndexMat >     & aElemIndices,
-            Matrix< IndexMat >     & aSidesetOrdinals ) const
+    virtual void get_sideset_elems_loc_inds_and_ords( const  std::string        & aSetName,
+                                                             Matrix< IndexMat > & aElemIndices,
+                                                             Matrix< IndexMat > & aSidesetOrdinals ) const
     {
         MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
     }
 
+//-------------------------------------------------------------------------------
     /*
      * Returns the mtk cell and side ordinals in a provided side set name
      */
-    virtual
-    void
-    get_sideset_cells_and_ords(
-            const  std::string & aSetName,
-            moris::Cell< mtk::Cell const * > & aCells,
-            Matrix< IndexMat > &       aSidesetOrdinals ) const
+    virtual void get_sideset_cells_and_ords( const  std::string                      & aSetName,
+                                                    moris::Cell< mtk::Cell const * > & aCells,
+                                                    Matrix< IndexMat >               & aSidesetOrdinals ) const
     {
         moris::Matrix<moris::IndexMat> tElemIndices;
-        this->get_sideset_elems_loc_inds_and_ords(aSetName,tElemIndices,aSidesetOrdinals);
+        this->get_sideset_elems_loc_inds_and_ords( aSetName, tElemIndices, aSidesetOrdinals );
 
         // convert element indices to cell pointers
         moris::uint tNumCellsInSet = tElemIndices.numel();
@@ -1125,7 +1106,7 @@ public:
         }
     }
 
-
+//-------------------------------------------------------------------------------
     /*
      * returns the number of faces in a side set.
      */

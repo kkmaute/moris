@@ -61,33 +61,82 @@ namespace xtk
  *
  */
 inline
-void compute_dx_dp_with_linear_basis(moris::Matrix< moris::DDRMat >  & aDPhiADp,
-                                     moris::Matrix< moris::DDRMat >  & aDPhiBDp,
-                                     moris::Matrix< moris::DDRMat >  & aEdgeCoordinates,
-                                     moris::Matrix< moris::DDRMat >  & aEdgeNodePhi,
+void compute_dx_dp_with_linear_basis(moris::Matrix< moris::DDRMat >            const & aEdgeCoordinates,
+                                     moris::Matrix< moris::DDRMat >            const & aIntersectionLclCoordinate,
+                                     moris::Matrix< moris::DDRMat >            const & aEdgeNodePhi,
+                                     moris::Cell<moris::Matrix<moris::DDRMat>> const & aDPhiDp,
                                      moris::Matrix< moris::DDRMat >  & aDxDp)
 {
+/*
+    MORIS_ASSERT(aIntersectionLclCoordinate.numel() == 1,"Intersection local coordinate should be relative to an edge. Therefore needs to be size 1");
 
-  MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-  MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-  moris::real const & tPhiA = aEdgeNodePhi(0,0);
-  moris::real const & tPhiB = aEdgeNodePhi(1,0);
+    // Local Coordinate of edge
+    moris::real tZeta = aIntersectionLclCoordinate(0);
 
-  // Initialize
-  moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
+    moris::real const & tPhiA = aEdgeNodePhi(0,0);
+    moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
-  moris::Matrix< moris::DDRMat > tXb = aEdgeCoordinates.get_row(1);
+    // linear shape function along edge
+    Matrix<moris::DDRMat> tN = {{0.5 * (1-tZeta)},
+                                {0.5 * (1+tZeta)}};
 
-  // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
-  moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-  moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+    // Derivatives of shape functions wrt global coordinate
+    Matrix<moris::DDRMat> tdN_dzeta = {{-0.5},
+                                       {0.5}};
 
-  moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
-  moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
+    // denominator (used throughout)
+    moris::real tDenom = 1/std::pow((tPhiA-tPhiB),2);
 
-  // Compute dx/dp
-  moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
-  aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
+    // partial derivatives of the interface change wrt change
+    moris::real tdzetagamma_dphiA = -2*tPhiB*tDenom;
+    moris::real tdzetagamma_dphiB =  2*tPhiA*tDenom;
+
+    // derivative of x_gamma wrt p (of edge node 0)
+    moris::Matrix<moris::DDRMat> tdxgamma_dphiA = moris::trans(tdN_dzeta)*aEdgeCoordinates*tdzetagamma_dphiA;
+    moris::Matrix<moris::DDRMat> tdxgamma_dphiB = moris::trans(tdN_dzeta)*aEdgeCoordinates*tdzetagamma_dphiB;
+
+    //FIXME: Here is where we add the postmultiplication d_phiA/d_p
+    moris::print(aDPhiDp(0),"aDPhiDp(0)");
+    moris::print(aDPhiDp(1),"aDPhiDp(1)");
+    
+    aDxDp = moris::trans(aDPhiDp(0))*tdxgamma_dphiA + moris::trans(aDPhiDp(1))*tdxgamma_dphiB;
+*/
+    
+    
+    MORIS_ASSERT(aIntersectionLclCoordinate.numel() == 1,"Intersection local coordinate should be relative to an edge. Therefore needs to be size 1");
+
+    // Local Coordinate of edge
+    moris::real tZeta = aIntersectionLclCoordinate(0);
+
+    moris::real const & tPhiA = aEdgeNodePhi(0,0);
+    moris::real const & tPhiB = aEdgeNodePhi(1,0);
+
+    // linear shape function along edge
+    Matrix<moris::DDRMat> tN = {{0.5 * (1-tZeta)},
+                                {0.5 * (1+tZeta)}};
+
+    // Derivatives of shape functions wrt global coordinate
+    Matrix<moris::DDRMat> tdN_dzeta = {{-0.5},
+                                       {0.5}};
+
+    // denominator (used throughout)
+    moris::real tDenom = 1/std::pow((tPhiA-tPhiB),2);
+
+    // partial derivatives of the interface change wrt change
+    moris::real tdzetagamma_dphiA = -2*tPhiB*tDenom;
+    moris::real tdzetagamma_dphiB =  2*tPhiA*tDenom;
+
+    // derivative of x_gamma wrt p (of edge node 0)
+    Matrix<moris::DDRMat> tdxgamma_dphiA = moris::trans(tdN_dzeta)*aEdgeCoordinates*tdzetagamma_dphiA;
+    Matrix<moris::DDRMat> tdxgamma_dphiB = moris::trans(tdN_dzeta)*aEdgeCoordinates*tdzetagamma_dphiB;
+
+    //FIXME: Here is where we add the postmultiplication d_phiA/d_p
+
+    // Compute dx/dp
+    aDxDp.resize(2,3);
+    aDxDp.get_row(0) = tdxgamma_dphiA.get_row(0);
+    aDxDp.get_row(1) = tdxgamma_dphiB.get_row(0);
+    
 
 }
 
@@ -419,15 +468,7 @@ public:
             // Recompute local intersection (This could be stored instead)
             Matrix< DDRMat > tIntersectLocalCoordinate(1,1,0.0);
             Matrix< DDRMat > tIntersectGlobalCoordinate(1,1,0.0);
-            get_intersection_location(mThresholdValue,
-                                      mPerturbationValue,
-                                      aNodeCoords,
-                                      tEntityNodeVars,
-                                      tParentEntityNodes,
-                                      tIntersectLocalCoordinate,
-                                      tIntersectGlobalCoordinate,
-                                      true,
-                                      false);
+            get_intersection_location(mThresholdValue, mPerturbationValue, aNodeCoords, tEntityNodeVars, tParentEntityNodes, tIntersectLocalCoordinate, tIntersectGlobalCoordinate, true, false);
 
 
             // FIXME: Parent edge nodes need to not be the ADVs
@@ -546,14 +587,9 @@ public:
                                       moris::Matrix< moris::DDRMat >         & aDxDp,
                                       moris::Matrix< moris::IndexMat >       & aADVIndices)
     {
-        moris::real tPerturbationLength = 0.005;
-        moris::size_t tNumNodes = aEntityNodeIndices.n_cols();
-
-        MORIS_ASSERT(tNumNodes == 2,"Currently, this function is only supported on edges");
-
         // Initialize
         Cell<moris::Matrix< moris::DDRMat >> tDPhiiDp = {moris::Matrix< moris::DDRMat >(0,0),
-                                                moris::Matrix< moris::DDRMat >(0,0)};
+                                                         moris::Matrix< moris::DDRMat >(0,0)};
 
         moris::Matrix< moris::DDRMat > tEntityNodeCoordinates(2,3);
 
@@ -565,21 +601,31 @@ public:
         if(ActiveGeometry().is_analytic())
         {
             aADVIndices = get_node_adv_indices_analytic();
-            for(moris::size_t i = 0; i < tNumNodes; i++)
+            for(moris::size_t i = 0; i < aEntityNodeIndices.numel(); i++)
             {
-                tDPhiiDp(i) = ActiveGeometry().evaluate_sensitivity_dphi_dp_with_coordinate(aEntityNodeIndices(0, i),aGlobalNodeCoordinates);
+                tDPhiiDp(i) = ActiveGeometry().evaluate_sensitivity_dphi_dp_with_coordinate(aEntityNodeIndices(i),aGlobalNodeCoordinates);
             }
 
-            compute_dx_dp_with_linear_basis(tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp);
+            compute_dx_dp_with_linear_basis(tEntityNodeCoordinates,aIntersectionLclCoordinate, aEntityNodeVars, tDPhiiDp,aDxDp);
         }
 
         // Get information from a discrete geometry
         else
         {
-            aADVIndices = get_node_adv_indices_discrete(aEntityNodeIndices);
-            compute_dx_dp_finite_difference(tPerturbationLength, aGlobalNodeCoordinates, tEntityNodeCoordinates, aIntersectionLclCoordinate,aEntityNodeIndices,aEntityNodeVars, aDxDp);
+            Cell<moris::Matrix< moris::DDRMat >> tDPhiiDp = {moris::Matrix< moris::DDRMat >(1,2,1),
+                                                             moris::Matrix< moris::DDRMat >(1,2,1)};
+
+
+                compute_dx_dp_with_linear_basis(tEntityNodeCoordinates,aIntersectionLclCoordinate, aEntityNodeVars,tDPhiiDp, aDxDp);
+
+            //            aADVIndices = get_node_adv_indices_discrete(aEntityNodeIndices);
+
+
+            //            compute_dx_dp_finite_difference(tPerturbationLength, aGlobalNodeCoordinates, tEntityNodeCoordinates, aIntersectionLclCoordinate,aEntityNodeIndices,aEntityNodeVars, aDxDp);
         }
     }
+
+
 
     /**
      * Returns a reference to the geometry object at the provided index
@@ -804,6 +850,14 @@ public:
         return tMatrix;
     }
 
+
+    moris::uint
+    get_num_design_variables() const
+    {
+        MORIS_ASSERT(mGeometry.size() == 1,"get num design variables only implemented on 1 geometry meshes");
+        MORIS_ASSERT(mGeometry(0)->is_analytic(),"get num design variables only implemented on analytic geometries");
+        return mGeometry(0)->get_num_des_vars();
+    }
 
     /*
      * Returns the ADV indices of the provided nodes

@@ -104,12 +104,13 @@ void Writer_Exodus::set_time(moris::real aTimeValue)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Writer_Exodus::write_nodal_field(std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues)
+void Writer_Exodus::write_nodal_field(       std::string                    aFieldName,
+                                       const moris::Matrix<moris::DDRMat> & aFieldValues)
 {
     // Field name to index
-    moris::uint tMapSize = mNodalFieldNamesMap.size();
     int tFieldIndex = mNodalFieldNamesMap[aFieldName];
-    MORIS_ERROR(mNodalFieldNamesMap.size() == tMapSize, aFieldName.append(
+
+    MORIS_ASSERT(mNodalFieldNamesMap.size() == mNodalFieldNamesMap.size(), aFieldName.append(
             " is not a nodal field name on this mesh!").c_str());
 
     // Check number of field values = number of nodes
@@ -123,19 +124,20 @@ void Writer_Exodus::write_nodal_field(std::string aFieldName, moris::Matrix<mori
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Writer_Exodus::write_elemental_field(std::string aBlockName, std::string aFieldName,
-        moris::Matrix<moris::DDRMat> aFieldValues)
+void Writer_Exodus::write_elemental_field(       std::string                    aBlockName,
+                                                 std::string                    aFieldName,
+                                           const moris::Matrix<moris::DDRMat> & aFieldValues)
 {
     // Block name to index
-    moris::uint tMapSize = mBlockNamesMap.size();
     int tBlockIndex = mBlockNamesMap[aBlockName];
-    MORIS_ERROR(mBlockNamesMap.size() == tMapSize, aBlockName.append(
+
+    MORIS_ASSERT(mBlockNamesMap.size() == mBlockNamesMap.size(), aBlockName.append(
             " is not a block name on this mesh!").c_str());
 
     // Field name to index
-    tMapSize = mElementalFieldNamesMap.size();
     int tFieldIndex = mElementalFieldNamesMap[aFieldName];
-    MORIS_ERROR(mElementalFieldNamesMap.size() == tMapSize, aFieldName.append(
+
+    MORIS_ASSERT(mElementalFieldNamesMap.size() == mElementalFieldNamesMap.size(), aFieldName.append(
             " is not an elemental field name on this mesh!").c_str());
 
     // Check number of field values = number of elements
@@ -151,12 +153,13 @@ void Writer_Exodus::write_elemental_field(std::string aBlockName, std::string aF
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Writer_Exodus::write_global_variable(std::string aVariableName, moris::real aVariableValue)
+void Writer_Exodus::write_global_variable(       std::string   aVariableName,
+                                           const moris::real & aVariableValue)
 {
     // Variable name to index
-    moris::uint tMapSize = mGlobalVariableNamesMap.size();
     int tVariableIndex = mGlobalVariableNamesMap[aVariableName];
-    MORIS_ERROR(mGlobalVariableNamesMap.size() == tMapSize, aVariableName.append(
+
+    MORIS_ASSERT(mGlobalVariableNamesMap.size() == mGlobalVariableNamesMap.size(), aVariableName.append(
             " is not a global variable name on this mesh!").c_str());
 
     // Write the variable

@@ -69,7 +69,9 @@ namespace moris
             moris::Cell< Field_Interpolator* > mMasterFI;
             moris::Cell< Field_Interpolator* > mSlaveFI;
 
-            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+            // master and slave field interpolator managers
+            Field_Interpolator_Manager * mMasterFIManager = nullptr;
+            Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
@@ -125,12 +127,35 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /*
-             * set member set pointer
+             * set field interpolator manager
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ] aIsMaster                 an enum for master or slave
              */
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                 mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /*
+             * get field interpolator manager
+             * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ]  aIsMaster                 an enum for master or slave
+             */
+            Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
-                mFieldInterpolatorManager = aFieldInterpolatorManager;
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ) :
+                        return mMasterFIManager;
+
+                    case ( mtk::Master_Slave::SLAVE ) :
+                        return mSlaveFIManager;
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
+                        return mMasterFIManager;
+                    }
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -312,12 +337,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set dof field interpolators
-             */
-            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster );
-
-//------------------------------------------------------------------------------
-            /**
              * set geometry interpolator
              * @param[ in ] aGeometryInterpolator geometry interpolator pointers
              * @param[ in ] aIsMaster             enum for master or slave
@@ -362,82 +381,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set dv field interpolators
-             * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
-             * @param[ in ] aIsMaster           enum for master or slave
-             */
-            void set_dv_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators,
-                                              mtk::Master_Slave                   aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // get input size
-                uint tInputNumFI = aFieldInterpolators.size();
-
-                // check input size
-                MORIS_ASSERT( tInputNumFI == this->get_global_dv_type_list( aIsMaster ).size(),
-                              "IWG::set_dv_field_interpolators - wrong input size. " );
-
-                // check dv field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < tInputNumFI; iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == this->get_global_dv_type_list( aIsMaster )( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "IWG::set_dv_field_interpolators - wrong field interpolator dv type. ");
-
-                // set field interpolators
-                this->get_dv_field_interpolators( aIsMaster ) = aFieldInterpolators;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get dv field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of dv field interpolator pointers
-             */
-            moris::Cell< Field_Interpolator* > & get_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master field interpolator pointers
-                        return mMasterDvFI;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave field interpolator pointers
-                        return mSlaveDvFI;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::get_dv_field_interpolators - can only be master or slave." );
-                        return mMasterDvFI;
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * check that dv field interpolators were assigned
              * @param[ in ]  aIsMaster enum master or slave
              */
              void check_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
              {
-                 // check field interpolators cell size
-                 MORIS_ASSERT( this->get_dv_field_interpolators( aIsMaster ).size() == this->get_global_dv_type_list( aIsMaster ).size(),
-                               "IWG::check_dv_field_interpolators - wrong FI size. " );
-
-                // loop over the field interpolator pointers
-                for( uint iFI = 0; iFI < this->get_global_dv_type_list( aIsMaster ).size(); iFI++ )
-                {
-                    // check that the field interpolator was set
-                    MORIS_ASSERT( this->get_dv_field_interpolators( aIsMaster )( iFI ) != nullptr,
-                                  "IWG::check_dv_field_interpolators - FI missing. " );
-                }
+//                 // check field interpolators cell size
+//                 MORIS_ASSERT( this->get_dv_field_interpolators( aIsMaster ).size() == this->get_global_dv_type_list( aIsMaster ).size(),
+//                               "IWG::check_dv_field_interpolators - wrong FI size. " );
+//
+//                // loop over the field interpolator pointers
+//                for( uint iFI = 0; iFI < this->get_global_dv_type_list( aIsMaster ).size(); iFI++ )
+//                {
+//                    // check that the field interpolator was set
+//                    MORIS_ASSERT( this->get_dv_field_interpolators( aIsMaster )( iFI ) != nullptr,
+//                                  "IWG::check_dv_field_interpolators - FI missing. " );
+//                }
              }
 
 //------------------------------------------------------------------------------
@@ -1081,16 +1040,16 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the residual
-             * @param[ in ] aResidual matrix to fill with residual
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            virtual void compute_residual( real tWStar ) = 0;
+            virtual void compute_residual( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the Jacobian
-             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            virtual void compute_jacobian( real tWStar ) = 0;
+            virtual void compute_jacobian( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -1133,6 +1092,13 @@ namespace moris
                                         real                                             aWStar,
                                         moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                         moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFDs );
+
+////------------------------------------------------------------------------------
+//            /**
+//             * evaluate the derivative of the residual wrt the design variables
+//             * @param[ in ] aWStar weight associated to the evaluation point
+//             */
+//            virtual void compute_drdpdv( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**

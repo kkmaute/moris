@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-#include "linalg_typedefs.hpp"              //MRS/COR/src
+//#include "linalg_typedefs.hpp"              //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
@@ -21,6 +21,7 @@ namespace moris
     namespace fem
     {
     class Field_Interpolator_Manager;
+    class Set;
 //------------------------------------------------------------------------------
         /**
          * Constitutive model
@@ -37,7 +38,8 @@ namespace moris
             // constitutive model type
             fem::Constitutive_Type mConstitutiveType;
 
-            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+            // field interpolator manager
+            Field_Interpolator_Manager * mFIManager = nullptr;
 
             Set * mSet = nullptr;
 
@@ -352,40 +354,45 @@ namespace moris
                 // set field interpolators
                 mDofFI = aFieldInterpolators;
 
-                // set field interpolators for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties() )
-                {
-                    if (tProp != nullptr )
-                    {
-                        // get the list of dof types for the property
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                        // get the number of dof type for the property
-                        uint tNumDofTypes = tPropDofTypes.size();
-
-                        // set the size of the field interpolators list for the property
-                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                        // loop over the dof types
-                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                        {
-                            // get the dof type index in the CM
-                            uint tDofIndexInCM = this->get_global_dof_type_map()( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
-
-                            // fill the field interpolators list for the property
-                            tPropFIs( iDof ) = this->get_dof_field_interpolators()( tDofIndexInCM );
-                        }
-
-                        // set the field interpolators for the property
-                        tProp->set_dof_field_interpolators( tPropFIs );
-                    }
-                }
+//                // set field interpolators for properties
+//                for( std::shared_ptr< Property > tProp : this->get_properties() )
+//                {
+//                    if (tProp != nullptr )
+//                    {
+////                        // get the list of dof types for the property
+////                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
+////
+////                        // get the number of dof type for the property
+////                        uint tNumDofTypes = tPropDofTypes.size();
+////
+////                        // set the size of the field interpolators list for the property
+////                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
+////
+////                        // loop over the dof types
+////                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+////                        {
+////                            // get the dof type index in the CM
+////                            uint tDofIndexInCM = this->get_global_dof_type_map()( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+////
+////                            // fill the field interpolators list for the property
+////                            tPropFIs( iDof ) = this->get_dof_field_interpolators()( tDofIndexInCM );
+////                        }
+////
+////                        // set the field interpolators for the property
+////                        tProp->set_dof_field_interpolators( tPropFIs );
+//
+//                        // set the field interpolator manager for the property
+//                        tProp->set_field_interpolator_manager( mFIManager );
+//                    }
+//                }
             }
 
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
-            {
-                mFieldInterpolatorManager = aFieldInterpolatorManager;
-            }
+//------------------------------------------------------------------------------
+            /**
+             * set field interpolator manager
+             * @param[ in ] aFieldInterpolatorManager afield interpolator manager pointer
+             */
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager );
 
 //------------------------------------------------------------------------------
             /**

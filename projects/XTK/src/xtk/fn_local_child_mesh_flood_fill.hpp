@@ -48,6 +48,9 @@ local_child_mesh_flood_fill(Child_Mesh & aChildMesh)
     // Mark all elements as included
     moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,tNumElements,1);
 
+    // maximum subphase
+    moris_index  tMaxSubphase = 0;
+
     // Run flood fill Algorithm
     moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
                                                                 aChildMesh.get_element_phase_indices(),
@@ -55,6 +58,7 @@ local_child_mesh_flood_fill(Child_Mesh & aChildMesh)
                                                                 tIncludedElementMarker,
                                                                 tNumPhases,
                                                                 tMax,
+                                                                tMaxSubphase,
                                                                 true);
 
     return tElementSubphase;

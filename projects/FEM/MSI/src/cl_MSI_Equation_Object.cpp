@@ -498,7 +498,9 @@ namespace moris
         this->build_PADofMap_1( tTMatrix );
 
 //        print( tTMatrix,"tTMatrix");
-//        print( tJacobian,"tJacobian");
+//        print( mEquationBlock->get_jacobian(),"tJacobian");
+
+
 
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->get_jacobian() * tTMatrix;
@@ -695,6 +697,7 @@ namespace moris
         this->build_PADofMap( tTMatrix );
 
         Matrix< DDRMat > tMyValues;
+
 
         // Extract this equation objects adof values from solution vector
         mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );

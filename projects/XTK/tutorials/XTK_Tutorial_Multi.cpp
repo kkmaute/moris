@@ -222,12 +222,12 @@ main( int    argc,
      *  \code{.cpp}
      *      size_t tModelDimension = 3;
      *      Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
-     *      tXTKModel.mVerbose = true;
+     *      tXTKModel.mVerbose  =  false;
      *  \endcode
      */
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
-    tXTKModel.mVerbose = true;
+    tXTKModel.mVerbose  =  false;
 
 
     /*!
