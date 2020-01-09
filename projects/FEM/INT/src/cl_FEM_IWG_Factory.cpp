@@ -18,6 +18,7 @@
 #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"                       //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"                  //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp"           //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"  //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"      //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"        //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"        //FEM/INT/src
@@ -70,6 +71,9 @@ namespace moris
 
                 case ( IWG_Type::STRUC_LINEAR_BULK ):
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Bulk >();
+
+                case ( IWG_Type::STRUC_LINEAR_PRESSURE_BULK ):
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Pressure_Bulk >();
 
                 case ( IWG_Type::STRUC_LINEAR_DIRICHLET ):
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >();

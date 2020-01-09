@@ -97,12 +97,14 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
     tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
     tCMSlaveStrucLinIso->set_space_dim( 2 );
+    tCMSlaveStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

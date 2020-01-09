@@ -121,6 +121,7 @@ namespace MSI
 
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
+        bool mIsResidual = false;
 
         friend class MSI::Equation_Object;
         friend class Cluster;

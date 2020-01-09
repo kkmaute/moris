@@ -342,12 +342,14 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
+        tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
+        tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -1122,12 +1124,14 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso1->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
+        tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso2->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
+        tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -1448,7 +1452,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tPropEMod->set_val_function( tConstValFunction );
 
         std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
-        tPropNu->set_parameters( { {{ 0.3 }} } );
+        tPropNu->set_parameters( { {{ 0.5 }} } );
         tPropNu->set_val_function( tConstValFunction );
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
@@ -1480,6 +1484,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tCMStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso->set_space_dim( 2 );
+        tCMStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

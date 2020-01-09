@@ -8,7 +8,7 @@
 #ifndef PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_
 #define PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_
 
-#include <unordered_map>
+//#include <unordered_map>
 
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_Matrix.hpp"
@@ -22,7 +22,16 @@ namespace moris
 
         public:
             Pdv_Host_Manager(){};
-
+            /*
+             * NOTE:
+             * The user needs to be sure that the entry in aPdvList is associated with the same entry in aPropertyList.
+             *
+             * e.g.
+             * aPdvList      = { GEN_PDV::DENSITY, GEN_PDV::MODULUS }
+             * aPropertyList = { property 1,             property 2 }
+             *
+             * property 1 must correspond to DENSITY and property 2 must correspond to MODULUS
+             */
             ~Pdv_Host_Manager(){};
             //------------------------------------------------------------------------------
             /*
@@ -40,10 +49,14 @@ namespace moris
                 // append the pdv object cell
                 mPdvHosts.append( aPdvHosts );
 
+                size_t tTotalPdvHosts = tNumExistingPdvHosts + tNumNewPdvHosts;
+                mNodeToPdvHostMap.resize( tTotalPdvHosts, 2 );
+
                 // Add to map
                 for(moris::size_t i = 0; i< tNumNewPdvHosts; i++)
                 {
-                    mNodeToPdvHostMap[aNodeIndices(0,i)] = i + tNumExistingPdvHosts;
+                    mNodeToPdvHostMap( i, 0 ) = aNodeIndices(0,i);
+                    mNodeToPdvHostMap( i, 1 ) = i + tNumExistingPdvHosts;
                 }
             }
 
@@ -53,9 +66,9 @@ namespace moris
              */
             GEN_Pdv_Host & get_pdv_host_from_manager( moris::moris_index const & aNodeIndex )
             {
-                MORIS_ASSERT( mNodeToPdvHostMap.find(aNodeIndex) != mNodeToPdvHostMap.end(), "cl_GEN_Pdv_Host_Manager()::get_pdv_host_from_manager() - node index does not have an associated pdv object" );
+                MORIS_ASSERT( (moris_index)mNodeToPdvHostMap.n_rows() >= aNodeIndex, "cl_GEN_Pdv_Host_Manager()::get_pdv_host_from_manager() - node index does not have an associated pdv object" );
 
-                moris::moris_index tPDVIndex = mNodeToPdvHostMap[aNodeIndex];
+                moris_index tPDVIndex = mNodeToPdvHostMap( aNodeIndex, 1 );
 
                 return mPdvHosts(tPDVIndex);
             }
@@ -66,22 +79,24 @@ namespace moris
              */
             GEN_Pdv_Host const & get_pdv_host_from_manager(moris::moris_index const & aNodeIndex) const
             {
-              auto  tIter = mNodeToPdvHostMap.find(aNodeIndex);
-              MORIS_ASSERT( tIter != mNodeToPdvHostMap.end(), "cl_GEN_Pdv_Host_Manager()::get_pdv_host_from_manager() - node index does not have an associated pdv object");
+                MORIS_ASSERT( (moris_index)mNodeToPdvHostMap.n_rows() >= aNodeIndex, "cl_GEN_Pdv_Host_Manager()::get_pdv_host_from_manager() - node index does not have an associated pdv object" );
 
-              moris::moris_index tPDVIndex = tIter->second;
+                moris_index tPDVIndex = mNodeToPdvHostMap( aNodeIndex, 1 );
 
-              return mPdvHosts(tPDVIndex);
+                return mPdvHosts(tPDVIndex);
             }
             //------------------------------------------------------------------------------
              void link_to_node_to_another_nodes_pdv_host( moris::moris_index aNodeIndexWithPdvHost,
                                                           moris::moris_index aNodeIndexToLink )
              {
-                 // pdv host index
-                 moris::moris_index tPdvHostIndex = mNodeToPdvHostMap[ aNodeIndexWithPdvHost ];
 
-                 // link new node by putting it's index in map with same tPdvHostIndex as the aNodeIndexWithPdvHost has
-                 mNodeToPdvHostMap[ aNodeIndexToLink ] = tPdvHostIndex;
+                 mNodeToPdvHostMap( aNodeIndexWithPdvHost, 1 ) = aNodeIndexToLink;
+
+//                 // pdv host index
+//                 moris::moris_index tPdvHostIndex = mNodeToPdvHostMap[ aNodeIndexWithPdvHost ];
+//
+//                 // link new node by putting it's index in map with same tPdvHostIndex as the aNodeIndexWithPdvHost has
+//                 mNodeToPdvHostMap[ aNodeIndexToLink ] = tPdvHostIndex;
              }
              //------------------------------------------------------------------------------
              uint get_num_pdv_hosts()
@@ -89,18 +104,21 @@ namespace moris
                  return mPdvHosts.size();
              }
              //------------------------------------------------------------------------------
-             void get_all_node_indices( Matrix< IndexMat > aNodeIndices )
+             /*
+              * @brief returns a cell of the pdv types associated with the object
+              */
+             Cell< enum GEN_PDV > get_pdv_types(  )
              {
-//                 uint tNumIndices = this->get_num_pdv_hosts();
-//                 aNodeIndices.resize( tNumIndices,1 );
-//
-//                 for( auto i : mNodeToPdvHostMap )
-//                 {
-//                     uint tCount = 0;
-//                     std::cout<<"count:  "<<tCount<<std::endl;
-//                     aNodeIndices(0) = i.first;
-//                     tCount++;
-//                 }
+                 return mPdvList;
+             }
+             //------------------------------------------------------------------------------
+             void get_all_node_indices( Matrix< IndexMat > & aNodeIndices )
+             {
+                 uint tNumRows = mNodeToPdvHostMap.n_rows();
+
+                 aNodeIndices.resize( tNumRows, 1 );
+
+                 aNodeIndices.get_column( 0 ) = mNodeToPdvHostMap.get_column( 1 );
              }
              //------------------------------------------------------------------------------
              void create_association( Cell< enum GEN_PDV >  aPdvList,
@@ -139,14 +157,15 @@ namespace moris
             // pdv hosts
             moris::Cell< GEN_Pdv_Host > mPdvHosts;
 
-            // Node to pdv host map (key - node index, val - pdv object index)
-            std::unordered_map< moris::moris_index, moris::moris_index > mNodeToPdvHostMap;
+            // node to host map ( column 0 - node index, column 1 - pdv object index )
+            moris::Matrix< IndexMat > mNodeToPdvHostMap;
             //------------------------------------------------------------------------------
             Cell< enum GEN_PDV >  mPdvList;
             Cell< GEN_Property* > mProperties;
 
             // pdv to property map ( key - pdv enum, val - property index )
-            std::unordered_map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
+//            std::unordered_map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
+            std::map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
         };
     }   // end ge namespace
 }       // end ,moris namepspace

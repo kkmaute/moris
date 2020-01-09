@@ -92,6 +92,7 @@ namespace moris
             SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
             SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
             STRUC_LINEAR_BULK,     // linear elasticity bulk
+            STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk with divergence/pressure relationship
             STRUC_LINEAR_DIRICHLET,// linear elasticity Dirichlet (Nitsche)
             STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE,// linear elasticity Nitsche interface condition
@@ -114,7 +115,20 @@ namespace moris
             UNDEFINED,
             DIFF_LIN_ISO,
             STRUC_LIN_ISO,
+            STRUC_LIN_ISO_PRESSURE,
             END_CONSTITUTIVE_TYPE
+        };
+
+//------------------------------------------------------------------------------
+
+        enum class Model_Type
+        {
+            PLANE_STRESS,
+            PLANE_STRAIN,
+            FULL,
+            HYDROSTATIC, // not implemented yet
+            DEVIATORIC,
+            MAX_ENUM
         };
 
 //------------------------------------------------------------------------------
