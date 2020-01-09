@@ -12,7 +12,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Enums.hpp"                 //FEM/INT/src
-
+#include "cl_MTK_Vertex.hpp"      //MTK/src
 
 #include "fn_trans.hpp"
 #include "op_times.hpp"
@@ -40,6 +40,8 @@ class Dist_Vector;
     {
         class Pdof;
         class Pdof_Host;
+        class Pdv;
+        class Pdv_Host;
         class Equation_Set;
         class Dof_Manager;
         class Equation_Object
@@ -73,6 +75,9 @@ class Dist_Vector;
             Equation_Set * mEquationBlock;
 
             moris::uint mNumPdofSystems = 0;
+
+            // list of node base pointer for the IG nodes
+            moris::Cell< moris::Cell< moris::Cell< fem::Node_Base* > > > mIGNodeObj;
 
             friend class fem::Element;
 
@@ -209,6 +214,26 @@ class Dist_Vector;
 
             void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
                                             Matrix< DDRMat >         & aReshapedPdofValues );
+
+//-------------------------------------------------------------------------------------------------
+            /**
+             * get the pdv values of this equation object for IP nodes
+             * @param[ in ] aDvTypes   list of requested dv types
+             * @param[ in ] aPdvValues matrix of requested pdv values to fill
+             */
+            void get_my_pdv_values( const moris::Cell< enum Dv_Type > & aDvTypes,
+                                          Matrix< DDRMat >            & aPdvValues,
+                                    const mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
+//-------------------------------------------------------------------------------------------------
+            /**
+             * get the pdv values of this equation object for IG nodes
+             * @param[ in ] aPdvValues            matrix of requested pdv values to fill
+             * @param[ in ] aIGCellIndexInCluster index of requested IG cell in cluster
+             * @param[ in ] aIsMaster             enum for master or slave
+             */
+            void get_my_pdv_values(       Matrix< DDRMat >            & aPdvValues,
+                                          uint                          aIGCellIndexInCluster,
+                                    const mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -355,7 +380,7 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             virtual void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
-                                                        enum vis::Field_Type    aFieldType)
+                                                       enum vis::Field_Type  aFieldType)
             {
                 MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
             }

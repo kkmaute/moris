@@ -9,7 +9,7 @@ set(TEST_SOURCES
     cl_MSI_Pdof_Host_Test.cpp
     cl_MSI_Model_Solver_Interface_Test.cpp
     cl_MSI_Multigrid.cpp
-    cl_MSI_SpaceTime_Test.cpp
+    #cl_MSI_SpaceTime_Test.cpp
     )
 
 # List test dependencies

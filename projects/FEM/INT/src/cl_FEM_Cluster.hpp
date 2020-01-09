@@ -103,16 +103,30 @@ namespace moris
          */
         Cluster(){};
 
+//        /**
+//         * constructor
+//         * @param[ in ] aElementType enum for element type (BULK, SIDESET, ...)
+//         * @param[ in ] aMeshCluster cluster pointer from mtk mesh
+//         * @param[ in ] aNodes       cell of node pointers
+//         * @param[ in ] aSet         a fem set
+//         */
+//        Cluster( const Element_Type                aElementType,
+//                 const mtk::Cluster              * aMeshCluster,
+//                       moris::Cell< Node_Base* > & aNodes,
+//                       Set                       * aSet );
+
         /**
          * constructor
          * @param[ in ] aElementType enum for element type (BULK, SIDESET, ...)
          * @param[ in ] aMeshCluster cluster pointer from mtk mesh
-         * @param[ in ] aNodes       cell of node pointers
+         * @param[ in ] aNodes       cell of node pointers for IP vertices
+         * @param[ in ] aIGNodes     cell of node pointers for IG vertices
          * @param[ in ] aSet         a fem set
          */
         Cluster( const Element_Type                aElementType,
                  const mtk::Cluster              * aMeshCluster,
                        moris::Cell< Node_Base* > & aNodes,
+                       moris::Cell< Node_Base* > & aIGNodes,
                        Set                       * aSet );
 
 //------------------------------------------------------------------------------

@@ -24,15 +24,15 @@ namespace moris
         void Element_Bulk::compute_residual()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
+            // mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
+            Matrix< DDRMat > tPdvValues;
+            mCluster->get_my_pdv_values( tPdvValues, mCellIndexInCluster );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( tPdvValues );
             mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
-
-            // get number of field interpolator and properties
-            uint tNumFI   = mSet->get_number_of_field_interpolators();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -55,11 +55,7 @@ namespace moris
                 mSet->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
-                {
-                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
-                                          ->set_space_time( tGlobalIntegPoint );
-                }
+                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -93,9 +89,6 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
 
-            // get number of field interpolator and properties
-            uint tNumFI   = mSet->get_number_of_field_interpolators();
-
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
@@ -117,11 +110,7 @@ namespace moris
                 mSet->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
-                {
-                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
-                                          ->set_space_time( tGlobalIntegPoint );
-                }
+                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -167,9 +156,6 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
-            // get number of field interpolator and properties
-            uint tNumFI   = mSet->get_number_of_field_interpolators();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -191,11 +177,7 @@ namespace moris
                     ->set_space_time( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
-                {
-                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
-                                          ->set_space_time( tGlobalIntegPoint );
-                }
+                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -224,9 +206,6 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
-            // get number of field interpolator and properties
-            uint tNumFI   = mSet->get_number_of_field_interpolators();
-
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
 
@@ -252,11 +231,7 @@ namespace moris
                     ->set_space_time( tGlobalIntegPoint );
 
                 // set vertex coordinates for field interpolator
-                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
-                {
-                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
-                                          ->set_space_time( tGlobalIntegPoint );
-                }
+                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
 
                 // reset the requested IQI
                 mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
@@ -281,9 +256,6 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
-            // get number of field interpolator and properties
-            uint tNumFI   = mSet->get_number_of_field_interpolators();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -305,11 +277,7 @@ namespace moris
                     ->set_space_time( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
-                {
-                    mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
-                                          ->set_space_time( tGlobalIntegPoint );
-                }
+                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )

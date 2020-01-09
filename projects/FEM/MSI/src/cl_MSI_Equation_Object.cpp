@@ -862,6 +862,58 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
+    void Equation_Object::get_my_pdv_values( const moris::Cell< enum Dv_Type > & aDvTypes,
+                                                   Matrix< DDRMat >            & aPdvValues,
+                                             const mtk::Master_Slave             aIsMaster )
+    {
+        // get number of IP nodes on eq obj
+        uint tNumIPNodes = mNodeObj( static_cast< uint >( aIsMaster ) ).size();
+
+        // get number of dv type requested
+        uint tNumDvTypes = aDvTypes.size();
+
+        // set size for requested pdv values
+        aPdvValues.set_size( tNumIPNodes, tNumDvTypes, 0.0 );
+
+        for( uint iIPNode = 0; iIPNode < tNumIPNodes; iIPNode++ )
+        {
+            for( uint iDvType = 0; iDvType < tNumDvTypes; iDvType++ )
+            {
+                // fill with pdv value for IP node and dv type
+                // FIXME needs to be asked to the vertex or GE
+                aPdvValues( iIPNode, iDvType ) = 0.0;
+            }
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------
+    void Equation_Object::get_my_pdv_values(       Matrix< DDRMat >            & aPdvValues,
+                                                   uint                          aIGCellIndexInCluster,
+                                             const mtk::Master_Slave             aIsMaster )
+    {
+        // get number of IG nodes on IG cell
+        uint tNumIGNodes = mIGNodeObj( static_cast< uint >( aIsMaster ) )( aIGCellIndexInCluster ).size();
+
+        // FIXME get number of dv type requested
+        Matrix< DDRMat > tVertexCoords;
+        mIGNodeObj( 0 )( aIGCellIndexInCluster )( 0 )->get_vertex_coords( tVertexCoords );
+        uint tNumDvTypes = tVertexCoords.numel();
+
+        // set size for requested pdv values
+        aPdvValues.set_size( tNumIGNodes, tNumDvTypes, 0.0 );
+
+        // loop over the IG nodes
+        for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
+        {
+            // fill with pdv value for IP node and dv type
+            // FIXME needs to be asked to the vertex or GE
+            // FIXME ask for pdv value if exists
+            mIGNodeObj( static_cast< uint >( aIsMaster ) )( aIGCellIndexInCluster )( iIGNode )->get_vertex_coords( tVertexCoords );
+            aPdvValues.get_row( iIGNode ) = tVertexCoords.matrix_data();
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------
 
     void Equation_Object::reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
                                                      Matrix< DDRMat >         & aReshapedPdofValues )

@@ -216,7 +216,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * for both master and slave
              */
-            void get_non_unique_global_dof_type_list( moris::Cell< MSI::Dof_Type > & aDofTypes );
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -267,14 +267,6 @@ namespace moris
              * ( a list for master and a list for slave do types )
              */
             void build_global_dof_type_list();
-
-////------------------------------------------------------------------------------
-//            /**
-//             * set master or slave dof field interpolators for the IQI
-//             * properties, constitutive models and stabilization parameters
-//             * @param[ in ] aIsMaster an enum for master or slave
-//             */
-//            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -356,7 +348,7 @@ namespace moris
                 if( mGlobalDvBuild )
                 {
                     // build global dv type list
-                    this->build_global_dv_type_list();
+                    //this->build_global_dv_type_list();
 
                     // update build flag
                     mGlobalDvBuild = false;
@@ -386,20 +378,13 @@ namespace moris
                 }
             };
 
-//------------------------------------------------------------------------------
-            /**
-             * build a global dv type list including
-             * IQI, property, constitutive and stabilization dependencies
-             */
-            void build_global_dv_type_list();
-
-//------------------------------------------------------------------------------
-            /**
-             * set master or slave dv field interpolators for the IQI
-             * properties, constitutive models and stabilization parameters
-             * @param[ in ] aIsMaster an enum for master or slave
-             */
-            void set_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+////------------------------------------------------------------------------------
+//            /**
+//             * set master or slave dv field interpolators for the IQI
+//             * properties, constitutive models and stabilization parameters
+//             * @param[ in ] aIsMaster an enum for master or slave
+//             */
+//            void set_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -535,6 +520,13 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+        /**
+         * get requested dof type
+         * @param[ in ] mRequestedDofType list of requested dof type
+         */
+        moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+
+//------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest wrt to dof types
              * @param[ in ] adQIdDof matrix to fill with derivative of the QoI wrt dof types
@@ -546,6 +538,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * evaluate the derivative of the quantity of interest wrt to dof types
+             * by finite difference
+             * @param[ in ] adQIdDof matrix to fill with derivative of the QoI wrt dof types
+             */
+            void compute_dQIdDof_FD( Matrix< DDRMat > & adQIdDofFD,
+                                     real               aPerturbation );
+
+//------------------------------------------------------------------------------
+            /**
              * evaluate the derivative of the quantity of interest wrt to dv types
              * @param[ in ] adQIdDv matrix to fill with derivative of the QI wrt dv types
              */
@@ -553,6 +554,15 @@ namespace moris
             {
                 MORIS_ERROR( false, "IQI::compute_dIQIdDv - This function does nothing. " );
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the quantity of interest wrt to dv types
+             * @param[ in ] adQIdDv matrix to fill with derivative of the QI wrt dv types
+             */
+            void compute_dQIdDv_FD( Matrix< DDRMat > & adQIdpMatFD,
+                                    Matrix< DDRMat > & adQIdpGeoFD,
+                                    real               aPerturbation );
 
 //------------------------------------------------------------------------------
         };

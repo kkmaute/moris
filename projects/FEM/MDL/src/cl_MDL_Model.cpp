@@ -86,15 +86,26 @@ namespace moris
         // STEP 1: create nodes
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        // ask mesh about number of nodes on proc
+        // ask mesh about number of IP nodes on proc
         luint tNumOfIPNodes = tInterpolationMesh->get_num_nodes();
 
-        // create node objects
+        // create IP node objects
         mIPNodes.resize(  tNumOfIPNodes, nullptr );
 
         for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
         {
             mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
+        }
+
+        // ask mesh about number of IG nodes on proc
+        luint tNumOfIGNodes = tIntegrationMesh->get_num_nodes();
+
+        // create IG node objects
+        mIGNodes.resize(  tNumOfIGNodes, nullptr );
+
+        for( uint iNode = 0; iNode < tNumOfIGNodes; iNode++ )
+        {
+            mIGNodes( iNode ) = new fem::Node( &tIntegrationMesh->get_mtk_vertex( iNode ) );
         }
 
         if( par_rank() == 0)
@@ -103,9 +114,10 @@ namespace moris
             real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
-                    ( unsigned int ) tNumOfIPNodes,
-                    ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( "Model: created %u FEM IP nodes and %u FEM IG nodes in %5.3f seconds.\n\n",
+                            ( unsigned int ) tNumOfIPNodes,
+                            ( unsigned int ) tNumOfIGNodes,
+                            ( double ) tElapsedTime / 1000 );
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -168,7 +180,8 @@ namespace moris
                 // create new fem set
                 mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
                                                            aSetInfo( iSet ),
-                                                           mIPNodes );
+                                                           mIPNodes,
+                                                           mIGNodes );
             }
             else
             {
@@ -272,8 +285,6 @@ namespace moris
 
         mSolverInterface->set_model( this );
 
-
-
         if( par_rank() == 0)
         {
             // stop timer
@@ -312,6 +323,13 @@ namespace moris
                 delete tIPNodes;
             }
             mIPNodes.clear();
+
+            // delete fem nodes for IG nodes
+            for( auto tIGNode : mIGNodes )
+            {
+                delete tIGNode;
+            }
+            mIGNodes.clear();
 
             // delete the fem sets
             for( auto tFemSet : mFemSets )

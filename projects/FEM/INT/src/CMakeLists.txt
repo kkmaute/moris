@@ -24,15 +24,15 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
-    cl_FEM_IWG_Helmholtz_Bulk.hpp
-    cl_FEM_IWG_Helmholtz_Bulk2.hpp
-    cl_FEM_IWG_Helmholtz_Interface.hpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
-    cl_FEM_IWG_LSNormal_Bulk.hpp
-    cl_FEM_IWG_Olsson_CLS_Bulk.hpp
-    cl_FEM_IWG_Olsson_CLS_Interface.hpp
+    #cl_FEM_IWG_Helmholtz_Bulk.hpp
+    #cl_FEM_IWG_Helmholtz_Bulk2.hpp
+    #cl_FEM_IWG_Helmholtz_Interface.hpp
+    #cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
+    #cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
+    #cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
+    #cl_FEM_IWG_LSNormal_Bulk.hpp
+    #cl_FEM_IWG_Olsson_CLS_Bulk.hpp
+    #cl_FEM_IWG_Olsson_CLS_Interface.hpp
     cl_FEM_Enums.hpp
     cl_FEM_Geometry_Interpolator.hpp
     cl_FEM_Integration_Coeffs_Bar_1.hpp
@@ -133,15 +133,15 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.cpp
-    cl_FEM_IWG_Helmholtz_Bulk.cpp
-    cl_FEM_IWG_Helmholtz_Bulk2.cpp
-    cl_FEM_IWG_Helmholtz_Interface.cpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
-    cl_FEM_IWG_LSNormal_Bulk.cpp
-    cl_FEM_IWG_Olsson_CLS_Bulk.cpp
-    cl_FEM_IWG_Olsson_CLS_Interface.cpp
+    #cl_FEM_IWG_Helmholtz_Bulk.cpp
+    #cl_FEM_IWG_Helmholtz_Bulk2.cpp
+    #cl_FEM_IWG_Helmholtz_Interface.cpp
+    #cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
+    #cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
+    #cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
+    #cl_FEM_IWG_LSNormal_Bulk.cpp
+    #cl_FEM_IWG_Olsson_CLS_Bulk.cpp
+    #cl_FEM_IWG_Olsson_CLS_Interface.cpp
     cl_FEM_IWG.cpp
     cl_FEM_Interpolation_Function_Factory.cpp
     cl_FEM_Interpolation_Rule.cpp

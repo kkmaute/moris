@@ -21,48 +21,26 @@ namespace moris
         Element_Factory::~Element_Factory(){}
 
 //------------------------------------------------------------------------------
+//        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
+//                                                                mtk::Cluster const        * aMeshCluster,
+//                                                                moris::Cell< Node_Base* > & aNodes,
+//                                                                Set                       * aSet )
+//        {
+//            MSI::Equation_Object * tCluster = nullptr;
+//            tCluster = new Cluster( aElementType, aMeshCluster, aNodes, aSet );
+//            return tCluster;
+//        }
+
         MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
                                                                 mtk::Cluster const        * aMeshCluster,
                                                                 moris::Cell< Node_Base* > & aNodes,
+                                                                moris::Cell< Node_Base* > & aIGNodes,
                                                                 Set                       * aSet )
         {
-            MSI::Equation_Object * tCluster = nullptr;
-            tCluster = new Cluster( aElementType, aMeshCluster, aNodes, aSet );
-            return tCluster;
+            return new Cluster( aElementType, aMeshCluster, aNodes, aIGNodes, aSet );
         }
 
-//        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
-//                                                                mtk::Cell_Cluster const   * aCellCluster,
-//                                                                moris::Cell< Node_Base* > & aNodes,
-//                                                                Set                       * aSet )
-//        {
-//            MSI::Equation_Object * tCluster = nullptr;
-//            tCluster = new Cluster( aElementType, aCellCluster, aNodes, aSet );
-//            return tCluster;
-//        }
-//
-//        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
-//                                                                mtk::Side_Cluster const   * aSideCluster,
-//                                                                moris::Cell< Node_Base* > & aNodes,
-//                                                                Set                       * aSet )
-//        {
-//            MSI::Equation_Object * tCluster = nullptr;
-//            tCluster = new Cluster( aElementType, aSideCluster, aNodes, aSet );
-//            return tCluster;
-//        }
-//
-//        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                     aElementType,
-//                                                                mtk::Double_Side_Cluster const & aDoubleSideCluster,
-//                                                                moris::Cell< Node_Base* >      & aNodes,
-//                                                                Set                            * aSet )
-//        {
-//            MSI::Equation_Object * tCluster = nullptr;
-//            tCluster = new Cluster( aElementType, aDoubleSideCluster, aNodes, aSet );
-//            return tCluster;
-//        }
-
 //------------------------------------------------------------------------------
-
         fem::Element * Element_Factory::create_element( Element_Type         aElementType,
                                                         mtk::Cell    const * aCell,
                                                         Set                * aSet,
@@ -92,6 +70,7 @@ namespace moris
             return tElement;
         }
 
+//------------------------------------------------------------------------------
         fem::Element * Element_Factory::create_element( Element_Type         aElementType,
                                                         mtk::Cell    const * aLeftCell,
                                                         mtk::Cell    const * aRightCell,
@@ -108,7 +87,7 @@ namespace moris
                     break;
 
                 default:
-                    MORIS_ERROR( false, "Element_Factory::create_element - No element type specified" );
+                    MORIS_ERROR( false, "Element_Factory::create_element - Not a double sideset" );
                     break;
             }
             return tElement;

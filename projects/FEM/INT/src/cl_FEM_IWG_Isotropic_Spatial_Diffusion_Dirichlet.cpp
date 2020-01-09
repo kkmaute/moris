@@ -17,8 +17,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
@@ -51,8 +50,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a residual dof type
@@ -125,6 +123,13 @@ namespace moris
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - Not implemented." );
         }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_drdpdv - This function does nothing.");
+        }
+
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

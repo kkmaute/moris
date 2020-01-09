@@ -33,6 +33,9 @@ namespace MSI
 
     enum class Dv_Type
     {
+        XCOORD,
+        YCOORD,
+        ZCOORD,
         LS1,        //< Level set 1
         LS2,        //< Level set 2
         DENSITY,    //< Density

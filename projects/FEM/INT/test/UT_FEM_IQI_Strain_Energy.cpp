@@ -61,6 +61,9 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // define an epsilon environment
     real tEpsilon = 1E-6;
 
+    // define a perturbation relative size
+    real tPerturbation = 1E-6;
+
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
     tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
@@ -159,8 +162,12 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tIQI->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set master dof type map
-    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+
+    // set size and populate residual assembly map
+    tIQI->mSet->mResDofAssemblyMap.resize( 1 );
+    tIQI->mSet->mResDofAssemblyMap( 0 ) = { { 0, 23 } };
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
@@ -178,10 +185,23 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // check evaluation of the quantity of interest
     //------------------------------------------------------------------------------
     // evaluate the quantity of interest
-    Matrix< DDRMat > aQI;
-    tIQI->compute_QI( aQI );
-    //print( aQI, "aQI" );
+    Matrix< DDRMat > tQI;
+    tIQI->compute_QI( tQI );
+    //print( tQI, "tQI" );
 
+    Matrix< DDRMat > tdQIdDof;
+    tIQI->compute_dQIdDof( tdQIdDof );
+    print( tdQIdDof, "tdQIdDof" );
+
+    Matrix< DDRMat > tdQIdDofFD;
+    tIQI->compute_dQIdDof_FD( tdQIdDofFD, tPerturbation );
+    print( tdQIdDofFD, "tdQIdDofFD" );
+
+//    Matrix< DDRMat > tdQIdpMatFD;
+//    Matrix< DDRMat > tdQIdpGeoFD;
+//    tIQI->compute_dQIdDv_FD( tdQIdpMatFD,
+//                             tdQIdpGeoFD,
+//                             tPerturbation );
 
 }/*END_TEST_CASE*/
 

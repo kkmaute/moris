@@ -29,6 +29,24 @@ namespace moris
                 mDofFI( iDof ) = mFIManager->get_field_interpolators_for_type( tPropDofTypes( iDof )( 0 ) );
             }
             // END FIXME
+
+            // FIXME set mDvFI
+            // get the list of dv types for the property
+            moris::Cell< moris::Cell< MSI::Dv_Type > > tPropDvTypes
+            = this->get_dv_type_list();
+
+            // get the number of dv type for the property
+            uint tNumDvTypes = tPropDvTypes.size();
+
+            // set the size of the field interpolators list for the property
+            mDvFI.resize( tNumDvTypes, nullptr );
+
+            // loop over the dv types
+            for( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
+            {
+                mDvFI( iDv ) = mFIManager->get_field_interpolators_for_type( tPropDvTypes( iDv )( 0 ) );
+            }
+            // END FIXME
         }
 
 //------------------------------------------------------------------------------
