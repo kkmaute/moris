@@ -498,7 +498,9 @@ namespace moris
         this->build_PADofMap_1( tTMatrix );
 
 //        print( tTMatrix,"tTMatrix");
-//        print( tJacobian,"tJacobian");
+//        print( mEquationBlock->get_jacobian(),"tJacobian");
+
+
 
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->get_jacobian() * tTMatrix;
@@ -570,8 +572,19 @@ namespace moris
                         // reshape tCoeffs into the order the cluster expects them
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
+                        Matrix< DDRMat > tCoeff1( tCoeff.numel(),1, 0.0);
+                        //fixme get rid of for loop
+                        uint tCounter=0;
+                        for( uint Ik = 0; Ik<tCoeff.n_cols(); Ik++)
+                        {
+                            for( uint Ii = 0; Ii<tCoeff.n_rows(); Ii++)
+                            {
+                                tCoeff1(tCounter++) = tCoeff(Ii,Ik);
+                            }
+                        }
+
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff1;
                     }
 
                     tDofIndex = mEquationBlock->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
@@ -600,7 +613,7 @@ namespace moris
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                     }
                 }
             }
@@ -638,7 +651,7 @@ namespace moris
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                     }
 
                     tDofIndex = mEquationBlock->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
@@ -667,7 +680,7 @@ namespace moris
                         this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                               += mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                               -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                     }
                 }
             }
@@ -684,6 +697,7 @@ namespace moris
         this->build_PADofMap( tTMatrix );
 
         Matrix< DDRMat > tMyValues;
+
 
         // Extract this equation objects adof values from solution vector
         mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );

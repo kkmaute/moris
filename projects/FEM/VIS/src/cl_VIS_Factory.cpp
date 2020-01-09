@@ -68,21 +68,28 @@ namespace moris
 
         for( uint Ij = 0; Ij < mNumRequestedBlocks; Ij++ )
         {
+            // get block index for name
             moris_index tSetIndex = tIntegrationMesh->get_block_set_index( tRequestedSetNames( Ij ) );
 
+            // get set for index
             moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( tSetIndex );
 
+            // get all vertices on set
             uint tNumVerticesOnSet = tMeshSet->get_num_vertieces_on_set( mOnlyPrimaryCells );
 
+            // get vertex indices on set
             moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertieces_inds_on_block( mOnlyPrimaryCells );
 
             mVerticesOnBlock( Ij ).resize( tNumVerticesOnSet, nullptr );
             mVertexMapOnBlock( Ij ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
 
+            // Loop over all vertices on this set and create new vis vertices
             for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
             {
+                // create old index to set local index map
                 mVertexMapOnBlock( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
 
+                // create vis vertex and renumber id and index
                 mVerticesOnBlock( Ij )( Ik ) = new Vertex_Visualization( tVertexIdCounter,
                                                                          tVertexIndexCounter,
                                                                          &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
@@ -155,6 +162,7 @@ namespace moris
         mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
         mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
+        // loop over requested sets
         for( uint Ij = 0; Ij <mNumRequestedBlocks; Ij++ )
         {
             moris_index tSetIndex = tIntegrationMesh->get_block_set_index( tRequestedSetNames( Ij ) );
@@ -167,6 +175,7 @@ namespace moris
             mClustersOnBlock  ( Ij ).resize( tNumClustersOnSet, nullptr );
             mClustersOnBlock_1( Ij ).resize( tNumClustersOnSet, nullptr );
 
+            // loop over slusters on set
             for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
             {
                 moris::Cell<moris::mtk::Cell const *> tPrimaryCells = tClustersOnBlock( Ik )->get_primary_cells_in_cluster();
@@ -190,19 +199,75 @@ namespace moris
                      }
                 }
 
-                mClustersOnBlock( Ij )( Ik ) = new Cell_Cluster_Visualization;
-
+                Cell_Cluster_Visualization * tVisCellCluster = new Cell_Cluster_Visualization;
 
                 if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
                 {
-                     mClustersOnBlock( Ij )( Ik )->mark_as_nontrivial();
+//                    tVisCellCluster->mark_as_nontrivial();
 
-                     mClustersOnBlock( Ij )( Ik )->add_void_integration_cell( tClusterVoidCells );
+                    tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
                 }
 
-                mClustersOnBlock( Ij )( Ik )->add_primary_integration_cell( tClusterPrimaryCells );
+                if( tPrimaryCells.size() > 1 )
+                {
+                    tVisCellCluster->mark_as_nontrivial();
+                }
 
-                mClustersOnBlock( Ij )( Ik )->set_interpolation_cell( &tClustersOnBlock( Ik )->get_interpolation_cell() );
+                tVisCellCluster->add_primary_integration_cell( tClusterPrimaryCells );
+
+                tVisCellCluster->set_interpolation_cell( &tClustersOnBlock( Ik )->get_interpolation_cell() );
+
+                //--------------------------------------------------------------------------------------------
+
+                if( !tVisCellCluster->is_trivial() )
+                {
+                    // get vertices from old cluster
+                    moris::Cell<moris::mtk::Vertex const *> tVertices = tClustersOnBlock( Ik )->get_vertices_in_cluster();
+
+                    moris::Cell< mtk::Vertex const * > tVisClusterVertices( tVertices.size() );
+
+                    uint tCounter = 0;
+
+                    for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
+                    {
+                        // get old vertex index
+                        moris_index tIndex = tVertices( Ii )->get_index();
+
+                        if( mVertexMapOnBlock( Ij )( tIndex ) != -1 )
+                        {
+                            tVisClusterVertices( tCounter++ ) = mVerticesOnBlock( Ij )( mVertexMapOnBlock( Ij )( tIndex ) );
+                        }
+                    }
+
+                    tVisClusterVertices.resize( tCounter );
+
+                    tVisCellCluster->add_vertex_to_cluster( tVisClusterVertices );
+
+                    uint tNumCols = tClustersOnBlock( Ik )->get_vertices_local_coordinates_wrt_interp_cell().n_cols();
+
+                    moris::Matrix< DDRMat > tVisClusterVerticesLocalCoords( tCounter, tNumCols, 0.0 );
+
+                    tCounter = 0;
+
+                    for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
+                    {
+                        // get old vertex index
+                        moris_index tIndex = tVertices( Ii )->get_index();
+
+                        if( mVertexMapOnBlock( Ij )( tIndex ) != -1 )
+                        {
+//                            tVisClusterVerticesLocalCoords( { tCounter, tCounter},{ 0, tNumCols } )
+//                                  = tClustersOnBlock( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ).matrix_data();
+
+                            tVisClusterVerticesLocalCoords.set_row( tCounter, tClustersOnBlock( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
+
+                        }
+                    }
+
+                    tVisCellCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
+                }
+
+                mClustersOnBlock( Ij )( Ik ) = tVisCellCluster;
             }
 
             for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )

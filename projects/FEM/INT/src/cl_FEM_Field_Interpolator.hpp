@@ -344,6 +344,15 @@ class Property;
             Matrix< DDRMat > gradx( const uint & aDerivativeOrder );
 
 //------------------------------------------------------------------------------
+
+            /**
+            * evaluates the field spatial divergence at given space and time evaluation point
+             *
+            * @return divergence of the field
+            */
+            moris::real div();
+
+//------------------------------------------------------------------------------
             /**
              * evaluates the field time derivative at given space and time evaluation point
              * @param[ in ] aDerivativeOrder  order of the required derivative

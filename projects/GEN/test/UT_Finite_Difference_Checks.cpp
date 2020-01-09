@@ -229,7 +229,7 @@ if(par_size()<=1)
         tGlobPoint_down = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd_down );
         //------------------------------------------------------------------------------
         Matrix< F31RMat > tdXGamma_dp_FD = (tGlobPoint_up-tGlobPoint_down)/(2*epsilon);
-
+print( tdXGamma_dp,"tdXGamma_dp" );
         REQUIRE( tdXGamma_dp_FD(0,0) == Approx(-tdXGamma_dp(0,0)) );
         //------------------------------------------------------------------------------
         //TODO add test for y-intersection point

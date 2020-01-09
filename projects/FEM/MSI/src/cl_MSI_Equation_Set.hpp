@@ -86,9 +86,11 @@ namespace moris
 
         bool mIsEmptySet = false;    //FIXME this flag is a hack. find better solution
 
-        Matrix< DDRMat > mSetElementalValues;
-        Matrix< DDRMat > mSetNodalValues;
-        moris::real      mSetGlobalValues;
+        Matrix< DDRMat > * mSetElementalValues;
+        Matrix< DDRMat > * mSetNodalValues;
+        moris::real      * mSetGlobalValues;
+
+        Matrix< DDUMat > mSetNodalCounter;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -105,8 +107,6 @@ namespace moris
             {
                 case ( mtk::Master_Slave::MASTER ):
                 {
-//                    MORIS_ASSERT( mMasterDofTypeMap( static_cast< int >( aDofType ) ) != -1, "Set::get_dof_index_for_type(), dof type does not exist in map " );
-
                     MORIS_ASSERT( static_cast< uint >( aDofType ) < mMasterDofTypeMap.numel(), "Set::get_dof_index_for_type(), dof type does not exist in map " );
 
                     return mMasterDofTypeMap( static_cast< int >( aDofType ) );
@@ -395,19 +395,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        virtual void set_visualization_set( moris::mtk::Set * aVisMeshSet )
+        virtual void set_visualization_set( const uint              aMeshIndex,
+                                                  moris::mtk::Set * aVisMeshSet,
+                                            const bool              aOnlyPrimayCells )
         {
-            MORIS_ASSERT( false, "set_visualization_set(), not implemented for base clase" );
+            MORIS_ASSERT( false, "set_visualization_set(), not implemented for base class" );
         }
 
 //------------------------------------------------------------------------------
-        virtual void compute_quantity_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+        virtual void compute_quantity_of_interest( const uint            aMeshIndex,
+                                                   Matrix< DDRMat >      * aElementFieldValues,
                                                    Matrix< DDRMat >      * aNodalFieldValues,
                                                    moris::real           * aGlobalScalar,
                                                    enum vis::Output_Type   aOutputType,
                                                    enum vis::Field_Type    aFieldType)
         {
-            MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
+            MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class" );
         }
 
 //------------------------------------------------------------------------------

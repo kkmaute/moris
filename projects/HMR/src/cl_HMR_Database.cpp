@@ -1077,7 +1077,7 @@ namespace moris
                         for( uint k=0; k<tNumberOfEntities; ++k )
                         {
                             moris_id tID = tMesh->get_facet( k )->get_id();
-                            MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Facet ID" );
+                            MORIS_ERROR( 0 < tID && tID <= tMaxID, "Database::check_entity_ids(), Invalid Facet ID" );
                         }
 
                         // check edges
@@ -1090,7 +1090,7 @@ namespace moris
                             {
                                 moris_id tID = tMesh->get_edge( k )->get_id();
 
-                                MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Edge ID" );
+                                MORIS_ERROR( 0 < tID && tID <= tMaxID, "Database::check_entity_ids(), Invalid Edge ID" );
                             }
                         }
                     }
@@ -1103,7 +1103,7 @@ namespace moris
                     {
                         moris_id tID = tMesh->get_node_by_index( k )->get_id();
 
-                        MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Node ID" );
+                        MORIS_ERROR( 0 < tID && tID <= tMaxID, "Database::check_entity_ids(), Invalid Node ID" );
                     }
 
                     ++tCount;
@@ -1121,7 +1121,7 @@ namespace moris
                     {
                         if( tMesh->get_active_basis( k )->is_flagged() )
                         {
-                            MORIS_ERROR( tMesh->get_active_basis( k )->get_hmr_index() < gNoEntityID, "Invalid B-Spline ID" );
+                            MORIS_ERROR( tMesh->get_active_basis( k )->get_hmr_index() < gNoEntityID, "Database::check_entity_ids(), Invalid B-Spline ID" );
                         }
                     }
                 }

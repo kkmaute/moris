@@ -26,7 +26,7 @@ namespace moris
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords() );
-            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             // fixme param coeff from cluster
@@ -90,7 +90,7 @@ namespace moris
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords() );
-            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             // fixme param coeff from cluster

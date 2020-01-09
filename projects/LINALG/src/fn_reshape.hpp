@@ -22,12 +22,13 @@
 namespace moris
 {
 /**
- * @brief find vector.
+ * @brief reshape vector.
  *
- * @param[in] aMat     Vector.
- * @param[in] WhichValue    Value, which is in the vector.
+ * @param[in] aA     Vector.
+ * @param[in] aB     number of rows
+ * @param[in] aC     number of columns
  *
- * @return  Vector of items found
+ * @return  reshaped vector
  */
 
 template< typename Matrix_Type, typename T3, typename T4 >

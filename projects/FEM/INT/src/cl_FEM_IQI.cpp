@@ -73,7 +73,7 @@ namespace moris
             {
                 case ( mtk::Master_Slave::MASTER ) :
                 {
-                    mMasterFIManager = aFieldInterpolatorManager;
+                	mMasterFIManager = aFieldInterpolatorManager;
                     break;
                 }
 

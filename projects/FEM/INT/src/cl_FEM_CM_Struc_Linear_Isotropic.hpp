@@ -1,10 +1,3 @@
-/*
- * cl_FEM_CM_Struc_Linear_Isotropic.hpp
- *
- *  Created on: Sep 17, 2019
- *      Author: noel
- */
-
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_
 
@@ -23,12 +16,12 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         class CM_Struc_Linear_Isotropic : public Constitutive_Model
         {
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
         public:
             enum class Property_Type
             {
@@ -42,7 +35,13 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, CM_Struc_Linear_Isotropic::Property_Type > mPropertyMap;
 
-//------------------------------------------------------------------------------
+        private:
+            Model_Type mPlaneType = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
+            Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
+            void (moris::fem::CM_Struc_Linear_Isotropic:: *mConstFunc)(moris::real, moris::real) = &CM_Struc_Linear_Isotropic::full_3d;
+
+        //--------------------------------------------------------------------------------------------------------------
+        public:
             /*
              * trivial constructor
              */
@@ -60,15 +59,18 @@ namespace moris
                 mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
                 mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
 
+                // set function pointers
+                this->set_space_dim(3);
+
             };
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
             ~CM_Struc_Linear_Isotropic(){};
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * set a property pointer
              * @param[ in ] aProperty     a property pointer
@@ -83,63 +85,74 @@ namespace moris
                  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
              };
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux
-             * @param[ in ] aFlux a matrix to fill with evaluation
              */
             void eval_flux();
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test flux
              */
             void eval_testFlux();
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model traction
              * @param[ in ] aNormal normal
              */
             void eval_traction( const Matrix< DDRMat > & aNormal );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test traction
              * @param[ in ] aNormal   normal
              */
             void eval_testTraction( const Matrix< DDRMat > & aNormal );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain
-             * @param[ in ] aStrain a matrix to fill with evaluation
              */
             void eval_strain();
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test strain
-             * @param[ in ] aTestStrain a matrix to fill with evaluation
              */
             void eval_testStrain();
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix
-             * @param[ in ] aConst a matrix to fill with evaluation
              */
             void eval_const();
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * evaluate the inverse of the bulk modulus, K
+             * @return 1/K
+             */
+            moris::real eval_inv_bulk_modulus();
+
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * evaluate the B matrix from the field interpolator and make it flattened to a 1 x ?
+             * @return "flattened" B (not voigt notation B)
+             */
+            moris::Matrix<moris::DDRMat> eval_B_flat();
+
+            //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-             * @param[ in ] adFluxdDOF a matrix to fill with derivative evaluation
              */
             void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model traction derivative wrt to a dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -148,7 +161,7 @@ namespace moris
             void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                      const Matrix< DDRMat >             & aNormal );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test traction derivative wrt to a dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -158,7 +171,7 @@ namespace moris
                                          const Matrix< DDRMat >             & aNormal,
                                          const Matrix< DDRMat >             & aJump );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dof type
              * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
@@ -166,7 +179,7 @@ namespace moris
              */
             void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix derivative wrt to a dof type
              * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
@@ -174,18 +187,107 @@ namespace moris
              */
             void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
-
+        //--------------------------------------------------------------------------------------------------------------
+        
             void flatten_normal( const Matrix< DDRMat > & aNormal,
                                        Matrix< DDRMat > & aFlattenedNormal );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
             void get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector );
 
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * set spatial dimensions. Modified from base to set function pointers to the appropriate eval_const()
+             * @param[ in ] aSpaceDim a spatial dimension
+             */
+            void set_space_dim( uint aSpaceDim );
+
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Sets the option to use a modified elasticity model (e.g. plane stress, plane stress, etc.)
+             *
+             * @param aModelType Linear isotropic elasticity supports combinations of Model_Type::PLANE_STRESS or
+             * Model_Type::PLANE_STRAIN, and Model_Type::HYDROSTATIC or
+             * Model_Type::DEVIATORIC
+             */
+            void set_model_type(Model_Type aModelType);
+
+        //--------------------------------------------------------------------------------------------------------------
+        private:
+
+            /**
+             *  Sets the appropriate function pointers based on the current member data for spatial dimensions and
+             *  model types
+             */
+            void set_function_pointers();
+
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Full plane stress tensor
+             *              
+             * @param aEmod Elastic modulus
+             * @param aNu Poisson ratio
+             */
+            void full_plane_stress(moris::real aEmod, moris::real aNu);
+
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Deviatoric plane stress tensor
+             *
+             * @param aEmod Elastic modulus
+             * @param aNu Poisson ratio
+             */
+            void deviatoric_plane_stress(moris::real aEmod, moris::real aNu);
+
+            //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Full plane strain tensor
+             *               
+             * @param aEmod Elastic modulus
+             * @param aNu Poisson ratio
+             */
+            void full_plane_strain(moris::real aEmod, moris::real aNu);
+
+        //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Deviatoric plane strain tensor
+             *
+             * @param aEmod Elastic modulus
+             * @param aNu Poisson ratio
+             */
+            void deviatoric_plane_strain(moris::real aEmod, moris::real aNu);
+
+            //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Full 3d linear isotropic tensor
+             * 
+             * @param aEmod Elastic modulus
+             * @param aNu Poisson ratio
+             */
+            void full_3d(moris::real aEmod, moris::real aNu);
+
+            //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Deviatoric 3d tensor
+             *
+             * @param aEmod Elastic modulus
+             * @param aNu Poisson ratio
+             */
+            void deviatoric_3d(moris::real aEmod, moris::real aNu);
+
+        //--------------------------------------------------------------------------------------------------------------
+
         };
-//------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

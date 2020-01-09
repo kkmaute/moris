@@ -88,7 +88,7 @@ set(HEADERS
     cl_FEM_Node.hpp
     cl_FEM_Field_Interpolator.hpp
     cl_FEM_Field_Interpolator_Manager.hpp
-    cl_FEM_Model_Parameter_Interpolator.hpp
+    cl_FEM_Model_Parameter_Interpolator.hppF
     fn_FEM_Rotation_Matrix.hpp
     cl_FEM_Property.hpp
     cl_FEM_Constitutive_Model.hpp
@@ -107,6 +107,8 @@ set(HEADERS
     cl_FEM_SP_Slave_Weight_Interface.hpp
     cl_FEM_SP_Ghost_Displacement.hpp
     cl_FEM_Set_User_Info.hpp
+    cl_FEM_Interpolation_Element.hpp
+    
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -124,6 +126,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
+	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
@@ -155,6 +158,7 @@ set(LIB_SOURCES
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
+	cl_FEM_CM_Struc_Linear_Isotropic_Pressure.cpp
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp
@@ -166,6 +170,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
+    cl_FEM_Interpolation_Element.cpp
     )
 
 # List library dependencies

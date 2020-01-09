@@ -57,9 +57,6 @@ namespace MSI
         // pointer to the corresponding mesh set
         moris::mtk::Set * mMeshSet = nullptr;
 
-        // pointer to the corresponding visualization mesh set
-        moris::mtk::Set * mVisMeshSet = nullptr;
-
         // list of mesh cluster pointers
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
 
@@ -123,10 +120,12 @@ namespace MSI
         Matrix< DDSMat > mDvTypeMap;
 
         // map visualization cell id to position in vector
-        moris::Matrix< DDSMat > mCellAssemblyMap;
+        moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
+        moris::Cell< uint >                    mMtkIgCellOnSet;
 
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
+        bool mIsResidual = false;
 
         friend class MSI::Equation_Object;
         friend class Cluster;
@@ -136,6 +135,7 @@ namespace MSI
         friend class Element_Time_Sideset;
         friend class Element;
         friend class Field_Interpolator_Manager;
+        friend class Interpolation_Element;
 
 //------------------------------------------------------------------------------
     public:
@@ -207,7 +207,9 @@ namespace MSI
          * set visualization mesh set
          * @param[ in ] aVisMeshSet a mesh set pointer for visualization
          */
-        void set_visualization_set( moris::mtk::Set * aVisMeshSet );
+        void set_visualization_set( const uint              aMeshIndex,
+                                          moris::mtk::Set * aVisMeshSet,
+                                    const bool              aOnlyPrimayCells);
 
 //------------------------------------------------------------------------------
         /**
@@ -773,7 +775,8 @@ namespace MSI
          * @param[ in ] aOutputType
          * @param[ in ] aFieldType
          */
-        void compute_quantity_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+        void compute_quantity_of_interest( const uint            aMeshIndex,
+                                           Matrix< DDRMat >      * aElementFieldValues,
                                            Matrix< DDRMat >      * aNodalFieldValues,
                                            moris::real           * aGlobalScalar,
                                            enum vis::Output_Type   aOutputType,

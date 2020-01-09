@@ -81,10 +81,11 @@ namespace moris
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
 
         // get mtk set index to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
+//        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
 
         // copy fem::Set to base class MSI::Equation_Set. can this be done with a reinterpret_cast?
-        moris::Cell< MSI::Equation_Set * > tEquationSets(aModel->get_equation_sets().size());
+        moris::Cell< MSI::Equation_Set * > tEquationSets( aModel->get_equation_sets().size() );
+
         for(moris::uint iSet = 0; iSet < aModel->get_equation_sets().size(); iSet++ )
         {
             tEquationSets( iSet ) = aModel->get_equation_sets()( iSet );
@@ -94,13 +95,18 @@ namespace moris
         for( uint Ii = 0; Ii < tNumRequestedSets; Ii++ )
         {
             // get block index
-            moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
+//            moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
             // find set index for this block index
-            moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
+            moris_index tEquationSetIndex = Ii;
+//            moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
 
-            // set vis set to fem set
-            tEquationSets( tEquationSetIndex )->set_visualization_set( mVisMesh( aVisMeshIndex )->get_block_by_index( Ii ) );
+            std::cout<<tEquationSetIndex<<" tEquationSetIndex"<<std::endl;
+
+            // set vis set to fem set. +1 because 0 is reserved for fem
+            tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
+                                                                       mVisMesh( aVisMeshIndex )->get_block_by_index( Ii ),
+                                                                       mOnlyPrimary );
         }
     }
 
@@ -122,7 +128,7 @@ namespace moris
         // add nodal elemental and global fields to mesh
         this->add_nodal_fields( aVisMeshIndex );
         this->add_elemetal_fields( aVisMeshIndex );
-//        this->add_global_fields( aVisMeshIndex );
+        this->add_global_fields( aVisMeshIndex );
 
         // write time to file
         mWriter( aVisMeshIndex )->set_time( tTime );
@@ -301,7 +307,7 @@ namespace moris
     void Output_Manager::write_field( const uint         aVisMeshIndex,
                                             mdl::Model * aModel )
     {
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
+//        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
 
         // get equation sets
         moris::Cell< MSI::Equation_Set * > tEquationSets( aModel->get_equation_sets().size() );
@@ -317,22 +323,25 @@ namespace moris
             std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
 
             // nodal and global field vaues
-            Matrix< DDRMat > tNodalValues;
+            Matrix< DDRMat > tNodalValues( mVisMesh( aVisMeshIndex )->get_num_nodes(), 1, 0.0 );
             moris::real      tGlobalValue;
 
             // loop over all blocks on this output object
             for( uint Ii = 0; Ii < mOutputData( aVisMeshIndex ).mSetIndices.size(); Ii++ )
             {
+            	std::cout<<"---------------Set-------------- "<<Ii<<std::endl;
                 // get block index
-                moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
+//                moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
                 // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
+//                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
+                moris_index tEquationSetIndex = Ii;
 
                 // elemental field values
                 Matrix< DDRMat > tElementValues;
 
-                tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( &tElementValues,
+                tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( aVisMeshIndex + 1,
+                                                                                  &tElementValues,
                                                                                   &tNodalValues,
                                                                                   &tGlobalValue,
                                                                                   mOutputData( aVisMeshIndex ).mOutputType( Ik ),

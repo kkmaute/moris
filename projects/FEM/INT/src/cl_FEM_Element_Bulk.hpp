@@ -72,21 +72,24 @@ namespace moris
          * compute quantity of interest in a global way
          * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_global( enum vis::Output_Type aOutputType );
+        void compute_quantity_of_interest_global( const uint aMeshIndex,
+                                                  enum vis::Output_Type aOutputType );
 
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in a nodal way
          * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_nodal( enum vis::Output_Type aOutputType );
+        void compute_quantity_of_interest_nodal( const uint aMeshIndex,
+                                                 enum vis::Output_Type aOutputType );
 
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in a elemental way
          * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_elemental( enum vis::Output_Type aOutputType );
+        void compute_quantity_of_interest_elemental( const uint aMeshIndex,
+                                                     enum vis::Output_Type aOutputType );
 
 //------------------------------------------------------------------------------
 

@@ -29,7 +29,7 @@ namespace moris
 
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster,
@@ -80,7 +80,7 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // set the normal for the IWG
                     mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
@@ -105,7 +105,7 @@ namespace moris
 
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster,
@@ -157,7 +157,7 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // set the normal for the IWG
                     mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );

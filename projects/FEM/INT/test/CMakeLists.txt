@@ -36,6 +36,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
     UT_FEM_IWG_Spatial_Diffusion_Ghost.cpp
     UT_FEM_IWG_Spatial_Diffusion_Virtual_Work_Ghost.cpp
+	UT_FEM_IWG_Struc_Linear_Bulk.cpp
+	UT_FEM_IWG_Struc_Linear_Pressure_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Interface.cpp
     UT_FEM_IQI_Strain_Energy.cpp

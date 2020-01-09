@@ -20,9 +20,14 @@
 
 #include "cl_GEN_Circle.hpp"
 
+// HMR includes ---------------------------------
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+
 // MTK includes ---------------------------------
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 // XTK include ----------------------------------
 #include "cl_XTK_Model.hpp"
@@ -40,10 +45,15 @@ real tSimpleFunction( Matrix< DDRMat > const & aCoeff,
 {
     return aCoeff(0)*aParam(0)*aParam(0) - aCoeff(1)*aParam(1);
 }
+//-----------------------------------------------------------------------------
+real tTempCircleLS( const Matrix< DDRMat > & aPoint )
+{
+    return norm( aPoint ) - 0.6;
+}
 
 
 //-----------------------------------------------------------------------------
-TEST_CASE("general_test_01","[GE],[field_evaluation]")
+TEST_CASE("general_test_00","[GE],[field_evaluation]")
 {
     if(par_size()<=1)
     {
@@ -98,7 +108,7 @@ TEST_CASE("general_test_01","[GE],[field_evaluation]")
 
     moris::ge::GEN_Geometry_Engine tGeomEng;
     moris_index tFieldIndex  = tGeomEng.register_field( tUserDefField );
-    moris_index tGEMeshIndex = tGeomEng.set_mesh( &tMeshManager );
+    moris_index tGEMeshIndex = tGeomEng.register_mesh( &tMeshManager );
     /*
      * evaluate and check field values at nodes
      */
@@ -122,7 +132,7 @@ TEST_CASE("general_test_01","[GE],[field_evaluation]")
 }
 
 //-----------------------------------------------------------------------------
-TEST_CASE("general_test_02","[GE],[basic_functions]")
+TEST_CASE("general_test_01","[GE],[sensitivity_check_01]")
 {
     if(par_size()<=1)
     {
@@ -180,6 +190,18 @@ TEST_CASE("general_test_02","[GE],[basic_functions]")
         moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tNumDim );
 
+        //------------------------------------------------------------------------------
+        // dummy pdv information ( not used in this test )
+        Cell< enum GEN_PDV >  tPdvList(1);
+        tPdvList(0) = GEN_PDV::TEMP;
+
+        std::shared_ptr< GEN_Property > tConstTempProp = std::make_shared< GEN_Property >();
+
+        Cell< GEN_Property* > tPropertyList(1);
+        tPropertyList(0) = tConstTempProp.get();
+
+        tGENGeometryEngine.set_pdv_property_list( tPdvList, tPropertyList );
+
         //=================== manual calls to GE (w/out XTK model) =============================
         uint tNumNodes = tInterpMesh->get_num_nodes();
         tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
@@ -214,49 +236,311 @@ TEST_CASE("general_test_02","[GE],[basic_functions]")
         REQUIRE( tNumIntersections == 2 );  // there should be two intersected edges
         //======================================
         Matrix< DDRMat >   tLclCoord( tNumIntersections,1 );
-        Matrix< DDRMat >   tNodeCoords( tNumIntersections,tNumDim );
+        Matrix< DDRMat >   tNewNodeCoords( tNumIntersections,tNumDim );
         for( uint i=0; i<tNumIntersections; i++ )
         {
             tLclCoord(i) = tGeometryObjects(i).get_interface_lcl_coord();
-            tNodeCoords.set_row( i,tGeometryObjects(i).get_interface_glb_coord() );
+            tNewNodeCoords.set_row( i,tGeometryObjects(i).get_interface_glb_coord() );
         }
-        //======================================
+        //================== perform checks before moving on ====================
         REQUIRE( tLclCoord(0) =  0.2 );
         REQUIRE( tLclCoord(1) = -0.2 );
-        REQUIRE( tNodeCoords(0,0) = 0.6 );
-        REQUIRE( tNodeCoords(1,1) = 0.6 );
-        //======================================
+        REQUIRE( tNewNodeCoords(0,0) = 0.6 );
+        REQUIRE( tNewNodeCoords(1,1) = 0.6 );
+        //=======================================================================
         Matrix< moris::IndexMat > tEdgeIndices00{{ 0,1 }};
         std::shared_ptr< xtk::Topology > tTop00 = std::make_shared< xtk::Edge_Topology >( tEdgeIndices00 );
-        Matrix< moris::IndexMat > tEdgeIndices01{{ 0,1 }};
+
+
+        Matrix< moris::IndexMat > tEdgeIndices01{{ 0,3 }};
         std::shared_ptr< xtk::Topology > tTop01 = std::make_shared< xtk::Edge_Topology >( tEdgeIndices01 );
         moris::Cell< xtk::Topology* > tTopCell(2);
         tTopCell(0) = tTop00.get();          tTopCell(1) = tTop01.get();
 
         moris::Cell< moris_index > tIndices(2);
-        tIndices(0) = 78;   tIndices(1) = 99;
+        tIndices(0) = 4;   tIndices(1) = 5;
         moris::Cell< Matrix<DDRMat> > tLocalCoords(2);
         tLocalCoords(0) = {{0.2}};  tLocalCoords(1) = {{-0.2}};
         moris::Cell< Matrix<DDRMat> > tGlbCoords(2);
-        tGlbCoords(0) = tNodeCoords.get_row(0); tGlbCoords(1) = tNodeCoords.get_row(1);
+        tGlbCoords(0) = tNewNodeCoords.get_row(0); tGlbCoords(1) = tNewNodeCoords.get_row(1);
 
         tGENGeometryEngine.create_new_node_geometry_objects( tIndices, true, tTopCell, tLocalCoords, tGlbCoords );
 
+        Matrix< DDRMat > tAllCoords = {    { 0.0, 0.0 },
+                                           { 1.0, 0.0 },
+                                           { 1.0, 1.0 },
+                                           { 0.0, 1.0 },
+                                       { tRadius, 0.0 },
+                                       { 0.0, tRadius }};
+
         Matrix< IndexMat > tInd{{ tIndices(0),tIndices(1) }};
-        tGENGeometryEngine.compute_interface_sensitivity( tInd, tNodeCoords, (moris_index)0 );
+        tGENGeometryEngine.compute_interface_sensitivity( tInd, tAllCoords, (moris_index)0 );
 
         GEN_Geometry_Object tGeomObj01 = tGENGeometryEngine.get_geometry_object( tIndices(0) );
         moris::Matrix< moris::DDRMat >tSens01 = tGeomObj01.get_sensitivity_dx_dp();
 //print( tSens01,"tSens01" );
+
+        GEN_Geometry_Object tGeomObj02 = tGENGeometryEngine.get_geometry_object( tIndices(1) );
+        moris::Matrix< moris::DDRMat >tSens02 = tGeomObj02.get_sensitivity_dx_dp();
+//print( tSens02,"tSens02" );
         //================================== end ===============================================
 
         //------------------------------------------------------------------------------
-//        std::string tOutputFile = "./testing_output.exo";
+//        std::string tOutputFile = "./output_sensitivityCheck_01.exo";
 //        tInterpMesh->create_output_mesh(tOutputFile);
+        delete tInterpMesh;
+        delete tIntegMesh;
         //------------------------------------------------------------------------------
+    }
+}
+
+//-----------------------------------------------------------------------------
+TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
+{
+    if(par_size()<=1)
+    {
+        size_t tModelDimension = 2;
+        uint tLagrangeMeshIndex = 0;
+        //  HMR Parameters setup
+        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+
+        tParameters.set( "number_of_elements_per_dimension", "1, 1" );
+        tParameters.set( "domain_dimensions",                "1, 1" );
+        tParameters.set( "domain_offset",                    "0, 0" );
+
+//        tParameters.set( "domain_sidesets",      "1, 2, 3, 4, 5, 6" );
+
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
+
+        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "lagrange_input_meshes", "0" );
+
+        tParameters.set( "lagrange_to_bspline", "0" );
+
+        tParameters.set( "use_multigrid", 0 );
+
+        tParameters.set( "refinement_buffer", 1 );
+        tParameters.set( "staircase_buffer", 1 );
+
+        tParameters.insert( "initial_refinement", 0 );
+
+        //  HMR Initialization
+        moris::hmr::HMR tHMR( tParameters );
+
+        std::shared_ptr< hmr::Database > tDatabase = tHMR.get_database();
+
+        tHMR.perform_initial_refinement( 0 );
+
+//        tDatabase->update_bspline_meshes();
+//        tDatabase->update_lagrange_meshes();
+
+        std::shared_ptr< moris::hmr::Mesh > tHMRMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//        tHMR.finalize();
+
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+        //------------------------------------------------------------------------------
+        std::shared_ptr< hmr::Field > tField = tHMRMesh->create_field( "circle", tLagrangeMeshIndex);
+
+        tField->evaluate_scalar_function( moris::ge::tTempCircleLS );
+
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+
+        tHMR.finalize();
+//        tHMR.save_to_exodus( 0, "output_sensitivityCheck_02.g" );
+        //------------------------------------------------------------------------------
+        real tRadius  = 0.6;
+        real tXcenter = 0;
+        real tYcenter = 0;
+        moris::ge::Circle tCircle( tRadius, tXcenter, tYcenter );
+
+        moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tModelDimension );
+
+        //------------------------------------------------------------------------------
+        // dummy pdv information ( not used in this test )
+        Cell< enum GEN_PDV >  tPdvList(1);
+        tPdvList(0) = GEN_PDV::TEMP;
+
+        std::shared_ptr< GEN_Property > tConstTempProp = std::make_shared< GEN_Property >();
+
+        Cell< GEN_Property* > tPropertyList(1);
+        tPropertyList(0) = tConstTempProp.get();
+
+        tGENGeometryEngine.set_pdv_property_list( tPdvList, tPropertyList );
+
+        //------------------------------------------------------------------------------
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+        tXTKModel.mVerbose = false;
+        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
+        tXTKModel.decompose( tDecompositionMethods );
+
+        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh( );
+        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh( );
+
+        // place the pair in mesh manager
+        mtk::Mesh_Manager tMeshManager;
+        tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
+
+        xtk::Output_Options tOutputOptions;
+        tOutputOptions.mAddNodeSets = false;
+        tOutputOptions.mAddSideSets = false;
+        tOutputOptions.mAddClusters = false;
+
+        std::string tCircleFieldName = "circle";
+        tOutputOptions.mRealNodeExternalFieldNames = { tCircleFieldName };
+
+        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh( tOutputOptions );
+        //------------------------------------------------------------------------------
+//        Matrix< DDRMat > tTMatrix = tHMRMesh->get_t_matrix_of_node_loc_ind( 0, EntityRank::ELEMENT );
+//        print( tTMatrix,"tTMatrix" );
+
+        //------------------------------------------------------------------------------
+        delete tIntegMesh1;
 
     }
 }
 
+//-----------------------------------------------------------------------------
+TEST_CASE("general_test_03","[GE],[sensitivity_check_03]")
+{
+    if(par_size()<=1)
+    {
+//        size_t tModelDimension = 2;
+//        uint tLagrangeMeshIndex = 0;
+//        //  HMR Parameters setup
+//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+//        tParameters.set( "domain_dimensions",                "4, 4" );
+//        tParameters.set( "domain_offset",                    "-2, -2" );
+//
+////        tParameters.set( "domain_sidesets",      "1, 2, 3, 4, 5, 6" );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "lagrange_orders", "1" );
+//        tParameters.set( "lagrange_pattern", "0" );
+//        tParameters.set( "bspline_orders", "1" );
+//        tParameters.set( "bspline_pattern", "0" );
+//
+//        tParameters.set( "lagrange_output_meshes", "0" );
+//        tParameters.set( "lagrange_input_meshes", "0" );
+//
+//        tParameters.set( "lagrange_to_bspline", "0" );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//
+//        tParameters.set( "refinement_buffer", 1 );
+//        tParameters.set( "staircase_buffer", 1 );
+//
+//        tParameters.insert( "initial_refinement", 0 );
+//
+//        //  HMR Initialization
+//        moris::hmr::HMR tHMR( tParameters );
+//
+//        std::shared_ptr< hmr::Database > tDatabase = tHMR.get_database();
+//
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        tDatabase->update_bspline_meshes();
+//        tDatabase->update_lagrange_meshes();
+//
+//        std::shared_ptr< moris::hmr::Mesh > tHMRMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//        tHMR.finalize();
+//
+//        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+////        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+//
+//        //------------------------------------------------------------------------------
+//        real tRadius  = 1.0;
+//        real tXCenter = 0.0;
+//        real tYCenter = 0.0;
+//
+//        moris::ge::Circle tCircleGeom( tRadius, tXCenter, tYCenter );
+//
+//        moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
+//        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircleGeom, tPhaseTable, tModelDimension );
+//
+//        //------------------------------------------------------------------------------
+//        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+//        tXTKModel.mVerbose = false;
+//        Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
+//        tXTKModel.decompose(tDecompositionMethods);
+//
+//        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1,0 );
+//
+//        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+//        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
+//
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = false;
+//        tOutputOptions.mAddClusters = false;
+//
+//        std::string tCircleFieldName = "circle";
+//        tOutputOptions.mRealNodeExternalFieldNames = { tCircleFieldName };
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//        //------------------------------------------------------------------------------
+//        // get level-set field and add to integration mesh output
+//        uint tNumNodes = tIntegMesh1->get_num_entities( EntityRank::NODE );
+//
+//        moris::Cell< moris::mtk::Vertex const * > tAllVerices = tIntegMesh1->get_all_vertices();
+//
+//        Matrix< DDRMat > tAllCoords( tNumNodes, 2 );
+//        for(uint i=0; i<tNumNodes; i++ )
+//        {
+//            tAllCoords.set_row( i,tAllVerices(i)->get_coords() );
+//        }
+//
+//        tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
+//        tGENGeometryEngine.initialize_geometry_object_phase_values( tAllCoords );
+//
+////        Matrix< IndexMat > tNodeToEdgeConnectivity( tNumNodes,2 );
+////        Matrix< DDRMat > tLSVals( tNumNodes, 1, -1.0 );
+////        for( uint i=0; i<tNumNodes; i++ )
+////        {
+////            tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
+////        }
+////        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds( tCircleFieldName, EntityRank::NODE, tLSVals );
+////        //------------------------------------------------------------------------------
+////        Matrix< IndexMat > tNodeToEdgeConnectivity =
+////
+////        Cell< GEN_Geometry_Object > tGeometryObjects;
+////        tGENGeometryEngine.is_intersected( tAllCoords, tNodeToEdgeConnectivity, (size_t) 1, tGeometryObjects );
+////
+////        size_t tNumIntersections = tGeometryObjects.size();
+////        std::cout<<"number of intersected edges: "<<tNumIntersections<<std::endl;
+//
+//        //------------------------------------------------------------------------------
+////        std::string tMeshOutputFile = "outputCheckForSensitivityCheck_03.e";
+////        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//
+////        std::string tMorisRoot = std::getenv("MORISROOT");
+////        std::string tMeshFilePath = tMorisRoot + "build" ;
+////
+////        Writer_Exodus tWriterInteg( tIntegMesh1 );
+////        tWriterInteg.write_mesh( tMeshFilePath, "testMeshXTK_integ.e" );
+////        tWriterInteg.close_file();
+//
+//        //------------------------------------------------------------------------------
+//        delete tIntegMesh1;
+////        for(uint k=0; k<tAllVerices.size(); k++)
+////        {
+////            delete tAllVerices(k);
+////        }
+    }
+}
 }   // ge namespace
 }   // moris namespace

@@ -42,6 +42,7 @@ namespace moris
             enum class IWG_Constitutive_Type
             {
                 ELAST_LIN_ISO,
+                ELAST_LIN_ISO_PRESSURE,
                 MAX_ENUM
             };
 

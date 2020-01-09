@@ -31,6 +31,11 @@ class Dist_Vector;
         class Node_Base;
         class Element;
     }
+    namespace fem
+    {
+        class Cluster;
+
+    }
     namespace vis
     {
         enum class Output_Type;
@@ -80,6 +85,7 @@ class Dist_Vector;
             moris::Cell< moris::Cell< moris::Cell< fem::Node_Base* > > > mIGNodeObj;
 
             friend class fem::Element;
+            friend class fem::Cluster;
 
 //-------------------------------------------------------------------------------------------------
         public:
@@ -102,6 +108,13 @@ class Dist_Vector;
             void set_time( const Matrix< DDRMat > & aTime )
             {
                 mTime = aTime;
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            Matrix< DDRMat > & get_time()
+            {
+                return mTime ;
             }
 
 //-------------------------------------------------------------------------------------------------
@@ -201,10 +214,11 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Get function for the pdof values of this particular equation object. get_my_pdof_values() has to be called first to initialize.
-             *
+             * @brief Get function for the pdof values of this particular equation object.
+             * get_my_pdof_values() has to be called first to initialize.
              * @param[in] aRequestedDofTypes      List of requested dof types
              * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             * @param[ in ] aIsMaster             enum for master or slave
              */
             void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
                                            Cell< Matrix< DDRMat > >     & aRequestedPdofValues,
@@ -220,10 +234,12 @@ class Dist_Vector;
              * get the pdv values of this equation object for IP nodes
              * @param[ in ] aDvTypes   list of requested dv types
              * @param[ in ] aPdvValues matrix of requested pdv values to fill
+             * @param[ in ] aIsMaster             enum for master or slave
              */
             void get_my_pdv_values( const moris::Cell< enum Dv_Type > & aDvTypes,
                                           Matrix< DDRMat >            & aPdvValues,
                                     const mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
+
 //-------------------------------------------------------------------------------------------------
             /**
              * get the pdv values of this equation object for IG nodes
@@ -263,7 +279,6 @@ class Dist_Vector;
             void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId );
 
 //-------------------------------------------------------------------------------------------------
-
             /**
              * returns a moris::Mat with indices of vertices that are connected to this element
              */
@@ -374,16 +389,18 @@ class Dist_Vector;
 
             virtual void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
             {
-                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base clase" );
+                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base class." );
             }
 
 //-------------------------------------------------------------------------------------------------
-
-            virtual void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
-                                                       enum vis::Field_Type  aFieldType)
+            virtual void compute_quantity_of_interest( const uint            aMeshIndex,
+                                                       enum vis::Output_Type aOutputType,
+                                                       enum vis::Field_Type    aFieldType)
             {
-                MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
+                MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class." );
             }
+
+//-------------------------------------------------------------------------------------------------
         };
     }
 }
