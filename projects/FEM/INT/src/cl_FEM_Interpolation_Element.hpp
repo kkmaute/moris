@@ -26,11 +26,13 @@
 #include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
 
+
 namespace moris
 {
     namespace fem
     {
     class Set;
+    class Cluster;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -41,7 +43,7 @@ namespace moris
     protected:
 
         // pointer to the mesh cluster
-        moris::Cell< fem::Cluster* > mFemCluster;
+        moris::Cell< std::shared_ptr< fem::Cluster > > mFemCluster;
 
         // pointer to the master and slave mesh interpolation cell
         const mtk::Cell * mMasterInterpolationCell;
@@ -74,7 +76,7 @@ namespace moris
          * @param[ in ] aSet         a fem set
          */
         Interpolation_Element( const Element_Type                aElementType,
-                               const mtk::Cluster              * aMeshCluster,
+                               const Cell< const mtk::Cell * >  & aInterpolationCell,
                                      moris::Cell< Node_Base* > & aNodes,
                                      Set                       * aSet );
 
@@ -83,6 +85,26 @@ namespace moris
          * trivial destructor
          */
         ~Interpolation_Element();
+
+//------------------------------------------------------------------------------
+        /**
+         * set cluster
+         */
+        void set_cluster( std::shared_ptr< fem::Cluster > aCluster,
+                          const uint                      aIndex )
+        {
+            if( aIndex == 0 )
+            {
+                // fem cluster with index 0 should be set only once and shall not be changed
+                MORIS_ASSERT( !( mFemCluster.size() >= 1 ), "set_cluster(), first fem cluster is already set");
+            }
+
+            sint tSize = std::max( ( sint )mFemCluster.size(), ( sint )aIndex + 1 );
+
+            mFemCluster.resize( tSize );
+
+            mFemCluster( aIndex ) = aCluster;
+        };
 
 //------------------------------------------------------------------------------
         /**
@@ -110,7 +132,8 @@ namespace moris
          *                          GLOBAL, NODAL, ELEMENTAL
          */
         //void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
-        void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+        void compute_quantity_of_interest( const uint            aClusterIndex,
+                                           enum vis::Output_Type aOutputType,
                                            enum vis::Field_Type  aFieldType );
 
 //------------------------------------------------------------------------------
@@ -160,70 +183,6 @@ namespace moris
             }
             return tPdofValues( tVertexIndex );
         }
-
-//------------------------------------------------------------------------------
-        /**
-         * set visualization cluster
-         * @param[ in ] aVisMeshCluster a pointer to a visualization mesh cluster
-         */
-//        void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
-//        {
-//            // set a visualization cluster
-//            mVisMeshCluster = aVisMeshCluster;
-//
-//            // get the visualization cells
-//            mMasterVisCells = mVisMeshCluster->get_primary_cells_in_cluster();
-//
-//            // create an element factory
-//            fem::Element_Factory tElementFactory;
-//
-//            // set size for the visualization element list
-//            uint tNumMasterVisCells = mMasterVisCells.size();
-//            mVisElements.resize( tNumMasterVisCells, nullptr );
-//
-//             // switch on the element type
-//             switch ( mElementType )
-//             {
-//                 case ( fem::Element_Type::BULK ) :
-//                 {
-//                     // loop over the visualization cells
-//                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
-//                     {
-//                         // create an element
-//                         mVisElements( Ik )
-//                         = tElementFactory.create_element( mElementType,
-//                                                           mMasterVisCells( Ik ),
-//                                                           mSet,
-//                                                           this,
-//                                                           Ik );
-//                     }
-//                     break;
-//                 }
-//                 case ( fem::Element_Type::SIDESET ) :
-//                 {
-//                     // set the side ordinals for the IG cells in the cluster
-//                     mMasterVisListOfSideOrdinals = mVisMeshCluster->get_cell_side_ordinals();
-//
-//                     // loop over the visualization cells
-//                     for( moris::uint Ik = 0; Ik < tNumMasterVisCells; Ik++)
-//                     {
-//                         // create an element
-//                         mVisElements( Ik )
-//                         = tElementFactory.create_element( mElementType,
-//                                                           mMasterVisCells( Ik ),
-//                                                           mSet,
-//                                                           this,
-//                                                           Ik );
-//                     }
-//                     break;
-//                 }
-//                 default :
-//                 {
-//                     MORIS_ERROR( false, "Cluster::set_visualization_cluster - undefined element type" );
-//                     break;
-//                 }
-//             }
-//        }
 
 //------------------------------------------------------------------------------
     protected:

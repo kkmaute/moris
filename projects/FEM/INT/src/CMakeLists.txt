@@ -107,6 +107,8 @@ set(HEADERS
     cl_FEM_SP_Slave_Weight_Interface.hpp
     cl_FEM_SP_Ghost_Displacement.hpp
     cl_FEM_Set_User_Info.hpp
+    cl_FEM_Interpolation_Element.hpp
+    
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -166,6 +168,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
+    cl_FEM_Interpolation_Element.cpp
     )
 
 # List library dependencies

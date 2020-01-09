@@ -133,24 +133,25 @@ namespace moris
          * @param[ in ] aOutputType an enum for the output type
          * @param[ in ] aFieldType  an enum for computation/field type
          */
-        void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
+        void compute_quantity_of_interest( const uint aMeshIndex,
+                                           enum vis::Output_Type aOutputType,
                                            enum vis::Field_Type  aFieldType  )
         {
             switch ( aFieldType )
             {
                 case ( vis::Field_Type::GLOBAL ) :
                 {
-                    this->compute_quantity_of_interest_global( aOutputType );
+                    this->compute_quantity_of_interest_global( aMeshIndex, aOutputType );
                     break;
                 }
                 case ( vis::Field_Type::NODAL ) :
                 {
-                    this->compute_quantity_of_interest_nodal( aOutputType );
+                    this->compute_quantity_of_interest_nodal( aMeshIndex, aOutputType );
                     break;
                 }
                 case ( vis::Field_Type::ELEMENTAL ) :
                 {
-                    this->compute_quantity_of_interest_elemental( aOutputType );
+                    this->compute_quantity_of_interest_elemental( aMeshIndex, aOutputType );
                     break;
                 }
                 default :
@@ -166,7 +167,7 @@ namespace moris
          * compute quantity of interest in a global way
          * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_global( enum vis::Output_Type aOutputType )
+        virtual void compute_quantity_of_interest_global( const uint aMeshIndex, enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - this function does nothing." );
         }
@@ -176,7 +177,7 @@ namespace moris
          * compute quantity of interest in a nodal way
          * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_nodal( enum vis::Output_Type aOutputType )
+        virtual void compute_quantity_of_interest_nodal( const uint aMeshIndex, enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - this function does nothing." );
         }
@@ -186,7 +187,8 @@ namespace moris
          * compute quantity of interest in an elemental way
          * @param[ in ] aOutputType an enum for the output type
          */
-        void compute_quantity_of_interest_elemental( enum vis::Output_Type aOutputType )
+        virtual void compute_quantity_of_interest_elemental( const uint aMeshIndex,
+                                                     enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - this function does nothing." );
         }

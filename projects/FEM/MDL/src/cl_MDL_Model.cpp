@@ -119,7 +119,7 @@ namespace moris
         fem::Element_Factory tElementFactory;
 
         // create equation objects
-        mFemSets.resize( tNumFemSets, nullptr );
+        mFemSets.resize( tNumFemSets, nullptr );     // FIXME try to create them as equation sets
 
         // get the number of element to create
         mFemClusters.reserve( 100000 ); //FIXME

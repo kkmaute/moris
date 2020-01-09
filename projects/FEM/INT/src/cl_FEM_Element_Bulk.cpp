@@ -25,7 +25,7 @@ namespace moris
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
@@ -72,7 +72,7 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME: enforced nodal weak bcs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute residual at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
@@ -87,7 +87,7 @@ namespace moris
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
@@ -134,7 +134,7 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
@@ -157,14 +157,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Element_Bulk::compute_quantity_of_interest_global( enum vis::Output_Type aOutputType )
+        void Element_Bulk::compute_quantity_of_interest_global( const uint aMeshIndex,
+                                                                enum vis::Output_Type aOutputType )
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ) );
+            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
             // get number of field interpolator and properties
@@ -209,19 +210,20 @@ namespace moris
                 mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
-                mSet->mSetGlobalValues += tQIValue( 0 ) * tWStar;
+                *(mSet->mSetGlobalValues) += tQIValue( 0 ) * tWStar;
             }
         }
 
 //------------------------------------------------------------------------------
-        void Element_Bulk::compute_quantity_of_interest_nodal( enum vis::Output_Type aOutputType )
+        void Element_Bulk::compute_quantity_of_interest_nodal( const uint aMeshIndex,
+                                                               enum vis::Output_Type aOutputType )
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ) );
+            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
             // get number of field interpolator and properties
@@ -234,28 +236,30 @@ namespace moris
             uint tNumNodes = tVertices.size();
             for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
             {
-                // FIXME get the ith vertex coordinates in the IG param space
-            	// FIXME time???
-                Matrix< DDRMat > tLocalIntegPoint = mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ).get_row( iVertex );
+//                // FIXME get the ith vertex coordinates in the IG param space
+//            	// FIXME time???
+                Matrix< DDRMat > tGlobalIntegPoint = mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ).get_row( iVertex );
+                tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
+                tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = mCluster->mInterpolationElement->get_time()( 0 );
 
-                // set vertex coordinates for IG geometry interpolator
-                mSet->get_IG_geometry_interpolator()
-                    ->set_space_time( tLocalIntegPoint );
-
-                // bring the ith vertex coordinates in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_IG_geometry_interpolator()
-                    ->map_integration_point( tGlobalIntegPoint );
+//                // set vertex coordinates for IG geometry interpolator
+//                mSet->get_IG_geometry_interpolator()
+//                    ->set_space_time( tLocalIntegPoint );
+//
+//                // bring the ith vertex coordinates in the IP param space
+//                Matrix< DDRMat > tGlobalIntegPoint;
+//                mSet->get_IG_geometry_interpolator()
+//                    ->map_integration_point( tGlobalIntegPoint );
 
                 // set vertex coordinates for IP geometry interpolator
                 mSet->get_IP_geometry_interpolator()
-                    ->set_space_time( tGlobalIntegPoint );
+                    ->set_space_time( trans( tGlobalIntegPoint ) );
 
                 // set vertex coordinates for field interpolator
                 for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
                     mSet->mMasterFIManager->get_field_interpolators_for_type( mSet->mMasterDofTypes( iFI )( 0 ) )
-                                          ->set_space_time( tGlobalIntegPoint );
+                                          ->set_space_time( trans( tGlobalIntegPoint ) );
                 }
 
                 // reset the requested IQI
@@ -266,19 +270,24 @@ namespace moris
                 mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
-                mSet->mSetNodalValues( tVertices( iVertex )->get_index(), 0 ) += tQIValue( 0 );
+                // FIXME add up on shared node and divide or overwrite
+                (*mSet->mSetNodalValues)( tVertices( iVertex )->get_index(), 0 ) += tQIValue( 0 );
+
+                mSet->mSetNodalCounter( tVertices( iVertex )->get_index(), 0 ) += 1;
+
             }
         }
 
 //------------------------------------------------------------------------------
-        void Element_Bulk::compute_quantity_of_interest_elemental( enum vis::Output_Type aOutputType )
+        void Element_Bulk::compute_quantity_of_interest_elemental( const uint aMeshIndex,
+                                                                   enum vis::Output_Type aOutputType )
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, true ) );
+            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
             // get number of field interpolator and properties
@@ -323,8 +332,8 @@ namespace moris
                 mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
-                mSet->mSetElementalValues( mSet->mCellAssemblyMap( mMasterCell->get_index() ), 0 )
-                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                (*mSet->mSetElementalValues)( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
+                             += tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 

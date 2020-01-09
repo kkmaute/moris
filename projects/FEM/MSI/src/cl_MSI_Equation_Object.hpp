@@ -31,6 +31,11 @@ class Dist_Vector;
         class Node_Base;
         class Element;
     }
+    namespace fem
+    {
+        class Cluster;
+
+    }
     namespace vis
     {
         enum class Output_Type;
@@ -75,6 +80,7 @@ class Dist_Vector;
             moris::uint mNumPdofSystems = 0;
 
             friend class fem::Element;
+            friend class fem::Cluster;
 
 //-------------------------------------------------------------------------------------------------
         public:
@@ -97,6 +103,13 @@ class Dist_Vector;
             void set_time( const Matrix< DDRMat > & aTime )
             {
                 mTime = aTime;
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            Matrix< DDRMat > & get_time()
+            {
+                return mTime ;
             }
 
 //-------------------------------------------------------------------------------------------------
@@ -354,8 +367,9 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            virtual void compute_quantity_of_interest( enum vis::Output_Type aOutputType,
-                                                        enum vis::Field_Type    aFieldType)
+            virtual void compute_quantity_of_interest( const uint            aMeshIndex,
+                                                       enum vis::Output_Type aOutputType,
+                                                       enum vis::Field_Type    aFieldType)
             {
                 MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
             }

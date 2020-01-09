@@ -137,7 +137,7 @@ Cell_Cluster_Visualization::get_vertex_local_coordinate_wrt_interp_cell( moris::
 
     MORIS_ASSERT( tLocalVertIndex < (moris_index)mVertexParamCoords.n_rows(),"Vertex local side cluster index out of bounds. This could be cause by not adding parametric coordinates");
 
-    return mVertexParamCoords.get_row(tLocalVertIndex);
+    return mVertexParamCoords.get_row( tLocalVertIndex );
 }
 
 //----------------------------------------------------------------
