@@ -66,7 +66,7 @@ using namespace moris;
 using namespace fem;
 
 
-TEST_CASE( "IWG_Pressure_Bulk", "[moris],[fem],[IWG_Pressure_Bulk]" )
+TEST_CASE( "IWG_Pressure_Bulk", "[IWG_Pressure_Bulk]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -87,16 +87,12 @@ TEST_CASE( "IWG_Pressure_Bulk", "[moris],[fem],[IWG_Pressure_Bulk]" )
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
     tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
     tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
-
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIsoPressure = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_PRESSURE );
-    tCMMasterStrucLinIsoPressure->set_dof_type_list( {{ MSI::Dof_Type::P }} );
-    tCMMasterStrucLinIsoPressure->set_space_dim( 2 );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -105,7 +101,6 @@ TEST_CASE( "IWG_Pressure_Bulk", "[moris],[fem],[IWG_Pressure_Bulk]" )
     tIWG->set_residual_dof_type( { MSI::Dof_Type::P } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}}, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIsoPressure, "ElastLinIsoPressure" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------

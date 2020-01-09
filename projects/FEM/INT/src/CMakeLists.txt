@@ -156,7 +156,6 @@ set(LIB_SOURCES
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
-	cl_FEM_CM_Struc_Linear_Isotropic_Pressure.cpp
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp

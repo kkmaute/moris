@@ -15,6 +15,33 @@ namespace moris
         {
             // compute flux
             mFlux = this->constitutive() * this->strain();
+
+            // if pressure dof
+            if (mDofFI.size() > 1)
+            {
+                moris::real tP = mDofFI(1)->val()(0);
+
+                switch ( mSpaceDim )
+                {
+                    case ( 2 ):
+                    {
+                        mFlux(0) -= tP;
+                        mFlux(1) -= tP;
+                        break;
+                    }
+                    case( 3 ):
+                    {
+                        mFlux(0) -= tP;
+                        mFlux(1) -= tP;
+                        mFlux(2) -= tP;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_flux - Flattening of pressure flux only implemented in 2D and 3D");
+                    }
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -74,7 +101,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_strain - Flattening of strain tensor only implemented in 2 and 3 D");
+                    MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_strain - Flattening of pressure strain only implemented in 2 and 3 D");
                 }
             }
 
@@ -217,8 +244,45 @@ namespace moris
             if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
             {
                 // compute derivative with direct dependency
-//                mdFluxdDof( tDofIndex ) = this->constitutive() * this->testStrain();
-                mdFluxdDof( tDofIndex ) = this->constitutive() * this->dStraindDOF( aDofTypes );
+                if (aDofTypes(0) == MSI::Dof_Type::P)
+                {
+                    // dof type is pressure
+                    Matrix<DDRMat> tN = mDofFI(1)->N();
+
+                    // flattening
+                    switch ( mSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            mdFluxdDof( tDofIndex ).set_size( 3, tN.numel(), 0.0 );
+                            for (uint tCol = 0; tCol < tN.numel(); tCol++)
+                            {
+                                mdFluxdDof(tDofIndex)(0, tCol) = -tN(tCol);
+                                mdFluxdDof(tDofIndex)(1, tCol) = -tN(tCol);
+                            }
+                            break;
+                        }
+                        case( 3 ):
+                        {
+                            mdFluxdDof( tDofIndex ).set_size( 6, tN.numel(), 0.0 );
+                            for (uint tCol = 0; tCol < tN.numel(); tCol++)
+                            {
+                                mdFluxdDof(tDofIndex)(0, tCol) = -tN(tCol);
+                                mdFluxdDof(tDofIndex)(1, tCol) = -tN(tCol);
+                                mdFluxdDof(tDofIndex)(2, tCol) = -tN(tCol);
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_dFluxdDOF - Flattening only implemented in 2D and 3D");
+                        }
+                    }
+                }
+                else
+                {
+                    mdFluxdDof( tDofIndex ) = this->constitutive() * this->dStraindDOF( aDofTypes );
+                }
             }
             else
             {
@@ -233,6 +297,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
+
         }
 
         //--------------------------------------------------------------------------------------------------------------

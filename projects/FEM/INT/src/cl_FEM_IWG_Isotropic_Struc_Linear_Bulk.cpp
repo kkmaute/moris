@@ -25,7 +25,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
-            mConstitutiveMap[ "ElastLinIsoPressure" ] = IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE;
         }
 
 //------------------------------------------------------------------------------
@@ -65,12 +64,12 @@ namespace moris
             }
 
             // if pressure dof
-            uint tElastLinIsoPressureIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE );
-            if (mMasterCM(tElastLinIsoPressureIndex) != nullptr)
-            {
-                mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
-                -= trans(mMasterCM(tElastLinIsoIndex)->testStrain()) * mMasterCM(tElastLinIsoPressureIndex)->flux() * tWStar;
-            }
+//            uint tElastLinIsoPressureIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE );
+//            if (mMasterCM(tElastLinIsoPressureIndex) != nullptr)
+//            {
+//                mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+//                -= trans(mMasterCM(tElastLinIsoIndex)->testStrain()) * mMasterCM(tElastLinIsoPressureIndex)->flux() * tWStar;
+//            }
         }
 
 //------------------------------------------------------------------------------
@@ -91,7 +90,6 @@ namespace moris
             // get property, CM, SP indices
             uint tLoadIndex        = static_cast< uint >( IWG_Property_Type::LOAD );
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-            uint tElastLinIsoPressureIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE );
 
             // compute the jacobian for direct dof dependencies
             // Here no direct dependencies
@@ -128,12 +126,12 @@ namespace moris
                 }
 
                 //if (mMasterCM(tElastLinIsoPressureIndex) != nullptr && mMasterCM( tElastLinIsoPressureIndex )->check_dof_dependency( tDofType ))
-                if (mMasterCM(tElastLinIsoPressureIndex) != nullptr && tIndexDep != 0)
-                {
-                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                                          -= trans(mMasterCM(tElastLinIsoIndex)->testStrain()) * mMasterCM(tElastLinIsoPressureIndex)->strain() * tWStar;
-                }
+//                if (mMasterCM(tElastLinIsoPressureIndex) != nullptr && tIndexDep != 0)
+//                {
+//                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+//                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+//                                          -= trans(mMasterCM(tElastLinIsoIndex)->testStrain()) * mMasterCM(tElastLinIsoPressureIndex)->strain() * tWStar;
+//                }
             }
         }
 
