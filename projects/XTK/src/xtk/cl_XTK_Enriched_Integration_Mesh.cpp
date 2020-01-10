@@ -29,6 +29,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
     this->setup_side_set_clusters();
     this->setup_interface_side_sets();
     this->setup_double_side_set_clusters();
+    this->collect_all_sets();
 }
 //------------------------------------------------------------------------------
 Enriched_Integration_Mesh::~Enriched_Integration_Mesh()

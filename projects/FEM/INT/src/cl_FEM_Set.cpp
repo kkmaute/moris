@@ -31,9 +31,10 @@ namespace moris
     : mMeshSet( aMeshSet ),
       mNodes( aIPNodes ),
       mIWGs( aSetInfo.get_IWGs() ),
-	  mIQIs( aSetInfo.get_IQIs() ),
+      mIQIs( aSetInfo.get_IQIs() ),
       mElementType( aSetInfo.get_set_type() )
     {
+
         // loop over the IWGs on the set
         for(  std::shared_ptr< IWG > tIWG : mIWGs )
         {
@@ -90,23 +91,16 @@ namespace moris
                 }
             }
 
-//                // create a fem cluster
-//                mEquationObjList( iCluster ) = tClusterFactory.create_interpolation_element( mElementType,
-//                                                                                             tInterpolationCell,
-//                                                                                             mNodes,
-//                                                                                             this );
+            mEquationObjList( iCluster ) = new fem::Interpolation_Element( mElementType, tInterpolationCell, mNodes, this );
 
-                mEquationObjList( iCluster ) = new fem::Interpolation_Element( mElementType, tInterpolationCell, mNodes, this );
+            // create a fem cluster
+            std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >( mElementType,
+                                                                                         mMeshClusterList( iCluster ),
+                                                                                         this,
+                                                                                         mEquationObjList( iCluster ));
 
-                // create a fem cluster
-                std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >( mElementType,
-                                                                                             mMeshClusterList( iCluster ),
-                                                                                             this,
-                                                                                             mEquationObjList( iCluster ));
+            reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, 0 );
 
-                reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, 0 );
-
-//                mEquationObjList( iCluster )->set_cluster( tCluster, 0 );
             }
 
 

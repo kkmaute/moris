@@ -329,7 +329,6 @@ namespace moris
             // loop over all blocks on this output object
             for( uint Ii = 0; Ii < mOutputData( aVisMeshIndex ).mSetIndices.size(); Ii++ )
             {
-            	std::cout<<"---------------Set-------------- "<<Ii<<std::endl;
                 // get block index
 //                moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 

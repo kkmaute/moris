@@ -516,129 +516,129 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     //==============================
     // bulk for plate
     fem::Set_User_Info tBulkPlate00;
-    tBulkPlate00.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p3") );
+    tBulkPlate00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
     tBulkPlate00.set_set_type( fem::Element_Type::BULK );
     tBulkPlate00.set_IWGs( { tIWGPlate } );
 
     fem::Set_User_Info tBulkPlate01;
-    tBulkPlate01.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p3") );
+    tBulkPlate01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
     tBulkPlate01.set_set_type( fem::Element_Type::BULK );
     tBulkPlate01.set_IWGs( { tIWGPlate } );
 
     //==============================
     // bulk for fibers
     fem::Set_User_Info tBulkFibers00;
-    tBulkFibers00.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+    tBulkFibers00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
     tBulkFibers00.set_set_type( fem::Element_Type::BULK );
     tBulkFibers00.set_IWGs( { tIWGFibers } );
 
     fem::Set_User_Info tBulkFibers01;
-    tBulkFibers01.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+    tBulkFibers01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
     tBulkFibers01.set_set_type( fem::Element_Type::BULK );
     tBulkFibers01.set_IWGs( { tIWGFibers } );
 
     //==============================
     // symmetry boundary conditions on side-set 4 ( fix Ux = 0 )
     fem::Set_User_Info tSetDirichletFixed00;
-    tSetDirichletFixed00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+    tSetDirichletFixed00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
     tSetDirichletFixed00.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed00.set_IWGs( { tIWGDirichletFixedUx } );
 
     fem::Set_User_Info tSetDirichletFixed01;
-    tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p1") );
+    tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_c_p1") );
     tSetDirichletFixed01.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx } );
 
     fem::Set_User_Info tSetDirichletFixed02;
-    tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p3") );
+    tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p3") );
     tSetDirichletFixed02.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx } );
 
     fem::Set_User_Info tSetDirichletFixed03;
-    tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
+    tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_c_p3") );
     tSetDirichletFixed03.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx } );
 
     //==============================
     // symmetry boundary conditions on side-set 1 ( fix Uy = 0 )
     fem::Set_User_Info tSetDirichletFixed04;
-    tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p1") );
+    tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p1") );
     tSetDirichletFixed04.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUy } );
 
     fem::Set_User_Info tSetDirichletFixed05;
-    tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_c_p1") );
+    tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p1") );
     tSetDirichletFixed05.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUy } );
 
     fem::Set_User_Info tSetDirichletFixed06;
-    tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p3") );
+    tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p3") );
     tSetDirichletFixed06.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUy } );
 
     fem::Set_User_Info tSetDirichletFixed07;
-    tSetDirichletFixed07.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_c_p3") );
+    tSetDirichletFixed07.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p3") );
     tSetDirichletFixed07.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed07.set_IWGs( { tIWGDirichletFixedUy } );
 
     //==============================
     // symmetry boundary conditions on side-set 5 ( fix Uz = 0 )
     fem::Set_User_Info tSetDirichletFixed08;
-    tSetDirichletFixed08.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+    tSetDirichletFixed08.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_n_p1") );
     tSetDirichletFixed08.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed08.set_IWGs( { tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed09;
-    tSetDirichletFixed09.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+    tSetDirichletFixed09.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_c_p1") );
     tSetDirichletFixed09.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed09.set_IWGs( { tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed10;
-    tSetDirichletFixed10.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p3") );
+    tSetDirichletFixed10.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_n_p3") );
     tSetDirichletFixed10.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed10.set_IWGs( { tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tSetDirichletFixed11;
-    tSetDirichletFixed11.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p3") );
+    tSetDirichletFixed11.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_c_p3") );
     tSetDirichletFixed11.set_set_type( fem::Element_Type::SIDESET );
     tSetDirichletFixed11.set_IWGs( { tIWGDirichletFixedUz } );
 
     //==============================
     // Neumann load on side-set 2
     fem::Set_User_Info tSetNeumann00;
-    tSetNeumann00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+    tSetNeumann00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
     tSetNeumann00.set_set_type( fem::Element_Type::SIDESET );
     tSetNeumann00.set_IWGs( { tIWGNeumann } );
 
     fem::Set_User_Info tSetNeumann01;
-    tSetNeumann01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p1") );
+    tSetNeumann01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_c_p1") );
     tSetNeumann01.set_set_type( fem::Element_Type::SIDESET );
     tSetNeumann01.set_IWGs( { tIWGNeumann } );
 
     fem::Set_User_Info tSetNeumann02;
-    tSetNeumann02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3") );
+    tSetNeumann02.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
     tSetNeumann02.set_set_type( fem::Element_Type::SIDESET );
     tSetNeumann02.set_IWGs( { tIWGNeumann } );
 
     fem::Set_User_Info tSetNeumann03;
-    tSetNeumann03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p3") );
+    tSetNeumann03.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_c_p3") );
     tSetNeumann03.set_set_type( fem::Element_Type::SIDESET );
     tSetNeumann03.set_IWGs( { tIWGNeumann } );
 
     //==============================
     // interface(s)
     fem::Set_User_Info tInterfaceFibersToPlate;
-    tInterfaceFibersToPlate.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index("dbl_iside_p0_1_p1_3") );
+    tInterfaceFibersToPlate.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("dbl_iside_p0_1_p1_3") );
     tInterfaceFibersToPlate.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
     tInterfaceFibersToPlate.set_IWGs( { tIWGFiberInterfacePlateBulk } );
 
     fem::Set_User_Info tInterfaceFibersToBoundary00;
-    tInterfaceFibersToBoundary00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+    tInterfaceFibersToBoundary00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_n_p1") );
     tInterfaceFibersToBoundary00.set_set_type( fem::Element_Type::SIDESET );
     tInterfaceFibersToBoundary00.set_IWGs( { tIWGDirichletFixedUz } );
 
     fem::Set_User_Info tInterfaceFibersToBoundary01;
-    tInterfaceFibersToBoundary01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+    tInterfaceFibersToBoundary01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_c_p1") );
     tInterfaceFibersToBoundary01.set_set_type( fem::Element_Type::SIDESET );
     tInterfaceFibersToBoundary01.set_IWGs( { tIWGDirichletFixedUz } );
 

@@ -68,8 +68,8 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
 
         REQUIRE(tIntegMesh->get_num_blocks() == 2);
 
-        mtk::Set * tBlock1 = tIntegMesh->get_block_by_index( 0 );
-        mtk::Set * tBlock2 = tIntegMesh->get_block_by_index( 1 );
+        mtk::Set * tBlock1 = tIntegMesh->get_set_by_index( 0 );
+        mtk::Set * tBlock2 = tIntegMesh->get_set_by_index( 1 );
 
 //        REQUIRE(tBlock1->get_list_of_block_cell_clusters()(0,0) == 0);
 //        REQUIRE(tBlock2->get_list_of_block_cell_clusters()(0,0) == 1);

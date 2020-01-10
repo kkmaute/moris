@@ -244,6 +244,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+           void set_output_manager( vis::Output_Manager * aOutputManager )
+           {
+               mOutputManager = aOutputManager;
+           }
+
+//------------------------------------------------------------------------------
+
            void output_solution( const uint aVisMeshIndex,
                                  const real aTime );
 

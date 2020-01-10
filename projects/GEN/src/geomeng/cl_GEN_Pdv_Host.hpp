@@ -18,6 +18,10 @@ namespace moris
 {
     namespace ge
     {
+//        struct Pdv
+//        {
+//
+//        };
 
         class GEN_Pdv_Host
         {
@@ -37,6 +41,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
             Cell< GEN_Property* > mProperties;
+
+//            Cell< >
 
             //------------------------------------------------------------------------------
         public:

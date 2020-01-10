@@ -183,7 +183,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         for( luint Ik = 0; Ik < 1; ++Ik )
         {
             // create a list of cell clusters (this needs to stay in scope somehow)
-            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( 0 );
+            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
             // create new fem set
             tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,

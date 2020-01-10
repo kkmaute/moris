@@ -131,37 +131,10 @@ namespace moris
         // loop over the used fem set
         for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
         {
-            // create a list of clusters
-            moris::mtk::Set * tMeshSet;
-
             mMeshSetToFemSetMap[ aSetInfo( iSet ).get_mesh_index() ] = tFemSetCounter;
 
-            switch ( aSetInfo( iSet ).get_set_type() )
-            {
-                case( fem::Element_Type::BULK ):
-                {
-                    tMeshSet = tIntegrationMesh->get_block_by_index( aSetInfo( iSet ).get_mesh_index() );
-                    break;
-                 }
-
-                case( fem::Element_Type::SIDESET ):
-                {
-                    tMeshSet = tIntegrationMesh->get_side_set_by_index( aSetInfo( iSet ).get_mesh_index() );
-                    break;
-                }
-
-                case( fem::Element_Type::DOUBLE_SIDESET ):
-                {
-                    tMeshSet = tIntegrationMesh->get_double_side_set_by_index( aSetInfo( iSet ).get_mesh_index() );
-                    break;
-                }
-
-                default :
-                {
-                    MORIS_ERROR( false, " Model - unknown fem::Element_Type " );
-                    break;
-                }
-            }
+            // create a list of clusters
+            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( aSetInfo( iSet ).get_mesh_index() );
 
             if ( tMeshSet->get_num_clusters_on_set() !=0 )
             {
@@ -678,8 +651,8 @@ namespace moris
                                         aTime );
 
             // write requested fields
-//               mOutputManager->write_field( aVisMeshIndex,
-//                                            this );
+            mOutputManager->write_field( aVisMeshIndex,
+                                         this );
 
             // end writing and delete vis mesh
             mOutputManager->end_writing( aVisMeshIndex );
