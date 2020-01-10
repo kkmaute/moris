@@ -32,6 +32,7 @@ namespace moris
     {
     class Model_Solver_Interface;
     class Equation_Object;
+    class Design_Variable_Interface;
     enum class Dof_Type;
 //------------------------------------------------------------------------------
     /**
@@ -211,6 +212,11 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
+        {
+            MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
+        };
+
+        virtual void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
         {
             MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
         };
