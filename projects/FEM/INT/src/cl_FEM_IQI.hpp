@@ -378,14 +378,6 @@ namespace moris
                 }
             };
 
-////------------------------------------------------------------------------------
-//            /**
-//             * set master or slave dv field interpolators for the IQI
-//             * properties, constitutive models and stabilization parameters
-//             * @param[ in ] aIsMaster an enum for master or slave
-//             */
-//            void set_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
 //------------------------------------------------------------------------------
             /**
              * set geometry interpolator
@@ -544,6 +536,20 @@ namespace moris
              */
             void compute_dQIdDof_FD( Matrix< DDRMat > & adQIdDofFD,
                                      real               aPerturbation );
+//------------------------------------------------------------------------------
+            /**
+             * check the derivative of the quantity of interest wrt to dof types
+             * with evaluation by finite difference
+             * @param[ in ] aPerturbation real for perturbation of the dof values
+             * @param[ in ] aEpsilon      real for tolerance
+             * @param[ in ] adQIdDof      matrix to fill with derivative of QI wrt dof types
+             * @param[ in ] adQIdDofFD    matrix to fill with derivative of QI wrt dof types
+             *                            evaluated by finite difference
+             */
+            bool check_dQIdDof_FD( real               aPerturbation,
+                                   real               aEpsilon,
+                                   Matrix< DDRMat > & adQIdDof,
+                                   Matrix< DDRMat > & adQIdDofFD );
 
 //------------------------------------------------------------------------------
             /**

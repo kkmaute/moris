@@ -104,15 +104,21 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // create a space time geometry interpolator
     Geometry_Interpolator tGI( tGIRule );
 
+//    // create space coeff xHat
+//    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
+//                              { 1.0, 0.0, 0.0 },
+//                              { 1.0, 1.0, 0.0 },
+//                              { 0.0, 1.0, 0.0 },
+//                              { 0.0, 0.0, 1.0 },
+//                              { 1.0, 0.0, 1.0 },
+//                              { 1.0, 1.0, 1.0 },
+//                              { 0.0, 1.0, 1.0 }};
+
     // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
-                              { 1.0, 0.0, 0.0 },
-                              { 1.0, 1.0, 0.0 },
-                              { 0.0, 1.0, 0.0 },
-                              { 0.0, 0.0, 1.0 },
-                              { 1.0, 0.0, 1.0 },
-                              { 1.0, 1.0, 1.0 },
-                              { 0.0, 1.0, 1.0 }};
+    arma::Mat< double > tXMatrix;
+    tXMatrix.randu( 8, 3 );
+    Matrix< DDRMat > tXHat;
+    tXHat.matrix_data() = 10.0 * tXMatrix;
 
     // create time coeff tHat
     Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
@@ -154,6 +160,9 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     MSI::Equation_Set * tSet = new fem::Set();
     tIQI->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
+    // set IG GI in the set
+    static_cast< fem::Set* >( tSet )->mMasterIGGeometryInterpolator = &tGI;
+
     // set size for the set EqnObjDofTypeList
     tIQI->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
@@ -189,19 +198,31 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tIQI->compute_QI( tQI );
     //print( tQI, "tQI" );
 
+    // check evaluation of the derivative of the quantity of interest wrt to dof
+    //------------------------------------------------------------------------------
+    // evaluate the quantity of interest derivatives wrt to dof
     Matrix< DDRMat > tdQIdDof;
-    tIQI->compute_dQIdDof( tdQIdDof );
-    print( tdQIdDof, "tdQIdDof" );
-
     Matrix< DDRMat > tdQIdDofFD;
-    tIQI->compute_dQIdDof_FD( tdQIdDofFD, tPerturbation );
-    print( tdQIdDofFD, "tdQIdDofFD" );
+    bool tCheckdQIdDof = tIQI->check_dQIdDof_FD( tPerturbation,
+                                                 tEpsilon,
+                                                 tdQIdDof,
+                                                 tdQIdDofFD );
 
-//    Matrix< DDRMat > tdQIdpMatFD;
-//    Matrix< DDRMat > tdQIdpGeoFD;
-//    tIQI->compute_dQIdDv_FD( tdQIdpMatFD,
-//                             tdQIdpGeoFD,
-//                             tPerturbation );
+    // require check is true
+    REQUIRE( tCheckdQIdDof );
+    //print( tdQIdDof,   "tdQIdDof" );
+    //print( tdQIdDofFD, "tdQIdDofFD" );
+
+    // check evaluation of the derivative of the quantity of interest wrt to dv
+    //------------------------------------------------------------------------------
+    Matrix< DDRMat > tdQIdpMatFD;
+    Matrix< DDRMat > tdQIdpGeoFD;
+    tIQI->compute_dQIdDv_FD( tdQIdpMatFD,
+                             tdQIdpGeoFD,
+                             tPerturbation );
+    //print( tdQIdpMatFD, "tdQIdpMatFD" );
+    //print( tdQIdpGeoFD, "tdQIdpGeoFD" );
+
 
 }/*END_TEST_CASE*/
 

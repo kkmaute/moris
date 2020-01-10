@@ -73,7 +73,7 @@ namespace moris
             {
                 case ( mtk::Master_Slave::MASTER ) :
                 {
-                	mMasterFIManager = aFieldInterpolatorManager;
+                    mMasterFIManager = aFieldInterpolatorManager;
                     break;
                 }
 
@@ -864,7 +864,7 @@ namespace moris
                         // evaluate dQIdDof
                         adQIdDofFD( tStartRow + tDofCounter )
                         = ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                        std::cout<<" adQIdDofFD " <<( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) )<<std::endl;
+
                         // update dof counter
                         tDofCounter++;
                     }
@@ -872,6 +872,40 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+        }
+
+//------------------------------------------------------------------------------
+        bool IQI::check_dQIdDof_FD( real               aPerturbation,
+                                    real               aEpsilon,
+                                    Matrix< DDRMat > & adQIdDof,
+                                    Matrix< DDRMat > & adQIdDofFD )
+        {
+            // compute dQIdDof with IQI
+            this->compute_dQIdDof( adQIdDof );
+
+            // compute dQIdDof by FD
+            this->compute_dQIdDof_FD( adQIdDofFD, aPerturbation );
+
+            //define a boolean for check
+            bool tCheckdQIdDof = true;
+
+            // check if adQIdDof and adQIdDofFD have the same size
+            tCheckdQIdDof = tCheckdQIdDof && ( adQIdDof.n_rows() == adQIdDofFD.n_rows());
+            tCheckdQIdDof = tCheckdQIdDof && ( adQIdDof.n_cols() == adQIdDofFD.n_cols());
+
+            // loop over the rows
+            for ( uint iRow = 0; iRow < adQIdDof.n_rows(); iRow++ )
+            {
+                // loop over the columns
+                for( uint jCol = 0; jCol < adQIdDof.n_cols(); jCol++ )
+                {
+                    // check each components
+                    tCheckdQIdDof = tCheckdQIdDof && ( adQIdDof( iRow, jCol ) - adQIdDofFD( iRow, jCol ) < aEpsilon );
+                }
+            }
+
+            // return bool
+            return tCheckdQIdDof;
         }
 
 //------------------------------------------------------------------------------
@@ -1030,9 +1064,6 @@ namespace moris
                 }
                 // reset the coefficients values
                 tGI->set_space_coeff( tCoeff );
-
-                //print( adrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
-                //print( adrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
             }
 
 //------------------------------------------------------------------------------

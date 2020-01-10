@@ -734,8 +734,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
                              tdrdpdvGeoFD );
 
     // print for debug
-    print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
-    print( tdrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
+    //print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
+    //print( tdrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
 
     // clean up
     tFIs.clear();

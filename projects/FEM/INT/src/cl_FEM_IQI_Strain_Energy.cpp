@@ -82,8 +82,6 @@ namespace moris
                 // if constitutive model has dependency on the dof type
                 if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( { tDofType } ) )
                 {
-                    print(trans( mMasterCM( tElastLinIsoIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastLinIsoIndex )->strain( ),"part1");
-                    print(trans( trans(mMasterCM( tElastLinIsoIndex )->flux()) * mMasterCM( tElastLinIsoIndex )->dStraindDOF( { tDofType } ) ),"part2");
                     // compute dQIdDof
                     adQIdDof( { tStartRow, tEndRow }, { 0, 0 } )
                     += trans( mMasterCM( tElastLinIsoIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastLinIsoIndex )->strain( )

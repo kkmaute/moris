@@ -41,10 +41,11 @@ namespace moris
 
     protected:
 
-        //! pointer to master and slave integration cells on mesh
+        // pointer to master and slave integration cells on mesh
         const mtk::Cell * mMasterCell;
         const mtk::Cell * mSlaveCell;
 
+        // index for the cell within the cluster
         moris::moris_index mCellIndexInCluster;
 
         Set      * mSet     = nullptr;

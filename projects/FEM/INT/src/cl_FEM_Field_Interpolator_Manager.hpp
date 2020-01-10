@@ -90,7 +90,6 @@ namespace moris
             // set the dof type map
             mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
 
-            std::cout<<"222"<<std::endl;
             // maximum number of dof field interpolators
             mMaxNumDofFI =  mEquationSet->get_num_unique_dof_types();
 

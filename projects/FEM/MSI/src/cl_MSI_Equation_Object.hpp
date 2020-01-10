@@ -234,7 +234,7 @@ class Dist_Vector;
              * get the pdv values of this equation object for IP nodes
              * @param[ in ] aDvTypes   list of requested dv types
              * @param[ in ] aPdvValues matrix of requested pdv values to fill
-             * @param[ in ] aIsMaster             enum for master or slave
+             * @param[ in ] aIsMaster  enum for master or slave
              */
             void get_my_pdv_values( const moris::Cell< enum Dv_Type > & aDvTypes,
                                           Matrix< DDRMat >            & aPdvValues,
