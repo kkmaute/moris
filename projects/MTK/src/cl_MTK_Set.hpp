@@ -20,6 +20,8 @@
 #include "cl_MTK_Side_Cluster.hpp" //MTK/src
 #include "cl_Communication_Tools.hpp" //MTK/src
 
+#include "cl_Mesh_Enums.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -47,6 +49,8 @@ namespace moris
             bool mMasterLock = false;
             bool mSlaveLock = false;
 
+            moris_index mSetIndex = MORIS_INDEX_MAX;
+
 //------------------------------------------------------------------------------
 
         protected :
@@ -55,6 +59,8 @@ namespace moris
 
             // integration mesh geometry type
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+            moris::SetType mSetType = moris::SetType::END_ENUM;
 
 //------------------------------------------------------------------------------
 
@@ -183,6 +189,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            enum moris::SetType get_set_type()
+            {
+                return mSetType;
+            }
+
+//------------------------------------------------------------------------------
+
             uint get_clusters() const
             {
                 MORIS_ERROR( !(mSpatialDim < 1) || !(mSpatialDim > 3), "Set::get_spatial_dim(), Spatial dim < 1 or > 3" );
@@ -196,6 +209,22 @@ namespace moris
                 MORIS_ERROR( !(mSpatialDim < 1) || !(mSpatialDim > 3), "Set::get_spatial_dim(), Spatial dim < 1 or > 3" );
                 return mSpatialDim;
             }
+
+//------------------------------------------------------------------------------
+
+            void set_set_index( moris_index aIndex )
+            {
+                mSetIndex = aIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            moris_index get_set_index( moris_index aIndex )
+            {
+                MORIS_ASSERT( mSetIndex != MORIS_INDEX_MAX, "Set::get_set_index(), Set index not set" );
+                return mSetIndex;
+            }
+
 
 //------------------------------------------------------------------------------
 

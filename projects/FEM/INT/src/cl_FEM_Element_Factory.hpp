@@ -61,10 +61,11 @@ namespace MSI
         /**
          * create a cell cluster
          */
-        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
-                                               mtk::Cluster const        * aMeshCluster,
-                                               moris::Cell< Node_Base* > & aNodes,
-                                               Set                       * aSet );
+
+        MSI::Equation_Object * create_interpolation_element(       Element_Type                aElementType,
+                                                             const moris::Cell< const mtk::Cell * >  & aInterpolationCell,
+                                                                   moris::Cell< Node_Base* > & aNodes,
+                                                                   Set                       * aSet );
 //        /**
 //         * create a cell cluster
 //         */

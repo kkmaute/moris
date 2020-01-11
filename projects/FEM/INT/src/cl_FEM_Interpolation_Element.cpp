@@ -10,13 +10,15 @@
 #include "cl_FEM_Interpolation_Element.hpp"   //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 
+#include "cl_FEM_Cluster.hpp"                   //FEM/INT/src
+
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
     Interpolation_Element::Interpolation_Element( const Element_Type                aElementType,
-                                                  const mtk::Cluster              * aMeshCluster,
+                                                  const Cell< const mtk::Cell * >  & aInterpolationCell,
                                                         moris::Cell< Node_Base* > & aNodes,
                                                         Set                       * aSet )
         : MSI::Equation_Object( aSet ),
@@ -24,7 +26,7 @@ namespace moris
           mElementType( aElementType )
         {
             // fill the master interpolation cell
-            mMasterInterpolationCell = & aMeshCluster->get_interpolation_cell();
+            mMasterInterpolationCell = aInterpolationCell( 0 );
 
             // switch on the element type
             switch ( mElementType )
@@ -78,7 +80,7 @@ namespace moris
                 case( fem::Element_Type::DOUBLE_SIDESET ):
                 {
                     // fill the slave interpolation cell
-                    mSlaveInterpolationCell  = & aMeshCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE );
+                    mSlaveInterpolationCell  = aInterpolationCell( 1 );
 
                     // select the element nodes from aIPNodes and fill mNodeObj
                     // get vertices from cell
@@ -117,11 +119,7 @@ namespace moris
 //------------------------------------------------------------------------------
         Interpolation_Element::~Interpolation_Element()
         {
-            for( auto tFemCluster : mFemCluster )
-            {
-                delete tFemCluster;
-            }
-            tFemCluster.clear();
+
         }
 
 
@@ -177,8 +175,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Interpolation_Element::compute_jacobian()
-         {
-
+        {
             // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
             mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
             mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_time_coeff( this->mTime );
@@ -204,13 +201,7 @@ namespace moris
              mSet->set_IWG_field_interpolator_managers();
              mSet->set_IWG_geometry_interpolators();
 
-             // loop over the elements
-             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-             {
-                 // compute the jacobian for the element
-                 mElements( iElem )->compute_jacobian();
-             }
-//             print( mSet->mJacobian,"Jacobian");
+             mFemCluster( 0 )->compute_jacobian();
          }
 
 //------------------------------------------------------------------------------
@@ -241,13 +232,7 @@ namespace moris
             mSet->set_IWG_field_interpolator_managers();
             mSet->set_IWG_geometry_interpolators();
 
-            // loop over the elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-            {
-                // compute the residual for the element
-                mElements( iElem )->compute_residual();
-            }
-//            print( mSet->mResidual,"Residual");
+            mFemCluster( 0 )->compute_residual();
         }
 
 //------------------------------------------------------------------------------
@@ -281,21 +266,16 @@ namespace moris
              mSet->set_IWG_field_interpolator_managers();
              mSet->set_IWG_geometry_interpolators();
 
-             // loop over the elements
-             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-             {
-                 // compute the jacobian for the element
-                 mElements( iElem )->compute_jacobian();
+             MORIS_ERROR( false, "Interpolation_Element::compute_jacobian_and_residual(), function not tested and works only non staggered");
 
-                 // compute the residual for the element
-                 mElements( iElem )->compute_residual();
-             }
+             mFemCluster( 0 )->compute_jacobian_and_residual();
          }
 
 //------------------------------------------------------------------------------
         //void Cluster::compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType )
-        void Interpolation_Element::compute_quantity_of_interest( enum vis::Output_Type aOutputType,
-                                                    enum vis::Field_Type  aFieldType )
+        void Interpolation_Element::compute_quantity_of_interest( const uint            aMeshIndex,
+                                                                  enum vis::Output_Type aOutputType,
+                                                                  enum vis::Field_Type  aFieldType )
         {
             // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
             mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
@@ -330,31 +310,13 @@ namespace moris
                      ->set_geometry_interpolator( mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE) );
              }
 
-             // FIXME choose between visualization and integration
-             // flag to choose between mVisElements and mElements
-
-             // loop over the elements
-             for ( uint iElem = 0; iElem < mVisElements.size(); iElem++ )
-             {
-                 // compute the quantity of interest for the element
-                 mVisElements( iElem )->compute_quantity_of_interest( aOutputType, aFieldType );
-             }
+             mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
          }
 
 //------------------------------------------------------------------------------
         real Interpolation_Element::compute_volume()
         {
-            // set cluster volume
-            real tClusterVolume = 0;
-
-            // loop over the elements in cluster
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-            {
-                // compute the volume for the element
-                tClusterVolume += mElements( iElem )->compute_volume();
-            }
-            // return cluster volume value
-            return tClusterVolume;
+            return mFemCluster( 0 )->compute_volume();
         }
 
 //------------------------------------------------------------------------------

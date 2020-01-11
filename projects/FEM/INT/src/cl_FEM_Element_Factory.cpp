@@ -4,7 +4,7 @@
 #include "cl_FEM_Element_Sideset.hpp"      //FEM/INT/src
 #include "cl_FEM_Element_Double_Sideset.hpp"      //FEM/INT/src
 #include "cl_FEM_Element_Time_Sideset.hpp" //FEM/INT/src
-#include "cl_FEM_Cluster.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Element.hpp" //FEM/INT/src
 
 #include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
 
@@ -21,14 +21,12 @@ namespace moris
         Element_Factory::~Element_Factory(){}
 
 //------------------------------------------------------------------------------
-        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
-                                                                mtk::Cluster const        * aMeshCluster,
-                                                                moris::Cell< Node_Base* > & aNodes,
-                                                                Set                       * aSet )
+        MSI::Equation_Object * Element_Factory::create_interpolation_element(       Element_Type                aElementType,
+                                                                              const moris::Cell< const mtk::Cell * >  & aInterpolationCell,
+                                                                                    moris::Cell< Node_Base* > & aNodes,
+                                                                                    Set                       * aSet )
         {
-            MSI::Equation_Object * tCluster = nullptr;
-            tCluster = new Cluster( aElementType, aMeshCluster, aNodes, aSet );
-            return tCluster;
+            return new fem::Interpolation_Element( aElementType, aInterpolationCell, aNodes, aSet );
         }
 
 //        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,

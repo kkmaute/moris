@@ -176,8 +176,7 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
-    Mesh_Core_STK::Mesh_Core_STK(
-            MtkMeshData &  aMeshData )
+    Mesh_Core_STK::Mesh_Core_STK( MtkMeshData &  aMeshData )
     {
         // allocate stk mesh data
         mSTKMeshData = std::make_shared<Mesh_Data_STK>();

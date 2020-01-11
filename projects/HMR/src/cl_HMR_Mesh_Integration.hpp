@@ -53,6 +53,7 @@ public:
             this->setup_cell_clusters( aInterpolationMesh );
             this->setup_blockset_with_cell_clusters();
             this->setup_side_set_clusters( aInterpolationMesh );
+            this->collect_all_sets();
 //        }
     }
 
@@ -166,17 +167,6 @@ public:
     {
         MORIS_ERROR(0,"get_double_sided_set_label not implemented in HMR Integration mesh");
         return "ERROR";
-    }
-
-    /*!
-     * Returns the index given a label
-     */
-
-    moris_index
-    get_double_sided_set_index(std::string aDoubleSideSetLabel) const
-    {
-        MORIS_ERROR(0,"get_double_sided_set_index not implemented in HMR Integration mesh");
-        return MORIS_INDEX_MAX;
     }
 
     /*!

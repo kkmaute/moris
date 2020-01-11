@@ -411,55 +411,55 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
         //        // create a list of active block-sets
-        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
-        ////                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
-        ////                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-        ////                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-        ////                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
-        ////                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
-        ////                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p0"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p0"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_4_n_p0"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_2_n_p1"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
         //
-        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-        //                                                  tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
-        //                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-        //                                                  tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
         tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk3.set_set_type( fem::Element_Type::BULK );
         tSetBulk3.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterface;
-        tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
+        tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
         tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface.set_IWGs( { tIWGInterface } );
 
@@ -819,55 +819,55 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
         //        // create a list of active block-sets
-        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
-        ////                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
-        ////                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-        ////                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-        ////                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
-        ////                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
-        ////                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p0"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p0"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_4_n_p0"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_2_n_p1"),
+        ////                                                tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
         //
-        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-        //                                                  tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
-        //                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-        //                                                  tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1"),
+        //                                                  tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
         tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk3.set_set_type( fem::Element_Type::BULK );
         tSetBulk3.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterface;
-        tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
+        tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
         tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface.set_IWGs( { tIWGInterface } );
 
@@ -1203,42 +1203,42 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk3.set_set_type( fem::Element_Type::BULK );
         tSetBulk3.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichletFixed;
-        tSetDirichletFixed.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichletFixed.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichletFixed.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichletFixed.set_IWGs( { tIWGDirichletFixed } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
 //        fem::Set_User_Info tSetInterface;
-//        tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
+//        tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
 //        tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 //        tSetInterface.set_IWGs( { tIWGInterface } );
 
@@ -1519,22 +1519,22 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -1918,77 +1918,77 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
 //      std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
 //
-//      std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01)<<std::endl;
-//      std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02)<<std::endl;
+//      std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName01)<<std::endl;
+//      std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName02)<<std::endl;
 //
 //      // define set info
 //      fem::Set_User_Info tSetBulk1;
-//      tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+//      tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
 //      tSetBulk1.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk1.set_IWGs( { tIWGBulk2 } );
 //
 //      fem::Set_User_Info tSetBulk2;
-//      tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+//      tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
 //      tSetBulk2.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk2.set_IWGs( { tIWGBulk2 } );
 //
 //      fem::Set_User_Info tSetBulk3;
-//      tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+//      tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
 //      tSetBulk3.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk3.set_IWGs( { tIWGBulk2 } );
 //
 //      fem::Set_User_Info tSetBulk4;
-//      tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+//      tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
 //      tSetBulk4.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk4.set_IWGs( { tIWGBulk2 } );
 //
 //      fem::Set_User_Info tSetBulk5;
-//      tSetBulk5.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p2") );
+//      tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
 //      tSetBulk5.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk5.set_IWGs( { tIWGBulk1 } );
 //
 //      fem::Set_User_Info tSetBulk6;
-//      tSetBulk6.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p2") );
+//      tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
 //      tSetBulk6.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk6.set_IWGs( { tIWGBulk1 } );
 //
 //      fem::Set_User_Info tSetBulk7;
-//      tSetBulk7.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p3") );
+//      tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
 //      tSetBulk7.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk7.set_IWGs( { tIWGBulk1 } );
 //
 //      fem::Set_User_Info tSetBulk8;
-//      tSetBulk8.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p3") );
+//      tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
 //      tSetBulk8.set_set_type( fem::Element_Type::BULK );
 //      tSetBulk8.set_IWGs( { tIWGBulk1 } );
 //
 //      fem::Set_User_Info tSetDirichlet;
-//      tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p2") );
+//      tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
 //      tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
 //      tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 //
 //      fem::Set_User_Info tSetNeumann;
-//      tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3") );
+//      tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
 //      tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
 //      tSetNeumann.set_IWGs( { tIWGNeumann } );
 //
 //      fem::Set_User_Info tSetInterface1;
-//      tSetInterface1.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01) );
+//      tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName01) );
 //      tSetInterface1.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 //      tSetInterface1.set_IWGs( { tIWGInterface1 } );
 //
 //      fem::Set_User_Info tSetInterface2;
-//      tSetInterface2.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02) );
+//      tSetInterface2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName02) );
 //      tSetInterface2.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 //      tSetInterface2.set_IWGs( { tIWGInterface2 } );
 //
 //      fem::Set_User_Info tSetInterface3;
-//      tSetInterface3.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName13) );
+//      tSetInterface3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13) );
 //      tSetInterface3.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 //      tSetInterface3.set_IWGs( { tIWGInterface2 } );
 //
 //      fem::Set_User_Info tSetInterface4;
-//      tSetInterface4.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName23) );
+//      tSetInterface4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23) );
 //      tSetInterface4.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 //      tSetInterface4.set_IWGs( { tIWGInterface3 } );
 //

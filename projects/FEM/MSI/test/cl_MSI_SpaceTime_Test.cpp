@@ -95,7 +95,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         moris::Cell< MSI::Equation_Set * > tFEMSets( 1, nullptr );
 
         // get the mesh set from the integration mesh
-        moris::mtk::Set * tMeshSet = tIntegMesh->get_block_by_index( 0 );
+        moris::mtk::Set * tMeshSet = tIntegMesh->get_set_by_index( 0 );
 
         // define set info
          moris::Cell< fem::Set_User_Info > tSetInfo( 1 );

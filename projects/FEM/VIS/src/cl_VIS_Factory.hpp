@@ -38,15 +38,14 @@ namespace moris
         private:
             moris::Cell< moris::mtk::Set * > mListofBlocks;
 
-            moris::Cell< moris::Cell< mtk::Cluster * > >        mClustersOnBlock;   //FIXME delete can be used temporary
-            moris::Cell< moris::Cell< const mtk::Cluster * > >  mClustersOnBlock_1;
-            moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnBlock;
-            moris::Cell< moris::Cell< mtk::Vertex * > > mVerticesOnBlock;
+            moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;   //FIXME delete can be used temporary
+            moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
+            moris::Cell< moris::Cell< mtk::Vertex * > > mVerticesOnSet;
 
-            moris::Cell< Matrix< DDSMat > >             mVertexMapOnBlock;
-            moris::Cell< Matrix< DDSMat > >             mCellMapOnBlock;
+            moris::Cell< Matrix< DDSMat > >             mVertexMapOnSet;
+            moris::Cell< Matrix< DDSMat > >             mCellMapOnSet;
 
-            uint mNumRequestedBlocks;
+            uint mNumRequestedSets;
             bool mOnlyPrimaryCells = false;
 
             mtk::Mesh_Manager* mMesh = nullptr;

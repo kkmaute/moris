@@ -179,6 +179,7 @@ public:
     Matrix< DDRMat > get_vertex_coords() const
     {
         size_t tNumVertices = this->get_number_of_vertices();
+
         Matrix< DDRMat > tVertexCoords( tNumVertices, mCellVertices( 0 )->get_coords().numel() );
         for(size_t i = 0; i<tNumVertices; i++)
         {

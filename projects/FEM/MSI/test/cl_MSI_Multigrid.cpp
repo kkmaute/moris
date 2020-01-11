@@ -182,11 +182,13 @@ namespace moris
              // init the fem set counter
              moris::uint tFemSetCounter = 0;
 
+//             uint tNumBlocks = tIntegrationMesh->get_num_blocks();
+
              // loop over the used mesh block-set
              for( luint Ik = 0; Ik < 1; ++Ik )
              {
                  // create a list of cell clusters (this needs to stay in scope somehow)
-                 moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( 0 );
+                 moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
                  // create new fem set
                  tElementBlocks( Ik ) = new fem::Set( tBlockSet,

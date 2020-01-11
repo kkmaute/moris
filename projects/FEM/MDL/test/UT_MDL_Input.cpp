@@ -255,22 +255,22 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tIntegMesh1->get_block_set_index("child_0") ); // FIXME set index within the mesh
+        tSetBulk1.set_mesh_index( tIntegMesh1->get_set_index_by_name("child_0") ); // FIXME set index within the mesh
         tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index(  tIntegMesh1->get_block_set_index("parent_0") ); // FIXME set index within the mesh
+        tSetBulk2.set_mesh_index(  tIntegMesh1->get_set_index_by_name("parent_0") ); // FIXME set index within the mesh
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tIntegMesh1->get_side_set_index("iside_g_0_p0_0_p1_1") ); // FIXME set index within the mesh
+        tSetNeumann.set_mesh_index( tIntegMesh1->get_set_index_by_name("iside_g_0_p0_0_p1_1") ); // FIXME set index within the mesh
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tIntegMesh1->get_side_set_index("SideSet_1") ); // FIXME set index within the mesh
+        tSetDirichlet.set_mesh_index( tIntegMesh1->get_set_index_by_name("SideSet_1") ); // FIXME set index within the mesh
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
