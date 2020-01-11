@@ -62,14 +62,6 @@ namespace moris
                 mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
                 += - trans( tDisplacementFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
-
-            // if pressure dof
-//            uint tElastLinIsoPressureIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE );
-//            if (mMasterCM(tElastLinIsoPressureIndex) != nullptr)
-//            {
-//                mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
-//                -= trans(mMasterCM(tElastLinIsoIndex)->testStrain()) * mMasterCM(tElastLinIsoPressureIndex)->flux() * tWStar;
-//            }
         }
 
 //------------------------------------------------------------------------------
@@ -124,14 +116,6 @@ namespace moris
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                     += trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * mMasterCM( tElastLinIsoIndex )->dFluxdDOF( tDofType ) * tWStar;
                 }
-
-                //if (mMasterCM(tElastLinIsoPressureIndex) != nullptr && mMasterCM( tElastLinIsoPressureIndex )->check_dof_dependency( tDofType ))
-//                if (mMasterCM(tElastLinIsoPressureIndex) != nullptr && tIndexDep != 0)
-//                {
-//                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-//                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-//                                          -= trans(mMasterCM(tElastLinIsoIndex)->testStrain()) * mMasterCM(tElastLinIsoPressureIndex)->strain() * tWStar;
-//                }
             }
         }
 

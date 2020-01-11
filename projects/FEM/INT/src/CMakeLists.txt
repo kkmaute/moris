@@ -126,6 +126,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
 	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
+	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp

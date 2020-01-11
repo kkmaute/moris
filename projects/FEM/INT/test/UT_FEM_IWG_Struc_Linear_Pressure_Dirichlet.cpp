@@ -1,13 +1,7 @@
 #include <string>
 #include <catch.hpp>
-#include <memory>
 
 #include "assert.hpp"
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-
-#include "op_equal_equal.hpp"
 
 #define protected public
 #define private   public
@@ -17,12 +11,18 @@
 #undef protected
 #undef private
 
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
+#include "cl_MTK_Enums.hpp" //MTK/src
+#include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
+#include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
+#include "cl_FEM_Property.hpp"                                  //FEM//INT//src
+#include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
+#include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
+#include "cl_FEM_IWG_Factory.hpp"                               //FEM//INT//src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp"      //FEM//INT//src
 
-moris::Matrix< moris::DDRMat > tConstValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+#include "op_equal_equal.hpp"
+
+moris::Matrix< moris::DDRMat > tConstValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
@@ -30,7 +30,7 @@ moris::Matrix< moris::DDRMat > tConstValFunction_STRUCBULK( moris::Cell< moris::
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                                moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
@@ -38,7 +38,7 @@ moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCBULK( moris::Cell< moris::Ma
     return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
@@ -46,14 +46,14 @@ moris::Matrix< moris::DDRMat > tFIValFunction_STRUCBULK( moris::Cell< moris::Mat
     return aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return -1.0 * aParameters( 1 )( 0, 0 ) * aDofFI( 0 )->N();
 }
-moris::Matrix< moris::DDRMat > tMValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
@@ -62,11 +62,20 @@ moris::Matrix< moris::DDRMat > tMValFunction_STRUCBULK( moris::Cell< moris::Matr
             { 0.0, aParameters( 0 )( 1 ) }};
 }
 
+moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET_3D( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+            { 0.0, aParameters( 0 )( 1 ), 0.0 },
+            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
+}
+
 using namespace moris;
 using namespace fem;
 
-
-TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed]" )
+TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -74,33 +83,49 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed]" )
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create the properties
-    std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
-    tPropEMod->set_parameters( { {{ 1.0 }} } );
-    tPropEMod->set_val_function( tConstValFunction_STRUCBULK );
+    // create a linear elasticity Dirichlet IWG
+    //------------------------------------------------------------------------------
 
-    std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
-    tPropNu->set_parameters( { {{ 0.3 }} } );
-    tPropNu->set_val_function( tConstValFunction_STRUCBULK );
+    // create the properties
+    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
+    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
+    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+
+    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
+    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
+    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+
+    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
+    tPropMasterDirichlet->set_parameters( {{{ 0.0 }, { 0.0 }}} );
+    tPropMasterDirichlet->set_val_function( tConstValFunction_STRUCDIRICHLET );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
-    tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
     tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
     tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_BULK );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::P } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}}, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
+    tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -162,7 +187,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed]" )
 
     // create the field interpolator
     tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-    tFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI,{ {MSI::Dof_Type::P } } );
+    tFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI,{ {MSI::Dof_Type::P} } );
 
     // set the coefficients uHat
     tFIs( 0 )->set_coeff( tDOFHat );
@@ -177,7 +202,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mEqnObjDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
@@ -210,18 +235,17 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed]" )
     tIWG->get_global_dof_type_list();
 
     // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }, { MSI::Dof_Type::P }};
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }, {MSI::Dof_Type::P}};
 
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
-    Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
 
     // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager(&tFIManager);
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -250,4 +274,4 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed]" )
     // clean up
     tFIs.clear();
 
-}/*END_TEST_CASE*/
+}/* END_TEST_CASE */

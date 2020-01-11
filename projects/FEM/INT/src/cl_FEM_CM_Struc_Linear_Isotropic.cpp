@@ -165,7 +165,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_strain - Flattening of strain tensor only implemented in 2 and 3 D");
+                    MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_testStrain - Flattening of strain tensor only implemented in 2 and 3 D");
                 }
             }
         }

@@ -240,7 +240,7 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
 
 }/*END_TEST_CASE*/
 
-TEST_CASE( "IWG_Elasticity_Bulk_with_Pressure", "[IWG_Pressure_Bulk]" )
+TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;

@@ -12,7 +12,7 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_2D.cpp
     UT_MDL_XTK_HMR_Diffusion_Element_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
-    UT_MDL_XTK_HMR_Linear_Struc_2D_Incompressible.cpp
+    UT_MDL_XTK_HMR_Linear_Struc_Incompressible.cpp
     UT_MDL_XTK_HMR_ThermoElastic_2D.cpp
     UT_MDL_XTK_HMR_2_Material_Bar_Plane.cpp
     UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
