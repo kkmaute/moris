@@ -20,6 +20,8 @@
 #include "cl_MTK_Side_Cluster.hpp" //MTK/src
 #include "cl_Communication_Tools.hpp" //MTK/src
 
+#include "cl_Mesh_Enums.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -57,6 +59,8 @@ namespace moris
 
             // integration mesh geometry type
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+            moris::SetType mSetType = moris::SetType::END_ENUM;
 
 //------------------------------------------------------------------------------
 
@@ -181,6 +185,13 @@ namespace moris
             std::string get_set_name()
             {
                 return mSetName;
+            }
+
+//------------------------------------------------------------------------------
+
+            enum moris::SetType get_set_type()
+            {
+                return mSetType;
             }
 
 //------------------------------------------------------------------------------

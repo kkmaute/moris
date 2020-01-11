@@ -63,7 +63,14 @@ public:
 
 // ----------------------------------------------------------------------------
 
-    moris::mtk::Set * get_set_by_name( std::string aSetLabel )
+    virtual moris::uint get_num_sets() const
+    {
+        return mListOfAllSets.size();
+    }
+
+// ----------------------------------------------------------------------------
+
+    moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const
     {
         moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
 
@@ -72,7 +79,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-    moris::mtk::Set * get_set_by_index( moris_index aIndex )
+    moris::mtk::Set * get_set_by_index( moris_index aIndex ) const
     {
         return mListOfAllSets( aIndex );
     }
@@ -81,7 +88,7 @@ public:
 
     moris_index get_set_index_by_name( std::string aSetLabel )
     {
-        return  mSetNameToIndexMap.find( aSetLabel );
+        return mSetNameToIndexMap.find( aSetLabel );
     }
 
     // ----------------------------------------------------------------------------
@@ -127,16 +134,6 @@ public:
         return mListofBlocks.size();
     };
 
-    // ----------------------------------------------------------------------------
-    /*
-     * Get block by index
-     */
-    moris::mtk::Set *
-    get_block_by_index( moris::uint aBlockIndex) const
-    {
-        MORIS_ASSERT(aBlockIndex<mListofBlocks.size(),"Block index out of bounds");
-        return mListofBlocks(aBlockIndex);
-    };
 
     // ----------------------------------------------------------------------------
     /*

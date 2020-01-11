@@ -105,7 +105,7 @@ namespace moris
 
             // set vis set to fem set. +1 because 0 is reserved for fem
             tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
-                                                                       mVisMesh( aVisMeshIndex )->get_block_by_index( Ii ),
+                                                                       mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
                                                                        mOnlyPrimary );
         }
     }
@@ -223,7 +223,7 @@ namespace moris
         {
             uint tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
-            moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_block_by_index( tBlockIndex );
+            moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( tBlockIndex );
 
             bool tOnlyPrimaryCells = true ;
 
