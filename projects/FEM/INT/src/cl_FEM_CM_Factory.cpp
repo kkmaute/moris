@@ -2,7 +2,6 @@
 #include "cl_FEM_CM_Factory.hpp"                    //FEM/INT/src
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp" //FEM/INT/src
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp" //FEM/INT/src
-#include "cl_FEM_CM_Struc_Linear_Isotropic_Pressure.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -20,9 +19,6 @@ namespace moris
 
                 case ( Constitutive_Type::STRUC_LIN_ISO ):
                     return std::make_shared< CM_Struc_Linear_Isotropic >();
-
-                case (Constitutive_Type::STRUC_LIN_ISO_PRESSURE):
-                    return std::make_shared< CM_Struc_Linear_Isotropic_Pressure >();
 
                 default:
                     MORIS_ERROR( false, " CM_Factory::create_CM - No constitutive type specified. " );

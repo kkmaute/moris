@@ -301,7 +301,6 @@ namespace moris
     void VIS_Factory::create_visualization_blocks()
     {
         mListofBlocks.resize( mNumRequestedSets );
-
         mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
         mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
         mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
@@ -310,6 +309,8 @@ namespace moris
         {
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
             moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
+
+            std::cout<<tSetIndex<<std::endl;
 
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock( Ij ),
