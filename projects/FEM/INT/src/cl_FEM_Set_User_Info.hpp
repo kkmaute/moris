@@ -26,9 +26,6 @@ namespace moris
         {
         protected :
 
-        // set type
-        fem::Element_Type mSetType;
-
         // cell of IWG pointers
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
 
@@ -52,26 +49,6 @@ namespace moris
              * trivial destructor
              */
              ~Set_User_Info(){};
-
-//------------------------------------------------------------------------------
-            /**
-             * set set type
-             * @param[ in ] aSetType an enum for the set type
-             */
-            void set_set_type( fem::Element_Type aSetType )
-            {
-                mSetType = aSetType;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * return set type
-             * @param[ out ] mSetType n enum for the set type
-             */
-            fem::Element_Type get_set_type()
-            {
-                return mSetType;
-            };
 
 //------------------------------------------------------------------------------
             /**

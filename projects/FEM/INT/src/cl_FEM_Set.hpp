@@ -704,6 +704,12 @@ namespace MSI
                                            enum vis::Output_Type   aOutputType,
                                            enum vis::Field_Type    aFieldType );
 
+//------------------------------------------------------------------------------
+        /**
+         * determine set type from mtk set type
+         */
+        void determine_set_type();
+
     };
 //------------------------------------------------------------------------------
     } /* namespace fem */

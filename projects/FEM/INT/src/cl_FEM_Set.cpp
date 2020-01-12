@@ -31,9 +31,9 @@ namespace moris
     : mMeshSet( aMeshSet ),
       mNodes( aIPNodes ),
       mIWGs( aSetInfo.get_IWGs() ),
-      mIQIs( aSetInfo.get_IQIs() ),
-      mElementType( aSetInfo.get_set_type() )
+      mIQIs( aSetInfo.get_IQIs() )
     {
+        this->determine_set_type();
 
         // loop over the IWGs on the set
         for(  std::shared_ptr< IWG > tIWG : mIWGs )
@@ -1409,8 +1409,6 @@ namespace moris
                                                                   aFieldType );
         }
 
-
-
         //FIXME I do not like this at all. someone change it
         for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
         {
@@ -1423,7 +1421,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Set::determine_set_type()
+    {
+        enum moris::SetType tMtkSetType = mMeshSet->get_set_type();
 
+        switch( tMtkSetType )
+        {
+            case( moris::SetType::BULK ) :
+                mElementType = fem::Element_Type::BULK;
+                break;
+
+            case( moris::SetType::SIDESET ) :
+                 mElementType = fem::Element_Type::SIDESET;
+                 break;
+
+            case( moris::SetType::DOUBLE_SIDED_SIDESET ) :
+                mElementType = fem::Element_Type::DOUBLE_SIDESET;
+                break;
+
+            default :
+                MORIS_ERROR( false, "Set::determine_set_type() - not defined for this set type. ");
+                break;
+        }
+    }
 
 //------------------------------------------------------------------------------
 

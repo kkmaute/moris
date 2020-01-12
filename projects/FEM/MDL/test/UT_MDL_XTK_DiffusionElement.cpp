@@ -195,22 +195,18 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tBulkBlockNamesNoChild) );
-        tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tBulkBlockNamesChild) );
-        tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDirchletSideName) );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tNeumannSideName) );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -470,22 +466,18 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( 4 );
-        tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( 5 );
-        tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( 9 );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( 8 );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info

@@ -339,27 +339,22 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I]")
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
-        tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-        tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetNeumann2;
         tSetNeumann2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_3_n_p1") );
-        tSetNeumann2.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann2.set_IWGs( { tIWGNeumann2 } );
 
         // create a cell of set info

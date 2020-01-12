@@ -474,72 +474,58 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
-        tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
-        tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk3;
         tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
-        tSetBulk3.set_set_type( fem::Element_Type::BULK );
         tSetBulk3.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-        tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk5;
         tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
-        tSetBulk5.set_set_type( fem::Element_Type::BULK );
         tSetBulk5.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk6;
         tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
-        tSetBulk6.set_set_type( fem::Element_Type::BULK );
         tSetBulk6.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk7;
         tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
-        tSetBulk7.set_set_type( fem::Element_Type::BULK );
         tSetBulk7.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk8;
         tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
-        tSetBulk8.set_set_type( fem::Element_Type::BULK );
         tSetBulk8.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterface1;
         tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName01) );
-        tSetInterface1.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface1.set_IWGs( { tIWGInterface1 } );
 
         fem::Set_User_Info tSetInterface2;
         tSetInterface2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName02) );
-        tSetInterface2.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface2.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface3;
         tSetInterface3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13) );
-        tSetInterface3.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface3.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface4;
         tSetInterface4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23) );
-        tSetInterface4.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
@@ -925,72 +911,58 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
-        tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
-        tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk3;
         tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
-        tSetBulk3.set_set_type( fem::Element_Type::BULK );
         tSetBulk3.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-        tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk2 } );
 
         fem::Set_User_Info tSetBulk5;
         tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
-        tSetBulk5.set_set_type( fem::Element_Type::BULK );
         tSetBulk5.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk6;
         tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
-        tSetBulk6.set_set_type( fem::Element_Type::BULK );
         tSetBulk6.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk7;
         tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
-        tSetBulk7.set_set_type( fem::Element_Type::BULK );
         tSetBulk7.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk8;
         tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
-        tSetBulk8.set_set_type( fem::Element_Type::BULK );
         tSetBulk8.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterface1;
         tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName01) );
-        tSetInterface1.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface1.set_IWGs( { tIWGInterface1 } );
 
         fem::Set_User_Info tSetInterface2;
         tSetInterface2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName02) );
-        tSetInterface2.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface2.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface3;
         tSetInterface3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13) );
-        tSetInterface3.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface3.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface4;
         tSetInterface4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23) );
-        tSetInterface4.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info

@@ -100,7 +100,6 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // define set info
          moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
          tSetInfo( 0 ).set_mesh_index( 0 );
-         tSetInfo( 0 ).set_set_type( fem::Element_Type::BULK );
          tSetInfo( 0 ).set_IWGs( { tIWG } );
 
         // create a set

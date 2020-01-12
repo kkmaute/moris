@@ -332,39 +332,32 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
                // define set info
                fem::Set_User_Info tSetBulk1;
                tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
-               tSetBulk1.set_set_type( fem::Element_Type::BULK );
                tSetBulk1.set_IWGs( { tIWGBulk2 } );
 
                fem::Set_User_Info tSetBulk2;
                tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
-               tSetBulk2.set_set_type( fem::Element_Type::BULK );
                tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
                fem::Set_User_Info tSetBulk3;
                tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
-               tSetBulk3.set_set_type( fem::Element_Type::BULK );
                tSetBulk3.set_IWGs( { tIWGBulk1 } );
 
                fem::Set_User_Info tSetBulk4;
                tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-               tSetBulk4.set_set_type( fem::Element_Type::BULK );
                tSetBulk4.set_IWGs( { tIWGBulk1 } );
 
                fem::Set_User_Info tSetDirichlet;
                tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
-               tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
                tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
                fem::Set_User_Info tSetNeumann;
                tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
-               tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
                tSetNeumann.set_IWGs( { tIWGNeumann } );
 
                std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
                fem::Set_User_Info tSetInterface1;
                tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
-               tSetInterface1.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
                tSetInterface1.set_IWGs( { tIWGInterface } );
 
                // create a cell of set info

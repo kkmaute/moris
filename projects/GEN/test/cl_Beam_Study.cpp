@@ -320,23 +320,19 @@ TEST_CASE("beamStudy","[beamStudy_3D]")
         // define set info
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-        tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk1 } );
         //------------------------------------------------------------------------------
 
         fem::Set_User_Info tSetDirichletFixed;
         tSetDirichletFixed.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
-        tSetDirichletFixed.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichletFixed.set_IWGs( { tIWGDirichletFixed_ss4 } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet_ss2 } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         //------------------------------------------------------------------------------
