@@ -167,6 +167,8 @@ namespace moris
                 return mFemSets;
             };
 
+//------------------------------------------------------------------------------
+
             map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
             {
                 return mMeshSetToFemSetMap;
