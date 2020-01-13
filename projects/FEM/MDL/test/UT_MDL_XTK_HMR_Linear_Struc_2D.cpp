@@ -190,7 +190,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
          tParameters.set( "number_of_elements_per_dimension", "20, 20");
          tParameters.set( "domain_dimensions", "2, 2" );
@@ -593,7 +593,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
          tParameters.set( "number_of_elements_per_dimension", "2, 2, 2");
          tParameters.set( "domain_dimensions", "2, 2, 2" );
@@ -1000,7 +1000,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", "20, 20");
         tParameters.set( "domain_dimensions", "2, 2" );
@@ -1351,7 +1351,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", "20, 20");
         tParameters.set( "domain_dimensions", "2, 2" );
@@ -1646,7 +1646,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //
 //        uint tSpatialDimension = 3;
 //
-//         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 //
 //         tParameters.set( "number_of_elements_per_dimension", "22, 8, 2");
 //         tParameters.set( "domain_dimensions", "6, 2, 1" );

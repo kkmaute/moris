@@ -199,7 +199,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
 {
     uint tLagrangeMeshIndex = 0;
     //  HMR Parameters setup
-    hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
     tParameters.set( "number_of_elements_per_dimension", "40, 20, 5" );
     tParameters.set( "domain_dimensions",                "40, 20, 5" );

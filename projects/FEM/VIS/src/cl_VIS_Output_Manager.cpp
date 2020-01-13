@@ -101,8 +101,6 @@ namespace moris
 //            moris_index tEquationSetIndex = Ii;
             moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
 
-            std::cout<<tEquationSetIndex<<" tEquationSetIndex"<<std::endl;
-
             // set vis set to fem set. +1 because 0 is reserved for fem
             tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
                                                                        mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
@@ -217,12 +215,16 @@ namespace moris
 
     void Output_Manager::write_mesh_indices( const uint aVisMeshIndex )
     {
+        // get mesh set indices
         uint tRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
 
+        // loop over mesh sets
         for( uint Ii = 0; Ii < tRequestedSets; Ii++ )
         {
+            // get block index
             uint tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
+            // get vis set by index
             moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( tBlockIndex );
 
             bool tOnlyPrimaryCells = true ;
@@ -246,32 +248,42 @@ namespace moris
                     break;
             }
 
+            // get number of cells on set
             uint tNumCells = tSet->get_num_cells_on_set( tOnlyPrimaryCells );
 
+            // get cell indices on set
             moris::Matrix< DDSMat > tCellIndex = tSet->get_cell_inds_on_block( tOnlyPrimaryCells );
 
+            // find the maximal index for resizing purposes
             sint tMaxIndex = tCellIndex.max();
 
+            // create cell assembly map( index to position )
             Matrix< DDSMat > tCellAsseblyMap( tMaxIndex + 1, 1, -1 );
 
+            // loop over cells and put them in map
             for( uint Ik = 0; Ik < tNumCells; Ik++ )
             {
                 tCellAsseblyMap( tCellIndex( Ik ) ) = Ik;
             }
-            //----------------------------------
 
+            // create cell of inde and id field
             moris::Cell< Matrix< DDRMat > > tIdIndex( 2 );
             tIdIndex( 0 ).set_size( tCellIndex.numel(), 1 );
             tIdIndex( 1 ).set_size( tCellIndex.numel(), 1 );
 
+            // get clusters from vis set
             moris::Cell< mtk::Cluster const* > tMeshClusterList = tSet->get_clusters_on_set();
 
+            // loop over clusters and get ids and indices
             for( uint Ik = 0; Ik < tMeshClusterList.size(); Ik++ )
             {
+                // get primary cells
                 const moris::Cell<moris::mtk::Cell const *> & tPrimaryCells = tMeshClusterList( Ik )->get_primary_cells_in_cluster();
 
+                // loop over primary cells
                 for( uint Ia = 0; Ia < tPrimaryCells.size(); Ia++ )
                 {
+                    // get index of vis cell
                     moris_index tIndex = tPrimaryCells( Ia )->get_index();
 
                     moris_id tMeshId =  reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_id();

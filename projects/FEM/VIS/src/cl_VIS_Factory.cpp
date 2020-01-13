@@ -310,8 +310,6 @@ namespace moris
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
             moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
-            std::cout<<tSetIndex<<std::endl;
-
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock( Ij ),
                                                          tMeshSet->get_spatial_dim() );

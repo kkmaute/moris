@@ -7,12 +7,12 @@
 
 namespace moris
 {
+    //datatype for hmr paramater list
+    typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
+
     namespace hmr
     {
 // -----------------------------------------------------------------------------
-
-        //datatype for hmr paramater list
-        typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
 
         // global parameter defining max supported level.
         // Needs to be known during compile time.

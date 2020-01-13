@@ -173,7 +173,7 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
         size_t tModelDimension = 3;
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
         tParameters.set( "domain_dimensions",                "10, 10, 10" );

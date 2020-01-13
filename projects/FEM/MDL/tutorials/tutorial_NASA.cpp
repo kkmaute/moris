@@ -76,8 +76,6 @@
 
 #include "banner.hpp" // COR/src
 
-
-
 #include "fn_norm.hpp"
 
 // ---------------------------------------------------------------------
@@ -88,12 +86,8 @@
 
 #include "fn_properties_and_constitutive_model.hpp" // MRS/IOS/src
 
-
-
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
-
-
 
 int
 main( int    argc,
