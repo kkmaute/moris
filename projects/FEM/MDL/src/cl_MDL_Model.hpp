@@ -76,8 +76,11 @@ namespace moris
             mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
 
-            // list of node pointers
+            // list of IP node pointers
             moris::Cell< fem::Node_Base* > mIPNodes;
+
+            // list of IG node pointers
+             moris::Cell< fem::Node_Base* > mIGNodes;
 
             // list of IP cell pointers
             moris::Cell< fem::Cell* > mIPCells;

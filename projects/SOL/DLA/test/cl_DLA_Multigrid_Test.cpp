@@ -196,7 +196,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             tFemSetCounter++;
         }
 
-
 //        // ask mesh about number of elements on proc
 //        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
 //

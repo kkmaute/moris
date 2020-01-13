@@ -11,6 +11,7 @@
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_MTK_Vertex.hpp"      //MTK/src
 
 namespace moris
 {
@@ -23,7 +24,6 @@ namespace moris
             moris_index mNodeId;
 
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
         public:
@@ -148,6 +148,16 @@ namespace moris
             {
                 MORIS_ERROR( false, "Enterd virtual function Node_Base::id_owned()" );
                 return false;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get vertex coordinates (if relevant)
+             * @param[ out ] aIndex  id for this node
+             */
+            virtual void get_vertex_coords( Matrix< DDRMat > & aVertexCoords )
+            {
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_coords()" );
             }
 
 //------------------------------------------------------------------------------

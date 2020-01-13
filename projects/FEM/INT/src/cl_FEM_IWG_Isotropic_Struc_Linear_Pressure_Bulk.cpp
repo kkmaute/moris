@@ -30,8 +30,7 @@ namespace moris
 
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
@@ -51,7 +50,7 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
-            +=  trans(tPressureFI->N()) * (tDisplacementFI->div() + tLinearIso->eval_inv_bulk_modulus() * tPressureFI->val()(0)) * aWStar;
+            += trans(tPressureFI->N()) * (tDisplacementFI->div() + tLinearIso->eval_inv_bulk_modulus() * tPressureFI->val()(0)) * aWStar;
         }
 
 //------------------------------------------------------------------------------
@@ -59,8 +58,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for given dof type
@@ -94,7 +92,7 @@ namespace moris
                 {
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                            += trans(tPressureFI->N()) * tLinearIso->eval_inv_bulk_modulus() * tPressureFI->N() * aWStar;
+                    += trans(tPressureFI->N()) * tLinearIso->eval_inv_bulk_modulus() * tPressureFI->N() * aWStar;
                 }
             }
         }
@@ -104,6 +102,12 @@ namespace moris
                                                                              moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_jacobian_and_residual - This function does nothing.");
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_drdpdv - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

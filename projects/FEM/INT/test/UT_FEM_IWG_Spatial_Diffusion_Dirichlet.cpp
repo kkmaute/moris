@@ -169,40 +169,39 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
-        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-        tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-        tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-        tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
-        tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-        tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
-        tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
-        tIWG->mResidualDofTypeRequested = true;
+    tIWG->mResidualDofTypeRequested = true;
 
-        // build global dof type list
-        tIWG->get_global_dof_type_list();
+    // build global dof type list
+    tIWG->get_global_dof_type_list();
 
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-        Field_Interpolator_Manager tFIManager( tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
-        tFIManager.mFI = tFIs;
+    // set interpolators to the manager
+    tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
 
-        // set IWG field interpolator manager
-        tIWG->set_field_interpolator_manager( &tFIManager );
-
-        // set IWG geometry interpolators
-        tIWG->set_geometry_interpolator( &tGI );
-
+    // set IWG field interpolator manager
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -340,42 +339,41 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
 
     MSI::Equation_Set * tSet = new fem::Set();
 
-        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-        tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-        tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-        tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
-        tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-        tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
-        tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
-        tIWG->mResidualDofTypeRequested = true;
+    tIWG->mResidualDofTypeRequested = true;
 
-        // build global dof type list
-        tIWG->get_global_dof_type_list();
+    // build global dof type list
+    tIWG->get_global_dof_type_list();
 
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-        Field_Interpolator_Manager tFIManager( tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
-        tFIManager.mFI = tFIs;
+    // set interpolators to the manager
+    tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
 
-        // set IWG field interpolator manager
-        tIWG->set_field_interpolator_manager( &tFIManager );
-
-        // set IWG geometry interpolators
-        tIWG->set_geometry_interpolator( &tGI );
-
+    // set IWG field interpolator manager
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -517,41 +515,41 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
 
     MSI::Equation_Set * tSet = new fem::Set();
 
-        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-        tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-        tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-        tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
-        tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-        tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
-        tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
-        tIWG->mResidualDofTypeRequested = true;
+    tIWG->mResidualDofTypeRequested = true;
 
-        // build global dof type list
-        tIWG->get_global_dof_type_list();
+    // build global dof type list
+    tIWG->get_global_dof_type_list();
 
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-        Field_Interpolator_Manager tFIManager( tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
-        tFIManager.mFI = tFIs;
+    // set interpolators to the manager
+    tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
 
-        // set IWG field interpolator manager
-        tIWG->set_field_interpolator_manager( &tFIManager );
-
-        // set IWG geometry interpolators
-        tIWG->set_geometry_interpolator( &tGI );
+    // set IWG field interpolator manager
+    tIWG->set_field_interpolator_manager( &tFIManager );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------

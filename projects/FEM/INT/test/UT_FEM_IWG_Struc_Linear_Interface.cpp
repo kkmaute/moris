@@ -271,16 +271,21 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         Field_Interpolator_Manager tMasterFIManager( tDummy, tSet, mtk::Master_Slave::MASTER );
         Field_Interpolator_Manager tSlaveFIManager( tDummy, tSet, mtk::Master_Slave::SLAVE );
 
+        // populate the field interpolator manager
         tMasterFIManager.mFI = tMasterFIs;
+        tMasterFIManager.mIPGeometryInterpolator = &tGI;
+        tMasterFIManager.mIGGeometryInterpolator = &tGI;
         tSlaveFIManager.mFI  = tSlaveFIs;
+        tSlaveFIManager.mIPGeometryInterpolator = &tGI;
+        tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+
+        // set the interpolator manager to the set
+        tIWG->mSet->mMasterFIManager = &tMasterFIManager;
+        tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
 
         // set IWG field interpolator manager
         tIWG->set_field_interpolator_manager( &tMasterFIManager );
         tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
-
-        // set IWG geometry interpolator
-        tIWG->set_geometry_interpolator( &tGI );
-        tIWG->set_geometry_interpolator( &tGI, mtk::Master_Slave::SLAVE );
 
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------

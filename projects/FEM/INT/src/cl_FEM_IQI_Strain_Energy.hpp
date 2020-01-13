@@ -131,6 +131,13 @@ namespace moris
             void compute_QI( Matrix< DDRMat > & aQI );
 
 //------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantity of interest wrt dof types
+             * @param[ in ] adQIdDof derivative of quantity of interest matrix to fill
+             */
+            void compute_dQIdDof( Matrix< DDRMat > & adQIdDof );
+
+//------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

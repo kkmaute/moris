@@ -12,7 +12,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Enums.hpp"                 //FEM/INT/src
-
+#include "cl_MTK_Vertex.hpp"      //MTK/src
 
 #include "fn_trans.hpp"
 #include "op_times.hpp"
@@ -45,6 +45,8 @@ class Dist_Vector;
     {
         class Pdof;
         class Pdof_Host;
+        class Pdv;
+        class Pdv_Host;
         class Equation_Set;
         class Dof_Manager;
         class Equation_Object
@@ -209,10 +211,11 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Get function for the pdof values of this particular equation object. get_my_pdof_values() has to be called first to initialize.
-             *
+             * @brief Get function for the pdof values of this particular equation object.
+             * get_my_pdof_values() has to be called first to initialize.
              * @param[in] aRequestedDofTypes      List of requested dof types
              * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             * @param[ in ] aIsMaster             enum for master or slave
              */
             void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
                                            Cell< Matrix< DDRMat > >     & aRequestedPdofValues,
@@ -251,7 +254,6 @@ class Dist_Vector;
             void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId );
 
 //-------------------------------------------------------------------------------------------------
-
             /**
              * returns a moris::Mat with indices of vertices that are connected to this element
              */
@@ -362,17 +364,18 @@ class Dist_Vector;
 
             virtual void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
             {
-                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base clase" );
+                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base class." );
             }
 
 //-------------------------------------------------------------------------------------------------
-
             virtual void compute_quantity_of_interest( const uint            aMeshIndex,
                                                        enum vis::Output_Type aOutputType,
                                                        enum vis::Field_Type    aFieldType)
             {
-                MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base clase" );
+                MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class." );
             }
+
+//-------------------------------------------------------------------------------------------------
         };
     }
 }

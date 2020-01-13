@@ -22,6 +22,7 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
 #include "cl_FEM_Set.hpp"   //FEM/INT/src
@@ -41,10 +42,11 @@ namespace moris
 
     protected:
 
-        //! pointer to master and slave integration cells on mesh
+        // pointer to master and slave integration cells on mesh
         const mtk::Cell * mMasterCell;
         const mtk::Cell * mSlaveCell;
 
+        // index for the cell within the cluster
         moris::moris_index mCellIndexInCluster;
 
         Set      * mSet     = nullptr;
@@ -130,6 +132,7 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest
+         * @param[ in ] aMeshIndex  an index for the used IG mesh
          * @param[ in ] aOutputType an enum for the output type
          * @param[ in ] aFieldType  an enum for computation/field type
          */
@@ -156,7 +159,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "Element::compute_quatity_of_interest - unknow field type." );
+                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknow field type." );
                     break;
                 }
             }
@@ -165,9 +168,11 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in a global way
+         * @param[ in ] aMeshIndex  an index for the used IG mesh
          * @param[ in ] aOutputType an enum for the output type
          */
-        virtual void compute_quantity_of_interest_global( const uint aMeshIndex, enum vis::Output_Type aOutputType )
+        virtual void compute_quantity_of_interest_global( const uint            aMeshIndex,
+                                                          enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - this function does nothing." );
         }
@@ -175,9 +180,11 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in a nodal way
+         * @param[ in ] aMeshIndex  an index for the used IG mesh
          * @param[ in ] aOutputType an enum for the output type
          */
-        virtual void compute_quantity_of_interest_nodal( const uint aMeshIndex, enum vis::Output_Type aOutputType )
+        virtual void compute_quantity_of_interest_nodal( const uint aMeshIndex,
+                                                         enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - this function does nothing." );
         }
@@ -185,10 +192,11 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * compute quantity of interest in an elemental way
+         * @param[ in ] aMeshIndex  an index for the used IG mesh
          * @param[ in ] aOutputType an enum for the output type
          */
-        virtual void compute_quantity_of_interest_elemental( const uint aMeshIndex,
-                                                     enum vis::Output_Type aOutputType )
+        virtual void compute_quantity_of_interest_elemental( const uint            aMeshIndex,
+                                                             enum vis::Output_Type aOutputType )
         {
             MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - this function does nothing." );
         }
@@ -210,10 +218,13 @@ namespace moris
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // set integration point for geometry interpolator
-                mSet->get_IG_geometry_interpolator()->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+                mSet->get_field_interpolator_manager( aIsMaster )
+                    ->get_IG_geometry_interpolator()
+                    ->set_space_time( mSet->get_integration_points().get_column( iGP ) );
 
                 // compute and add integration point contribution to volume
-                tVolume += mSet->get_IG_geometry_interpolator()->det_J() * mSet->get_integration_weights()( iGP );
+                tVolume += mSet->get_field_interpolator_manager( aIsMaster)->get_IG_geometry_interpolator()->det_J()
+                         * mSet->get_integration_weights()( iGP );
             }
 
             // return the volume value

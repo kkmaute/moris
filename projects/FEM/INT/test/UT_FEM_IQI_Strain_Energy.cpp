@@ -61,6 +61,9 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // define an epsilon environment
     real tEpsilon = 1E-6;
 
+    // define a perturbation relative size
+    real tPerturbation = 1E-6;
+
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
     tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
@@ -102,14 +105,10 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     Geometry_Interpolator tGI( tGIRule );
 
     // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
-                              { 1.0, 0.0, 0.0 },
-                              { 1.0, 1.0, 0.0 },
-                              { 0.0, 1.0, 0.0 },
-                              { 0.0, 0.0, 1.0 },
-                              { 1.0, 0.0, 1.0 },
-                              { 1.0, 1.0, 1.0 },
-                              { 0.0, 1.0, 1.0 }};
+    arma::Mat< double > tXMatrix;
+    tXMatrix.randu( 8, 3 );
+    Matrix< DDRMat > tXHat;
+    tXHat.matrix_data() = 10.0 * tXMatrix;
 
     // create time coeff tHat
     Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
@@ -159,8 +158,12 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tIQI->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set master dof type map
-    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+
+    // set size and populate residual assembly map
+    tIQI->mSet->mResDofAssemblyMap.resize( 1 );
+    tIQI->mSet->mResDofAssemblyMap( 0 ) = { { 0, 23 } };
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
@@ -168,19 +171,46 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIQI->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIQI->set_field_interpolator_manager( &tFIManager );
 
-    // set IWG field interpolators
-    tIQI->set_geometry_interpolator( &tGI );
-
     // check evaluation of the quantity of interest
     //------------------------------------------------------------------------------
     // evaluate the quantity of interest
-    Matrix< DDRMat > aQI;
-    tIQI->compute_QI( aQI );
-    //print( aQI, "aQI" );
+    Matrix< DDRMat > tQI;
+    tIQI->compute_QI( tQI );
+    //print( tQI, "tQI" );
+
+    // check evaluation of the derivative of the quantity of interest wrt to dof
+    //------------------------------------------------------------------------------
+    // evaluate the quantity of interest derivatives wrt to dof
+    Matrix< DDRMat > tdQIdDof;
+    Matrix< DDRMat > tdQIdDofFD;
+    bool tCheckdQIdDof = tIQI->check_dQIdDof_FD( tPerturbation,
+                                                 tEpsilon,
+                                                 tdQIdDof,
+                                                 tdQIdDofFD );
+
+    // require check is true
+    REQUIRE( tCheckdQIdDof );
+    //print( tdQIdDof,   "tdQIdDof" );
+    //print( tdQIdDofFD, "tdQIdDofFD" );
+
+    // check evaluation of the derivative of the quantity of interest wrt to dv
+    //------------------------------------------------------------------------------
+    Matrix< DDRMat > tdQIdpMatFD;
+    Matrix< DDRMat > tdQIdpGeoFD;
+    tIQI->compute_dQIdDv_FD( tdQIdpMatFD,
+                             tdQIdpGeoFD,
+                             tPerturbation );
+    //print( tdQIdpMatFD, "tdQIdpMatFD" );
+    //print( tdQIdpGeoFD, "tdQIdpGeoFD" );
 
 
 }/*END_TEST_CASE*/

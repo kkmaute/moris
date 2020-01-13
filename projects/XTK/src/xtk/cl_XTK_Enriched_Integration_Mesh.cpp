@@ -101,7 +101,7 @@ Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank ) const
     {
         case(EntityRank::NODE):
             {
-            return mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE) + mModel->mEnrichedInterpMesh(mMeshIndexInModel)->get_num_entities(EntityRank::NODE);
+            return mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE);// + mModel->mEnrichedInterpMesh(mMeshIndexInModel)->get_num_entities(EntityRank::NODE);
             break;
             }
         case(EntityRank::ELEMENT):
