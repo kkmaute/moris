@@ -50,7 +50,7 @@ Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mA
 //----------------------------------------------------------------------------------------
 Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
-    delete( mMlPrec );
+    // delete( mMlPrec ); //FIXME: seg faults when constructor is called
 }
 
 //----------------------------------------------------------------------------------------
@@ -62,8 +62,11 @@ void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 //----------------------------------------------------------------------------------------
 void Linear_Solver_Aztec::set_solver_parameters()
 {
+    std::string none("none");
+
     // ASSIGN DEFAULT PARAMETER VALUES
     // AztecOO User Guide, SAND REPORT, SAND2004-3796, https://trilinos.org/oldsite/packages/aztecoo/AztecOOUserGuide.pdf
+
 
     // Determine which solver is used
     //options are: AZ_gmres, AZ_gmres_condnum, AZ_cg, AZ_cg_condnum, AZ_cgs, AZ_tfqmr, AZ_bicgstab
@@ -159,7 +162,8 @@ void Linear_Solver_Aztec::set_solver_parameters()
     // Set Damping or relaxation parameter used for RILU
     mParameterList.insert( "ML_reuse" ,  false );
 
-    mParameterList.insert( "ML output"                  ,  -1.0 );
+    mParameterList.insert( "PDE equations"              ,  INT_MAX );
+    mParameterList.insert( "ML output"                  ,  INT_MAX );
     mParameterList.insert( "print unused"               ,  -1.0 );
     mParameterList.insert( "ML print initial list"      ,  -1.0 );
     mParameterList.insert( "ML print final list"        ,  -1.0 );
@@ -171,7 +175,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "increasing or decreasing" ,  -1.0 );
     mParameterList.insert( "prec type"                ,  -1.0 );
 
-    mParameterList.insert( "aggregation: type"                      ,  -1.0 );
+    mParameterList.insert( "aggregation: type"                      ,  none );
     mParameterList.insert( "aggregation: threshold"                 ,  -1.0 );
     mParameterList.insert( "aggregation: damping factor"            ,  -1.0 );
     mParameterList.insert( "aggregation: smoothing sweeps"          ,  -1.0 );
@@ -466,8 +470,28 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
 //                             ML Preconditioner settings
 //==============================================================================================================
 
-    //ML_Epetra::SetDefaults ( mLinearSolverData->mMl->Defaults,mlParams );
+    ML_Epetra::SetDefaults ( "NSSA" , mlParams );
+//    ML_Epetra::SetDefaults ( "DD-ML" , mlParams );
 
-    //mlParams.set ( "ML output",mLinearSolverData->mMl->General.MlOutput );
+    if (mParameterList.get< moris::sint >( "PDE equations" ) != INT_MAX)
+    {
+        mlParams.set ( "PDE equations",mParameterList.get< moris::sint >( "PDE equations" ) );
+    }
+
+    if (mParameterList.get< moris::sint >( "ML output" ) != INT_MAX)
+    {
+        mlParams.set ( "ML output",mParameterList.get< moris::sint >( "ML output" ) );
+    }
+
+//    if ( mParameterList.get< std::string >( "aggregation: type" ).compare("none") != 0)
+//    {
+        //FIXME: change this default to none -> look into the 'get' function below...
+        mlParams.set ( "aggregation: type","Uncoupled"); //mParameterList.get< std::string >( "aggregation: type" ) );
+//    }
+
+//        mlParams.set ( "coarse: type","Amesos-UMFPACK");
+//        mlParams.set ( "smoother: type","ILUT");
+//        mlParams.set ( "smoother: ifpack level-of-fill",1.0);
+        mlParams.set ( "smoother: pre or post","both");
 }
 

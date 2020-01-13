@@ -89,12 +89,10 @@ public:
                 xa.set_row(0,mAllFibers(k).get_column(tPointCount));
                 xb.set_row(0,mAllFibers(k).get_column(tPointCount+1));
 
-                if( outside_bounding_box_check( aPoint,xa,xb,0.5) == false )    // bounding box check
+                if( outside_bounding_box_check( aPoint,xa,xb,1.0) == false )    // bounding box check
                 {
                     real rada = 0.18;
                     real radb = 0.18;
-//                    real rada = 0.75;
-//                    real radb = 0.75;
 
                     xn.set_row(0,xb);
 
@@ -181,8 +179,6 @@ public:
 
             real rada = 0.18;
             real radb = 0.18;
-//            real rada = 0.75;
-//            real radb = 0.75;
 
             xn.set_row(0,xb);
 

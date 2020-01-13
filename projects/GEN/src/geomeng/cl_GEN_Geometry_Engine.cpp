@@ -72,10 +72,6 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes( moris::size_t const & aNumNodes )
 {
-    // FIXME: move these asserts to the appropriate place - need to be able to use the GE without pdvs (pure geometry)
-//    MORIS_ASSERT( mPdvList(0)      != GEN_PDV::END_ENUM,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
-//    MORIS_ASSERT( mPropertyList(0) != nullptr,"cl_GEN_Geometry_Engine::initialize_pdv_hosts_for_background_mesh_nodes() - set_pdv_property_list() has not been called " );
-
     // allocate the pdv hosts
     Cell< GEN_Pdv_Host > tPdvHosts( aNumNodes );
 
@@ -861,7 +857,7 @@ Matrix< DDRMat > GEN_Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
 {
     uint tNumOfIPNodes = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
-    Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 1.0);
+    Matrix< DDRMat > tLSVals(tNumOfIPNodes, 1, 1.0); // FIXME: 10.0 needs to be replaced with problem dependent value
 
     for( uint k=0; k<aNumberOfFibers; ++k )
     {
@@ -871,7 +867,7 @@ Matrix< DDRMat > GEN_Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
         {
             Matrix<DDRMat> tMidPoint;
             Matrix<DDRMat> tLength;
-            aFiber->midPoint_and_BB_dims( k, l, tMidPoint, tLength, 0.18, 0.5 );
+            aFiber->midPoint_and_BB_dims( k, l, tMidPoint, tLength, 0.18, 1.0 ); // FIXME: 1.0 needs to be the size of the coarsest element
 
             Matrix<IndexMat> tNodeIndices;
             mMesh_HMR( aWhichMesh )->get_nodes_indices_in_bounding_box( tMidPoint,

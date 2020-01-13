@@ -24,7 +24,13 @@ namespace ge
 class Circle : public GEN_Geometry
 {
 public:
-    Circle(){}
+    Circle()
+    {
+        mPdvList.resize(3);
+        mPdvList(0) = GEN_PDV::RADIUS;
+        mPdvList(1) = GEN_PDV::XCOORD;
+        mPdvList(2) = GEN_PDV::YCOORD;
+    }
 
     Circle(moris::real const & aRadius,
            moris::real const & aXCenter,
@@ -33,8 +39,10 @@ public:
             mXCenter(aXCenter),
             mYCenter(aYCenter)
     {
-        mPdvList.resize(1);
+        mPdvList.resize(3);
         mPdvList(0) = GEN_PDV::RADIUS;
+        mPdvList(1) = GEN_PDV::XCOORD;
+        mPdvList(2) = GEN_PDV::YCOORD;
     }
     //------------------------------------------------------------------------------
 
@@ -134,6 +142,17 @@ public:
                    aPdvValueMatrix( 0, 0 ) = mRadius;
                    break;
                }
+        case(GEN_PDV::XCOORD)   :
+               {
+                   aPdvValueMatrix.resize( 1,1 );
+                   aPdvValueMatrix( 0, 0 ) = mXCoord;
+                   break;
+               }
+        case(GEN_PDV::YCOORD)   :
+               {
+                   aPdvValueMatrix.resize( 1,1 );
+                   aPdvValueMatrix( 0, 0 ) = mYCoord;
+               }
         default   :
                {
                    MORIS_ERROR( false, "Circle::get_pdv_values() - requested pdv type does not exist for this geometry " );
@@ -147,6 +166,8 @@ private:
     moris::real mXCenter;
     moris::real mYCenter;
 
+    moris::real mXCoord;
+    moris::real mYCoord;
     Cell< enum GEN_PDV > mPdvList;
 };
 

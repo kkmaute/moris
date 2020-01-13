@@ -327,8 +327,9 @@ namespace moris
                         // get pointer to interpolation object
                         mtk::Vertex_Interpolation * tInterp = tMesh->get_node_by_index( Ik )->get_interpolation( Im );
 
-                        tCoeffIDs( { Ik, Ik }, { 0, tMaxI - 1 } ) = tInterp->get_ids().matrix_data();
-                        tWeights( { Ik, Ik }, { 0, tMaxI - 1 } ) = tInterp->get_weights()->matrix_data();
+                        tCoeffIDs( { Ik, Ik }, { 0, tMaxI - 1 } ) = trans(tInterp->get_ids().matrix_data());
+                        tWeights( { Ik, Ik }, { 0, tMaxI - 1 } ) = trans(tInterp->get_weights()->matrix_data());
+
                     }
 
                     // generate label

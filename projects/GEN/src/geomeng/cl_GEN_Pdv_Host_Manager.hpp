@@ -94,7 +94,6 @@ namespace moris
 
 //                 // pdv host index
 //                 moris::moris_index tPdvHostIndex = mNodeToPdvHostMap[ aNodeIndexWithPdvHost ];
-//
 //                 // link new node by putting it's index in map with same tPdvHostIndex as the aNodeIndexWithPdvHost has
 //                 mNodeToPdvHostMap[ aNodeIndexToLink ] = tPdvHostIndex;
              }
@@ -105,7 +104,7 @@ namespace moris
              }
              //------------------------------------------------------------------------------
              /*
-              * @brief returns a cell of the pdv types associated with the object
+              * @brief returns a cell of the pdv types associated with the objects
               */
              Cell< enum GEN_PDV > get_pdv_types(  )
              {
@@ -164,8 +163,7 @@ namespace moris
             Cell< GEN_Property* > mProperties;
 
             // pdv to property map ( key - pdv enum, val - property index )
-//            std::unordered_map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
-            std::map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
+            std::unordered_map< enum GEN_PDV, moris::moris_index > mPdvToPropertyMap;
         };
     }   // end ge namespace
 }       // end ,moris namepspace

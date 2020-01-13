@@ -47,6 +47,9 @@ namespace moris
 
     TEST_CASE("pdv_test_00","[GE],[pdv_check_00]")
     {
+        /*
+         * check pdv values on interpolation nodes for an STK mesh without XTK
+         */
         if(par_size()<=1)
         {
             uint tNumElemTypes = 1;     // quad
@@ -241,6 +244,9 @@ namespace moris
     //------------------------------------------------------------------------------
     TEST_CASE("pdv_test_01","[GE],[pdv_check_01]")
     {
+        /*
+         * check pdv values on interpolation nodes for an STK mesh with XTK
+         */
         if(par_size()<=1)
         {
             uint tNumElemTypes = 1;     // quad
@@ -380,6 +386,141 @@ namespace moris
         }
     }
 
+    //------------------------------------------------------------------------------
+    TEST_CASE("pdv_test_02","[GE],[pdv_check_02]")
+    {
+        /*
+         * check pdv values on interpolation nodes for an HMR mesh with XTK
+         */
+        if(par_size()<=1)
+        {
+            uint tLagrangeMeshIndex = 0;
+            //  HMR Parameters setup
+            hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+
+            tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+            tParameters.set( "domain_dimensions",                "2, 2" );
+            tParameters.set( "domain_offset",                    "0, 0" );
+
+//            tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
+
+            tParameters.set( "truncate_bsplines", 1 );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
+
+            tParameters.set( "lagrange_output_meshes", "0" );
+            tParameters.set( "lagrange_input_meshes", "0" );
+
+            tParameters.set( "lagrange_to_bspline", "0" );
+
+            tParameters.set( "use_multigrid", 0 );
+
+            tParameters.set( "refinement_buffer", 1 );
+            tParameters.set( "staircase_buffer", 1 );
+
+            tParameters.insert( "initial_refinement", 0 );
+
+            //  HMR Initialization
+            moris::hmr::HMR tHMR( tParameters );
+
+            auto tDatabase = tHMR.get_database(); // std::shared_ptr< Database >
+
+            tHMR.perform_initial_refinement( 0 );
+
+            tDatabase->update_bspline_meshes();
+            tDatabase->update_lagrange_meshes();
+
+            tHMR.finalize();
+
+            std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpMesh );
+
+            mtk::Mesh_Manager tMeshManager;
+
+            //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+            Cell< enum GEN_PDV >  tPdvList(2);
+            tPdvList(0) = GEN_PDV::DENSITY;
+            tPdvList(1) = GEN_PDV::TEMP;
+
+            std::shared_ptr< GEN_Property > tConstDensityProp = std::make_shared< GEN_Property >();
+            tConstDensityProp->set_parameters( { {{ 1234 }} } );
+            tConstDensityProp->set_val_function( tConstValFunction );
+
+            std::shared_ptr< GEN_Property > tConstTempProp = std::make_shared< GEN_Property >();
+            tConstTempProp->set_parameters( { {{ 99 }} } );
+            tConstTempProp->set_val_function( tConstValFunction );
+
+            Cell< GEN_Property* > tPropertyList(2);
+            tPropertyList(0) = tConstDensityProp.get();
+            tPropertyList(1) = tConstTempProp.get();
+
+            //------------------------------------------------------------------------------
+            uint tNumDims = 2;
+
+            real tRadius  = 0.2;
+            real tXcenter = 0;
+            real tYcenter = 0;
+            moris::ge::Circle tCircle( tRadius, tXcenter, tYcenter );
+            moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tCircle };
+
+            moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
+
+            tGENGeometryEngine.set_pdv_property_list( tPdvList, tPropertyList );
+
+            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), tGENGeometryEngine );
+            tXTKModel.mVerbose = false;
+
+            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
+            tXTKModel.decompose(tDecompositionMethods);
+
+            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+
+            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh( );
+            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh( );
+            uint tEnrMeshIndex = tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
+
+            // --------- create the pdv objects for the new enriched mesh ---------
+            moris::ge::GEN_Geometry_Engine tXTKGeomEng = tXTKModel.get_geom_engine();
+
+            uint tNumNodes = tEnrInterpMesh.get_num_nodes();
+
+            tXTKGeomEng.initialize_pdv_hosts_for_background_mesh_nodes( tNumNodes );
+
+            Pdv_Host_Manager* tAllPdvHosts = tXTKGeomEng.get_pdv_hosts();
+            // --------------------------------------------------------------------
+            Matrix< IndexMat > tIndices;
+            tAllPdvHosts->get_all_node_indices(tIndices);
+
+            Cell< Matrix< DDRMat > > tDensPdvVals( tNumNodes );
+            Cell< Matrix< DDRMat > > tTempPdvVals( tNumNodes );
+
+            uint tIters = tIndices.n_rows();
+            for( uint i=0; i<tIters; i++ )
+            {
+                tAllPdvHosts->get_pdv_values( tIndices(i), GEN_PDV::DENSITY, tDensPdvVals(i) );
+                tAllPdvHosts->get_pdv_values( tIndices(i), GEN_PDV::TEMP,    tTempPdvVals(i) );
+            }
+
+            //----- check node values -----
+            for( uint i=0; i<tIters; i++ )
+            {
+                REQUIRE( tDensPdvVals(i)(0,0) = 1234 );
+                REQUIRE( tTempPdvVals(i)(0,0) = 99 );
+            }
+            //-----------------------------
+
+        }
+    }
+
+    //------------------------------------------------------------------------------
+    TEST_CASE("temporary_test","[GE],[temp]")
+    {
+
+    }
     //------------------------------------------------------------------------------
 
     }   // end ge namespace
