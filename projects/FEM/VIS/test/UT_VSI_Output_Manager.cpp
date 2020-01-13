@@ -99,6 +99,11 @@ Matrix< DDRMat > tConstValFunction_MDLDIFF( moris::Cell< Matrix< DDRMat > >     
     return aParameters( 0 );
 }
 
+bool tSolverOutputCriteria( moris::tsa::Time_Solver * )
+{
+    return true;
+}
+
 namespace moris
 {
     namespace vis
@@ -276,46 +281,53 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 // define set info
                 fem::Set_User_Info tSetBulk1;
-                tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+                tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
                 tSetBulk1.set_set_type( fem::Element_Type::BULK );
                 tSetBulk1.set_IWGs( { tIWGBulk } );
                 tSetBulk1.set_IQIs( { tIQI } );
+                std::cout<<"get mesh index 1: "<< tSetBulk1.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetBulk2;
-                tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+                tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
                 tSetBulk2.set_set_type( fem::Element_Type::BULK );
                 tSetBulk2.set_IWGs( { tIWGBulk } );
                 tSetBulk2.set_IQIs( { tIQI } );
+                std::cout<<"get mesh index 2: "<< tSetBulk2.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetBulk3;
-                tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+                tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
                 tSetBulk3.set_set_type( fem::Element_Type::BULK );
                 tSetBulk3.set_IWGs( { tIWGBulk } );
                 tSetBulk3.set_IQIs( { tIQI } );
+                std::cout<<"get mesh index 3: "<< tSetBulk3.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetBulk4;
-                tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+                tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
                 tSetBulk4.set_set_type( fem::Element_Type::BULK );
                 tSetBulk4.set_IWGs( { tIWGBulk } );
                 tSetBulk4.set_IQIs( { tIQI } );
+                std::cout<<"get mesh index 4: "<< tSetBulk4.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetDirichlet;
-                tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+                tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
                 tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
                 tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+                std::cout<<"get mesh index 5: "<< tSetDirichlet.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetNeumann;
-                tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0") );
+                tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
                 tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
                 tSetNeumann.set_IWGs( { tIWGNeumann } );
+                std::cout<<"get mesh index 6: "<< tSetNeumann.get_mesh_index()<<std::endl;
 
                 // create a list of active block-sets
                 std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 );
 
                 fem::Set_User_Info tSetInterface;
-                tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
+                tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
                 tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
                 tSetInterface.set_IWGs( { tIWGInterface } );
+                std::cout<<"get mesh index 7: "<< tSetInterface.get_mesh_index()<<std::endl;
 
                 // create a cell of set info
                 moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
@@ -332,6 +344,25 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                                                       1,
                                                       tSetInfo );
 
+                // --------------------------------------------------------------------------------------
+                // Define outputs
+
+                Output_Manager tOutputData;
+
+                tOutputData.set_outputs( 0,
+                                         VIS_Mesh_Type::STANDARD,
+//                                       VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                         "Output_Vis_Mesh.exo",
+                                         { "HMR_dummy_c_p0", "HMR_dummy_n_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p1"},
+                                         { 0, 1, 2, 3 },
+                                         { "strain energy elemental", "strain energy global", "strain energy nodal" },
+                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL },
+                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
+
+                tModel->set_output_manager( &tOutputData );
+
+                // --------------------------------------------------------------------------------------
+                // Define Solver
                 moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );    tDofTypesU( 0 ) = MSI::Dof_Type::UX;     tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
                 dla::Solver_Factory  tSolFactory;
@@ -382,66 +413,28 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 tTimeSolver.set_dof_type_list( tDofTypesU );
 
+                tTimeSolver.set_output( 0, tSolverOutputCriteria );
+
                 //------------------------------------------------------------------------------
                 tTimeSolver.solve();
 
-                Output_Manager tOutputData;
-
-                tOutputData.set_outputs( 0,
-                                         VIS_Mesh_Type::STANDARD,
-//										 VIS_Mesh_Type::OVERLAPPING_INTERFACE,
-                                         "Output_Vis_Mesh.exo",
-                                         { "HMR_dummy_c_p0", "HMR_dummy_n_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p1"},
-                                         { 0, 1, 2, 3 },
-                                         { "strain energy elemental", "strain energy global", "strain energy nodal" },
-                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL },
-                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
-
-                tOutputData.create_visualization_mesh( 0,
-                                                       &tMeshManager,
-                                                       0 );
-
-                tOutputData.set_visualization_sets( 0,
-                                                    tModel );
-
-                tOutputData.write_mesh( 0,
-                                        0.0);
-
-                tOutputData.write_field( 0,
-                                         tModel);
-
-                tOutputData.end_writing( 0 );
-
-
-
-//----------------------------------------------------------------------------------------------
-
-////                mtk::Mesh* tMesh11 = new Visualization_Mesh( &tMeshManager, 0 );
+//                Output_Manager tOutputData;
 //
-//                vis::Factory tVisFactory(&tMeshManager, 0);
+//                tOutputData.create_visualization_mesh( 0,
+//                                                       &tMeshManager,
+//                                                       0 );
 //
-//                mtk::Mesh * tVisMesh = tVisFactory.create_visualization_mesh();
+//                tOutputData.set_visualization_sets( 0,
+//                                                    tModel );
 //
-//                Writer_Exodus writer(tVisMesh);
-//                writer.write_mesh("/data/schmidt/codes/moris/build/", "Vis_Mesh_2.exo");
+//                tOutputData.write_mesh( 0,
+//                                        0.0);
 //
-//                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_block_set_cells("HMR_dummy_c_p0");
+//                tOutputData.write_field( 0,
+//                                         tModel);
 //
-//                uint tNumElements = tElementsInBlock.size();
-//                moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);
-//                moris::Cell<std::string> tElementalFieldNames(1);
-//                tElementalFieldNames(0) = "pressure";
-//
-//                for(uint Ik = 0; Ik<tNumElements;Ik++)
-//                {
-//                    tetField( Ik ) = Ik;
-//                }
-//
-//                writer.set_elemental_fields(tElementalFieldNames);
-//                writer.set_time(0.0);
-//                writer.write_elemental_field(0, "pressure", tetField);
-//
-//                writer.close_file();
+//                tOutputData.end_writing( 0 );
+
             }
     }
 

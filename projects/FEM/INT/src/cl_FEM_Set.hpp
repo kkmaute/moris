@@ -64,36 +64,25 @@ namespace MSI
         uint mSpaceDim;
 
         // interpolation mesh geometry type
-        mtk::Geometry_Type mIPGeometryType;
+        mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
 
         // integration mesh geometry type
-        mtk::Geometry_Type mIGGeometryType;
+        mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
         // space interpolation order for IP cells
-        mtk::Interpolation_Order mIPSpaceInterpolationOrder;
+        mtk::Interpolation_Order mIPSpaceInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // space interpolation order for IG cells
-        mtk::Interpolation_Order mIGSpaceInterpolationOrder;
+        mtk::Interpolation_Order mIGSpaceInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // time interpolation order for IP cells
-        mtk::Interpolation_Order mIPTimeInterpolationOrder;
+        mtk::Interpolation_Order mIPTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // space interpolation order for IG cells
-        mtk::Interpolation_Order mIGTimeInterpolationOrder;
+        mtk::Interpolation_Order mIGTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // list of fem node pointers for IP nodes
         moris::Cell< Node_Base* > mNodes;
-
-        // list of fem node pointers for IG nodes
-        moris::Cell< Node_Base* > mIGNodes;
-
-        // geometry interpolator pointer for the interpolation cells
-        Geometry_Interpolator             * mMasterIPGeometryInterpolator = nullptr;
-        Geometry_Interpolator             * mSlaveIPGeometryInterpolator  = nullptr;
-
-        // geometry interpolator pointer for the integration cells
-        Geometry_Interpolator             * mMasterIGGeometryInterpolator = nullptr;
-        Geometry_Interpolator             * mSlaveIGGeometryInterpolator  = nullptr;
 
         // field interpolator manager pointers
         Field_Interpolator_Manager * mMasterFIManager = nullptr;
@@ -140,27 +129,15 @@ namespace MSI
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
-//        /**
-//         * constructor
-//         * @param[ in ] aMeshSet a set from the mesh
-//         * @param[ in ] aSetInfo user defined info for set
-//         * @param[ in ] aIPNodes cell of node pointers
-//         */
-//        Set( moris::mtk::Set           * aMeshSet,
-//             fem::Set_User_Info        & aSetInfo,
-//             moris::Cell< Node_Base* > & aIPNodes );
-
         /**
          * constructor
          * @param[ in ] aMeshSet a set from the mesh
          * @param[ in ] aSetInfo user defined info for set
-         * @param[ in ] aIPNodes cell of node pointers for IP nodes
-         * @param[ in ] aIGNodes cell of node pointers for IG nodes
+         * @param[ in ] aIPNodes cell of node pointers
          */
         Set( moris::mtk::Set           * aMeshSet,
              fem::Set_User_Info        & aSetInfo,
-             moris::Cell< Node_Base* > & aIPNodes,
-             moris::Cell< Node_Base* > & aIGNodes );
+             moris::Cell< Node_Base* > & aIPNodes );
 
         /**
          * trivial constructor
@@ -462,21 +439,9 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * set the field interpolators for the IWGs
-         */
-        void set_IWG_geometry_interpolators();
-
-//------------------------------------------------------------------------------
-        /**
          * set the field interpolator managers for the IQIs
          */
         void set_IQI_field_interpolator_managers();
-
-//------------------------------------------------------------------------------
-        /**
-         * set the field interpolators for the IQIs
-         */
-        void set_IQI_geometry_interpolators();
 
 //------------------------------------------------------------------------------
         /**
@@ -534,32 +499,6 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * get the IP geometry interpolator
-         * @param[ in ]  aIsMaster             enum for master or slave
-         * @param[ out ] aGeometryInterpolator geometry interpolator pointer for IP cells
-         */
-        Geometry_Interpolator * get_IP_geometry_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterIPGeometryInterpolator;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveIPGeometryInterpolator;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_IP_geometry_interpolator - can only be MASTER or SLAVE");
-                    return nullptr;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-        /**
          * get the IG geometry type
          * @param[ out ] aGeometryType
          */
@@ -577,32 +516,6 @@ namespace MSI
         mtk::Interpolation_Order get_IG_space_interpolation_order()
         {
             return mIGSpaceInterpolationOrder;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get the IG geometry interpolator
-         * @param[ in ] aIsMaster              enum for master or slave
-         * @param[ out ] aGeometryInterpolator geometry interpolator pointer for IG cells
-         */
-        Geometry_Interpolator * get_IG_geometry_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterIGGeometryInterpolator;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveIGGeometryInterpolator;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_IG_geometry_interpolator - can only be MASTER or SLAVE");
-                    return nullptr;
-                }
-            }
         }
 
 //------------------------------------------------------------------------------

@@ -65,10 +65,6 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
-            // master and slave dof field interpolators
-            moris::Cell< Field_Interpolator* > mMasterFI;
-            moris::Cell< Field_Interpolator* > mSlaveFI;
-
             // master and slave field interpolator managers
             Field_Interpolator_Manager * mMasterFIManager = nullptr;
             Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
@@ -80,10 +76,6 @@ namespace moris
             // master and slave global dv type list
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterGlobalDvTypes;
             moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveGlobalDvTypes;
-
-            // master and slave dv field interpolators
-            moris::Cell< Field_Interpolator* > mMasterDvFI;
-            moris::Cell< Field_Interpolator* > mSlaveDvFI;
 
             // master and slave properties
             moris::Cell< std::shared_ptr< Property > > mMasterProp;
@@ -330,43 +322,6 @@ namespace moris
                     }
                 }
             };
-
-//------------------------------------------------------------------------------
-            /**
-             * set geometry interpolator
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointers
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // set geometry interpolator for the SP
-                for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-                {
-                    if( tSP != nullptr )
-                    {
-                        tSP->set_geometry_interpolator( aGeometryInterpolator, aIsMaster );
-                    }
-                }
-
-                // set geometry interpolator for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
-
-                // set geometry interpolator for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
-            }
 
 //------------------------------------------------------------------------------
             /**

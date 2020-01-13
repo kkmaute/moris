@@ -27,15 +27,14 @@ namespace moris
 //------------------------------------------------------------------------------
     Set::Set( moris::mtk::Set           * aMeshSet,
               fem::Set_User_Info        & aSetInfo,
-              moris::Cell< Node_Base* > & aIPNodes,
-              moris::Cell< Node_Base* > & aIGNodes )
+              moris::Cell< Node_Base* > & aIPNodes )
     : mMeshSet( aMeshSet ),
       mNodes( aIPNodes ),
-      mIGNodes( aIGNodes ),
       mIWGs( aSetInfo.get_IWGs() ),
-	  mIQIs( aSetInfo.get_IQIs() ),
+      mIQIs( aSetInfo.get_IQIs() ),
       mElementType( aSetInfo.get_set_type() )
     {
+
         // loop over the IWGs on the set
         for(  std::shared_ptr< IWG > tIWG : mIWGs )
         {
@@ -43,11 +42,11 @@ namespace moris
             tIWG->set_set_pointer( this );
         }
 
-        // loop over the IWGs on the set
+        // loop over the IQIs on the set
         for(  std::shared_ptr< IQI > tIQI : mIQIs )
         {
             // set the fem set pointer to the IQI
-        	tIQI->set_set_pointer( this );
+            tIQI->set_set_pointer( this );
         }
 
         // get mesh clusters on set
@@ -71,13 +70,14 @@ namespace moris
             // switch on set type
             switch ( mElementType )
             {
-                // if block-set
+                // if bulk or sideset
                 case( fem::Element_Type::BULK ):
                 case( fem::Element_Type::SIDESET ):
                 {
                     tInterpolationCell.resize( 1, &mMeshClusterList( iCluster )->get_interpolation_cell() );
                     break;
                 }
+                // if double sideset
                 case( fem::Element_Type::DOUBLE_SIDESET ):
                 {
                     tInterpolationCell.resize( 2 );
@@ -93,22 +93,29 @@ namespace moris
                 }
             }
 
-                mEquationObjList( iCluster ) = new fem::Interpolation_Element( mElementType, tInterpolationCell, mNodes, this );
+            // create an interpolation element
+            mEquationObjList( iCluster ) = new fem::Interpolation_Element( mElementType, tInterpolationCell, mNodes, this );
 
-                // create a fem cluster
-                std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >( mElementType,
-                                                                                             mMeshClusterList( iCluster ),
-                                                                                             this,
-                                                                                             mEquationObjList( iCluster ));
-
-                reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, 0 );
-            }
+            // create a fem cluster
+            std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >( mElementType,
+                                                                                         mMeshClusterList( iCluster ),
+                                                                                         this,
+                                                                                         mEquationObjList( iCluster ) );
+            // set the cluster to the interpolation element
+            reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, 0 );
+        }
 
         // get spatial dimension
         mSpaceDim = mMeshSet->get_spatial_dim();
 
-        // bool true is master IG cell are trivial
+        // bool true is master IG cells are trivial
         mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
+
+        // bool true is slave IG cells are trivial
+        if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+        {
+            mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
+        }
 
         // get interpolation geometry type
         mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
@@ -123,72 +130,6 @@ namespace moris
         // get space interpolation order for IG cells
         // FIXME if different for different fields
         mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
-
-        // create geometry interpolation rule for IP cells
-        Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIPSpaceInterpolationOrder,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
-
-        // create geometry interpolation rule for IG cells
-        Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIGSpaceInterpolationOrder,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
-
-        // switch on set type
-        switch ( mElementType )
-        {
-            // if block-set
-            case ( fem::Element_Type::BULK ):
-            {
-                // create a geometry interpolator for IP cells
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
-
-                // create a geometry interpolator for IG cells
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
-
-                break;
-            }
-
-            // if side-set
-            case( fem::Element_Type::SIDESET ):
-            {
-                // create a geometry interpolator for IP cells
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-                // create a geometry interpolator for IG cells
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-                break;
-            }
-
-            // if double side-set
-            case( fem::Element_Type::DOUBLE_SIDESET ):
-            {
-                // bool true is slave IG cell are trivial
-                mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
-
-                // create a geometry interpolator for master and slave IP cells
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-                mSlaveIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-                // create a geometry interpolator for master and slave IG cells
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-                mSlaveIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-                break;
-            }
-
-            // if none of the above
-            default:
-            {
-                MORIS_ERROR(false, "Set::Set - unknown element type");
-                break;
-            }
-        }
 
         // create a unique dof type list for solver
         this->create_unique_dof_type_list();
@@ -229,33 +170,8 @@ namespace moris
         }
         mEquationObjList.clear();
 
-        // delete the master interpolation geometry interpolator pointer
-        if ( mMasterIPGeometryInterpolator != nullptr )
-        {
-            delete mMasterIPGeometryInterpolator;
-        }
-
-        // delete the slave interpolation geometry interpolator pointer
-        if ( mSlaveIPGeometryInterpolator != nullptr )
-        {
-            delete mSlaveIPGeometryInterpolator;
-        }
-
-        // delete the master integration geometry interpolator pointer
-        if ( mMasterIGGeometryInterpolator != nullptr )
-        {
-            delete mMasterIGGeometryInterpolator;
-        }
-
-        // delete the slave integration geometry interpolator pointer
-        if ( mSlaveIGGeometryInterpolator != nullptr )
-        {
-            delete mSlaveIGGeometryInterpolator;
-        }
-
         // delete the field interpolator pointers
         this->delete_pointers();
-
     }
 
 //------------------------------------------------------------------------------
@@ -313,17 +229,20 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
-        // delete the field interpolator pointers
-        this->delete_pointers();
+        if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
+        {
+            // delete the field interpolator pointers
+            this->delete_pointers();
 
-        // create the field interpolators
-        this->create_field_interpolator_managers( aModelSolverInterface );
+            // create the field interpolators
+            this->create_field_interpolator_managers( aModelSolverInterface );
 
-        // set field interpolator managers for the IWGs
-        this->set_IWG_field_interpolator_managers();
+            // set field interpolator managers for the IWGs
+            this->set_IWG_field_interpolator_managers();
 
-        // set field interpolator managers for the IQIs
-        this->set_IQI_field_interpolator_managers();
+            // set field interpolator managers for the IQIs
+            this->set_IQI_field_interpolator_managers();
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -561,6 +480,9 @@ namespace moris
                                                            this,
                                                            aModelSolverInterface );
 
+        // create the geometry interpolators on the master FI manager
+        mMasterFIManager->create_geometry_interpolators();
+
         // create the field interpolators on the master FI manager
         mMasterFIManager->create_field_interpolators( aModelSolverInterface );
 
@@ -570,8 +492,12 @@ namespace moris
                                                           aModelSolverInterface,
                                                           mtk::Master_Slave::SLAVE );
 
+        // create the geometry interpolators on the slave FI manager
+        mSlaveFIManager->create_geometry_interpolators();
+
         // create the field interpolators on the slave FI manager
         mSlaveFIManager->create_field_interpolators( aModelSolverInterface );
+
     }
 
 //------------------------------------------------------------------------------
@@ -593,24 +519,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::set_IWG_geometry_interpolators()
-    {
-        // loop over the IWGs
-        for ( std::shared_ptr< IWG > tIWG : mIWGs )
-        {
-            // set IWG master IP geometry interpolator
-            tIWG->set_geometry_interpolator( mMasterIPGeometryInterpolator );
-
-            // if double sideset, set slave
-            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // set IWG slave IP geometry interpolator
-                tIWG->set_geometry_interpolator( mSlaveIPGeometryInterpolator, mtk::Master_Slave::SLAVE );
-            }
-        }
-    }
-
-//------------------------------------------------------------------------------
     void Set::set_IQI_field_interpolator_managers()
     {
         // loop over the IQIs
@@ -624,24 +532,6 @@ namespace moris
             {
                 // set IQI slave FI manager
                 tIQI->set_field_interpolator_manager( mSlaveFIManager, mtk::Master_Slave::SLAVE );
-            }
-        }
-    }
-
-//------------------------------------------------------------------------------
-    void Set::set_IQI_geometry_interpolators()
-    {
-        // loop over the IQIs
-        for ( std::shared_ptr< IQI > tIQI : mIQIs )
-        {
-            // set iQI master IP geometry interpolator
-            tIQI->set_geometry_interpolator( mMasterIPGeometryInterpolator );
-
-            // if double sideset, set slave
-            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // set IQI slave IP geometry interpolator
-                tIQI->set_geometry_interpolator( mSlaveIPGeometryInterpolator, mtk::Master_Slave::SLAVE );
             }
         }
     }

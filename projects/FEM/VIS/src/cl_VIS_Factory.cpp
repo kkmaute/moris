@@ -69,10 +69,10 @@ namespace moris
         for( uint Ij = 0; Ij < mNumRequestedBlocks; Ij++ )
         {
             // get block index for name
-            moris_index tSetIndex = tIntegrationMesh->get_block_set_index( tRequestedSetNames( Ij ) );
+            moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
 
             // get set for index
-            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( tSetIndex );
+            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
             // get all vertices on set
             uint tNumVerticesOnSet = tMeshSet->get_num_vertieces_on_set( mOnlyPrimaryCells );
@@ -116,8 +116,8 @@ namespace moris
 
         for( uint Ij = 0; Ij <mNumRequestedBlocks; Ij++ )
         {
-            moris_index tSetIndex = tIntegrationMesh->get_block_set_index( tRequestedSetNames( Ij ) );
-            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( tSetIndex );
+            moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
             uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set( mOnlyPrimaryCells );
 
@@ -165,8 +165,8 @@ namespace moris
         // loop over requested sets
         for( uint Ij = 0; Ij <mNumRequestedBlocks; Ij++ )
         {
-            moris_index tSetIndex = tIntegrationMesh->get_block_set_index( tRequestedSetNames( Ij ) );
-            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( tSetIndex );
+            moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
             uint tNumClustersOnSet = tMeshSet->get_num_clusters_on_set();
 
@@ -289,8 +289,8 @@ namespace moris
 
         for( uint Ij = 0; Ij <mNumRequestedBlocks; Ij++ )
         {
-            moris_index tSetIndex = tIntegrationMesh->get_block_set_index( tRequestedSetNames( Ij ) );
-            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( tSetIndex );
+            moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock_1( Ij ),

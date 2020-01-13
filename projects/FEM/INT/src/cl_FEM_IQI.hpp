@@ -380,15 +380,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set geometry interpolator
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointers
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER );
-
-//------------------------------------------------------------------------------
-            /**
              * set property
              * @param[ in ] aProperty       a property pointer
              * @param[ in ] aPropertyString a string describing the property

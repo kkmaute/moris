@@ -131,8 +131,9 @@ namespace moris
             if( tIsTrivial )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator( aIsMaster )->extract_space_side_space_param_coeff( aSideOrdinal,
-                                                                                                              mSet->get_IG_space_interpolation_order() );
+                return mSet->get_field_interpolator_manager( aIsMaster )
+                           ->get_IP_geometry_interpolator()
+                           ->extract_space_side_space_param_coeff( aSideOrdinal, mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -155,7 +156,9 @@ namespace moris
             if( mSet->mIsTrivialMaster )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator()->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
+                return mSet->get_field_interpolator_manager()
+                           ->get_IP_geometry_interpolator()
+                           ->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -185,7 +188,7 @@ namespace moris
 //            else
 //            {
                 // get normal from the integration cell geometry interpolator
-                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( tNormal );
+                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_normal( tNormal );
 //            }
 
             return tNormal;
@@ -217,22 +220,21 @@ namespace moris
 //------------------------------------------------------------------------------
         void Cluster::compute_jacobian()
          {
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the element
+                 // compute the jacobian for the IG element
                  mElements( iElem )->compute_jacobian();
              }
-//             print( mSet->mJacobian,"Jacobian");
          }
 
 //------------------------------------------------------------------------------
         void Cluster::compute_residual()
         {
-            // loop over the elements
+            // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the residual for the element
+                // compute the residual for the IG element
                 mElements( iElem )->compute_residual();
             }
         }
@@ -240,13 +242,13 @@ namespace moris
 //------------------------------------------------------------------------------
         void Cluster::compute_jacobian_and_residual()
         {
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the element
+                 // compute the jacobian for the IG element
                  mElements( iElem )->compute_jacobian();
 
-                 // compute the residual for the element
+                 // compute the residual for the IG element
                  mElements( iElem )->compute_residual();
              }
          }
@@ -256,10 +258,10 @@ namespace moris
                                                     enum vis::Output_Type aOutputType,
                                                     enum vis::Field_Type  aFieldType )
         {
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the quantity of interest for the element
+                 // compute the quantity of interest for the IG element
                  mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
              }
          }
@@ -267,13 +269,13 @@ namespace moris
 //------------------------------------------------------------------------------
         real Cluster::compute_volume()
         {
-            // set cluster volume
+            // init cluster volume
             real tClusterVolume = 0;
 
-            // loop over the elements in cluster
+            // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the volume for the element
+                // add volume contribution for the IG element
                 tClusterVolume += mElements( iElem )->compute_volume();
             }
             // return cluster volume value

@@ -85,6 +85,8 @@ Integration_Mesh_STK::Integration_Mesh_STK( MtkMeshData &       aMeshData,
         this->setup_double_side_set_clusters(*aInterpMesh,aMeshData.DoubleSideClusterInput);
     }
 
+    this->collect_all_sets();
+
 }
 
 // ----------------------------------------------------------------------------
@@ -105,6 +107,8 @@ Integration_Mesh_STK::Integration_Mesh_STK(Interpolation_Mesh & aInterpMesh,
 
     // setup side set clusters
     this->setup_side_set_clusters(aInterpMesh,nullptr);
+
+    this->collect_all_sets();
 
 }
 

@@ -168,18 +168,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             tNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
         }
 
-        // ask mesh about number of IG nodes on proc
-        luint tNumOfIGNodes = tIntegrationMesh->get_num_nodes();
-
-        // create IG node objects
-        moris::Cell< fem::Node_Base * > tIGNodes;
-        tIGNodes.resize(  tNumOfIGNodes, nullptr );
-
-        for( uint iNode = 0; iNode < tNumOfIGNodes; iNode++ )
-        {
-            tIGNodes( iNode ) = new fem::Node( &tIntegrationMesh->get_mtk_vertex( iNode ) );
-        }
-
         // ask mesh about number of elements on proc
         luint tNumberOfElements = tIntegrationMesh->get_num_elems();
 
@@ -195,13 +183,12 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         for( luint Ik = 0; Ik < 1; ++Ik )
         {
             // create a list of cell clusters (this needs to stay in scope somehow)
-            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( 0 );
+            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
             // create new fem set
             tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                              tSetInfo( tFemSetCounter ),
-                                                             tNodes,
-                                                             tIGNodes );
+                                                             tNodes );
 
             // collect equation objects associated with the block-set
             tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
@@ -209,7 +196,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             // update fem set counter
             tFemSetCounter++;
         }
-
 
 //        // ask mesh about number of elements on proc
 //        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);

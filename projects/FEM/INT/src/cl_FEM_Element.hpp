@@ -22,6 +22,7 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
 #include "cl_FEM_Set.hpp"   //FEM/INT/src
@@ -217,10 +218,13 @@ namespace moris
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // set integration point for geometry interpolator
-                mSet->get_IG_geometry_interpolator()->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+                mSet->get_field_interpolator_manager( aIsMaster )
+                    ->get_IG_geometry_interpolator()
+                    ->set_space_time( mSet->get_integration_points().get_column( iGP ) );
 
                 // compute and add integration point contribution to volume
-                tVolume += mSet->get_IG_geometry_interpolator()->det_J() * mSet->get_integration_weights()( iGP );
+                tVolume += mSet->get_field_interpolator_manager( aIsMaster)->get_IG_geometry_interpolator()->det_J()
+                         * mSet->get_integration_weights()( iGP );
             }
 
             // return the volume value

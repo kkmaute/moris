@@ -72,6 +72,12 @@ namespace moris
         // maximum number of field interpolators
         moris::uint mMaxNumDvFI;
 
+        // pointer to geometry interpolator for IP element
+        Geometry_Interpolator* mIPGeometryInterpolator = nullptr;
+
+        // pointer to geometry interpolator for IG element
+        Geometry_Interpolator* mIGGeometryInterpolator = nullptr;
+
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -91,7 +97,7 @@ namespace moris
             mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
 
             // maximum number of dof field interpolators
-            mMaxNumDofFI =  mEquationSet->get_num_unique_dof_types();
+            mMaxNumDofFI = mEquationSet->get_num_unique_dof_types();
 
             // FIXME default
             mMaxNumDvFI = 0;
@@ -164,6 +170,19 @@ namespace moris
                 delete tFI;
             }
             mFI.clear();
+
+            // FIXME why can't I delete the GI here?
+//            // delete the IP geometry interpolator pointer
+//            if( mIPGeometryInterpolator != nullptr )
+//            {
+//                delete mIPGeometryInterpolator;
+//            }
+//
+//            // delete the IG geometry interpolator pointer
+//            if( mIGGeometryInterpolator != nullptr )
+//            {
+//                delete mIGGeometryInterpolator;
+//            }
         }
 
 //------------------------------------------------------------------------------
@@ -188,12 +207,12 @@ namespace moris
                 uint tDofIndex = mEquationSet->get_dof_index_for_type_1( mDofTypes( iDof )( 0 ), mIsMaster );
 
                 // create the field interpolation rule for the dof type group
-                Interpolation_Rule tFieldInterpolationRule( static_cast< Set* >( mEquationSet )->mIPGeometryType,
+                Interpolation_Rule tFieldInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
                                                             Interpolation_Type::LAGRANGE,
-                                                            static_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
-                                                            static_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
+                                                            reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
+                                                            reinterpret_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
                                                             // If interpolation type CONSTANT, iInterpolation order is not used
-                                                            static_cast< Set* >( mEquationSet )->get_auto_interpolation_order( tNumTimeNodes, mtk::Geometry_Type::LINE ) ); //fixme
+                                                            reinterpret_cast< Set* >( mEquationSet )->get_auto_interpolation_order( tNumTimeNodes, mtk::Geometry_Type::LINE ) ); //fixme
 
                 // check if the fiedl interpolator was created previously
                 MORIS_ASSERT( mFI( tDofIndex ) == nullptr, "Field_Interpolator_Manager::create_field_interpolators - Field interpolator was created previously" );
@@ -201,7 +220,8 @@ namespace moris
                 // create a field interpolator for the dof type group
                 mFI( tDofIndex ) = new Field_Interpolator( mDofTypes( iDof ).size(),
                                                            tFieldInterpolationRule,
-                                                           static_cast< Set* >( mEquationSet )->get_IP_geometry_interpolator( mIsMaster ),
+                                                           mIPGeometryInterpolator,
+                                                           //reinterpret_cast< Set* >( mEquationSet )->get_IP_geometry_interpolator( mIsMaster ),
                                                            mDofTypes( iDof ) );
             }
 
@@ -221,12 +241,12 @@ namespace moris
                 uint tDvIndex = mEquationSet->get_dv_index_for_type_1( mDvTypes( iDv )( 0 ), mIsMaster );
 
                 // create the field interpolation rule for the dv type group
-                Interpolation_Rule tFieldInterpolationRule( static_cast< Set* >( mEquationSet )->mIPGeometryType,
+                Interpolation_Rule tFieldInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
                                                             Interpolation_Type::LAGRANGE,
-                                                            static_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
-                                                            static_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
+                                                            reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
+                                                            reinterpret_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
                                                             // If interpolation type CONSTANT, iInterpolation order is not used
-                                                            static_cast< Set* >( mEquationSet )->get_auto_interpolation_order( tNumTimeNodes, mtk::Geometry_Type::LINE ) ); //fixme
+                                                            reinterpret_cast< Set* >( mEquationSet )->get_auto_interpolation_order( tNumTimeNodes, mtk::Geometry_Type::LINE ) ); //fixme
 
                 // check if the field interpolator was created previously
                 MORIS_ASSERT( mDvFI( tDvIndex ) == nullptr,
@@ -235,10 +255,59 @@ namespace moris
                 // create a field interpolator for the dof type group
                 mFI( tDvIndex ) = new Field_Interpolator( mDvTypes( iDv ).size(),
                                                           tFieldInterpolationRule,
-                                                          static_cast< Set* >( mEquationSet )->get_IP_geometry_interpolator( mIsMaster ),
+                                                          mIPGeometryInterpolator,
+                                                          //reinterpret_cast< Set* >( mEquationSet )->get_IP_geometry_interpolator( mIsMaster ),
                                                           mDvTypes( iDv ) );
             }
         };
+
+//------------------------------------------------------------------------------
+        /**
+         * create IP and IG geometry interpolator for the FI manager
+         */
+        void create_geometry_interpolators()
+        {
+             // create geometry interpolation rule for IP elements
+             Interpolation_Rule tIPGeometryInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
+                                                              Interpolation_Type::LAGRANGE,
+                                                              reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
+                                                              Interpolation_Type::LAGRANGE,
+                                                              mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
+
+             // create geometry interpolation rule for IG elements
+             Interpolation_Rule tIGGeometryInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIGGeometryType,
+                                                              Interpolation_Type::LAGRANGE,
+                                                              reinterpret_cast< Set* >( mEquationSet )->mIGSpaceInterpolationOrder,
+                                                              Interpolation_Type::LAGRANGE,
+                                                              mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
+
+             // bool true if sideset or double sideset
+             bool tIsSide = ( reinterpret_cast< Set* >( mEquationSet )->mElementType != fem::Element_Type::BULK );
+
+             // create a geometry interpolator for IP cells
+             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, tIsSide );
+
+             // create a geometry interpolator for IG cells
+             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tIsSide );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get IP geometry interpolator pointer
+         */
+        Geometry_Interpolator* get_IP_geometry_interpolator()
+        {
+            return mIPGeometryInterpolator;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get IG geometry interpolator pointer
+         */
+        Geometry_Interpolator* get_IG_geometry_interpolator()
+        {
+            return mIGGeometryInterpolator;
+        }
 
 //------------------------------------------------------------------------------
         /**
@@ -341,6 +410,9 @@ namespace moris
                 // set the evaluation point
                 mDvFI( tDvIndex )->set_space_time( aParamPoint );
             }
+
+            // IP geometry interpolator
+            mIPGeometryInterpolator->set_space_time( aParamPoint );
         }
 
 //------------------------------------------------------------------------------

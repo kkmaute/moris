@@ -168,12 +168,12 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tSetBulk.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 3 );
+        tSetDirichlet.set_mesh_index( 4 );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 5 );
+        tSetNeumann.set_mesh_index( 6 );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -384,12 +384,12 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tSetBulk.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 3 );
+        tSetDirichlet.set_mesh_index( 4 );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 5 );
+        tSetNeumann.set_mesh_index( 6 );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -622,12 +622,12 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tSetBulk.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 3 );
+        tSetDirichlet.set_mesh_index( 4 );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 5 );
+        tSetNeumann.set_mesh_index( 6 );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -888,12 +888,12 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tSetBulk.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 3 );
+        tSetDirichlet.set_mesh_index( 4 );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 5 );
+        tSetNeumann.set_mesh_index( 6 );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -1164,12 +1164,12 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tSetBulk.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 3 );
+        tSetDirichlet.set_mesh_index( 4 );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 5 );
+        tSetNeumann.set_mesh_index( 6 );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 

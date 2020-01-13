@@ -208,13 +208,15 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
     
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
-    
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
-    
+
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
     // evaluate the residual
@@ -398,12 +400,14 @@ TEST_CASE( "IWG_Elasticity_Bulk_with_Pressure", "[IWG_Pressure_Bulk]" )
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -571,13 +575,15 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
     
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
-    
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
-    
+
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
     // evaluate the residual

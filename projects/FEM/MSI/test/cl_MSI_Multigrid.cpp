@@ -174,18 +174,6 @@ namespace moris
              // ask mesh about number of elements on proc
              luint tNumberOfElements = tInterpolationMesh->get_num_elems();
 
-             // ask mesh about number of IG nodes on proc
-             luint tNumOfIGNodes = tIntegrationMesh->get_num_nodes();
-
-             // create IG node objects
-             moris::Cell< fem::Node_Base * > tIGNodes;
-             tIGNodes.resize(  tNumOfIGNodes, nullptr );
-
-             for( uint iNode = 0; iNode < tNumOfIGNodes; iNode++ )
-             {
-                 tIGNodes( iNode ) = new fem::Node( &tIntegrationMesh->get_mtk_vertex( iNode ) );
-             }
-
              // create equation objects
 //             tElements.reserve( tNumberOfElements );
 
@@ -203,8 +191,7 @@ namespace moris
                  // create new fem set
                  tElementBlocks( Ik ) = new fem::Set( tBlockSet,
                                                       tSetInfo( Ik ),
-                                                      tNodes,
-                                                      tIGNodes );
+                                                      tNodes );
 
                  // collect equation objects associated with the block-set
                  tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );

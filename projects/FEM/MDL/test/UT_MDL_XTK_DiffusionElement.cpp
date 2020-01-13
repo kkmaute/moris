@@ -194,22 +194,22 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index(tBulkBlockNamesNoChild) );
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tBulkBlockNamesNoChild) );
         tSetBulk1.set_set_type( fem::Element_Type::BULK );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index(tBulkBlockNamesChild) );
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tBulkBlockNamesChild) );
         tSetBulk2.set_set_type( fem::Element_Type::BULK );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index(tDirchletSideName) );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDirchletSideName) );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index(tNeumannSideName) );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tNeumannSideName) );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -394,7 +394,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
         xtk::Model tXTKModel(tModelDimension,tInterpMesh1,tGeometryEngine);
-        tXTKModel.mVerbose = false;
+        tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -479,12 +479,12 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 1 );
+        tSetDirichlet.set_mesh_index( 9 );
         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 0 );
+        tSetNeumann.set_mesh_index( 8 );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 

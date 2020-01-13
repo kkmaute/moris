@@ -227,6 +227,9 @@ using namespace tsa;
         mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+
+        std::cout<<"check for outputs"<<std::endl;
+        this->check_for_outputs();
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
@@ -252,6 +255,10 @@ using namespace tsa;
         mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+
+        std::cout<<"check for outputs"<<std::endl;
+
+        this->check_for_outputs();
     }
 //--------------------------------------------------------------------------------------------------------------------------
     void Time_Solver::set_time_solver_parameters()

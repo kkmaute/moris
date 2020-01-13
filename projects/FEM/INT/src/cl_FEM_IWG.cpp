@@ -22,7 +22,7 @@ namespace moris
             void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
                                                       mtk::Master_Slave            aIsMaster )
             {
-            	// FIXME why does this not work?
+                // FIXME why does this not work?
                 //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
                 switch ( aIsMaster )
                 {
@@ -1764,7 +1764,7 @@ void IWG::compute_jacobian_FD( real                                             
             // GEOMETRY PDV
 
             // get the GI for the IG element considered
-            Geometry_Interpolator * tGI = mSet->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tGI->get_number_of_space_bases();

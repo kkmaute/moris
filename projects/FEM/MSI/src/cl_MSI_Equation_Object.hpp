@@ -81,9 +81,6 @@ class Dist_Vector;
 
             moris::uint mNumPdofSystems = 0;
 
-            // list of node base pointer for the IG nodes
-            moris::Cell< moris::Cell< moris::Cell< fem::Node_Base* > > > mIGNodeObj;
-
             friend class fem::Element;
             friend class fem::Cluster;
 
@@ -228,28 +225,6 @@ class Dist_Vector;
 
             void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
                                             Matrix< DDRMat >         & aReshapedPdofValues );
-
-//-------------------------------------------------------------------------------------------------
-            /**
-             * get the pdv values of this equation object for IP nodes
-             * @param[ in ] aDvTypes   list of requested dv types
-             * @param[ in ] aPdvValues matrix of requested pdv values to fill
-             * @param[ in ] aIsMaster  enum for master or slave
-             */
-            void get_my_pdv_values( const moris::Cell< enum Dv_Type > & aDvTypes,
-                                          Matrix< DDRMat >            & aPdvValues,
-                                    const mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
-
-//-------------------------------------------------------------------------------------------------
-            /**
-             * get the pdv values of this equation object for IG nodes
-             * @param[ in ] aPdvValues            matrix of requested pdv values to fill
-             * @param[ in ] aIGCellIndexInCluster index of requested IG cell in cluster
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void get_my_pdv_values(       Matrix< DDRMat >            & aPdvValues,
-                                          uint                          aIGCellIndexInCluster,
-                                    const mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
 
 //-------------------------------------------------------------------------------------------------
 

@@ -104,16 +104,6 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // create a space time geometry interpolator
     Geometry_Interpolator tGI( tGIRule );
 
-//    // create space coeff xHat
-//    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
-//                              { 1.0, 0.0, 0.0 },
-//                              { 1.0, 1.0, 0.0 },
-//                              { 0.0, 1.0, 0.0 },
-//                              { 0.0, 0.0, 1.0 },
-//                              { 1.0, 0.0, 1.0 },
-//                              { 1.0, 1.0, 1.0 },
-//                              { 0.0, 1.0, 1.0 }};
-
     // create space coeff xHat
     arma::Mat< double > tXMatrix;
     tXMatrix.randu( 8, 3 );
@@ -160,9 +150,6 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     MSI::Equation_Set * tSet = new fem::Set();
     tIQI->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
-    // set IG GI in the set
-    static_cast< fem::Set* >( tSet )->mMasterIGGeometryInterpolator = &tGI;
-
     // set size for the set EqnObjDofTypeList
     tIQI->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
@@ -184,12 +171,14 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIQI->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIQI->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIQI->set_geometry_interpolator( &tGI );
 
     // check evaluation of the quantity of interest
     //------------------------------------------------------------------------------

@@ -211,12 +211,11 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -368,12 +367,11 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG geometry interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -529,12 +527,11 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG geometry interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -675,7 +672,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 
     // create a fem set
     MSI::Equation_Set * tSet = new fem::Set();
-    static_cast< fem::Set* >( tSet )->mMasterIGGeometryInterpolator = &tGI;
+//    static_cast< fem::Set* >( tSet )->mMasterIGGeometryInterpolator = &tGI;
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
@@ -714,12 +711,14 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 
     tFIManager.mFI = tFIs;
     tFIManager.mDvFI = tDvFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG geometry interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of drdpdv  by FD
     //------------------------------------------------------------------------------

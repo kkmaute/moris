@@ -98,35 +98,6 @@ public:
         }
     }
 
-    // ----------------------------------------------------------------------------
-//    /*
-//     * Get a cell cluster related to an interpolation
-//     * cell
-//     */
-//    virtual
-//    Cell_Cluster const &
-//    get_cell_cluster(Cell const & aInterpCell) const = 0;
-//
-//    // ----------------------------------------------------------------------------
-//
-//    /*
-//     * Get block set names
-//     */
-//    virtual
-//    moris::Cell<std::string>
-//    get_block_set_names() const = 0;
-//
-//    /*!
-//     * Returns the label
-//     */
-//    virtual
-//    std::string
-//    get_block_set_label(moris_index aBlockSetOrdinal) const
-//    {
-//        MORIS_ERROR(0, "get_block_set_label has no default implementation");
-//        return "ERROR";
-//    }
-
     //------------------------------------------------------------------------------
     /*
      * Get number of nodes
@@ -249,40 +220,7 @@ public:
 //        return mListofSideSets.size();
 //    };
 //
-//    // ----------------------------------------------------------------------------
-//    /*
-//     * Get block by index
-//     */
-//    moris::mtk::Set *
-//    get_side_set_by_index( moris::uint aSideSetIndex) const
-//    {
-//        MORIS_ASSERT(aSideSetIndex<mListofSideSets.size(),"Side set index out of bounds");
-//        return mListofSideSets(aSideSetIndex);
-//    };
-//
-//    // ----------------------------------------------------------------------------
-//    /*
-//     * Get number of blocks
-//     * Sometimes num side set * 2. Ask Keenan
-//     */
-//    moris::uint
-//    get_num_double_side_set() const
-//    {
-//        return mListofDoubleSideSets.size();
-//    };
-//
-//    // ----------------------------------------------------------------------------
-//    /*
-//     * Get block by index
-//     */
-//    moris::mtk::Set *
-//    get_double_side_set_by_index( moris::uint aSideSetIndex) const
-//    {
-//        MORIS_ASSERT(aSideSetIndex<mListofDoubleSideSets.size(),"Double side set index out of bounds");
-//        return mListofDoubleSideSets(aSideSetIndex);
-//    };
-//
-//    // ----------------------------------------------------------------------------
+
 //
 //    /*
 //     * Get cell clusters within a block set
@@ -349,15 +287,6 @@ public:
 //    virtual
 //    std::string
 //    get_double_sided_set_label(moris_index aSideSetOrdinal) const = 0;
-//
-//    // ----------------------------------------------------------------------------
-//
-//    /*!
-//     * Returns the index given a label
-//     */
-//    virtual
-//    moris_index
-//    get_double_sided_set_index(std::string aDoubleSideSetLabel) const  = 0;
 //
 //    // ----------------------------------------------------------------------------
 //

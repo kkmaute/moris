@@ -728,38 +728,6 @@ namespace moris
 //        }
 
 //------------------------------------------------------------------------------
-        void IQI::set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                             mtk::Master_Slave      aIsMaster )
-        {
-            // set geometry interpolator for the SP
-            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-            {
-                if( tSP != nullptr )
-                {
-                    tSP->set_geometry_interpolator( aGeometryInterpolator, aIsMaster );
-                }
-            }
-
-            // set geometry interpolator for constitutive models
-            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-            {
-                if( tCM != nullptr )
-                {
-                    tCM->set_geometry_interpolator( aGeometryInterpolator );
-                }
-            }
-
-            // set geometry interpolator for properties
-            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-            {
-                if( tProp != nullptr )
-                {
-                    tProp->set_geometry_interpolator( aGeometryInterpolator );
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
         // FIXME
         moris::Cell < enum MSI::Dof_Type > IQI::get_requested_dof_types()
         {
@@ -1005,7 +973,7 @@ namespace moris
                 // GEOMETRY PDV
 
                 // get the GI for the IG element considered
-                Geometry_Interpolator * tGI = mSet->get_IG_geometry_interpolator();
+                Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
                 // get number of master GI bases and space dimensions
                 uint tDerNumBases      = tGI->get_number_of_space_bases();

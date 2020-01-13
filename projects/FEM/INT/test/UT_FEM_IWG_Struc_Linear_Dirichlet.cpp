@@ -230,12 +230,14 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -418,12 +420,14 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -607,12 +611,14 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -801,12 +807,14 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -991,12 +999,14 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------

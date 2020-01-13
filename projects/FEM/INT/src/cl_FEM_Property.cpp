@@ -47,6 +47,9 @@ namespace moris
                 mDvFI( iDv ) = mFIManager->get_field_interpolators_for_type( tPropDvTypes( iDv )( 0 ) );
             }
             // END FIXME
+
+            // set geometry interpolator
+            mGeometryInterpolator =  mFIManager->get_IP_geometry_interpolator();
         }
 
 //------------------------------------------------------------------------------

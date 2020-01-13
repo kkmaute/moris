@@ -363,17 +363,17 @@ namespace moris
             tSetBulk2.set_IWGs( { tIWGBulk } );
 
             fem::Set_User_Info tSetDirichlet;
-            tSetDirichlet.set_mesh_index( 1 );
+            tSetDirichlet.set_mesh_index( 8 );
             tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
             tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
             fem::Set_User_Info tSetNeumann;
-            tSetNeumann.set_mesh_index( 0 );
+            tSetNeumann.set_mesh_index( 7 );
             tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             fem::Set_User_Info tSetGhost;
-            tSetGhost.set_mesh_index( 0 );
+            tSetGhost.set_mesh_index( 10 );
             tSetGhost.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
             tSetGhost.set_IWGs( { tIWGGhost } );
 
