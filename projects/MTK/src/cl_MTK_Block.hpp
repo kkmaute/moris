@@ -203,6 +203,7 @@ namespace moris
                    moris::Cell<Cluster const *>  aBlockSetClusters,
                    const uint                    aSpatialDim ) : Set( aName, aBlockSetClusters, aSpatialDim )
             {
+                mSetType = moris::SetType::BULK;
                 this->calculate_vertices_on_blocks( mOnlyPrimaryVertCheck );
 
                 this->calculate_cells_on_blocks( false );

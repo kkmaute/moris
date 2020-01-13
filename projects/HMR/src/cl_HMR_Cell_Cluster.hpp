@@ -30,7 +30,7 @@ private:
     moris::Matrix<moris::DDRMat>            mVertexParamCoords;
 
     // map from vertex id to local index
-    std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
+    std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;           // FIXME should be ordered map. about 1000 times faster
 
 public:
     Cell_Cluster_HMR():

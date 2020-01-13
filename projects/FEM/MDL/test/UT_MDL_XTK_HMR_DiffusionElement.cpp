@@ -301,23 +301,19 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tIntegMesh1->get_block_set_index("child_0") );
-        tSetBulk1.set_set_type( fem::Element_Type::BULK );
+        tSetBulk1.set_mesh_index( tIntegMesh1->get_set_index_by_name("child_0") );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index(  tIntegMesh1->get_block_set_index("parent_0") );
-        tSetBulk2.set_set_type( fem::Element_Type::BULK );
+        tSetBulk2.set_mesh_index(  tIntegMesh1->get_set_index_by_name("parent_0") );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tIntegMesh1->get_side_set_index("iside_g_0_p0_0_p1_1") );
-        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+        tSetDirichlet.set_mesh_index( tIntegMesh1->get_set_index_by_name("iside_g_0_p0_0_p1_1") );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tIntegMesh1->get_side_set_index("SideSet_1") );
-        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+        tSetNeumann.set_mesh_index( tIntegMesh1->get_set_index_by_name("SideSet_1") );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -570,24 +566,20 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
          // define set info
          fem::Set_User_Info tSetBulk1;
-         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
-         tSetBulk1.set_set_type( fem::Element_Type::BULK );
+         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
          tSetBulk1.set_IWGs( { tIWGBulk } );
 
          fem::Set_User_Info tSetBulk2;
-         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
-         tSetBulk2.set_set_type( fem::Element_Type::BULK );
+         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
          tSetBulk2.set_IWGs( { tIWGBulk } );
 
          fem::Set_User_Info tSetDirichlet;
          std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
-         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index(tInterfaceSideSetName) );
-         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName) );
          tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
          fem::Set_User_Info tSetNeumann;
-         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p0") );
-         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p0") );
          tSetNeumann.set_IWGs( { tIWGNeumann } );
 
          // create a cell of set info
@@ -882,27 +874,22 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //         // define set info
 //         fem::Set_User_Info tSetBulk1;
 //         tSetBulk1.set_mesh_index( 4 );
-//         tSetBulk1.set_set_type( fem::Element_Type::BULK );
 //         tSetBulk1.set_IWGs( { tIWGBulk } );
 //
 //         fem::Set_User_Info tSetBulk2;
 //         tSetBulk2.set_mesh_index( 5 );
-//         tSetBulk2.set_set_type( fem::Element_Type::BULK );
 //         tSetBulk2.set_IWGs( { tIWGBulk } );
 //
 //         fem::Set_User_Info tSetDirichlet1;
 //         tSetDirichlet1.set_mesh_index( 1 );
-//         tSetDirichlet1.set_set_type( fem::Element_Type::SIDESET );
 //         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 //
 //         fem::Set_User_Info tSetDirichlet2;
 //         tSetDirichlet2.set_mesh_index( 3 );
-//         tSetDirichlet2.set_set_type( fem::Element_Type::SIDESET );
 //         tSetDirichlet2.set_IWGs( { tIWGDirichlet } );
 //
 //         fem::Set_User_Info tSetNeumann;
 //         tSetNeumann.set_mesh_index( 0 );
-//         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
 //         tSetNeumann.set_IWGs( { tIWGNeumann } );
 //
 //         // create a cell of set info

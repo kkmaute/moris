@@ -158,7 +158,7 @@ namespace moris
              * set space dimension
              * @param[ in ] aSpaceDim a spatial dimension
              */
-            void set_space_dim( uint aSpaceDim )
+            virtual void set_space_dim( uint aSpaceDim )
             {
                 // check that space dimension is 1, 2, 3
                 MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "Constitutive_Model::set_space_dim - wrong space dimension.");
@@ -507,6 +507,11 @@ namespace moris
                                        std::string                      aPropertyType )
             {
                 MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
+            }
+
+            virtual void set_model_type(fem::Model_Type aModelType)
+            {
+                MORIS_ERROR( false, "Constitutive_Model::set_model_type - This function does nothing." );
             }
 
 //------------------------------------------------------------------------------

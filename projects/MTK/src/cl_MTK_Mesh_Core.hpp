@@ -18,6 +18,7 @@
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Facet.hpp"
+#include "cl_MTK_Set.hpp"
 
 namespace moris
 {
@@ -86,13 +87,30 @@ public:
     virtual uint get_num_entities( enum EntityRank aEntityRank) const = 0;
 
     // ----------------------------------------------------------------------------
+
+    virtual moris::uint get_num_sets() const
+    {
+        MORIS_ASSERT( false ,"get_num_sets(), not implemented for base class");
+        return 0;
+    }
+
+    // ----------------------------------------------------------------------------
     /*
      * Get block by index
      */
-    virtual moris::mtk::Set *
-    get_block_by_index( moris::uint aBlockIndex) const
+    virtual moris::mtk::Set * get_set_by_index( moris::uint aSetIndex ) const
     {
-        MORIS_ASSERT( false ,"get_block_by_index(), not implemented for base class");
+        MORIS_ASSERT( false ,"get_set_by_index(), not implemented for base class");
+        return nullptr;
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by name
+     */
+    virtual moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const
+    {
+        MORIS_ASSERT( false ,"get_set_by_index(), not implemented for base class");
         return nullptr;
     };
 
@@ -1053,6 +1071,37 @@ public:
         return CellTopology::INVALID;
     }
 
+    // ----------------------------------------------------------------------------
+
+    /*
+     * Returns the mtk cells in a block set.
+     */
+    virtual moris::Cell< mtk::Cell const * > get_set_cells( std::string aSetLabel ) const
+    {
+        moris::mtk::Set * tSet = this->get_set_by_name( aSetLabel );
+
+        enum moris::SetType tSetType = tSet->get_set_type();
+
+        moris::Cell<mtk::Cell const *> tBlockSetCells;
+
+        if( tSetType == moris::SetType::BULK )
+        {
+            Matrix< IndexMat > tBlockSetElementInd = this->get_set_entity_loc_inds( EntityRank::ELEMENT, aSetLabel );
+
+            tBlockSetCells.resize(tBlockSetElementInd.numel());
+
+            for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+            {
+                tBlockSetCells( k ) = & this->get_mtk_cell( tBlockSetElementInd(k) );
+            }
+        }
+        else{ MORIS_ERROR(false, "get_set_cells(), Only implemented for ELEMENT. Element for rest!!!") ;}
+
+
+        return tBlockSetCells;
+    }
+
+    // ----------------------------------------------------------------------------
 
     /*
      * Returns the mtk cells in a block set. Contains the aura entities
@@ -1069,7 +1118,6 @@ public:
         {
             tBlockSetCells( k ) = & this->get_mtk_cell( tBlockSetElementInd(k) );
         }
-
 
         return tBlockSetCells;
     }

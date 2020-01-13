@@ -68,8 +68,8 @@ TEST_CASE("MTK Side","[MTK],[MTK_Side]")
 
         REQUIRE(tIntegMesh->get_num_side_sets() == 14);
 
-        mtk::Set * tSideSet1 = tIntegMesh->get_side_set_by_index( 0 );
-        mtk::Set * tSideSet2 = tIntegMesh->get_side_set_by_index( 1 );
+        mtk::Set * tSideSet1 = tIntegMesh->get_set_by_index( 2 );
+        mtk::Set * tSideSet2 = tIntegMesh->get_set_by_index( 3 );
 
         Matrix< IndexMat > tSideOrdinal1= tSideSet1->get_clusters_by_index( 0 )
                                                    ->get_cell_side_ordinals();

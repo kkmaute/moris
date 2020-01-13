@@ -350,12 +350,12 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 ////
 ////        // create a list of active block-sets
-////         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-////                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-////                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-////                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-////                                                  tEnrIntegMesh.get_side_set_index(tInterfaceSideSetName),
-////                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p0")};
+////         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+////                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
+////                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+////                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+////                                                  tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName),
+////                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p0")};
 ////
 ////        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
 ////                                                          fem::Element_Type::BULK,
@@ -659,10 +659,10 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 ////
 ////    // create a list of active block-sets
-////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-////                                              tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-////                                              tEnrIntegMesh.get_side_set_index("SideSet_1_n_p1"),
-////                                              tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1")};
+////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1")};
 ////
 ////
 ////    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -953,10 +953,10 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 ////
 ////    // create a list of active block-sets
-////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-////                                              tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-////                                              tEnrIntegMesh.get_side_set_index("SideSet_1_n_p1"),
-////                                              tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1")};
+////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1")};
 ////
 ////
 ////    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -1297,13 +1297,13 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 1, 0 );
 //
 //    // create a list of active block-sets
-//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-//                                              tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-//                                              tEnrIntegMesh.get_side_set_index("SideSet_1_n_p1"),
-//                                              tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-//                                              tEnrIntegMesh.get_side_set_index("SideSet_3_n_p1"),
-//                                              tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
-//                                              tEnrIntegMesh.get_side_set_index( tInterfaceSideSetName )
+//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("SideSet_3_n_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name( tInterfaceSideSetName )
 //                                              };
 //
 //
@@ -1594,10 +1594,10 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 //
 //    // create a list of active block-sets
-//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
-//                                              tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
-//                                              tEnrIntegMesh.get_side_set_index("surface_2_n_p0"),
-//                                              tEnrIntegMesh.get_side_set_index("surface_4_n_p0")};
+//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("block_1_n_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("surface_2_n_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("surface_4_n_p0")};
 //
 //
 //    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -1904,10 +1904,10 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 //
 //    // create a list of active block-sets
-//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-//                                              tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-//                                              tEnrIntegMesh.get_side_set_index("SideSet_2_n_p0"),
-//                                              tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0")};
+//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0")};
 //
 //
 //    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -2198,9 +2198,9 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 //
 //    // create a list of active block-sets
-//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-//                                              tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-//                                              tEnrIntegMesh.get_side_set_index("iside_g_0_b0_1_b1_0")};
+//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
+//                                              tEnrIntegMesh.get_set_index_by_name("iside_g_0_b0_1_b1_0")};
 //
 //
 //    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -2544,12 +2544,12 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 //
 //    // create a list of active block-sets
-////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-////                                              tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-////                                              tEnrIntegMesh.get_side_set_index("iside_g_0_b0_1_b1_0")};
-//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-//                                              tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-//                                              tEnrIntegMesh.get_side_set_index("iside_g_0_b0_0_b1_1")};
+////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("iside_g_0_b0_1_b1_0")};
+//     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
+//                                              tEnrIntegMesh.get_set_index_by_name("iside_g_0_b0_0_b1_1")};
 //
 //
 //    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -2901,9 +2901,9 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 //
 //    // create a list of active block-sets
-////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-////                                              tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-////                                              tEnrIntegMesh.get_side_set_index("iside_g_0_b0_1_b1_0")};
+////     moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
+////                                              tEnrIntegMesh.get_set_index_by_name("iside_g_0_b0_1_b1_0")};
 //     moris::Cell< moris_index >  tSetList = { 0,
 //                                              1,
 //                                              5};

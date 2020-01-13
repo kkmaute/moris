@@ -129,6 +129,8 @@ namespace moris
                      moris::Cell<Cluster const *>  aSideSetClusters,
 					 const uint                    aSpatialDim ) : Set( aName, aSideSetClusters, aSpatialDim )
             {
+                 mSetType = moris::SetType::SIDESET;
+
                  this->calculate_vertices_on_set();
 
                  this->communicate_ig_geometry_type();

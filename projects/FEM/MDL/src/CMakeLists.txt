@@ -7,7 +7,7 @@ set(${MDL}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_MDL_Model.hpp
-    cl_MDL_Mesh_Model_Helper.hpp
+    #cl_MDL_Mesh_Model_Helper.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -16,7 +16,7 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
     cl_MDL_Model.cpp
-    cl_MDL_Mesh_Model_Helper.cpp
+    #cl_MDL_Mesh_Model_Helper.cpp
     )
 
 # List library dependencies

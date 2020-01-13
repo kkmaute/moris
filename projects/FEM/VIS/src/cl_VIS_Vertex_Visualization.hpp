@@ -64,7 +64,7 @@ namespace moris
             Matrix< DDRMat > get_coords() const
             {
                 MORIS_ASSERT( mIntergrationVertex!=nullptr, "get_coords(), Integration vertex is nullptr" );
-                std::cout<<mIntergrationVertex<<std::endl;
+
                 return mIntergrationVertex->get_coords();
             }
 

@@ -141,9 +141,9 @@ void Writer_Exodus::write_elemental_field(       std::string                    
             " is not an elemental field name on this mesh!").c_str());
 
     // Check number of field values = number of elements
-    MORIS_ERROR(aFieldValues.numel() == mMesh->get_block_set_cells(aBlockName).size(), aFieldName.append(
+    MORIS_ERROR(aFieldValues.numel() == mMesh->get_set_cells(aBlockName).size(), aFieldName.append(
             " field was attempted to be written with " + std::to_string(aFieldValues.numel()) + " values, but there are " +
-            std::to_string(mMesh->get_block_set_cells(aBlockName).size()) + " elements in block " + aBlockName +
+            std::to_string(mMesh->get_set_cells(aBlockName).size()) + " elements in block " + aBlockName +
             ".").c_str());
 
     // Write the field
@@ -209,7 +209,7 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     int tNumElementBlocks = tBlockNames.size();
     for (moris::uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
     {
-        moris::Cell<const moris::mtk::Cell *> tElementsInBlock = mMesh->get_block_set_cells(tBlockNames(tBlockIndex));
+        moris::Cell<const moris::mtk::Cell *> tElementsInBlock = mMesh->get_set_cells(tBlockNames(tBlockIndex));
         tNumElements += tElementsInBlock.size();
     }
 
@@ -319,7 +319,7 @@ void Writer_Exodus::write_blocks()
     for (moris::uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
     {
         // Get the block elements
-        moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mMesh->get_block_set_cells(tBlockNames(tBlockIndex));
+        moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mMesh->get_set_cells(tBlockNames(tBlockIndex));
 
         // Add name to map
         mBlockNamesMap[tBlockNames(tBlockIndex)] = tBlockIndex;

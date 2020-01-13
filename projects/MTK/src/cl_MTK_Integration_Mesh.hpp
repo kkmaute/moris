@@ -27,6 +27,10 @@ protected:
     moris::Cell< moris::mtk::Set * > mListofSideSets;
     moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
 
+    moris::Cell< moris::mtk::Set * > mListOfAllSets;
+
+    map< std::string, moris_index >  mSetNameToIndexMap;
+
 public:
     Integration_Mesh(){};
     // Functions only valid for integration meshes
@@ -56,6 +60,36 @@ public:
     virtual
     Cell_Cluster const &
     get_cell_cluster(Cell const & aInterpCell) const = 0;
+
+// ----------------------------------------------------------------------------
+
+    virtual moris::uint get_num_sets() const
+    {
+        return mListOfAllSets.size();
+    }
+
+// ----------------------------------------------------------------------------
+
+    moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const
+    {
+        moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
+
+        return mListOfAllSets( tSetIndex );
+    }
+
+// ----------------------------------------------------------------------------
+
+    moris::mtk::Set * get_set_by_index( moris_index aIndex ) const
+    {
+        return mListOfAllSets( aIndex );
+    }
+
+// ----------------------------------------------------------------------------
+
+    moris_index get_set_index_by_name( std::string aSetLabel )
+    {
+        return mSetNameToIndexMap.find( aSetLabel );
+    }
 
     // ----------------------------------------------------------------------------
 
@@ -100,16 +134,6 @@ public:
         return mListofBlocks.size();
     };
 
-    // ----------------------------------------------------------------------------
-    /*
-     * Get block by index
-     */
-    moris::mtk::Set *
-    get_block_by_index( moris::uint aBlockIndex) const
-    {
-        MORIS_ASSERT(aBlockIndex<mListofBlocks.size(),"Block index out of bounds");
-        return mListofBlocks(aBlockIndex);
-    };
 
     // ----------------------------------------------------------------------------
     /*
@@ -124,17 +148,6 @@ public:
 
     // ----------------------------------------------------------------------------
     /*
-     * Get block by index
-     */
-    moris::mtk::Set *
-    get_side_set_by_index( moris::uint aSideSetIndex) const
-    {
-        MORIS_ASSERT(aSideSetIndex<mListofSideSets.size(),"Side set index out of bounds");
-        return mListofSideSets(aSideSetIndex);
-    };
-
-    // ----------------------------------------------------------------------------
-    /*
      * Get number of blocks
      * Sometimes num side set * 2. Ask Keenan
      */
@@ -142,17 +155,6 @@ public:
     get_num_double_side_set() const
     {
         return mListofDoubleSideSets.size();
-    };
-
-    // ----------------------------------------------------------------------------
-    /*
-     * Get block by index
-     */
-    moris::mtk::Set *
-    get_double_side_set_by_index( moris::uint aSideSetIndex) const
-    {
-        MORIS_ASSERT(aSideSetIndex<mListofDoubleSideSets.size(),"Double side set index out of bounds");
-        return mListofDoubleSideSets(aSideSetIndex);
     };
 
     // ----------------------------------------------------------------------------
@@ -230,7 +232,11 @@ public:
      */
     virtual
     moris_index
-    get_double_sided_set_index(std::string aDoubleSideSetLabel) const  = 0;
+    get_double_sided_set_index(std::string aDoubleSideSetLabel) const
+    {
+    	MORIS_ERROR( false, "not implemented");
+    	return 0;
+    };
 
     // ----------------------------------------------------------------------------
 
@@ -242,6 +248,22 @@ public:
     get_double_side_set_cluster(moris_index aSideSetOrdinal) const  = 0;
 
     // ----------------------------------------------------------------------------
+
+protected:
+
+    void collect_all_sets()
+    {
+        mListOfAllSets.append( mListofBlocks );
+        mListOfAllSets.append( mListofSideSets );
+        mListOfAllSets.append( mListofDoubleSideSets );
+
+        for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
+        {
+           mListOfAllSets( Ik )->set_set_index( Ik );
+
+           mSetNameToIndexMap[ mListOfAllSets( Ik )->get_set_name() ] = Ik;
+        }
+    }
 
 
 };

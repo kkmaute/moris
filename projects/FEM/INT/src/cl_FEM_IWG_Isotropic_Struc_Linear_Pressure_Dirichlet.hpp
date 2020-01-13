@@ -1,12 +1,5 @@
-/*
- * cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
- *
- *  Created on: Okt 06, 2019
- *      Author: schmidt
- */
-
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_DIRICHLET_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_DIRICHLET_HPP_
 
 #include <map>
 
@@ -24,7 +17,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Struc_Linear_Bulk : public IWG
+        class IWG_Isotropic_Struc_Linear_Pressure_Dirichlet : public IWG
         {
 
 //------------------------------------------------------------------------------
@@ -32,7 +25,8 @@ namespace moris
 
             enum class IWG_Property_Type
             {
-                LOAD,
+                DIRICHLET,
+                SELECT,
                 MAX_ENUM
             };
 
@@ -42,7 +36,6 @@ namespace moris
             enum class IWG_Constitutive_Type
             {
                 ELAST_LIN_ISO,
-                ELAST_LIN_ISO_PRESSURE,
                 MAX_ENUM
             };
 
@@ -51,6 +44,7 @@ namespace moris
 
             enum class IWG_Stabilization_Type
             {
+                DIRICHLET_NITSCHE,
                 MAX_ENUM
             };
 
@@ -61,13 +55,13 @@ namespace moris
             /*
              * constructor
              */
-            IWG_Isotropic_Struc_Linear_Bulk();
+            IWG_Isotropic_Struc_Linear_Pressure_Dirichlet();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Struc_Linear_Bulk(){};
+            ~IWG_Isotropic_Struc_Linear_Pressure_Dirichlet(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -120,25 +114,33 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual
-             * r =
-             * @param[ in ] aResidual residual vector to fill
+             * computes the residual
+             * @param[ in ] aResidual cell of residual vectors to fill
              */
             void compute_residual( real tWStar );
 
 //------------------------------------------------------------------------------
+            /*
+             * compute 'identity' matrix to define boundary conditions
+             */
+            void get_I( Matrix< DDRMat > & aI );
+//------------------------------------------------------------------------------
+            /*
+             * build jump vector
+             */
+            void build_jump( Matrix< DDRMat > & aJumpMat );
+//------------------------------------------------------------------------------
             /**
-             * compute the jacobian
-             * j =
-             * @param[ in ] aJacobians list of jacobian matrices to fill
+             * computes the jacobian
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
             void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual and the jacobian
-             * @param[ in ] aJacobians list of jacobian matrices to fill
-             * @param[ in ] aResidual  residual vector to fill
+             * computes the residual and the jacobian
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aResidual  cell of residual vectors to fill
              */
             void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                 moris::Cell< Matrix< DDRMat > >                & aResidual );
@@ -149,4 +151,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_DIRICHLET_HPP_ */

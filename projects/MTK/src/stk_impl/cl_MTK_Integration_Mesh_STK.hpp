@@ -219,11 +219,15 @@ private:
     setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
                         Cell_Cluster_Input * aCellClusterInput);
 
+    void setup_cell_clusters();
+
     /*!
      * Setup the blocksets which contain cell clusters
      */
     void
     setup_blockset_with_cell_clusters();
+
+    void setup_blockset_with_cell_clusters_trivial();
 
     /*
      *  setup the side set cluster interface
@@ -231,6 +235,8 @@ private:
     void
     setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
                           Side_Cluster_Input * aSideClusterInput);
+
+    void setup_side_set_clusters_trivial();
 
 
     /*
