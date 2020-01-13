@@ -282,52 +282,38 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 // define set info
                 fem::Set_User_Info tSetBulk1;
                 tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
-                tSetBulk1.set_set_type( fem::Element_Type::BULK );
                 tSetBulk1.set_IWGs( { tIWGBulk } );
                 tSetBulk1.set_IQIs( { tIQI } );
-                std::cout<<"get mesh index 1: "<< tSetBulk1.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetBulk2;
                 tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
-                tSetBulk2.set_set_type( fem::Element_Type::BULK );
                 tSetBulk2.set_IWGs( { tIWGBulk } );
                 tSetBulk2.set_IQIs( { tIQI } );
-                std::cout<<"get mesh index 2: "<< tSetBulk2.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetBulk3;
                 tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
-                tSetBulk3.set_set_type( fem::Element_Type::BULK );
                 tSetBulk3.set_IWGs( { tIWGBulk } );
                 tSetBulk3.set_IQIs( { tIQI } );
-                std::cout<<"get mesh index 3: "<< tSetBulk3.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetBulk4;
                 tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-                tSetBulk4.set_set_type( fem::Element_Type::BULK );
                 tSetBulk4.set_IWGs( { tIWGBulk } );
                 tSetBulk4.set_IQIs( { tIQI } );
-                std::cout<<"get mesh index 4: "<< tSetBulk4.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetDirichlet;
                 tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
-                tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
                 tSetDirichlet.set_IWGs( { tIWGDirichlet } );
-                std::cout<<"get mesh index 5: "<< tSetDirichlet.get_mesh_index()<<std::endl;
 
                 fem::Set_User_Info tSetNeumann;
                 tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
-                tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
                 tSetNeumann.set_IWGs( { tIWGNeumann } );
-                std::cout<<"get mesh index 6: "<< tSetNeumann.get_mesh_index()<<std::endl;
 
                 // create a list of active block-sets
                 std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 );
 
                 fem::Set_User_Info tSetInterface;
                 tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
-                tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
                 tSetInterface.set_IWGs( { tIWGInterface } );
-                std::cout<<"get mesh index 7: "<< tSetInterface.get_mesh_index()<<std::endl;
 
                 // create a cell of set info
                 moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
@@ -353,7 +339,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                                          VIS_Mesh_Type::STANDARD,
 //                                       VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                          "Output_Vis_Mesh.exo",
-                                         { "HMR_dummy_c_p0", "HMR_dummy_n_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p1"},
+                                         { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },
                                          { "strain energy elemental", "strain energy global", "strain energy nodal" },
                                          { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL },

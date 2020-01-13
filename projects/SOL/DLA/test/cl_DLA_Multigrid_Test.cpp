@@ -147,7 +147,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // define set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
         tSetInfo( 0 ).set_mesh_index( 0 );
-        tSetInfo( 0 ).set_set_type( fem::Element_Type::BULK );
         tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
         map< moris_id, moris_index >   tCoefficientsMap;

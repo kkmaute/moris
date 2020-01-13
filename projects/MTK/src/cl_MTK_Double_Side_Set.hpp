@@ -121,6 +121,8 @@ namespace moris
                             moris::Cell<Cluster const *> aDoubleSideSetClusters,
 							const uint                   aSpatialDim ) : Set(aName,aDoubleSideSetClusters, aSpatialDim)
             {
+            	mSetType = moris::SetType::DOUBLE_SIDED_SIDESET;
+
                  this->communicate_ig_geometry_type();
             };
 

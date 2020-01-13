@@ -22,7 +22,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
-            mConstitutiveMap[ "ElastLinIsoPressure" ] = IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE;
         }
 
 //------------------------------------------------------------------------------
@@ -70,13 +69,9 @@ namespace moris
 
             // get property, CM, SP indices
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-            uint tElastLinIsoPressureIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO_PRESSURE );
             moris::fem::CM_Struc_Linear_Isotropic* tLinearIso = static_cast <moris::fem::CM_Struc_Linear_Isotropic*> (mMasterCM(tElastLinIsoIndex).get());
 
-            // compute the jacobian for direct dof dependencies
-            // Here no direct dependencies
-
-            // compute the jacobian for indirect dof dependencies through properties and constitutive model
+            // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
@@ -84,16 +79,16 @@ namespace moris
                 Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
                 uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
 
-                // if displacement constitutive model has dependency on the dof type (if displacement)
-                if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
+                // if dof type is displacement
+                if ( tDofType(0) == MSI::Dof_Type::UX )
                 {
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                     += trans(tPressureFI->N()) * tLinearIso->eval_B_flat() * aWStar;
                 }
 
-                // if pressure constitutive model has dependency on the dof type (if pressure)
-                if ( mMasterCM( tElastLinIsoPressureIndex )->check_dof_dependency( tDofType ) )
+                // if dof type is pressure
+                if ( tDofType(0) == MSI::Dof_Type::P )
                 {
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )

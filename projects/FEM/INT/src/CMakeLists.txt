@@ -128,6 +128,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
 	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
+	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp
@@ -158,7 +159,6 @@ set(LIB_SOURCES
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
-	cl_FEM_CM_Struc_Linear_Isotropic_Pressure.cpp
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp
