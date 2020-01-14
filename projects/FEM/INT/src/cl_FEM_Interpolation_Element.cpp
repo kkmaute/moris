@@ -309,7 +309,6 @@ namespace moris
             }
          }
 
-
 //------------------------------------------------------------------------------
         real Interpolation_Element::compute_volume()
         {

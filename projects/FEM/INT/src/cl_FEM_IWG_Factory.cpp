@@ -7,7 +7,7 @@
 //#include "cl_FEM_IWG_Helmholtz_Interface.hpp"                   //FEM/INT/src
 //#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"                  //FEM/INT/src
 //#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"                 //FEM/INT/src
-//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"             //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"             //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp"      //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp"   //FEM/INT/src
@@ -43,9 +43,9 @@ namespace moris
 //                case ( IWG_Type::HJ ):
 //                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk2 >();
 //
-//                case ( IWG_Type::HJTEST ):
-//                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk_Test >();
-//
+                case ( IWG_Type::HJTEST ):
+                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk_Test >();
+
 //                case ( IWG_Type::LSNORMAL ):
 //                    return std::make_shared< IWG_LSNormal_Bulk >();
 //
