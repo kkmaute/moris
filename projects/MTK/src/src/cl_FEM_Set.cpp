@@ -1437,6 +1437,10 @@ namespace moris
         	    (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
         	}
         }
+//        if( aFieldType==vis::Field_Type::NODAL || aFieldType==vis::Field_Type::NODAL_IP )
+//        {
+//            print( *mSetNodalValues, "mSetNodalValues" );
+//        }
     }
 
 //------------------------------------------------------------------------------

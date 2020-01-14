@@ -76,7 +76,7 @@ namespace moris
          * @param[ in ] aSet         a fem set
          */
         Interpolation_Element( const Element_Type                aElementType,
-                               const Cell< const mtk::Cell * >  & aInterpolationCell,
+                               const Cell< const mtk::Cell * > & aInterpolationCell,
                                      moris::Cell< Node_Base* > & aNodes,
                                      Set                       * aSet );
 

@@ -24,10 +24,6 @@ namespace moris
         void Element_Bulk::compute_residual()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-//            Matrix< DDRMat > tPdvValues;
-//            mCluster->get_my_pdv_values( tPdvValues, mCellIndexInCluster );
-//            mSet->get_IG_geometry_interpolator()->set_space_coeff( tPdvValues );
-//            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
 
