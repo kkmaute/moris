@@ -168,7 +168,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknow field type." );
+                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
                     break;
                 }
             }
