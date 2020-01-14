@@ -288,6 +288,15 @@ class Dist_Vector;
                 MORIS_ERROR( false, "this function does nothing");
             }
 
+//------------------------------------------------------------------------------
+            /**
+             * compute dRdp
+             */
+            virtual void compute_dRdp()
+            {
+                MORIS_ERROR( false, "this function does nothing");
+            };
+
 //-------------------------------------------------------------------------------------------------
 
             virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )

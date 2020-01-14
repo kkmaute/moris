@@ -77,6 +77,7 @@ namespace moris
             // dof field interpolators------------------------------------------
 
             // get number of master dof types
+        	std::cout<<mSet<<" 2"<<std::endl;
              uint tMasterNumDofTypes = mSet->get_dof_type_list().size();
 
              // loop on the master dof types
@@ -171,18 +172,6 @@ namespace moris
                  mSet->mSlaveFIManager->get_IP_geometry_interpolator()->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
                  mSet->mSlaveFIManager->get_IP_geometry_interpolator()->set_time_coeff( this->mTime );
              }
-
-//              //FIXME to remove when FIManager used for GI
-//              // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
-//              mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-//              mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_time_coeff( this->mTime );
-//              // if double side cluster
-//               if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-//               {
-//                   // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-//                   mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
-//                   mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_coeff( this->mTime );
-//               }
          }
 
 //------------------------------------------------------------------------------
@@ -199,7 +188,6 @@ namespace moris
 
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
-             //mSet->set_IWG_geometry_interpolators();
 
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
@@ -248,6 +236,22 @@ namespace moris
 
              // ask cluster to compute jacobian and residual
              mFemCluster( 0 )->compute_jacobian_and_residual();
+         }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::compute_dRdp()
+        {
+             //Fixme do this only once
+//             this->compute_my_pdof_values();
+
+             // set the field interpolators coefficients
+             this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IWG_field_interpolator_managers();
+
+             // ask cluster to compute jacobian
+             mFemCluster( 0 )->compute_dRdp();
          }
 
 //------------------------------------------------------------------------------

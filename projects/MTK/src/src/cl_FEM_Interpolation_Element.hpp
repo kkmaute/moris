@@ -133,6 +133,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * compute dRdp
+         */
+        void compute_dRdp();
+
+//------------------------------------------------------------------------------
+        /**
          * compute the quantity of interest on cluster
          * @param[ in ] aMeshIndex  index for vis mesh used
          * @param[ in ] aOutputType an enum for output type

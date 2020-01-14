@@ -18,7 +18,7 @@ Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
 {
     //PetscScalar    tZero = 0;
     //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
-    moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
+    moris::uint aNumMyDofs                      = aInput->get_my_local_global_map().n_rows();
     moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
     moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
     // Get PETSc communicator

@@ -38,6 +38,9 @@ namespace moris
                                                                             mAdofOwningProcessor( aOwningProcessorList )
         {};
 
+        Node_Proxy( const moris::luint             & aNodeId ) : mNodeId( aNodeId )
+        {};
+
         ~Node_Proxy() {};
 
         moris::sint get_id() const { return mNodeId; }

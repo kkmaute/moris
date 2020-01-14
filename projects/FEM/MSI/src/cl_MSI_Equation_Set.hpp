@@ -93,6 +93,8 @@ namespace moris
 
         Matrix< DDUMat > mSetNodalCounter;
 
+        MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
         friend class Element_Sideset;
@@ -315,9 +317,11 @@ namespace moris
             MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
         };
 
-        virtual void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+//-------------------------------------------------------------------------------------------------
+
+        void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
         {
-            MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
+            mDesignVariableInterface = aDesignVariableInterface;
         };
 
 //-------------------------------------------------------------------------------------------------

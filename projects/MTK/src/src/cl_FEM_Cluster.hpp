@@ -162,10 +162,16 @@ namespace moris
          * @param[ in ] aFieldType  an enum for computation/return type
          *                          GLOBAL, NODAL, ELEMENTAL
          */
-        //void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
         void compute_quantity_of_interest( const uint aMeshIndex,
                                            enum vis::Output_Type aOutputType,
                                            enum vis::Field_Type  aFieldType );
+
+//------------------------------------------------------------------------------
+        /**
+         * compute dRdp
+         */
+        void compute_dRdp();
+
 
 //------------------------------------------------------------------------------
         /**
