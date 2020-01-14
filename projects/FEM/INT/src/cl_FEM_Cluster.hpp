@@ -96,6 +96,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get mesh cluster
+         * @param[ out ] mMeshCluster a mesh cluster
+         */
+        const mtk::Cluster * get_mesh_cluster()
+        {
+            return mMeshCluster;
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * get the IG cell local coordinates on the side wrt to the IP cell
          * @param[ in ] aCellIndexInCluster index of the IG cell within the cluster
          * @param[ in ] aSideOrdinal        ordinal for the side

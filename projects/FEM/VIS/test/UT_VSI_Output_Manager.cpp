@@ -278,7 +278,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 tIWGInterface->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
                 tIWGInterface->set_constitutive_model( tCMMasterElastLinIso_bis, "ElastLinIso", mtk::Master_Slave::SLAVE );
 
-
                 // define set info
                 fem::Set_User_Info tSetBulk1;
                 tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
@@ -342,8 +341,8 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },
                                          { "strain energy elemental", "strain energy global", "strain energy nodal" },
-                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL },
-                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
+                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL, Field_Type::NODAL_IP },
+                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
 
                 tModel->set_output_manager( &tOutputData );
 
