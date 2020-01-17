@@ -571,8 +571,17 @@ namespace moris
 
         Matrix< IndexMat > Mesh::get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const
         {
+             Element * tElement;
+
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            if( mDatabase->get_parameters()->use_number_aura() )
+            {
+                tElement = mMesh->get_element_including_aura( aElementIndex );
+            }
+            else
+            {
+                tElement = mMesh->get_element( aElementIndex );
+            }
 
             // get number of nodes
             uint tNumberOfNodes = tElement->get_number_of_vertices();
@@ -615,7 +624,17 @@ namespace moris
         Matrix< IndexMat > Mesh::get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const
         {
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement;
+
+           // get pointer to element
+           if( mDatabase->get_parameters()->use_number_aura() )
+           {
+               tElement = mMesh->get_element_including_aura( aElementIndex );
+           }
+           else
+           {
+               tElement = mMesh->get_element( aElementIndex );
+           }
 
             // will be 0 for 2D, 12 for 3D
             uint tNumberOfEdges = tElement->get_background_element()->get_number_of_edges();
@@ -658,7 +677,17 @@ namespace moris
         Matrix< IndexMat > Mesh::get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const
         {
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement;
+
+           // get pointer to element
+           if( mDatabase->get_parameters()->use_number_aura() )
+           {
+               tElement = mMesh->get_element_including_aura( aElementIndex );
+           }
+           else
+           {
+               tElement = mMesh->get_element( aElementIndex );
+           }
 
             uint tNumberOfFaces = tElement->get_background_element()->get_number_of_facets();
 
@@ -1095,7 +1124,14 @@ namespace moris
                 }
                 case( EntityRank::ELEMENT ) :
                 {
-                    return mMesh->get_element( aEntityIndex )->get_owner();
+                    if( mDatabase->get_parameters()->use_number_aura() )
+                    {
+                        return mMesh->get_element_including_aura( aEntityIndex )->get_owner();
+                    }
+                    else
+                    {
+                        return mMesh->get_element( aEntityIndex )->get_owner();
+                    }
                     break;
                 }
                 default :

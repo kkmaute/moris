@@ -86,7 +86,7 @@ LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("XTK HMR Test","[XTK_HMR]")
 {
-    if(par_size() == 1)
+    if(par_size() == 2)
     {
         std::string tFieldName = "Cylinder";
 
@@ -95,7 +95,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         moris::hmr::Parameters tParameters;
 
-        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {2} } );
+        tParameters.set_number_of_elements_per_dimension( { {6}, {4}, {4} } );
         tParameters.set_domain_dimensions({ {2}, {2}, {4} });
         tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
         tParameters.set_bspline_truncation( true );
@@ -114,6 +114,9 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
+
+        tParameters.set_number_aura(  true );
+
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };

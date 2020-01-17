@@ -64,16 +64,18 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint a
 //-------------------------------------------------------------------------------------------------
 moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Solver_Interface * aInput,
                                                                   const moris::Map_Class        * aMap,
-                                                                  const enum VectorType           aVectorType )
+                                                                  const enum VectorType           aVectorType,
+                                                                  const sint                      aNumVectors )
 {
 moris::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
     case (MapType::Epetra):
-        tDistVector = new moris::Vector_Epetra( aMap, aVectorType );
+        tDistVector = new moris::Vector_Epetra( aMap, aVectorType, aNumVectors );
         break;
     case (MapType::Petsc):
+        MORIS_ERROR( aNumVectors ==1, "Multivector not implemented for petsc");
         tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
         break;
     default:
