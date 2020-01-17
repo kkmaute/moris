@@ -129,6 +129,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 size_t tModelDimension = 2;
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
@@ -158,7 +159,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 //                std::string tMeshFilePath = tPrefix + "build";
 //                writer.write_mesh(tMeshFilePath, "Vis_Mesh_2.exo");
 //
-//                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_block_set_cells("HMR_dummy_c_p0");
+//                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_set_cells("HMR_dummy_c_p0");
 //
 //                uint tNumElements = tElementsInBlock.size();
 //                moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);

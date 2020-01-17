@@ -17,15 +17,14 @@ namespace moris
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolatopr for a given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get SP, CM, property indices
             uint tDirichletIndex  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
@@ -51,15 +50,14 @@ namespace moris
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a residual dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for residual dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get SP, CM, property indices
             uint tDirichletIndex  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
@@ -125,6 +123,13 @@ namespace moris
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - Not implemented." );
         }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_drdpdv - This function does nothing.");
+        }
+
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

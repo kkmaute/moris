@@ -33,8 +33,7 @@ namespace moris
         {
             // check master field interpolators, properties and constitutive models
 #ifdef DEBUG
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
@@ -56,7 +55,7 @@ namespace moris
             if ( mMasterProp( tLoadIndex ) != nullptr )
             {
                 // get field interpolator for a given dof type
-                Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+                Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // compute contribution of body load to residual
                 mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
@@ -69,15 +68,14 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM and property
             uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
@@ -127,6 +125,62 @@ namespace moris
                                                                                   moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual - Not implemented." );
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv( real aWStar )
+        {
+#ifdef DEBUG
+            // check master field interpolators, properties and constitutive models
+            this->check_field_interpolators();
+#endif
+
+//            // get index for a given dof type
+//            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+//
+//            // get field interpolator for a given dof type
+//            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+//
+//            // get indices for SP, CM and property
+//            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
+//            uint tLoadIndex       = static_cast< uint >( IWG_Property_Type::LOAD );
+//
+//            // compute the drdpdv for indirect dv dependencies
+//            // through properties, constitutive models and stabilization parameters
+//            uint tNumDvDependencies = mMasterGlobalDvTypes.size();
+//            for( uint iDv = 0; iDv < tNumDvDependencies; iDv++ )
+//            {
+//                // get the treated dv type
+//                Cell< MSI::Dv_Type > tDvType = mMasterGlobalDvTypes( iDv );
+//
+//                // get index for the treated dv type
+//                uint tIndexDep = mSet->get_dv_index_for_type( tDvType( 0 ), mtk::Master_Slave::MASTER );
+//
+//                // if body load
+//                if ( mMasterProp( tLoadIndex ) != nullptr )
+//                {
+//                    // if property has dependency on the dv type
+//                    if ( mMasterProp( tLoadIndex )->check_dv_dependency( tDvType ) )
+//                    {
+//                        // compute drdpdv
+//                        mSet->get_drdpdv()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+//                                            { mSet->get_dv_assembly_map()( tDvIndex )( tIndexDep, 0 ), mSet->get_dv_assembly_map()( tDvIndex )( tIndexDep, 1 ) } )
+//                        += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDV( tDvType ) * tWStar;
+//                    }
+//                }
+//
+//                // if constitutive model has dependency on the dv type
+//                if ( mMasterCM( tDiffLinIsoIndex )->check_dv_dependency( tDvType ) )
+//                {
+//                    // compute the jacobian
+//                    // compute the jacobian
+//                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+//                                          { mSet->get_dv_assembly_map()( tDvIndex )( tIndexDep, 0 ), mSet->get_dv_assembly_map()( tDvIndex )( tIndexDep, 1 ) } )
+//                    += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDV( tDvType ) ) * tWStar;
+//                }
+//            }
+
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

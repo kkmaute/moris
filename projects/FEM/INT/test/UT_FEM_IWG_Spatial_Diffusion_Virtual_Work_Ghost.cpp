@@ -345,22 +345,24 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-            Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+            Field_Interpolator_Manager tMasterFIManager( tDummy, tSet, mtk::Master_Slave::MASTER );
+            Field_Interpolator_Manager tSlaveFIManager( tDummy, tSet, mtk::Master_Slave::SLAVE );
 
             // populate the field interpolator manager
-            tFIManager.mMasterFI = tMasterFIs;
-            tFIManager.mSlaveFI  = tSlaveFIs;
+            tMasterFIManager.mFI = tMasterFIs;
+            tMasterFIManager.mIPGeometryInterpolator = &tGI;
+            tMasterFIManager.mIGGeometryInterpolator = &tGI;
+            tSlaveFIManager.mFI  = tSlaveFIs;
+            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
+            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
+            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
 
             // set IWG field interpolator manager
-            tIWG->mFieldInterpolatorManager = &tFIManager;
-
-            // set IWG field interpolators
-            tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-
-            // set IWG geometry interpolator
-            tIWG->set_geometry_interpolator( &tGI );
-            tIWG->set_geometry_interpolator( &tGI, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tMasterFIManager );
+            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------
@@ -370,8 +372,8 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
             // init the jacobian for IWG and FD evaluation
-            Cell< Cell< Matrix< DDRMat > > > tJacobians;
-            Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+            Matrix< DDRMat > tJacobians;
+            Matrix< DDRMat > tJacobiansFD;
 
             // check jacobian by FD
             bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
@@ -381,18 +383,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                                                                tJacobiansFD );
 
 //            // print for debug
-//            print( tJacobians( 0 )( 0 ),"tJacobians00");
-//            print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-//
-//            print( tJacobians( 0 )( 1 ),"tJacobians01");
-//            print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-//
-//            print( tJacobians( 1 )( 0 ),"tJacobians10");
-//            print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-//
-//            print( tJacobians( 1 )( 1 ),"tJacobians11");
-//            print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
-//
+//            print( tJacobians,"tJacobians");
+//            print( tJacobiansFD,"tJacobiansFD");
+
 //            // print the treated case
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 

@@ -78,6 +78,18 @@ namespace moris
 
                 unique( tVerticesOnSet, mVerticesOnSet);
 
+                //FIXME delete this if statement the unique bud in aramdillo is fixed.
+                if ( tVerticesOnSet.n_rows() != mVerticesOnSet.n_rows() )
+                {
+                    tVerticesOnSet = mVerticesOnSet;
+                    mVerticesOnSet.set_size( 1, mVerticesOnSet.numel() );
+
+                    for( uint Ik = 0; Ik < tVerticesOnSet.numel(); Ik++ )
+                    {
+                    	mVerticesOnSet( Ik ) = tVerticesOnSet( Ik );
+                    }
+                }
+
 //                print(mVerticesOnSet,"mVerticesOnSet");
 
                 mNumVerticesOnSet = mVerticesOnSet.numel();
@@ -117,6 +129,8 @@ namespace moris
                      moris::Cell<Cluster const *>  aSideSetClusters,
 					 const uint                    aSpatialDim ) : Set( aName, aSideSetClusters, aSpatialDim )
             {
+                 mSetType = moris::SetType::SIDESET;
+
                  this->calculate_vertices_on_set();
 
                  this->communicate_ig_geometry_type();

@@ -17,6 +17,7 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
+#include "cl_VIS_Output_Enums.hpp"
 
 #include "fn_reshape.hpp"
 
@@ -37,6 +38,9 @@ namespace moris
             // FEM set pointer
             fem::Set * mSet = nullptr;
 
+            // IQI type
+            enum vis::Output_Type mIQIType;
+
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
@@ -49,7 +53,8 @@ namespace moris
             bool mGlobalDofBuild = true;
 
             // field interpolator manager pointer
-            Field_Interpolator_Manager * mFIManager = nullptr;
+            Field_Interpolator_Manager * mMasterFIManager = nullptr;
+            Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
@@ -89,6 +94,21 @@ namespace moris
             ~IQI(){};
 
 //------------------------------------------------------------------------------
+            /**
+             * get IQI type
+             */
+            enum vis::Output_Type get_IQI_type()
+            {
+                return mIQIType;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * rest evaluation flags for the IQI
+             */
+            void reset_eval_flags();
+
+//------------------------------------------------------------------------------
             /*
              * set fel set pointer
              * @param[ in ] aSetPointer a FEM set pointer
@@ -103,9 +123,31 @@ namespace moris
              * set field interpolator manager pointer
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
              */
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                 mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /*
+             * get field interpolator manager
+             * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ]  aIsMaster                 an enum for master or slave
+             */
+            Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
-                mFIManager = aFieldInterpolatorManager;
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ) :
+                        return mMasterFIManager;
+
+                    case ( mtk::Master_Slave::SLAVE ) :
+                        return mSlaveFIManager;
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
+                        return mMasterFIManager;
+                    }
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -174,7 +216,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * for both master and slave
              */
-            void get_non_unique_global_dof_type_list( moris::Cell< MSI::Dof_Type > & aDofTypes );
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -225,14 +267,6 @@ namespace moris
              * ( a list for master and a list for slave do types )
              */
             void build_global_dof_type_list();
-
-//------------------------------------------------------------------------------
-            /**
-             * set master or slave dof field interpolators for the IQI
-             * properties, constitutive models and stabilization parameters
-             * @param[ in ] aIsMaster an enum for master or slave
-             */
-            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -314,7 +348,7 @@ namespace moris
                 if( mGlobalDvBuild )
                 {
                     // build global dv type list
-                    this->build_global_dv_type_list();
+                    //this->build_global_dv_type_list();
 
                     // update build flag
                     mGlobalDvBuild = false;
@@ -343,30 +377,6 @@ namespace moris
                     }
                 }
             };
-
-//------------------------------------------------------------------------------
-            /**
-             * build a global dv type list including
-             * IQI, property, constitutive and stabilization dependencies
-             */
-            void build_global_dv_type_list();
-
-//------------------------------------------------------------------------------
-            /**
-             * set master or slave dv field interpolators for the IQI
-             * properties, constitutive models and stabilization parameters
-             * @param[ in ] aIsMaster an enum for master or slave
-             */
-            void set_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-//------------------------------------------------------------------------------
-            /**
-             * set geometry interpolator
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointers
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -493,6 +503,13 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+        /**
+         * get requested dof type
+         * @param[ in ] mRequestedDofType list of requested dof type
+         */
+        moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+
+//------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest wrt to dof types
              * @param[ in ] adQIdDof matrix to fill with derivative of the QoI wrt dof types
@@ -504,6 +521,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * evaluate the derivative of the quantity of interest wrt to dof types
+             * by finite difference
+             * @param[ in ] adQIdDof matrix to fill with derivative of the QoI wrt dof types
+             */
+            void compute_dQIdDof_FD( Matrix< DDRMat > & adQIdDofFD,
+                                     real               aPerturbation );
+//------------------------------------------------------------------------------
+            /**
+             * check the derivative of the quantity of interest wrt to dof types
+             * with evaluation by finite difference
+             * @param[ in ] aPerturbation real for perturbation of the dof values
+             * @param[ in ] aEpsilon      real for tolerance
+             * @param[ in ] adQIdDof      matrix to fill with derivative of QI wrt dof types
+             * @param[ in ] adQIdDofFD    matrix to fill with derivative of QI wrt dof types
+             *                            evaluated by finite difference
+             */
+            bool check_dQIdDof_FD( real               aPerturbation,
+                                   real               aEpsilon,
+                                   Matrix< DDRMat > & adQIdDof,
+                                   Matrix< DDRMat > & adQIdDofFD );
+
+//------------------------------------------------------------------------------
+            /**
              * evaluate the derivative of the quantity of interest wrt to dv types
              * @param[ in ] adQIdDv matrix to fill with derivative of the QI wrt dv types
              */
@@ -511,6 +551,15 @@ namespace moris
             {
                 MORIS_ERROR( false, "IQI::compute_dIQIdDv - This function does nothing. " );
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the quantity of interest wrt to dv types
+             * @param[ in ] adQIdDv matrix to fill with derivative of the QI wrt dv types
+             */
+            void compute_dQIdDv_FD( Matrix< DDRMat > & adQIdpMatFD,
+                                    Matrix< DDRMat > & adQIdpGeoFD,
+                                    real               aPerturbation );
 
 //------------------------------------------------------------------------------
         };

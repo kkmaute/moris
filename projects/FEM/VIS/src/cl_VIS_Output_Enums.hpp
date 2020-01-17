@@ -13,6 +13,8 @@ namespace vis
 {
     enum class Output_Type
     {
+        STRAIN_ENERGY,
+        VOLUME,
         UX,     //< X-Displacement
         UY,     //< Y-Displacement
         UZ,     //< Z-Displacement
@@ -42,6 +44,7 @@ namespace vis
     enum class Field_Type
     {
         NODAL,
+        NODAL_IP,
         ELEMENTAL,
         GLOBAL,
         END_ENUM//

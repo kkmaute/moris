@@ -44,14 +44,12 @@ namespace MSI
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
-
         /**
          * constructor
          */
         Element_Factory();
 
 //------------------------------------------------------------------------------
-
         /**
          * trivial destructor
          */
@@ -59,38 +57,25 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * create a cell cluster
+         * create an interpolation element
+         * @param[ in ] aElementType       enum for element type (BULK, SIDESET, ...)
+         * @param[ in ] aInterpolationCell pointer to corresponding IP mesh cell
+         * @param[ in ] aNodes             list of fem node pointers for IP vertices
+         * @param[ in ] aSet               pointer to corresponding fem set
          */
-        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
-                                               mtk::Cluster const        * aMeshCluster,
-                                               moris::Cell< Node_Base* > & aNodes,
-                                               Set                       * aSet );
-//        /**
-//         * create a cell cluster
-//         */
-//        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
-//                                               mtk::Cell_Cluster const   * aCellCluster,
-//                                               moris::Cell< Node_Base* > & aNodes,
-//                                               Set                       * aSet );
-//        /**
-//         * create a side cluster
-//         */
-//        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
-//                                               mtk::Side_Cluster const   * aSideCluster,
-//                                               moris::Cell< Node_Base* > & aNodes,
-//                                               Set                       * aSet );
-//
-//        /**
-//         * create a side cluster
-//         */
-//        MSI::Equation_Object * create_cluster( Element_Type                     aElementType,
-//                                               mtk::Double_Side_Cluster const & aDoubleSideCluster,
-//                                               moris::Cell< Node_Base* >      & aNodes,
-//                                               Set                            * aSet );
-//------------------------------------------------------------------------------
+        MSI::Equation_Object * create_interpolation_element(       Element_Type                        aElementType,
+                                                             const moris::Cell< const mtk::Cell * >  & aInterpolationCell,
+                                                                   moris::Cell< Node_Base* >         & aNodes,
+                                                                   Set                               * aSet );
 
+//------------------------------------------------------------------------------
         /**
-         * create element
+         * create an integration element
+         * @param[ in ] aElementType        enum for element type (BULK, SIDESET, ...)
+         * @param[ in ] aCell               pointer to corresponding IG mesh cell
+         * @param[ in ] aSet                pointer to corresponding fem set
+         * @param[ in ] aCluster            pointer to corresponding fem cluster
+         * @param[ in ] aCellIndexInCluster a index for the IG cell within the cluster
          */
         fem::Element * create_element( Element_Type         aElementType,
                                        mtk::Cell    const * aCell,
@@ -98,6 +83,16 @@ namespace MSI
                                        Cluster            * aCluster,
                                        moris::moris_index   aCellIndexInCluster );
 
+//------------------------------------------------------------------------------
+        /**
+         * create an integration element
+         * @param[ in ] aElementType        enum for element type (BULK, SIDESET, ...)
+         * @param[ in ] aLeftCell           pointer to corresponding master IG mesh cell
+         * @param[ in ] aRightCell          pointer to corresponding slave IG mesh cell
+         * @param[ in ] aSet                pointer to corresponding fem set
+         * @param[ in ] aCluster            pointer to corresponding fem cluster
+         * @param[ in ] aCellIndexInCluster a index for the IG cell within the cluster
+         */
         fem::Element * create_element( Element_Type         aElementType,
                                        mtk::Cell    const * aLeftCell,
                                        mtk::Cell    const * aRightCell,

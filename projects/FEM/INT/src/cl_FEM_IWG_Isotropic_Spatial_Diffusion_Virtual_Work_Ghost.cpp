@@ -35,10 +35,8 @@ namespace moris
         {
 #ifdef DEBUG
             // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
             // get master index for residual dof type
@@ -48,10 +46,10 @@ namespace moris
             uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tSlaveFI  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
             switch ( tMasterFI->get_space_interpolation_order() )
@@ -109,10 +107,8 @@ namespace moris
         {
 #ifdef DEBUG
             // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
             // get master index for residual dof type
@@ -122,10 +118,10 @@ namespace moris
             uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tSlaveFI  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
             switch ( tMasterFI->get_space_interpolation_order() )
@@ -289,6 +285,12 @@ namespace moris
                                                                                                 moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_drdpdv - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

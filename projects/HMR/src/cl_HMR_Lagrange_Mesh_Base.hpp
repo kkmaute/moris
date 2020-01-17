@@ -68,8 +68,8 @@ namespace moris
             Cell< Matrix< DDRMat > > mRealScalarFieldBSplineCoeffs;
             Cell< uint >             mRealScalarFieldBSplineOrders;
 
-            luint mNumberOfUsedAndOwnedNodes = 0;
-            luint mNumberOfUsedNodes = 0;
+            luint mNumberOfUsedAndOwnedNodes      = 0;
+            luint mNumberOfUsedNodes              = 0;
 
         public:
             //! Cell containing facets
@@ -255,6 +255,28 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+//            uint get_number_of_nodes_on_proc_without_aura()
+//            {
+//                uint tNumberElementsWoithoutAura = this->get_number_of_elements();
+//
+//                uint tNumBasisPerElement = this->get_number_of_basis_per_element();
+//
+//                Matrix< DDSMat > tBasisExistMat( )
+//
+//                for( uint Ik = 0; Ik < tNumberElementsWoithoutAura; Ik++ )
+//                {
+//                    Element * tElement = this->get_element( Ik );
+//
+//                    for( uint Ii = 0; Ii < tNumberElementsWoithoutAura; Ii++ )
+//                    {
+//                        moris_index tBasisIndex = tElement->get_basis( Ii )->get_index();
+//                    }
+//                }
+//                return mNumberOfUsedNodes;
+//            }
+
+// ----------------------------------------------------------------------------
+
             /**
              * returns a node pointer
              */
@@ -273,6 +295,28 @@ namespace moris
             {
                 MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                 return mNodes( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns a node pointer
+             */
+            Basis * get_node_by_index_including_aura( const uint & aIndex )
+            {
+                MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
+                return mAllBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns a node pointer ( const version )
+             */
+            const Basis * get_node_by_index_including_aura( const uint & aIndex ) const
+            {
+                MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
+                return mAllBasisOnProc( aIndex );
             }
 
 // ----------------------------------------------------------------------------

@@ -51,6 +51,8 @@ namespace moris
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
         }
 
+//-----------------------------------------------------------------------------
+
         Mesh::Mesh(       std::shared_ptr< Database >   aDatabase,
                     const uint                        & aLagrangeMeshIndex )
         {
@@ -68,6 +70,7 @@ namespace moris
             setup_glb_to_local_maps();
         }
 
+//-----------------------------------------------------------------------------
 
         Mesh::Mesh(       std::shared_ptr< Database >   aDatabase,
                     const uint                        & aOrder,
@@ -185,7 +188,15 @@ namespace moris
                 }
                 case( EntityRank::ELEMENT ) :
                 {
-                    return this->get_num_elems();
+                    if( mDatabase->get_parameters()->use_number_aura() )
+                    {
+                        return this->get_num_elemens_including_aura();
+                    }
+                    else
+                    {
+                        return this->get_num_elems();
+                    }
+
                     break;
                 }
                 // aEntityRank is not unique for Bsplines
@@ -204,6 +215,13 @@ namespace moris
                 }
             }
         }
+//-----------------------------------------------------------------------------
+
+        uint Mesh::get_num_elemens_including_aura() const
+        {
+            return mMesh->get_number_of_elements_including_aura();
+        }
+
 //-----------------------------------------------------------------------------
 
         uint Mesh::get_num_nodes() const
@@ -1044,7 +1062,15 @@ namespace moris
                 }
                 case( EntityRank::ELEMENT ) :
                 {
-                    return mMesh->get_element( aEntityIndex )->get_id();
+                    if( mDatabase->get_parameters()->use_number_aura() )
+                    {
+                        return mMesh->get_element_including_aura( aEntityIndex )->get_id();
+                    }
+                    else
+                    {
+                        return mMesh->get_element( aEntityIndex )->get_id();
+                    }
+
                     break;
                 }
                 default :
@@ -1056,12 +1082,17 @@ namespace moris
             }
         }
 
+        moris_id Mesh::get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const
+        {
+            return mMesh->get_element_including_aura( aEntityIndex )->get_id();
+        }
+
 //-----------------------------------------------------------------------------
 
         moris_index Mesh::get_loc_entity_ind_from_entity_glb_id( moris_id        aEntityId,
                                                                  enum EntityRank aEntityRank) const
         {
-            auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
+            auto tIter = mEntityGlobaltoLocalMap( ( uint )aEntityRank ).find( aEntityId );
 
             MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(),
                         "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
@@ -1164,7 +1195,7 @@ namespace moris
             return EntityRank::FACE;
         }
 
-        //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *>
         Mesh::get_all_vertices() const
@@ -1180,6 +1211,23 @@ namespace moris
 
             return tVertices;
         }
+
+////-----------------------------------------------------------------------------
+//
+//        moris::Cell<moris::mtk::Vertex const *>
+//        Mesh::get_all_vertices_including_aura() const
+//        {
+//            uint tNumVertices = this->get_num_nodes_including_aura();
+//
+//            moris::Cell<moris::mtk::Vertex const *> tVertices (tNumVertices);
+//
+//            for(moris::uint  i = 0; i < tNumVertices; i++)
+//            {
+//                tVertices(i) = &get_mtk_vertex_including_aura( ( moris_index ) i );
+//            }
+//
+//            return tVertices;
+//        }
 
 //-----------------------------------------------------------------------------
 
@@ -1529,6 +1577,34 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            mtk::Cell & Mesh::get_mtk_cell( moris_index aElementIndex )
+            {
+                if( mDatabase->get_parameters()->use_number_aura() )
+                {
+                    return *mMesh->get_element_including_aura( aElementIndex );
+                }
+                else
+                {
+                    return *mMesh->get_element( aElementIndex );
+                }
+            }
+
+//-------------------------------------------------------------------------------
+
+            mtk::Cell const & Mesh::get_mtk_cell( moris_index aElementIndex ) const
+            {
+                if( mDatabase->get_parameters()->use_number_aura() )
+                {
+                    return *mMesh->get_element_including_aura( aElementIndex );
+                }
+                else
+                {
+                    return *mMesh->get_element( aElementIndex );
+                }
+            }
+
+//-------------------------------------------------------------------------------
+
         Matrix< IndexMat > Mesh::get_inds_of_active_elements_connected_to_basis( const Basis * aBasis ) const
         {
             // ask basis for number of elements
@@ -1583,21 +1659,49 @@ namespace moris
             setup_entity_global_to_local_map(EntityRank::EDGE);
             setup_entity_global_to_local_map(EntityRank::FACE);
             setup_entity_global_to_local_map(EntityRank::ELEMENT);
+//            setup_element_global_to_local_map();
         }
+
+//-------------------------------------------------------------------------------
 
         void Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank)
         {
 //            this->get_lagrange_mesh()->select_activation_pattern(  );
+//            MORIS_ERROR( aEntityRank != EntityRank::ELEMENT," function does not work for element use setup_element_global_to_local_map instead()");
 
             uint tNumEntities = this->get_num_entities(aEntityRank);
             moris_id tCount = 0;
-            for(uint i = 0; i<tNumEntities; i++)
+            for( uint i = 0; i < tNumEntities; i++ )
             {
-                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index( i, aEntityRank );
 //                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
                 tCount++;
             }
+        }
+
+//-------------------------------------------------------------------------------
+
+        void Mesh::setup_element_global_to_local_map()
+        {
+////            this->get_lagrange_mesh()->select_activation_pattern(  );
+//
+//            uint tNumEntities = this->get_num_entities(aEntityRank);
+//
+//            moris_id tCount = 0;
+//
+//            for( uint i = 0; i < tNumElements; i++ )
+//            {
+//                moris_id tEntityId = this->get_glb_element_id_from_element_loc_index( i );
+////                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
+//                mEntityGlobaltoLocalMap((uint)EntityRank::ELEMENT)[ tEntityId ] = tCount;
+//                tCount++;
+//            }
+
+//    moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+
+//    mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
+
         }
 
     } /* namespace hmr */

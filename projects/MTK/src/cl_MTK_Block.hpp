@@ -107,6 +107,19 @@ namespace moris
 
                 unique( tVerticesOnBlock, mVerticesOnBlock);
 
+
+                //FIXME delete this if statement the unique bud in aramdillo is fixed.
+                if ( tVerticesOnBlock.n_rows() != mVerticesOnBlock.n_rows() )
+                {
+                    tVerticesOnBlock = mVerticesOnBlock;
+                    mVerticesOnBlock.set_size( 1, mVerticesOnBlock.numel() );
+
+                    for( uint Ik = 0; Ik < tVerticesOnBlock.numel(); Ik++ )
+                    {
+                        mVerticesOnBlock( Ik ) = tVerticesOnBlock( Ik );
+                    }
+                }
+
                 mNumVerticesOnBlock = mVerticesOnBlock.numel();
             };
 
@@ -192,6 +205,7 @@ namespace moris
                    moris::Cell<Cluster const *>  aBlockSetClusters,
                    const uint                    aSpatialDim ) : Set( aName, aBlockSetClusters, aSpatialDim )
             {
+                mSetType = moris::SetType::BULK;
                 this->calculate_vertices_on_blocks( mOnlyPrimaryVertCheck );
 
                 this->calculate_cells_on_blocks( false );

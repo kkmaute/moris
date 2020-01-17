@@ -30,6 +30,7 @@ namespace moris
         mMSIParameterList.insert( "VX",      0 );
         mMSIParameterList.insert( "VY",      0 );
         mMSIParameterList.insert( "VZ",      0 );
+        mMSIParameterList.insert( "P",       0 );
     }
 
 //------------------------------------------------------------------------------
@@ -53,6 +54,7 @@ namespace moris
        else if ( tDofType == Dof_Type::VX )          { return mMSIParameterList.get< moris::sint >( "VX" ); }
        else if ( tDofType == Dof_Type::VY )          { return mMSIParameterList.get< moris::sint >( "VY" ); }
        else if ( tDofType == Dof_Type::VZ )          { return mMSIParameterList.get< moris::sint >( "VZ" ); }
+       else if ( tDofType == Dof_Type::P )           { return mMSIParameterList.get< moris::sint >( "P" ); }
 
        else
        {

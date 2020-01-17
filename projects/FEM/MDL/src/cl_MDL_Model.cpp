@@ -86,10 +86,10 @@ namespace moris
         // STEP 1: create nodes
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        // ask mesh about number of nodes on proc
+        // ask mesh about number of IP nodes on proc
         luint tNumOfIPNodes = tInterpolationMesh->get_num_nodes();
 
-        // create node objects
+        // create IP node objects
         mIPNodes.resize(  tNumOfIPNodes, nullptr );
 
         for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
@@ -104,8 +104,8 @@ namespace moris
 
             // print output
             MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
-                    ( unsigned int ) tNumOfIPNodes,
-                    ( double ) tElapsedTime / 1000 );
+                            ( unsigned int ) tNumOfIPNodes,
+                            ( double ) tElapsedTime / 1000 );
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,7 +119,7 @@ namespace moris
         fem::Element_Factory tElementFactory;
 
         // create equation objects
-        mFemSets.resize( tNumFemSets, nullptr );
+        mFemSets.resize( tNumFemSets, nullptr );     // FIXME try to create them as equation sets
 
         // get the number of element to create
         mFemClusters.reserve( 100000 ); //FIXME
@@ -131,37 +131,10 @@ namespace moris
         // loop over the used fem set
         for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
         {
-            // create a list of clusters
-            moris::mtk::Set * tMeshSet;
-
             mMeshSetToFemSetMap[ aSetInfo( iSet ).get_mesh_index() ] = tFemSetCounter;
 
-            switch ( aSetInfo( iSet ).get_set_type() )
-            {
-                case( fem::Element_Type::BULK ):
-                {
-                    tMeshSet = tIntegrationMesh->get_block_by_index( aSetInfo( iSet ).get_mesh_index() );
-                    break;
-                 }
-
-                case( fem::Element_Type::SIDESET ):
-                {
-                    tMeshSet = tIntegrationMesh->get_side_set_by_index( aSetInfo( iSet ).get_mesh_index() );
-                    break;
-                }
-
-                case( fem::Element_Type::DOUBLE_SIDESET ):
-                {
-                    tMeshSet = tIntegrationMesh->get_double_side_set_by_index( aSetInfo( iSet ).get_mesh_index() );
-                    break;
-                }
-
-                default :
-                {
-                    MORIS_ERROR( false, " Model - unknown fem::Element_Type " );
-                    break;
-                }
-            }
+            // create a list of clusters
+            moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( aSetInfo( iSet ).get_mesh_index() );
 
             if ( tMeshSet->get_num_clusters_on_set() !=0 )
             {
@@ -272,8 +245,6 @@ namespace moris
 
         mSolverInterface->set_model( this );
 
-
-
         if( par_rank() == 0)
         {
             // stop timer
@@ -313,6 +284,13 @@ namespace moris
             }
             mIPNodes.clear();
 
+            // delete fem nodes for IG nodes
+            for( auto tIGNode : mIGNodes )
+            {
+                delete tIGNode;
+            }
+            mIGNodes.clear();
+
             // delete the fem sets
             for( auto tFemSet : mFemSets )
             {
@@ -337,7 +315,7 @@ namespace moris
 
                 for( uint k=0; k < tNumberOfNodes; ++k )
                 {
-                    // copy weakbc into element
+                    // copy weak bc into element
                     tNodalWeakBCs( k ) = aWeakBCs( tElement->get_node_index( k ) );
                 }
             }
@@ -507,7 +485,8 @@ namespace moris
                             }
 
                             // get the field interpolator
-                            fem::Field_Interpolator_Manager * tFIM= tFemSet->get_field_interpolators_manager();
+                            //fem::Field_Interpolator_Manager * tFIM = tFemSet->get_field_interpolators_manager();
+                            fem::Field_Interpolator_Manager * tFIM = tFemSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER );
                             fem::Field_Interpolator* tFieldInterp = tFIM->get_field_interpolators_for_type(tDofType);
 
                             // iterate through clusters in set
@@ -677,8 +656,8 @@ namespace moris
                                         aTime );
 
             // write requested fields
-//               mOutputManager->write_field( aVisMeshIndex,
-//                                            this );
+            mOutputManager->write_field( aVisMeshIndex,
+                                         this );
 
             // end writing and delete vis mesh
             mOutputManager->end_writing( aVisMeshIndex );

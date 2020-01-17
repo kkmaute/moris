@@ -81,10 +81,11 @@ namespace moris
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
 
         // get mtk set index to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
+        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
 
         // copy fem::Set to base class MSI::Equation_Set. can this be done with a reinterpret_cast?
-        moris::Cell< MSI::Equation_Set * > tEquationSets(aModel->get_equation_sets().size());
+        moris::Cell< MSI::Equation_Set * > tEquationSets( aModel->get_equation_sets().size() );
+
         for(moris::uint iSet = 0; iSet < aModel->get_equation_sets().size(); iSet++ )
         {
             tEquationSets( iSet ) = aModel->get_equation_sets()( iSet );
@@ -97,10 +98,15 @@ namespace moris
             moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
             // find set index for this block index
+//            moris_index tEquationSetIndex = Ii;
             moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
 
-            // set vis set to fem set
-            tEquationSets( tEquationSetIndex )->set_visualization_set( mVisMesh( aVisMeshIndex )->get_block_by_index( Ii ) );
+            std::cout<<tEquationSetIndex<<" tEquationSetIndex"<<std::endl;
+
+            // set vis set to fem set. +1 because 0 is reserved for fem
+            tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
+                                                                       mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
+                                                                       mOnlyPrimary );
         }
     }
 
@@ -110,19 +116,18 @@ namespace moris
                                      const real tTime )
     {
         // specify file path
-        std::string tPrefix = std::getenv("MORISROOT");
-        std::string tMeshFilePath = tPrefix + "build";
+        std::string tMeshFilePath = std::getenv("MORISOUTPUT");
 
         // get file name
-        std::string tMeshFileName=  mOutputData( aVisMeshIndex ).mMeshName;
+        std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
 
         // write mesh to file
-        mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, mOutputData( aVisMeshIndex ).mMeshName );
+        mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
 
         // add nodal elemental and global fields to mesh
         this->add_nodal_fields( aVisMeshIndex );
         this->add_elemetal_fields( aVisMeshIndex );
-//        this->add_global_fields( aVisMeshIndex );
+        this->add_global_fields( aVisMeshIndex );
 
         // write time to file
         mWriter( aVisMeshIndex )->set_time( tTime );
@@ -217,7 +222,7 @@ namespace moris
         {
             uint tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
-            moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_block_by_index( tBlockIndex );
+            moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( tBlockIndex );
 
             bool tOnlyPrimaryCells = true ;
 
@@ -317,7 +322,7 @@ namespace moris
             std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
 
             // nodal and global field vaues
-            Matrix< DDRMat > tNodalValues;
+            Matrix< DDRMat > tNodalValues( mVisMesh( aVisMeshIndex )->get_num_nodes(), 1, 0.0 );
             moris::real      tGlobalValue;
 
             // loop over all blocks on this output object
@@ -328,15 +333,17 @@ namespace moris
 
                 // find set index for this block index
                 moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
+//                moris_index tEquationSetIndex = Ii;
 
                 // elemental field values
                 Matrix< DDRMat > tElementValues;
 
-                tEquationSets( tEquationSetIndex )->compute_quantitiy_of_interest( &tElementValues,
-                                                                                   &tNodalValues,
-                                                                                   &tGlobalValue,
-                                                                                   mOutputData( aVisMeshIndex ).mOutputType( Ik ),
-                                                                                   mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
+                tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( aVisMeshIndex + 1,
+                                                                                  &tElementValues,
+                                                                                  &tNodalValues,
+                                                                                  &tGlobalValue,
+                                                                                  mOutputData( aVisMeshIndex ).mOutputType( Ik ),
+                                                                                  mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
 
                 if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
                 {

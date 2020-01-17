@@ -97,12 +97,14 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
     tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
     tCMSlaveStrucLinIso->set_space_dim( 2 );
+    tCMSlaveStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -231,95 +233,85 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     // define a perturbation relative size
     real tPerturbation = 1E-4;
 
-    SECTION( "IWG_Spatial_Struc : check residual and jacobian with constant property" )
-    {
-        MSI::Equation_Set * tSet = new fem::Set();
+    MSI::Equation_Set * tSet = new fem::Set();
 
-        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
 
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
-        tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
 
-        tIWG->mSet->mResDofAssemblyMap.resize( 2 );
-        tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
-        tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
-        tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 8, 15 } };
-        tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
-        tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 8, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
 
-        tIWG->mSet->mResidual.set_size( 32, 1 , 0.0 );
-        tIWG->mSet->mJacobian.set_size( 32, 32, 0.0 );
+    tIWG->mSet->mResidual.set_size( 16, 1 , 0.0 );
+    tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );
 
-        tIWG->mResidualDofTypeRequested = true;
+    tIWG->mResidualDofTypeRequested = true;
 
-        // build global dof type list
-        tIWG->get_global_dof_type_list();
+    // build global dof type list
+    tIWG->get_global_dof_type_list();
 
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
-        tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::UX }};
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+    tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::UX }};
 
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-        Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tMasterFIManager( tDummy, tSet, mtk::Master_Slave::MASTER );
+    Field_Interpolator_Manager tSlaveFIManager( tDummy, tSet, mtk::Master_Slave::SLAVE );
 
-        tFIManager.mMasterFI = tMasterFIs;
-        tFIManager.mSlaveFI  = tSlaveFIs;
+    // populate the field interpolator manager
+    tMasterFIManager.mFI = tMasterFIs;
+    tMasterFIManager.mIPGeometryInterpolator = &tGI;
+    tMasterFIManager.mIGGeometryInterpolator = &tGI;
+    tSlaveFIManager.mFI  = tSlaveFIs;
+    tSlaveFIManager.mIPGeometryInterpolator = &tGI;
+    tSlaveFIManager.mIGGeometryInterpolator = &tGI;
 
-        // set IWG field interpolators
-        tIWG->mFieldInterpolatorManager = &tFIManager;
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tMasterFIManager;
+    tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
 
-        tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
-        tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+    // set IWG field interpolator manager
+    tIWG->set_field_interpolator_manager( &tMasterFIManager );
+    tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
-        // set IWG geometry interpolator
-        tIWG->set_geometry_interpolator( &tGI );
-        tIWG->set_geometry_interpolator( &tGI, mtk::Master_Slave::SLAVE );
+    // check evaluation of the residual for IWG Helmholtz Bulk ?
+    //------------------------------------------------------------------------------
+    // evaluate the residual
+    tIWG->compute_residual( 1.0 );
 
-        // check evaluation of the residual for IWG Helmholtz Bulk ?
-        //------------------------------------------------------------------------------
-        // evaluate the residual
-        tIWG->compute_residual( 1.0 );
+    // check evaluation of the jacobian  by FD
+    //------------------------------------------------------------------------------
+    // init the jacobian for IWG and FD evaluation
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
-        // check evaluation of the jacobian  by FD
-        //------------------------------------------------------------------------------
-        // init the jacobian for IWG and FD evaluation
-        Cell< Cell< Matrix< DDRMat > > > tJacobians;
-        Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    // check jacobian by FD
+    bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
+                                                       tEpsilon,
+                                                       1.0,
+                                                       tJacobians,
+                                                       tJacobiansFD );
 
-        // check jacobian by FD
-        bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                           tEpsilon,
-                                                           1.0,
-                                                           tJacobians,
-                                                           tJacobiansFD );
+//        // print for debug
+//        print( tJacobians,"tJacobians");
+//        print( tJacobiansFD,"tJacobiansFD");
 
-        //        // print for debug
-        //        print( tJacobians( 0 )( 0 ),"tJacobians00");
-        //        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-        //
-        //        print( tJacobians( 0 )( 1 ),"tJacobians01");
-        //        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-        //
-        //        print( tJacobians( 1 )( 0 ),"tJacobians10");
-        //        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-        //
-        //        print( tJacobians( 1 )( 1 ),"tJacobians11");
-        //        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
-
-        // require check is true
-        REQUIRE( tCheckJacobian );
-
-    }/* END_SECTION */
+    // require check is true
+    REQUIRE( tCheckJacobian );
 
     // clean up
     tMasterFIs.clear();
-
     tSlaveFIs.clear();
 
 }/* END_TEST_CASE */

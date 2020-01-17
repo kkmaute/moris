@@ -41,15 +41,14 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for given dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get SP, CM and property indices
             uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
@@ -93,15 +92,14 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get SP, CM and property indices
             uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
@@ -156,8 +154,8 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                    += -1.0 * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
-                       - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType );
+                    -= (mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
+                       + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )) * aWStar;
                 }
 
                 // if dependency on the dof type
@@ -167,7 +165,6 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                    += ( - trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * aWStar;
-//                        + mMasterCM( tElastLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tM * tJump ) * tWStar;
                 }
 
                 // if dependency on the dof type
@@ -176,7 +173,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                    += trans( tFI->N() ) * tM * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType );
+                    += trans( tFI->N() ) * tM * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) * aWStar;
                 }
             }
         }
@@ -186,6 +183,12 @@ namespace moris
                                                                                   moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual - This function does nothing.");
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_drdpdv - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

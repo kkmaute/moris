@@ -11,10 +11,10 @@
 #include<memory>
 
 #include "cl_Matrix.hpp"
-// XTKL: Linear Algebra Includes
+
 #include "cl_Mesh_Enums.hpp"
 #include "cl_Cell.hpp"
-//#include "cl_GEN_Topology.hpp"
+
 #include "cl_XTK_Topology.hpp"
 
 namespace moris

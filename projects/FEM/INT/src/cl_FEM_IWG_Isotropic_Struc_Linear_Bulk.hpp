@@ -42,6 +42,7 @@ namespace moris
             enum class IWG_Constitutive_Type
             {
                 ELAST_LIN_ISO,
+                ELAST_LIN_ISO_PRESSURE,
                 MAX_ENUM
             };
 
@@ -141,6 +142,13 @@ namespace moris
              */
             void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                 moris::Cell< Matrix< DDRMat > >                & aResidual );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the residual wrt design variables
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_drdpdv( real aWStar );
 
 //------------------------------------------------------------------------------
         };

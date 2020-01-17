@@ -32,7 +32,9 @@ namespace moris
     {
     class Model_Solver_Interface;
     class Equation_Object;
+    class Design_Variable_Interface;
     enum class Dof_Type;
+    enum class Dv_Type;
 //------------------------------------------------------------------------------
     /**
      * \brief element block class that communicates with the mesh interface
@@ -52,7 +54,6 @@ namespace moris
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
 
-
         // maps for the master and slave dof type
         moris::Matrix< DDSMat > mMasterDofTypeMap;
         moris::Matrix< DDSMat > mSlaveDofTypeMap;
@@ -60,6 +61,17 @@ namespace moris
         // map of master and slave dof types for assembly
         Cell< moris::Matrix< DDSMat > > mResDofAssemblyMap;
         Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
+
+        // lists of master and slave groups of dv types
+        moris::Cell< moris::Cell< enum MSI::Dv_Type > > mMasterDvTypes;
+        moris::Cell< moris::Cell< enum MSI::Dv_Type > > mSlaveDvTypes;
+
+        // maps for the master and slave dv type
+        moris::Matrix< DDSMat > mMasterDvTypeMap;
+        moris::Matrix< DDSMat > mSlaveDvTypeMap;
+
+        // map of master and slave dv types for assembly
+        Cell< moris::Matrix< DDSMat > > mDvAssemblyMap;
 
         Cell< moris::map< enum MSI::Dof_Type, moris::uint > > mRequestedTypeToIndexMap;
 
@@ -77,7 +89,9 @@ namespace moris
 
         Matrix< DDRMat > * mSetElementalValues;
         Matrix< DDRMat > * mSetNodalValues;
-        moris::real     * mSetGlobalValues;
+        moris::real      * mSetGlobalValues;
+
+        Matrix< DDUMat > mSetNodalCounter;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -94,8 +108,6 @@ namespace moris
             {
                 case ( mtk::Master_Slave::MASTER ):
                 {
-//                    MORIS_ASSERT( mMasterDofTypeMap( static_cast< int >( aDofType ) ) != -1, "Set::get_dof_index_for_type(), dof type does not exist in map " );
-
                     MORIS_ASSERT( static_cast< uint >( aDofType ) < mMasterDofTypeMap.numel(), "Set::get_dof_index_for_type(), dof type does not exist in map " );
 
                     return mMasterDofTypeMap( static_cast< int >( aDofType ) );
@@ -150,6 +162,94 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR(false, "Set::get_dof_type_map - can only be MASTER or SLAVE");
+                    return 0;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get set index for a dv type
+         */
+        sint get_dv_index_for_type( enum MSI::Dv_Type aDvType,
+                                    mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    // check if dv type exists in map
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mMasterDvTypeMap.numel(),
+                                  "Equation_Set::get_dv_index_for_type(), dv type does not exist in map." );
+
+                    // return set index for dv type
+                    return mMasterDvTypeMap( static_cast< int >( aDvType ) );
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    // check if dv type exists in map
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mSlaveDvTypeMap.numel(),
+                                  "Equation_Set::get_dv_index_for_type(), dv type does not exist in map." );
+
+                    // get the set index for dv type
+                    sint tSlaveIndex = mSlaveDvTypeMap( static_cast< int >( aDvType ) );
+
+                    // if index is -1
+                    if ( tSlaveIndex == -1 )
+                    {
+                        return tSlaveIndex;
+                    }
+                    else
+                    {
+                        // get the max set index for dv types
+                        moris::sint tMaxMasterIndex = mMasterDvTypeMap.max();
+
+                        // check if mMasterDvTypeMap is set
+                        MORIS_ASSERT( tMaxMasterIndex != -1,
+                                      "Equation_Set::get_dv_index_for_type - mMasterDvTypeMap is empty." );
+
+                        // return set index for dv type
+                        return tSlaveIndex + tMaxMasterIndex + 1;
+                    }
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Equation_Set::get_dv_index_for_type - can only be MASTER or SLAVE.");
+                    return 0;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get set index for dv type
+         */
+        sint get_dv_index_for_type_1( enum MSI::Dv_Type aDvType,
+                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    // check if dv type is set in map
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mMasterDvTypeMap.numel(),
+                                  "Equation_Set::get_dv_index_for_type - dv type does not exist in map." );
+
+                    // return set index for dv type
+                    return mMasterDvTypeMap( static_cast< int >( aDvType ) );
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    // check if dv type is set in map
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mSlaveDvTypeMap.numel(),
+                                  "Equation_Set::get_dv_index_for_type - dv type does not exist in map." );
+
+                    // return set index for dv type
+                    return mSlaveDvTypeMap( static_cast< int >( aDvType ) );
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Equation_Set::get_dv_index_for_type - can only be MASTER or SLAVE.");
                     return 0;
                 }
             }
@@ -211,6 +311,11 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
+        {
+            MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
+        };
+
+        virtual void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
         {
             MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
         };
@@ -296,20 +401,47 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        virtual void set_visualization_set( moris::mtk::Set * aVisMeshSet )
+        virtual void set_visualization_set( const uint              aMeshIndex,
+                                                  moris::mtk::Set * aVisMeshSet,
+                                            const bool              aOnlyPrimayCells )
         {
-            MORIS_ASSERT( false, "set_visualization_set(), not implemented for base clase" );
+            MORIS_ASSERT( false, "set_visualization_set(), not implemented for base class" );
         }
 
 //------------------------------------------------------------------------------
-
-        virtual void compute_quantitiy_of_interest( Matrix< DDRMat >      * aElementFieldValues,
-                                                    Matrix< DDRMat >      * aNodalFieldValues,
-                                                    moris::real           * aGlobalScalar,
-                                                    enum vis::Output_Type   aOutputType,
-                                                    enum vis::Field_Type    aFieldType)
+        virtual void compute_quantity_of_interest( const uint            aMeshIndex,
+                                                   Matrix< DDRMat >      * aElementFieldValues,
+                                                   Matrix< DDRMat >      * aNodalFieldValues,
+                                                   moris::real           * aGlobalScalar,
+                                                   enum vis::Output_Type   aOutputType,
+                                                   enum vis::Field_Type    aFieldType)
         {
-            MORIS_ASSERT( false, "compute_quantitiy_of_interest(), not implemented for base clase" );
+            MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class" );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dof type map
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        Matrix< DDSMat > & get_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterDofTypeMap;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveDofTypeMap;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_dof_type_map - can only be MASTER or SLAVE");
+                    return mMasterDofTypeMap;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

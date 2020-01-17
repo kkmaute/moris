@@ -253,10 +253,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2 In 2D","[XTK_HM
 //
 //        // create a list of active block-sets
 //        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
-//        moris::Cell< moris_index >  tSetList = {  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-//                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-//                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p0"),
-//                                                  tEnrIntegMesh.get_side_set_index(tInterfaceSideSetName)};
+//        moris::Cell< moris_index >  tSetList = {  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+//                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
+//                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p0"),
+//                                                  tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName)};
 //
 //
 //        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
@@ -579,10 +579,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model  With STK Lag Order 1 In 2D
 //                                                                                      2 );
 //
 //        // create a list of active block-sets
-//        moris::Cell< moris_index >  tSetList = {  tIntegMesh1->get_block_set_index("child_0"),
-//                                                  tIntegMesh1->get_block_set_index("parent_0"),
-//                                                  tIntegMesh1->get_side_set_index("SideSet_2"),
-//                                                  tIntegMesh1->get_side_set_index("iside_0")};
+//        moris::Cell< moris_index >  tSetList = {  tIntegMesh1->get_set_index_by_name("child_0"),
+//                                                  tIntegMesh1->get_set_index_by_name("parent_0"),
+//                                                  tIntegMesh1->get_set_index_by_name("SideSet_2"),
+//                                                  tIntegMesh1->get_set_index_by_name("iside_0")};
 //
 //
 //

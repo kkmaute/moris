@@ -27,16 +27,19 @@ namespace moris
     public:
 //------------------------------------------------------------------------------
         /**
-         * constructor
-         *
-         * @param[ in ]     pointer to mesh interface object
-         * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
-         * @param[ in ]     cell of pointer to fem nodes
-         * @param[ in ]     Pointer to element block
+         * trivial constructor
          */
         Element_Bulk(){};
+
+        /**
+         * constructor
+         * @param[ in ] aCell               a mesh cell pointer
+         * @param[ in ] aSet                a fem set pointer
+         * @param[ in ] aCluster            a fem cluster pointer
+         * @param[ in ] aCellIndexInCluster an index for cell in cluster
+         */
         Element_Bulk( mtk::Cell    const * aCell,
-                      Set                * aElementBlock,
+                      Set                * aSet,
                       Cluster            * aCluster,
                       moris::moris_index   aCellIndexInCluster );
 
@@ -47,16 +50,46 @@ namespace moris
         ~Element_Bulk();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian
+         */
         void compute_jacobian();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute residual
+         */
         void compute_residual();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian and residual
+         */
         void compute_jacobian_and_residual();
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a global way
+         * @param[ in ] aOutputType an enum for the output type
+         */
+        void compute_quantity_of_interest_global( const uint aMeshIndex,
+                                                  enum vis::Output_Type aOutputType );
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a nodal way
+         * @param[ in ] aOutputType an enum for the output type
+         */
+        void compute_quantity_of_interest_nodal( const uint aMeshIndex,
+                                                 enum vis::Output_Type aOutputType );
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a elemental way
+         * @param[ in ] aOutputType an enum for the output type
+         */
+        void compute_quantity_of_interest_elemental( const uint aMeshIndex,
+                                                     enum vis::Output_Type aOutputType );
 
 //------------------------------------------------------------------------------
 

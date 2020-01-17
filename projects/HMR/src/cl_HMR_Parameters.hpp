@@ -129,6 +129,8 @@ namespace moris
 
            bool mUseMultigrid = false;
 
+           bool mNumberAura = false;
+
            //! maximum level for refinement. Default value is specified
            //! by global constant
            uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
@@ -917,9 +919,23 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+           bool use_number_aura() const
+           {
+               return mNumberAura;
+           }
+
+//-------------------------------------------------------------------------------
+
            void set_multigrid( const bool aSwitch )
            {
                mUseMultigrid = aSwitch;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void set_number_aura( const bool aSwitch )
+           {
+               mNumberAura = aSwitch;
            }
 
 //-------------------------------------------------------------------------------

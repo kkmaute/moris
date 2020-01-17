@@ -248,7 +248,7 @@ namespace moris
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
                        "Sizes of MORIS datatype and HDF5 datatype do not match." );
 
-        MORIS_ASSERT( aMatrix.numel() != 0, "save_matrix_to_hdf5_file(), Output matrix has zero elements");
+//        MORIS_ASSERT( aMatrix.numel() != 0, "save_matrix_to_hdf5_file(), Output matrix has zero elements");
 
         // test if dataset exists
         if ( dataset_exists( aFileID, aLabel ) )

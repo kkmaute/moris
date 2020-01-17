@@ -340,6 +340,7 @@ namespace moris
 
             // reset element counter
             mNumberOfElements = 0;
+            mNumberOfElementsIncludingAura = 0;
 
             // loop over all active elements on proc
             for ( luint e = 0; e < tNumberOfElements; ++e )
@@ -354,7 +355,6 @@ namespace moris
                 {
                     // flag nodes that are used by this proc
                     if ( tBackElement->get_owner() == tMyRank )
-
                     {
                         for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                         {
@@ -364,6 +364,16 @@ namespace moris
                         // increment element counter
                         ++mNumberOfElements;
                     }
+
+                    // flag nodes that are owned and shared on this proc. this includes the aura
+                    for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                    {
+                        tElement->get_basis( k )->use_owned_and_shared();
+                    }
+
+
+                    // increment element counter including aura
+                    ++mNumberOfElementsIncludingAura;
 
                     // loop over all nodes of this element
                     for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
@@ -386,6 +396,7 @@ namespace moris
                     }
                 }
             }
+
             // make sure that number of nodes is correct
             MORIS_ERROR( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
         }
@@ -485,23 +496,49 @@ namespace moris
                 // get my rank
                 moris_id tMyRank = par_rank();
 
-                for( auto tNode : mAllBasisOnProc )
+                if( mParameters->use_number_aura() )
                 {
-                    // test if node is used by current setup
-                    if ( tNode->is_used() )
+                    for( auto tNode : mAllBasisOnProc )
                     {
-                        // test if node is owned
-                        if ( tNode->get_owner() == tMyRank )
+                        // test if node is used by current setup
+                        if ( tNode->is_used() )
                         {
-                            tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                            // test if node is owned
+                            if ( tNode->get_owner() == tMyRank )
+                            {
+                                tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                            }
+                        }
+                        if ( tNode->is_use_owned_and_shared() )
+                        {
+                            // set local index of node including aura
+                            tNode->set_local_index( mNumberOfUsedNodes++ );
                         }
 
-                        // set local index of node
-                        tNode->set_local_index( mNumberOfUsedNodes++ );
+                        // make sure that this basis is not flagged
+                        tNode->unflag();
                     }
+                }
+                else
+                {
+                    for( auto tNode : mAllBasisOnProc )
+                    {
+                        // test if node is used by current setup
+                        if ( tNode->is_used() )
+                        {
+                            // test if node is owned
+                            if ( tNode->get_owner() == tMyRank )
+                            {
+                                tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                            }
 
-                    // make sure that this basis is not flagged
-                    tNode->unflag();
+                            // set local index of node
+                            tNode->set_local_index( mNumberOfUsedNodes++ );
+                        }
+
+                        // make sure that this basis is not flagged
+                        tNode->unflag();
+                    }
                 }
 
                 // STEP 1: Set ID of the nodes that I own
@@ -515,7 +552,7 @@ namespace moris
 
                 // calculate node offset table
                 Matrix< DDLUMat > tNodeOffset( tNumberOfProcs, 1, 0 );
-                for( moris_id p=1; p<tNumberOfProcs; ++p )
+                for( moris_id p = 1; p < tNumberOfProcs; ++p )
                 {
                     tNodeOffset( p ) = tNodeOffset( p-1 ) + tNodesOwnedPerProc( p-1 );
                 }
@@ -569,10 +606,21 @@ namespace moris
                         for( Basis* tNode : tNodes )
                         {
                             // test if node belongs to neighbor
-                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                            if( mParameters->use_number_aura() )
                             {
-                                // increment counter
-                                ++tCount;
+                                if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
+                                {
+                                    // increment counter
+                                    ++tCount;
+                                }
+                            }
+                            else
+                            {
+                                if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                                {
+                                    // increment counter
+                                    ++tCount;
+                                }
                             }
                         }
 
@@ -585,11 +633,22 @@ namespace moris
                         // fill matrix with IDs
                         for( Basis * tNode : tNodes )
                         {
-                            // test if node nelongs to neighbor
-                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                            // test if node belongs to neighbor
+                            if( mParameters->use_number_aura() )
                             {
-                                // increment counter
-                                tSendID( p )( tCount++ ) = tNode->get_hmr_id();
+                                if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
+                                {
+                                    // increment counter
+                                    tSendID( p )( tCount++ ) = tNode->get_hmr_id();
+                                }
+                            }
+                            else
+                            {
+                                 if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                                 {
+                                      // increment counter
+                                      tSendID( p )( tCount++ ) = tNode->get_hmr_id();
+                                  }
                             }
                         }
                     } // end neighbor exists
@@ -673,9 +732,19 @@ namespace moris
 
                         for( Basis* tNode : tNodes )
                         {
-                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                            if( mParameters->use_number_aura() )
                             {
-                                tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
+                                {
+                                    tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                }
+                            }
+                            else
+                            {
+                                if( tNode->get_owner() == tNeighbor && tNode->is_used() )
+                                {
+                                    tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                }
                             }
                         }
                     }
@@ -697,10 +766,10 @@ namespace moris
                 return; // Do nothing (because node sharing is only in parallel)
             }
 
-            if(tNumberOfProcs > 1)
+            if( tNumberOfProcs > 1 )
             {
                 // get proc neighbors from background mesh
-                const Matrix<IdMat> & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+                const Matrix< IdMat > & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
                 // get number of proc neighbors
                 uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
@@ -740,15 +809,15 @@ namespace moris
                     // Get all the ids for the aura and inverse aura nodes
                     // The intersection  of the two sets is the nodes on the boundary
                     // Cells instead of moris matrix for intersection operation on std::vector
-                    Cell< moris_id > tAuraNodeMemoryIndex(tAuraNodes.size());
-                    Cell< moris_id > tInverseAuraNodeMemoryIndex(tInverseAuraNodes.size());
-                    Cell< moris_id > tBoundaryNodeMemoryIndex(std::max(tAuraNodes.size(),tInverseAuraNodes.size()));
+                    Cell< moris_id > tAuraNodeMemoryIndex( tAuraNodes.size() );
+                    Cell< moris_id > tInverseAuraNodeMemoryIndex( tInverseAuraNodes.size() );
+                    Cell< moris_id > tBoundaryNodeMemoryIndex( std::max( tAuraNodes.size(), tInverseAuraNodes.size() ) );
 
                     // Reset count
                     tCount = 0;
 
                     // Iterate through aura nodes and collect ids
-                    for(auto tBasis : tAuraNodes)
+                    for( auto tBasis : tAuraNodes )
                     {
                         tBasisMemoryIndex = tBasis->get_memory_index();
 
@@ -756,54 +825,48 @@ namespace moris
                         if(tBasisMemoryIndex != 0)
                         {
                             // Add node id to list
-                            tAuraNodeMemoryIndex(tCount) = tBasisMemoryIndex;
-
-                            // Increment count
-                            tCount++;
+                            tAuraNodeMemoryIndex( tCount++ ) = tBasisMemoryIndex;
                         }
                     }
 
                     // Size out extra space
-                    tAuraNodeMemoryIndex.resize(tCount);
+                    tAuraNodeMemoryIndex.resize( tCount );
 
                     // Reset count
                     tCount = 0;
                     // Iterate through inverse aura nodes and collect ids
-                    for(auto tBasis : tInverseAuraNodes)
+                    for( auto tBasis : tInverseAuraNodes )
                     {
                         tBasisMemoryIndex = tBasis->get_memory_index();
 
-                        if(tBasisMemoryIndex != 0)
+                        if( tBasisMemoryIndex != 0 )
                         {
                             // Add node id to list
-                            tInverseAuraNodeMemoryIndex(tCount) = tBasisMemoryIndex;
-
-                            // Increment count
-                            tCount++;
+                            tInverseAuraNodeMemoryIndex( tCount++ ) = tBasisMemoryIndex;
                         }
                     }
                     // Size out extra space
-                    tInverseAuraNodeMemoryIndex.resize(tCount);
+                    tInverseAuraNodeMemoryIndex.resize( tCount );
 
                     // sort inverse aura and aura node ids
                     std::sort( tAuraNodeMemoryIndex.data().begin(), tAuraNodeMemoryIndex.data().end() );
                     std::sort( tInverseAuraNodeMemoryIndex.data().begin(), tInverseAuraNodeMemoryIndex.data().end() );
 
-                    std::vector<moris_id>::iterator it =
-                            std::set_intersection(tAuraNodeMemoryIndex.data().begin(),
-                                                  tAuraNodeMemoryIndex.data().end(),
-                                                  tInverseAuraNodeMemoryIndex.data().begin(),
-                                                  tInverseAuraNodeMemoryIndex.data().end(),
-                                                  tBoundaryNodeMemoryIndex.data().begin());
+                    std::vector< moris_id >::iterator it =
+                            std::set_intersection( tAuraNodeMemoryIndex.data().begin(),
+                                                   tAuraNodeMemoryIndex.data().end(),
+                                                   tInverseAuraNodeMemoryIndex.data().begin(),
+                                                   tInverseAuraNodeMemoryIndex.data().end(),
+                                                   tBoundaryNodeMemoryIndex.data().begin() );
 
                     // resize boundary node data
-                    tBoundaryNodeMemoryIndex.data().resize(it-tBoundaryNodeMemoryIndex.data().begin());
+                    tBoundaryNodeMemoryIndex.data().resize( it - tBoundaryNodeMemoryIndex.data().begin() );
 
                     // Add basis sharing information to the basis itself;
-                    for(auto tBoundNodeMemoryIndex : tBoundaryNodeMemoryIndex)
+                    for( auto tBoundNodeMemoryIndex : tBoundaryNodeMemoryIndex )
                     {
                         Basis* tBoundBasis = get_basis_by_memory_index( tBoundNodeMemoryIndex );
-                        tBoundBasis->add_node_sharing(tNeighborProcRank);
+                        tBoundBasis->add_node_sharing( tNeighborProcRank );
                     }
                 }
             }
@@ -864,6 +927,13 @@ namespace moris
             mRealScalarFieldData         .push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
+
+            // forth field is vertex IDs
+//            mRealScalarFieldLabels       .push_back( "Element_Indices" );
+//            mRealScalarFieldRanks        .push_back( EntityRank::ELEMENT );
+//            mRealScalarFieldData         .push_back( tEmpty );
+//            mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
+//            mRealScalarFieldBSplineOrders.push_back( 0 );
 
         }
 
@@ -1547,15 +1617,31 @@ namespace moris
             // reset max level
             mMaxLevel = 0;
 
-            for( auto tNode : mAllBasisOnProc )
+            if( mParameters->use_number_aura() )
             {
-                if ( tNode->is_used() )
+                for( auto tNode : mAllBasisOnProc )
                 {
-                    mNodes( tCount++ ) = tNode;
+                    if ( tNode->is_use_owned_and_shared() )
+                    {
+                        mNodes( tCount++ ) = tNode;
 
-                    mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
+                        mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
+                    }
                 }
             }
+            else
+            {
+                for( auto tNode : mAllBasisOnProc )
+                {
+                    if ( tNode->is_used() )
+                    {
+                        mNodes( tCount++ ) = tNode;
+
+                        mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
+                    }
+                }
+            }
+
 
             MORIS_ERROR( tCount == mNumberOfUsedNodes, "Number Of used Nodes does not match" );
         }

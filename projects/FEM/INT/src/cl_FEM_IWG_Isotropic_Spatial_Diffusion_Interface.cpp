@@ -34,10 +34,8 @@ namespace moris
         {
 #ifdef DEBUG
             // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
             // FIXME this should not happen
@@ -50,10 +48,10 @@ namespace moris
             uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
             // get the master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, property
             uint tDiffLinIsoIndex   = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
@@ -86,10 +84,8 @@ namespace moris
         {
 #ifdef DEBUG
             // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
             // get master index for the residual dof type
@@ -99,10 +95,10 @@ namespace moris
             uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices SP, CM and properties
             uint tDiffLinIsoIndex   = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
@@ -280,6 +276,12 @@ namespace moris
                                                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian_and_residual - This function does nothing.");
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_drdpdv - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

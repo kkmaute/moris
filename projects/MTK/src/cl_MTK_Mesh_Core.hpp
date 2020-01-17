@@ -18,6 +18,7 @@
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Facet.hpp"
+#include "cl_MTK_Set.hpp"
 
 namespace moris
 {
@@ -73,32 +74,43 @@ public:
     /**
      * returns the type enum of this mesh
      */
-    virtual MeshType
-    get_mesh_type() const = 0;
+    virtual MeshType get_mesh_type() const = 0;
 
     //------------------------------------------------------------------------------
 
-    virtual
-    uint
-    get_spatial_dim() const = 0;
+    virtual uint get_spatial_dim() const = 0;
 
     //------------------------------------------------------------------------------
     /*
      * Get number of entities for specified rank
      */
-    virtual
-    uint
-    get_num_entities(
-            enum EntityRank aEntityRank) const = 0;
+    virtual uint get_num_entities( enum EntityRank aEntityRank) const = 0;
+
+    // ----------------------------------------------------------------------------
+
+    virtual moris::uint get_num_sets() const
+    {
+        MORIS_ASSERT( false ,"get_num_sets(), not implemented for base class");
+        return 0;
+    }
 
     // ----------------------------------------------------------------------------
     /*
      * Get block by index
      */
-    virtual moris::mtk::Set *
-    get_block_by_index( moris::uint aBlockIndex) const
+    virtual moris::mtk::Set * get_set_by_index( moris::uint aSetIndex ) const
     {
-        MORIS_ASSERT( false ,"get_block_by_index(), not implemented for base class");
+        MORIS_ASSERT( false ,"get_set_by_index(), not implemented for base class");
+        return nullptr;
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by name
+     */
+    virtual moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const
+    {
+        MORIS_ASSERT( false ,"get_set_by_index(), not implemented for base class");
         return nullptr;
     };
 
@@ -111,9 +123,7 @@ public:
     /*
      * Get number of nodes
      */
-    virtual
-    uint
-    get_num_nodes() const
+    virtual uint get_num_nodes() const
     {
         return get_num_entities(EntityRank::NODE);
     }
@@ -121,9 +131,7 @@ public:
     /*
      * Get number of edges
      */
-    virtual
-    uint
-    get_num_edges() const
+    virtual uint get_num_edges() const
     {
         return get_num_entities(EntityRank::EDGE);
     }
@@ -131,9 +139,7 @@ public:
     /*
      * Get number of faces
      */
-    virtual
-    uint
-    get_num_faces() const
+    virtual uint get_num_faces() const
     {
         return get_num_entities(EntityRank::FACE);
     }
@@ -141,9 +147,7 @@ public:
     /*
      * Get number of elements
      */
-    virtual
-    uint
-    get_num_elems() const
+    virtual uint get_num_elems() const
     {
         return get_num_entities(EntityRank::ELEMENT);
     }
@@ -1067,6 +1071,37 @@ public:
         return CellTopology::INVALID;
     }
 
+    // ----------------------------------------------------------------------------
+
+    /*
+     * Returns the mtk cells in a block set.
+     */
+    virtual moris::Cell< mtk::Cell const * > get_set_cells( std::string aSetLabel ) const
+    {
+        moris::mtk::Set * tSet = this->get_set_by_name( aSetLabel );
+
+        enum moris::SetType tSetType = tSet->get_set_type();
+
+        moris::Cell<mtk::Cell const *> tBlockSetCells;
+
+        if( tSetType == moris::SetType::BULK )
+        {
+            Matrix< IndexMat > tBlockSetElementInd = this->get_set_entity_loc_inds( EntityRank::ELEMENT, aSetLabel );
+
+            tBlockSetCells.resize(tBlockSetElementInd.numel());
+
+            for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+            {
+                tBlockSetCells( k ) = & this->get_mtk_cell( tBlockSetElementInd(k) );
+            }
+        }
+        else{ MORIS_ERROR(false, "get_set_cells(), Only implemented for ELEMENT. Element for rest!!!") ;}
+
+
+        return tBlockSetCells;
+    }
+
+    // ----------------------------------------------------------------------------
 
     /*
      * Returns the mtk cells in a block set. Contains the aura entities
@@ -1084,36 +1119,30 @@ public:
             tBlockSetCells( k ) = & this->get_mtk_cell( tBlockSetElementInd(k) );
         }
 
-
         return tBlockSetCells;
     }
 
-
+//-------------------------------------------------------------------------------
     /*
      * Returns the cell index and side ordinals in a provided side set name
      */
-    virtual
-    void
-    get_sideset_elems_loc_inds_and_ords(
-            const  std::string     & aSetName,
-            Matrix< IndexMat >     & aElemIndices,
-            Matrix< IndexMat >     & aSidesetOrdinals ) const
+    virtual void get_sideset_elems_loc_inds_and_ords( const  std::string        & aSetName,
+                                                             Matrix< IndexMat > & aElemIndices,
+                                                             Matrix< IndexMat > & aSidesetOrdinals ) const
     {
         MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
     }
 
+//-------------------------------------------------------------------------------
     /*
      * Returns the mtk cell and side ordinals in a provided side set name
      */
-    virtual
-    void
-    get_sideset_cells_and_ords(
-            const  std::string & aSetName,
-            moris::Cell< mtk::Cell const * > & aCells,
-            Matrix< IndexMat > &       aSidesetOrdinals ) const
+    virtual void get_sideset_cells_and_ords( const  std::string                      & aSetName,
+                                                    moris::Cell< mtk::Cell const * > & aCells,
+                                                    Matrix< IndexMat >               & aSidesetOrdinals ) const
     {
         moris::Matrix<moris::IndexMat> tElemIndices;
-        this->get_sideset_elems_loc_inds_and_ords(aSetName,tElemIndices,aSidesetOrdinals);
+        this->get_sideset_elems_loc_inds_and_ords( aSetName, tElemIndices, aSidesetOrdinals );
 
         // convert element indices to cell pointers
         moris::uint tNumCellsInSet = tElemIndices.numel();
@@ -1125,7 +1154,7 @@ public:
         }
     }
 
-
+//-------------------------------------------------------------------------------
     /*
      * returns the number of faces in a side set.
      */

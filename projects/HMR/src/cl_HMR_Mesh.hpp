@@ -139,6 +139,10 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            uint get_num_elemens_including_aura() const ;
+
+//-------------------------------------------------------------------------------
+
             uint get_num_nodes() const;
 
 //-------------------------------------------------------------------------------
@@ -244,6 +248,8 @@ namespace moris
                     moris_index     aEntityIndex,
                     enum EntityRank aEntityRank) const ;
 
+            moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
+
 //-------------------------------------------------------------------------------
             moris_index get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
@@ -312,17 +318,25 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            mtk::Cell & get_mtk_cell( moris_index aElementIndex )
-            {
-                return *mMesh->get_element( aElementIndex );
-            }
+//            mtk::Vertex & get_mtk_vertex_including_aura( moris_index aVertexIndex )
+//            {
+//                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
+//            }
 
 //-------------------------------------------------------------------------------
 
-            mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const
-            {
-                return *mMesh->get_element( aElementIndex );
-            }
+//            mtk::Vertex const & get_mtk_vertex_including_aura( moris_index aVertexIndex ) const
+//            {
+//                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
+//            }
+
+//-------------------------------------------------------------------------------
+
+            mtk::Cell & get_mtk_cell( moris_index aElementIndex );
+
+//-------------------------------------------------------------------------------
+
+            mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const;
 //-------------------------------------------------------------------------------
 
             moris::mtk::Facet*
@@ -336,6 +350,11 @@ namespace moris
 
             moris::Cell<moris::mtk::Vertex const *>
             get_all_vertices() const;
+
+//-------------------------------------------------------------------------------
+
+//            moris::Cell<moris::mtk::Vertex const *>
+//            get_all_vertices_including_aura() const;
 
 //-------------------------------------------------------------------------------
 
@@ -432,6 +451,10 @@ private:
 //-------------------------------------------------------------------------------
 
             void setup_entity_global_to_local_map(enum EntityRank aEntityRank);
+
+//-------------------------------------------------------------------------------
+
+            void setup_element_global_to_local_map();
 
 
 //-------------------------------------------------------------------------------

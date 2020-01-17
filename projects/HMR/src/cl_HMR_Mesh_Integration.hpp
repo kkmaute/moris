@@ -53,6 +53,7 @@ public:
             this->setup_cell_clusters( aInterpolationMesh );
             this->setup_blockset_with_cell_clusters();
             this->setup_side_set_clusters( aInterpolationMesh );
+            this->collect_all_sets();
 //        }
     }
 
@@ -169,17 +170,6 @@ public:
     }
 
     /*!
-     * Returns the index given a label
-     */
-
-    moris_index
-    get_double_sided_set_index(std::string aDoubleSideSetLabel) const
-    {
-        MORIS_ERROR(0,"get_double_sided_set_index not implemented in HMR Integration mesh");
-        return MORIS_INDEX_MAX;
-    }
-
-    /*!
      * Returns the double side clusters in the side set
      */
 
@@ -190,6 +180,7 @@ public:
         return moris::Cell<moris::mtk::Cluster const *>(0);
     }
 
+//-------------------------------------------------------------------------------
     /*
      * Construct HMR Cell Clustering
      */
@@ -198,35 +189,41 @@ public:
     {
         // check to see the meshes are the same (since all trivial)
         MORIS_ASSERT(this->get_num_nodes() == aInterpolationMesh.get_num_nodes(),"Mismatch nodes between integration and interpolation mesh");
-        MORIS_ASSERT(this->get_num_elems() == aInterpolationMesh.get_num_elems(),"Mismatch elements between integration and interpolation mesh");
+//        MORIS_ASSERT(this->get_num_elems() == aInterpolationMesh.get_num_elems(),"Mismatch elements between integration and interpolation mesh");
+        MORIS_ASSERT(this->get_num_elemens_including_aura() == aInterpolationMesh.get_num_elemens_including_aura(),"Mismatch elements between integration and interpolation mesh");
 
         // get the cell rank
         enum EntityRank tCellRank = this->get_cell_rank();
 
         // number of interpolation cells
         moris::uint tNumInterpCells = aInterpolationMesh.get_num_entities(tCellRank);
+//        moris::uint tNumInterpCells = aInterpolationMesh.get_num_elemens_including_aura();
 
         // size member data
-        mCellClusters.resize(tNumInterpCells);
+        mCellClusters.resize( tNumInterpCells );
 
-        for(moris::uint i = 0; i <tNumInterpCells; i++)
+        for(moris::uint i = 0; i < tNumInterpCells; i++)
         {
-                // interpolation cell
-                mtk::Cell const * tInterpCell = &aInterpolationMesh.get_mtk_cell((moris_index) i);
-                mCellClusters(i).set_interpolation_cell( tInterpCell );
+            // interpolation cell
+            mtk::Cell const * tInterpCell = &aInterpolationMesh.get_mtk_cell( (moris_index) i );
+            mCellClusters(i).set_interpolation_cell( tInterpCell );
 
-                // integration cell (only primary cells here)
-//                moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,tCellRank);
-                mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(i);
-                mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
+            // integration cell (only primary cells here)
+//            moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,tCellRank);
+            mtk::Cell const * tPrimaryCell = &this->get_mtk_cell( i );
+            mCellClusters(i).add_primary_integration_cell( tPrimaryCell );
         }
     }
+
+//-------------------------------------------------------------------------------
 
     void
     setup_blockset_with_cell_clusters()
     {
         // construct integration to cell cluster relationship
-        moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(this->get_num_entities(EntityRank::ELEMENT),MORIS_INDEX_MAX);
+        moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex( this->get_num_entities(EntityRank::ELEMENT), MORIS_INDEX_MAX );
+
+//        std::cout<<tPrimaryIntegrationCellToClusterIndex.size()<<std::endl;
 
         // iterate through clusters
         for(moris::uint  i = 0; i < mCellClusters.size(); i++)
@@ -237,9 +234,10 @@ public:
             // iterate through primary cells
             for(moris::uint j = 0; j <tCellCluster.get_num_primary_cells(); j++)
             {
-                moris::moris_index tCellIndex = tPrimaryCells(j)->get_index();
+                moris::moris_index tCellIndex = tPrimaryCells( j )->get_index();
 
-                MORIS_ASSERT(tPrimaryIntegrationCellToClusterIndex(tCellIndex) == MORIS_INDEX_MAX,"Integration cell can only appear as a primary cell in one cell cluster");
+                MORIS_ASSERT( tPrimaryIntegrationCellToClusterIndex( tCellIndex ) == MORIS_INDEX_MAX,
+                        "Integration cell can only appear as a primary cell in one cell cluster" );
                 tPrimaryIntegrationCellToClusterIndex(tCellIndex) = (moris_index) i;
             }
         }
@@ -254,7 +252,6 @@ public:
 
         for(moris::uint i = 0; i<tBlockSetNames.size(); i++)
         {
-
             moris::Matrix<moris::IndexMat> tCellsInSet = this->get_set_entity_loc_inds(this->get_cell_rank(),tBlockSetNames(i));
 
             bool tSetHasCluster = false;
@@ -300,6 +297,8 @@ public:
         }
     }
 
+//-------------------------------------------------------------------------------
+
     /*
      *  setup the side set cluster interface
      */
@@ -307,40 +306,44 @@ public:
     {
         moris::Cell<std::string> aSideSetNames = this->get_set_names( EntityRank::FACE );
 
-        mSideSets.resize(aSideSetNames.size());
+        mSideSets.resize( aSideSetNames.size() );
 
         // copy strings labels
-        mSideSetLabels.append(aSideSetNames);
+        mSideSetLabels.append( aSideSetNames );
 
         // add to map
-        for(moris::uint i = 0; i <aSideSetNames.size(); i++)
+        for(moris::uint i = 0; i < aSideSetNames.size(); i++)
         {
             MORIS_ASSERT(mSideSideSetLabelToOrd.find(mSideSetLabels(i)) == mSideSideSetLabelToOrd.end(),"Duplicate side set label detected.");
             mSideSideSetLabelToOrd[mSideSetLabels(i)] = i;
         }
 
         // iterate through block sets
-        for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
+        for( moris::uint i = 0;  i < aSideSetNames.size(); i++ )
         {
             // get the cells and side ordinals from the mesh for this side set
-            moris::Cell< mtk::Cell const * > tCellsInSet(0);
-            moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
-            this->get_sideset_cells_and_ords(aSideSetNames(i), tCellsInSet, tSideOrdsInSet);
+            moris::Cell< mtk::Cell const * > tCellsInSet( 0 );
+            moris::Matrix<moris::IndexMat>   tSideOrdsInSet( 0,0 );
+            this->get_sideset_cells_and_ords( aSideSetNames( i ), tCellsInSet, tSideOrdsInSet );
 
             // figure out which integration cells are in the side cluster input. these are assumed
             // the only non-trivial ones, all others will be marked as trivial
             // all trivial case
             // loop over cells in the side set and make sure they have all been included
-            for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
+            for( moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++ )
             {
-                moris_id tCellId = tCellsInSet(iIGCell)->get_id();
+                moris_id tCellId = tCellsInSet( iIGCell )->get_id();
 
                 // interpolation cell index
-                moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+                moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id( tCellId,
+                                                                                            EntityRank::ELEMENT );
 
                 // construct a trivial side cluster
-                moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                mSideSets(i).push_back(Side_Cluster_HMR(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
+                moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell( tCellIndex );
+                mSideSets(i).push_back( Side_Cluster_HMR( tInterpCell,
+                                                          tCellsInSet( iIGCell ),
+                                                          tCellsInSet( iIGCell )->get_vertices_on_side_ordinal( tSideOrdsInSet(iIGCell) ),
+                                                          tSideOrdsInSet( iIGCell ) ) );
             }
         }
 
@@ -351,6 +354,8 @@ public:
             mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim());
         }
     }
+
+//-------------------------------------------------------------------------------
 
     enum EntityRank
     get_cell_rank()

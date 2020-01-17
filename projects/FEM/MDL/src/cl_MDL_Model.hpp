@@ -76,8 +76,11 @@ namespace moris
             mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
 
-            // list of node pointers
+            // list of IP node pointers
             moris::Cell< fem::Node_Base* > mIPNodes;
+
+            // list of IG node pointers
+             moris::Cell< fem::Node_Base* > mIGNodes;
 
             // list of IP cell pointers
             moris::Cell< fem::Cell* > mIPCells;
@@ -167,6 +170,8 @@ namespace moris
                 return mFemSets;
             };
 
+//------------------------------------------------------------------------------
+
             map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
             {
                 return mMeshSetToFemSetMap;
@@ -241,6 +246,13 @@ namespace moris
             * @param[ in ] aDofType a dof type for outputting
             */
            Matrix<DDRMat> get_solution_for_integration_mesh_output( enum MSI::Dof_Type aDofType );
+
+//------------------------------------------------------------------------------
+
+           void set_output_manager( vis::Output_Manager * aOutputManager )
+           {
+               mOutputManager = aOutputManager;
+           }
 
 //------------------------------------------------------------------------------
 

@@ -13,9 +13,78 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+        void Stabilization_Parameter::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                                      mtk::Master_Slave            aIsMaster )
+        {
+    //        // FIXME why does this not work?
+            //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
+
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    mMasterFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                case ( mtk::Master_Slave::SLAVE ) :
+                {
+                    mSlaveFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default :
+                {
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_field_interpolator_manager - can only be master or slave");
+                    break;
+                }
+            }
+
+            // FIXME
+            // get the list of dof types for the SP
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes
+            = this->get_global_dof_type_list( aIsMaster );
+
+            // get the number of dof type for the SP
+            uint tNumDofTypes = tSPDofTypes.size();
+
+            // set the size of the field interpolators list for the SP
+            this->get_dof_field_interpolators( aIsMaster ).resize( tNumDofTypes, nullptr );
+
+            // loop over the dof types
+            for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+            {
+                // grab the field interpolator for the dof type
+                this->get_dof_field_interpolators( aIsMaster )( iDof )
+                = this->get_field_interpolator_manager( aIsMaster )
+                      ->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ) );
+            }
+            // END FIXME
+
+            // loop over the underlying constitutive models
+            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+            {
+                if ( tCM != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+                }
+            }
+
+            // loop over the underlying properties
+            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+            {
+                if ( tProp != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
-        void Stabilization_Parameter::get_non_unique_global_dof_type_list
+        void Stabilization_Parameter::get_non_unique_dof_types
         ( moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // set the size of the dof type list for the set
@@ -164,6 +233,214 @@ namespace moris
                 }
             }
         }
+
+//------------------------------------------------------------------------------
+        void Stabilization_Parameter::get_non_unique_dof_and_dv_types
+        ( moris::Cell< MSI::Dof_Type > & aDofTypes,
+          moris::Cell< MSI::Dv_Type >  & aDvTypes )
+        {
+            // init dof and dv counters
+            uint tDofCounter = 0;
+            uint tDvCounter  = 0;
+
+            //loop over direct master dof dependencies
+            for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
+            {
+                // update counter
+                tDofCounter += mMasterDofTypes( iDof ).size();
+            }
+
+            //loop over direct master dv dependencies
+            for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
+            {
+                // update counter
+                tDvCounter += mMasterDvTypes( iDv ).size();
+            }
+
+            // get number of direct slave dof dependencies
+            for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
+            {
+                //update counter
+                tDofCounter += mSlaveDofTypes( iDof ).size();
+            }
+
+            // get number of direct slave dv dependencies
+            for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
+            {
+                //update counter
+                tDvCounter += mSlaveDvTypes( iDv ).size();
+            }
+
+            // loop over the master properties
+            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            {
+                if ( tProperty != nullptr )
+                {
+                    // get property non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                                tActiveDvTypes );
+
+                    //update counters
+                    tDofCounter += tActiveDofTypes.size();
+                    tDvCounter  += tActiveDvTypes.size();
+
+                }
+            }
+
+            // loop over slave properties
+            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            {
+                if ( tProperty != nullptr )
+                {
+                    // get property non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                                tActiveDvTypes );
+
+                    //update counters
+                    tDofCounter += tActiveDofTypes.size();
+                    tDvCounter  += tActiveDvTypes.size();
+                }
+            }
+
+            // loop over master constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            {
+                if ( tCM != nullptr )
+                {
+                    // get CM non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                          tActiveDvTypes );
+
+                    //update counters
+                    tDofCounter += tActiveDofTypes.size();
+                    tDvCounter  += tActiveDvTypes.size();
+                }
+            }
+
+            // loop over slave constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            {
+                if( tCM != nullptr )
+                {
+                    // get CM non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                          tActiveDvTypes );
+
+                    //update counters
+                    tDofCounter += tActiveDofTypes.size();
+                    tDvCounter  += tActiveDvTypes.size();
+                }
+            }
+
+            // reserve memory for dof and dv type lists
+            aDofTypes.reserve( tDofCounter );
+            aDvTypes.reserve( tDvCounter );
+
+            // loop over master dof direct dependencies
+            for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
+            {
+                // populate the dof list
+                aDofTypes.append( mMasterDofTypes( iDof ) );
+            }
+
+            // loop over master dv direct dependencies
+            for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
+            {
+                // populate the dv list
+                aDvTypes.append( mMasterDvTypes( iDv ) );
+            }
+
+            // loop over slave dof direct dependencies
+            for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
+            {
+                //populate the dof list
+                aDofTypes.append( mSlaveDofTypes( iDof )  );
+            }
+
+            // loop over slave dv direct dependencies
+            for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
+            {
+                //populate the dv list
+                aDvTypes.append( mSlaveDvTypes( iDv )  );
+            }
+
+            // loop over master properties
+            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            {
+                if ( tProperty != nullptr )
+                {
+                    // get property non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                                tActiveDvTypes );
+
+                    // populate the dof list
+                    aDofTypes.append( tActiveDofTypes );
+                    aDvTypes.append( tActiveDvTypes );
+                }
+            }
+
+            // loop over slave properties
+            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            {
+                if ( tProperty != nullptr )
+                {
+                    // get property non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                                tActiveDvTypes );
+
+                    // populate the dof list
+                    aDofTypes.append( tActiveDofTypes );
+                    aDvTypes.append( tActiveDvTypes );
+                }
+            }
+
+            // loop over the master constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            {
+                if ( tCM != nullptr )
+                {
+                    // get CM non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                          tActiveDvTypes );
+
+                    // populate the dof list
+                    aDofTypes.append( tActiveDofTypes );
+                    aDvTypes.append( tActiveDvTypes );
+                }
+            }
+
+            // loop over the slave constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            {
+                if( tCM != nullptr )
+                {
+                    // get CM non unique dof and dv types
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                                                          tActiveDvTypes );
+
+                    // populate the dof list
+                    aDofTypes.append( tActiveDofTypes );
+                    aDvTypes.append( tActiveDvTypes );
+                }
+            }
+        }
+
 
 //------------------------------------------------------------------------------
         void Stabilization_Parameter::build_global_dof_type_list()

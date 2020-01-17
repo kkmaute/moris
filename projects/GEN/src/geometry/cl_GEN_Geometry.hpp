@@ -65,8 +65,8 @@ public:
     /*
      * Given a node coordinate, the geometry needs to return the distance to the nearest function.
      */
-    virtual moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
-                                                             moris::Matrix< moris::DDRMat > const & aCoordinates) const
+    virtual moris::real evaluate_field_value_with_coordinate( moris::size_t const & aRowIndex,
+                                                              moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
         std::cout<<"evaluate_field_value_with_coordinate not implemented. This could be due to a geometry not being based on an analytic expression.";
         return 0;
@@ -76,8 +76,8 @@ public:
      * Given a node coordinate @param[in] aCoordinates, the function returns a matrix of relevant node coordinates
      * Where each cell represents a design variable x,y,z vector
      */
-    virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate(moris::size_t const & aRowIndex,
-                                                                                moris::Matrix< moris::DDRMat > const & aCoordinates) const
+    virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate( moris::size_t const & aRowIndex,
+                                                                                         moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
         MORIS_ASSERT(false,"cl_GEN_Geometry::evaluate_sensitivity_dphi_dp_with_coordinate() - Not implemented. This could be due to a geometry not being based on an analytic expression...");
         return moris::Matrix< moris::DDRMat >();

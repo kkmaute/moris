@@ -33,6 +33,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
     this->setup_side_set_clusters();
     this->setup_interface_side_sets();
     this->setup_double_side_set_clusters();
+    this->collect_all_sets();
 }
 //------------------------------------------------------------------------------
 Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
@@ -744,6 +745,8 @@ Enriched_Integration_Mesh::create_side_set_from_dbl_side_set(moris_index const &
 
     this->commit_side_set(tSideSetIndex(0));
 
+    this->collect_all_sets();
+
     return tSideSetIndex(0);
 }
 //------------------------------------------------------------------------------
@@ -788,6 +791,8 @@ Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(moris_index c
     }
 
     this->commit_block_set(tBlockSetIndex(0));
+
+    this->collect_all_sets();
 
     return tBlockSetIndex(0);
 }

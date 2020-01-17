@@ -227,7 +227,9 @@ namespace moris
               */
              mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
              {
-                 MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex), "tried to access an interpolation object that does not exist" );
+                 MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex),
+                          "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist"
+                          , this->get_id(), this->get_index() );
 
                  return mInterpolations( aBSplineMeshIndex );
              }
@@ -239,7 +241,9 @@ namespace moris
               */
              const mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
              {
-                 MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex ), "tried to access an interpolation object that does not exist" );
+                 MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex),
+                          "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist"
+                          , this->get_id(), this->get_index() );
 
                  return mInterpolations( aBSplineMeshIndex );
              }

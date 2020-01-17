@@ -8,6 +8,7 @@
 #include "cl_FEM_Set.hpp"     //FEM/INT/src
 #include "cl_FEM_Cluster.hpp" //FEM/INT/src
 #include "cl_FEM_Element.hpp" //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #undef protected
 #undef private
 
@@ -22,7 +23,12 @@ namespace moris
         TEST_CASE( "FEM Element Volume", "[moris],[fem],[FEM_Element_Volume]" )
         {
             // data for the fem::Element
-            fem::Set     tFEMSet;
+            // set a fem set pointer
+            MSI::Equation_Set * tFEMSet = new fem::Set();
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Field_Interpolator_Manager tFIManager( tDummy, tFEMSet );
 
             // create a geometry interpolator for the FEM Set
             // define an integration mesh
@@ -56,7 +62,8 @@ namespace moris
             tGeoInterpIG->set_space_param_coeff( tXiHatIG );
             tGeoInterpIG->set_time_param_coeff(  tTauHatIG );
 
-            tFEMSet.mMasterIGGeometryInterpolator = tGeoInterpIG;
+            tFIManager.mIGGeometryInterpolator = tGeoInterpIG;
+            reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
 
             // create a integration rule
             Integration_Rule tIntegrationRule( tGeoTypeIG,
@@ -75,14 +82,14 @@ namespace moris
             Matrix< DDRMat > tIntegWeights;
             tIntegrator.get_weights( tIntegWeights );
 
-            tFEMSet.mIntegPoints  = tIntegPoints;
-            tFEMSet.mIntegWeights = tIntegWeights;
+            reinterpret_cast< Set* >( tFEMSet )->mIntegPoints  = tIntegPoints;
+            reinterpret_cast< Set* >( tFEMSet )->mIntegWeights = tIntegWeights;
 
             // create a fem::Element
             fem::Element_Bulk tFEMElement;
 
             // set the element set
-            tFEMElement.mSet = &tFEMSet;
+            tFEMElement.mSet = reinterpret_cast< Set* >( tFEMSet );
 
             // compute element volume and check
             real tVolume = tFEMElement.compute_volume();
@@ -92,13 +99,19 @@ namespace moris
             real tSize = tFEMElement.compute_size( 2 );
             CHECK( tSize - 0.797885 < 1E-6 );
 
+            delete tFEMSet;
+
         }/* TEST_CASE */
 
         // This test checks that a fem::Cluster computes its volume properly.
         TEST_CASE( "FEM Cluster Volume", "[moris],[fem],[FEM_Cluster_Volume]" )
         {
             // data for the fem::Element
-            fem::Set     tFEMSet;
+            MSI::Equation_Set * tFEMSet = new fem::Set();
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Field_Interpolator_Manager tFIManager( tDummy, tFEMSet );
 
             // create a geometry interpolator for the FEM Set
             // integration mesh geometry type
@@ -130,7 +143,9 @@ namespace moris
             tGeoInterpIG->set_space_param_coeff( tXiHatIG );
             tGeoInterpIG->set_time_param_coeff(  tTauHatIG );
 
-            tFEMSet.mMasterIGGeometryInterpolator = tGeoInterpIG;
+            tFIManager.mIGGeometryInterpolator = tGeoInterpIG;
+            reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
+            //tFEMSet.mMasterIGGeometryInterpolator = tGeoInterpIG;
 
             // create a integration rule
             Integration_Rule tIntegrationRule( tGeoTypeIG,
@@ -150,8 +165,8 @@ namespace moris
             tIntegrator.get_weights( tIntegWeights );
 
             // set the integration info in the set
-            tFEMSet.mIntegPoints  = tIntegPoints;
-            tFEMSet.mIntegWeights = tIntegWeights;
+            reinterpret_cast< Set* >( tFEMSet )->mIntegPoints  = tIntegPoints;
+            reinterpret_cast< Set* >( tFEMSet )->mIntegWeights = tIntegWeights;
 
             // create a fem::Element
             Cell< fem::Element * > tFEMElements( 5, nullptr );
@@ -163,7 +178,7 @@ namespace moris
                 tFEMElements( iElem ) = new Element_Bulk();
 
                 // set a fem set for the element
-                tFEMElements( iElem )->mSet = &tFEMSet;
+                tFEMElements( iElem )->mSet = reinterpret_cast< Set* >( tFEMSet );
             }
 
             // create a cluster
@@ -175,6 +190,8 @@ namespace moris
             // compute cluster volume and check
             real tClusterVolume = tFEMCluster.compute_volume();
             CHECK( tClusterVolume - 2.5 < 1E-6 );
+
+            delete tFEMSet;
 
         }/* TEST_CASE */
 

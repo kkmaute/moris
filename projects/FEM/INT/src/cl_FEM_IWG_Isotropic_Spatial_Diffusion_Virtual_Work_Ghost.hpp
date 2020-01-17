@@ -149,6 +149,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * compute the derivative of the residual wrt design variables
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_drdpdv( real aWStar );
+
+//------------------------------------------------------------------------------
+            /**
              * method to assemble "normal matrix" from normal vector needed for
              * 2nd and 3rd order Ghost formulations
              * @param[ in ] aOrderGhost Order of derivatives and ghost formulation

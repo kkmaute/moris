@@ -17,8 +17,9 @@
 #include "cl_FEM_Node_Base.hpp"        //FEM/INT/src
 #include "cl_FEM_Property.hpp"                       //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"             //FEM/INT/src
-#include "cl_FEM_CM_Factory.hpp"                     //FEM/INT/src
+#include "cl_FEM_Stabilization_Parameter.hpp"                     //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp" //FEM/INT/src
+#include "cl_FEM_IQI.hpp"
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
@@ -40,6 +41,7 @@ namespace MSI
     namespace fem
     {
     class IWG;
+    class IQI;
     class Field_Interpolator;
     class Geometry_Interpolator;
     class Field_Interpolator_Manager;
@@ -51,53 +53,50 @@ namespace MSI
     class Set : public MSI::Equation_Set
     {
     private:
+
+        // pointer to the corresponding mesh set
         moris::mtk::Set * mMeshSet = nullptr;
 
-        moris::mtk::Set * mVisMeshSet = nullptr;
-
-        //! Mesh cluster
+        // list of mesh cluster pointers
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
 
         // space dimension
         uint mSpaceDim;
 
         // interpolation mesh geometry type
-        mtk::Geometry_Type mIPGeometryType;
+        mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
 
         // integration mesh geometry type
-        mtk::Geometry_Type mIGGeometryType;
+        mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
         // space interpolation order for IP cells
-        mtk::Interpolation_Order mIPSpaceInterpolationOrder;
+        mtk::Interpolation_Order mIPSpaceInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // space interpolation order for IG cells
-        mtk::Interpolation_Order mIGSpaceInterpolationOrder;
+        mtk::Interpolation_Order mIGSpaceInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // time interpolation order for IP cells
-        mtk::Interpolation_Order mIPTimeInterpolationOrder;
+        mtk::Interpolation_Order mIPTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
         // space interpolation order for IG cells
-        mtk::Interpolation_Order mIGTimeInterpolationOrder;
+        mtk::Interpolation_Order mIGTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
-        // List of fem node pointers
-        moris::Cell< Node_Base* >           mNodes;
+        // list of fem node pointers for IP nodes
+        moris::Cell< Node_Base* > mNodes;
 
-        // geometry interpolator pointer for the interpolation cells
-        Geometry_Interpolator             * mMasterIPGeometryInterpolator = nullptr;
-        Geometry_Interpolator             * mSlaveIPGeometryInterpolator  = nullptr;
-
-        // geometry interpolator pointer for the integration cells
-        Geometry_Interpolator             * mMasterIGGeometryInterpolator = nullptr;
-        Geometry_Interpolator             * mSlaveIGGeometryInterpolator  = nullptr;
-
-        Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+        // field interpolator manager pointers
+        Field_Interpolator_Manager * mMasterFIManager = nullptr;
+        Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
         // cell of pointers to IWG objects
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
         moris::Cell< std::shared_ptr< IWG > > mRequestedIWGs;
 
-        enum fem::Element_Type mElementType;
+        // cell of pointer to IQI objects
+        moris::Cell< std::shared_ptr< IQI > > mIQIs;
 
+        // enum for element type
+        enum fem::Element_Type mElementType;
 
         // integration points
         Matrix< DDRMat > mIntegPoints;
@@ -105,13 +104,17 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
-        Matrix< DDSMat >        mDofTypeMap;
+        // map for the dof type
+        Matrix< DDSMat > mDofTypeMap;
+        Matrix< DDSMat > mDvTypeMap;
 
-        moris::Matrix< DDSMat > mCellAssemblyMap;
+        // map visualization cell id to position in vector
+        moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
+        moris::Cell< uint >                    mMtkIgCellOnSet;
 
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
-
+        bool mIsResidual = false;
 
         friend class MSI::Equation_Object;
         friend class Cluster;
@@ -121,7 +124,7 @@ namespace MSI
         friend class Element_Time_Sideset;
         friend class Element;
         friend class Field_Interpolator_Manager;
-
+        friend class Interpolation_Element;
 
 //------------------------------------------------------------------------------
     public:
@@ -164,16 +167,26 @@ namespace MSI
         void finalize( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
-
+        /**
+         * initialize the set
+         * @param[ in ] aIsResidual bool true if ???
+         */
         void initialize_set( const bool aIsResidual );
 
 //------------------------------------------------------------------------------
-
+        /**
+         * free the memory on the set
+         */
         void free_memory();
 
 //------------------------------------------------------------------------------
-
-        void set_visualization_set( moris::mtk::Set * aVisMeshSet );
+        /**
+         * set visualization mesh set
+         * @param[ in ] aVisMeshSet a mesh set pointer for visualization
+         */
+        void set_visualization_set( const uint              aMeshIndex,
+                                          moris::mtk::Set * aVisMeshSet,
+                                    const bool              aOnlyPrimayCells);
 
 //------------------------------------------------------------------------------
         /**
@@ -205,13 +218,6 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * create a unique property type list for the set
-         * one for the master, one for the slave
-         */
-        void create_property_type_list();
-
-//------------------------------------------------------------------------------
-        /**
          * create a unique group of dof type list for the set
          * Cell< Cell< MSI::Dof_Type > >, list of groups of dof type
          * one for the master, one for the slave
@@ -237,8 +243,33 @@ namespace MSI
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Set::get_dof_type_list - can only be MASTER or SLAVE");
+                    MORIS_ERROR( false, "Set::get_dof_type_list - can only be MASTER or SLAVE");
                     return mMasterDofTypes;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dv type list
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterDvTypes;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveDvTypes;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Set::get_dv_type_list - can only be MASTER or SLAVE.");
+                    return mMasterDvTypes;
                 }
             }
         }
@@ -275,7 +306,6 @@ namespace MSI
             }
         }
 
-
 //------------------------------------------------------------------------------
         /**
          * get residual dof assembly map
@@ -295,12 +325,21 @@ namespace MSI
         }
 
 //------------------------------------------------------------------------------
+        /**
+         * get dv assembly map
+         */
+        moris::Cell< moris::Matrix< DDSMat > > & get_dv_assembly_map()
+        {
+            return mDvAssemblyMap;
+        }
+
+//------------------------------------------------------------------------------
          /**
-          * create field interpolators for the set
+          * create field interpolator managers for the set
           * @param[ in ] aModelSolverInterface model solver interface
           * ( only used to set the time levels )
           */
-         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
+         void create_field_interpolator_managers( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
         /**
@@ -367,15 +406,42 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * set the field interpolators for the IWGs
+         * get IQI from type
+         * param[ out ] aIWGs cell of IWG pointers
          */
-        void set_IWG_field_interpolators();
+        std::shared_ptr< IQI > get_requested_IQI( enum vis::Output_Type aOutputType )
+        {
+            // FIXME use a map
+
+            // init the IQI pointer for return
+            std::shared_ptr< IQI > tIQI = nullptr;
+
+            // select the IQI based on type
+            for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
+            {
+                // if the output type is the same as the IQI
+                if ( aOutputType == mIQIs( iIQI )->get_IQI_type() )
+                {
+                    // fill the return pointer to the IQI
+                    tIQI = mIQIs( iIQI );
+                }
+            }
+
+            // return the selected IQI
+            return tIQI;
+        }
 
 //------------------------------------------------------------------------------
         /**
-         * set the field interpolators for the IWGs
+         * set the field interpolator managers for the IWGs
          */
-        void set_IWG_geometry_interpolators();
+        void set_IWG_field_interpolator_managers();
+
+//------------------------------------------------------------------------------
+        /**
+         * set the field interpolator managers for the IQIs
+         */
+        void set_IQI_field_interpolator_managers();
 
 //------------------------------------------------------------------------------
         /**
@@ -391,22 +457,34 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * create the dof assembly map for the jacobian/cols.
+         * create the dof assembly map for the jacobian/cols
          */
         void create_jacobian_dof_assembly_map();
 
 //------------------------------------------------------------------------------
         /**
-         * create the dof assembly map for the  of diagonal requested jacobian/cols for R = R_0 - A_{01} x_{1}
+         * create the dof assembly map
+         * for the off-diagonal requested jacobian/cols
+         * for R = R_0 - A_{01} x_{1}
          */
         void create_staggered_jacobian_dof_assembly_map();
 
 //------------------------------------------------------------------------------
+        /**
+         * create the dv assembly map
+         */
+        void create_dv_assembly_map();
 
+//------------------------------------------------------------------------------
+        /**
+         * create a list of IWGs requested by the solver
+         */
         void create_requested_IWG_list();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * create a dof type list for the list of IWGs requested by the solver
+         */
         void build_requested_IWG_dof_type_list( const bool aItResidual );
 
 //------------------------------------------------------------------------------
@@ -417,32 +495,6 @@ namespace MSI
         mtk::Geometry_Type get_IP_geometry_type()
         {
             return mIPGeometryType;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get the IP geometry interpolator
-         * @param[ in ]  aIsMaster             enum for master or slave
-         * @param[ out ] aGeometryInterpolator geometry interpolator pointer for IP cells
-         */
-        Geometry_Interpolator * get_IP_geometry_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterIPGeometryInterpolator;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveIPGeometryInterpolator;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_IP_geometry_interpolator - can only be MASTER or SLAVE");
-                    return nullptr;
-                }
-            }
         }
 
 //------------------------------------------------------------------------------
@@ -464,32 +516,6 @@ namespace MSI
         mtk::Interpolation_Order get_IG_space_interpolation_order()
         {
             return mIGSpaceInterpolationOrder;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get the IG geometry interpolator
-         * @param[ in ] aIsMaster              enum for master or slave
-         * @param[ out ] aGeometryInterpolator geometry interpolator pointer for IG cells
-         */
-        Geometry_Interpolator * get_IG_geometry_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterIGGeometryInterpolator;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveIGGeometryInterpolator;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_IG_geometry_interpolator - can only be MASTER or SLAVE");
-                    return nullptr;
-                }
-            }
         }
 
 //------------------------------------------------------------------------------
@@ -523,16 +549,33 @@ namespace MSI
         }
 
 //------------------------------------------------------------------------------
+        /**
+         * get the field interpolator manager
+         * @param[ in ]  aIsMaster an enum for master or slave
+         * @param[ out ] mFIManger a field interpolator manager pointer
+         */
+        Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                    return mMasterFIManager;
 
-         Field_Interpolator_Manager * get_field_interpolators_manager( )
-         {
-             return mFieldInterpolatorManager;
-         };
+                case ( mtk::Master_Slave::SLAVE ) :
+                    return mSlaveFIManager;
+
+                default :
+                {
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master or slave.");
+                    return mMasterFIManager;
+                }
+            }
+        };
 
 //------------------------------------------------------------------------------
         /**
          * auto detect full integration scheme
-         * @param[ in ] aGeometryType geometry type
+         * @param[ in ] aGeometryType a geometry type
          */
         fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
 
@@ -566,12 +609,35 @@ namespace MSI
         void initialize_mResidual();
 
 //------------------------------------------------------------------------------
-
+        /*
+         * get the set index for the specified dof type
+         *@param[ in ] aDofType a dof type enum
+         */
         moris::sint get_dof_index_for_type_1( enum MSI::Dof_Type aDofType );
 
 //------------------------------------------------------------------------------
+        /**
+         * get the set index for the specified dv type
+         *@param[ in ] aDvType a dv type enum
+         * FIXME should this info be stored in the set?
+         */
+        moris::sint get_dv_index_for_type_1( enum MSI::Dv_Type aDvType );
 
+//------------------------------------------------------------------------------
+        /**
+         * get number of dof types on the set
+         */
         moris::uint get_num_dof_types();
+
+//------------------------------------------------------------------------------
+        /**
+         * get number of dv types on the set
+         * FIXME where should this be stored???
+         */
+        moris::uint get_num_dv_types()
+        {
+            return 1;
+        }
 
 //------------------------------------------------------------------------------
 
@@ -614,12 +680,26 @@ namespace MSI
         }
 
 //------------------------------------------------------------------------------
+        /**
+         * compute a quantity of interest
+         * @param[ in ] aElementFieldValues
+         * @param[ in ] aNodelFieldValues
+         * @param[ in ] aGlobalScalar
+         * @param[ in ] aOutputType
+         * @param[ in ] aFieldType
+         */
+        void compute_quantity_of_interest( const uint            aMeshIndex,
+                                           Matrix< DDRMat >      * aElementFieldValues,
+                                           Matrix< DDRMat >      * aNodalFieldValues,
+                                           moris::real           * aGlobalScalar,
+                                           enum vis::Output_Type   aOutputType,
+                                           enum vis::Field_Type    aFieldType );
 
-        void compute_quantitiy_of_interest( Matrix< DDRMat >      * aElementFieldValues,
-                                            Matrix< DDRMat >      * aNodalFieldValues,
-                                            moris::real           * aGlobalScalar,
-                                            enum vis::Output_Type   aOutputType,
-                                            enum vis::Field_Type    aFieldType );
+//------------------------------------------------------------------------------
+        /**
+         * determine set type from mtk set type
+         */
+        void determine_set_type();
 
     };
 //------------------------------------------------------------------------------

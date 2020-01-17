@@ -14,64 +14,45 @@ namespace moris
 {
     namespace fem
     {
+
 //------------------------------------------------------------------------------
         Cluster::Cluster( const Element_Type                aElementType,
                           const mtk::Cluster              * aMeshCluster,
-                                moris::Cell< Node_Base* > & aNodes,
-                                Set                       * aSet ) : MSI::Equation_Object( aSet ),
-                                                                     mSet( aSet ),
-                                                                     mElementType( aElementType )
+                                Set                       * aSet,
+                                MSI::Equation_Object      * aEquationObject )
+        : mInterpolationElement( aEquationObject ),
+          mSet( aSet ),
+          mElementType( aElementType )
         {
             // fill the cell cluster pointer
             mMeshCluster = aMeshCluster;
 
-            // fill the master interpolation cell
-            mMasterInterpolationCell = & aMeshCluster->get_interpolation_cell();
-
             // fill the master integration cells
             mMasterIntegrationCells = aMeshCluster->get_primary_cells_in_cluster();
 
-            // get the number of IWGs //FIXME
-            mNumOfIWGs = mSet->get_number_of_IWGs();
+            // get number of subelements (IG cells)
+            uint tNumMasterIGCells = mMasterIntegrationCells.size();
+
+            // element factory
+            fem::Element_Factory tElementFactory;
+
+            // set size for the number of IG cells
+            mElements.resize( tNumMasterIGCells, nullptr );
 
             // switch on the element type
             switch ( mElementType )
             {
                 case ( fem::Element_Type::BULK ):
                 {
-                    // select the element nodes from aNodes and fill mNodeObj
-                    // get vertices from cell
-                    moris::Cell< mtk::Vertex* > tVertices = mMasterInterpolationCell->get_vertex_pointers();
-
-                    // get number of nodes from cell
-                    uint tNumOfNodes = tVertices.size();
-
-                    // assign node object
-                    mNodeObj.resize( 1 );
-                    mNodeObj( 0 ).resize( tNumOfNodes, nullptr );
-
-                    // fill node objects
-                    for( uint i = 0; i < tNumOfNodes; i++)
-                    {
-                        mNodeObj( 0 )( i ) = aNodes( tVertices( i )->get_index() );
-                    }
-
-                    // set size of Weak BCs
-                    mNodalWeakBCs.set_size( tNumOfNodes, 1 );
-
-                    // element factory
-                    fem::Element_Factory tElementFactory;
-
-                    mElements.resize( mMasterIntegrationCells.size(), nullptr );
-
-                    for( moris::uint Ik = 0; Ik < mMasterIntegrationCells.size(); Ik++)
+                    // loop over the IG cells
+                    for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                          mMasterIntegrationCells( Ik ),
-                                                                          mSet,
-                                                                          this,
-                                                                          Ik);
+                        mElements( iIGCell ) = tElementFactory.create_element( mElementType,
+                                                                               mMasterIntegrationCells( iIGCell ),
+                                                                               mSet,
+                                                                               this,
+                                                                               iIGCell );
                     }
                     break;
                 }
@@ -80,48 +61,20 @@ namespace moris
                     // set the side ordinals for the IG cells in the cluster
                     mMasterListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals();
 
-                    // select the element nodes from aNodes and fill mNodeObj
-                    // get vertices from cell
-                    moris::Cell< mtk::Vertex* > tVertices = mMasterInterpolationCell->get_vertex_pointers();
-
-                    // get number of nodes from cell
-                    uint tNumOfNodes = tVertices.size();
-
-                    // assign node object
-                    mNodeObj.resize( 1 );
-                    mNodeObj( 0 ).resize( tNumOfNodes, nullptr );
-
-                    // fill node objects
-                    for( uint i = 0; i < tNumOfNodes; i++)
-                    {
-                        mNodeObj( 0 )( i ) = aNodes( tVertices( i )->get_index() );
-                    }
-
-                    // set size of Weak BCs
-                    mNodalWeakBCs.set_size( tNumOfNodes, 1 );
-
-                    // element factory
-                    fem::Element_Factory tElementFactory;
-
-                    mElements.resize( mMasterIntegrationCells.size(), nullptr );
-
-                    for( moris::uint Ik = 0; Ik < mMasterIntegrationCells.size(); Ik++)
+                    // loop over the IG cells
+                    for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                          mMasterIntegrationCells( Ik ),
-                                                                          mSet,
-                                                                          this,
-                                                                          Ik );
-
+                        mElements( iIGCell ) = tElementFactory.create_element( mElementType,
+                                                                               mMasterIntegrationCells( iIGCell ),
+                                                                               mSet,
+                                                                               this,
+                                                                               iIGCell );
                     }
                     break;
                 }
                 case( fem::Element_Type::DOUBLE_SIDESET ):
                 {
-                    // fill the slave interpolation cell
-                    mSlaveInterpolationCell  = & aMeshCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE );
-
                     // fill the slave integration cells
                     mSlaveIntegrationCells  = aMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE );
 
@@ -129,47 +82,16 @@ namespace moris
                     mMasterListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
                     mSlaveListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
 
-                    // select the element nodes from aIPNodes and fill mNodeObj
-                    // get vertices from cell
-                    moris::Cell< mtk::Vertex* > tMasterVertices = mMasterInterpolationCell->get_vertex_pointers();
-                    moris::Cell< mtk::Vertex* > tSlaveVertices  = mSlaveInterpolationCell->get_vertex_pointers();
-
-                    // get number of nodes from cell
-                    uint tNumOfNodesMaster = tMasterVertices.size();
-                    uint tNumOfNodesSlave = tSlaveVertices.size();
-
-                    // assign node object
-                    mNodeObj.resize( 2 );
-                    mNodeObj( 0 ).resize( tNumOfNodesMaster, nullptr );
-                    mNodeObj( 1 ).resize( tNumOfNodesSlave , nullptr );
-
-                    // fill node objects
-                    for( uint Ik = 0; Ik < tNumOfNodesMaster; Ik++)
+                    // loop over the IG cells
+                    for( moris::uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++)
                     {
-                        mNodeObj( 0 )( Ik ) = aNodes( tMasterVertices( Ik )->get_index() );
-                    }
-                    for( uint Ik = 0; Ik < tNumOfNodesSlave; Ik++)
-                    {
-                        mNodeObj( 1 )( Ik ) = aNodes( tSlaveVertices( Ik )->get_index() );
-                    }
-
-                    // set size of Weak BCs
-                    mNodalWeakBCs.set_size( tNumOfNodesMaster, 1 );             // FIXME  replace this
-
-                    // element factory
-                    fem::Element_Factory tElementFactory;
-
-                    mElements.resize( mMasterIntegrationCells.size(), nullptr );
-
-                    for( moris::uint Ik = 0; Ik < mMasterIntegrationCells.size(); Ik++)
-                    {
-                        // create an element
-                        mElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                          mMasterIntegrationCells( Ik ),
-                                                                          mSlaveIntegrationCells( Ik ),
-                                                                          mSet,
-                                                                          this,
-                                                                          Ik );
+                        // create element
+                        mElements( iIGCell ) = tElementFactory.create_element( mElementType,
+                                                                               mMasterIntegrationCells( iIGCell ),
+                                                                               mSlaveIntegrationCells( iIGCell ),
+                                                                               mSet,
+                                                                               this,
+                                                                               iIGCell );
                     }
                     break;
                 }
@@ -198,9 +120,6 @@ namespace moris
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
                           "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side or double side cluster.");
 
-            // check that the mesh cluster was set
-            MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
-
             // is trivial master or slave?
             bool tIsTrivial = mSet->mIsTrivialMaster;
             if ( aIsMaster == mtk::Master_Slave::SLAVE )
@@ -212,12 +131,16 @@ namespace moris
             if( tIsTrivial )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator( aIsMaster )->extract_space_side_space_param_coeff( aSideOrdinal,
-                                                                                                              mSet->get_IG_space_interpolation_order() );
+                return mSet->get_field_interpolator_manager( aIsMaster )
+                           ->get_IP_geometry_interpolator()
+                           ->extract_space_side_space_param_coeff( aSideOrdinal, mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
             {
+                // check that the mesh cluster was set
+                MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
+
                 // get the side param coords from the side cluster
                 return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
             }
@@ -229,26 +152,28 @@ namespace moris
             // check that bulk cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
 
-            // check that the mesh cluster was set
-            MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
-
             // if trivial cluster IP cell = IG cell
             if( mSet->mIsTrivialMaster )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator()->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
+                return mSet->get_field_interpolator_manager()
+                           ->get_IP_geometry_interpolator()
+                           ->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
             {
+                // check that the mesh cluster was set
+                MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
+
                 // get the side param coords from the side cluster
                 return mMeshCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellIndexInCluster );
             }
         }
 
 //------------------------------------------------------------------------------
-        Matrix< DDRMat > Cluster::get_side_normal( const mtk::Cell   * aCell,
-                                                  moris::moris_index   aSideOrdinal )
+        Matrix< DDRMat > Cluster::get_side_normal( const mtk::Cell          * aCell,
+                                                         moris::moris_index   aSideOrdinal )
         {
             // init normal
             Matrix < DDRMat > tNormal;
@@ -263,7 +188,7 @@ namespace moris
 //            else
 //            {
                 // get normal from the integration cell geometry interpolator
-                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( tNormal );
+                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_normal( tNormal );
 //            }
 
             return tNormal;
@@ -278,9 +203,9 @@ namespace moris
 
             // get the paired vertex on the right
             return mMeshCluster->get_left_vertex_pair( aLeftVertex );
-
         }
 
+//------------------------------------------------------------------------------
         moris::moris_index Cluster::get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
                                                                      moris::mtk::Vertex const * aVertex )
         {
@@ -288,192 +213,69 @@ namespace moris
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
                           "Cluster::get_left_vertex_pair - not a double side cluster.");
 
-
             // return the index of the paired vertex on the right
             return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
         }
 
 //------------------------------------------------------------------------------
-        void Cluster::set_field_interpolators_coefficients()
-         {
-             // get number of master dof types
-//             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
-
-             // loop on the master dof types
-             for( uint iDOF = 0; iDOF < mSet->mMasterDofTypes.size(); iDOF++ )
-             {
-                 // get the ith dof type group
-                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
-
-                 // get the pdof values for the ith dof type group
-                 Cell< Matrix< DDRMat > > tCoeff_Original;
-                 Matrix< DDRMat > tCoeff;
-
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
-
-                 // reshape tCoeffs into the order the cluster expects them
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
-
-                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::MASTER )
-                                                ->set_coeff( tCoeff );
-
-                 // set the field coefficients
-//                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
-             }
-
-             // get number of slave dof types
-//             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
-
-             // loop on the slave dof types
-             for( uint iDOF = 0; iDOF < mSet->mSlaveDofTypes.size(); iDOF++ )
-             {
-                 // get the ith dof type group
-                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
-
-                 // get the pdof values for the ith dof type group
-                 Cell< Matrix< DDRMat > > tCoeff_Original;
-                 Matrix< DDRMat > tCoeff;
-
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
-
-                 // reshape tCoeffs into the order the cluster expects them
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
-
-                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::SLAVE )
-                                                ->set_coeff( tCoeff );
-
-                 // set the field coefficients
-//                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
-             }
-         }
-
-//------------------------------------------------------------------------------
         void Cluster::compute_jacobian()
          {
-
-            // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
-            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_time_coeff( this->mTime );
-
-            // if double side cluster
-             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-             {
-                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                 mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
-                 mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_coeff( this->mTime );
-             }
-
-             //Fixme do this only once
-             this->compute_my_pdof_values();
-
-             // init the jacobian //fixme still ok?
-             mSet->initialize_mJacobian();
-
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
-
-             // FIXME should not be like this
-             mSet->set_IWG_field_interpolators();
-             mSet->set_IWG_geometry_interpolators();
-
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the element
+                 // compute the jacobian for the IG element
                  mElements( iElem )->compute_jacobian();
              }
-//             print( mSet->mJacobian,"Jacobian");
          }
 
 //------------------------------------------------------------------------------
         void Cluster::compute_residual()
         {
-            // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
-            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_time_coeff( this->mTime );
-
-            // if double side cluster
-            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
-                mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_coeff( this->mTime );
-            }
-
-            //Fixme do this only once
-            this->compute_my_pdof_values();
-
-            // init the residual
-            mSet->initialize_mResidual();
-
-            // set the field interpolators coefficients
-            this->set_field_interpolators_coefficients();
-
-            // FIXME should not be like this
-            mSet->set_IWG_field_interpolators();
-            mSet->set_IWG_geometry_interpolators();
-
-            // loop over the elements
+            // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the residual for the element
+                // compute the residual for the IG element
                 mElements( iElem )->compute_residual();
             }
-//            print( mSet->mResidual,"Residual");
         }
 
 //------------------------------------------------------------------------------
         void Cluster::compute_jacobian_and_residual()
-         {
-            // set the IP geometry interpolator physical space and time coefficients for the master interpolation cell
-            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-            mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_time_coeff( this->mTime );
-
-            // if double side cluster
-             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-             {
-                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                 mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
-                 mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_coeff( this->mTime );
-             }
-
-             //Fixme do this only once
-             this->compute_my_pdof_values();
-
-             // init the jacobian
-             mSet->initialize_mJacobian();
-
-             // init the residual
-             mSet->initialize_mResidual();
-
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
-
-             // FIXME should not be like this
-             mSet->set_IWG_field_interpolators();
-             mSet->set_IWG_geometry_interpolators();
-
-             // loop over the elements
+        {
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the element
+                 // compute the jacobian for the IG element
                  mElements( iElem )->compute_jacobian();
 
-                 // compute the residual for the element
+                 // compute the residual for the IG element
                  mElements( iElem )->compute_residual();
+             }
+         }
+
+//------------------------------------------------------------------------------
+        void Cluster::compute_quantity_of_interest( const uint aMeshIndex,
+                                                    enum vis::Output_Type aOutputType,
+                                                    enum vis::Field_Type  aFieldType )
+        {
+             // loop over the IG elements
+             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+             {
+                 // compute the quantity of interest for the IG element
+                 mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
              }
          }
 
 //------------------------------------------------------------------------------
         real Cluster::compute_volume()
         {
-            // set cluster volume
+            // init cluster volume
             real tClusterVolume = 0;
 
-            // loop over the elements in cluster
+            // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the volume for the element
+                // add volume contribution for the IG element
                 tClusterVolume += mElements( iElem )->compute_volume();
             }
             // return cluster volume value

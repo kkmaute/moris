@@ -77,6 +77,14 @@ namespace moris
         END_ENUM    //
     };
 
+    enum class SetType
+    {
+        BULK                 ,   // Bulk Set
+        SIDESET              ,   // SideSet
+        DOUBLE_SIDED_SIDESET ,   // DoubleSided SideSet
+        END_ENUM    //
+    };
+
 inline
 const std::string get_enum_str(enum EntityRank aCellTopoEnum)
 {

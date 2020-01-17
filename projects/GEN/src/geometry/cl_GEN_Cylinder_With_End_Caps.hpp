@@ -93,6 +93,8 @@ public:
                 {
                     real rada = 0.18;
                     real radb = 0.18;
+//                    real rada = 0.75;
+//                    real radb = 0.75;
 
                     xn.set_row(0,xb);
 
@@ -179,6 +181,8 @@ public:
 
             real rada = 0.18;
             real radb = 0.18;
+//            real rada = 0.75;
+//            real radb = 0.75;
 
             xn.set_row(0,xb);
 
@@ -278,10 +282,11 @@ public:
 private:    // private functions
     //------------------------------------------------------------------------------
 
-    void readFiberData()
+    void readFiberData(  )
     {
         std::string tMorisRoot = std::getenv("MORISROOT");     // get root from environment
         std::string tHdf5FilePath = tMorisRoot + "/projects/GEN/test/hdf5_files/allFibers.hdf5" ;
+
         hid_t tFileID = open_hdf5_file( tHdf5FilePath );
         herr_t tStatus = 0; // error handler
 

@@ -96,13 +96,13 @@ namespace moris
         void IWG_L2::compute_jacobian_and_residual_with_alpha( real aWStar )
         {
             MORIS_ERROR( false, "will not work because of weights");
+
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute Jacobian
             mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
@@ -117,6 +117,12 @@ namespace moris
                                              { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                             * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
         }
+
+//------------------------------------------------------------------------------
+            void IWG_L2::compute_drdpdv( real aWStar )
+            {
+                MORIS_ERROR( false, "IWG_L2::compute_drdpdv - not implemented." );
+            }
 
 //------------------------------------------------------------------------------
 //
@@ -162,12 +168,11 @@ namespace moris
         void IWG_L2::compute_jacobian_without_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             if( mResidualDofTypeRequested )
             {
@@ -183,12 +188,11 @@ namespace moris
         void IWG_L2::compute_jacobian_with_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             if( mResidualDofTypeRequested )
             {
@@ -213,12 +217,11 @@ namespace moris
         void IWG_L2::compute_residual_without_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute residual
             //FIXME: mNodalWeakBCs
@@ -232,12 +235,11 @@ namespace moris
         void IWG_L2::compute_residual_with_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute residual
             //FIXME mNodalWeakBCs
