@@ -1181,373 +1181,394 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
 }
 
 //------------------------------------------------------------------------------
-void IWG::check_field_interpolators( mtk::Master_Slave aIsMaster )
-{
-    switch ( aIsMaster )
-    {
-        case ( mtk::Master_Slave::MASTER ) :
+        void IWG::check_field_interpolators( mtk::Master_Slave aIsMaster )
         {
-            // loop over the dof field interpolator pointers
-            for( uint iDofFI = 0; iDofFI < mRequestedMasterGlobalDofTypes.size(); iDofFI++ )
+            switch ( aIsMaster )
             {
-                // check that the field interpolator was set
-                MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
-                                  ->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iDofFI )( 0 ) ) != nullptr,
-                              "IWG::check_field_interpolators - Master dof FI missing. " );
-            }
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    // loop over the dof field interpolator pointers
+                    for( uint iDofFI = 0; iDofFI < mRequestedMasterGlobalDofTypes.size(); iDofFI++ )
+                    {
+                        // check that the field interpolator was set
+                        MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
+                                          ->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iDofFI )( 0 ) ) != nullptr,
+                                      "IWG::check_field_interpolators - Master dof FI missing. " );
+                    }
 
-            // loop over the dv field interpolator pointers
-            for( uint iDvFI = 0; iDvFI < mMasterGlobalDvTypes.size(); iDvFI++ )
-            {
-                // check that the field interpolator was set
-                MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
-                                  ->get_field_interpolators_for_type( mMasterGlobalDvTypes( iDvFI )( 0 ) ) != nullptr,
-                              "IWG::check_field_interpolators - Master dv FI missing. " );
-            }
-            break;
-        }
-        case ( mtk::Master_Slave::SLAVE ) :
-        {
-            // loop over the dof field interpolator pointers
-            for( uint iDofFI = 0; iDofFI < mRequestedSlaveGlobalDofTypes.size(); iDofFI++ )
-            {
-                // check that the field interpolator was set
-                MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
-                                  ->get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iDofFI )( 0 ) ) != nullptr,
-                              "IWG::check_dof_field_interpolators - Slave dof FI missing. " );
-            }
+                    // loop over the dv field interpolator pointers
+                    for( uint iDvFI = 0; iDvFI < mMasterGlobalDvTypes.size(); iDvFI++ )
+                    {
+                        // check that the field interpolator was set
+                        MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
+                                          ->get_field_interpolators_for_type( mMasterGlobalDvTypes( iDvFI )( 0 ) ) != nullptr,
+                                      "IWG::check_field_interpolators - Master dv FI missing. " );
+                    }
+                    break;
+                }
+                case ( mtk::Master_Slave::SLAVE ) :
+                {
+                    // loop over the dof field interpolator pointers
+                    for( uint iDofFI = 0; iDofFI < mRequestedSlaveGlobalDofTypes.size(); iDofFI++ )
+                    {
+                        // check that the field interpolator was set
+                        MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
+                                          ->get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iDofFI )( 0 ) ) != nullptr,
+                                      "IWG::check_dof_field_interpolators - Slave dof FI missing. " );
+                    }
 
-            // loop over the dv field interpolator pointers
-            for( uint iDvFI = 0; iDvFI < mSlaveGlobalDvTypes.size(); iDvFI++ )
-            {
-                // check that the field interpolator was set
-                MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
-                                  ->get_field_interpolators_for_type( mSlaveGlobalDvTypes( iDvFI )( 0 ) ) != nullptr,
-                              "IWG::check_field_interpolators - Slave dv FI missing. " );
+                    // loop over the dv field interpolator pointers
+                    for( uint iDvFI = 0; iDvFI < mSlaveGlobalDvTypes.size(); iDvFI++ )
+                    {
+                        // check that the field interpolator was set
+                        MORIS_ASSERT( this->get_field_interpolator_manager( aIsMaster )
+                                          ->get_field_interpolators_for_type( mSlaveGlobalDvTypes( iDvFI )( 0 ) ) != nullptr,
+                                      "IWG::check_field_interpolators - Slave dv FI missing. " );
+                    }
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::check_field_interpolators - can only be master or slave." );
+                    break;
+                }
             }
-            break;
         }
-        default :
-        {
-            MORIS_ERROR( false, "IWG::check_field_interpolators - can only be master or slave." );
-            break;
-        }
-    }
-}
 
 //------------------------------------------------------------------------------
-
-void IWG::compute_jacobian_FD( real                                             aWStar,
-                               real                                             aPerturbation,
-                               moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD )
-{
-    // get master number of dof types
-    uint tNumDofType = mRequestedMasterGlobalDofTypes.size();
-
-    aJacobiansFD.resize( 1 );
-    aJacobiansFD( 0 ).resize( tNumDofType );
-
-    // loop over the IWG dof types
-    for( uint iFI = 0; iFI < tNumDofType; iFI++ )
-    {
-        uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-        uint tDepIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
-
-        uint tNumRows = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ) + 1;
-        uint tNumCols = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepIndex, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepIndex, 0 ) + 1;
-
-        aJacobiansFD( 0 )( iFI ).set_size( tNumRows, tNumCols, 0.0 );
-
-        Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
-
-        // get number of master FI bases and fields
-        uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-        uint tDerNumFields = tFI->get_number_of_fields();
-
-        // coefficients for dof type wrt which derivative is computed
-        Matrix< DDRMat > tCoeff = tFI->get_coeff();
-
-        // init dof counter
-        uint tDofCounter = 0;
-
-        // loop over the coefficient column
-        for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
+        void IWG::compute_jacobian_FD( real               aWStar,
+                                       real               aPerturbation,
+                                       Matrix< DDRMat > & aJacobiansFD )
         {
-            // loop over the coefficient row
-            for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
+            // get master number of dof types
+            uint tNumDofType = mRequestedMasterGlobalDofTypes.size();
+
+            // get residual dof type index in set
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get start and end indices for residual dof type
+            uint tResStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get num of rows for jacobian
+            uint tNumRows = tResEndRow - tResStartRow + 1;
+
+            // get num of cols for jacobian
+            uint tNumCols = 0;
+
+            // loop over the IWG dof types
+            for( uint iFI = 0; iFI < tNumDofType; iFI++ )
             {
-                // perturbation of the coefficent
-                Matrix< DDRMat > tCoeffPert = tCoeff;
-                tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                // get dependency dof type index in set
+                uint tDepIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
 
-                // setting the perturbed coefficients
-                tFI->set_coeff( tCoeffPert );
+                // get num of column for the jacobian
+                tNumCols += mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepIndex, 1 )
+                          - mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepIndex, 0 ) + 1;
+            }
 
-                // reset properties, CM and SP for IWG
-                this->reset_eval_flags();
+            // set size of jacobian matrix
+            aJacobiansFD.set_size( tNumRows, tNumCols, 0.0 );
 
-                // evaluate the residual
-                mSet->get_residual().fill( 0.0 );
-                this->compute_residual( aWStar );
+            // init dof counter
+            uint tDofCounter = 0;
 
-                Matrix< DDRMat > tResidual_Plus
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } );
+            // loop over the IWG dof types
+            for( uint iFI = 0; iFI < tNumDofType; iFI++ )
+            {
+                // get field interpolator for dependency dof type
+                Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
 
-                // perturbation of the coefficent
-                tCoeffPert = tCoeff;
-                tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                // get number of master FI bases and fields
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
 
-                // setting the perturbed coefficients
-                tFI->set_coeff( tCoeffPert );
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
-                // reset properties, CM and SP for IWG
-                this->reset_eval_flags();
+                // loop over the coefficient column
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over the coefficient row
+                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
 
-                // evaluate the residual
-                mSet->get_residual().fill( 0.0 );
-                this->compute_residual( aWStar );
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
 
-                Matrix< DDRMat > tResidual_Minus
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } );
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                // evaluate Jacobian
-                aJacobiansFD( 0 )( iFI ).get_column( tDofCounter )
-                = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
 
-                // update dof counter
-                tDofCounter++;
+                        Matrix< DDRMat > tResidual_Plus
+                        =  mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        Matrix< DDRMat > tResidual_Minus
+                        =  mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } );
+
+                        // evaluate Jacobian
+                        aJacobiansFD.get_column( tDofCounter )
+                        = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
             }
         }
-        // reset the coefficients values
-        tFI->set_coeff( tCoeff );
-    }
-}
 
 //------------------------------------------------------------------------------
-
- void IWG::compute_jacobian_FD_double( real                                             aWStar,
-                                       real                                             aPerturbation,
-                                       moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD )
-{
-    // get master and slave number of dof types
-    uint tMasterNumDofType = mRequestedMasterGlobalDofTypes.size();
-    uint tSlaveNumDofType  = mRequestedSlaveGlobalDofTypes.size();
-
-    aJacobiansFD.resize( 2 );
-    aJacobiansFD( 0 ).resize( tMasterNumDofType + tSlaveNumDofType );
-    aJacobiansFD( 1 ).resize( tMasterNumDofType + tSlaveNumDofType );
-
-    // loop over the master dof types
-    for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
-    {
-        uint tDofIndexMaster = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
-        uint tDofIndexSlave  = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE  );
-
-        uint tNumRowsMaster = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ) + 1;
-        uint tNumColsMaster = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ) + 1;
-        uint tNumRowsSlave  = mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 0 ) + 1;
-        uint tNumColsSlave  = mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 0 ) + 1;
-
-        aJacobiansFD( 0 )( iFI ).set_size( tNumRowsMaster, tNumColsMaster, 0.0 );
-        aJacobiansFD( 1 )( iFI ).set_size( tNumRowsSlave, tNumColsSlave, 0.0 );
-
-        Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
-
-        // get number of master FI bases and fields
-        uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-        uint tDerNumFields = tFI->get_number_of_fields();
-
-        // coefficients for dof type wrt which derivative is computed
-        Matrix< DDRMat > tCoeff = tFI->get_coeff();
-
-        // init dof counter
-        uint tDofCounter = 0;
-
-        // loop over the coefficients column
-        for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+        void IWG::compute_jacobian_FD_double( real               aWStar,
+                                              real               aPerturbation,
+                                              Matrix< DDRMat > & aJacobiansFD )
         {
-            // loop over the coefficients row
-            for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+            // get master and slave number of dof types
+            uint tMasterNumDofType = mRequestedMasterGlobalDofTypes.size();
+            uint tSlaveNumDofType  = mRequestedSlaveGlobalDofTypes.size();
+
+            // get residual dof type index in set
+            uint tMasterResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tSlaveResDofIndex  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get start and end indices for residual dof type
+            uint tMasterResStartRow = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
+            uint tMasterResEndRow   = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
+            uint tSlaveResStartRow  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+            uint tSlaveResEndRow    = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+
+            // get num of rows for jacobian
+            uint tMasterNumRows = ( tMasterResEndRow - tMasterResStartRow ) + 1;
+            uint tSlaveNumRows  = ( tSlaveResEndRow  - tSlaveResStartRow  ) + 1;
+
+            // get num of cols for jacobian
+            uint tNumCols = 0;
+
+            // loop over the IWG master dof types
+            for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
             {
-                // perturbation of the coefficent
-                Matrix< DDRMat > tCoeffPert = tCoeff;
-                tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                // get dependency dof type index in set
+                uint tDepIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
 
-                // setting the perturbed coefficients
-                tFI->set_coeff( tCoeffPert );
+                // get num of column for the jacobian
+                tNumCols += mSet->get_jac_dof_assembly_map()( tMasterResDofIndex )( tDepIndex, 1 )
+                          - mSet->get_jac_dof_assembly_map()( tMasterResDofIndex )( tDepIndex, 0 ) + 1;
+            }
+            // loop over the IWG slave dof types
+            for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
+            {
+                // get dependency dof type index in set
+                uint tDepIndex = mSet->get_dof_index_for_type( mRequestedSlaveGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE );
 
-                // reset properties, CM and SP for IWG
-                this->reset_eval_flags();
+                // get num of column for the jacobian
+                tNumCols += mSet->get_jac_dof_assembly_map()( tSlaveResDofIndex )( tDepIndex, 1 )
+                          - mSet->get_jac_dof_assembly_map()( tSlaveResDofIndex )( tDepIndex, 0 ) + 1;
+            }
 
-                // evaluate the residual
-                mSet->get_residual().fill( 0.0 );
-                this->compute_residual( aWStar );
+            // set size of jacobian matrix
+            aJacobiansFD.set_size( tMasterNumRows + tSlaveNumRows, tNumCols, 0.0 );
 
-                Matrix< DDRMat > tResidual_Plus_Master
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
-                Matrix< DDRMat > tResidual_Plus_Slave
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+            // init dof counter
+            uint tDofCounter = 0;
 
-                // perturbation of the coefficent
-                tCoeffPert = tCoeff;
-                tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+            // loop over the master dof types
+            for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
+            {
+                // get master dependency field interpolator
+                Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
 
-                // setting the perturbed coefficients
-                tFI->set_coeff( tCoeffPert );
+                // get number of master FI bases and fields
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
 
-                // reset properties, CM and SP for IWG
-                this->reset_eval_flags();
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
-                // evaluate the residual
-                mSet->get_residual().fill( 0.0 );
-                this->compute_residual( aWStar );
+                // loop over the coefficients column
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over the coefficients row
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
 
-                Matrix< DDRMat > tResidual_Minus_Master
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
-                Matrix< DDRMat > tResidual_Minus_Slave
-                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
 
-                // evaluate Jacobian
-                aJacobiansFD( 0 )( iFI ).get_column( tDofCounter )
-                = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                aJacobiansFD( 1 )( iFI ).get_column( tDofCounter )
-                = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                // update dof counter
-                tDofCounter++;
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        Matrix< DDRMat > tResidual_Plus_Master
+                        =  mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        Matrix< DDRMat > tResidual_Plus_Slave
+                        =  mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        Matrix< DDRMat > tResidual_Minus_Master
+                        =  mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        Matrix< DDRMat > tResidual_Minus_Slave
+                        =  mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+
+                        // evaluate Jacobian
+                        aJacobiansFD( { 0, tMasterNumRows -1 }, { tDofCounter, tDofCounter } )
+                        = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        aJacobiansFD( { tMasterNumRows, tMasterNumRows + tSlaveNumRows - 1 }, { tDofCounter, tDofCounter } )
+                        = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
+            }
+
+            // loop over the slave dof types
+            for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
+            {
+                // get slave dependency field interpolator
+                Field_Interpolator * tFI = mSlaveFIManager->get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iFI )( 0 ) );
+
+                // get number of master FI bases and fields
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                // loop over the coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over the coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        Matrix< DDRMat > tResidual_Plus_Master
+                        = mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        Matrix< DDRMat > tResidual_Plus_Slave
+                        = mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        Matrix< DDRMat > tResidual_Minus_Master
+                        = mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        Matrix< DDRMat > tResidual_Minus_Slave
+                        = mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+
+                        // evaluate Jacobian
+                        aJacobiansFD( { 0, tMasterNumRows -1 }, { tDofCounter, tDofCounter } )
+                        = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        aJacobiansFD( { tMasterNumRows, tMasterNumRows + tSlaveNumRows - 1 }, { tDofCounter, tDofCounter } )
+                        = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
             }
         }
-        // reset the coefficients values
-        tFI->set_coeff( tCoeff );
-    }
-
-    // loop over the slave dof types
-    for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
-    {
-        uint tDofIndexMaster = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
-        uint tDofIndexSlave  = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE  );
-
-        uint tNumRowsMaster = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ) + 1;
-        uint tNumColsMaster = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ) + 1;
-        uint tNumRowsSlave  = mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 0 ) + 1;
-        uint tNumColsSlave  = mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 0 ) + 1;
-
-        aJacobiansFD( 0 )( tMasterNumDofType + iFI ).set_size( tNumRowsMaster, tNumColsMaster, 0.0 );
-        aJacobiansFD( 1 )( tMasterNumDofType + iFI ).set_size( tNumRowsSlave, tNumColsSlave, 0.0 );
-
-        Field_Interpolator * tFI = mSlaveFIManager->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ) );
-
-        // get number of master FI bases and fields
-        uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-        uint tDerNumFields = tFI->get_number_of_fields();
-
-        // coefficients for dof type wrt which derivative is computed
-        Matrix< DDRMat > tCoeff = tFI->get_coeff();
-
-        // init dof counter
-        uint tDofCounter = 0;
-
-        // loop over the coefficients columns
-        for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-        {
-            // loop over the coefficients rows
-            for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-            {
-                // perturbation of the coefficent
-                Matrix< DDRMat > tCoeffPert = tCoeff;
-                tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                // setting the perturbed coefficients
-                tFI->set_coeff( tCoeffPert );
-
-                // reset properties, CM and SP for IWG
-                this->reset_eval_flags();
-
-                // evaluate the residual
-                mSet->get_residual().fill( 0.0 );
-                this->compute_residual( aWStar );
-
-                Matrix< DDRMat > tResidual_Plus_Master
-                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
-                Matrix< DDRMat > tResidual_Plus_Slave
-                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
-
-                // perturbation of the coefficent
-                tCoeffPert = tCoeff;
-                tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                // setting the perturbed coefficients
-                tFI->set_coeff( tCoeffPert );
-
-                // reset properties, CM and SP for IWG
-                this->reset_eval_flags();
-
-                // evaluate the residual
-                mSet->get_residual().fill( 0.0 );
-                this->compute_residual( aWStar );
-
-                Matrix< DDRMat > tResidual_Minus_Master
-                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
-                Matrix< DDRMat > tResidual_Minus_Slave
-                = mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
-
-                // evaluate Jacobian
-                aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tDofCounter )
-                = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( tDofCounter )
-                = ( tResidual_Plus_Slave  - tResidual_Minus_Slave  )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                // update dof counter
-                tDofCounter++;
-            }
-        }
-        // reset the coefficients values
-        tFI->set_coeff( tCoeff );
-    }
-}
 
 //------------------------------------------------------------------------------
-
-        bool IWG::check_jacobian( real                                             aPerturbation,
-                                  real                                             aEpsilon,
-                                  real                                             aWStar,
-                                  moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                  moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFDs )
+        bool IWG::check_jacobian( real               aPerturbation,
+                                  real               aEpsilon,
+                                  real               aWStar,
+                                  Matrix< DDRMat > & aJacobians,
+                                  Matrix< DDRMat > & aJacobiansFD )
         {
             // compute jacobian with IWG
             this->compute_jacobian( aWStar );
 
-            // compute jacobian by FD
-            this->compute_jacobian_FD( aWStar, aPerturbation, aJacobiansFDs );
+            // get residual dof type index in set
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // set size for comparison
-            aJacobians.resize( aJacobiansFDs.size() );
+            // get start and end indices for residual dof type
+            uint tResStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get number of cols for jacobian
+            uint tNumCols = mSet->get_jacobian().n_cols();
+
+            // get the computed jacobian
+            aJacobians = mSet->get_jacobian()( { tResStartRow, tResEndRow }, { 0, tNumCols - 1 });
+
+            // compute jacobian by FD
+            this->compute_jacobian_FD( aWStar, aPerturbation, aJacobiansFD );
 
             //define a boolean for check
             bool tCheckJacobian = true;
 
-            // check each components
-            for ( uint iJac = 0; iJac < aJacobiansFDs.size(); iJac++ )
+            for( uint iiJac = 0; iiJac < aJacobians.n_rows(); iiJac++ )
             {
-                // set size for comparison
-                aJacobians( iJac ).resize( aJacobiansFDs( iJac ).size() );
-
-                for( uint jJac = 0; jJac < aJacobiansFDs( iJac ).size(); jJac++ )
+                for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
-                    uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-                    uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( jJac )( 0 ), mtk::Master_Slave::MASTER );
-
-                    aJacobians( iJac )( jJac )
-                    = mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                            { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } );
-
-                    for( uint iiJac = 0; iiJac < aJacobiansFDs( iJac )( jJac ).n_rows(); iiJac++ )
-                    {
-                        for( uint jjJac = 0; jjJac < aJacobiansFDs( iJac )( jJac ).n_cols(); jjJac++ )
-                        {
-                            tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( jJac )( iiJac, jjJac ) - aJacobiansFDs( iJac )( jJac )( iiJac, jjJac ) < aEpsilon );
-                        }
-                    }
+                    tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
                 }
             }
 
@@ -1556,93 +1577,55 @@ void IWG::compute_jacobian_FD( real                                             
         }
 
 //------------------------------------------------------------------------------
-        bool IWG::check_jacobian_double( real                                             aPerturbation,
-                                         real                                             aEpsilon,
-                                         real                                             aWStar,
-                                         moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                         moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFDs )
+        bool IWG::check_jacobian_double( real               aPerturbation,
+                                         real               aEpsilon,
+                                         real               aWStar,
+                                         Matrix< DDRMat > & aJacobians,
+                                         Matrix< DDRMat > & aJacobiansFD )
         {
             // compute jacobian with IWG
             this->compute_jacobian( aWStar );
 
-            // compute jacobian by FD
-            this->compute_jacobian_FD_double( aWStar, aPerturbation, aJacobiansFDs );
+            // get residual dof type index in set
+            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tSlaveDofIndex  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
 
-            // set jacobian size for comparison
-            aJacobians.resize( 2 );
+            // get start and end indices for residual dof type
+            uint tMasterResStartRow = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResEndRow   = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            uint tSlaveResStartRow  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
+            uint tSlaveResEndRow    = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+
+            // get number of master and slave rows
+            uint tMasterNumRows = tMasterResEndRow - tMasterResStartRow + 1;
+            uint tSlaveNumRows  = tSlaveResEndRow  - tSlaveResStartRow  + 1;
+
+            // get number of cols for jacobian
+            uint tNumCols = mSet->get_jacobian().n_cols();
+
+            // get the computed jacobian
+            aJacobians.set_size( tMasterNumRows + tSlaveNumRows, tNumCols, 0.0 );
+
+            // get the computed jacobian
+            aJacobians( { 0, tMasterNumRows - 1 }, { 0, tNumCols - 1 } )
+            = mSet->get_jacobian()( { tMasterResStartRow, tMasterResEndRow }, { 0, tNumCols - 1 });
+            aJacobians( { tMasterNumRows, tMasterNumRows + tSlaveNumRows - 1 }, { 0, tNumCols - 1 } )
+            = mSet->get_jacobian()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, tNumCols - 1 });
+
+            // compute jacobian by FD
+            this->compute_jacobian_FD_double( aWStar, aPerturbation, aJacobiansFD );
 
             //define a boolean for check
             bool tCheckJacobian = true;
 
-            // check each components
-            for ( uint iJac = 0; iJac < aJacobiansFDs.size(); iJac++ )
+            // loop over the rows of jacobian
+            for( uint iiJac = 0; iiJac < aJacobians.n_rows(); iiJac++ )
             {
-                //set size for comparison
-                aJacobians( iJac ).resize( aJacobiansFDs( iJac ).size() );
-
-                uint tDofIndex;
-
-                if( iJac == 0 )
+                // loop over the columns of jacobian
+                for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
-                    tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-                }
-                else if( iJac == 1 )
-                {
-                    tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
-                }
-                else { MORIS_ERROR( false, "only case 0 and 1 implemented" ); }
-
-                // init dof counter
-                uint tCounter = 0;
-
-                // loop over master dof type
-                for( uint jJac = 0; jJac < mRequestedMasterGlobalDofTypes.size(); jJac++ )
-                {
-                    // get set index for master dof type
-                    uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( jJac )( 0 ), mtk::Master_Slave::MASTER );
-
-                    // fill jacobian matrix for comparison
-                    aJacobians( iJac )( jJac )
-                    = mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                            { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } );
-
-                    // loop over the rows of jacobian
-                    for( uint iiJac = 0; iiJac < aJacobiansFDs( iJac )( tCounter ).n_rows(); iiJac++ )
-                    {
-                        // loop over the columns of jacobian
-                        for( uint jjJac = 0; jjJac < aJacobiansFDs( iJac )( tCounter ).n_cols(); jjJac++ )
-                        {
-                            // check component
-                            tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( tCounter )( iiJac, jjJac ) - aJacobiansFDs( iJac )( tCounter )( iiJac, jjJac ) < aEpsilon );
-                        }
-                    }
-                    // update dof counter
-                    tCounter++;
-                }
-
-                // loop over slave dof types
-                for( uint jJac = 0; jJac < mRequestedSlaveGlobalDofTypes.size(); jJac++ )
-                {
-                    // get set index for the slave dof type
-                    uint tIndexDep = mSet->get_dof_index_for_type( mRequestedSlaveGlobalDofTypes( jJac )( 0 ), mtk::Master_Slave::SLAVE );
-
-                    // fill jacobian matrix for comparison
-                    aJacobians( iJac )( tCounter )
-                    = mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                            { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } );
-
-                    // loop over the rows of jacobian
-                    for( uint iiJac = 0; iiJac < aJacobiansFDs( iJac )( tCounter ).n_rows(); iiJac++ )
-                    {
-                        // loop over the columns of jacobian
-                        for( uint jjJac = 0; jjJac < aJacobiansFDs( iJac )( tCounter ).n_cols(); jjJac++ )
-                        {
-                            // check component
-                            tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( tCounter )( iiJac, jjJac ) - aJacobiansFDs( iJac )( tCounter )( iiJac, jjJac ) < aEpsilon );
-                        }
-                    }
-                    // update dof counter
-                    tCounter++;
+                    // check component
+                    tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
                 }
             }
 
@@ -1842,6 +1825,7 @@ void IWG::compute_jacobian_FD( real                                             
 
 //            print( adrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
 //            print( adrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
+
         }
 
 //------------------------------------------------------------------------------

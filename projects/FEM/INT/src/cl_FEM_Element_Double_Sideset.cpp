@@ -11,24 +11,22 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-
         Element_Double_Sideset::Element_Double_Sideset( mtk::Cell const  * aMasterIGCell,
                                                         mtk::Cell const  * aSlaveIGCell,
                                                         Set              * aSet,
                                                         Cluster          * aCluster,
-                                                        moris::moris_index aCellIndexInCluster ) : Element( aMasterIGCell,
-                                                                                                            aSlaveIGCell,
-                                                                                                            aSet,
-                                                                                                            aCluster,
-                                                                                                            aCellIndexInCluster )
+                                                        moris::moris_index aCellIndexInCluster )
+        : Element( aMasterIGCell,
+                   aSlaveIGCell,
+                   aSet,
+                   aCluster,
+                   aCellIndexInCluster )
         {}
 
 //------------------------------------------------------------------------------
-
         Element_Double_Sideset::~Element_Double_Sideset(){}
 
 //------------------------------------------------------------------------------
-
         void Element_Double_Sideset::compute_residual()
         {
             // get treated side ordinal on the master and on the slave
@@ -75,34 +73,16 @@ namespace moris
                 // get local integration point for the master integration cell
                 Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_time( tMasterLocalIntegPoint );
-
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
                 tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0})
-                    = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+                = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
-                // set the ith integration point in the IG param space for slave IG geometry interpolator
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator()->set_space_time( tSlaveLocalIntegPoint );
-
-                // get global integration point  for the master integration cell
-                Matrix< DDRMat > tMasterGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->map_integration_point( tMasterGlobalIntegPoint );
-
-                // get global integration point for the slave integration cell
-                Matrix< DDRMat > tSlaveGlobalIntegPoint;
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE  )->get_IG_geometry_interpolator()->map_integration_point( tSlaveGlobalIntegPoint );
-
-                // set evaluation point for master IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tMasterGlobalIntegPoint );
-
-                // set evaluation point for master IP geometry interpolator
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE  )->get_IP_geometry_interpolator()->set_space_time( tSlaveGlobalIntegPoint );
-
-                // set evaluation point for master and slave field interpolator
-                mSet->mMasterFIManager->set_space_time( tMasterGlobalIntegPoint );
-                mSet->mSlaveFIManager->set_space_time( tSlaveGlobalIntegPoint );
+                // set evaluation point for master and slave interpolators
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )
+                    ->set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
+                    ->set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
                 // compute the integration point weight // fixme both side?
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -126,14 +106,10 @@ namespace moris
                     // compute jacobian at integration point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
-
             }
-//            // print residual for check
-//            print( mSet->mResidual, " mResidual " );
         }
 
 //------------------------------------------------------------------------------
-
         void Element_Double_Sideset::compute_jacobian()
         {
             // get treated side ordinal on the master and on the slave
@@ -183,34 +159,16 @@ namespace moris
                 // get local integration point for the master integration cell
                 Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_time( tMasterLocalIntegPoint );
-
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
                 tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0})
-                    = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+                = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
-                // set the ith integration point in the IG param space for slave IG geometry interpolator
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator()->set_space_time( tSlaveLocalIntegPoint );
-
-                // get global integration point  for the master integration cell
-                Matrix< DDRMat > tMasterGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->map_integration_point( tMasterGlobalIntegPoint );
-
-                // get global integration point for the slave integration cell
-                Matrix< DDRMat > tSlaveGlobalIntegPoint;
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator()->map_integration_point( tSlaveGlobalIntegPoint );
-
-                // set evaluation point for master IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tMasterGlobalIntegPoint );
-
-                // set evaluation point for master IP geometry interpolator
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator()->set_space_time( tSlaveGlobalIntegPoint );
-
-                // set evaluation point for master and slave field interpolator
-                mSet->get_field_interpolator_manager()->set_space_time( tMasterGlobalIntegPoint );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE)->set_space_time( tSlaveGlobalIntegPoint );
+                // set evaluation point for master and slave interpolators
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )
+                    ->set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
+                    ->set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
                 // compute the integration point weight // fixme both side?
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -235,7 +193,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Element_Double_Sideset::compute_jacobian_and_residual()
         {
             MORIS_ERROR( false, " Element_Double_Sideset::compute_jacobian_and_residual - not implemented. ");

@@ -590,11 +590,11 @@ namespace moris
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
              * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
              */
-            bool check_jacobian( real                                             aPerturbation,
-                                 real                                             aEpsilon,
-                                 real                                             aWStar,
-                                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
+            bool check_jacobian( real               aPerturbation,
+                                 real               aEpsilon,
+                                 real               aWStar,
+                                 Matrix< DDRMat > & aJacobians,
+                                 Matrix< DDRMat > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
@@ -603,13 +603,13 @@ namespace moris
              * @param[ in ] aEpsilon      real for check
              * @param[ in ] aWStar        real weight associated to evaluation point
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
-             * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+             * @param[ in ] aJacobiansFD cell of cell of matrices to fill with Jacobians by FD
              */
-            bool check_jacobian_double( real                                             aPerturbation,
-                                        real                                             aEpsilon,
-                                        real                                             aWStar,
-                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFDs );
+            bool check_jacobian_double( real               aPerturbation,
+                                        real               aEpsilon,
+                                        real               aWStar,
+                                        Matrix< DDRMat > & aJacobians,
+                                        Matrix< DDRMat > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
@@ -685,9 +685,9 @@ namespace moris
              * @param[ in ] aWStar        weight associated to evaluation point
              * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              */
-            void compute_jacobian_FD( real                                             aWStar,
-                                      real                                             aPerturbation,
-                                      moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
+            void compute_jacobian_FD( real               aWStar,
+                                      real               aPerturbation,
+                                      Matrix< DDRMat > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
@@ -696,9 +696,9 @@ namespace moris
             * @param[ in ] aPerturbation real to perturb for FD
             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
             */
-            void compute_jacobian_FD_double( real                                             aWStar,
-                                             real                                             aPerturbation,
-                                             moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
+            void compute_jacobian_FD_double( real               aWStar,
+                                             real               aPerturbation,
+                                             Matrix< DDRMat > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**

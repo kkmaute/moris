@@ -419,6 +419,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * set an evaluation point in space and time
+         * @param[ in ] aParamPoint coordinates of an evaluation point
+         */
+        void set_space_time_from_local_IG_point( Matrix< DDRMat > & aLocalParamPoint )
+        {
+            // set evaluation point in the IG param space for IG geometry interpolator
+            mIGGeometryInterpolator->set_space_time( aLocalParamPoint );
+
+            // bring evaluation point in the IP param space
+            Matrix< DDRMat > tGlobalParamPoint;
+            mIGGeometryInterpolator->map_integration_point( tGlobalParamPoint );
+
+            // set evaluation point for interpolators (FIs and IP GI)
+            this->set_space_time( tGlobalParamPoint );
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * set coefficients for field interpolator with specific dof type
          * @param[ in ] aDofType a dof type for which the coeff will be set
          * @param[ in ] aCoeff   coefficients to be set

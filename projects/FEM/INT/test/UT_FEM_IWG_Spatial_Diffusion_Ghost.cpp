@@ -371,8 +371,8 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
             // init the jacobian for IWG and FD evaluation
-            Cell< Cell< Matrix< DDRMat > > > tJacobians;
-            Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+            Matrix< DDRMat > tJacobians;
+            Matrix< DDRMat > tJacobiansFD;
 
             // check jacobian by FD
             bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,

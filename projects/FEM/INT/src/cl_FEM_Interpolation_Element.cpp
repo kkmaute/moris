@@ -6,11 +6,10 @@
  */
 #include <iostream>
 
-#include "cl_FEM_Element.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Element.hpp"   //FEM/INT/src
+#include "cl_FEM_Element.hpp"                    //FEM/INT/src
+#include "cl_FEM_Interpolation_Element.hpp"      //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
-
 #include "cl_FEM_Cluster.hpp"                   //FEM/INT/src
 
 namespace moris
@@ -45,8 +44,8 @@ namespace moris
                 mNodeObj( 0 )( iVertex ) = aNodes( tVertices( iVertex )->get_index() );
             }
 
-            // set size of Weak BCs
-            mNodalWeakBCs.set_size( tNumOfVertices, 1 );
+//            // set size of Weak BCs
+//            mNodalWeakBCs.set_size( tNumOfVertices, 1 );
 
             // switch on the element type
             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
@@ -95,7 +94,8 @@ namespace moris
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                  // set field interpolator coefficients
-                 mSet->mMasterFIManager->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+                 mSet->get_field_interpolator_manager()
+                     ->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
              }
 
              // get number of slave dof types
@@ -117,7 +117,8 @@ namespace moris
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                  // set the field coefficients
-                 mSet->mSlaveFIManager->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
+                     ->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
              }
 
              // dv field interpolators------------------------------------------
@@ -142,8 +143,10 @@ namespace moris
                 Matrix< DDRMat > tCoeff;
                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
-                // set field interpolator coefficients
-                mSet->mMasterFIManager->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+                 // set field interpolator coefficients
+                 mSet->get_field_interpolator_manager()
+                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+
              }
 
              // get number of slave dv types
@@ -168,21 +171,30 @@ namespace moris
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                  // set the field coefficients
-                 mSet->mSlaveFIManager->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
+                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
              }
 
              // geometry interpolators------------------------------------------
 
              // set the IP geometry interpolator physical space and time coefficients for the master
-             mSet->mMasterFIManager->get_IP_geometry_interpolator()->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-             mSet->mMasterFIManager->get_IP_geometry_interpolator()->set_time_coeff( this->mTime );
+             mSet->get_field_interpolator_manager()
+                 ->get_IP_geometry_interpolator()
+                 ->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
+             mSet->get_field_interpolator_manager()
+                 ->get_IP_geometry_interpolator()
+                 ->set_time_coeff( this->mTime );
 
              // if double sideset
              if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
              {
                  // set the IP geometry interpolator physical space and time coefficients for the slave
-                 mSet->mSlaveFIManager->get_IP_geometry_interpolator()->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
-                 mSet->mSlaveFIManager->get_IP_geometry_interpolator()->set_time_coeff( this->mTime );
+                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
+                     ->get_IP_geometry_interpolator()
+                     ->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
+                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
+                     ->get_IP_geometry_interpolator()
+                     ->set_time_coeff( this->mTime );
              }
          }
 
@@ -322,7 +334,7 @@ namespace moris
                          ->set_space_time( tGlobalIntegPoint );
 
                      // set vertex coordinates for field interpolator
-                     mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                      // reset the requested IQI
                      mSet->get_requested_IQI( aOutputType )->reset_eval_flags();

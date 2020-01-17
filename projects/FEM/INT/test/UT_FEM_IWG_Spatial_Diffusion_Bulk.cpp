@@ -226,8 +226,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -238,6 +238,9 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
 
     // require check is true
     REQUIRE( tCheckJacobian );
+
+//    print( tJacobians( 0 ),   "tJacobians" );
+//    print( tJacobiansFD( 0 ), "tJacobiansFD" );
 
 }/*END_TEST_CASE*/
 
@@ -382,8 +385,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -542,8 +545,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -673,7 +676,6 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 
     // create a fem set
     MSI::Equation_Set * tSet = new fem::Set();
-//    static_cast< fem::Set* >( tSet )->mMasterIGGeometryInterpolator = &tGI;
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 

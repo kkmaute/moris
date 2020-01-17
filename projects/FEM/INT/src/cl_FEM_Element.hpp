@@ -183,7 +183,7 @@ namespace moris
         virtual void compute_quantity_of_interest_global( const uint            aMeshIndex,
                                                           enum vis::Output_Type aOutputType )
         {
-            MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - this function does nothing." );
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - Not implemented for base class." );
         }
 
 //------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ namespace moris
         virtual void compute_quantity_of_interest_nodal( const uint aMeshIndex,
                                                          enum vis::Output_Type aOutputType )
         {
-            MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - this function does nothing." );
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - Not implemented for base class." );
         }
 
 //------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ namespace moris
         virtual void compute_quantity_of_interest_elemental( const uint            aMeshIndex,
                                                              enum vis::Output_Type aOutputType )
         {
-            MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - this function does nothing." );
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
         }
 
 //------------------------------------------------------------------------------

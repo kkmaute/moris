@@ -43,22 +43,8 @@ namespace moris
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( tLocalIntegPoint );
-
-                // bring the ith integration point in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -77,8 +63,6 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
                 }
             }
-//            // print residual for check
-//            print( mSet->mResidual, " mResidual " );
         }
 
 //------------------------------------------------------------------------------
@@ -102,22 +86,8 @@ namespace moris
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( tLocalIntegPoint );
-
-                // bring the ith integration point in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -244,22 +214,8 @@ namespace moris
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( tLocalIntegPoint );
-
-                // bring the ith integration point in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -302,11 +258,8 @@ namespace moris
                 tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = mCluster->mInterpolationElement->get_time()( 0 );
                 tGlobalIntegPoint = trans( tGlobalIntegPoint );
 
-                // set vertex coordinates for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
                 // set vertex coordinates for field interpolator
-                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                 // reset the requested IQI
                 mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
@@ -320,7 +273,6 @@ namespace moris
                 (*mSet->mSetNodalValues)( tVertices( iVertex )->get_index(), 0 ) += tQIValue( 0 );
 
                 mSet->mSetNodalCounter( tVertices( iVertex )->get_index(), 0 ) += 1;
-
             }
         }
 
@@ -351,22 +303,8 @@ namespace moris
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( tLocalIntegPoint );
-
-                // bring the ith integration point in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )

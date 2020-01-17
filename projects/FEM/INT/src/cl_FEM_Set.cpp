@@ -6,18 +6,16 @@
  */
 #include <iostream>
 
-#include "cl_MSI_Model_Solver_Interface.hpp" //FEM/MSI/src
-#include "cl_MSI_Solver_Interface.hpp" //FEM/MSI/src
-#include "cl_FEM_Set.hpp"                    //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp"                    //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"        //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"             //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"             //FEM/INT/src
-
-#include "cl_FEM_Interpolation_Element.hpp"             //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"             //FEM/INT/src
-
-#include "cl_MTK_Set.hpp"             //FEM/INT/src
+#include "cl_MSI_Model_Solver_Interface.hpp"     //FEM/MSI/src
+#include "cl_MSI_Solver_Interface.hpp"           //FEM/MSI/src
+#include "cl_FEM_Set.hpp"                        //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"                 //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Element.hpp"      //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"                    //FEM/INT/src
+#include "cl_MTK_Set.hpp"                        //FEM/INT/src
 #include "fn_equal_to.hpp"
 
 namespace moris
