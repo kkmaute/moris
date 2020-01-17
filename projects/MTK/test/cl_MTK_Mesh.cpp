@@ -105,7 +105,7 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         //const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
         // Create MORIS mesh using MTK database
-        Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, fileName2, NULL );
+        Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, fileName2, NULL, true );
 
         uint NumElements2      = tMesh3D_HEXs->get_num_elems();
         uint NumNodes2         = tMesh3D_HEXs->get_num_nodes();
@@ -233,7 +233,7 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
 
         // Check consistency of element ids
-        tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd, EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));
+        tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd.get_row(0), EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));
         CHECK(tElementIdsMatch);
 
         // Check face ordinals

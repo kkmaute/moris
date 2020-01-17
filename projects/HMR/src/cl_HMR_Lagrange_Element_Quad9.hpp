@@ -10,6 +10,7 @@
 
 #include "cl_HMR_Lagrange_Element.hpp"
 
+#include "cl_MTK_Cell_Info_Quad9.hpp"
 namespace moris
 {
     namespace hmr
@@ -103,6 +104,22 @@ namespace moris
             {
                 aBasis( k ) = mNodes[ k ]->get_memory_index();
             }
+        }
+// ----------------------------------------------------------------------------
+
+        template<>
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< 2, 9 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type quad");
+            moris::mtk::Cell_Info_Quad9 tConn;
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_node_to_facet_map(aSideOrdinal);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(3);
+            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+            return tVerticesOnSide;
         }
 // ----------------------------------------------------------------------------
 

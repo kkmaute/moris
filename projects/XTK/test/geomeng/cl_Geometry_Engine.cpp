@@ -187,7 +187,7 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere","[GEOMENG][
     Sphere tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     // Discretize the Levelset Sphere as a nodal value field on a mesh
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/test_mesh_2d_single_element.e";
     Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
     mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
@@ -287,7 +287,7 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere on a 3d mesh
     Sphere tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     // Discretize the Levelset Sphere as a nodal value field on a mesh
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/cube_5x5x5_not_unit.e";
     Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
     mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;

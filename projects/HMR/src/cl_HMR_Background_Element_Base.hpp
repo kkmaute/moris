@@ -642,6 +642,27 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * Provided my background cell side ordinal, return the neighbor's background cell
+             * side ordinal
+             *
+             * @return int neighbor side ordinal
+             *
+             */
+            virtual int get_neighbor_side_ordinal( const  int aNeighborIndex) const = 0;
+
+            /**
+             * Provided my background cell side ordinal, return the child cell ordinals
+             * on side
+             *
+             * @return int neighbor child cell ordinal
+             *
+             */
+            virtual void get_child_cell_ordinals_on_side( const  int        aSideOrdinal,
+                                                         Matrix<IndexMat> & aChildCellOrdinals) const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
              * tells how many active descendants live on side 1
              */
             virtual void get_number_of_active_descendants_on_side_1(

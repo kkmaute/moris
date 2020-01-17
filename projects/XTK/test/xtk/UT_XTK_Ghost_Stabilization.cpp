@@ -9,6 +9,10 @@
 
 #include "cl_XTK_Model.hpp"
 
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
+
+
 #include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 #include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
@@ -21,7 +25,9 @@ namespace xtk
 
 TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 {
-    moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.0 }};
+    if(par_size() == 1)
+    {
+    moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
     moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
     moris::ge::Plane<3> tPlane(tCenters,tNormals);
 
@@ -45,20 +51,26 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
 
+    tXTKModel.perform_basis_enrichment(EntityRank::NODE,0);
+
     tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-    // output to exodus file ----------------------------------------------------------
-    Output_Options tOutputOptions;
-    tOutputOptions.mAddNodeSets = true;
-    tOutputOptions.mAddSideSets = true;
 
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
+    Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+    moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
+    tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::HEX8);
 
-    std::string tMeshOutputFile = tPrefix + "/xtk_test_ghost.e";
-    tCutMeshData->create_output_mesh(tMeshOutputFile);
+    // Write mesh
+    Writer_Exodus writer(&tEnrIgMesh);
+    writer.write_mesh("", "./xtk_exo/xtk_test_ghost.exo");
+
+    // Write the fields
+    writer.set_time(0.0);
+    writer.close_file();
+
 
     delete tMeshData;
-    delete tCutMeshData;
+    }
 
 
 }

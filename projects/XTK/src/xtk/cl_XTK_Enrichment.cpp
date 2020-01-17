@@ -875,7 +875,7 @@ Enrichment::allocate_interpolation_cells()
     }
 
     // there is one enrichment cell per subphase in children meshes and 1 for each unintersected elements
-    moris::uint tNumEnrInterpCells = tNumSubphases + mBackgroundMeshPtr->get_num_entities(EntityRank::ELEMENT) - tNumChildMeshes;
+    moris::uint tNumEnrInterpCells = tNumSubphases + mBackgroundMeshPtr->get_mesh_data().get_num_entities(EntityRank::ELEMENT) - tNumChildMeshes;
 
     tEnrInterpMesh->mEnrichedInterpCells.resize(tNumEnrInterpCells);
 
@@ -990,11 +990,11 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             }
 
             // create new enriched interpolation cell
-            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = Interpolation_Cell_Unzipped(&tParentCell, tParentCell.get_index(),
-                                                                                           tBulkPhase, tParentCell.get_id(), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo);
+            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = new Interpolation_Cell_Unzipped(&tParentCell, tParentCell.get_index(),
+                                                                                               tBulkPhase, tParentCell.get_id(), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo);
 
             // add enriched interpolation cell to base cell to enriched cell data
-            tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(&tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
+            tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
 
             // increment the cell index/id
             tCellIndex++;
@@ -1069,10 +1069,10 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             }
 
             // create new enriched interpolation cell
-            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = Interpolation_Cell_Unzipped(&tParentCell, tSubphaseIndices(iSP), tSubPhaseBulkPhase(iSP), tSubphaseIds(iSP), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo );
+            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = new Interpolation_Cell_Unzipped(&tParentCell, tSubphaseIndices(iSP), tSubPhaseBulkPhase(iSP), tSubphaseIds(iSP), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo );
 
             // add enriched interpolation cell to base cell to enriched cell data
-            tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(&tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
+            tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
 
             // increment the cell index/id
             tCellIndex++;
@@ -1092,7 +1092,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
         }
 
         // set vertices in cell
-        tEnrInterpMesh->mEnrichedInterpCells(iE).set_vertices(tVertices);
+        tEnrInterpMesh->mEnrichedInterpCells(iE)->set_vertices(tVertices);
     }
 
     tEnrInterpMesh->mEnrichedInterpVerts.resize(tVertexCount);

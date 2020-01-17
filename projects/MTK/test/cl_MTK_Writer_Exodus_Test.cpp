@@ -21,7 +21,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
-#include "../src/cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris
 {

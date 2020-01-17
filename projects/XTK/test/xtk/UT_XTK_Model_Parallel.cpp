@@ -599,14 +599,6 @@ TEST_CASE("Regular Subdivision and Node Hierarchy Method Parallel","[CONF_PARALL
 
     CHECK(verify_parallel_basis_functions(tXTKModel));
 
-
-//    Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-    // Declare the fields related to enrichment strategy in output options
-//    Cell<std::string> tEnrichmentFieldNames;
-
-//    tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-
     // setup output mesh options with cell enrichment fields
     Output_Options tOutputOptions;
 //    tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;

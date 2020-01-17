@@ -236,17 +236,10 @@ namespace moris
             uint get_num_basis_functions(const uint aMeshIndex);
 //-------------------------------------------------------------------------------
 
-            /*
-             * Since the connectivity between entities of the same rank are considered
-             * invalid by STK standards, we need a separate function for element to element
-             * specifically
-             *      *
-             * @param[in]  aElementId - element id
-             * @param[out] Element to element connectivity and face ordinal shared
-             *                   (where elements are all by index)
-             */
             Matrix< IndexMat > get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
 
+//-------------------------------------------------------------------------------
+            Matrix< IndexMat > get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
 //-------------------------------------------------------------------------------
 //          Global ID Functions
 //-------------------------------------------------------------------------------
@@ -412,6 +405,8 @@ namespace moris
                     const moris_index  aElementIndex,
                     Matrix< DDLUMat> & aMemoryIndices,
                     Matrix< DDLUMat> & aThisCellFacetOrds,
+                    Matrix< DDLUMat> & aNeighborCellFacetOrds,
+                    Matrix< DDLUMat> & aTransitionNeighborCellLocation,
                     luint            & aCounter ) const;
 
 //-------------------------------------------------------------------------------

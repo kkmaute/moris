@@ -33,6 +33,7 @@ cl_MTK_Matrix_Field_Info.hpp
 cl_MTK_Mesh_Core.hpp
 cl_MTK_Mesh_Data_Input.hpp
 cl_MTK_Mesh_Manager.hpp
+cl_MTK_Mesh_Checker.hpp
 cl_MTK_Mesh_Tools.hpp
 cl_MTK_Mesh.hpp
 cl_MTK_Node_Sets_Info.hpp
@@ -72,6 +73,7 @@ stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
 stk_impl/cl_MTK_Cell_Cluster_STK.cpp
 stk_impl/cl_MTK_Side_Cluster_STK.cpp
 cl_MTK_Block.cpp
+cl_MTK_Mesh_Checker.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp

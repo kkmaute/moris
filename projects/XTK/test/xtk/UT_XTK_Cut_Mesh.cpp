@@ -232,10 +232,6 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     // Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
-    moris::real tGoldVolume = 4;
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-    std::string tMeshOutputFile = "./xtk_exo/volume_check_nh.e";
-    tCutMeshData->create_output_mesh(tMeshOutputFile);
 
     verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
                                tXTKModel.get_cut_mesh());
@@ -252,6 +248,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     moris::real tMyVolume = tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol;
 
     // Collect all volumes
+    moris::real tGoldVolume = 4;
     moris::real tGlbVolume = 0.0;
     sum_all(tMyVolume,tGlbVolume);
 
@@ -261,7 +258,6 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
      * Check surface area
      */
     delete tMeshData;
-    delete tCutMeshData;
 
 }
 

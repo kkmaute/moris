@@ -13,6 +13,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_XTK_Interpolation_Vertex_Unzipped.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
+#include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_XTK_Enrichment.hpp"
 
@@ -46,6 +47,8 @@ public:
     mtk::Cell &               get_writable_mtk_cell( moris_index aElementIndex );
     Matrix< IdMat >           get_communication_table() const;
     uint                      get_num_elements();
+    moris_id                  get_max_entity_id( enum EntityRank aEntityRank ) const;
+
     //------------------------------------------------------------------------------
     // end mesh core functions
     //------------------------------------------------------------------------------
@@ -103,8 +106,21 @@ public:
     /*!
      * Return the enriched interpolation cells
      */
-    Cell<Interpolation_Cell_Unzipped> const &
+    Cell<Interpolation_Cell_Unzipped*> const &
     get_enriched_interpolation_cells() const;
+
+protected:
+    Cell<Interpolation_Cell_Unzipped*> &
+    get_enriched_interpolation_cells() ;
+
+    /*!
+     * Return the owned interpolation cells, shared cells sorted by owning proc, owning procs
+     */
+    void
+    get_owned_and_not_owned_enriched_interpolation_cells(Cell<Interpolation_Cell_Unzipped *>      & aOwnedInterpCells,
+                                                        Cell<Cell<Interpolation_Cell_Unzipped *>> & aNotOwnedInterpCells,
+                                                        Cell<uint>                                & aProcRanks);
+public:
     //------------------------------------------------------------------------------
     /*
      * Provided pointers to base interpolation cells, return all the enriched interpolation cells attached to these
@@ -158,6 +174,7 @@ public:
     // friend class
     friend class Enrichment;
     friend class Enriched_Integration_Mesh;
+    friend class Ghost_Stabilization;
 protected:
     // Model pointer
     Model* mXTKModel;
@@ -174,7 +191,7 @@ protected:
 
     // enriched interpolation cells
     moris::uint                         mNumVertsPerInterpCell;
-    Cell<Interpolation_Cell_Unzipped>   mEnrichedInterpCells;
+    Cell<Interpolation_Cell_Unzipped*>  mEnrichedInterpCells;
 
     // for each outer cell (base interpolation vertex), indices of enriched vertices
     Cell<Cell<moris_index>> mBaseInterpVertToVertEnrichmentIndex;
@@ -237,9 +254,8 @@ protected:
     //------------------------------------------------------------------------------
     // Parallel functions
     //------------------------------------------------------------------------------
-    void make_parallel_consistent();
-    void assign_enriched_basis_ids();
-    void assign_enriched_interpolation_cell_ids();
+    moris_id allocate_entity_ids(moris::size_t  aNumReqs, enum EntityRank aEntityRank);
+
 
 };
 

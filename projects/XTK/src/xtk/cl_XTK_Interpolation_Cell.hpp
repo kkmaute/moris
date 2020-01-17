@@ -71,6 +71,12 @@ public:
 
     void set_id(moris_id aId);
 
+    moris::mtk::Cell_Info const *
+    get_connectivity() const {return mCellInfo;}
+
+    moris::mtk::Cell_Info *
+    get_connectivity() {return mCellInfo;}
+
 private:
     moris_id               mCellId;
     moris_id               mCellIndex;

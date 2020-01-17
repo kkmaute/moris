@@ -28,17 +28,14 @@ class Background_Mesh;
 }
 
 //------------------------------------------------------------------------------
-namespace moris
-{
-namespace mtk
+namespace xtk
 {
 //------------------------------------------------------------------------------
 /**
- * \brief the mtk::Cell class provides the cell information that is
- * provided by the mesh.
+ * \brief This is the XTK cell implementation when there is a child mesh to use.
  */
 
-class Cell_XTK: public Cell
+class Cell_XTK_CM: public mtk::Cell
 {
 private:
 
@@ -49,9 +46,9 @@ public:
     /**
      * trivial constructor
      */
-    Cell_XTK(){};
+    Cell_XTK_CM(){};
 
-    Cell_XTK(moris::moris_id       aElementId,
+    Cell_XTK_CM(moris::moris_id       aElementId,
              moris::moris_index    aElementIndex,
              moris::moris_index    aElementOwner,
              moris::moris_index    aCMElementIndex,
@@ -62,7 +59,7 @@ public:
     /**
      * Destructor. Must be virtual.
      */
-    ~Cell_XTK(){};
+    ~Cell_XTK_CM(){};
 
     //------------------------------------------------------------------------------
 
@@ -119,7 +116,7 @@ public:
      * fills a moris::cell with pointers to connected vertices
      */
     //FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
-    moris::Cell< Vertex* >
+    moris::Cell< mtk::Vertex* >
     get_vertex_pointers() const;
 
     //------------------------------------------------------------------------------
@@ -158,7 +155,7 @@ public:
     /**
      * returns an enum that defines the geometry type of the element
      */
-    Geometry_Type
+    mtk::Geometry_Type
     get_geometry_type() const
     {
         return mChildMeshPtr->get_child_geometry_type();
@@ -169,7 +166,7 @@ public:
     /**
      * returns the order of the element
      */
-    virtual Interpolation_Order
+    mtk::Interpolation_Order
     get_interpolation_order() const
     {
         return mChildMeshPtr->get_child_interpolation_order();
@@ -181,7 +178,7 @@ public:
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
     {
 
-        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+        moris::Cell< mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
         moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mChildMeshPtr->get_cell_info()->get_node_to_facet_map(aSideOrdinal);
 
@@ -240,7 +237,6 @@ private:
 
 //------------------------------------------------------------------------------
 } /* namespace mtk */
-} /* namespace moris */
 //------------------------------------------------------------------------------
 
 
