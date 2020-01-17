@@ -9,19 +9,17 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-
         Element_Sideset::Element_Sideset( mtk::Cell const    * aCell,
                                           Set                * aSet,
                                           Cluster            * aCluster,
-                                          moris::moris_index   aCellIndexInCluster) : Element( aCell, aSet, aCluster, aCellIndexInCluster )
+                                          moris::moris_index   aCellIndexInCluster)
+        : Element( aCell, aSet, aCluster, aCellIndexInCluster )
         {}
 
 //------------------------------------------------------------------------------
-
         Element_Sideset::~Element_Sideset(){}
 
 //------------------------------------------------------------------------------
-
         void Element_Sideset::compute_residual()
         {
             // get treated side ordinal
@@ -53,18 +51,9 @@ namespace moris
                 // get integration point location in the reference surface
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_time( tLocalIntegPoint );
-
-                // get integration point location in the reference volume
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute the integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -95,7 +84,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Element_Sideset::compute_jacobian()
         {
             // get treated side ordinal
@@ -127,18 +115,9 @@ namespace moris
                 // get integration point location in the reference surface
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_time( tLocalIntegPoint );
-
-                // get integration point location in the reference volume
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -166,7 +145,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Element_Sideset::compute_jacobian_and_residual()
         {
             MORIS_ERROR( false, " Element_Sideset::compute_jacobian_and_residual - not implemented. ");

@@ -97,26 +97,14 @@ namespace moris
             mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
         }
 
-        // ask mesh about number of IG nodes on proc
-        luint tNumOfIGNodes = tIntegrationMesh->get_num_nodes();
-
-        // create IG node objects
-        mIGNodes.resize(  tNumOfIGNodes, nullptr );
-
-        for( uint iNode = 0; iNode < tNumOfIGNodes; iNode++ )
-        {
-            mIGNodes( iNode ) = new fem::Node( &tIntegrationMesh->get_mtk_vertex( iNode ) );
-        }
-
         if( par_rank() == 0)
         {
             // stop timer
             real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: created %u FEM IP nodes and %u FEM IG nodes in %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
                             ( unsigned int ) tNumOfIPNodes,
-                            ( unsigned int ) tNumOfIGNodes,
                             ( double ) tElapsedTime / 1000 );
         }
 
@@ -327,7 +315,7 @@ namespace moris
 
                 for( uint k=0; k < tNumberOfNodes; ++k )
                 {
-                    // copy weakbc into element
+                    // copy weak bc into element
                     tNodalWeakBCs( k ) = aWeakBCs( tElement->get_node_index( k ) );
                 }
             }

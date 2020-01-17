@@ -247,8 +247,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -450,8 +450,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement", "[IWG_Struc_Dirichlet_Mixed
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    // init the jacobian for IWG and FD evaluation
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -640,8 +641,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -831,8 +832,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -1027,8 +1028,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -1219,8 +1220,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,

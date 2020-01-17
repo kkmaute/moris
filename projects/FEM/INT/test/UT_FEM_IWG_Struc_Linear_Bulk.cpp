@@ -225,8 +225,8 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
     
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -237,12 +237,15 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     // require check is true
     REQUIRE( tCheckJacobian );
     
+//    print( tJacobians,   "tJacobians" );
+//    print( tJacobiansFD, "tJacobiansFD" );
+
     // clean up
     tFIs.clear();
 
 }/*END_TEST_CASE*/
 
-TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
+TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Displacement]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -412,8 +415,8 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -421,6 +424,9 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
                                                 1.0,
                                                 tJacobians,
                                                 tJacobiansFD );
+
+//    print( tJacobians,   "tJacobians" );
+//    print( tJacobiansFD, "tJacobiansFD" );
 
     // require check is true
     REQUIRE( tCheckJacobian );
@@ -587,8 +593,8 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
     
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
