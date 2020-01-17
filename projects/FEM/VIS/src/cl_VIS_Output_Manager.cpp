@@ -116,14 +116,13 @@ namespace moris
                                      const real tTime )
     {
         // specify file path
-        std::string tPrefix = std::getenv("MORISROOT");
-        std::string tMeshFilePath = tPrefix + "build";
+        std::string tMeshFilePath = std::getenv("MORISOUTPUT");
 
         // get file name
-        std::string tMeshFileName=  mOutputData( aVisMeshIndex ).mMeshName;
+        std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
 
         // write mesh to file
-        mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, mOutputData( aVisMeshIndex ).mMeshName );
+        mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
 
         // add nodal elemental and global fields to mesh
         this->add_nodal_fields( aVisMeshIndex );
