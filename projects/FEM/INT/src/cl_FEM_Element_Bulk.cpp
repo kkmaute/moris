@@ -4,6 +4,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_FEM_Set.hpp"   //FEM/INT/src
 
+#include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
+
 namespace moris
 {
     namespace fem
@@ -146,8 +148,23 @@ namespace moris
         void Element_Bulk::compute_dRdp()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
+//            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords() );
+        	Matrix< DDRMat > tPdvValues = mMasterCell->get_vertex_coords();
+        	moris::Cell< Matrix< DDSMat > > aIsActiveDv;
+
+        	moris::Cell< Matrix< DDRMat > > tPdvValueList( 2 );
+        	tPdvValueList( 0 ) = tPdvValues.get_column( 0 );
+        	tPdvValueList( 1 ) = tPdvValues.get_column( 1 );
+        	mSet->mDesignVariableInterface->get_pdv_value( mMasterCell->get_vertex_inds(),
+                                                           { MSI::Dv_Type::XCOORD, MSI::Dv_Type::YCOORD },
+                                                           tPdvValueList, aIsActiveDv );//FIXME
+
+        	tPdvValues.get_column( 0 ) =  tPdvValueList( 0 ).matrix_data();
+        	tPdvValues.get_column( 1 ) =  tPdvValueList( 1 ).matrix_data();
+
+        	mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( tPdvValues );
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
+
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
@@ -199,8 +216,11 @@ namespace moris
                     moris::Cell< Matrix< DDRMat > > tdrdpdvGeoFD;
                     mSet->get_requested_IWGs()( iIWG )->compute_drdpdv_FD( tWStar,
                                                                            tPerturbation,
+                                                                           aIsActiveDv,
                                                                            tdrdpdvMatFD,
                                                                            tdrdpdvGeoFD );
+//                    print( tdrdpdvMatFD, "tdrdpdvMatFD");
+//                    print( tdrdpdvGeoFD, "tdrdpdvGeoFD");
                 }
             }
         }

@@ -89,6 +89,9 @@ namespace mdl
                 return mVector;
             };
 
+            virtual void get_unique_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                                                            Cell< enum MSI::Dv_Type > & aDvTypes ) = 0;
+
 //------------------------------------------------------------------------------
             /**
              * @brief Function providing pdv values for requested vertex indices and Dv types
@@ -98,7 +101,7 @@ namespace mdl
              *
              */
             virtual void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                                     Cell< enum MSI::Dv_Type > & aDvTypes ) = 0;
+                                                     Cell<Cell< enum MSI::Dv_Type >> & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -109,10 +112,14 @@ namespace mdl
              * @param[in] aDvValues      List of Dv values
              *
              */
-            virtual void get_pdv_value( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                        const Cell< enum MSI::Dv_Type >         & aDvTypes,
-                                              Cell<moris::Matrix< DDRMat > >    & aDvValues,
-                                              Cell<moris::Matrix< DDSMat > >    & aIsActiveDv ) = 0;
+            virtual void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                                        const Cell< enum MSI::Dv_Type >      & aDvTypes,
+                                              Cell<moris::Matrix< DDRMat > > & aDvValues,
+                                              Cell<moris::Matrix< DDSMat > > & aIsActiveDv ) = 0;
+
+            virtual void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                                        const Cell< enum MSI::Dv_Type >      & aDvTypes,
+                                              Cell<moris::Matrix< DDRMat > > & aDvValues ) = 0;
 
 //------------------------------------------------------------------------------
             /**

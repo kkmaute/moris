@@ -14,6 +14,8 @@
 #include "cl_Map.hpp"
 
 #include "cl_MTK_Enums.hpp"
+#include "cl_MSI_Design_Variable_Interface.hpp"
+
 
 
 namespace moris
@@ -82,6 +84,7 @@ namespace moris
 
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
+        moris::Cell< enum MSI::Dv_Type >  mUniqueDvTypeList; // List of dv types of this equation obj
 
         Model_Solver_Interface * mModelSolverInterface = nullptr;
 
@@ -319,10 +322,10 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
-        {
-            mDesignVariableInterface = aDesignVariableInterface;
-        };
+         virtual void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+         {
+           MORIS_ERROR( false, "");
+         }
 
 //-------------------------------------------------------------------------------------------------
 
@@ -382,6 +385,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        moris::Cell< enum MSI::Dv_Type > & get_unique_dv_type_list()
+        {
+            return mUniqueDvTypeList;
+        }
+
+//------------------------------------------------------------------------------
+
         moris::uint get_num_unique_dof_types()
         {
             return mEqnObjDofTypeList.size();
@@ -389,9 +399,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        moris::uint get_num_unique_dv_types()
+        {
+            return mUniqueDvTypeList.size();
+        }
+
+//------------------------------------------------------------------------------
+
         virtual moris::Cell < enum MSI::Dof_Type > get_requested_dof_types()
         {
-            MORIS_ERROR(false, "get_requested_dof_types(), not implemented for virtual memeber function");
+            MORIS_ERROR(false, "get_requested_dof_types(), not implemented for virtual member function");
             return moris::Cell< enum MSI::Dof_Type >( 0 );
         };
 
@@ -444,6 +461,31 @@ namespace moris
                 {
                     MORIS_ERROR(false, "Set::get_dof_type_map - can only be MASTER or SLAVE");
                     return mMasterDofTypeMap;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get dv type map
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        Matrix< DDSMat > & get_dv_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterDvTypeMap;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveDvTypeMap;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_dv_type_map - can only be MASTER or SLAVE");
+                    return mMasterDvTypeMap;
                 }
             }
         }

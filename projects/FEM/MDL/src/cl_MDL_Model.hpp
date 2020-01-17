@@ -59,6 +59,7 @@ namespace moris
         class MSI_Solver_Interface;
         class Equation_Set;
         class Equation_Object;
+        class Design_Variable_Interface;
         enum class Dof_Type;
     }
     namespace tsa
@@ -135,6 +136,13 @@ namespace moris
             Model(       mtk::Mesh_Manager*                  aMeshManager,
                    const uint                                aBSplineIndex,
                          moris::Cell< fem::Set_User_Info > & aSetInfo,
+                   const moris_index                         aMeshPairIndex = 0,
+                   const bool                                aUseMultigrid  = false );
+
+            Model(       mtk::Mesh_Manager*                  aMeshManager,
+                   const uint                                aBSplineIndex,
+                         moris::Cell< fem::Set_User_Info > & aSetInfo,
+						 MSI::Design_Variable_Interface * aDesignVariableInterface,
                    const moris_index                         aMeshPairIndex = 0,
                    const bool                                aUseMultigrid  = false );
 

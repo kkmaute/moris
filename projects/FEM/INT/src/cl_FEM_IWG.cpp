@@ -1653,6 +1653,7 @@ void IWG::compute_jacobian_FD( real                                             
 //------------------------------------------------------------------------------
         void IWG::compute_drdpdv_FD( real aWStar,
                                      real aPerturbation,
+                                     moris::Cell< Matrix< DDSMat > > & aIsActive,
                                      moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD,
                                      moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD )
         {
@@ -1671,27 +1672,31 @@ void IWG::compute_jacobian_FD( real                                             
             uint tNumRows = tResDofAssemblyStop - tResDofAssemblyStart + 1;
 
             // set size for adrdpdvFD
-            uint tNumCols = 0;
-            for( uint iFI = 0; iFI < tNumDvType; iFI++ )
-            {
-                // get the dv index in the set
-                uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
-                                                             mtk::Master_Slave::MASTER );
-
-                // get the number of cols
-                tNumCols += mSet->get_dv_assembly_map()( tDvIndex )( 0, 1 )
-                          - mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 ) + 1;
-            }
+            uint tNumCols = 4;
+//            for( uint iFI = 0; iFI < tNumDvType; iFI++ )
+//            {
+//                // get the dv index in the set
+//                uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
+//                                                             mtk::Master_Slave::MASTER );
+//
+//                // get the number of cols
+//                tNumCols += mSet->get_dv_assembly_map()( tDvIndex )( 0, 1 )
+//                          - mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 ) + 1;
+//            }
 
             adrdpdvMatFD.resize( 1 );
             adrdpdvMatFD( 0 ).set_size( tNumRows, tNumCols, 0.0 );
 
+//            // init dv coeff counter
+//            uint tCounter = 0;
+
             // loop over the dv types associated with a FI
             for( uint iFI = 0; iFI < tNumDvType; iFI++ )
             {
-                // get the dv index in the set
-                uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
-                                                             mtk::Master_Slave::MASTER );
+
+//                // get the dv index in the set
+//                uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
+//                                                             mtk::Master_Slave::MASTER );
 
                 // get the FI for the dv type
                 Field_Interpolator * tFI
@@ -1704,7 +1709,7 @@ void IWG::compute_jacobian_FD( real                                             
                 // coefficients for dof type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
-                // init dv coeff counter
+                // init dv coeff counter  //FIXME add map
                 uint tCounter = 0;
 
                 // loop over the coefficient column
@@ -1748,9 +1753,11 @@ void IWG::compute_jacobian_FD( real                                             
                         =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // evaluate Jacobian
-                        uint tDvAssemblyStart = mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 );
+                       // uint tDvAssemblyStart = mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 );
 
-                        adrdpdvMatFD( 0 ).get_column( tDvAssemblyStart + tCounter )
+                        std::cout<<adrdpdvMatFD( 0 ).n_cols()<<" NumCols"<<std::endl;
+                        std::cout<<tCounter<<" tCounter"<<std::endl;
+                        adrdpdvMatFD( 0 ).get_column( tCounter )
                         = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // update counter
@@ -1786,44 +1793,46 @@ void IWG::compute_jacobian_FD( real                                             
                 // loop over the IG nodes
                 for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
                 {
-                    // perturbation of the coefficent
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                	if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+                	{
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tGI->set_space_coeff( tCoeffPert );
+                        // setting the perturbed coefficients
+                        tGI->set_space_coeff( tCoeffPert );
 
-                    // reset properties, CM and SP for IWG
-                    this->reset_eval_flags();
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                    // evaluate the residual
-                    mSet->get_residual().fill( 0.0 );
-                    this->compute_residual( aWStar );
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
 
-                    Matrix< DDRMat > tResidual_Plus
-                    =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        Matrix< DDRMat > tResidual_Plus
+                        =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += - aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        // perturbation of the coefficient
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += - aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tGI->set_space_coeff( tCoeffPert );
+                        // setting the perturbed coefficients
+                        tGI->set_space_coeff( tCoeffPert );
 
-                    // reset properties, CM and SP for IWG
-                    this->reset_eval_flags();
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                    // evaluate the residual
-                    mSet->get_residual().fill( 0.0 );
-                    this->compute_residual( aWStar );
+                        // evaluate the residual
+                        mSet->get_residual().fill( 0.0 );
+                        this->compute_residual( aWStar );
 
-                    Matrix< DDRMat > tResidual_Minus
-                    =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        Matrix< DDRMat > tResidual_Minus
+                        =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
-                    // evaluate drdpdvGeo
-                    adrdpdvGeoFD( 0 ).get_column( tDvCounter )
-                    = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
+                        // evaluate drdpdvGeo
+                        adrdpdvGeoFD( 0 ).get_column( tDvCounter )
+                        = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                    }
                     // update dv counter
                     tDvCounter++;
                 }
@@ -1831,8 +1840,8 @@ void IWG::compute_jacobian_FD( real                                             
             // reset the coefficients values
             tGI->set_space_coeff( tCoeff );
 
-            //print( adrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
-            //print( adrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
+//            print( adrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
+//            print( adrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
         }
 
 //------------------------------------------------------------------------------

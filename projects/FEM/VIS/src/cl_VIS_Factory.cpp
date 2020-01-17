@@ -233,16 +233,16 @@ namespace moris
                 // add interpolation cell to vis cluster
                 tVisCellCluster->set_interpolation_cell( &tClustersOnSet( Ik )->get_interpolation_cell() );
 
-                // add void cells to cluster if requested by mesh type
-                if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
-                {
-                    tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
-                }
-
                 // mark as non trivial if old cluster was trivial
                 if( !tClustersOnSet( Ik )->is_trivial() )
                 {
                     tVisCellCluster->mark_as_nontrivial();
+                }
+
+                // add void cells to cluster if requested by mesh type
+                if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
+                {
+                    tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
                 }
 
                 // add vertices and local coordinates to vis cluster if non-trivial
