@@ -74,6 +74,7 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "HDF5_Tools.hpp"
 #include "fn_norm.hpp"
 
 #include "../projects/GEN/src/geometry/cl_GEN_Circle.hpp"
@@ -106,12 +107,12 @@ moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
     return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
 }
 
-moris::real LvlSetCircle_2D(const moris::Matrix< moris::DDRMat > & aPoint )
+moris::real LvlSetCircle2D(const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    return    std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.2505;
+    return    std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.45;
 }
 
-moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > & aPoint )
+moris::real LvlSetCircle2D_outsideDomain(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     Matrix< DDRMat > tCenter{ { -10, -10 } };
     return    norm( aPoint - tCenter ) - 0.001;
@@ -216,7 +217,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         // create field
         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-        tField->evaluate_scalar_function( LvlSetCircle_2D );
+        tField->evaluate_scalar_function( LvlSetCircle2D );
 
         // refinement
         for( uint k=0; k<2; ++k )
@@ -224,7 +225,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
             tHMR.flag_surface_elements_on_working_pattern( tField );
             tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-            tField->evaluate_scalar_function( LvlSetCircle_2D );
+            tField->evaluate_scalar_function( LvlSetCircle2D );
         }
 
         tHMR.finalize();
@@ -282,13 +283,6 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-        tCMStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tCMStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
-        tCMStrucLinIso->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso->set_space_dim( 2 );
-        tCMStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
-
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIsoDev = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
         tCMStrucLinIsoDev->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
         tCMStrucLinIsoDev->set_property( tPropEMod, "YoungsModulus" );
@@ -325,6 +319,13 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
 
+        std::shared_ptr< fem::IWG > tIWGDirichletP = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET );
+        tIWGDirichletP->set_residual_dof_type( { MSI::Dof_Type::P } );
+        tIWGDirichletP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::P}} );
+        tIWGDirichletP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichletP->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
+        tIWGDirichletP->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
+
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::P}} );
@@ -344,25 +345,24 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
-        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+        tSetDirichlet.set_IWGs( { tIWGDirichlet, tIWGDirichletP } );
 
         fem::Set_User_Info tSetNeumann;
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
-        tSetInfo( 0 ) = tSetBulk1;
-        tSetInfo( 1 ) = tSetBulk2;
-        tSetInfo( 2 ) = tSetDirichlet;
-        tSetInfo( 3 ) = tSetNeumann;
+        moris::Cell< fem::Set_User_Info > tSetInfo(4);
+        tSetInfo(0) = tSetBulk1;
+        tSetInfo(1) = tSetBulk2;
+        tSetInfo(2) = tSetDirichlet;
+        tSetInfo(3) = tSetNeumann;
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                               0,
                                               tSetInfo,
                                               0, false );
-
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -399,15 +399,10 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
         tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 4;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
-        //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
 
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
@@ -419,46 +414,6 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
-
-        // Staggered Solver
-//        NLA::Nonlinear_Solver_Factory tNonlinFactory;
-//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMain = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NLBGS_SOLVER );
-//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythic = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-//        //std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-//
-//        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_iter")   = 2;
-//        tNonlinearSolverAlgorithmMain->set_param("NLA_max_iter")   = 10;
-//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
-//
-//        tNonlinearSolverAlgorithmMonolythic->set_linear_solver( &tLinSolver );
-////        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
-//
-//        NLA::Nonlinear_Solver tNonlinearSolverMain;
-//        NLA::Nonlinear_Solver tNonlinearSolverMonolythicP;
-//        NLA::Nonlinear_Solver tNonlinearSolverMonolythicU;
-//        tNonlinearSolverMain       .set_nonlinear_algorithm( tNonlinearSolverAlgorithmMain, 0 );
-//        tNonlinearSolverMonolythicP.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMonolythic, 0 );
-//        tNonlinearSolverMonolythicU.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMonolythic, 0 );
-//
-//        tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
-//        tNonlinearSolverMain       .set_dof_type_list( tDofTypesP );
-//        tNonlinearSolverMonolythicP.set_dof_type_list( tDofTypesP );
-//        tNonlinearSolverMonolythicU.set_dof_type_list( tDofTypesU );
-//
-//        tNonlinearSolverMonolythicU.set_secondiry_dof_type_list({tDofTypesP});
-//        tNonlinearSolverMonolythicP.set_secondiry_dof_type_list({tDofTypesU});
-//
-//        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicU );
-//        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
-//
-//        // Create solver database
-//        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
-//
-//        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
-//        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );
-//        tNonlinearSolverMonolythicU.set_solver_warehouse( &tSolverWarehouse );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 3: create time Solver and algorithm
@@ -498,32 +453,69 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
         Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
 
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
 
         for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
         {
             moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
         }
 
         // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP,EntityRank::NODE,tSTKIntegSolP);
-
-        Matrix<DDRMat> tFullSol;
-        tNonlinearSolverMain.get_full_solution(tFullSol);
-
-
-        std::cout << tMeshOutputFile << std::endl;
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
-        delete tIntegMesh1;
+        // Start solution comparison
+        Matrix<DDRMat> tFullSolution;
+        Matrix<DDRMat> tGoldSolution;
+        tNonlinearSolverMain.get_full_solution(tFullSolution);
 
+        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_2d.hdf5";
+
+        //------------------------------------------------------------------------------
+        //    write solution ( uncomment this if you want to recreate solution files )
+        //------------------------------------------------------------------------------
+
+//        // create file
+//        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+//
+//        // error handler
+//        herr_t tStatus = 0;
+//
+//        // save data
+//        save_matrix_to_hdf5_file( tFileID, "Gold Solution", tFullSolution, tStatus );
+//
+//        // close file
+//        close_hdf5_file( tFileID );
+
+        //------------------------------------------------------------------------------
+        //    check solution
+        //------------------------------------------------------------------------------
+
+        // open file
+        hid_t tFileID = open_hdf5_file( tHdf5FilePath );
+
+        // error handler
+        herr_t tStatus = 0;
+
+        // read solution from file
+        load_matrix_from_hdf5_file( tFileID, "Gold Solution", tGoldSolution, tStatus );
+
+        // close file
+        close_hdf5_file( tFileID );
+
+        // verify solution
+        CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);
+
+        // clean up
+        delete tIntegMesh1;
         delete tModel;
     }
 }
@@ -567,7 +559,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 //        // create field
 //        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 //
-//        tField->evaluate_scalar_function( LvlSetCircle_2D );
+//        tField->evaluate_scalar_function( LvlSetCircle2D );
 //
 //        // refinement
 //        for( uint k=0; k<2; ++k )
@@ -575,7 +567,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 //            tHMR.flag_surface_elements_on_working_pattern( tField );
 //            tHMR.perform_refinement_based_on_working_pattern( 0 );
 //
-//            tField->evaluate_scalar_function( LvlSetCircle_2D );
+//            tField->evaluate_scalar_function( LvlSetCircle2D );
 //        }
 //
         tHMR.finalize();
@@ -633,12 +625,6 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-        tCMStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-        tCMStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
-        tCMStrucLinIso->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso->set_space_dim( 3 );
-
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIsoDev = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
         tCMStrucLinIsoDev->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }, {MSI::Dof_Type::P}} );
         tCMStrucLinIsoDev->set_property( tPropEMod, "YoungsModulus" );
@@ -677,7 +663,6 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         std::shared_ptr< fem::IWG > tIWGDirichletP = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET );
         tIWGDirichletP->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGDirichletP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }, { MSI::Dof_Type::P}} );
-        tIWGDirichletP->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
         tIWGDirichletP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
         tIWGDirichletP->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
         tIWGDirichletP->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
@@ -692,19 +677,19 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk1.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk2.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichlet.set_IWGs( { tIWGDirichlet , tIWGDirichletP} );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -737,7 +722,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tDofTypesU(2) = MSI::Dof_Type::UZ;
 
         moris::Cell< enum MSI::Dof_Type > tDofTypesP(1);
-        tDofTypesP( 0 ) = MSI::Dof_Type::P;
+        tDofTypesP(0) = MSI::Dof_Type::P;
 
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
@@ -748,7 +733,6 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
         tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
         tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 50;
-        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
 
         dla::Linear_Solver tLinSolver;
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -758,66 +742,60 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 4;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")  = 4;
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
-        //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
 
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-
-        tNonlinearSolverMain       .set_dof_type_list( tDofTypes );
+        tNonlinearSolverMain.set_dof_type_list( tDofTypes );
 
         // Create solver database
         NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
-        // Staggered Solver
-        //        NLA::Nonlinear_Solver_Factory tNonlinFactory;
-        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMain = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NLBGS_SOLVER );
-        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythic = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-        //        //std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-        //
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_iter")   = 2;
-        //        tNonlinearSolverAlgorithmMain->set_param("NLA_max_iter")   = 10;
-        //        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-        //        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
-        //
-        //        tNonlinearSolverAlgorithmMonolythic->set_linear_solver( &tLinSolver );
-        ////        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
-        //
-        //        NLA::Nonlinear_Solver tNonlinearSolverMain;
-        //        NLA::Nonlinear_Solver tNonlinearSolverMonolythicP;
-        //        NLA::Nonlinear_Solver tNonlinearSolverMonolythicU;
-        //        tNonlinearSolverMain       .set_nonlinear_algorithm( tNonlinearSolverAlgorithmMain, 0 );
-        //        tNonlinearSolverMonolythicP.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMonolythic, 0 );
-        //        tNonlinearSolverMonolythicU.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMonolythic, 0 );
-        //
-        //        tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
-        //        tNonlinearSolverMain       .set_dof_type_list( tDofTypesP );
-        //        tNonlinearSolverMonolythicP.set_dof_type_list( tDofTypesP );
-        //        tNonlinearSolverMonolythicU.set_dof_type_list( tDofTypesU );
-        //
-        //        tNonlinearSolverMonolythicU.set_secondiry_dof_type_list({tDofTypesP});
-        //        tNonlinearSolverMonolythicP.set_secondiry_dof_type_list({tDofTypesU});
-        //
-        //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicU );
-        //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
-        //
-        //        // Create solver database
-        //        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
-        //
-        //        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
-        //        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );
-        //        tNonlinearSolverMonolythicU.set_solver_warehouse( &tSolverWarehouse );
+        // TODO staggered solver when it works
+//        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMain = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NLBGS_SOLVER );
+//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythic = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//        //std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//
+//        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_iter")   = 2;
+//        tNonlinearSolverAlgorithmMain->set_param("NLA_max_iter")   = 10;
+//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
+//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
+//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+//
+//        tNonlinearSolverAlgorithmMonolythic->set_linear_solver( &tLinSolver );
+//        //tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
+//
+//        NLA::Nonlinear_Solver tNonlinearSolverMain;
+//        NLA::Nonlinear_Solver tNonlinearSolverMonolythicP;
+//        NLA::Nonlinear_Solver tNonlinearSolverMonolythicU;
+//        tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMain, 0 );
+//        tNonlinearSolverMonolythicP.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMonolythic, 0 );
+//        tNonlinearSolverMonolythicU.set_nonlinear_algorithm( tNonlinearSolverAlgorithmMonolythic, 0 );
+//
+//        tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
+//        tNonlinearSolverMain.set_dof_type_list( tDofTypesP );
+//        tNonlinearSolverMonolythicP.set_dof_type_list( tDofTypesP );
+//        tNonlinearSolverMonolythicU.set_dof_type_list( tDofTypesU );
+//
+//        tNonlinearSolverMonolythicU.set_secondiry_dof_type_list({tDofTypesP});
+//        tNonlinearSolverMonolythicP.set_secondiry_dof_type_list({tDofTypesU});
+//
+//        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicU );
+//        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
+//
+//        // Create solver database
+//        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//
+//        tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
+//        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );
+//        tNonlinearSolverMonolythicU.set_solver_warehouse( &tSolverWarehouse );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 3: create time Solver and algorithm
@@ -858,33 +836,72 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         Matrix<DDRMat> tIntegSolUZ = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UZ );
         Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
 
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolUZ(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+        Matrix<DDRMat> tSTKIntegSolUZ(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
 
         for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
         {
             moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolUZ(i) = tIntegSolUZ(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+            tSTKIntegSolUZ(i) = tIntegSolUZ(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
         }
 
         // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUZ,EntityRank::NODE,tSTKIntegSolUZ);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP,EntityRank::NODE,tSTKIntegSolP);
-
-        Matrix<DDRMat> tFullSol;
-        tNonlinearSolverMain.get_full_solution(tFullSol);
-
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUZ, EntityRank::NODE, tSTKIntegSolUZ);
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
-        delete tIntegMesh1;
+        // Start solution comparison
+        Matrix<DDRMat> tFullSolution;
+        Matrix<DDRMat> tGoldSolution;
+        tNonlinearSolverMain.get_full_solution(tFullSolution);
 
+        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_3d.hdf5";
+
+        //------------------------------------------------------------------------------
+        //    write solution ( uncomment this if you want to recreate solution files )
+        //------------------------------------------------------------------------------
+
+//        // create file
+//        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+//
+//        // error handler
+//        herr_t tStatus = 0;
+//
+//        // save data
+//        save_matrix_to_hdf5_file( tFileID, "Gold Solution", tFullSolution, tStatus );
+//
+//        // close file
+//        close_hdf5_file( tFileID );
+
+        //------------------------------------------------------------------------------
+        //    check solution
+        //------------------------------------------------------------------------------
+
+        // open file
+        hid_t tFileID = open_hdf5_file( tHdf5FilePath );
+
+        // error handler
+        herr_t tStatus = 0;
+
+        // read solution from file
+        load_matrix_from_hdf5_file( tFileID, "Gold Solution", tGoldSolution, tStatus );
+
+        // close file
+        close_hdf5_file( tFileID );
+
+        // verify solution
+        CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);
+
+        // clean up
+        delete tIntegMesh1;
         delete tModel;
     }
 }
