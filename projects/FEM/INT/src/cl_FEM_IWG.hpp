@@ -631,6 +631,20 @@ namespace moris
                                     moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
 
 //------------------------------------------------------------------------------
+
+            void compute_drdpdv_FD_material( real                              aWStar,
+                                             real                              aPerturbation,
+                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                             moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD );
+
+//------------------------------------------------------------------------------
+
+            void compute_drdpdv_FD_geometry( real                              aWStar,
+                                             real                              aPerturbation,
+                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                             moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
+
+//------------------------------------------------------------------------------
             /**
              * reset evaluation flags
              */

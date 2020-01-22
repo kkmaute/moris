@@ -221,9 +221,9 @@ namespace moris
             // finalize the fem sets
             for( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
             {
-            	mEquationSets( Ik )->set_Dv_interface( aDesignVariableInterface);
+                mEquationSets( Ik )->set_Dv_interface( aDesignVariableInterface);
                 // finalize the fem sets
-            	mEquationSets( Ik )->finalize( mModelSolverInterface );
+                mEquationSets( Ik )->finalize( mModelSolverInterface );
             }
 
             mModelSolverInterface->finalize( mUseMultigrid );

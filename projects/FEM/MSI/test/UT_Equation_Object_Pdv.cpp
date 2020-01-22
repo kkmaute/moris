@@ -291,7 +291,7 @@ namespace moris
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                                0,
                                                tSetInfo,
-											   tDesignVariableInterface);
+                                               tDesignVariableInterface);
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
@@ -337,6 +337,10 @@ namespace moris
             // set size and fill the set jacobian assembly map
             tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 3 } };
+
+            // set size and fill the set jacobian assembly map
+            tIWG->mSet->mDvAssemblyMap.resize( 1 );
+            tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 3 } };
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.set_size( 4, 1, 0.0 );

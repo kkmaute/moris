@@ -192,6 +192,8 @@ namespace moris
 
             this->create_dof_assembly_map( aIsResidual );
 
+            this->create_dv_assembly_map();
+
             this->create_requested_IWG_list();
 
             this->build_requested_IWG_dof_type_list( aIsResidual );
