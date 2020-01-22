@@ -6,18 +6,17 @@
  */
 #include <iostream>
 
-#include "cl_MSI_Model_Solver_Interface.hpp" //FEM/MSI/src
-#include "cl_MSI_Solver_Interface.hpp" //FEM/MSI/src
-#include "cl_FEM_Set.hpp"                    //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp"                    //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"        //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"             //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"             //FEM/INT/src
-
-#include "cl_FEM_Interpolation_Element.hpp"             //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"             //FEM/INT/src
-
-#include "cl_MTK_Set.hpp"             //FEM/INT/src
+#include "cl_MSI_Model_Solver_Interface.hpp"     //FEM/MSI/src
+#include "cl_MSI_Solver_Interface.hpp"           //FEM/MSI/src
+#include "cl_FEM_Model.hpp"                      //FEM/INT/src
+#include "cl_FEM_Set.hpp"                        //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"                 //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Element.hpp"      //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"                    //FEM/INT/src
+#include "cl_MTK_Set.hpp"                        //FEM/INT/src
 #include "fn_equal_to.hpp"
 
 namespace moris
@@ -25,13 +24,14 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-    Set::Set( moris::mtk::Set           * aMeshSet,
-              fem::Set_User_Info        & aSetInfo,
-              moris::Cell< Node_Base* > & aIPNodes )
-    : mMeshSet( aMeshSet ),
-      mNodes( aIPNodes ),
-      mIWGs( aSetInfo.get_IWGs() ),
-      mIQIs( aSetInfo.get_IQIs() )
+    Set::Set(       fem::FEM_Model            * aFemModel,
+                    moris::mtk::Set           * aMeshSet,
+              const fem::Set_User_Info        & aSetInfo,
+              const moris::Cell< Node_Base* > & aIPNodes ) : mFemModel( aFemModel ),
+                                                             mMeshSet( aMeshSet ),
+                                                             mNodes( aIPNodes ),
+                                                             mIWGs( aSetInfo.get_IWGs() ),
+                                                             mIQIs( aSetInfo.get_IQIs() )
     {
         this->determine_set_type();
 
@@ -42,11 +42,11 @@ namespace moris
             tIWG->set_set_pointer( this );
         }
 
-        // loop over the IWGs on the set
+        // loop over the IQIs on the set
         for(  std::shared_ptr< IQI > tIQI : mIQIs )
         {
             // set the fem set pointer to the IQI
-        	tIQI->set_set_pointer( this );
+            tIQI->set_set_pointer( this );
         }
 
         // get mesh clusters on set
@@ -64,18 +64,20 @@ namespace moris
         // loop over mesh clusters on set
         for( luint iCluster = 0; iCluster < tNumMeshClusters; iCluster++ )
         {
+            // init list of pointers to IP mesh cell
             moris::Cell< const mtk::Cell * > tInterpolationCell;
 
             // switch on set type
             switch ( mElementType )
             {
-                // if block-set
+                // if bulk or sideset
                 case( fem::Element_Type::BULK ):
                 case( fem::Element_Type::SIDESET ):
                 {
                     tInterpolationCell.resize( 1, &mMeshClusterList( iCluster )->get_interpolation_cell() );
                     break;
                 }
+                // if double sideset
                 case( fem::Element_Type::DOUBLE_SIDESET ):
                 {
                     tInterpolationCell.resize( 2 );
@@ -91,24 +93,29 @@ namespace moris
                 }
             }
 
+            // create an interpolation element
             mEquationObjList( iCluster ) = new fem::Interpolation_Element( mElementType, tInterpolationCell, mNodes, this );
 
             // create a fem cluster
             std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >( mElementType,
                                                                                          mMeshClusterList( iCluster ),
                                                                                          this,
-                                                                                         mEquationObjList( iCluster ));
-
+                                                                                         mEquationObjList( iCluster ) );
+            // set the cluster to the interpolation element
             reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, 0 );
-
-            }
-
+        }
 
         // get spatial dimension
         mSpaceDim = mMeshSet->get_spatial_dim();
 
-        // bool true is master IG cell are trivial
+        // bool true is master IG cells are trivial
         mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
+
+        // bool true is slave IG cells are trivial
+        if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+        {
+            mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
+        }
 
         // get interpolation geometry type
         mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
@@ -124,72 +131,7 @@ namespace moris
         // FIXME if different for different fields
         mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
 
-        // create geometry interpolation rule for IP cells
-        Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIPSpaceInterpolationOrder,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
-
-        // create geometry interpolation rule for IG cells
-        Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIGSpaceInterpolationOrder,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
-
-        // switch on set type
-        switch ( mElementType )
-        {
-            // if block-set
-            case ( fem::Element_Type::BULK ):
-            {
-                // create a geometry interpolator for IP cells
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
-
-                // create a geometry interpolator for IG cells
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
-
-                break;
-            }
-
-            // if side-set
-            case( fem::Element_Type::SIDESET ):
-            {
-                // create a geometry interpolator for IP cells
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-                // create a geometry interpolator for IG cells
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-                break;
-            }
-
-            // if double side-set
-            case( fem::Element_Type::DOUBLE_SIDESET ):
-            {
-                // bool true is slave IG cell are trivial
-                mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
-
-                // create a geometry interpolator for master and slave IP cells
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-                mSlaveIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-                // create a geometry interpolator for master and slave IG cells
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-                mSlaveIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-                break;
-            }
-
-            // if none of the above
-            default:
-            {
-                MORIS_ERROR(false, "Set::Set - unknown element type");
-                break;
-            }
-        }
-
+        // FIXME change names to dof and dv
         // create a unique dof type list for solver
         this->create_unique_dof_type_list();
 
@@ -229,33 +171,8 @@ namespace moris
         }
         mEquationObjList.clear();
 
-        // delete the master interpolation geometry interpolator pointer
-        if ( mMasterIPGeometryInterpolator != nullptr )
-        {
-            delete mMasterIPGeometryInterpolator;
-        }
-
-        // delete the slave interpolation geometry interpolator pointer
-        if ( mSlaveIPGeometryInterpolator != nullptr )
-        {
-            delete mSlaveIPGeometryInterpolator;
-        }
-
-        // delete the master integration geometry interpolator pointer
-        if ( mMasterIGGeometryInterpolator != nullptr )
-        {
-            delete mMasterIGGeometryInterpolator;
-        }
-
-        // delete the slave integration geometry interpolator pointer
-        if ( mSlaveIGGeometryInterpolator != nullptr )
-        {
-            delete mSlaveIGGeometryInterpolator;
-        }
-
         // delete the field interpolator pointers
         this->delete_pointers();
-
     }
 
 //------------------------------------------------------------------------------
@@ -313,34 +230,40 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
-        // delete the field interpolator pointers
-        this->delete_pointers();
+        if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
+        {
+            // delete the field interpolator pointers
+            this->delete_pointers();
 
-        // create the field interpolators
-        this->create_field_interpolator_managers( aModelSolverInterface );
+            // create the field interpolators
+            this->create_field_interpolator_managers( aModelSolverInterface );
 
-        // set field interpolator managers for the IWGs
-        this->set_IWG_field_interpolator_managers();
+            // set field interpolator managers for the IWGs
+            this->set_IWG_field_interpolator_managers();
 
-        // set field interpolator managers for the IQIs
-        this->set_IQI_field_interpolator_managers();
+            // set field interpolator managers for the IQIs
+            this->set_IQI_field_interpolator_managers();
+        }
     }
 
 //------------------------------------------------------------------------------
     void Set::create_unique_dof_type_list()
     {
-        // init dof type counter
+        // init dof and dv type counter
         uint tCounter = 0;
+        uint tDvCounter = 0;
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
             // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            tIWG->get_non_unique_dof_types( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >   tActiveDvType;
+            tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // update dof type counter
-            tCounter += tActiveDofType.size();
+            // update dof and dv type counter
+            tCounter   += tActiveDofType.size();
+            tDvCounter += tActiveDvType.size();
         }
 
         // loop over the IQIs
@@ -348,37 +271,45 @@ namespace moris
         {
             // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            tIQI->get_non_unique_global_dof_type_list( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >   tActiveDvType;
+            tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // update dof type counter
-            tCounter += tActiveDofType.size();
+            // update dof and dv type counter
+            tCounter   += tActiveDofType.size();
+            tDvCounter += tActiveDvType.size();
         }
 
-        // set max size for the dof type list
+        // set max size for the unique dof and dv type list
         mEqnObjDofTypeList.reserve( tCounter );
+        mUniqueDvTypeList.reserve( tDvCounter );
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
             // get non unique dof type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            tIWG->get_non_unique_dof_types( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >  tActiveDvType;
+            tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // populate the corresponding EqnObj dof type list
+            // populate the corresponding EqnObj dof and dv type list
             mEqnObjDofTypeList.append( tActiveDofType );
+            mUniqueDvTypeList.append( tActiveDvType );
         }
 
         // loop over the IQIs
         for ( std::shared_ptr< IQI > tIQI : mIQIs )
         {
-            // get non unique dof type list
+            // get non unique dof and dv type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            tIQI->get_non_unique_global_dof_type_list( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >  tActiveDvType;
+            tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // populate the corresponding EqnObj dof type list
+            // populate the corresponding EqnObj dof and dv type list
             mEqnObjDofTypeList.append( tActiveDofType );
+            mUniqueDvTypeList.append( tActiveDvType );
         }
 
+        {
         // make the EqnObj dof type list unique
         std::sort( ( mEqnObjDofTypeList.data() ).data(),
                    ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size());
@@ -386,27 +317,46 @@ namespace moris
                                  ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size() );
         auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
         mEqnObjDofTypeList.resize( pos );
+        }
+
+        {
+        // make the EqnObj dv type list unique
+        std::sort( ( mUniqueDvTypeList.data() ).data(),
+                   ( mUniqueDvTypeList.data() ).data() + mUniqueDvTypeList.size());
+        auto last = std::unique( ( mUniqueDvTypeList.data() ).data(),
+                                 ( mUniqueDvTypeList.data() ).data() + mUniqueDvTypeList.size() );
+        auto pos  = std::distance( ( mUniqueDvTypeList.data() ).data(), last );
+        mUniqueDvTypeList.resize( pos );
+        }
     }
 
 //------------------------------------------------------------------------------
     void Set::create_dof_type_list()
     {
+        // get number of dof and dv types
         uint tNumDofTypes = this->get_num_dof_types();
+        uint tNumDvTypes  = this->get_num_dv_types();
 
         // set size for the global dof type list
         mMasterDofTypes.reserve( tNumDofTypes );
         mSlaveDofTypes .reserve( tNumDofTypes );
+        mMasterDvTypes.reserve( tNumDvTypes );
+        mSlaveDvTypes .reserve( tNumDvTypes );
 
         // create a list to check if dof type is already in the list
         Matrix< DDSMat > tMasterCheckList( tNumDofTypes, 1, -1 );
         Matrix< DDSMat > tSlaveCheckList ( tNumDofTypes, 1, -1 );
+        Matrix< DDSMat > tMasterDvCheckList( tNumDvTypes, 1, -1 );
+        Matrix< DDSMat > tSlaveDvCheckList ( tNumDvTypes, 1, -1 );
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
-            // get master dof types for the IWG
+            // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIWG->get_global_dof_type_list();
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeMaster
+            = tIWG->get_global_dv_type_list();
 
             // loop over the IWG active master dof type
             for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
@@ -425,15 +375,34 @@ namespace moris
                 }
             }
 
-            // get slave dof types for the IWG
+            // loop over the IWG active master dv type
+            for ( uint iDv = 0; iDv < tDvTypeMaster.size(); iDv++ )
+            {
+                // get set index for the treated master dof type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeMaster( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tMasterDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dof type in the checklist
+                    tMasterDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dof type in the global type list
+                    mMasterDvTypes.push_back( tDvTypeMaster( iDv ) );
+                }
+            }
+
+            // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeSlave
+            = tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
             for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
             {
                 // get set index for the treated slave dof type
-                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
+                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeSlave( iDOF )( 0 ) );
 
                 // if dof enum not in the list
                 if ( tSlaveCheckList( tDofTypeindex ) != 1 )
@@ -442,7 +411,25 @@ namespace moris
                     tSlaveCheckList( tDofTypeindex ) = 1;
 
                     // put the dof type in the global type list
-                    mSlaveDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                    mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+                }
+            }
+
+
+            // loop over the IWG active slave dv type
+            for ( uint iDv = 0; iDv < tDvTypeSlave.size(); iDv++ )
+            {
+                // get set index for the treated slave dv type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeSlave( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tSlaveDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dv type in the checklist
+                    tSlaveDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dv type in the global type list
+                    mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
                 }
             }
         }
@@ -450,9 +437,11 @@ namespace moris
         // loop over the IQIs
         for ( std::shared_ptr< IQI > tIQI : mIQIs )
         {
-            // get master dof types for the IWG
+            // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIQI->get_global_dof_type_list();
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeMaster
+            = tIQI->get_global_dv_type_list();
 
             // loop over the IQI active master dof type
             for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
@@ -471,15 +460,34 @@ namespace moris
                 }
             }
 
-            // get slave dof types for the IQI
+            // loop over the IQI active master dv type
+            for ( uint iDv = 0; iDv < tDvTypeMaster.size(); iDv++ )
+            {
+                // get set index for the treated master dv type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeMaster( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tMasterDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dv type in the checklist
+                    tMasterDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dv type in the global type list
+                    mMasterDvTypes.push_back( tDvTypeMaster( iDv ) );
+                }
+            }
+
+            // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeSlave
+            = tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
             for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
             {
                 // get set index for the treated slave dof type
-                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
+                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeSlave( iDOF )( 0 ) );
 
                 // if dof enum not in the list
                 if ( tSlaveCheckList( tDofTypeindex ) != 1 )
@@ -488,21 +496,40 @@ namespace moris
                     tSlaveCheckList( tDofTypeindex ) = 1;
 
                     // put the dof type in the global type list
-                    mSlaveDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                    mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+                }
+            }
+
+            // loop over the IWG active slave dv type
+            for ( uint iDv = 0; iDv < tDvTypeSlave.size(); iDv++ )
+            {
+                // get set index for the treated slave dv type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeSlave( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tSlaveDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dv type in the checklist
+                    tSlaveDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dv type in the global type list
+                    mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
                 }
             }
         }
 
-        // shrink list to fit to number of unique dof types
+        // shrink list to fit to number of unique dof and dv types
         mMasterDofTypes.shrink_to_fit();
         mSlaveDofTypes .shrink_to_fit();
+        mMasterDvTypes.shrink_to_fit();
+        mSlaveDvTypes .shrink_to_fit();
     }
 
 //------------------------------------------------------------------------------
     void Set::create_dof_type_map()
     {
         // get number of master dof types
-        uint tMasterNumDofs = this->get_number_of_field_interpolators();
+        uint tMasterNumDofs = this->get_dof_type_list().size();
 
         // get maximal dof type enum
         sint tMaxEnum = -1;
@@ -518,7 +545,7 @@ namespace moris
         }
 
         // get number of slave dof types
-        uint tSlaveNumDofs =  this->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
+        uint tSlaveNumDofs = this->get_dof_type_list( mtk::Master_Slave::SLAVE ).size();
 
         // loop over the IWGs
         for ( uint iDOF = 0; iDOF < tSlaveNumDofs; iDOF++ )
@@ -551,6 +578,58 @@ namespace moris
         {
             mSlaveDofTypeMap( static_cast< int >( mSlaveDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
         }
+
+//-------------------------------------------------
+
+        uint tMasterNumDvs  = this->get_dv_type_list().size();
+
+        // get maximal dv type enum
+        tMaxEnum = -1;
+
+        // loop over the dv types
+        for ( uint iDv = 0; iDv < tMasterNumDvs; iDv++ )
+        {
+            for ( uint Ik = 0; Ik < mMasterDvTypes( iDv ).size(); Ik++ )
+            {
+                // get the highest dof type enum
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterDvTypes( iDv )( Ik ) ) );
+            }
+        }
+
+        // get number of slave dv types
+        uint tSlaveNumDvs =  this->get_dv_type_list( mtk::Master_Slave::SLAVE ).size();
+
+        // loop over the IWGs
+        for ( uint iDOF = 0; iDOF < tSlaveNumDvs; iDOF++ )
+        {
+            for ( uint Ik = 0; Ik < mSlaveDvTypes( iDOF ).size(); Ik++ )
+            {
+                // get the highest dof type enum
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveDvTypes( iDOF )( Ik ) ) );
+            }
+        }
+        // +1 since start at 0
+        tMaxEnum++;
+
+        MORIS_ASSERT( tMaxEnum != -1, "Set::create_dv_type_map(), no information to build dv type map" );
+
+        // set size of dv type map    // FIXME replace with map
+        mMasterDvTypeMap.set_size( tMaxEnum, 1, -1 );
+
+        // loop over dv types
+        for ( uint iDv = 0; iDv < tMasterNumDvs; iDv++ )
+        {
+            mMasterDvTypeMap( static_cast< int >( mMasterDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+        }
+
+        // set size of dv type map
+        mSlaveDvTypeMap.set_size( tMaxEnum, 1, -1 );
+
+        // loop over dv types
+        for ( uint iDv = 0; iDv < tSlaveNumDvs; iDv++ )
+        {
+            mSlaveDvTypeMap( static_cast< int >( mSlaveDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+        }
     }
 
 //-----------------------------------------------------------------------------
@@ -558,20 +637,27 @@ namespace moris
     {
         // create the master field interpolator manager
         mMasterFIManager = new Field_Interpolator_Manager( mMasterDofTypes,
-                                                           this,
-                                                           aModelSolverInterface );
+                                                           mMasterDvTypes,
+                                                           this );
+
+        // create the geometry interpolators on the master FI manager
+        mMasterFIManager->create_geometry_interpolators();
 
         // create the field interpolators on the master FI manager
         mMasterFIManager->create_field_interpolators( aModelSolverInterface );
 
         // create the slave field interpolator manager
         mSlaveFIManager = new Field_Interpolator_Manager( mSlaveDofTypes,
+                                                          mSlaveDvTypes,
                                                           this,
-                                                          aModelSolverInterface,
                                                           mtk::Master_Slave::SLAVE );
+
+        // create the geometry interpolators on the slave FI manager
+        mSlaveFIManager->create_geometry_interpolators();
 
         // create the field interpolators on the slave FI manager
         mSlaveFIManager->create_field_interpolators( aModelSolverInterface );
+
     }
 
 //------------------------------------------------------------------------------
@@ -588,24 +674,6 @@ namespace moris
             {
                 // set IWG slave field interpolator manager
                 tIWG->set_field_interpolator_manager( mSlaveFIManager, mtk::Master_Slave::SLAVE );
-            }
-        }
-    }
-
-//------------------------------------------------------------------------------
-    void Set::set_IWG_geometry_interpolators()
-    {
-        // loop over the IWGs
-        for ( std::shared_ptr< IWG > tIWG : mIWGs )
-        {
-            // set IWG master IP geometry interpolator
-            tIWG->set_geometry_interpolator( mMasterIPGeometryInterpolator );
-
-            // if double sideset, set slave
-            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // set IWG slave IP geometry interpolator
-                tIWG->set_geometry_interpolator( mSlaveIPGeometryInterpolator, mtk::Master_Slave::SLAVE );
             }
         }
     }
@@ -629,90 +697,98 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::set_IQI_geometry_interpolators()
-    {
-        // loop over the IQIs
-        for ( std::shared_ptr< IQI > tIQI : mIQIs )
-        {
-            // set iQI master IP geometry interpolator
-            tIQI->set_geometry_interpolator( mMasterIPGeometryInterpolator );
-
-            // if double sideset, set slave
-            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // set IQI slave IP geometry interpolator
-                tIQI->set_geometry_interpolator( mSlaveIPGeometryInterpolator, mtk::Master_Slave::SLAVE );
-            }
-        }
-    }
-
-//------------------------------------------------------------------------------
     void Set::create_residual_dof_assembly_map()
     {
-        // get list of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
-                                                                               ->get_solver_interface()
-                                                                               ->get_requested_dof_types();
+        // get the list of requested dof types by the solver
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+                                                               ->get_solver_interface()
+                                                               ->get_requested_dof_types();
 
+        // init the max index for dof types
         sint tMaxDofIndex = -1;
 
+        // loop over the requested dof types
         for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
         {
-            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+            // get the set index for the requested master dof type
+            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                           mtk::Master_Slave::MASTER );
 
+            // if the index was set (and is different from -1)
             if( tDofIndex != -1 )
             {
+                // update the max index for dof type
                 tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
             }
 
-            tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE );
+            // get the set index for the requested slave dof type
+            tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                      mtk::Master_Slave::SLAVE );
 
+            // if the index was set (and is different -1)
             if( tDofIndex != -1 )
             {
+                // update the max index for dof type
                 tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
             }
         }
+        // add +1 to the max index for dof type (since 0 based)
         tMaxDofIndex++;
 
+        // set size for the residual assembly map
         mResDofAssemblyMap.resize( tMaxDofIndex );
 
+        // init the residual assembly map
         for( uint Ik = 0; Ik < mResDofAssemblyMap.size(); Ik++ )
         {
             mResDofAssemblyMap( Ik ).set_size( 1, 2, -1 );
         }
 
+        // init dof coefficients counter
         uint tCounter = 0;
 
-        // master
+        // loop over the requested dof types
         for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
         {
-            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+            // get the set index for the requested master dof type
+            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                           mtk::Master_Slave::MASTER );
 
+            // if the index was set (and is different from -1)
             if( tDofIndex != -1 )
             {
+                // get the number of coefficients re;ated to the master dof type
                 uint tNumCoeff = mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
                                                  ->get_number_of_space_time_coefficients();
 
+                // fill the residual assembly map with starting and ending indices for the master dof type
                 mResDofAssemblyMap( tDofIndex )( 0, 0 ) = tCounter;
                 mResDofAssemblyMap( tDofIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
 
+                // update the dof coefficient counter
                 tCounter += tNumCoeff;
             }
         }
 
-        // slave
+        // loop over the requested dof types
         for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
         {
-            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE );
+            //get the set index for the requested slave dof type
+            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                           mtk::Master_Slave::SLAVE );
 
+            // if the dof type was set (its set index is different from -1)
             if( tDofIndex != -1 )
             {
+                // get the number of coefficients for the slave dof type
                 uint tNumCoeff = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
                                                 ->get_number_of_space_time_coefficients();
 
+                // fill the residual assembly map with starting and ending indices for the slave dof type
                 mResDofAssemblyMap( tDofIndex )( 0, 0 ) = tCounter;
                 mResDofAssemblyMap( tDofIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
 
+                // update the dof coefficient counter
                 tCounter += tNumCoeff;
             }
         }
@@ -734,10 +810,10 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::create_jacobian_dof_assembly_map()
     {
-        // get list of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
-                                                                               ->get_solver_interface()
-                                                                               ->get_requested_dof_types();
+        // get list of requested dof types (by the solver)
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+                                                               ->get_solver_interface()
+                                                               ->get_requested_dof_types();
 
         sint tMaxDofIndex = -1;
 
@@ -858,11 +934,11 @@ namespace moris
     void Set::create_staggered_jacobian_dof_assembly_map()
     {
         // get list of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
-        Cell< Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
+        moris::Cell< moris::Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
                                                                        ->get_solver_interface()
                                                                        ->get_secundary_dof_types();
 
@@ -999,10 +1075,108 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+    void Set::create_dv_assembly_map()
+    {
+        // get the list of requested dv types by the opt solver
+        // FIXME for now everything is evaluated
+        //Cell < enum MSI::Dv_Type >  tRequestedDvTypes;
+
+        // init the max index for dv types
+        sint tMaxDvIndex = -1;
+
+        // loop over the dv types
+        for( uint Ik = 0; Ik < mMasterDvTypes.size(); Ik++ )
+        {
+            // get the set index for the requested master dof type
+            sint tDvIndex = this->get_dv_index_for_type( mMasterDvTypes( Ik )( 0 ),
+                                                         mtk::Master_Slave::MASTER );
+
+            // if the index was set (and is different from -1)
+            if( tDvIndex != -1 )
+            {
+                // update the max index for dv type
+                tMaxDvIndex = std::max( tMaxDvIndex, tDvIndex );
+            }
+
+            // get the set index for the requested slave slave type
+            tDvIndex = this->get_dv_index_for_type( mSlaveDvTypes( Ik )( 0 ),
+                                                    mtk::Master_Slave::SLAVE );
+
+            // if the index was set (and is different -1)
+            if( tDvIndex != -1 )
+            {
+                // update the max index for dv type
+                tMaxDvIndex = std::max( tMaxDvIndex, tDvIndex );
+            }
+        }
+        // add +1 to the max index for dv type (since 0 based)
+        tMaxDvIndex++;
+
+        // set size for the dv assembly map
+        mDvAssemblyMap.resize( tMaxDvIndex );
+
+        // init the dv assembly map
+        for( uint Ik = 0; Ik < mDvAssemblyMap.size(); Ik++ )
+        {
+            mDvAssemblyMap( Ik ).set_size( 1, 2, -1 );
+        }
+
+        // init dv coefficients counter
+        uint tCounter = 0;
+
+        // loop over the dv types
+        for( uint Ik = 0; Ik < mMasterDvTypes.size(); Ik++ )
+        {
+            // get the set index for the requested master dv type
+            sint tDvIndex = this->get_dv_index_for_type( mMasterDvTypes( Ik )( 0 ),
+                                                         mtk::Master_Slave::MASTER );
+
+            // if the index was set (and is different from -1)
+            if( tDvIndex != -1 )
+            {
+                // get the number of coefficients related to the master dv type
+                uint tNumCoeff = mMasterFIManager->get_field_interpolators_for_type( mMasterDvTypes( Ik )( 0 ) )
+                                                 ->get_number_of_space_time_coefficients();
+
+                // fill the dv assembly map with starting and ending indices
+                // for the master dv type
+                mDvAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
+                mDvAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+
+                // update the dv coefficient counter
+                tCounter += tNumCoeff;
+            }
+        }
+
+        // loop over the slave dv types
+        for( uint Ik = 0; Ik < mSlaveDvTypes.size(); Ik++ )
+        {
+            //get the set index for the slave dv type
+            sint tDvIndex = this->get_dv_index_for_type( mSlaveDvTypes( Ik )( 0 ),
+                                                         mtk::Master_Slave::SLAVE );
+
+            // if the dv type was set (its set index is different from -1)
+            if( tDvIndex != -1 )
+            {
+                // get the number of coefficients for the slave dv type
+                uint tNumCoeff = mSlaveFIManager->get_field_interpolators_for_type( mSlaveDvTypes( Ik )( 0 ) )
+                                                ->get_number_of_space_time_coefficients();
+
+                // fill the residual assembly map with starting and ending indices for the slave dof type
+                mDvAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
+                mDvAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+
+                // update the dof coefficient counter
+                tCounter += tNumCoeff;
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------
     void Set::create_requested_IWG_list()
     {
         // get List of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -1090,7 +1264,7 @@ namespace moris
                     }
                 }
 
-                Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
+                moris::Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
 
                 for ( auto tSecDofTypesI : tSecDofTypes)
                 {
@@ -1335,6 +1509,12 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+    moris::sint Set::get_dv_index_for_type_1( enum MSI::Dv_Type aDvType )
+    {
+        return mDvTypeMap( static_cast< int >( aDvType ), 0 );
+    }
+
+//------------------------------------------------------------------------------
     moris::uint Set::get_num_dof_types()
     {
         return this->get_num_unique_dof_types();
@@ -1417,6 +1597,10 @@ namespace moris
         	    (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
         	}
         }
+//        if( aFieldType==vis::Field_Type::NODAL || aFieldType==vis::Field_Type::NODAL_IP )
+//        {
+//            print( *mSetNodalValues, "mSetNodalValues" );
+//        }
     }
 
 //------------------------------------------------------------------------------

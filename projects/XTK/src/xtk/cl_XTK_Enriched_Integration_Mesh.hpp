@@ -22,6 +22,7 @@ class Model;
 class Cell_Cluster;
 class Side_Cluster;
 class Interpolation_Cell_Unzipped;
+class Ghost_Stabilization;
 
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
@@ -52,6 +53,11 @@ public:
     mtk::Cell const &         get_mtk_cell( moris_index aElementIndex ) const;
     Matrix< IdMat >           get_communication_table() const;
     moris::Cell<std::string>  get_set_names(enum EntityRank aSetEntityRank) const;
+    enum CellTopology         get_blockset_topology(const  std::string & aSetName);
+    Matrix< IndexMat >        get_set_entity_loc_inds( enum EntityRank aSetEntityRank, std::string     aSetName) const;
+    void                      get_sideset_elems_loc_inds_and_ords( const  std::string     & aSetName, Matrix< IndexMat >     & aElemIndices, Matrix< IndexMat >     & aSidesetOrdinals ) const;
+    moris_id                  get_max_entity_id( enum EntityRank aEntityRank ) const;
+
     //------------------------------------------------------------------------------
     // end mesh core functions
     //------------------------------------------------------------------------------
@@ -93,6 +99,13 @@ public:
     std::string
     get_dbl_interface_side_set_name(moris_index aBulkPhaseIndex0,
                                     moris_index aBulkPhaseIndex1);
+
+    /*!
+     * Returns the primary cell local indices in a block set.
+     */
+    Matrix< IndexMat >
+    get_block_entity_loc_inds( std::string     aSetName) const;
+
     //------------------------------------------------------------------------------
     // Additional Field Functions
     //------------------------------------------------------------------------------
@@ -170,7 +183,20 @@ public:
     void print_double_side_sets(moris::uint aVerbosityLevel = 0) const;
     void print_double_side_clusters(moris::uint aVerbosityLevel = 0) const;
 
+    //--------------------------------------------------------------------------------
+    // Utilities for manipulating sets
+    //--------------------------------------------------------------------------------
+    moris_index
+    create_side_set_from_dbl_side_set(moris_index const & aDblSideSetIndex,
+                                      std::string const & aSideSetName);
+
+    moris_index
+    create_block_set_from_cells_of_side_set(moris_index const & aSideSetIndex,
+                                            std::string const & aSideSetName,
+                                            enum CellTopology   aCellTopo);
+
     friend class Enrichment;
+    friend class Ghost_Stabilization;
 protected:
     Model* mModel;
 
@@ -178,31 +204,49 @@ protected:
     moris::moris_index mMeshIndexInModel;
 
     // Cell Clusters
-    moris::Cell< xtk::Cell_Cluster * > mCellClusters;
+    moris::Cell< std::shared_ptr<xtk::Cell_Cluster> > mCellClusters;
 
     // Block sets containing Cell Clusters
     std::unordered_map<std::string, moris_index>        mBlockSetLabelToOrd;
     moris::Cell<std::string>                            mBlockSetNames;
+    moris::Cell<enum CellTopology>                      mBlockSetTopology;
     moris::Cell<moris::Cell<xtk::Cell_Cluster const *>> mPrimaryBlockSetClusters;
 
     // side sets
     std::unordered_map<std::string, moris_index> mSideSideSetLabelToOrd;
     moris::Cell<std::string>                     mSideSetLabels;
-    moris::Cell<moris::Cell<xtk::Side_Cluster*>> mSideSets;
+    moris::Cell<moris::Cell<std::shared_ptr<xtk::Side_Cluster>>> mSideSets;
 
     // double side sets
-    std::unordered_map<std::string, moris_index>  mDoubleSideSetLabelToOrd;
-    moris::Cell<std::string>                      mDoubleSideSetLabels;
-    moris::Cell<moris::Cell<mtk::Cluster const*>> mDoubleSideSets;
-    moris::Cell<mtk::Double_Side_Cluster*>        mDoubleSideClusters;
-    moris::Cell<Side_Cluster*>                    mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
-    moris::Matrix<moris::IndexMat>                mBulkPhaseToDblSideIndex;
+    std::unordered_map<std::string, moris_index>        mDoubleSideSetLabelToOrd;
+    moris::Cell<std::string>                            mDoubleSideSetLabels;
+    moris::Cell<moris::Cell<mtk::Double_Side_Cluster*>> mDoubleSideSets;
+    moris::Cell<moris::Cell<moris_index>>               mDoubleSideSetsMasterIndex;
+    moris::Cell<moris::Cell<moris_index>>               mDoubleSideSetsSlaveIndex;
+    moris::Cell<mtk::Double_Side_Cluster*>              mDoubleSideClusters;
+    moris::Cell<std::shared_ptr<xtk::Side_Cluster>>     mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
+    moris::Matrix<moris::IndexMat>                      mBulkPhaseToDblSideIndex;
 
     // Fields
     moris::Cell<xtk::Field> mFields;   /*Structure Node (0), Cell(1)*/
     moris::Cell<std::unordered_map<std::string, moris_index>> mFieldLabelToIndex;
 
+    // Sub phase index to Cell Cluster Index (these only include the standard cluster i.e. non-ghost clusters.)
+    moris::Matrix<moris::IndexMat> mSubphaseIndexToClusterIndex;
 
+    //------------------------------------------------------------------------------
+    // Parallel functions
+    //------------------------------------------------------------------------------
+    moris_id allocate_entity_ids(moris::size_t  aNumReqs, enum EntityRank aEntityRank);
+
+    void
+    commit_double_side_set(moris_index const & aDoubleSideSetIndex);
+
+    void
+    commit_side_set(moris_index const & aSideSetIndex);
+
+    void
+    commit_block_set(moris_index const & aBlockSetIndex);
 
 private:
     //------------------------------------------------------------------------------
@@ -238,7 +282,8 @@ private:
     split_set_name_by_child_no_child(std::string aBaseName);
     //------------------------------------------------------------------------------
     Cell<moris_index>
-    register_block_set_names(moris::Cell<std::string> const & aBlockSetNames);
+    register_block_set_names_with_cell_topo(moris::Cell<std::string> const & aBlockSetNames,
+                                            enum CellTopology                aBlockTopology);
     //------------------------------------------------------------------------------
     Cell<moris_index>
     register_side_set_names(moris::Cell<std::string> const & aSideSetNames);

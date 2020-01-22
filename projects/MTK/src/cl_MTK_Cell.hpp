@@ -67,6 +67,7 @@ public:
     virtual moris_index
     get_index() const = 0;
 
+
     //------------------------------------------------------------------------------
 
     /**
@@ -77,6 +78,17 @@ public:
     get_owner() const = 0;
 
     //------------------------------------------------------------------------------
+
+    /*!
+     * Returns the level that this cell is on. For most meshes this returns 0. However,
+     * for HMR this is not trivial
+     */
+    virtual uint
+    get_level() const
+    {
+        return 0;
+    }
+
 
     /**
      * fills a moris::cell with pointers to connected vertices

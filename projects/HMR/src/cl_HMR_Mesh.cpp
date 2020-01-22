@@ -571,8 +571,17 @@ namespace moris
 
         Matrix< IndexMat > Mesh::get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const
         {
+             Element * tElement;
+
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            if( mDatabase->get_parameters()->use_number_aura() )
+            {
+                tElement = mMesh->get_element_including_aura( aElementIndex );
+            }
+            else
+            {
+                tElement = mMesh->get_element( aElementIndex );
+            }
 
             // get number of nodes
             uint tNumberOfNodes = tElement->get_number_of_vertices();
@@ -615,7 +624,17 @@ namespace moris
         Matrix< IndexMat > Mesh::get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const
         {
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement;
+
+           // get pointer to element
+           if( mDatabase->get_parameters()->use_number_aura() )
+           {
+               tElement = mMesh->get_element_including_aura( aElementIndex );
+           }
+           else
+           {
+               tElement = mMesh->get_element( aElementIndex );
+           }
 
             // will be 0 for 2D, 12 for 3D
             uint tNumberOfEdges = tElement->get_background_element()->get_number_of_edges();
@@ -658,7 +677,17 @@ namespace moris
         Matrix< IndexMat > Mesh::get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const
         {
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement;
+
+           // get pointer to element
+           if( mDatabase->get_parameters()->use_number_aura() )
+           {
+               tElement = mMesh->get_element_including_aura( aElementIndex );
+           }
+           else
+           {
+               tElement = mMesh->get_element( aElementIndex );
+           }
 
             uint tNumberOfFaces = tElement->get_background_element()->get_number_of_facets();
 
@@ -766,11 +795,15 @@ namespace moris
             // collect memory indices of active neighbors
             Matrix< DDLUMat> tMemoryIndices;
             Matrix< DDLUMat> tThisCellFacetsOrds;
+            Matrix< DDLUMat> tNeighborCellFacetsOrds;
+            Matrix< DDLUMat> tTransitionNeighborCellLocation;
             luint tNumberOfNeighbors;
 
             this->collect_memory_indices_of_active_element_neighbors( aElementIndex,
                                                                       tMemoryIndices,
                                                                       tThisCellFacetsOrds,
+                                                                      tNeighborCellFacetsOrds,
+                                                                      tTransitionNeighborCellLocation,
                                                                       tNumberOfNeighbors );
             // reserve memory for output matrix
             Matrix< IndexMat > tIndices( 2, tNumberOfNeighbors);
@@ -778,12 +811,13 @@ namespace moris
             // my cell
             Element * tMyCell = mMesh->get_element( aElementIndex );
 
-
             // copy indices from pointers
             for( luint k=0; k<tNumberOfNeighbors; ++k )
             {
 
                 Element * tOtherCell = mMesh->get_element_by_memory_index( tMemoryIndices( k ) );
+
+                MORIS_ASSERT(tOtherCell->get_index() != MORIS_INDEX_MAX,"A Neighbor Cell with max index is about to be outputted.");
                 tIndices( 0, k ) = tOtherCell->get_index();
 
                 // verify the facet neighborhood makes sense
@@ -794,6 +828,46 @@ namespace moris
 
             }
             return tIndices;
+        }
+
+        Matrix< IndexMat > Mesh::get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const
+        {
+            // collect memory indices of active neighbors
+            Matrix< DDLUMat> tMemoryIndices;
+            Matrix< DDLUMat> tThisCellFacetsOrds;
+            Matrix< DDLUMat> tNeighborCellFacetsOrds;
+            Matrix< DDLUMat> tTransitionNeighborCellLocation;
+            luint tNumberOfNeighbors;
+
+            this->collect_memory_indices_of_active_element_neighbors( aElementIndex,
+                                                                      tMemoryIndices,
+                                                                      tThisCellFacetsOrds,
+                                                                      tNeighborCellFacetsOrds,
+                                                                      tTransitionNeighborCellLocation,
+                                                                      tNumberOfNeighbors );
+            // reserve memory for output matrix
+            Matrix< IndexMat > tNeighborIndicesAndSideOrds( 4, tNumberOfNeighbors);
+
+
+
+            // copy indices from pointers
+            for( luint k=0; k<tNumberOfNeighbors; ++k )
+            {
+
+                Element * tOtherCell = mMesh->get_element_by_memory_index( tMemoryIndices( k ) );
+
+                MORIS_ASSERT(tOtherCell->get_index() != MORIS_INDEX_MAX,"A Neighbor Cell with max index is about to be outputted.");
+                MORIS_ASSERT(tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level()     ||
+                             tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level() - 1 ||
+                             tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level() + 1   ,"Neighboring cells must be on the within 1 level of the provided cell.");
+
+                tNeighborIndicesAndSideOrds( 0, k ) = tOtherCell->get_index();
+                tNeighborIndicesAndSideOrds( 1, k ) = tThisCellFacetsOrds(k);
+                tNeighborIndicesAndSideOrds( 2, k ) = tNeighborCellFacetsOrds(k);
+                tNeighborIndicesAndSideOrds( 3, k ) = tTransitionNeighborCellLocation(k);
+
+            }
+            return tNeighborIndicesAndSideOrds;
         }
 
 //-----------------------------------------------------------------------------
@@ -821,13 +895,25 @@ namespace moris
         void Mesh::collect_memory_indices_of_active_element_neighbors( const moris_index        aElementIndex,
                                                                              Matrix< DDLUMat> & aMemoryIndices,
                                                                              Matrix< DDLUMat> & aThisCellFacetOrds,
+                                                                             Matrix< DDLUMat> & aNeighborCellFacetOrds,
+                                                                             Matrix< DDLUMat> & aTransitionNeighborCellLocation,
                                                                              luint            & aCounter) const
         {
             // get active index of this mesh
             uint tPattern = mMesh->get_activation_pattern();
 
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement;
+
+           // get pointer to element
+           if( mDatabase->get_parameters()->use_number_aura() )
+           {
+               tElement = mMesh->get_element_including_aura( aElementIndex );
+           }
+           else
+           {
+               tElement = mMesh->get_element( aElementIndex );
+           }
 
             // get pointer to background element
             Background_Element_Base * tBackElement = tElement->get_background_element();
@@ -842,16 +928,19 @@ namespace moris
                 // get pointer to neighbor
                 Background_Element_Base * tNeighbor = tBackElement->get_neighbor( k );
 
-                if( ! tNeighbor->is_padding() )
+                if(tNeighbor != nullptr)
                 {
-                    if( tNeighbor->is_refined( tPattern ) )
+                    if( ! tNeighbor->is_padding() )
                     {
-                        tNeighbor->get_number_of_active_descendants( tPattern, aCounter );
-                    }
-                    else
-                    {
-                        // increment counter
-                        ++aCounter;
+                        if( tNeighbor->is_refined( tPattern ) )
+                         {
+                            tNeighbor->get_number_of_active_descendants( tPattern, aCounter );
+                        }
+                        else
+                        {
+                            // increment counter
+                            ++aCounter;
+                        }
                     }
                 }
             }
@@ -862,6 +951,12 @@ namespace moris
 
             aThisCellFacetOrds.set_size( aCounter, 1 );
             aThisCellFacetOrds.fill(MORIS_INDEX_MAX);
+
+            aNeighborCellFacetOrds.set_size( aCounter, 1 );
+            aNeighborCellFacetOrds.fill(MORIS_INDEX_MAX);
+
+            aTransitionNeighborCellLocation.set_size( aCounter, 1 );
+            aTransitionNeighborCellLocation.fill(MORIS_INDEX_MAX);
 
             // reset counter
             aCounter = 0;
@@ -876,43 +971,63 @@ namespace moris
                 // get pointer to neighbor
                 Background_Element_Base * tNeighbor = tBackElement->get_neighbor( k );
 
-                if( ! tNeighbor->is_padding() )
+                // get the neighbor side ordinal
+                int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
+
+                if(tNeighbor != nullptr)
                 {
-                    if( tNeighbor->is_refined( tPattern ) )
+                    if( ! tNeighbor->is_padding() )
                     {
-
-                        tStart = aCounter;
-
-                        tNeighbor->collect_active_descendants_by_memory_index( tPattern,
-                                                                               aMemoryIndices,
-                                                                               aCounter,
-                                                                               k );
-
-                        // mark facets that we share with other element
-                        tEnd = aCounter;
-
-                        for(moris::uint i = tStart; i < tEnd; i++)
+                        if( tNeighbor->is_refined( tPattern ) )
                         {
-                            aThisCellFacetOrds(i) = k;
+
+                            // get the neighbor child cell ordinal
+                            int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
+
+                            // get my child cell ordinals that would be on this side (for use in XTK ghost)
+                            Matrix<IndexMat> tMyChildOrds;
+                            tBackElement->get_child_cell_ordinals_on_side(k,tMyChildOrds);
+
+                            tStart = aCounter;
+
+                            tNeighbor->collect_active_descendants_by_memory_index( tPattern,
+                                                                                   aMemoryIndices,
+                                                                                   aCounter,
+                                                                                   k );
+
+                            // mark facets that we share with other element
+                            tEnd = aCounter;
+
+                            moris::uint tZeroStart = 0;
+                            for(moris::uint i = tStart; i < tEnd; i++)
+                            {
+                                aThisCellFacetOrds(i) = k;
+                                aNeighborCellFacetOrds(i) = tNeighborSideOrd;
+                                aTransitionNeighborCellLocation(i) = tMyChildOrds(tZeroStart++);
+                            }
+
+
                         }
-
-
-                    }
-                    else
-                    {
-                        while ( ! tNeighbor->is_active( tPattern ) )
+                        else
                         {
-                            tNeighbor = tNeighbor->get_parent();
-                        }
+                            while ( ! tNeighbor->is_active( tPattern ) )
+                            {
+                                tNeighbor = tNeighbor->get_parent();
+                            }
 
-                        aThisCellFacetOrds(aCounter) = k;
-                        aMemoryIndices( aCounter++ ) = tNeighbor->get_memory_index();
+                            MORIS_ASSERT(tNeighbor->get_memory_index() != MORIS_INDEX_MAX,"A Neighbor with max index should not be outputted.");
+
+                            aThisCellFacetOrds(aCounter) = k;
+                            aNeighborCellFacetOrds(aCounter) = tNeighborSideOrd;
+                            aMemoryIndices( aCounter++ ) = tNeighbor->get_memory_index();
+                        }
                     }
                 }
             }
 
             aMemoryIndices.resize(aCounter,1);
             aThisCellFacetOrds.resize(aCounter,1);
+            aNeighborCellFacetOrds.resize(aCounter,1);
         }
 
 //-----------------------------------------------------------------------------
@@ -1095,7 +1210,14 @@ namespace moris
                 }
                 case( EntityRank::ELEMENT ) :
                 {
-                    return mMesh->get_element( aEntityIndex )->get_owner();
+                    if( mDatabase->get_parameters()->use_number_aura() )
+                    {
+                        return mMesh->get_element_including_aura( aEntityIndex )->get_owner();
+                    }
+                    else
+                    {
+                        return mMesh->get_element( aEntityIndex )->get_owner();
+                    }
                     break;
                 }
                 default :

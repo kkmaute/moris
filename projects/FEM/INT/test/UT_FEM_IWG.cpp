@@ -170,8 +170,8 @@ namespace moris
 //        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 2 )( 0 ) ), 6 ) );
 
         // check dof field interpolators
-        tIWG->check_dof_field_interpolators();
-        tIWG->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+        tIWG->check_field_interpolators();
+        tIWG->check_field_interpolators( mtk::Master_Slave::SLAVE );
 
 //        // dv check---------------------------------------------------------------------
 //        // check master global dv list size

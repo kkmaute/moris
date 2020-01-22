@@ -243,12 +243,14 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -258,8 +260,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,

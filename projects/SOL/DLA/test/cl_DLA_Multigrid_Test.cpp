@@ -185,7 +185,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
             // create new fem set
-            tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
+            tElementBlocks( tFemSetCounter ) = new fem::Set( nullptr,
+                                                             tBlockSet,
                                                              tSetInfo( tFemSetCounter ),
                                                              tNodes );
 
@@ -195,7 +196,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             // update fem set counter
             tFemSetCounter++;
         }
-
 
 //        // ask mesh about number of elements on proc
 //        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);

@@ -626,7 +626,7 @@ namespace moris
                             }
                         }
                         std::fprintf( stdout, "\n" );
-                        exit( -1 );
+                        MORIS_ERROR(0,"Mesh too coarse for selected split and padding size");
                     }
                 }
             }

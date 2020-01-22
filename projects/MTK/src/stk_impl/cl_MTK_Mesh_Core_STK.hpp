@@ -252,10 +252,6 @@ public:
     get_facet_ordinal_from_cell_and_facet_id_glob_ids(moris_id aFaceId,
                                                       moris_id aCellId) const;
 
-    moris::moris_index
-    get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
-                                                   moris::moris_index aCellIndex) const;
-
     /*
      * Returns a list of globally unique entity ids for entities
      * of the provided rank
@@ -266,6 +262,10 @@ public:
     Matrix< IdMat >
     generate_unique_entity_ids( uint            aNumEntities,
                                 enum EntityRank aEntityRank) const;
+
+    moris_id
+    get_max_entity_id( enum EntityRank aEntityRank ) const;
+
 
     //##############################################
     // Coordinate Field Functions

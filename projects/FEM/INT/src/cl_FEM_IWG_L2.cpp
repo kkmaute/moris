@@ -96,9 +96,9 @@ namespace moris
         void IWG_L2::compute_jacobian_and_residual_with_alpha( real aWStar )
         {
             MORIS_ERROR( false, "will not work because of weights");
+
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
@@ -117,6 +117,12 @@ namespace moris
                                              { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                             * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
         }
+
+//------------------------------------------------------------------------------
+            void IWG_L2::compute_drdpdv( real aWStar )
+            {
+                MORIS_ERROR( false, "IWG_L2::compute_drdpdv - not implemented." );
+            }
 
 //------------------------------------------------------------------------------
 //
@@ -162,8 +168,7 @@ namespace moris
         void IWG_L2::compute_jacobian_without_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
@@ -183,8 +188,7 @@ namespace moris
         void IWG_L2::compute_jacobian_with_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
@@ -213,8 +217,7 @@ namespace moris
         void IWG_L2::compute_residual_without_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
@@ -232,8 +235,7 @@ namespace moris
         void IWG_L2::compute_residual_with_alpha( real aWStar )
         {
             // check master field interpolators
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 

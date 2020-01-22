@@ -83,6 +83,13 @@ namespace moris
             void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the residual wrt design variables
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_drdpdv( real aWStar );
+
+//------------------------------------------------------------------------------
 //            /**
 //             * calculates the square of the error at a given point
 //             */

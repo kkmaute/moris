@@ -75,35 +75,42 @@ namespace moris
          * @param[ in ] aNodes       cell of node pointers
          * @param[ in ] aSet         a fem set
          */
-        Interpolation_Element( const Element_Type                aElementType,
-                               const Cell< const mtk::Cell * >  & aInterpolationCell,
-                                     moris::Cell< Node_Base* > & aNodes,
-                                     Set                       * aSet );
+        Interpolation_Element( const Element_Type                       aElementType,
+                               const moris::Cell< const mtk::Cell * > & aInterpolationCell,
+                                     moris::Cell< Node_Base* >        & aNodes,
+                                     Set                              * aSet );
 
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~Interpolation_Element();
+        ~Interpolation_Element(){};
 
 //------------------------------------------------------------------------------
         /**
          * set cluster
+         * @param[ in ] aCluster pointer to a fem cluster
+         * @param[ in ] aIndex   mesh index
          */
         void set_cluster( std::shared_ptr< fem::Cluster > aCluster,
-                          const uint                      aIndex )
+                          const uint                      aMeshIndex )
         {
-            if( aIndex == 0 )
+            // if mesh index is 0 (i.e., forward analysis mesh, IG mesh)
+            if( aMeshIndex == 0 )
             {
                 // fem cluster with index 0 should be set only once and shall not be changed
-                MORIS_ASSERT( !( mFemCluster.size() >= 1 ), "set_cluster(), first fem cluster is already set");
+                MORIS_ASSERT( !( mFemCluster.size() >= 1 ),
+                              "Interpolation_Element::set_cluster() - first fem cluster is already set");
             }
 
-            sint tSize = std::max( ( sint )mFemCluster.size(), ( sint )aIndex + 1 );
+            // get max size for fem cluster list
+            sint tSize = std::max( ( sint )mFemCluster.size(), ( sint )aMeshIndex + 1 );
 
+            // resize fem cluster list
             mFemCluster.resize( tSize );
 
-            mFemCluster( aIndex ) = aCluster;
+            // add the fem cluster to the list
+            mFemCluster( aMeshIndex ) = aCluster;
         };
 
 //------------------------------------------------------------------------------
@@ -126,15 +133,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * compute dRdp
+         */
+        void compute_dRdp();
+
+//------------------------------------------------------------------------------
+        /**
          * compute the quantity of interest on cluster
+         * @param[ in ] aMeshIndex  index for vis mesh used
          * @param[ in ] aOutputType an enum for output type
          * @param[ in ] aFieldType  an enum for computation/return type
          *                          GLOBAL, NODAL, ELEMENTAL
          */
-        //void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
-        void compute_quantity_of_interest( const uint            aClusterIndex,
-                                           enum vis::Output_Type aOutputType,
-                                           enum vis::Field_Type  aFieldType );
+        void compute_quantity_of_interest( const uint             aClusterIndex,
+                                           enum  vis::Output_Type aOutputType,
+                                           enum  vis::Field_Type  aFieldType );
 
 //------------------------------------------------------------------------------
         /**

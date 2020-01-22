@@ -13,7 +13,6 @@
 // dynamic linker function
 #include "dlfcn.h"
 
-#include "cl_HMR_Element.hpp"
 #include "HMR_Globals.hpp"
 #include "assert.hpp"
 #include "typedefs.hpp"
@@ -30,6 +29,8 @@ namespace moris
          * Interface for user defined function
          */
         typedef void ( *MORIS_USER_FUNCTION ) ( Cell<moris::real > & aParameter );
+
+        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::ParameterList & aParamterList );
 
 // -----------------------------------------------------------------------------
 
@@ -90,6 +91,26 @@ namespace moris
             {
                 MORIS_USER_FUNCTION aUserFunction
                     = reinterpret_cast<MORIS_USER_FUNCTION>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                        + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_PARAMETER_FUNCTION
+            load_parameter_file( const std::string & aFunctionName )
+            {
+                MORIS_PARAMETER_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_PARAMETER_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

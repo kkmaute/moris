@@ -28,10 +28,8 @@ namespace moris
         {
 #ifdef DEBUG
             // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
             // get the master field interpolator for the residual dof type
@@ -101,10 +99,8 @@ namespace moris
 
 #ifdef DEBUG
             // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
             // get the master field interpolator for residual dof type
@@ -218,6 +214,12 @@ namespace moris
                                                                                    moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual - Not implemented." );
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_drdpdv - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

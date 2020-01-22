@@ -475,6 +475,7 @@ namespace moris
 
             if( tNumberOfProcs == 1 ) // serial mode
             {
+                moris_id tCount = 0 ;
                 for( auto tNode : mAllBasisOnProc )
                 {
                     // test if node is used by current setup
@@ -483,8 +484,10 @@ namespace moris
                         // in serial local index and domain index are identical
                         tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
                         tNode->set_local_index( mNumberOfUsedNodes++ );
+                        tCount++;
                     }
                 }
+                mMaxNodeDomainIndex = tCount;
             }
             else // parallel mode
             {

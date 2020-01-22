@@ -400,8 +400,9 @@ namespace moris
              * property, constitutive and stabilization dependencies
              * for both master and slave
              */
-            void get_non_unique_global_dof_type_list( moris::Cell< MSI::Dof_Type > & aDofTypes );
-
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
+            void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes );
 //------------------------------------------------------------------------------
             /**
              * create a global dof type list including constitutive and property dependencies

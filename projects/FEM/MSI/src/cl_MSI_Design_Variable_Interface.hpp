@@ -17,6 +17,9 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
+#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_Map_Class.hpp"
+
 namespace moris
 {
 class Dist_Vector;
@@ -37,6 +40,12 @@ namespace mdl
                 Matrix< DDRMat>  mTime;
 
                 mdl::Model * mModel = nullptr;
+
+        protected:
+                Map_Class * mVectorMap = nullptr;
+
+                //! Full Vector
+                Dist_Vector * mVector = nullptr;
 
         public:
             Design_Variable_Interface( )
@@ -74,14 +83,27 @@ namespace mdl
 
 //------------------------------------------------------------------------------
             /**
+             * @brief retunr dRdp pointer
+             *
+             */
+            Dist_Vector * get_dRdp()
+            {
+                return mVector;
+            };
+
+            virtual void get_unique_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                                                            Cell< enum MSI::Dv_Type > & aDvTypes ) = 0;
+
+//------------------------------------------------------------------------------
+            /**
              * @brief Function providing pdv values for requested vertex indices and Dv types
              *
              * @param[in] aIntegrationMeshSetIndex  Integration Mesh index
              * @param[in] aDvTypes                  List of Dv types
              *
              */
-            virtual void get_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                                                     Cell< enum GEN_DV > & aDvTypes ) = 0;
+            virtual void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                                                     Cell<Cell< enum MSI::Dv_Type >> & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -97,6 +119,10 @@ namespace mdl
                                               Cell< moris::Matrix< DDRMat > >   & aDvValues,
                                               Cell< moris::Matrix< DDSMat > >   & aIsActiveDv ) = 0;
 
+            virtual void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                                        const Cell< enum MSI::Dv_Type >      & aDvTypes,
+                                              Cell<moris::Matrix< DDRMat > > & aDvValues ) = 0;
+
 //------------------------------------------------------------------------------
             /**
              * @brief Retunr local to global dv type map
@@ -106,7 +132,7 @@ namespace mdl
 
 //------------------------------------------------------------------------------
             /**
-             * @brief Retunr local to global dv type map
+             * @brief Return local to global dv type map
              *
              * @param[in] aVertexIndex   List of vertex indices
              * @param[in] aDvType        List of Dv types

@@ -90,7 +90,7 @@ main(
     moris::uint tLagrangeOrder = 1;
     moris::uint tMyCoeff = 1;
 
-    hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
     tParameters.set( "number_of_elements_per_dimension", "1, 1, 4" );
     tParameters.set( "domain_dimensions", "1, 1, 4" );

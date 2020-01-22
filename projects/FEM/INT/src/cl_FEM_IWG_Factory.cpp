@@ -2,11 +2,11 @@
 #include "assert.hpp"
 #include "cl_FEM_IWG_Factory.hpp"                               //FEM/INT/src
 #include "cl_FEM_IWG_L2.hpp"                                    //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"                        //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"                       //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Interface.hpp"                   //FEM/INT/src
-#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"                  //FEM/INT/src
-#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"                 //FEM/INT/src
+//#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"                        //FEM/INT/src
+//#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"                       //FEM/INT/src
+//#include "cl_FEM_IWG_Helmholtz_Interface.hpp"                   //FEM/INT/src
+//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"                  //FEM/INT/src
+//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"                 //FEM/INT/src
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"             //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp"      //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM/INT/src
@@ -14,9 +14,9 @@
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"     //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp"     //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp" //FEM/INT/src
-#include "cl_FEM_IWG_LSNormal_Bulk.hpp"                         //FEM/INT/src
-#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"                       //FEM/INT/src
-#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"                  //FEM/INT/src
+//#include "cl_FEM_IWG_LSNormal_Bulk.hpp"                         //FEM/INT/src
+//#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"                       //FEM/INT/src
+//#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"                  //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp"           //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"  //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"      //FEM/INT/src
@@ -37,20 +37,20 @@ namespace moris
                 case ( IWG_Type::L2 ):
                     return std::make_shared< IWG_L2 >();
 
-                case ( IWG_Type::HELMHOLTZ ):
-                    return std::make_shared< IWG_Helmholtz_Bulk >();
-
-                case ( IWG_Type::HJ ):
-                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk2 >();
-
+//                case ( IWG_Type::HELMHOLTZ ):
+//                    return std::make_shared< IWG_Helmholtz_Bulk >();
+//
+//                case ( IWG_Type::HJ ):
+//                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk2 >();
+//
                 case ( IWG_Type::HJTEST ):
                     return std::make_shared< IWG_Hamilton_Jacobi_Bulk_Test >();
 
-                case ( IWG_Type::LSNORMAL ):
-                    return std::make_shared< IWG_LSNormal_Bulk >();
-
-                case ( IWG_Type::OLSSON ):
-                    return std::make_shared< IWG_Olsson_CLS_Bulk >();
+//                case ( IWG_Type::LSNORMAL ):
+//                    return std::make_shared< IWG_LSNormal_Bulk >();
+//
+//                case ( IWG_Type::OLSSON ):
+//                    return std::make_shared< IWG_Olsson_CLS_Bulk >();
 
                 case ( IWG_Type::SPATIALDIFF_BULK ):
                     return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Bulk >();

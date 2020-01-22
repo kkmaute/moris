@@ -8,6 +8,7 @@
 #include "linalg_typedefs.hpp"              //LINALG/src
 
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+#include <map>
 
 namespace moris
 {
@@ -132,6 +133,13 @@ namespace moris
              */
             void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                 moris::Cell< Matrix< DDRMat > >                & aResidual );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the residual wrt design variables
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_drdpdv( real aWStar );
 
 //------------------------------------------------------------------------------
         };

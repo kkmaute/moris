@@ -41,8 +41,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for given dof type
@@ -93,8 +92,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for a given dof type
@@ -185,6 +183,12 @@ namespace moris
                                                                                   moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual - This function does nothing.");
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_drdpdv - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

@@ -41,9 +41,7 @@ namespace moris
         {
             return mtk::Interpolation_Order::CUBIC;
         }
-
 // ----------------------------------------------------------------------------
-
         /**
          * string needed for gmsh output
          *

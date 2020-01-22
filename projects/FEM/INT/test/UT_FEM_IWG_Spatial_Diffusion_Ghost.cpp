@@ -349,15 +349,19 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;
+            tMasterFIManager.mIPGeometryInterpolator = &tGI;
+            tMasterFIManager.mIGGeometryInterpolator = &tGI;
             tSlaveFIManager.mFI  = tSlaveFIs;
+            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
+            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
+            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tMasterFIManager );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
-
-            // set IWG geometry interpolator
-            tIWG->set_geometry_interpolator( &tGI );
-            tIWG->set_geometry_interpolator( &tGI, mtk::Master_Slave::SLAVE );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------
@@ -367,8 +371,8 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
             // init the jacobian for IWG and FD evaluation
-            Cell< Cell< Matrix< DDRMat > > > tJacobians;
-            Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+            Matrix< DDRMat > tJacobians;
+            Matrix< DDRMat > tJacobiansFD;
 
             // check jacobian by FD
             bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,

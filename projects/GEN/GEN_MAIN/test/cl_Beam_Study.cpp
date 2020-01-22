@@ -123,7 +123,7 @@ TEST_CASE("beamStudy","[beamStudy_3D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         int tXDim = 100;    int tYDim = 2;    int tZDim = 2;
         std::string tDim00 = std::to_string(tXDim);    std::string tDim01 = std::to_string(tYDim);    std::string tDim02 = std::to_string(tZDim);

@@ -2,10 +2,6 @@
 .cproject
 .project
 
-#CLion
-.idea
-*.idea
-
 # Sometimes generated when debugging
 LDLIBS.txt
 
@@ -29,3 +25,5 @@ CMakeCache.txt
 # Used by individual developers
 mains/
 /CMakeFiles/clion-log.txt
+.idea
+*.idea

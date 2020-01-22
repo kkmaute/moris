@@ -117,6 +117,24 @@ Cell_Info_Quad4::get_node_map_outward_normal(moris::uint aSideOrdinal) const
         }
     }
 }
+moris::uint
+Cell_Info_Quad4::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+{
+    switch (aSideOrdinal)
+    {
+        case(0):{ return 2; break; }
+        case(1):{ return 3; break; }
+        case(2):{ return 0; break; }
+        case(3):{ return 1; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid side ordinal specified");
+            return MORIS_UINT_MAX;
+            break;
+        }
+    }
+}
+
 // ----------------------------------------------------------------------------------
 moris::real
 Cell_Info_Quad4::compute_cell_size( moris::mtk::Cell const * aCell ) const
@@ -132,6 +150,26 @@ Cell_Info_Quad4::compute_cell_size( moris::mtk::Cell const * aCell ) const
     return tLx*tLy;
 }
 // ----------------------------------------------------------------------------------
+void
+Cell_Info_Quad4::eval_N( const Matrix< DDRMat > & aXi,
+                               Matrix< DDRMat > & aNXi ) const
+{
+    // make sure that input is correct
+    MORIS_ASSERT( aXi.length() >= 2, "QUAD4 - eval_N: aXi not allocated or hat wrong size." );
+
+    // unpack xi and eta from input vector
+    real  xi = aXi( 0 );
+    real eta = aXi( 1 );
+
+    // populate matrix with values
+    aNXi.set_size( 1, 4 );
+    aNXi( 0 ) = ( ( 1.0 - xi ) * ( 1.0 - eta ) ) * 0.25;
+    aNXi( 1 ) = ( ( 1.0 + xi ) * ( 1.0 - eta ) ) * 0.25;
+    aNXi( 2 ) = ( ( 1.0 + xi ) * ( 1.0 + eta ) ) * 0.25;
+    aNXi( 3 ) = ( ( 1.0 - xi ) * ( 1.0 + eta ) ) * 0.25;
+}
+
+
 
 }
 }

@@ -44,6 +44,7 @@ namespace vis
     enum class Field_Type
     {
         NODAL,
+        NODAL_IP,
         ELEMENTAL,
         GLOBAL,
         END_ENUM//

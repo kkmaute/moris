@@ -27,8 +27,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for residual dof type
@@ -50,8 +49,7 @@ namespace moris
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            this->check_field_interpolators();
 #endif
 
             // get index for the residual dof type
@@ -91,6 +89,12 @@ namespace moris
                                                                                 moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual - Not implemented.");
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Neumann::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_drdpdv - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

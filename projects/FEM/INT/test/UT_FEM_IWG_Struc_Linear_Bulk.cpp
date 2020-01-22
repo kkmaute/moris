@@ -208,13 +208,15 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
     
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
-    
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
-    
+
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
     // evaluate the residual
@@ -223,8 +225,8 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
     
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -235,12 +237,15 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     // require check is true
     REQUIRE( tCheckJacobian );
     
+//    print( tJacobians,   "tJacobians" );
+//    print( tJacobiansFD, "tJacobiansFD" );
+
     // clean up
     tFIs.clear();
 
 }/*END_TEST_CASE*/
 
-TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
+TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Displacement]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -393,12 +398,14 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
 
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
-
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
@@ -408,8 +415,8 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
@@ -417,6 +424,9 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed]" )
                                                 1.0,
                                                 tJacobians,
                                                 tJacobiansFD );
+
+//    print( tJacobians,   "tJacobians" );
+//    print( tJacobiansFD, "tJacobiansFD" );
 
     // require check is true
     REQUIRE( tCheckJacobian );
@@ -566,13 +576,15 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     
     // populate the field interpolator manager
     tFIManager.mFI = tFIs;
+    tFIManager.mIPGeometryInterpolator = &tGI;
+    tFIManager.mIGGeometryInterpolator = &tGI;
+
+    // set the interpolator manager to the set
+    tIWG->mSet->mMasterFIManager = &tFIManager;
     
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
-    
-    // set IWG field interpolators
-    tIWG->set_geometry_interpolator( &tGI );
-    
+
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
     // evaluate the residual
@@ -581,8 +593,8 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     // check evaluation of the jacobian by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Cell< Matrix< DDRMat > > > tJacobians;
-    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
+    Matrix< DDRMat > tJacobians;
+    Matrix< DDRMat > tJacobiansFD;
     
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,

@@ -30,7 +30,7 @@
 #include "cl_XTK_External_Mesh_Data.hpp"
 #include "cl_XTK_Downward_Inheritance.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "cl_MTK_Cell_XTK_Impl.hpp"
+#include "cl_XTK_Cell_CM.hpp"
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
 
@@ -54,6 +54,8 @@ public:
     // general geometry engine
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
                     moris::ge::GEN_Geometry_Engine & aGeometryEngine);
+
+    ~Background_Mesh();
     /*!
      * Get number of entities in the background mesh and
      * the number of entities XTK has created
@@ -82,9 +84,6 @@ public:
      */
     moris::Matrix<moris::IndexMat>
     get_vertices_owner(moris::Matrix<moris::IndexMat> const & aVertexIndices) const;
-
-    moris::Cell<moris::mtk::Vertex_XTK> const &
-    get_all_vertices();
 
     /*!
      * Get an mtk vertex
@@ -347,6 +346,9 @@ public:
     void
     print_interface_node_flags();
 
+    void
+    print_vertex_map();
+
 
     // -------------------------------------------------------------------
     // Functions related to setting and accessing element phase indices
@@ -394,6 +396,9 @@ public:
                                    Child_Mesh*        aChildMeshPtr);
 
     void
+    add_new_cell_to_mesh(moris::mtk::Cell* aCell);
+
+    void
     add_cells_to_global_to_local_map(Matrix<IndexMat> const & aCellIndices,
                                      Matrix<IdMat>    const & aCellIds);
 
@@ -415,7 +420,7 @@ public:
         MORIS_ASSERT(mChildMtkCellMap.find(aElementIndex) != mChildMtkCellMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
-        return mChildMtkCells(tIndex);
+        return *mChildMtkCells(tIndex);
     }
 
     /*!
@@ -462,7 +467,7 @@ private:
 
     // Elements constructed by the decomposition process mtk Cells
     std::map < moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
-    moris::Cell<moris::mtk::Cell_XTK> mChildMtkCells;
+    moris::Cell<moris::mtk::Cell*> mChildMtkCells;
 
     // Vertex constructed by the decomposition process
     std::map< moris_id, moris_index> mVertexGlbToLocalMap;

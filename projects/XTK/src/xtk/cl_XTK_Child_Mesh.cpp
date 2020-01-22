@@ -866,7 +866,7 @@ Child_Mesh::get_child_elements_connected_to_parent_facet(moris::moris_index     
 
     moris::Matrix< moris::IndexMat > const & tFacetParentInds = this->get_facet_parent_inds();
     moris::Matrix< moris::DDSTMat  > const & tFacetParentRanks = this->get_facet_parent_ranks();
-    moris::Matrix< moris::IndexMat > const & tFacetToElement = this->get_facet_to_element();
+    moris::Matrix< moris::IndexMat > const & tFacetToElement   = this->get_facet_to_element();
 
     // Iterate through face ancestry ranks
     for(moris::size_t i = 0; i < tNumFacets; i++)

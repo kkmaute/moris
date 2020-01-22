@@ -14,12 +14,12 @@ namespace moris
 {
     namespace fem
     {
+
 //------------------------------------------------------------------------------
         Cluster::Cluster( const Element_Type                aElementType,
                           const mtk::Cluster              * aMeshCluster,
                                 Set                       * aSet,
-                                MSI::Equation_Object      * aEquationObject)
-
+                                MSI::Equation_Object      * aEquationObject )
         : mInterpolationElement( aEquationObject ),
           mSet( aSet ),
           mElementType( aElementType )
@@ -30,24 +30,29 @@ namespace moris
             // fill the master integration cells
             mMasterIntegrationCells = aMeshCluster->get_primary_cells_in_cluster();
 
+            // get number of subelements (IG cells)
+            uint tNumMasterIGCells = mMasterIntegrationCells.size();
+
+            // element factory
+            fem::Element_Factory tElementFactory;
+
+            // set size for the number of IG cells
+            mElements.resize( tNumMasterIGCells, nullptr );
+
             // switch on the element type
             switch ( mElementType )
             {
                 case ( fem::Element_Type::BULK ):
                 {
-                    // element factory
-                    fem::Element_Factory tElementFactory;
-
-                    mElements.resize( mMasterIntegrationCells.size(), nullptr );
-
-                    for( moris::uint Ik = 0; Ik < mMasterIntegrationCells.size(); Ik++)
+                    // loop over the IG cells
+                    for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                          mMasterIntegrationCells( Ik ),
-                                                                          mSet,
-                                                                          this,
-                                                                          Ik);
+                        mElements( iIGCell ) = tElementFactory.create_element( mElementType,
+                                                                               mMasterIntegrationCells( iIGCell ),
+                                                                               mSet,
+                                                                               this,
+                                                                               iIGCell );
                     }
                     break;
                 }
@@ -56,19 +61,15 @@ namespace moris
                     // set the side ordinals for the IG cells in the cluster
                     mMasterListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals();
 
-                    // element factory
-                    fem::Element_Factory tElementFactory;
-
-                    mElements.resize( mMasterIntegrationCells.size(), nullptr );
-
-                    for( moris::uint Ik = 0; Ik < mMasterIntegrationCells.size(); Ik++)
+                    // loop over the IG cells
+                    for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                          mMasterIntegrationCells( Ik ),
-                                                                          mSet,
-                                                                          this,
-                                                                          Ik );
+                        mElements( iIGCell ) = tElementFactory.create_element( mElementType,
+                                                                               mMasterIntegrationCells( iIGCell ),
+                                                                               mSet,
+                                                                               this,
+                                                                               iIGCell );
                     }
                     break;
                 }
@@ -81,20 +82,16 @@ namespace moris
                     mMasterListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
                     mSlaveListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
 
-                    // element factory
-                    fem::Element_Factory tElementFactory;
-
-                    mElements.resize( mMasterIntegrationCells.size(), nullptr );
-
-                    for( moris::uint Ik = 0; Ik < mMasterIntegrationCells.size(); Ik++)
+                    // loop over the IG cells
+                    for( moris::uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++)
                     {
-                        // create an element
-                        mElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                          mMasterIntegrationCells( Ik ),
-                                                                          mSlaveIntegrationCells( Ik ),
-                                                                          mSet,
-                                                                          this,
-                                                                          Ik );
+                        // create element
+                        mElements( iIGCell ) = tElementFactory.create_element( mElementType,
+                                                                               mMasterIntegrationCells( iIGCell ),
+                                                                               mSlaveIntegrationCells( iIGCell ),
+                                                                               mSet,
+                                                                               this,
+                                                                               iIGCell );
                     }
                     break;
                 }
@@ -112,19 +109,12 @@ namespace moris
                 delete tElements;
             }
             mElements.clear();
-
-            for( auto tElements : mVisElements )
-            {
-                delete tElements;
-            }
-            mVisElements.clear();
         }
 
 //------------------------------------------------------------------------------
         moris::Matrix< moris::DDRMat > Cluster::get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
                                                                                                moris::moris_index aSideOrdinal,
-                                                                                               mtk::Master_Slave  aIsMaster,
-                                                                                               bool               aIsVis )
+                                                                                               mtk::Master_Slave  aIsMaster )
         {
             // check that side cluster
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
@@ -141,8 +131,9 @@ namespace moris
             if( tIsTrivial )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator( aIsMaster )->extract_space_side_space_param_coeff( aSideOrdinal,
-                                                                                                              mSet->get_IG_space_interpolation_order() );
+                return mSet->get_field_interpolator_manager( aIsMaster )
+                           ->get_IP_geometry_interpolator()
+                           ->extract_space_side_space_param_coeff( aSideOrdinal, mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -165,7 +156,9 @@ namespace moris
             if( mSet->mIsTrivialMaster )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator()->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
+                return mSet->get_field_interpolator_manager()
+                           ->get_IP_geometry_interpolator()
+                           ->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -179,8 +172,8 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        Matrix< DDRMat > Cluster::get_side_normal( const mtk::Cell   * aCell,
-                                                  moris::moris_index   aSideOrdinal )
+        Matrix< DDRMat > Cluster::get_side_normal( const mtk::Cell          * aCell,
+                                                         moris::moris_index   aSideOrdinal )
         {
             // init normal
             Matrix < DDRMat > tNormal;
@@ -195,7 +188,7 @@ namespace moris
 //            else
 //            {
                 // get normal from the integration cell geometry interpolator
-                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( tNormal );
+                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_normal( tNormal );
 //            }
 
             return tNormal;
@@ -224,55 +217,62 @@ namespace moris
             return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
         }
 
-
 //------------------------------------------------------------------------------
         void Cluster::compute_jacobian()
          {
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the element
+                 // compute the jacobian for the IG element
                  mElements( iElem )->compute_jacobian();
              }
-//             print( mSet->mJacobian,"Jacobian");
          }
 
 //------------------------------------------------------------------------------
         void Cluster::compute_residual()
         {
-            // loop over the elements
+            // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the residual for the element
+                // compute the residual for the IG element
                 mElements( iElem )->compute_residual();
             }
-//            print( mSet->mResidual,"Residual");
         }
 
 //------------------------------------------------------------------------------
         void Cluster::compute_jacobian_and_residual()
         {
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the element
+                 // compute the jacobian for the IG element
                  mElements( iElem )->compute_jacobian();
 
-                 // compute the residual for the element
+                 // compute the residual for the IG element
                  mElements( iElem )->compute_residual();
              }
          }
 
 //------------------------------------------------------------------------------
-        //void Cluster::compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType )
+        void Cluster::compute_dRdp()
+        {
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // compute the jacobian for the IG element
+                mElements( iElem )->compute_dRdp();
+            }
+        }
+
+//------------------------------------------------------------------------------
         void Cluster::compute_quantity_of_interest( const uint aMeshIndex,
                                                     enum vis::Output_Type aOutputType,
                                                     enum vis::Field_Type  aFieldType )
         {
-             // loop over the elements
+             // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the quantity of interest for the element
+                 // compute the quantity of interest for the IG element
                  mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
              }
          }
@@ -280,13 +280,13 @@ namespace moris
 //------------------------------------------------------------------------------
         real Cluster::compute_volume()
         {
-            // set cluster volume
+            // init cluster volume
             real tClusterVolume = 0;
 
-            // loop over the elements in cluster
+            // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the volume for the element
+                // add volume contribution for the IG element
                 tClusterVolume += mElements( iElem )->compute_volume();
             }
             // return cluster volume value

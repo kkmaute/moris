@@ -31,6 +31,13 @@ Enriched_Interpolation_Mesh::~Enriched_Interpolation_Mesh()
     }
 
     mInterpVertEnrichment.clear();
+
+    for(auto it : mEnrichedInterpCells)
+    {
+        delete it;
+    }
+
+    mEnrichedInterpCells.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -74,7 +81,7 @@ Enriched_Interpolation_Mesh::get_entity_connected_to_entity_loc_inds(moris_index
 {
     MORIS_ERROR(aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,"Only support element to node connectivity");
     MORIS_ASSERT(aEntityIndex<(moris_index)mEnrichedInterpCells.size(),"Element index out of bounds");
-    return mEnrichedInterpCells(aEntityIndex).get_vertex_inds();
+    return mEnrichedInterpCells(aEntityIndex)->get_vertex_inds();
 }
 //------------------------------------------------------------------------------
 Matrix< IndexMat >
@@ -158,14 +165,14 @@ mtk::Cell const &
 Enriched_Interpolation_Mesh::get_mtk_cell( moris_index aElementIndex ) const
 {
     MORIS_ASSERT(aElementIndex < (moris_index)mEnrichedInterpCells.size(),"Cell index out of bounds");
-    return mEnrichedInterpCells(aElementIndex);
+    return *mEnrichedInterpCells(aElementIndex);
 }
 //------------------------------------------------------------------------------
 mtk::Cell &
 Enriched_Interpolation_Mesh::get_writable_mtk_cell( moris_index aElementIndex )
 {
     MORIS_ASSERT(aElementIndex < (moris_index)mEnrichedInterpCells.size(),"Cell index out of bounds");
-    return mEnrichedInterpCells(aElementIndex);
+    return *mEnrichedInterpCells(aElementIndex);
 }
 //------------------------------------------------------------------------------
 Matrix< IdMat >
@@ -178,6 +185,30 @@ uint
 Enriched_Interpolation_Mesh::get_num_elements()
 {
     return mEnrichedInterpCells.size();
+}
+//------------------------------------------------------------------------------
+moris_id
+Enriched_Interpolation_Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
+{
+   MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have max id");
+
+   moris::uint tNumEntities = this->get_num_entities(aEntityRank);
+
+   moris_id tLocalMaxId = 0;
+
+   for(moris::uint i = 0; i < tNumEntities; i++)
+   {
+       moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+
+       if(tId > tLocalMaxId)
+       {
+           tLocalMaxId = tId;
+       }
+   }
+
+   moris_id tGlobalMaxId = 0;
+   moris::max_all(tLocalMaxId,tGlobalMaxId);
+   return tGlobalMaxId;
 }
 //------------------------------------------------------------------------------
 Matrix<IndexMat> const &
@@ -308,10 +339,66 @@ Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(moris::Cell<mori
 
 }
 //------------------------------------------------------------------------------
-Cell<Interpolation_Cell_Unzipped> const &
+Cell<Interpolation_Cell_Unzipped *> const &
 Enriched_Interpolation_Mesh::get_enriched_interpolation_cells() const
 {
     return mEnrichedInterpCells;
+}
+//------------------------------------------------------------------------------
+Cell<Interpolation_Cell_Unzipped *> &
+Enriched_Interpolation_Mesh::get_enriched_interpolation_cells()
+{
+    return mEnrichedInterpCells;
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::get_owned_and_not_owned_enriched_interpolation_cells(Cell<Interpolation_Cell_Unzipped *>       & aOwnedInterpCells,
+                                                                                  Cell<Cell<Interpolation_Cell_Unzipped *>> & aNotOwnedInterpCells,
+                                                                                  Cell<uint>                                  & aProcRanks)
+{
+    // get all interp cells
+    Cell<Interpolation_Cell_Unzipped*> & tEnrInterpCells = this->get_enriched_interpolation_cells();
+
+    // reserve space
+    aOwnedInterpCells.resize(0);
+    aOwnedInterpCells.reserve(tEnrInterpCells.size());
+    aNotOwnedInterpCells.resize(0);
+    // proc rank
+    moris_index tParRank = par_rank();
+
+    // counter
+    moris::uint       tOwnerCount = 0;
+    Cell<moris::uint> tCounts(0);
+
+    // proc index
+    moris::uint tCurrentProcIndex = 0;
+
+    // map
+    std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
+
+    for(moris::uint i = 0; i <tEnrInterpCells.size(); i++)
+    {
+        moris_index tOwnerProc = tEnrInterpCells(i)->get_owner();
+
+        if(tParRank == tOwnerProc)
+        {
+            aOwnedInterpCells.push_back( tEnrInterpCells(i) );
+            tOwnerCount++;
+        }
+        else
+        {
+            if( tProcRankToDataIndex.find(tOwnerProc) == tProcRankToDataIndex.end())
+            {
+                tProcRankToDataIndex[tOwnerProc] = tCurrentProcIndex;
+                aProcRanks.push_back(tOwnerProc);
+                aNotOwnedInterpCells.push_back(Cell<Interpolation_Cell_Unzipped *>(0));
+                tCurrentProcIndex++;
+            }
+
+            moris_index tProcDataIndex = tProcRankToDataIndex[tOwnerProc];
+            aNotOwnedInterpCells(tProcDataIndex).push_back( tEnrInterpCells(i) );
+        }
+    }
 }
 //------------------------------------------------------------------------------
 moris::Cell<Interpolation_Cell_Unzipped const*>
@@ -419,7 +506,7 @@ void Enriched_Interpolation_Mesh::print_enriched_cells() const
     std::cout<<"\nEnriched Interpolation Cells:"<<std::endl;
     for(moris::uint i =0; i <tNumCells; i++)
     {
-        std::cout<<"   "<<mEnrichedInterpCells(i)<<std::endl;
+        std::cout<<"   "<<*mEnrichedInterpCells(i);
     }
 }
 void Enriched_Interpolation_Mesh::print_vertex_maps() const
@@ -477,7 +564,6 @@ Enriched_Interpolation_Mesh::finalize_setup()
 {
     this->assign_vertex_interpolation_ids();
     this->setup_local_to_global_maps();
-    this->make_parallel_consistent();
 }
 //------------------------------------------------------------------------------
 void
@@ -498,8 +584,8 @@ void
 Enriched_Interpolation_Mesh::setup_local_to_global_maps()
 {
     // initalize local to global maps
-    mLocalToGlobalMaps = Cell<Matrix< IdMat >>( mXTKModel->get_spatial_dim() + 1 );
-    mGlobaltoLobalMaps = Cell<std::unordered_map<moris_id,moris_index>>(mXTKModel->get_spatial_dim() + 1);
+    mLocalToGlobalMaps = Cell<Matrix< IdMat >>( 4 );
+    mGlobaltoLobalMaps = Cell<std::unordered_map<moris_id,moris_index>>(4);
 
     setup_vertex_maps();
     setup_cell_maps();
@@ -515,7 +601,7 @@ Enriched_Interpolation_Mesh::setup_vertex_maps()
     for(moris::uint i =0; i <tNumNodes; i++)
     {
         mLocalToGlobalMaps(0)(mEnrichedInterpVerts(i).get_index()) = mEnrichedInterpVerts(i).get_id();
-
+        MORIS_ASSERT(mEnrichedInterpVerts(i).get_index() == (moris_index)i,"Index alignment issue in vertices");
         MORIS_ASSERT(mGlobaltoLobalMaps(0).find(mEnrichedInterpVerts(i).get_id()) == mGlobaltoLobalMaps(0).end(),"Duplicate id in the vertex map detected");
 
         mGlobaltoLobalMaps(0)[mEnrichedInterpVerts(i).get_id()] = mEnrichedInterpVerts(i).get_index();
@@ -526,39 +612,60 @@ void
 Enriched_Interpolation_Mesh::setup_cell_maps()
 {
     moris::uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
-    moris::uint tSpatialDim = mXTKModel->get_spatial_dim();
 
-    mLocalToGlobalMaps(tSpatialDim) = Matrix<IdMat>(tNumCells,1);
+    mLocalToGlobalMaps(3) = Matrix<IdMat>(tNumCells,1);
 
     for(moris::uint i =0; i <tNumCells; i++)
     {
-        mLocalToGlobalMaps(tSpatialDim)(mEnrichedInterpVerts(i).get_index()) = mEnrichedInterpVerts(i).get_id();
+        mLocalToGlobalMaps(3)(mEnrichedInterpCells(i)->get_index()) = mEnrichedInterpCells(i)->get_id();
 
-        MORIS_ASSERT(mGlobaltoLobalMaps(tSpatialDim).find(mEnrichedInterpVerts(i).get_id()) == mGlobaltoLobalMaps(tSpatialDim).end(),"Duplicate id in the vertex map detected");
+        MORIS_ASSERT(mEnrichedInterpCells(i)->get_index() == (moris_index)i,"Index alignment issue in cells");
+        MORIS_ASSERT(mGlobaltoLobalMaps(3).find(mEnrichedInterpCells(i)->get_id()) == mGlobaltoLobalMaps(3).end(),"Duplicate id in the vertex map detected");
 
-        mGlobaltoLobalMaps(tSpatialDim)[mEnrichedInterpVerts(i).get_id()] = mEnrichedInterpVerts(i).get_index();
+        mGlobaltoLobalMaps(3)[mEnrichedInterpCells(i)->get_id()] = mEnrichedInterpCells(i)->get_index();
     }
 }
 //------------------------------------------------------------------------------
-void
-Enriched_Interpolation_Mesh::make_parallel_consistent()
+moris_id
+Enriched_Interpolation_Mesh::allocate_entity_ids(moris::size_t   aNumReqs,
+                                                 enum EntityRank aEntityRank)
 {
-    this->assign_enriched_basis_ids();
-    this->assign_enriched_interpolation_cell_ids();
-}
-//------------------------------------------------------------------------------
-void
-Enriched_Interpolation_Mesh::assign_enriched_basis_ids()
-{
+    MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have ids");
 
-}
-//------------------------------------------------------------------------------
-void
-Enriched_Interpolation_Mesh::assign_enriched_interpolation_cell_ids()
-{
+    moris_id tGlobalMax = this->get_max_entity_id(aEntityRank);
 
+    int tProcRank = par_rank();
+    int tProcSize = par_size();
+
+    moris::Cell<moris::moris_id> aGatheredInfo;
+    moris::Cell<moris::moris_id> tFirstId(1);
+    moris::Cell<moris::moris_id> tNumIdsRequested(1);
+
+    tNumIdsRequested(0) = (moris::moris_id)aNumReqs;
+
+    xtk::gather(tNumIdsRequested,aGatheredInfo);
+
+    moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
+
+    if(tProcRank == 0)
+    {
+        // Loop over entities print the number of entities requested by each processor
+        for (int iProc = 0; iProc < tProcSize; ++iProc)
+        {
+            // Give each processor their desired amount of IDs
+            tProcFirstID(iProc) = tGlobalMax;
+
+            // Increment the first available node ID
+            tGlobalMax = tGlobalMax+aGatheredInfo(iProc);
+        }
+
+    }
+
+    xtk::scatter(tProcFirstID,tFirstId);
+
+    return tFirstId(0);
 }
-//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

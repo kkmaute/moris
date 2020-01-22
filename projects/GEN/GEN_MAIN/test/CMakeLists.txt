@@ -8,7 +8,7 @@ set(TEST_SOURCES
     
   #  cl_Beam_Study.cpp
   #  cl_Fiber_Problem.cpp
-  #  cl_For_Thesis.cpp
+    cl_For_Thesis.cpp
     
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp

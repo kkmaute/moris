@@ -134,6 +134,26 @@ Cell_Info_Hex64::get_node_map_outward_normal(moris::uint aSideOrdinal)  const
     }
 }
 //-----------------------------------------------------------------------------
+moris::uint
+Cell_Info_Hex64::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+{
+    switch (aSideOrdinal)
+    {
+        case(0):{ return 2; break; }
+        case(1):{ return 3; break; }
+        case(2):{ return 0; break; }
+        case(3):{ return 1; break; }
+        case(4):{ return 5; break; }
+        case(5):{ return 4; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid side ordinal specified");
+            return MORIS_UINT_MAX;
+            break;
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 moris::real
 Cell_Info_Hex64::compute_cell_size( moris::mtk::Cell const * aCell ) const
 {

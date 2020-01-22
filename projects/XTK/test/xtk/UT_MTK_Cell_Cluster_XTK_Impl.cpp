@@ -119,13 +119,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-
-        std::string tMeshOutputFile = "./xtk_exo/xtk_cell_cluster_output.e";
-        tCutMeshData->create_output_mesh(tMeshOutputFile);
-
         delete tMeshData;
-        delete tCutMeshData;
     }
 }
 }

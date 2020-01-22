@@ -50,7 +50,8 @@ set(HEADERS
     topology/cl_XTK_Linear_Basis_Functions.hpp
     topology/cl_XTK_Quad_4_Basis_Function.hpp
     topology/cl_XTK_Quad_4_Topology.hpp
-    xtk/cl_MTK_Cell_XTK_Impl.hpp
+    xtk/cl_XTK_Cell_CM.hpp
+   	xtk/cl_XTK_Cell_No_CM.hpp
     xtk/cl_MTK_Mesh_XTK_Impl.hpp
     xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
     xtk/cl_MTK_Vertex_XTK_Impl.hpp
@@ -126,7 +127,8 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 
 # List source files
 set(LIB_SOURCES
-xtk/cl_MTK_Cell_XTK_Impl.cpp
+xtk/cl_XTK_Cell_CM.cpp
+xtk/cl_XTK_Cell_No_CM.cpp
 xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
 xtk/cl_MTK_Vertex_XTK_Impl.cpp
 xtk/cl_XTK_Background_Mesh.cpp

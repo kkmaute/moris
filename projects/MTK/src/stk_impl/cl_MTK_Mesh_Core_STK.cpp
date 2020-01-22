@@ -292,11 +292,12 @@ namespace mtk
         uint tCounter  = 0;
         uint tNumFaces = tFacesInElem.size();
 
-        moris::Matrix< IndexMat > tElemsConnectedToElem(2, tNumFaces);
+        moris::Matrix< IndexMat > tElemsConnectedToElem(4, tNumFaces);
 
         for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
         {
             std::vector<stk::mesh::Entity> tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacesInElem[faceIt],stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
+            moris_index tFacetId = (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tFacesInElem[faceIt]);
 
             // Faces in mesh boundaries do not have more than one element
             if ( tDummyConnectivity.size() > 0 )
@@ -306,6 +307,8 @@ namespace mtk
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tDummyConnectivity[0]);
                     tElemsConnectedToElem( 1,tCounter ) = faceIt;
+                    tElemsConnectedToElem( 2,tCounter ) = this->get_facet_ordinal_from_cell_and_facet_loc_inds(tFacetId,tElemsConnectedToElem( 0,tCounter ));
+                    tElemsConnectedToElem( 3,tCounter ) = MORIS_INDEX_MAX;
                     tCounter++;
                 }
             }
@@ -317,6 +320,9 @@ namespace mtk
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tDummyConnectivity[1]);
                     tElemsConnectedToElem( 1,tCounter ) = faceIt;
+                    tElemsConnectedToElem( 2,tCounter ) = this->get_facet_ordinal_from_cell_and_facet_loc_inds(tFacetId,tElemsConnectedToElem( 0,tCounter ));
+                    tElemsConnectedToElem( 3,tCounter ) = MORIS_INDEX_MAX;
+
                     tCounter++;
                 }
             }
@@ -326,7 +332,7 @@ namespace mtk
         }
 
         // Resize to include only ids added above and get rid of initialized extra zeros
-        tElemsConnectedToElem.resize( 2,tCounter );
+        tElemsConnectedToElem.resize( 4,tCounter );
 
         return tElemsConnectedToElem;
     }
@@ -565,7 +571,7 @@ namespace mtk
 
     moris_index
     Mesh_Core_STK::get_facet_ordinal_from_cell_and_facet_id_glob_ids(moris_id aFaceId,
-                                                                moris_id aCellId) const
+                                                                     moris_id aCellId) const
     {
         MORIS_ASSERT(mSTKMeshData->mCreatedFaces,"Faces need to be created for this function");
 
@@ -583,17 +589,6 @@ namespace mtk
         MORIS_ERROR(tOrdinal!=MORIS_INDEX_MAX," Facet ordinal not found");
         return tOrdinal;
     }
-
-    moris_index
-    Mesh_Core_STK::get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
-                                                             moris::moris_index aCellIndex) const
-    {
-        moris_id tFaceId = this->get_glb_entity_id_from_entity_loc_index(aFaceIndex,this->get_facet_rank());
-        moris_id tCellId = this->get_glb_entity_id_from_entity_loc_index(aCellIndex,EntityRank::ELEMENT);
-
-        return get_facet_ordinal_from_cell_and_facet_id_glob_ids(tFaceId,tCellId);
-    }
-
 
     // ----------------------------------------------------------------------------
 
@@ -613,7 +608,11 @@ namespace mtk
 
         return aAvailableNodeIDs;
     }
-
+    moris_id
+    Mesh_Core_STK::get_max_entity_id( enum EntityRank aEntityRank ) const
+    {
+        return this->generate_unique_entity_ids(1,EntityRank::NODE)(0);
+    }
 //##############################################
 // Coordinate Field Functions
 //##############################################

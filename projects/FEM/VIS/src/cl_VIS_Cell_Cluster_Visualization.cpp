@@ -113,6 +113,7 @@ Cell_Cluster_Visualization::get_interpolation_cell( const mtk::Master_Slave aIsM
 moris::Cell<moris::mtk::Vertex const *> const &
 Cell_Cluster_Visualization::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
 {
+//    MORIS_ASSERT(!mTrivial,"Trying to access vertices in cluster on a trivial cluster");
     return mVerticesInCluster;
 }
 

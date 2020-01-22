@@ -44,8 +44,8 @@ namespace moris
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
-            // single dof type
-            MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
+//            // single dof type
+//            MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
 
             // active dof type map
             Matrix< DDSMat > mDofTypeMap;
@@ -242,25 +242,25 @@ namespace moris
                 mPropDofDer.resize( tNumDofTypes );
             };
 
-//------------------------------------------------------------------------------
-            /*
-             * set dof type for the single dof type case
-             * @param[ in ] aDof a dof type
-             */
-            void set_dof_type( MSI::Dof_Type aDof )
-            {
-                mDof = aDof;
-            };
-
-//------------------------------------------------------------------------------
-            /*
-             * get dof type for the single dof type case
-             * @param[ out ] mDof a dof type
-             */
-            MSI::Dof_Type get_dof_type(  )
-            {
-                return mDof;
-            };
+////------------------------------------------------------------------------------
+//            /*
+//             * set dof type for the single dof type case
+//             * @param[ in ] aDof a dof type
+//             */
+//            void set_dof_type( MSI::Dof_Type aDof )
+//            {
+//                mDof = aDof;
+//            };
+//
+////------------------------------------------------------------------------------
+//            /*
+//             * get dof type for the single dof type case
+//             * @param[ out ] mDof a dof type
+//             */
+//            MSI::Dof_Type get_dof_type( )
+//            {
+//                return mDof;
+//            };
 
 //------------------------------------------------------------------------------
             /**
@@ -486,6 +486,51 @@ namespace moris
                 {
                     // populate the dof type list
                     aDofTypes.append( mDofTypes( iDOF ) );
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get non unique dof type list
+             * @param[ in ] aDofType cell of dof type
+             */
+            void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes )
+            {
+                // init counter
+                uint tDofCounter = 0;
+                uint tDvCounter  = 0;
+
+                // loop over dof types
+                for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
+                {
+                    // update counter
+                    tDofCounter += mDofTypes( iDof ).size();
+                }
+
+                // loop over dv types
+                for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
+                {
+                    // update counter
+                    tDvCounter += mDvTypes( iDv ).size();
+                }
+
+                // reserve memory for dof and dv type lists
+                aDofTypes.reserve( tDofCounter );
+                aDvTypes.reserve( tDvCounter );
+
+                // loop over dof types
+                for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
+                {
+                    // populate the dof type list
+                    aDofTypes.append( mDofTypes( iDof ) );
+                }
+
+                // loop over dv types
+                for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
+                {
+                    // populate the dv type list
+                    aDvTypes.append( mDvTypes( iDv ) );
                 }
             }
 

@@ -65,6 +65,7 @@ class Enrichment_Parameters;
 class Ghost_Stabilization;
 class Enriched_Interpolation_Mesh;
 class Enriched_Integration_Mesh;
+class Ghost_Stabilization;
 }
 
 
@@ -86,6 +87,7 @@ public:
     friend class Enrichment;
     friend class Enriched_Interpolation_Mesh;
     friend class Enriched_Integration_Mesh;
+    friend class Ghost_Stabilization;
 
     //--------------------------------------------------------------------------------
     // Initialization
@@ -127,8 +129,7 @@ public:
      * @param aMethods - specify which type of subdivision method to use (this could be changed to command line parsing or XML reading)
      * @param aSetPhase - tell it to set phase information
      */
-    void decompose(Cell<enum Subdivision_Method> aMethods,
-                   bool                          aSetPhase  = true);
+    void decompose(Cell<enum Subdivision_Method> aMethods);
 
     /*!
     * Uses sub-phase information within a child mesh to construct one interpolation element for each sub-phase cluster
@@ -284,14 +285,17 @@ public:
     moris::Cell<moris::Cell<moris_index>>  const &
     get_subphase_to_subphase(){ return mSubphaseToSubPhase; };
 
+    moris::Cell<moris::Cell<moris_index>>  const &
+    get_subphase_to_subphase_my_side_ords(){ return mSubphaseToSubPhaseMySideOrds; };
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    get_subphase_to_subphase_neighbor_side_ords(){ return mSubphaseToSubPhaseNeighborSideOrds; };
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    get_subphase_to_subphase_transition_loc(){ return mTransitionNeighborCellLocation; };
+
     bool
     subphase_is_in_child_mesh(moris_index aSubphaseIndex);
-
-    /*
-     * Get bulk phase of subphase by index
-     */
-    uint
-    get_subphase_bulk_index(moris_index aSubPhaseIndex);
 
 
     moris::Matrix<moris::IndexMat>
@@ -371,6 +375,13 @@ private:
     // element to element neighborhood
     moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
     moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhase;
+    moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhaseMySideOrds;
+    moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhaseNeighborSideOrds;
+
+    // in the case of a hierarchically refined mesh, there are transitions with hanging nodes
+    // this data flags the transition from a large facet to a smaller facet. (this is trivial
+    // for non hmr type meshes)
+    moris::Cell<moris::Cell<moris_index>> mTransitionNeighborCellLocation;
 
     // local to global subphase map
     std::unordered_map<moris::moris_id,moris::moris_index> mGlobalToLocalSubphaseMap;
@@ -444,17 +455,12 @@ private:
                            std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
                            Cell<Matrix<IndexMat>>                & aSentRequests);
 
+protected:
+
     void
     send_outward_requests(moris_index            const & aMPITag,
                           Cell<uint>             const & aProcRanks,
                           Cell<Matrix<IndexMat>> & aOutwardRequests);
-
-//    void
-//    assign_node_requests_owned_identifiers_and_setup_send(Decomposition_Data & aDecompData,
-//                                                          Cell<uint> const &       aOwnedRequest,
-//                                                          Cell<Matrix<IndexMat>> & aSendData,
-//                                                          moris::moris_id &        aNodeInd,
-//                                                          moris::moris_id &        aNodeId);
 
     void
     inward_receive_requests(moris_index            const & aMPITag,
@@ -485,6 +491,7 @@ private:
                                     moris::moris_id &    aNodeInd,
                                     moris::moris_id &    aNodeId);
 
+private:
     /*
      * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
      * Tasks performed here:
@@ -774,13 +781,6 @@ private:
     Cell<moris::Matrix<moris::IdMat>>
     combine_interface_and_non_interface_blocks(Cell<moris::Matrix<moris::IdMat>> & tChildElementsByPhase,
                                                Cell<moris::Matrix<moris::IdMat>> & tNoChildElementsByPhase);
-
-    /*!
-     * Pack the ghost stabilization cells as a side set
-     */
-    Cell<Matrix<IdMat>>
-    pack_ghost_as_side_set();
-
 
     // Internal Aura Construction ------------------------------------------------------
 
