@@ -38,10 +38,15 @@
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere_Box.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Plane.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Sphere.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Sphere_Box.hpp"
+
+//#include "cl_GEN_Geometry.hpp"
+//#include "cl_GEN_Plane.hpp"
+//#include "cl_GEN_Sphere.hpp"
+//#include "cl_GEN_Sphere_Box.hpp"
 
 // select namespaces
 using namespace moris;

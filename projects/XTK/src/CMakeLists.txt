@@ -149,11 +149,11 @@ xtk/cl_XTK_Interpolation_Cell.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
+	${GEN_MAIN}-lib
 	${LINALG}-lib
 	${MTK}-lib
 	${ALG}-lib
 	${CHR}-lib
-	${GEN}-lib
     )
 
 # Set the output path for library
@@ -218,6 +218,7 @@ set(XTK_EXE_SOURCES
 set(XTK_EXE_DEPENDENCIES
     ${XTK}-lib
     ${MTK}-lib
+    ${GEN_MAIN}-lib
     ${COM}-lib
     ${IOS}-lib
     ${ALG}-lib

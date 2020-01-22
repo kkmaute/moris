@@ -13,6 +13,8 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
 
+#include "cl_GEN_Dv_Enums.hpp"
+
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 namespace moris
@@ -78,8 +80,8 @@ namespace mdl
              * @param[in] aDvTypes                  List of Dv types
              *
              */
-            virtual void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                                     Cell< enum MSI::Dv_Type > & aDvTypes ) = 0;
+            virtual void get_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                                     Cell< enum GEN_DV > & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -91,9 +93,9 @@ namespace mdl
              *
              */
             virtual void get_pdv_value( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                        const Cell< enum MSI::Dv_Type >         & aDvTypes,
-                                              moris::Matrix< DDRMat >           & aDvValues,
-                                              moris::Matrix< DDSMat >           & aIsActiveDv ) = 0;
+                                        const Cell< enum GEN_DV >               & aDvTypes,
+                                              Cell< moris::Matrix< DDRMat > >   & aDvValues,
+                                              Cell< moris::Matrix< DDSMat > >   & aIsActiveDv ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -112,8 +114,8 @@ namespace mdl
              *
              */
             virtual void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                                      const Cell< enum MSI::Dv_Type >         & aDvTypes,
-                                                            moris::Matrix< DDRMat >           & aDvIds ) = 0;
+                                                      const Cell< enum GEN_DV >               & aDvTypes,
+                                                            Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
 
 //------------------------------------------------------------------------------
         };

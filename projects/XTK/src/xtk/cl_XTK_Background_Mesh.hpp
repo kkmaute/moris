@@ -38,7 +38,7 @@
 #include "cl_MGE_Geometry_Engine.hpp"
 
 // general geometry engine class
-#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geomeng/cl_GEN_Geometry_Engine.hpp"  // FIXME
 
 namespace xtk
 {
