@@ -190,7 +190,8 @@ namespace moris
                  moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
                  // create new fem set
-                 tElementBlocks( Ik ) = new fem::Set( tBlockSet,
+                 tElementBlocks( Ik ) = new fem::Set( nullptr,
+                                                      tBlockSet,
                                                       tSetInfo( Ik ),
                                                       tNodes );
 

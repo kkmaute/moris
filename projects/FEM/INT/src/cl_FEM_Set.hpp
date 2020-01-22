@@ -42,6 +42,7 @@ namespace MSI
 }
     namespace fem
     {
+    class FEM_Model;
     class IWG;
     class IQI;
     class Field_Interpolator;
@@ -56,6 +57,8 @@ namespace MSI
     {
     private:
 
+        // FEM model
+        fem::FEM_Model * mFemModel = nullptr;
         // pointer to the corresponding mesh set
         moris::mtk::Set * mMeshSet = nullptr;
 
@@ -137,9 +140,10 @@ namespace MSI
          * @param[ in ] aSetInfo user defined info for set
          * @param[ in ] aIPNodes cell of node pointers
          */
-        Set( moris::mtk::Set           * aMeshSet,
-             fem::Set_User_Info        & aSetInfo,
-             moris::Cell< Node_Base* > & aIPNodes );
+        Set(       fem::FEM_Model            * aFemModel,
+                   moris::mtk::Set           * aMeshSet,
+             const fem::Set_User_Info        & aSetInfo,
+             const moris::Cell< Node_Base* > & aIPNodes );
 
         /**
          * trivial constructor

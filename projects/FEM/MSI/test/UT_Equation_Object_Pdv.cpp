@@ -303,11 +303,11 @@ namespace moris
 
 //        tSolverInterface->set_solution_vector( mVector );
 
-        moris::Cell< fem::Set * > tSets =  tModel->get_equation_sets( );
+        moris::Cell< MSI::Equation_Set * > tSets =  tModel->get_equation_sets( );
 
 //        tSets( 0 )->set_Dv_interface( tDesignVariableInterface );
 
-        tSets( 0 )->mRequestedIWGs = { tIWG };
+        reinterpret_cast< fem::Set * >(tSets( 0 ))->mRequestedIWGs = { tIWG };
 
         Cell< MSI::Equation_Object * > tEquationObject = tSets( 0 )->get_equation_object_list();
 

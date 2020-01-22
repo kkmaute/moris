@@ -37,6 +37,7 @@ namespace moris
         class Set;
         class Field_Interpolator;
         class Set_User_Info;
+        class FEM_Model;
     }
 
     namespace dla
@@ -77,26 +78,13 @@ namespace moris
             mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
 
-            // list of IP node pointers
-            moris::Cell< fem::Node_Base* > mIPNodes;
-
-            // list of IG node pointers
-             moris::Cell< fem::Node_Base* > mIGNodes;
-
-            // list of IP cell pointers
-            moris::Cell< fem::Cell* > mIPCells;
-
-            // list of IG cell pointers
-            moris::Cell< fem::Cell* > mIGCells;
+            std::shared_ptr< fem::FEM_Model >    mFemModel = nullptr;
 
             // list of FEM sets
-            moris::Cell< fem::Set * > mFemSets;
+            moris::Cell< MSI::Equation_Set * > mEquationSets;
 
             // list of FEM clusters
-            moris::Cell< MSI::Equation_Object* > mFemClusters;
-
-            // list of groups of IWGs
-            moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
+            moris::Cell< MSI::Equation_Object* > mEquationObjects;
 
             // by default, this value is set to the order of the
             // Lagrange modes
@@ -111,8 +99,6 @@ namespace moris
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
-
-            map< moris_index, moris_index >   mMeshSetToFemSetMap;
 
             Matrix< DDRMat> mSolHMR;
 
@@ -173,17 +159,14 @@ namespace moris
             /**
              * get equation sets for test
              */
-            moris::Cell< fem::Set * > & get_equation_sets( )
+            moris::Cell< MSI::Equation_Set * > & get_equation_sets( )
             {
-                return mFemSets;
+                return mEquationSets;
             };
 
 //------------------------------------------------------------------------------
 
-            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
-            {
-                return mMeshSetToFemSetMap;
-            };
+            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( );
 
 //------------------------------------------------------------------------------
             /**

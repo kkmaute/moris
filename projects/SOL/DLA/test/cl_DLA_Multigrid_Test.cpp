@@ -185,7 +185,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
             // create new fem set
-            tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
+            tElementBlocks( tFemSetCounter ) = new fem::Set( nullptr,
+                                                             tBlockSet,
                                                              tSetInfo( tFemSetCounter ),
                                                              tNodes );
 

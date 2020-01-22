@@ -103,7 +103,8 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
          tSetInfo( 0 ).set_IWGs( { tIWG } );
 
         // create a set
-         tFEMSets( 0 ) = new fem::Set( tMeshSet,
+         tFEMSets( 0 ) = new fem::Set( nullptr,
+                                       tMeshSet,
                                        tSetInfo( 0 ),
                                        tNodes );
 

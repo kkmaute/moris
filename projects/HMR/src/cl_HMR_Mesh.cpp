@@ -903,7 +903,17 @@ namespace moris
             uint tPattern = mMesh->get_activation_pattern();
 
             // get pointer to element
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement;
+
+           // get pointer to element
+           if( mDatabase->get_parameters()->use_number_aura() )
+           {
+               tElement = mMesh->get_element_including_aura( aElementIndex );
+           }
+           else
+           {
+               tElement = mMesh->get_element( aElementIndex );
+           }
 
             // get pointer to background element
             Background_Element_Base * tBackElement = tElement->get_background_element();
@@ -918,16 +928,19 @@ namespace moris
                 // get pointer to neighbor
                 Background_Element_Base * tNeighbor = tBackElement->get_neighbor( k );
 
-                if( ! tNeighbor->is_padding() )
+                if(tNeighbor != nullptr)
                 {
-                    if( tNeighbor->is_refined( tPattern ) )
+                    if( ! tNeighbor->is_padding() )
                     {
-                        tNeighbor->get_number_of_active_descendants( tPattern, aCounter );
-                    }
-                    else
-                    {
-                        // increment counter
-                        ++aCounter;
+                        if( tNeighbor->is_refined( tPattern ) )
+                         {
+                            tNeighbor->get_number_of_active_descendants( tPattern, aCounter );
+                        }
+                        else
+                        {
+                            // increment counter
+                            ++aCounter;
+                        }
                     }
                 }
             }
@@ -961,50 +974,53 @@ namespace moris
                 // get the neighbor side ordinal
                 int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
 
-                if( ! tNeighbor->is_padding() )
+                if(tNeighbor != nullptr)
                 {
-                    if( tNeighbor->is_refined( tPattern ) )
+                    if( ! tNeighbor->is_padding() )
                     {
-
-                        // get the neighbor child cell ordinal
-                        int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
-
-                        // get my child cell ordinals that would be on this side (for use in XTK ghost)
-                        Matrix<IndexMat> tMyChildOrds;
-                        tBackElement->get_child_cell_ordinals_on_side(k,tMyChildOrds);
-
-                        tStart = aCounter;
-
-                        tNeighbor->collect_active_descendants_by_memory_index( tPattern,
-                                                                               aMemoryIndices,
-                                                                               aCounter,
-                                                                               k );
-
-                        // mark facets that we share with other element
-                        tEnd = aCounter;
-
-                        moris::uint tZeroStart = 0;
-                        for(moris::uint i = tStart; i < tEnd; i++)
+                        if( tNeighbor->is_refined( tPattern ) )
                         {
-                            aThisCellFacetOrds(i) = k;
-                            aNeighborCellFacetOrds(i) = tNeighborSideOrd;
-                            aTransitionNeighborCellLocation(i) = tMyChildOrds(tZeroStart++);
+
+                            // get the neighbor child cell ordinal
+                            int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
+
+                            // get my child cell ordinals that would be on this side (for use in XTK ghost)
+                            Matrix<IndexMat> tMyChildOrds;
+                            tBackElement->get_child_cell_ordinals_on_side(k,tMyChildOrds);
+
+                            tStart = aCounter;
+
+                            tNeighbor->collect_active_descendants_by_memory_index( tPattern,
+                                                                                   aMemoryIndices,
+                                                                                   aCounter,
+                                                                                   k );
+
+                            // mark facets that we share with other element
+                            tEnd = aCounter;
+
+                            moris::uint tZeroStart = 0;
+                            for(moris::uint i = tStart; i < tEnd; i++)
+                            {
+                                aThisCellFacetOrds(i) = k;
+                                aNeighborCellFacetOrds(i) = tNeighborSideOrd;
+                                aTransitionNeighborCellLocation(i) = tMyChildOrds(tZeroStart++);
+                            }
+
+
                         }
-
-
-                    }
-                    else
-                    {
-                        while ( ! tNeighbor->is_active( tPattern ) )
+                        else
                         {
-                            tNeighbor = tNeighbor->get_parent();
+                            while ( ! tNeighbor->is_active( tPattern ) )
+                            {
+                                tNeighbor = tNeighbor->get_parent();
+                            }
+
+                            MORIS_ASSERT(tNeighbor->get_memory_index() != MORIS_INDEX_MAX,"A Neighbor with max index should not be outputted.");
+
+                            aThisCellFacetOrds(aCounter) = k;
+                            aNeighborCellFacetOrds(aCounter) = tNeighborSideOrd;
+                            aMemoryIndices( aCounter++ ) = tNeighbor->get_memory_index();
                         }
-
-                        MORIS_ASSERT(tNeighbor->get_memory_index() != MORIS_INDEX_MAX,"A Neighbor with max index should not be outputted.");
-
-                        aThisCellFacetOrds(aCounter) = k;
-                        aNeighborCellFacetOrds(aCounter) = tNeighborSideOrd;
-                        aMemoryIndices( aCounter++ ) = tNeighbor->get_memory_index();
                     }
                 }
             }

@@ -75,10 +75,10 @@ namespace moris
          * @param[ in ] aNodes       cell of node pointers
          * @param[ in ] aSet         a fem set
          */
-        Interpolation_Element( const Element_Type                aElementType,
-                               const Cell< const mtk::Cell * > & aInterpolationCell,
-                                     moris::Cell< Node_Base* > & aNodes,
-                                     Set                       * aSet );
+        Interpolation_Element( const Element_Type                       aElementType,
+                               const moris::Cell< const mtk::Cell * > & aInterpolationCell,
+                                     moris::Cell< Node_Base* >        & aNodes,
+                                     Set                              * aSet );
 
 //------------------------------------------------------------------------------
         /**

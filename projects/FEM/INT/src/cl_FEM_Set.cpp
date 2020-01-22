@@ -8,6 +8,7 @@
 
 #include "cl_MSI_Model_Solver_Interface.hpp"     //FEM/MSI/src
 #include "cl_MSI_Solver_Interface.hpp"           //FEM/MSI/src
+#include "cl_FEM_Model.hpp"                      //FEM/INT/src
 #include "cl_FEM_Set.hpp"                        //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
@@ -23,13 +24,14 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-    Set::Set( moris::mtk::Set           * aMeshSet,
-              fem::Set_User_Info        & aSetInfo,
-              moris::Cell< Node_Base* > & aIPNodes )
-    : mMeshSet( aMeshSet ),
-      mNodes( aIPNodes ),
-      mIWGs( aSetInfo.get_IWGs() ),
-      mIQIs( aSetInfo.get_IQIs() )
+    Set::Set(       fem::FEM_Model            * aFemModel,
+                    moris::mtk::Set           * aMeshSet,
+              const fem::Set_User_Info        & aSetInfo,
+              const moris::Cell< Node_Base* > & aIPNodes ) : mFemModel( aFemModel ),
+                                                             mMeshSet( aMeshSet ),
+                                                             mNodes( aIPNodes ),
+                                                             mIWGs( aSetInfo.get_IWGs() ),
+                                                             mIQIs( aSetInfo.get_IQIs() )
     {
         this->determine_set_type();
 
@@ -698,7 +700,7 @@ namespace moris
     void Set::create_residual_dof_assembly_map()
     {
         // get the list of requested dof types by the solver
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -809,7 +811,7 @@ namespace moris
     void Set::create_jacobian_dof_assembly_map()
     {
         // get list of requested dof types (by the solver)
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -932,11 +934,11 @@ namespace moris
     void Set::create_staggered_jacobian_dof_assembly_map()
     {
         // get list of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
-        Cell< Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
+        moris::Cell< moris::Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
                                                                        ->get_solver_interface()
                                                                        ->get_secundary_dof_types();
 
@@ -1174,7 +1176,7 @@ namespace moris
     void Set::create_requested_IWG_list()
     {
         // get List of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -1262,7 +1264,7 @@ namespace moris
                     }
                 }
 
-                Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
+                moris::Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
 
                 for ( auto tSecDofTypesI : tSecDofTypes)
                 {
