@@ -14,6 +14,7 @@
 #include "fn_sum.hpp"
 #include "fn_trans.hpp"
 #include "op_div.hpp"
+#include "fn_norm.hpp"
 #include "op_times.hpp"
 namespace moris
 {
@@ -148,6 +149,17 @@ Cell_Info_Quad4::compute_cell_size( moris::mtk::Cell const * aCell ) const
     real tLy = std::abs(tNode1Coords0(1) - tNodeCoords2(1));
 
     return tLx*tLy;
+}
+// ----------------------------------------------------------------------------------
+moris::real
+Cell_Info_Quad4::compute_cell_side_size( moris::mtk::Cell const * aCell ,
+                                        moris_index const & aSideOrd) const
+{
+    moris::Cell< mtk::Vertex const* > tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
+
+    Matrix<DDRMat> tLVec = tVertices(1)->get_coords() - tVertices(0)->get_coords();
+
+    return moris::norm(tLVec);
 }
 // ----------------------------------------------------------------------------------
 void

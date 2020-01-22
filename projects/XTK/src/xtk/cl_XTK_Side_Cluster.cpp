@@ -6,6 +6,7 @@
  */
 
 #include "cl_XTK_Side_Cluster.hpp"
+#include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 
@@ -127,6 +128,13 @@ moris_index
 Side_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
 {
     return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();
+}
+
+moris::real
+Side_Cluster::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid,
+                                           const mtk::Master_Slave aIsMaster) const
+{
+    return mAssociatedCellCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
 }
 //----------------------------------------------------------------
 void

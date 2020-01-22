@@ -112,6 +112,14 @@ class Cell_Info
 	moris::real
 	compute_cell_size( moris::mtk::Cell const * aCell ) const = 0;
 	// ---------------------------------------------------------------------------------
+        /*!
+         * Compute the side surface area of 3D cell or the side length of 2d cell
+         */
+        virtual
+        moris::real
+        compute_cell_side_size( moris::mtk::Cell const * aCell ,
+                                moris_index const & aSideOrd) const = 0;
+        // ---------------------------------------------------------------------------------
 
 	virtual
 	void
@@ -121,21 +129,6 @@ class Cell_Info
 	        MORIS_ERROR(0,"get edge to face map not implemented for this type of cell info");
 	}
 
-//        /*!
-//         * Compute the surface area of side of 3D cell or the arc length of side of 2d cell
-//         */
-//	virtual
-//        moris::real
-//        compute_cell_facet_size( moris::mtk::Cell* aCell,
-//                                 moris_index       aSideOrdinal) = 0;
-//
-//	/*!
-//	 * Compute the outward normal of a facet
-//	 */
-//	virtual
-//	moris::real
-//	compute_cell_outward_facet_normal( moris::mtk::Cell* aCell,
-//	                                   moris_index       aSideOrdinal) = 0;
 };
 
 }

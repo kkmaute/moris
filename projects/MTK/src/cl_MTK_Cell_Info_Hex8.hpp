@@ -65,6 +65,10 @@ public:
     moris::real
     compute_cell_size( moris::mtk::Cell const * aCell ) const;
     // ----------------------------------------------------------------------------------
+    moris::real
+    compute_cell_side_size( moris::mtk::Cell const * aCell ,
+                            moris_index const & aSideOrd) const;
+    // ----------------------------------------------------------------------------------
     void
     eval_N( const Matrix< DDRMat > & aXi,
                   Matrix< DDRMat > & aNXi ) const;

@@ -1176,6 +1176,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                     tSideClustersForCM(iSP)->mTrivial = false;
                     tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals = Matrix<IndexMat>(1,tChildCellIdsOnFace.numel());
                     tSideClustersForCM(iSP)->mChildMesh = tChildMesh;
+                    tSideClustersForCM(iSP)->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(iSP));
                 }
 
 
@@ -1248,6 +1249,8 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 // add vertices
                 tSideCluster->mVerticesInCluster.append(tSideCluster->mInterpolationCell->get_vertices_on_side_ordinal(tSideOrd));
                 tSideCluster->finalize_setup();
+
+                tSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(0));
             }
         }
     }
@@ -1379,6 +1382,9 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
             // add child meshes to clusters
             tLeftSideCluster->mChildMesh = tChildMesh;
             tRightSideCluster->mChildMesh = tChildMesh;
+
+            tLeftSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tLeftSideCluster->mInterpolationCell);
+            tRightSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tRightSideCluster->mInterpolationCell );
 
             // add integration cells to cluster
             for(moris::uint iF = 0; iF < tDblSideClustCellCMInds.size(); iF++)
@@ -1611,6 +1617,8 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
                                     tSideClustersForCM(iSP)->mTrivial = false;
                                     tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals = Matrix<IndexMat>(1,tSideSetCellsAndOrds.n_rows());
                                     tSideClustersForCM(iSP)->mChildMesh = tChildMesh;
+                                    tSideClustersForCM(iSP)->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(iSP));
+
                                 }
 
                                 // iterate through child cells on face

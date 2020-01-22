@@ -12,6 +12,14 @@
 #include <unordered_map>
 using namespace moris;
 
+namespace moris
+{
+namespace mtk
+{
+    class Cell_Cluster;
+}
+}
+
 namespace xtk
 {
 class Interpolation_Cell_Unzipped;
@@ -34,6 +42,8 @@ public:
     moris_index                                     get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster, moris::mtk::Vertex const * aVertex ) const;
     moris::Matrix<moris::DDRMat>                    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const ;
     moris_index                                     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
+    moris::real                                     compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY, const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
 
 
     void print_vertex_map() const;
@@ -48,6 +58,8 @@ protected:
     moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
     moris::Cell<moris::Matrix<moris::DDRMat>>   mVertexLocalCoords;
+    moris::mtk::Cell_Cluster const *            mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
+
 
     void
     finalize_setup();

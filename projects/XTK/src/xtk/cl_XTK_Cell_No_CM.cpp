@@ -62,6 +62,18 @@ namespace xtk
         return tVerticesOnSide;
     }
 
+    moris::real
+    Cell_XTK_No_CM::compute_cell_measure() const
+    {
+       return mCellInfo->compute_cell_size(this);
+    }
+
+    moris::real
+    Cell_XTK_No_CM::compute_cell_side_measure(moris_index const & aSideOrdinal) const
+    {
+       return mCellInfo->compute_cell_side_size(this,aSideOrdinal);
+    }
+
 }
 
 

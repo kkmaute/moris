@@ -38,6 +38,7 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 #include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
 #include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
@@ -274,6 +275,26 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         std::string tMeshOutputFile = "./xtk_exo/enrichment_test_10_cluster.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
 
+
+        Enriched_Integration_Mesh const & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+        moris::Cell<mtk::Cluster const*> tDoubleSideCluster = tEnrIntegMesh.get_double_side_set_cluster(0);
+        moris::real tGoldVolume = 2;
+        moris::real tGoldSurface = 0.6862003781;
+
+        for(moris::uint i = 0; i < tDoubleSideCluster.size(); i++)
+        {
+            moris::real tMasterPrimaryVolume = tDoubleSideCluster(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER);
+            moris::real tSlavePrimaryVolume = tDoubleSideCluster(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY, mtk::Master_Slave::SLAVE);
+            moris::real tMasterVoidVolume = tDoubleSideCluster(i)->compute_cluster_cell_measure(mtk::Primary_Void::VOID, mtk::Master_Slave::MASTER);
+            moris::real tSlaveVoidVolume = tDoubleSideCluster(i)->compute_cluster_cell_measure(mtk::Primary_Void::VOID, mtk::Master_Slave::SLAVE);
+            CHECK(std::abs(tMasterPrimaryVolume + tSlavePrimaryVolume + tMasterVoidVolume + tSlaveVoidVolume - tGoldVolume) < 1e-8);
+
+            moris::real tMasterSurfaceArea = tDoubleSideCluster(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER);
+            CHECK(std::abs(tGoldSurface - tMasterSurfaceArea) < 1e-8 );
+
+            moris::real tSlaveSurfaceArea = tDoubleSideCluster(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY, mtk::Master_Slave::SLAVE);
+            CHECK(std::abs(tGoldSurface - tSlaveSurfaceArea) < 1e-8 );
+        }
 
 
         delete tMeshData;
