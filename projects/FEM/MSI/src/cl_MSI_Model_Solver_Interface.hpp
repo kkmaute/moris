@@ -33,6 +33,10 @@ namespace moris
         class Model_Solver_Interface
         {
         private:
+
+            //! Parameter list for this model solver interface
+            ParameterList mMSIParameterList;
+
             //! List of equation blocks
             Cell< MSI::Equation_Set * >     mEquationBlocks;
 
@@ -48,7 +52,7 @@ namespace moris
             //! Multigrid object pointer
             Multigrid * mMultigrid = nullptr;
 
-            Param_List< boost::variant< bool, sint, real  > > mMSIParameterList;
+
 
             MSI::MSI_Solver_Interface * mSolverInterface;
 
@@ -56,16 +60,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void set_solver_parameters();
-
      public:
 
-         Model_Solver_Interface( ){ };
+        Model_Solver_Interface( ){ };
 
-        Model_Solver_Interface( moris::Cell < Equation_Object* > & aListEqnObj ) : mEquationObjectList( aListEqnObj )
-        {
-            this->set_solver_parameters();
-        };
+//------------------------------------------------------------------------------
+
+        Model_Solver_Interface( ParameterList                      aMSIParameterList,
+                                moris::Cell < Equation_Object* > & aListEqnObj ) : mMSIParameterList( aMSIParameterList ),
+                                                                                   mEquationObjectList( aListEqnObj )
+        { };
 
 //------------------------------------------------------------------------------
 
@@ -76,15 +80,14 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(      Cell< MSI::Equation_Set * >                       & aElementBlocks,
+        Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
+                                     Cell< MSI::Equation_Set * >                       & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
-                               const moris::uint                                         aNumMaxAdofs ) : mEquationBlocks( aElementBlocks ),
+                               const moris::uint                                         aNumMaxAdofs ) : mMSIParameterList( aMSIParameterList ),
+                                                                                                          mEquationBlocks( aElementBlocks ),
                                                                                                           mDofMgn( aCommTable, this )
         {
-
-            this->set_solver_parameters();
-
             this->create_equation_object_list();
 
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
@@ -96,16 +99,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Model_Solver_Interface(      Cell< MSI::Equation_Set * >                     & aElementBlocks,
+        Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
+                                     Cell< MSI::Equation_Set * >                       & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs,
-                                     mtk::Mesh                                         * aMesh ) : mEquationBlocks( aElementBlocks ),
+                                     mtk::Mesh                                         * aMesh ) : mMSIParameterList( aMSIParameterList ),
+                                                                                                   mEquationBlocks( aElementBlocks ),
                                                                                                    mDofMgn( aCommTable, this ),
                                                                                                    mMesh( aMesh )
         {
-            this->set_solver_parameters();
-
             this->create_equation_object_list();
 
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
@@ -246,10 +249,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > & set_param( const std::string & aKey )
-        {
-            return mMSIParameterList( aKey );
-        }
+//        boost::variant< bool, sint, real > & set_param( const std::string & aKey )
+//        {
+//            return mMSIParameterList( aKey );
+//        }
 
 //------------------------------------------------------------------------------
 

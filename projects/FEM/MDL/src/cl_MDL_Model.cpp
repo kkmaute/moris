@@ -32,6 +32,7 @@
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Parameters.hpp"
 //#include "cl_DLA_Linear_Solver_Aztec.hpp"
 //#include "cl_DLA_Linear_Solver.hpp"
 
@@ -103,17 +104,20 @@ namespace moris
 
         mEquationSets = mFemModel->get_equation_sets();
 
-        mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mEquationSets,
+        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+
+        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+        {
+        	tMSIParameters.set( "L2", (sint)mBSplineIndex );
+        	tMSIParameters.set( "TEMP", (sint)mBSplineIndex );
+        }
+
+        mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                        mEquationSets,
                                                                         tCommTable,
                                                                         tIdToIndMap,
                                                                         tMaxNumAdofs,
                                                                         tInterpolationMesh );
-
-        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
-        {
-            mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
-            mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
-        }
 
         //------------------------------------------------------------------------------
 
@@ -204,17 +208,26 @@ namespace moris
 
             mEquationSets = mFemModel->get_equation_sets();
 
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mEquationSets,
+            moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+
+            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+            {
+                tMSIParameters.set( "L2", (sint)mBSplineIndex );
+                tMSIParameters.set( "TEMP", (sint)mBSplineIndex );
+            }
+
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                            mEquationSets,
                                                                             tCommTable,
                                                                             tIdToIndMap,
                                                                             tMaxNumAdofs,
                                                                             tInterpolationMesh );
 
-            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
-            {
-                mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
-                mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
-            }
+//            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+//            {
+//                mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
+//                mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
+//            }
 
             //------------------------------------------------------------------------------
 
@@ -238,6 +251,8 @@ namespace moris
             mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
             mSolverInterface->set_model( this );
+
+//            mSolverInterface->set_is_forward( false );
 
             if( par_rank() == 0)
             {

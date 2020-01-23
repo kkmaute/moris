@@ -22,6 +22,8 @@
 #undef protected
 #undef private
 
+#include "cl_MSI_Parameters.hpp"
+
 namespace moris
 {
     namespace MSI

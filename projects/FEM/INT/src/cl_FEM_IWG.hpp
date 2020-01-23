@@ -624,14 +624,6 @@ namespace moris
              * by finite difference
              * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_drdpdv_FD( real aWStar,
-                                    real aPerturbation,
-                                    moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                    moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD,
-                                    moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
-
-//------------------------------------------------------------------------------
-
             void compute_drdpdv_FD_material( real                              aWStar,
                                              real                              aPerturbation,
                                              moris::Cell< Matrix< DDSMat > > & aIsActive,

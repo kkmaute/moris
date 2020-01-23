@@ -27,6 +27,8 @@
 #undef protected
 #undef private
 
+#include "cl_MSI_Parameters.hpp"
+
 namespace moris
 {
     namespace MSI
@@ -343,7 +345,8 @@ namespace moris
             tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
 
             moris::Cell < Equation_Object* >tListEqnObj;
-            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+            moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 
@@ -452,7 +455,8 @@ namespace moris
         (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
 
         moris::Cell < Equation_Object* >tListEqnObj;
-        tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
         tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
         // end hardcoding stuff
 
@@ -773,7 +777,8 @@ namespace moris
             tDofMgn.set_adof_map( &tMap );
 
             moris::Cell < Equation_Object* >tListEqnObj;
-            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+            moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 
@@ -971,7 +976,8 @@ namespace moris
             tDofMgn.set_adof_map( &tMap );
 
             moris::Cell < Equation_Object* >tListEqnObj;
-            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+            moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 

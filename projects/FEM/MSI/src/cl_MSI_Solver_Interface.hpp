@@ -296,8 +296,8 @@ namespace mdl
                  }
                  else
                  {
-                     mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
-                     mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_DQidu( aElementRHS, mSolutionVector  );
+//                     mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
+//                     mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_DQidu( aElementRHS, mSolutionVector  );
                  }
              };
 
