@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.hpp
  *
- *  Created on: Oct 17, 2019
+ *  Created on: Jan 21, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_VIRTUAL_WORK_GHOST_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_VIRTUAL_WORK_GHOST_HPP_
 
 #include <map>
 
@@ -25,13 +25,13 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost : public IWG
+        class IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost : public IWG
         {
-            // Ghost penalty parameter
-            real mGammaGhost;
-
-            // mesh parameter describing length of elements
-            real mMeshParameter;
+//            // Ghost penalty parameter
+//            real mGammaGhost;
+//
+//            // mesh parameter describing length of elements
+//            real mMeshParameter;
 
             // order of Shape functions
             uint mOrder;
@@ -48,7 +48,7 @@ namespace moris
 
             enum class IWG_Constitutive_Type
             {
-                DIFF_LIN_ISO,
+                ELAST_LIN_ISO,
                 MAX_ENUM
             };
 
@@ -68,13 +68,13 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost();
+            IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost(){};
+            ~IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -161,7 +161,8 @@ namespace moris
              * 2nd and 3rd order Ghost formulations
              * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
              */
-            Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
+            void get_normal_matrix ( uint               aOrderGhost,
+                                     Matrix< DDRMat > & aNormalMatrix );
 
 //------------------------------------------------------------------------------
         };
@@ -169,4 +170,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_VIRTUAL_WORK_GHOST_HPP_ */

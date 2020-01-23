@@ -63,9 +63,6 @@ namespace moris
                 }
             }
 
-            // check, if order is supported
-            MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
-
             // get master index for residual dof type
             uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
@@ -133,9 +130,6 @@ namespace moris
                     break;
                 }
             }
-
-            // check, if order is supported
-            MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian - Ghost stabilization for this order not supported yet. " );
 
             // get master index for residual dof type
             uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );

@@ -53,6 +53,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
             += trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * mMasterCM( tElastLinIsoIndex )->flux() * tWStar;
+            print(trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * mMasterCM( tElastLinIsoIndex )->flux() * tWStar,"part1");
 
             // if body load
             if ( mMasterProp( tLoadIndex ) != nullptr )
@@ -60,6 +61,8 @@ namespace moris
                 // compute body load contribution
                 mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
                 += - trans( tDisplacementFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
+                print( - trans( tDisplacementFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar,"part2");
+
             }
         }
 
