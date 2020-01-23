@@ -118,6 +118,42 @@ Cell_Info_Quad9::get_node_map_outward_normal(moris::uint aSideOrdinal) const
     }
 }
 // ----------------------------------------------------------------------------------
+moris::uint
+Cell_Info_Quad9::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+{
+    switch (aSideOrdinal)
+    {
+        case(0):{ return 2; break; }
+        case(1):{ return 3; break; }
+        case(2):{ return 0; break; }
+        case(3):{ return 1; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid side ordinal specified");
+            return MORIS_UINT_MAX;
+            break;
+        }
+    }
+}
+// ----------------------------------------------------------------------------------
+Matrix<DDRMat>
+Cell_Info_Quad9::get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const
+{
+    switch (aSideOrdinal)
+    {
+        case(0):{ return {{-1,-1 }, { 1,-1 }}; break; }
+        case(1):{ return {{ 1,-1 }, { 1, 1 }}; break; }
+        case(2):{ return {{ 1, 1 }, {-1, 1 }}; break; }
+        case(3):{ return {{-1, 1 }, {-1,-1 }}; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid side ordinal specified");
+            return moris::Matrix<moris::DDRMat>(0,0);
+            break;
+        }
+    }
+}
+// ----------------------------------------------------------------------------------
 moris::real
 Cell_Info_Quad9::compute_cell_size( moris::mtk::Cell const * aCell ) const
 {

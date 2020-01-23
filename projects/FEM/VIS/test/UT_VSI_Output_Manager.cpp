@@ -335,14 +335,14 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 Output_Manager tOutputData;
 
                 tOutputData.set_outputs( 0,
-                                         VIS_Mesh_Type::STANDARD,
-//                                       VIS_Mesh_Type::OVERLAPPING_INTERFACE,
-                                         "Output_Vis_Mesh.exo",
+//                                         VIS_Mesh_Type::STANDARD,
+                                       VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                         "Output_Vis_Mesh_overlapping.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },
-                                         { "strain energy elemental", "strain energy global", "strain energy nodal" },
-                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL, Field_Type::NODAL_IP },
-                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
+                                         { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
+                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL,  Field_Type::NODAL },
+                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
 
                 tModel->set_output_manager( &tOutputData );
 

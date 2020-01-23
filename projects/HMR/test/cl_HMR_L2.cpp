@@ -335,7 +335,7 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", "2, 2" );
 

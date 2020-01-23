@@ -33,6 +33,7 @@ include_directories(../STK/src/Hierarchical)
 
 # List executable dependencies
 set(MAIN_DEPENDENCIES
+    ${HMR}-lib
     ${COM}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}

@@ -40,15 +40,18 @@ public:
                                 moris_index            aCellIndex,
                                 moris_id               aCellOwner,
                                 moris::mtk::Cell_Info* aConnectivity);
+
     //------------------------------------------------------------------------------
     // MTK Interpolation Cell Implementation
     // see base class for documentation
     //------------------------------------------------------------------------------
+    uint                        get_level() const { return mBaseCell->get_level();};
     uint                        get_number_of_vertices() const;
     moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
     Matrix< DDRMat >            get_vertex_coords() const;
     void                        set_vertices(moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers);
     moris::mtk::Cell const*     get_base_cell() const;
+    moris::mtk::Cell*           get_base_cell();
     //------------------------------------------------------------------------------
     // End Mtk Interpolation Cell Implementation
     //------------------------------------------------------------------------------

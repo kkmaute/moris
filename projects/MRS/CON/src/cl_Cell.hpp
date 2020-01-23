@@ -389,6 +389,26 @@ namespace moris
         {
             return mCell.end();
         }
+
+        /**
+         * @brief Returns a const iterator to the first element
+         */
+        auto
+        cbegin() const
+        -> decltype( mCell.cbegin() )
+        {
+            return mCell.cbegin();
+        }
+
+        /**
+         * @brief Returns an iterator to the first element
+         */
+        auto
+        cend() const
+        -> decltype( mCell.cend() )
+        {
+            return mCell.cend();
+        }
     };
 
 

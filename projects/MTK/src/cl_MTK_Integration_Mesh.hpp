@@ -253,6 +253,10 @@ protected:
 
     void collect_all_sets()
     {
+        // reset
+        mListOfAllSets.clear();
+        mSetNameToIndexMap.clear();
+
         mListOfAllSets.append( mListofBlocks );
         mListOfAllSets.append( mListofSideSets );
         mListOfAllSets.append( mListofDoubleSideSets );

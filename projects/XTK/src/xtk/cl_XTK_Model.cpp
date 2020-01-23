@@ -11,6 +11,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Ghost_Stabilization.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -126,8 +127,7 @@ Model::link_background_mesh_to_geometry_objects()
 // Decomposition Source code
 // ----------------------------------------------------------------------------------
 void
-Model::decompose(Cell<enum Subdivision_Method> aMethods,
-                 bool                          aSetPhase)
+Model::decompose(Cell<enum Subdivision_Method> aMethods)
 {
     // Start clock
     std::clock_t tTotalTime = std::clock();
@@ -146,6 +146,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
     // Note: the Conformal subdivision methods dependent on node ids for subdivision routine, the node Ids are set regardless of the below boolean
 
     bool tNonConformingMeshFlag = false;
+    bool tSetPhase = true;
     if(aMethods.size() == 1)
     {
         tNonConformingMeshFlag = true;
@@ -184,7 +185,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
 
     // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
     // i.e set element ids, indices for children elements
-    finalize_decomp_in_xtk_mesh(aSetPhase);
+    this->finalize_decomp_in_xtk_mesh(tSetPhase);
 
     if(moris::par_rank() == 0 && mVerbose)
     {
@@ -1132,7 +1133,7 @@ Model::assign_node_requests_identifiers(Decomposition_Data & aDecompData,
         Cell<Cell<uint>> tNotOwnedRequests;
         Cell<uint> tProcRanks;
         std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
-        sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
+        this->sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
 
         // allocate ids for nodes I own
         moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
@@ -1501,19 +1502,19 @@ Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
     // Associate nodes created during decomposition to their child meshes
     this->associate_nodes_created_during_decomp_to_child_meshes();
 
-    // Compute the child element phase using the geometry engine
-    // a case where the phase may not be set is when we only do a
-    // non-conformal decomposition
-    if(aSetPhase)
-    {
-        this->set_element_phases();
-    }
-
     // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
     this->create_child_element_mtk_cells();
 
     // add vertices to child meshes
     this->add_vertices_to_child_meshes();
+
+    // set the glb to loc map for all cells
+    this->setup_cell_glb_to_local_map();
+
+    // Compute the child element phase using the geometry engine
+    // a case where the phase may not be set is when we only do a
+    // non-conformal decomposition
+    this->set_element_phases();
 
     // identify local subphases in child mesh
     this->identify_local_subphase_clusters_in_child_meshes();
@@ -1524,8 +1525,6 @@ Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
     // setup global to local subphase map
     this->setup_glob_to_loc_subphase_map();
 
-    // set the glb to loc map for all cells
-    this->setup_cell_glb_to_local_map();
 }
 
 void
@@ -1800,7 +1799,7 @@ Model::set_element_phases()
     // Set element phase indices
     mBackgroundMesh.initialize_element_phase_indices(this->get_num_elements_total());
 
-    moris::size_t tNumElem = mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
+    moris::size_t tNumElem = mBackgroundMesh.get_mesh_data().get_num_entities(EntityRank::ELEMENT);
 
     for(moris::size_t i = 0; i<tNumElem; i++)
     {
@@ -1996,13 +1995,11 @@ Model::create_child_element_mtk_cells()
 
         moris::Matrix< moris::IdMat >    const & tElementIds  = tChildMesh.get_element_ids();
         moris::Matrix< moris::IndexMat > const & tElementInds = tChildMesh.get_element_inds();
-
         // Iterate over elements
         for(moris::uint j = 0; j<tElementIds.numel(); j++)
         {
             mBackgroundMesh.add_child_element_to_mtk_cells(tElementInds(j),tElementIds(j),tOwnerProc,j, &tChildMesh);
         }
-
     }
 }
 
@@ -2775,7 +2772,7 @@ Model::construct_face_oriented_ghost_penalization_cells()
 
     mGhostStabilization = new Ghost_Stabilization(this);
 
-    mGhostStabilization->setup_ghost_stabilization_facets();
+    mGhostStabilization->setup_ghost_stabilization();
 
     mGhost = true;
 
@@ -2877,6 +2874,15 @@ Model::construct_subphase_neighborhood()
 
     // allocate subphase to subphase connectivity
     mSubphaseToSubPhase = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+    mSubphaseToSubPhaseMySideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+    mSubphaseToSubPhaseNeighborSideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+    mTransitionNeighborCellLocation = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+
+    // non unique temporary data
+    moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubphase(mCutMesh.get_num_subphases());
+    moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubPhaseMySideOrds(mCutMesh.get_num_subphases());
+    moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubPhaseNeighborSideOrds(mCutMesh.get_num_subphases());
+    moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueTransitionLocation(mCutMesh.get_num_subphases());
 
     //iterate through facets
     moris::uint tNumFacets = tInterpMesh.get_num_entities(EntityRank::ELEMENT);
@@ -2886,63 +2892,99 @@ Model::construct_subphase_neighborhood()
         mtk::Cell const * tCurrentCell = & tInterpMesh.get_mtk_cell(iC);
 
         // get the cells attached to the facet
-        Matrix<IndexMat> tCellToCell = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds(iC);
+        Matrix<IndexMat> tCellToCellSideIndex = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds(iC);
+        Matrix<IndexMat> tCellToCellSideOrd  = tInterpMesh.get_elements_connected_to_element_and_face_ord_loc_inds(iC);
 
         // get the neighboring cells
-        Cell<mtk::Cell const *> tCells(tCellToCell.numel());
-        tInterpMesh.get_mtk_cells(tCellToCell.get_row(0),tCells);
+        Cell<mtk::Cell const *> tCells(tCellToCellSideOrd.numel());
+        tInterpMesh.get_mtk_cells(tCellToCellSideOrd.get_row(0),tCells);
 
         // iterate through neighbor
-        for(moris::uint iN = 0; iN < tCellToCell.n_cols(); iN++)
+        for(moris::uint iN = 0; iN < tCellToCellSideOrd.n_cols(); iN++)
         {
-            // create subphase neighborhoods from high to low (so we dont do it more than once)
-//            if(tCellToCell(0,iN) > iC)
-//            {
-//                continue;
-//            }
-
             // facet ordinal shared for current neighbors
-            moris_index tFacetIndex      = tCellToCell(1,iN);
-            mtk::Cell const * tOtherCell =  & tInterpMesh.get_mtk_cell(tCellToCell(0,iN));
+            moris_index tMyOrdinal  = tCellToCellSideOrd(1,iN);
+            moris_index tNeighborOrdinal = tCellToCellSideOrd(2,iN);
+            moris_index tTransitionCellLocation = tCellToCellSideOrd(3,iN);
+
+            // neighbor cell
+            mtk::Cell const * tOtherCell =  & tInterpMesh.get_mtk_cell(tCellToCellSideIndex(0,iN));
 
             // get the subphase indices attached to the facet which is connected to the current cell
-            Cell<moris::moris_index> tCellSubphaseIndices(0);
-            Cell<moris::moris_index> tCellSubphaseBulkIndices(0);
-            this->collect_subphases_attached_to_facet_on_cell( tCurrentCell->get_index(), tFacetIndex, tCellSubphaseIndices, tCellSubphaseBulkIndices);
+            Cell<moris::moris_index> tMyCellSubphaseIndices(0);
+            Cell<moris::moris_index> tMyCellSubphaseBulkIndices(0);
+            this->collect_subphases_attached_to_facet_on_cell( tCurrentCell->get_index(), tMyOrdinal, tMyCellSubphaseIndices, tMyCellSubphaseBulkIndices);
 
             // get the subphase indices attached to the facet which is connected to the other cell in the neighborhood
-            Cell<moris::moris_index> tCombinedSubphaseIndices(0);
-            Cell<moris::moris_index> tCombinedSubphaseBulkIndices(0);
-            this->collect_subphases_attached_to_facet_on_cell( tOtherCell->get_index(), tFacetIndex, tCombinedSubphaseIndices, tCombinedSubphaseBulkIndices);
-
-            // add subphases to neighborhood (only if bulk phase matches)
-            tCombinedSubphaseBulkIndices.append(tCellSubphaseBulkIndices);
-            tCombinedSubphaseIndices.append(tCellSubphaseIndices);
+            Cell<moris::moris_index> tNeighborSubphaseIndices(0);
+            Cell<moris::moris_index> tNeighborSubphaseBulkIndices(0);
+            this->collect_subphases_attached_to_facet_on_cell( tOtherCell->get_index(), tNeighborOrdinal, tNeighborSubphaseIndices, tNeighborSubphaseBulkIndices);
 
             // iterate over subphases and add to neighborhood
-            for(moris::uint i = 0; i < tCombinedSubphaseIndices.size(); i++)
+            for(moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++)
             {
-                for(moris::uint j = 0; j < tCombinedSubphaseIndices.size(); j++)
+                moris_index tMyBulkIndex = tMyCellSubphaseBulkIndices(i);
+                moris_index tMySubphaseIndex = tMyCellSubphaseIndices(i);
+
+                for(moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++)
                 {
-                    if( i == j )
-                    {
-                        continue;
-                    }
+                    moris_index tNeighborBulkIndex = tNeighborSubphaseBulkIndices(j);
+                    moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices(j);
 
-                    if(tCombinedSubphaseBulkIndices(i) == tCombinedSubphaseBulkIndices(j))
+                    //fixme: This needs to use a better metric to determine neighbors
+                    if(tMyBulkIndex == tNeighborBulkIndex)
                     {
-                        mSubphaseToSubPhase(tCombinedSubphaseIndices(i)).push_back(tCombinedSubphaseIndices(j));
-                    }
+                        mSubphaseToSubPhase(tMySubphaseIndex).push_back(tNeighborSubphaseIndex);
+                        mSubphaseToSubPhaseMySideOrds(tMySubphaseIndex).push_back(tMyOrdinal);
+                        mSubphaseToSubPhaseNeighborSideOrds(tMySubphaseIndex).push_back(tNeighborOrdinal);
+                        mTransitionNeighborCellLocation(tMySubphaseIndex).push_back(tTransitionCellLocation);
 
+//                        tNonUniqueSubphaseToSubphase(tNeighborSubphaseIndex).push_back(tMySubphaseIndex);
+//                        tNonUniqueSubphaseToSubPhaseMySideOrds(tNeighborSubphaseIndex).push_back(tNeighborOrdinal);
+//                        tNonUniqueSubphaseToSubPhaseNeighborSideOrds(tNeighborSubphaseIndex).push_back(tMyOrdinal);
+//                        tNonUniqueTransitionLocation(tNeighborSubphaseIndex).push_back(MORIS_INDEX_MAX);
+                    }
                 }
             }
+
         }
     }
+
+    //    // make unique (We do this this way because HMR only has neighbors from larger cells to lower cells so
+    //    // a criteria to check cell ids does not work)
+    //    for(moris::uint i = 0; i < mSubphaseToSubPhase.size(); i++)
+    //    {
+    //        Cell<moris::moris_index> tUniqueIndices = unique_index( tNonUniqueSubphaseToSubphase(i) );
+    //
+    //
+    //        std::cout<<" i = "<< i<<std::endl;
+    //
+    //        // resize member data
+    //        mSubphaseToSubPhase(i).resize(tUniqueIndices.size());
+    //        mSubphaseToSubPhaseMySideOrds(i).resize(tUniqueIndices.size());
+    //        mSubphaseToSubPhaseNeighborSideOrds(i).resize(tUniqueIndices.size());
+    //        mTransitionNeighborCellLocation(i).resize(tUniqueIndices.size());
+    //
+    //        moris::print(tNonUniqueTransitionLocation(i),"tNonUniqueTransitionLocation");
+    //        moris::print(tNonUniqueSubphaseToSubphase(i),"tNonUniqueSubphaseToSubphase");
+    //        moris::print(tUniqueIndices,"tUniqueIndices");
+    //        // commit unique entries to member data
+    //        for(moris::uint j = 0; j < tUniqueIndices.size(); j ++)
+    //        {
+    //            mSubphaseToSubPhase(i)(j) = tNonUniqueSubphaseToSubphase(i)(tUniqueIndices(j));
+    //            mSubphaseToSubPhaseMySideOrds(i)(j) = tNonUniqueSubphaseToSubPhaseMySideOrds(i)(tUniqueIndices(j));
+    //            mSubphaseToSubPhaseNeighborSideOrds(i)(j) = tNonUniqueSubphaseToSubPhaseNeighborSideOrds(i)(tUniqueIndices(j));
+    //            mTransitionNeighborCellLocation(i)(j) = tNonUniqueTransitionLocation(i)(tUniqueIndices(j));
+    //        }
+    //
+    //        moris::print(mTransitionNeighborCellLocation(i),"mTransitionNeighborCellLocation(i)");
+    //
+    //   }
 }
 
 void
 Model::collect_subphases_attached_to_facet_on_cell(moris::moris_index aCellIndex,
-                                                   moris::moris_index aFacetIndex,
+                                                   moris::moris_index aFacetOrdinal,
                                                    Cell<moris::moris_index> & aCellSubphaseIndices,
                                                    Cell<moris::moris_index> & aCellSubphaseBulkIndices)
 {
@@ -2953,9 +2995,13 @@ Model::collect_subphases_attached_to_facet_on_cell(moris::moris_index aCellIndex
         moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(aCellIndex,EntityRank::ELEMENT);
         Child_Mesh const * tCMCell = & mCutMesh.get_child_mesh(tCMIndex);
 
+        Matrix<IndexMat> tCellFacets = mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(aCellIndex,EntityRank::ELEMENT,mBackgroundMesh.get_mesh_data().get_facet_rank());
+
+        moris_index tFacetIndex = tCellFacets(aFacetOrdinal);
+
         // get subphases attached to facet
         Cell<moris::moris_index> tCellCMSubphaseIndices;
-        tCMCell->get_subphases_attached_to_facet(aFacetIndex, tCellCMSubphaseIndices);
+        tCMCell->get_subphases_attached_to_facet(tFacetIndex, tCellCMSubphaseIndices);
 
         // reference to subphase indices and bulkphases of subphases
         Cell<moris::moris_index> const & tCMSubphaseBulkIndices = tCMCell->get_subphase_bin_bulk_phase();
@@ -3195,6 +3241,8 @@ Model::print_interface_vertices()
 void
 Model::print_subphase_neighborhood()
 {
+
+    std::cout<<"Subphases"<<std::endl;
     for(moris::uint iC = 0; iC<mSubphaseToSubPhase.size(); iC++ )
     {
         std::cout<<std::setw(6)<<iC<<" | ";
@@ -3205,6 +3253,49 @@ Model::print_subphase_neighborhood()
             std::cout<<std::setw(6)<<mSubphaseToSubPhase(iC)(iN);
         }
         std::cout<<std::endl;
+    }
+
+    std::cout<<"Subphases My Side Ordinals"<<std::endl;
+    for(moris::uint iC = 0; iC<mSubphaseToSubPhaseMySideOrds.size(); iC++ )
+    {
+        std::cout<<std::setw(6)<<iC<<" | ";
+
+
+        for(moris::uint iN = 0; iN< mSubphaseToSubPhaseMySideOrds(iC).size(); iN++)
+        {
+            std::cout<<std::setw(6)<<mSubphaseToSubPhaseMySideOrds(iC)(iN);
+        }
+        std::cout<<std::endl;
+    }
+
+
+    std::cout<<"Subphases Neighbor Side Ordinals"<<std::endl;
+    for(moris::uint iC = 0; iC<mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
+    {
+        std::cout<<std::setw(6)<<iC<<" | ";
+
+
+        for(moris::uint iN = 0; iN< mSubphaseToSubPhaseNeighborSideOrds(iC).size(); iN++)
+        {
+            std::cout<<std::setw(6)<<mSubphaseToSubPhaseNeighborSideOrds(iC)(iN);
+        }
+        std::cout<<std::endl;
+    }
+
+    if(mBackgroundMesh.get_mesh_data().get_mesh_type() == MeshType::HMR)
+    {
+        std::cout<<"Transition Neighbor Locations"<<std::endl;
+        for(moris::uint iC = 0; iC<mTransitionNeighborCellLocation.size(); iC++ )
+        {
+            std::cout<<std::setw(6)<<iC<<" | ";
+
+
+            for(moris::uint iN = 0; iN< mTransitionNeighborCellLocation(iC).size(); iN++)
+            {
+                std::cout<<std::setw(12)<<mTransitionNeighborCellLocation(iC)(iN);
+            }
+            std::cout<<std::endl;
+        }
     }
 }
 
@@ -3506,13 +3597,13 @@ Model::get_num_elements_total()
 {
     MORIS_ASSERT(mDecomposed,"Prior to using get_num_elements, the decomposition process must be finished");
 
-    return mBackgroundMesh.get_num_entities(EntityRank::ELEMENT) + mCutMesh.get_num_entities(EntityRank::ELEMENT);
+    return mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
 }
 
 moris::uint
 Model::get_num_elements_unzipped()
 {
-    return this->get_num_elements_total()- mCutMesh.get_num_child_meshes();
+    return this->get_num_elements_total() - mCutMesh.get_num_child_meshes();
 }
 //------------------------------------------------------------------------------
 moris_index
@@ -3523,21 +3614,6 @@ Model::get_cell_xtk_index(moris_id aCellId)
     return tIter->second;
 }
 //------------------------------------------------------------------------------
-uint
-Model::get_subphase_bulk_index(moris_index aSubPhaseIndex)
-{
-    // if the subphase index is less than the number of cells in the interpolation mesh
-    // assume it is just the cell index in interpolation mesh
-    if(aSubPhaseIndex < (moris_index)mBackgroundMesh.get_mesh_data().get_num_entities(EntityRank::ELEMENT))
-    {
-        return mBackgroundMesh.get_element_phase_index(aSubPhaseIndex);
-    }
-    else
-    {
-        return mCutMesh.get_bulk_phase_index(aSubPhaseIndex);
-    }
-}
-
 moris::Matrix<moris::IndexMat>
 Model::get_element_to_subphase()
 {
@@ -3850,25 +3926,6 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
             tInterfaceSideSets(i).mSideSetName        = tInterfaceNames(i);
             tMtkMeshSets.add_side_set(&tInterfaceSideSets(i));
         }
-    }
-
-
-    Cell<moris::mtk::MtkSideSetInfo> tGhostSideSets;
-    Cell<Matrix<IdMat>> tGhostElementsAndSideOrds;
-    if(mGhost)
-    {
-        tGhostSideSets.resize(mGeometryEngine.get_num_bulk_phase());
-
-        tGhostElementsAndSideOrds = this->pack_ghost_as_side_set();
-
-        // set up ghost names
-        for(moris::uint i = 0; i <tGhostElementsAndSideOrds.size(); i++)
-        {
-            tGhostSideSets(i).mElemIdsAndSideOrds = &tGhostElementsAndSideOrds(i);
-            tGhostSideSets(i).mSideSetName = "ghost_" + std::to_string(i);
-            tMtkMeshSets.add_side_set(&tGhostSideSets(i));
-        }
-
     }
 
     // propogate side sets from background mesh
@@ -4382,51 +4439,6 @@ Model::combine_interface_and_non_interface_blocks(Cell<moris::Matrix<moris::IdMa
 
 }
 
-//------------------------------------------------------------------------------
-
-Cell<Matrix<IdMat>>
-Model::pack_ghost_as_side_set()
-{
-    MORIS_ASSERT(mGhost,"Trying to pack ghost side set on a mesh without ghost setup");
-
-    // number of bulk phases
-    moris::uint tNumBulkPhase = mGeometryEngine.get_num_bulk_phase();
-
-    Cell<Matrix<IdMat>> tGhostCellIdsAndSideOrdByBulkPhase(tNumBulkPhase);
-
-    // iterate through bulk phases
-    for(moris::uint i = 0 ; i<tNumBulkPhase; i++)
-    {
-        // get the bulk phase ghost elements
-        Cell<Ghost_Cell> const & tBulkPhaseGhostCells = mGhostStabilization->get_ghost_cells_by_bulk_phase(i);
-
-        tGhostCellIdsAndSideOrdByBulkPhase(i).resize(tBulkPhaseGhostCells.size()*2,2);
-
-        // iterate through cells and extract the side set information
-        uint tCount = 0;
-        for(moris::uint j = 0; j <tBulkPhaseGhostCells.size(); j++)
-        {
-            // Ghost cell reference
-            Ghost_Cell const & tGhostCell = tBulkPhaseGhostCells(j);
-
-            // figure out left cell topology
-
-            // left cell element id and side ordinal
-
-            tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,0) = tGhostCell.get_left_cell().get_id();
-            tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,1) = tGhostCell.get_left_cell_side_ordinal();
-            tCount++;
-
-            // right cell element id and side ordinal
-            tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,0) = tGhostCell.get_right_cell().get_id();
-            tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,1) = tGhostCell.get_right_cell_side_ordinal();
-            tCount++;
-        }
-
-    }
-
-    return tGhostCellIdsAndSideOrdByBulkPhase;
-}
 //------------------------------------------------------------------------------
 
 uint

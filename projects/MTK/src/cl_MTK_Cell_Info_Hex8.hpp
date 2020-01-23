@@ -56,11 +56,19 @@ public:
     moris::Matrix<moris::IndexMat>
     get_node_to_facet_map(moris::uint aSideOrdinal) const;
     // ----------------------------------------------------------------------------------
+    moris::uint
+    get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
+    // ----------------------------------------------------------------------------------
     moris::Matrix<moris::IndexMat>
     get_node_map_outward_normal(moris::uint aSideOrdinal) const;
     // ----------------------------------------------------------------------------------
     moris::real
     compute_cell_size( moris::mtk::Cell const * aCell ) const;
+    // ----------------------------------------------------------------------------------
+    void
+    eval_N( const Matrix< DDRMat > & aXi,
+                  Matrix< DDRMat > & aNXi ) const;
+
 };
 }
 }

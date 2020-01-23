@@ -151,17 +151,16 @@ public:
         int tProcessorRank = moris::par_rank();
 
 
-        moris::moris_id tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0);
-        moris::moris_id tFirstEdge = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::EDGE)(0);
-        moris::moris_id tFirstFace = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::FACE)(0);
-        moris::moris_id tFirstElem = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::ELEMENT)(0);
-
+        moris::moris_id tFirstNode = aMeshData->get_max_entity_id(EntityRank::NODE)+1;
+//        moris::moris_id tFirstEdge = aMeshData->get_max_entity_id(EntityRank::EDGE);
+//        moris::moris_id tFirstFace = aMeshData->get_max_entity_id(EntityRank::FACE);
+        moris::moris_id tFirstElem = aMeshData->get_max_entity_id(EntityRank::ELEMENT)+1;
         if(tProcessorRank == 0)
         {
             // Processor 1 (rank 0) is responsible for first available Ids
             mFirstAvailableIds(0) = tFirstNode;
-            mFirstAvailableIds(1) = tFirstEdge;
-            mFirstAvailableIds(2) = tFirstFace;
+            mFirstAvailableIds(1) = MORIS_ID_MAX;
+            mFirstAvailableIds(2) = MORIS_ID_MAX;
             mFirstAvailableIds(3) = tFirstElem;
         }
 
@@ -342,10 +341,8 @@ public:
             moris::size_t aNumIdstoAllocate,
             enum EntityRank aEntityRank) const
     {
-        int tProcRank = 0;
-        int tProcSize = 0;
-        MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-        MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
+        int tProcRank = par_rank();
+        int tProcSize = par_size();
 
         // size_t is defined as uint here because of aNumRequested
         //Initialize gathered information outputs (information which will be scattered across processors)

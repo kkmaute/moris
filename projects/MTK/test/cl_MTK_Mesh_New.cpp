@@ -407,7 +407,7 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         //const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
         // create an integration mesh
-        Integration_Mesh* tMesh3D_HEXs = create_integration_mesh(MeshType::STK, fileName2, NULL );
+        Integration_Mesh* tMesh3D_HEXs = create_integration_mesh(MeshType::STK, fileName2, NULL, true );
 
         uint NumElements2      = tMesh3D_HEXs->get_num_elems();
         uint NumNodes2         = tMesh3D_HEXs->get_num_nodes();
@@ -513,7 +513,7 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         Matrix< IndexMat > tElementsConnectedToFaceInd = tMesh3D_HEXs->get_elements_connected_to_face_loc_inds(faceIndex);
 
         // verify indices and ids are consistent
-        tElementIdsMatch = all_true(elementsConnectedToFace == convert_entity_indices_to_ids(tElementsConnectedToFaceInd,EntityRank::ELEMENT,tMesh3D_HEXs));
+        tElementIdsMatch = all_true(elementsConnectedToFace == convert_entity_indices_to_ids(tElementsConnectedToFaceInd.get_row(0),EntityRank::ELEMENT,tMesh3D_HEXs));
         CHECK(tElementIdsMatch);
 
         uint NumberOfElemsConnectedToFace = elementsConnectedToFace.numel();
@@ -535,7 +535,7 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
 
         // Check consistency of element ids
-        tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd, EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));
+        tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd.get_row(0), EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));
         CHECK(tElementIdsMatch);
 
         // Check face ordinals

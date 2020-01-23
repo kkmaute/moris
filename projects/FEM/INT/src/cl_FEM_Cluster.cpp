@@ -254,6 +254,17 @@ namespace moris
          }
 
 //------------------------------------------------------------------------------
+        void Cluster::compute_dRdp()
+        {
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // compute the jacobian for the IG element
+                mElements( iElem )->compute_dRdp();
+            }
+        }
+
+//------------------------------------------------------------------------------
         void Cluster::compute_quantity_of_interest( const uint aMeshIndex,
                                                     enum vis::Output_Type aOutputType,
                                                     enum vis::Field_Type  aFieldType )

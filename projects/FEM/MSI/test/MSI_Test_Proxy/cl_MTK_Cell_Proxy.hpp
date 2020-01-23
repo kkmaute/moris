@@ -1,46 +1,45 @@
 /*
- * cl_MTK_Cell_XTK_Impl.hpp
+ * cl_MTK_Cell_STK.hpp
  *
- *  Created on: Feb 11, 2019
+ *  Created on: Sep 17, 2018
  *      Author: doble
  */
 
-#ifndef PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_
-#define PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_
+#ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
+#define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 
-#include "cl_MTK_Cell.hpp"
 #include "typedefs.hpp" //MRS/COR/src
+#include "cl_Logger.hpp"
 #include "cl_Cell.hpp" //MRS/CON/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "cl_MTK_Vertex.hpp" //MTK/src
+#include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_XTK_Child_Mesh.hpp"
-#include "cl_MTK_Cell_Info_Tet4.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Factory.hpp"
+#include "cl_MTK_Vertex_Proxy.hpp" //MTK/src
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
 #include "op_div.hpp"
-
-namespace xtk
-{
-class Background_Mesh;
-}
-
 //------------------------------------------------------------------------------
 namespace moris
 {
 namespace mtk
 {
-//------------------------------------------------------------------------------
+
+
 /**
  * \brief the mtk::Cell class provides the cell information that is
  * provided by the mesh.
  */
 
-class Cell_XTK: public Cell
+class Cell_Proxy: public moris::mtk::Cell
 {
-private:
+    Cell_Info*           mCellInfo;
+    moris_id             mCellId;
+    moris_index          mCellInd;
+    moris::Cell<Vertex*> mCellVertices;
+    Mesh*                mSTKMeshData;
 
     //------------------------------------------------------------------------------
 public:
@@ -49,45 +48,50 @@ public:
     /**
      * trivial constructor
      */
-    Cell_XTK(){};
+    Cell_Proxy():mCellInfo(nullptr){};
 
-    Cell_XTK(moris::moris_id       aElementId,
-             moris::moris_index    aElementIndex,
-             moris::moris_index    aElementOwner,
-             moris::moris_index    aCMElementIndex,
-             xtk::Child_Mesh*      aChildMeshPtr,
-             xtk::Background_Mesh* aBackgroundMeshPtr);
+    //------------------------------------------------------------------------------
+
+    /**
+     *  constructor
+     */
+    Cell_Proxy(       moris_id               aCellId,
+                const moris::Cell<Vertex*> & aCellVertices ) : mCellId(aCellId),
+                                                               mCellVertices(aCellVertices)
+    { };
     //------------------------------------------------------------------------------
 
     /**
      * Destructor. Must be virtual.
      */
-    ~Cell_XTK(){};
+    ~Cell_Proxy()
+    {};
 
     //------------------------------------------------------------------------------
 
     /**
      * returns the domain wide id of the cell
      *
-     * @return moris_id ID
+     * @return luint ID
      */
     moris_id
     get_id() const
     {
-        return mElementId;
-    }
+        return mCellId;
+    };
 
     //------------------------------------------------------------------------------
 
     /**
-     * returns the local index of the cell
+     * returns the domain wide id of the cell
      *
-     * @return moris_index ID
+     * @return luint ID
      */
     moris_index
     get_index() const
     {
-        return mElementIndex;
+    	MORIS_ERROR(false,"");
+        return mCellInd;
     }
 
     //------------------------------------------------------------------------------
@@ -98,8 +102,8 @@ public:
     uint
     get_number_of_vertices() const
     {
-        return mChildMeshPtr->get_element_to_node().n_cols();
-    }
+        return mCellVertices.size();
+    };
 
     //------------------------------------------------------------------------------
 
@@ -110,7 +114,8 @@ public:
     moris_id
     get_owner() const
     {
-        return mElementOwner;
+    	MORIS_ERROR(false,"");
+        return 0;
     }
 
     //------------------------------------------------------------------------------
@@ -118,22 +123,27 @@ public:
     /**
      * fills a moris::cell with pointers to connected vertices
      */
-    //FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
     moris::Cell< Vertex* >
-    get_vertex_pointers() const;
+    get_vertex_pointers() const
+    {
+        return mCellVertices;
+    }
 
     //------------------------------------------------------------------------------
-
     /**
-     * returns a Mat with IDs of connected vertices
+     * returns a Matrix with IDs of connected vertices
      */
     Matrix< IdMat >
     get_vertex_ids() const
     {
-        return mChildMeshPtr->get_element_to_node_glob_ids(mCMElementIndex);
+        size_t tNumVertices = this->get_number_of_vertices();
+        Matrix< IdMat > tVertexIds(1, tNumVertices);
+        for(size_t i = 0; i<tNumVertices; i++)
+        {
+            tVertexIds(i) = mCellVertices(i)->get_id();
+        }
+        return tVertexIds;
     }
-
-    //------------------------------------------------------------------------------
 
     /**
      * returns a Mat with indices of connected vertices
@@ -141,49 +151,42 @@ public:
     Matrix< IndexMat >
     get_vertex_inds() const
     {
-        return mChildMeshPtr->get_element_to_node().get_row(mCMElementIndex);
+    	MORIS_ERROR(false,"");
+        size_t tNumVertices = this->get_number_of_vertices();
+        Matrix< IndexMat > tVertexInds(1, tNumVertices);
+        for(size_t i = 0; i<tNumVertices; i++)
+        {
+            tVertexInds(i) = mCellVertices(i)->get_index();
+        }
+        return tVertexInds;
     }
 
     //------------------------------------------------------------------------------
 
     /**
-     * returns a Mat of dimension
+     * returns a Matrix of dimension
      * < number of vertices * number of dimensions >
      */
     Matrix< DDRMat >
-    get_vertex_coords() const;
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns an enum that defines the geometry type of the element
-     */
-    Geometry_Type
-    get_geometry_type() const
+    get_vertex_coords() const
     {
-        return mChildMeshPtr->get_child_geometry_type();
+    	MORIS_ERROR(false,"");
+        size_t tNumVertices = this->get_number_of_vertices();
+        Matrix< DDRMat > tVertexCoords(tNumVertices, mSTKMeshData->get_spatial_dim());
+        for(size_t i = 0; i<tNumVertices; i++)
+        {
+            tVertexCoords.set_row(i,mCellVertices(i)->get_coords());
+        }
+        return tVertexCoords;
     }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns the order of the element
-     */
-    virtual Interpolation_Order
-    get_interpolation_order() const
-    {
-        return mChildMeshPtr->get_child_interpolation_order();
-    }
-
-    //------------------------------------------------------------------------------
 
     moris::Cell<moris::mtk::Vertex const *>
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
     {
-
+    	MORIS_ERROR(false,"");
         moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
 
-        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mChildMeshPtr->get_cell_info()->get_node_to_facet_map(aSideOrdinal);
+        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_node_to_facet_map(aSideOrdinal);
 
         moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
         for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
@@ -194,11 +197,10 @@ public:
         return tVerticesOnSide;
     }
 
-    //------------------------------------------------------------------------------
-
     moris::Matrix<moris::DDRMat>
     compute_outward_side_normal(moris::moris_index aSideOrdinal) const
     {
+    	MORIS_ERROR(false,"");
         // get the vertex coordinates
         moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
 
@@ -207,7 +209,7 @@ public:
         moris::Matrix<moris::DDRMat> tEdge1Vector(tVertexCoords.numel(),1);
 
         // Get the nodes which need to be used to compute normal
-        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = mChildMeshPtr->get_cell_info()->get_node_map_outward_normal(aSideOrdinal);
+        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = mCellInfo->get_node_map_outward_normal(aSideOrdinal);
 
         // Get vector along these edges
         tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
@@ -226,16 +228,28 @@ public:
 
     //------------------------------------------------------------------------------
 
-private:
-    moris::moris_id       mElementId;
-    moris::moris_index    mElementIndex;
-    moris::moris_index    mElementOwner;
-    moris::moris_index    mCMElementIndex;    /* Needed to access connectivity (verts) */
-
-    xtk::Child_Mesh*      mChildMeshPtr;      /* Needed to access connectivity (verts) */
-    xtk::Background_Mesh* mBackgroundMeshPtr; /* Needed to access coordinates */
+    /**
+     * returns an enum that defines the geometry type of the element
+     */
+    Geometry_Type
+    get_geometry_type() const
+    {
+    	MORIS_ERROR(false,"");
+        return mCellInfo->get_cell_geometry();
+    }
 
     //------------------------------------------------------------------------------
+
+    /**
+     * returns the order of the element
+     */
+    Interpolation_Order
+    get_interpolation_order() const
+    {
+    	MORIS_ERROR(false,"");
+        return mCellInfo->get_cell_interpolation_order();
+    }
+
 };
 
 //------------------------------------------------------------------------------
@@ -245,4 +259,4 @@ private:
 
 
 
-#endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_ */
+#endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_ */

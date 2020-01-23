@@ -31,6 +31,8 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
 
+#include "cl_MSI_Parameters.hpp"
+
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"
@@ -190,7 +192,8 @@ namespace moris
                  moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
                  // create new fem set
-                 tElementBlocks( Ik ) = new fem::Set( tBlockSet,
+                 tElementBlocks( Ik ) = new fem::Set( nullptr,
+                                                      tBlockSet,
                                                       tSetInfo( Ik ),
                                                       tNodes );
 
@@ -200,14 +203,15 @@ namespace moris
                  // update fem set counter
                  tFemSetCounter++;
              }
+             moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+             tMSIParameters.set( "L2", 0 );
 
-             MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
+             MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                                          tElementBlocks,
                                                                                           tInterpolationMesh->get_communication_table(),
                                                                                           tCoefficientsMap,
                                                                                           tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
                                                                                           tInterpolationMesh.get() );
-
-             tMSI->set_param("L2")= 0;
 
              tElementBlocks( 0 )->finalize( tMSI );
 

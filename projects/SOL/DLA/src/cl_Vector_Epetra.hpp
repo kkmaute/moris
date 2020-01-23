@@ -34,7 +34,8 @@ public:
     Vector_Epetra(){};
 
     Vector_Epetra( const Map_Class       * aMapClass,
-                   const enum VectorType   aVectorType );
+                   const enum VectorType   aVectorType,
+				   const sint              aNumVectors );
 
     /** Destructor */
     ~Vector_Epetra();

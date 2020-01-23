@@ -171,7 +171,7 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
 
         // Check consistency of element ids
-        tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd, EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));
+        tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd.get_row(0), EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));
         CHECK(tElementIdsMatch);
 
         // Check face ordinals

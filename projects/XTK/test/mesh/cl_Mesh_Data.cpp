@@ -301,7 +301,7 @@ TEST_CASE("Part Ordinals", "[MESH][PARTS][ORDINALS]")
      * Node Sets will be named
      *  - sesame_seeds
      */
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,{},true);
@@ -382,7 +382,7 @@ TEST_CASE("STK Mesh with Side Set", "[STK][SIDE_SET]")
     /*
      * Load Mesh which is a unit cube with 2 faces belonging to a side set
      */
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/cube_1x1x1_with_side_set.e";
     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName,{},true);

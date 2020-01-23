@@ -117,6 +117,7 @@ set(HEADERS
     cl_FEM_SP_Ghost_Virtual_Work.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
+    cl_FEM_Model.hpp
     
     )
 
@@ -183,6 +184,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
     cl_FEM_Interpolation_Element.cpp
+    cl_FEM_Model.cpp
     )
 
 # List library dependencies

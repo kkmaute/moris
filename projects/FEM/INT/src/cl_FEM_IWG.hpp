@@ -475,10 +475,11 @@ namespace moris
                   if( mGlobalDofBuild )
                   {
                       // build the stabilization parameter global dof type list
-                      this->build_global_dof_type_list();
+                      this->build_global_dof_and_dv_type_list();
 
                       // update build flag
                       mGlobalDofBuild = false;
+                      mGlobalDvBuild  = false;
                   }
 
                   // switch on master/slave
@@ -523,7 +524,8 @@ namespace moris
                       this->build_global_dof_and_dv_type_list();
 
                       // update build flag
-                      mGlobalDvBuild = false;
+                      mGlobalDofBuild = false;
+                      mGlobalDvBuild  = false;
                   }
 
                   // switch on master/slave
@@ -622,10 +624,17 @@ namespace moris
              * by finite difference
              * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_drdpdv_FD( real aWStar,
-                                    real aPerturbation,
-                                    moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD,
-                                    moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
+            void compute_drdpdv_FD_material( real                              aWStar,
+                                             real                              aPerturbation,
+                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                             moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD );
+
+//------------------------------------------------------------------------------
+
+            void compute_drdpdv_FD_geometry( real                              aWStar,
+                                             real                              aPerturbation,
+                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                             moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
 
 //------------------------------------------------------------------------------
             /**

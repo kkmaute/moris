@@ -278,6 +278,29 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+            /**
+             * Provided my background cell side ordinal, return the neighbor's background cell
+             * side ordinal
+             *
+             * @return int neighbor side ordinal
+             *
+             */
+            int get_neighbor_side_ordinal( const  int aNeighborIndex) const;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * Provided my background cell side ordinal, return the child cell ordinals
+             * on side
+             *
+             * @return int neighbor child cell ordinal
+             *
+             */
+            void get_child_cell_ordinals_on_side( const  int        aSideOrdinal,
+                                                  Matrix<IndexMat> & aChildCellOrdinals) const;
+
+//--------------------------------------------------------------------------------
+
             uint get_num_children() const
             {
                 return C;
@@ -1504,6 +1527,7 @@ namespace moris
            MORIS_ERROR( false, "Don't know how to collect active descendants.");
        }
 
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
@@ -1646,6 +1670,188 @@ namespace moris
 
            }
         }
+
+//--------------------------------------------------------------------------------
+
+       template < uint N, uint C, uint B, uint F , uint E >
+       int Background_Element< N, C, B, F, E >::get_neighbor_side_ordinal( const  int aNeighborIndex ) const
+       {
+           MORIS_ERROR( false, "Don't know how to get neighbor side ordinal.");
+           return -1;
+       }
+//--------------------------------------------------------------------------------
+       template <>
+       inline
+       int Background_Element< 2, 4, 8, 4, 0 >::get_neighbor_side_ordinal( const  int aNeighborIndex ) const
+       {
+               switch ( aNeighborIndex )
+               {
+                   case( 0 ) :
+                   {
+                       return 2;
+                       break;
+                   }
+                   case( 1 ) :
+                   {
+                       return 3;
+                       break;
+                   }
+                   case( 2 ) :
+                   {
+                       return 0;
+                       break;
+                   }
+                   case( 3 ) :
+                   {
+                       return 1;
+                       break;
+                   }
+                   default :
+                   {
+                       MORIS_ERROR(0,"Invalid side ordinal specified for this element type (0-3) for a 2D quad type cell");
+                       return -1;
+                       break;
+                   }
+           }
+       }
+
+//--------------------------------------------------------------------------------
+
+       template <>
+       inline
+       int Background_Element< 3, 8, 26, 6, 12 >::get_neighbor_side_ordinal( const  int aNeighborIndex ) const
+       {
+
+           switch ( aNeighborIndex )
+           {
+               case( 0 ) :
+                       {
+                   return 2;
+                   break;
+                       }
+               case( 1 ) :
+                       {
+                   return 3;
+                   break;
+                       }
+               case( 2 ) :
+                       {
+                   return 0;
+                   break;
+                       }
+               case( 3 ) :
+                       {
+                   return 1;
+                   break;
+                       }
+               case( 4 ) :
+                       {
+                   return 5;
+                   break;
+                       }
+               case( 5 ) :
+                       {
+                   return 4;
+                   break;
+                       }
+               default :
+               {
+                   MORIS_ERROR(0,"Invalid side ordinal specified for this element type (0-5) for a 3D hex type cell ");
+                   return -1;
+                   break;
+               }
+           }
+       }
+//--------------------------------------------------------------------------------
+       template < uint N, uint C, uint B, uint F , uint E >
+       void Background_Element< N, C, B, F, E >::get_child_cell_ordinals_on_side( const  int        aSideOrdinal,
+                                                                                 Matrix<IndexMat> & aChildCellOrdinals) const
+       {
+           MORIS_ERROR( false, "Don't know how to get child cell ordinals on side.");
+       }
+//--------------------------------------------------------------------------------
+       template <>
+       inline
+       void Background_Element< 2, 4, 8, 4, 0 >::get_child_cell_ordinals_on_side( const  int         aSideOrdinal,
+                                                                                  Matrix<IndexMat> & aChildCellOrdinals ) const
+       {
+               switch ( aSideOrdinal )
+               {
+                   case( 0 ) :
+                   {
+                       aChildCellOrdinals = {{0,1}};
+                       break;
+                   }
+                   case( 1 ) :
+                   {
+                       aChildCellOrdinals = {{1,3}};
+                       break;
+                   }
+                   case( 2 ) :
+                   {
+                       aChildCellOrdinals = {{3,2}};
+                       break;
+                   }
+                   case( 3 ) :
+                   {
+                       aChildCellOrdinals = {{2,0}};
+                       break;
+                   }
+                   default :
+                   {
+                       MORIS_ERROR(0,"Invalid side ordinal specified for this element type (0-3) for a 2D quad type cell");
+                       break;
+                   }
+           }
+       }
+
+//--------------------------------------------------------------------------------
+
+       template <>
+       inline
+       void Background_Element< 3, 8, 26, 6, 12 >::get_child_cell_ordinals_on_side( const  int         aSideOrdinal,
+                                                                                    Matrix<IndexMat> & aChildCellOrdinals ) const
+       {
+
+           switch ( aSideOrdinal )
+           {
+               case( 0 ) :
+                       {
+                   aChildCellOrdinals = {{0,1,5,4}};
+                   break;
+                       }
+               case( 1 ) :
+                       {
+                   aChildCellOrdinals = {{1,3,7,5}};
+                   break;
+                       }
+               case( 2 ) :
+                       {
+                   aChildCellOrdinals = {{3,2,6,7}};
+                   break;
+                       }
+               case( 3 ) :
+                       {
+                   aChildCellOrdinals = {{2,0,4,6}};
+                   break;
+                       }
+               case( 4 ) :
+                       {
+                   aChildCellOrdinals = {{2,3,1,0}};
+                   break;
+                       }
+               case( 5 ) :
+                       {
+                   aChildCellOrdinals = {{4,5,7,6}};
+                   break;
+                       }
+               default :
+               {
+                   MORIS_ERROR(0,"Invalid side ordinal specified for this element type (0-5) for a 3D hex type cell ");
+                   break;
+               }
+           }
+       }
 
 //--------------------------------------------------------------------------------
 

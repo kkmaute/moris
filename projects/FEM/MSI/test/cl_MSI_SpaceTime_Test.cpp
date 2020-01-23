@@ -22,6 +22,8 @@
 #undef protected
 #undef private
 
+#include "cl_MSI_Parameters.hpp"
+
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -103,7 +105,8 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
          tSetInfo( 0 ).set_IWGs( { tIWG } );
 
         // create a set
-         tFEMSets( 0 ) = new fem::Set( tMeshSet,
+         tFEMSets( 0 ) = new fem::Set( nullptr,
+                                       tMeshSet,
                                        tSetInfo( 0 ),
                                        tNodes );
 
@@ -119,16 +122,18 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // FIXME number of coeff
         uint tNumCoeff = 1000000;
 
+        sint tDofOrder = 1;
+        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        tMSIParameters.set( "VX", tDofOrder );
+        tMSIParameters.set( "LS1", tDofOrder );
+
         moris::MSI::Model_Solver_Interface* tModelSolverInterface
-            = new moris::MSI::Model_Solver_Interface( tFEMSets,
+            = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                      tFEMSets,
                                                       tCommunicationTable,
                                                       tCoefficientsMap,
                                                       tNumCoeff,
                                                       tInterpMesh );
-
-        uint tDofOrder = 1;
-        tModelSolverInterface->set_param( "VX" )   = (sint)tDofOrder;
-        tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
 
         tModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::LS1, 2 );
 

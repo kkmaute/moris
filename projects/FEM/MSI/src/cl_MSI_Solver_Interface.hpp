@@ -43,6 +43,8 @@ namespace mdl
 
                 mdl::Model * mModel = nullptr;
 
+                bool mIsForward = true;
+
         public:
             MSI_Solver_Interface( )
             {
@@ -74,6 +76,12 @@ namespace mdl
             {
                 mModel = aModel;
             }
+
+            void set_is_forward( bool aIsForward )
+            {
+            	mIsForward = mIsForward;
+            }
+
 
 //------------------------------------------------------------------------------
 
@@ -281,8 +289,16 @@ namespace mdl
              void get_element_rhs( const moris::uint      & aMyElementInd,
                                          Matrix< DDRMat > & aElementRHS )
              {
-                 mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
-                 mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
+                 if ( mIsForward )
+                 {
+                     mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
+                     mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
+                 }
+                 else
+                 {
+//                     mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
+//                     mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_DQidu( aElementRHS, mSolutionVector  );
+                 }
              };
 
              void get_element_rhs( const moris::uint      & aMyBlockInd,

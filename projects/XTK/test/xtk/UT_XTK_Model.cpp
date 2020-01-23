@@ -220,8 +220,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
                 CHECK(tNumNodesAfterDecompositionXTK == 22 );
                 CHECK(tNumElementsAfterDecompositionXTK == 42);
 
-                // XTK does not add any additional Elements to the stk mesh
-                CHECK(tNumElementsAfterDecompositionSTK == 4);
+                CHECK(tNumElementsAfterDecompositionSTK == 46);
                 // But it does add nodes because this is where the coordinates are stored
                 CHECK(tNumNodesAfterDecompositionSTK == 34);
             }

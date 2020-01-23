@@ -28,6 +28,7 @@
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_all_true.hpp"
+#include "fn_sort.hpp"
 #include "op_equal_equal.hpp"
 
 
@@ -164,26 +165,26 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         // verify there is one interpolation cell per subphase
         moris::uint tExpectedNumSubphase = 6;
-        Cell<Interpolation_Cell_Unzipped> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+        Cell<Interpolation_Cell_Unzipped*> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
         CHECK(tCells.size() == tExpectedNumSubphase);
 
         // Expected primary cells in each cluster
         moris::Cell<moris::Matrix<moris::IndexMat>> tGoldPrimaryCellsInClusters(6);
-        tGoldPrimaryCellsInClusters(0) = {{3,13}};
-        tGoldPrimaryCellsInClusters(1) = {{4,6,7,8,10,11,12,14}};
-        tGoldPrimaryCellsInClusters(2) = {{5,9}};
-        tGoldPrimaryCellsInClusters(3) = {{15,17,20,21,22,24,25,26}};
-        tGoldPrimaryCellsInClusters(4) = {{16,19}};
-        tGoldPrimaryCellsInClusters(5) = {{18,23}};
+        tGoldPrimaryCellsInClusters(0) = {{8,18}};
+        tGoldPrimaryCellsInClusters(1) = {{9,11,12,13,15,16,17,19}};
+        tGoldPrimaryCellsInClusters(2) = {{10,14}};
+        tGoldPrimaryCellsInClusters(3) = {{20,22,25,26,27,29,30,31}};
+        tGoldPrimaryCellsInClusters(4) = {{21,24}};
+        tGoldPrimaryCellsInClusters(5) = {{23,28}};
 
         // Expected void cells in each cluster
         moris::Cell<moris::Matrix<moris::IndexMat>> tGoldVoidCellsInClusters(6);
-        tGoldVoidCellsInClusters(0) = {{4,6,7,8,10,11,12,14,5,9}};
-        tGoldVoidCellsInClusters(1) = {{3,13,5,9}};
-        tGoldVoidCellsInClusters(2) = {{3,13,4,6,7,8,10,11,12,14}};
-        tGoldVoidCellsInClusters(3) = {{16,19,18,23}};
-        tGoldVoidCellsInClusters(4) = {{15,17,20,21,22,24,25,26,18,23}};
-        tGoldVoidCellsInClusters(5) = {{15,17,20,21,22,24,25,26,16,19}};
+        tGoldVoidCellsInClusters(0) = {{9,10,11,12,13,14,15,16,17,19}};
+        tGoldVoidCellsInClusters(1) = {{8,10,14,18}};
+        tGoldVoidCellsInClusters(2) = {{8,9,11,12,13,15,16,17,18,19}};
+        tGoldVoidCellsInClusters(3) = {{21,23,24,28}};
+        tGoldVoidCellsInClusters(4) = {{20,22,23,25,26,27,28,29,30,31}};
+        tGoldVoidCellsInClusters(5) = {{20,21,22,24,25,26,27,29,30,31}};
 
         // Expected interpolation vertices
         moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
@@ -207,11 +208,17 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
             // check the primary ids
             Matrix<IdMat> tPrimaryCellIds = tXTKCellCluster.get_primary_cell_ids_in_cluster();
+
+
             CHECK(all_true(tPrimaryCellIds == tGoldPrimaryCellsInClusters(i)));
 
             // check the void ids
             Matrix<IdMat> tVoidCellIds    = tXTKCellCluster.get_void_cell_ids_in_cluster();
-            CHECK(all_true(tVoidCellIds == tGoldVoidCellsInClusters(i)));
+
+            Matrix<IdMat> tSortedVoidCellIds;
+            sort( tVoidCellIds, tSortedVoidCellIds, "ascend", 1 );
+
+            CHECK(all_true(tSortedVoidCellIds == tGoldVoidCellsInClusters(i)));
 
             // check the vertices of the interpolation cell
             Cell<moris::mtk::Vertex *> tVertices = tXTKInterpCell->get_vertex_pointers();

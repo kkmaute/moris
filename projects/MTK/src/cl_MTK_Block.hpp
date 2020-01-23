@@ -104,7 +104,9 @@ namespace moris
                 }
 #endif
 
+
                 unique( tVerticesOnBlock, mVerticesOnBlock);
+
 
                 //FIXME delete this if statement the unique bud in aramdillo is fixed.
                 if ( tVerticesOnBlock.n_rows() != mVerticesOnBlock.n_rows() )

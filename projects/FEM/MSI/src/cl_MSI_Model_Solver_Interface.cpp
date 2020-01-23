@@ -14,25 +14,6 @@ namespace moris
     namespace MSI
     {
 
-    void Model_Solver_Interface::set_solver_parameters()
-    {
-        mMSIParameterList.insert( "UX"    ,  0 );
-        mMSIParameterList.insert( "UY"    ,  0 );
-        mMSIParameterList.insert( "UZ"    ,  0 );
-        mMSIParameterList.insert( "TEMP"  ,  0 );
-        mMSIParameterList.insert( "L2"    ,  0 );
-        mMSIParameterList.insert( "MAPPING_DOF"    ,  0 );
-        mMSIParameterList.insert( "LS1",     0 );
-        mMSIParameterList.insert( "LS2",     0 );
-        mMSIParameterList.insert( "NLSX",    0 );
-        mMSIParameterList.insert( "NLSY",    0 );
-        mMSIParameterList.insert( "NLSZ",    0 );
-        mMSIParameterList.insert( "VX",      0 );
-        mMSIParameterList.insert( "VY",      0 );
-        mMSIParameterList.insert( "VZ",      0 );
-        mMSIParameterList.insert( "P",       0 );
-    }
-
 //------------------------------------------------------------------------------
 
     moris::sint Model_Solver_Interface::get_adof_index_for_type( moris::uint aDofType )

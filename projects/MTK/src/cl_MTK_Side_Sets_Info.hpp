@@ -55,6 +55,10 @@ operator<<(std::ostream & os, mtk::MtkSideSetInfo const * const & dt)
 {
     os<<"Side Set Name: "<< dt->mSideSetName << " | Number of Sides: "<<dt->mElemIdsAndSideOrds->n_rows()<<" | Side Topology: "<< get_enum_str(dt->mSideTopology) <<"  | Parallel Consistent: "<<dt->mParallelConsistencyReq;
 
+    for(moris::uint i = 0; i<dt->mElemIdsAndSideOrds->n_rows(); i ++ )
+    {
+        os<<"       Cell Id: "<< std::setw(6)<<(*dt->mElemIdsAndSideOrds)(i,0)<<" | Side Ord: "<<std::setw(6)<<(*dt->mElemIdsAndSideOrds)(i,1)<<"\n";
+    }
     return os;
 }
 }

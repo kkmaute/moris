@@ -23,6 +23,7 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*      
                 mBulkPhaseIndex(aBulkPhaseIndex)
 {
 }
+
 //------------------------------------------------------------------------------
 uint
 Interpolation_Cell_Unzipped::get_number_of_vertices() const
@@ -62,6 +63,12 @@ Interpolation_Cell_Unzipped::set_vertices(moris::Cell< xtk::Interpolation_Vertex
 
 moris::mtk::Cell const*
 Interpolation_Cell_Unzipped::get_base_cell() const
+{
+    return mBaseCell;
+}
+
+moris::mtk::Cell*
+Interpolation_Cell_Unzipped::get_base_cell()
 {
     return mBaseCell;
 }

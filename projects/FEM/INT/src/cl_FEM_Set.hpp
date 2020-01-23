@@ -27,6 +27,8 @@
 
 #include "cl_VIS_Output_Enums.hpp"
 
+#include "cl_MSI_Design_Variable_Interface.hpp"
+
 namespace moris
 {
 namespace mtk
@@ -40,6 +42,7 @@ namespace MSI
 }
     namespace fem
     {
+    class FEM_Model;
     class IWG;
     class IQI;
     class Field_Interpolator;
@@ -54,6 +57,8 @@ namespace MSI
     {
     private:
 
+        // FEM model
+        fem::FEM_Model * mFemModel = nullptr;
         // pointer to the corresponding mesh set
         moris::mtk::Set * mMeshSet = nullptr;
 
@@ -135,9 +140,10 @@ namespace MSI
          * @param[ in ] aSetInfo user defined info for set
          * @param[ in ] aIPNodes cell of node pointers
          */
-        Set( moris::mtk::Set           * aMeshSet,
-             fem::Set_User_Info        & aSetInfo,
-             moris::Cell< Node_Base* > & aIPNodes );
+        Set(       fem::FEM_Model            * aFemModel,
+                   moris::mtk::Set           * aMeshSet,
+             const fem::Set_User_Info        & aSetInfo,
+             const moris::Cell< Node_Base* > & aIPNodes );
 
         /**
          * trivial constructor
@@ -632,11 +638,10 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * get number of dv types on the set
-         * FIXME where should this be stored???
          */
         moris::uint get_num_dv_types()
         {
-            return 1;
+            return this->get_num_unique_dv_types();
         }
 
 //------------------------------------------------------------------------------
@@ -677,6 +682,34 @@ namespace MSI
             {
                 mDofTypeMap( static_cast< int >( tDofType( Ii ) ), 0 ) = Ii;
             }
+
+            // Dv types
+            // Create temporary dv type list
+            moris::Cell< enum MSI::Dv_Type > tDvType = get_unique_dv_type_list();
+
+            //Get number of unique dvs of this equation object
+            moris::uint tNumUniqueDvTypes = tDvType.size();
+
+            // Get maximal dv type enum number
+            moris::sint tMaxDvTypeEnumNumber = 0;
+
+            // Loop over all dv types to get the highest enum index
+            for ( moris::uint Ii = 0; Ii < tNumUniqueDvTypes; Ii++ )
+            {
+                tMaxDvTypeEnumNumber = std::max( tMaxDvTypeEnumNumber, static_cast< int >( tDvType( Ii ) ) );
+            }
+
+            // +1 because c++ is 0 based
+            tMaxDvTypeEnumNumber++;
+
+            // Set size of mapping matrix
+            mDvTypeMap       .set_size( tMaxDvTypeEnumNumber, 1, -1 );
+
+            // Loop over all dv types to create the mapping matrix
+            for ( moris::uint Ii = 0; Ii < tNumUniqueDvTypes; Ii++ )
+            {
+                mDvTypeMap( static_cast< int >( tDvType( Ii ) ), 0 ) = Ii;
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -700,6 +733,20 @@ namespace MSI
          * determine set type from mtk set type
          */
         void determine_set_type();
+
+        void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+       {
+           mDesignVariableInterface = aDesignVariableInterface;
+
+           moris::Cell<MSI::Dv_Type > tTypesUnique;
+           mDesignVariableInterface->get_unique_dv_types_for_set( 0, tTypesUnique);     //FIXME use fem::SEt to MTK::set map
+
+           mDvTypeMap.set_size( static_cast<int>(MSI::Dv_Type::END_ENUM), 1, -1 );
+           for( uint Ik = 0; Ik <tTypesUnique.size(); Ik++)
+           {
+               mDvTypeMap( static_cast<int>(tTypesUnique( Ik )) )= Ik;
+           }
+       };
 
     };
 //------------------------------------------------------------------------------

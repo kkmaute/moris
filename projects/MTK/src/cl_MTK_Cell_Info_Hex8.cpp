@@ -47,7 +47,7 @@ Cell_Info_Hex8::get_num_verts_per_facet() const
 moris::Matrix<moris::IndexMat>
 Cell_Info_Hex8::get_node_to_face_map() const
 {
-    return {{0,1,5,4}, {1,2,6,5}, {2,3,7,6}, {0,4,7,3}, {0,3,2,1}, {4,5,6,7}};
+    return {{1, 5, 4, 0}, {1,2,6,5}, {3, 7, 6, 2}, {0,4,7,3}, {0,3,2,1}, {4,5,6,7}};
 }
 // ----------------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>
@@ -61,9 +61,9 @@ Cell_Info_Hex8::get_node_to_face_map(moris::uint aSideOrdinal) const
 {
     switch (aSideOrdinal)
     {
-        case(0):{ return {{0, 1, 5, 4}}; break; }
+        case(0):{ return {{1, 5, 4, 0}}; break; }
         case(1):{ return {{1, 2, 6, 5}}; break; }
-        case(2):{ return {{2, 3, 7, 6}}; break; }
+        case(2):{ return {{3, 7, 6, 2}}; break; }
         case(3):{ return {{0, 4, 7, 3}}; break; }
         case(4):{ return {{0, 3, 2, 1}}; break; }
         case(5):{ return {{4, 5, 6, 7}}; break; }
@@ -143,7 +143,50 @@ Cell_Info_Hex8::compute_cell_size( moris::mtk::Cell const * aCell ) const
     return tLx*tLy*tLz;
 }
 // ----------------------------------------------------------------------------------
+moris::uint
+Cell_Info_Hex8::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+{
+    switch (aSideOrdinal)
+    {
+        case(0):{ return 2; break; }
+        case(1):{ return 3; break; }
+        case(2):{ return 0; break; }
+        case(3):{ return 1; break; }
+        case(4):{ return 5; break; }
+        case(5):{ return 4; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid side ordinal specified");
+            return MORIS_UINT_MAX;
+            break;
+        }
+    }
+}
 // ----------------------------------------------------------------------------------
+void
+Cell_Info_Hex8::eval_N( const Matrix< DDRMat > & aXi,
+                              Matrix< DDRMat > & aNXi ) const
+{
+    // make sure that input is correct
+    MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_N: aXi not allocated or hat wrong size." );
+
+    // unpack xi and eta from input vector
+    moris::real    xi = aXi( 0 );
+    moris::real   eta = aXi( 1 );
+    moris::real  zeta = aXi( 2 );
+
+    // populate output matrix
+    aNXi.set_size(1,8);
+    aNXi( 0 ) =  - ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
+    aNXi( 1 ) =    ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
+    aNXi( 2 ) =  - ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
+    aNXi( 3 ) =    ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
+    aNXi( 4 ) =    ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
+    aNXi( 5 ) =  - ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
+    aNXi( 6 ) =    ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
+    aNXi( 7 ) =  - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
+}
+
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------

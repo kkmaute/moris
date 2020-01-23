@@ -8,6 +8,7 @@
 #include "linalg_typedefs.hpp"              //LINALG/src
 
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+#include <map>
 
 namespace moris
 {
