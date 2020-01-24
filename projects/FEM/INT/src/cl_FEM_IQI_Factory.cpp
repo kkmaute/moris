@@ -7,9 +7,10 @@
 
 #include <memory>
 #include "assert.hpp"
-#include "cl_FEM_IQI_Factory.hpp"                               //FEM/INT/src
-#include "cl_FEM_IQI_Volume.hpp"                                    //FEM/INT/src
-#include "cl_FEM_IQI_Strain_Energy.hpp"                                    //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"       //FEM/INT/src
+#include "cl_FEM_IQI_Volume.hpp"        //FEM/INT/src
+#include "cl_FEM_IQI_Strain_Energy.hpp" //FEM/INT/src
+#include "cl_FEM_IQI_Dof.hpp"           //FEM/INT/src
 
 namespace moris
 {
@@ -20,6 +21,9 @@ namespace moris
         {
             switch( aIQIType )
             {
+                case ( IQI_Type::DOF ):
+                    return std::make_shared< IQI_Dof >();
+
                 case ( IQI_Type::VOLUME ):
                     return std::make_shared< IQI_Volume >();
 

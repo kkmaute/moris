@@ -108,6 +108,7 @@ namespace moris
             UNDEFINED,
             VOLUME,         // volume
             STRAIN_ENERGY,
+            DOF,
             END_IQI_TYPE
         };
 

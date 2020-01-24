@@ -29,6 +29,7 @@ namespace vis
         VX,     //< X-Velocity
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
+        DOF, // Dof
         UNDEFINED, //< Undefined
         END_ENUM//
     };

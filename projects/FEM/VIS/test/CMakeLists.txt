@@ -4,8 +4,9 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    UT_VSI_Visualization_Mesh.cpp
-    UT_VSI_Output_Manager.cpp
+    UT_VIS_Visualization_Mesh.cpp
+    UT_VIS_Output_Manager.cpp
+    UT_VIS_Output_Dof.cpp
     )
 
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               

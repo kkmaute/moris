@@ -83,10 +83,10 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // loop over the order
-            if( mOrder >= 1 )
+            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // penalty parameter
-                real tGhostPenalty = mStabilizationParam( mOrder - 1 )->val()( 0 );
+                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
 
                 // get flattened normal matrix
                 Matrix< DDRMat > tNormalMatrix;
@@ -165,14 +165,14 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // order 1
-            if ( mOrder >= 1 )
+            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // get normal matrix
                 Matrix< DDRMat > tNormalMatrix;
                 this->get_normal_matrix( 2, tNormalMatrix );
 
                 // penalty parameter
-                real tGhostPenalty = mStabilizationParam( mOrder - 1 )->val()( 0 );
+                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
 
                 // compute the jacobian for indirect dof dependencies through master constitutive models
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )

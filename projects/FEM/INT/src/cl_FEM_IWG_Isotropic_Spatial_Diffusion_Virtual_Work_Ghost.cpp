@@ -84,12 +84,10 @@ namespace moris
             uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
 
             // loop over the order
-//            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
-//            {
-            if( mOrder >= 1 )
+            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // penalty parameter
-                real tGhostPenalty = mStabilizationParam( mOrder - 1 )->val()( 0 );
+                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
 
                 // get flattened normal matrix
                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( 1 );
@@ -97,13 +95,6 @@ namespace moris
                 // compute the jump in traction
                 Matrix< DDRMat > tGradJump = mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
                                            - mSlaveCM( tDiffLinIsoIndex )->traction( mNormal );
-//                print( mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) - mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ),"original");
-//                std::cout<<iOrder<<"Order"<<std::endl;
-//                print( tNormalMatrix, "normal flattened");
-//                print( tMasterFI->gradx( iOrder ), "gradx" );
-//                Matrix< DDRMat > tGradJump = trans( mMasterCM( tDiffLinIsoIndex )->constitutive() * tMasterFI->gradx( iOrder )
-//                                             - mSlaveCM( tDiffLinIsoIndex )->constitutive()  * tSlaveFI->gradx( iOrder ) ) * trans( tNormalMatrix );
-//                print( tGradJump, "tGradJump");
 
                 // compute the residual
                 mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
@@ -171,14 +162,14 @@ namespace moris
             // get indices for SP, CM and properties
             uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
 
-            // order 1
-            if ( mOrder >= 1 )
+            // loop over the order
+            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // get normal matrix
                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( 1 );
 
                 // penalty parameter
-                real tGhostPenalty = mStabilizationParam( mOrder - 1 )->val()( 0 );
+                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
 
                 // compute the jacobian for indirect dof dependencies through master constitutive models
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )

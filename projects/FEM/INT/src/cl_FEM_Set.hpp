@@ -581,9 +581,14 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * auto detect full integration scheme
-         * @param[ in ] aGeometryType a geometry type
+         * @param[ in ]  aGeometryType       a geometry type
+         * @param[ in ]  aInterpolationOrder an interpolation order
+         * @param[ out ] aIntegrationOrder   an integration order
          */
-        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+//        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+
+        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type       aGeometryType,
+                                                           const mtk::Interpolation_Order aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         /**

@@ -107,6 +107,7 @@ set(HEADERS
     cl_FEM_IQI_Factory.hpp
     cl_FEM_IQI_Volume.hpp
     cl_FEM_IQI_Strain_Energy.hpp
+    cl_FEM_IQI_Dof.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -183,6 +184,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
+    cl_FEM_IQI_Dof.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )
