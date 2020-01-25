@@ -34,6 +34,12 @@ Vertex_Enrichment::get_weights() const
     return &this->get_basis_weights();
 }
 //------------------------------------------------------------------------------
+Matrix< IdMat >
+Vertex_Enrichment::get_owners() const
+{
+    return mBaseVertexInterp->get_owners();
+}
+//------------------------------------------------------------------------------
 void
 Vertex_Enrichment::set_node_index(moris::moris_index aNodeIndex)
 {
@@ -77,6 +83,18 @@ Vertex_Enrichment::add_basis_weights(moris::Matrix<moris::IndexMat> const & aBas
         moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
         mBasisWeights(tBasisLocInd) = aBasisWeight(i);
     }
+}
+//------------------------------------------------------------------------------
+void
+Vertex_Enrichment::add_base_vertex_interpolation(mtk::Vertex_Interpolation * aBaseVertInterp)
+{
+	mBaseVertexInterp = aBaseVertInterp;
+}
+//------------------------------------------------------------------------------
+mtk::Vertex_Interpolation const *
+Vertex_Enrichment::get_base_vertex_interpolation() const
+{
+	return mBaseVertexInterp;
 }
 //------------------------------------------------------------------------------
 std::unordered_map<moris::moris_index, moris::moris_index> &

@@ -283,7 +283,7 @@ namespace moris
 
                         if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
                         {
-                            tVisClusterVerticesLocalCoords.set_row( tCounter, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
+                            tVisClusterVerticesLocalCoords.set_row( tCounter++, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
                         }
                     }
 
@@ -313,6 +313,8 @@ namespace moris
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock( Ij ),
                                                          tMeshSet->get_spatial_dim() );
+
+            mListofBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );
         }
     }
 

@@ -2746,7 +2746,7 @@ Model::perform_basis_enrichment_internal(enum EntityRank  aBasisRank,
 {
     // initialize enrichment (ptr because of circular dependency)
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
-                                 EntityRank::NODE,
+    							 aBasisRank,
                                  aInterpIndex,
                                  mGeometryEngine.get_num_phases(),
                                  this,

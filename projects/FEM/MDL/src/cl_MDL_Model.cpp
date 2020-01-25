@@ -86,7 +86,7 @@ namespace moris
         moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
         moris::uint tMaxNumAdofs;
 
-        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR || tInterpolationMesh->get_mesh_type()  == MeshType::XTK )
         {
             // get map from mesh
             tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
