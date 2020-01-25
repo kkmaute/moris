@@ -416,11 +416,9 @@ find_package(Threads)
 # -------------------------------------------------------------------------
 option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
 if (USE_GPERFTOOLS)
-    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/usr/include/gperftools/ -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free" )
 
-    #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
-    #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
-    list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+    list(APPEND MORIS_BASE_LIBS "-Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
 endif()
 
 # -------------------------------------------------------------------------

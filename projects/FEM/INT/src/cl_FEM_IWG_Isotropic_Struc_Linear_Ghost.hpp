@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.hpp
  *
- *  Created on: Oct 17, 2019
+ *  Created on: Jan 21, 2020
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_GHOST_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_GHOST_HPP_
 
 #include <map>
 
@@ -25,19 +25,15 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost : public IWG
+        class IWG_Isotropic_Struc_Linear_Ghost : public IWG
         {
-            // Ghost penalty parameter
-            real mGammaGhost;
-
-            // mesh parameter describing length of elements
-            real mMeshParameter;
 
             // order of Shape functions
             uint mOrder;
 
 //------------------------------------------------------------------------------
         public:
+
             enum class IWG_Property_Type
             {
                 MAX_ENUM
@@ -48,7 +44,6 @@ namespace moris
 
             enum class IWG_Constitutive_Type
             {
-                DIFF_LIN_ISO,
                 MAX_ENUM
             };
 
@@ -57,7 +52,9 @@ namespace moris
 
             enum class IWG_Stabilization_Type
             {
-                GHOST_VW_1,
+                GHOST_DISPL_1,
+                GHOST_DISPL_2,
+                GHOST_DISPL_3,
                 MAX_ENUM
             };
 
@@ -68,13 +65,13 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost();
+            IWG_Isotropic_Struc_Linear_Ghost();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost(){};
+            ~IWG_Isotropic_Struc_Linear_Ghost(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -130,7 +127,7 @@ namespace moris
              * compute the residual
              * @param[ in ] aResidual cell of residual vectors to fill
              */
-            void compute_residual(  real tWStar );
+            void compute_residual( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
@@ -147,7 +144,6 @@ namespace moris
              */
             void compute_jacobian_and_residual( moris::Cell< Cell< Matrix< DDRMat > > > & aJacobians,
                                                 moris::Cell< Matrix< DDRMat > >         & aResidual );
-
 //------------------------------------------------------------------------------
             /**
              * compute the derivative of the residual wrt design variables
@@ -159,9 +155,11 @@ namespace moris
             /**
              * method to assemble "normal matrix" from normal vector needed for
              * 2nd and 3rd order Ghost formulations
-             * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
+             * @param[ in ] aOrderGhost order of derivatives and ghost formulation
+             * @param[ in ] aNormal     normal matrix to fill
              */
-            Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
+            void get_normal_matrix ( uint aOrderGhost,
+                                     Matrix< DDRMat > & aNormal );
 
 //------------------------------------------------------------------------------
         };
@@ -169,4 +167,6 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_ */
+
+
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_GHOST_HPP_ */

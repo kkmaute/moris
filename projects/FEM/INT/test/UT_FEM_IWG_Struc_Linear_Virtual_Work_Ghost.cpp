@@ -19,7 +19,7 @@
 #include "op_equal_equal.hpp"
 
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+moris::Matrix< moris::DDRMat > tConstValFunction_UTElastVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                             moris::fem::Geometry_Interpolator              * aGI )
@@ -27,29 +27,13 @@ moris::Matrix< moris::DDRMat > tConstValFunction_UTVWGhost( moris::Cell< moris::
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                         moris::fem::Geometry_Interpolator              * aGI )
-{
-    return aParameters( 0 ) * aDofFI( 0 )->val();
-}
-
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                         moris::fem::Geometry_Interpolator              * aGI )
-{
-    return aParameters( 0 ) * aDofFI( 0 )->N();
-}
-
 using namespace moris;
 using namespace fem;
 
-// This UT tests the isotropic spatial diffusion vitual work based ghost IWG
+// This UT tests the isotropic linear elasticity vitual work based ghost IWG
 // for QUAD, HEX geometry type
 // for LINEAR, QUADRATIC and CUBIC interpolation order
-TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
+TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-4;
@@ -77,6 +61,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         // create the normal
         Matrix< DDRMat > tNormal;
 
+        // dof type list
+        Cell< MSI::Dof_Type > tDofTypes;
+
         switch( iSpaceDim )
         {
             case( 2 ):
@@ -98,6 +85,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
                // set the normal
                tNormal = {{1.0},{0.0}};
+
+               // set dof type list
+               tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
 
                break;
             }
@@ -124,6 +114,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
                 // set the normal
                 tNormal = {{1.0},{0.0},{0.0}};
+
+                // set dof type list
+                tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
 
                 break;
             }
@@ -179,13 +172,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
                     // get number of dof
-                    tNumDof = tNumCoeffs( 0 );
+                    tNumDof = tNumCoeffs( 0 ) * iSpaceDim;
 
                     // create random coefficients for master FI
-                    tMasterMatrix.randu( tNumCoeffs( 0 ), 1 );
+                    tMasterMatrix.randu( tNumCoeffs( 0 ), iSpaceDim );
 
                     // create random coefficients for slave FI
-                    tSlaveMatrix.randu( tNumCoeffs( 0 ), 1 );
+                    tSlaveMatrix.randu( tNumCoeffs( 0 ), iSpaceDim );
                     break;
                 }
                 case ( 2 ):
@@ -194,13 +187,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
 
                     // get number of dof
-                    tNumDof = tNumCoeffs( 1 );
+                    tNumDof = tNumCoeffs( 1 ) * iSpaceDim;
 
                     // create random coefficients for master FI
-                    tMasterMatrix.randu( tNumCoeffs( 1 ), 1 );
+                    tMasterMatrix.randu( tNumCoeffs( 1 ), iSpaceDim );
 
                     // create random coefficients for slave FI
-                    tSlaveMatrix.randu( tNumCoeffs( 1 ), 1 );
+                    tSlaveMatrix.randu( tNumCoeffs( 1 ), iSpaceDim );
                     break;
                 }
                 case ( 3 ):
@@ -209,13 +202,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
 
                     // get number of dof
-                    tNumDof = tNumCoeffs( 2 );
+                    tNumDof = tNumCoeffs( 2 ) * iSpaceDim;
 
                     // create random coefficients for master FI
-                    tMasterMatrix.randu( tNumCoeffs( 2 ), 1 );
+                    tMasterMatrix.randu( tNumCoeffs( 2 ), iSpaceDim );
 
                     // create random coefficients for slave FI
-                    tSlaveMatrix.randu( tNumCoeffs( 2 ), 1 );
+                    tSlaveMatrix.randu( tNumCoeffs( 2 ), iSpaceDim );
                     break;
                 }
                 default:
@@ -246,7 +239,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             Cell< Field_Interpolator* > tMasterFIs( 1 );
 
             // create the field interpolator
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDofTypes );
 
             // set the coefficients uHat
             tMasterFIs( 0 )->set_coeff( tMasterDOFHat );
@@ -258,7 +251,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             Cell< Field_Interpolator* > tSlaveFIs( 1 );
 
             // create the field interpolator
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
+            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDofTypes );
 
             // set the coefficients uHat
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHat );
@@ -267,38 +260,49 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tSlaveFIs( 0 )->set_space_time( tParamPoint );
 
             // create the properties
-            std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
-            tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-            tPropMasterConductivity->set_val_function( tConstValFunction_UTVWGhost );
+            std::shared_ptr< fem::Property > tPropMasterYoungModulus = std::make_shared< fem::Property > ();
+            tPropMasterYoungModulus->set_parameters( { {{ 1.0 }} } );
+            tPropMasterYoungModulus->set_val_function( tConstValFunction_UTElastVWGhost );
 
-            std::shared_ptr< fem::Property > tPropSlaveConductivity = std::make_shared< fem::Property > ();
-            tPropSlaveConductivity->set_parameters( { {{ 1.0 }} } );
-            tPropSlaveConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropSlaveConductivity->set_val_function( tFIValFunction_UTVWGhost );
-            tPropSlaveConductivity->set_dof_derivative_functions( { tFIDerFunction_UTVWGhost } );
+            std::shared_ptr< fem::Property > tPropMasterPoissonRatio = std::make_shared< fem::Property > ();
+            tPropMasterPoissonRatio->set_parameters( { {{ 0.3 }} } );
+            tPropMasterPoissonRatio->set_val_function( tConstValFunction_UTElastVWGhost );
+
+            std::shared_ptr< fem::Property > tPropSlaveYoungModulus = std::make_shared< fem::Property > ();
+            tPropSlaveYoungModulus->set_parameters( { {{ 2.0 }} } );
+            tPropSlaveYoungModulus->set_val_function( tConstValFunction_UTElastVWGhost );
+
+            std::shared_ptr< fem::Property > tPropSlavePoissonRatio = std::make_shared< fem::Property > ();
+            tPropSlavePoissonRatio->set_parameters( { {{ 0.3 }} } );
+            tPropSlavePoissonRatio->set_val_function( tConstValFunction_UTElastVWGhost );
 
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-            tCMMasterDiffLinIso->set_space_dim( iSpaceDim );
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+            tCMMasterElastLinIso->set_dof_type_list( { tDofTypes } );
+            tCMMasterElastLinIso->set_property( tPropMasterYoungModulus, "YoungsModulus" );
+            tCMMasterElastLinIso->set_property( tPropMasterPoissonRatio, "PoissonRatio" );
+            tCMMasterElastLinIso->set_space_dim( iSpaceDim );
+            tCMMasterElastLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
 
-            std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMSlaveDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tCMSlaveDiffLinIso->set_property( tPropSlaveConductivity, "Conductivity" );
-            tCMSlaveDiffLinIso->set_space_dim( iSpaceDim );
+
+            std::shared_ptr< fem::Constitutive_Model > tCMSlaveElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+            tCMSlaveElastLinIso->set_dof_type_list( { tDofTypes } );
+            tCMSlaveElastLinIso->set_property( tPropSlaveYoungModulus, "YoungsModulus" );
+            tCMSlaveElastLinIso->set_property( tPropSlavePoissonRatio, "PoissonRatio" );
+            tCMSlaveElastLinIso->set_space_dim( iSpaceDim );
+            tCMSlaveElastLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_VW_GHOST );
-            tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
-            tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
+            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_VW_GHOST );
+            tIWG->set_residual_dof_type( tDofTypes );
+            tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
+            tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
+            tIWG->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIWG->set_constitutive_model( tCMSlaveElastLinIso,  "ElastLinIso", mtk::Master_Slave::SLAVE );
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -321,13 +325,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
             // set size and populate the set dof type map
             tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
             // set size and populate the set master and slave dof type map
-            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-            tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+            tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 );
@@ -350,8 +354,8 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->build_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
-            tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::TEMP }};
+            tIWG->mRequestedMasterGlobalDofTypes = { tDofTypes };
+            tIWG->mRequestedSlaveGlobalDofTypes  = { tDofTypes };
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;

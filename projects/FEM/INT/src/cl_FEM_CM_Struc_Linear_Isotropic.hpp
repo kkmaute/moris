@@ -36,7 +36,7 @@ namespace moris
             std::map< std::string, CM_Struc_Linear_Isotropic::Property_Type > mPropertyMap;
 
         private:
-            Model_Type mPlaneType = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
+            Model_Type mPlaneType  = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
             Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
             void (moris::fem::CM_Struc_Linear_Isotropic:: *mConstFunc)(moris::real, moris::real) = &CM_Struc_Linear_Isotropic::full_3d;
 
@@ -213,7 +213,7 @@ namespace moris
              * Model_Type::PLANE_STRAIN, and Model_Type::HYDROSTATIC or
              * Model_Type::DEVIATORIC
              */
-            void set_model_type(Model_Type aModelType);
+            void set_model_type( Model_Type aModelType);
 
         //--------------------------------------------------------------------------------------------------------------
         private:

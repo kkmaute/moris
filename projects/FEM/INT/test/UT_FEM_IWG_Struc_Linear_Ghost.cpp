@@ -11,53 +11,59 @@
 #undef private
 
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                              //FEM//INT/src
-#include "cl_FEM_IWG_Factory.hpp"                                         //FEM//INT/src
-#include "cl_FEM_CM_Factory.hpp"                                         //FEM//INT/src
-#include "cl_FEM_SP_Factory.hpp"                                         //FEM//INT/src
+#include "cl_FEM_Enums.hpp"                                 //FEM//INT/src
+#include "cl_FEM_IWG_Factory.hpp"                            //FEM//INT/src
+#include "cl_FEM_CM_Factory.hpp"                            //FEM//INT/src
+#include "cl_FEM_SP_Factory.hpp"                            //FEM//INT/src
+
 
 #include "op_equal_equal.hpp"
-
-
-moris::Matrix< moris::DDRMat > tConstValFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIConstValFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                                 moris::fem::Geometry_Interpolator              * aGI )
 {
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                         moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIValFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                            moris::fem::Geometry_Interpolator              * aGI )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->val();
+    return aParameters( 0 ) * sum( aDofFI( 0 )->val() );
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                         moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIDerFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                            moris::fem::Geometry_Interpolator              * aGI )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->N();
+    moris::Matrix< moris::DDRMat > tTemp = trans( aDofFI( 0 )->N() );
+    moris::Matrix< moris::DDRMat > tReturn( tTemp.n_rows(), 1 );
+    for( uint i = 0; i < tTemp.n_rows(); i++ )
+    {
+        tReturn( i ) = sum( tTemp.get_row( i ) );
+    }
+    return aParameters( 0 )( 0, 0 ) * trans( tReturn );
 }
 
 using namespace moris;
 using namespace fem;
 
-// This UT tests the isotropic spatial diffusion vitual work based ghost IWG
+// This UT tests the isotropic linear elesticity ghost IWG
 // for QUAD, HEX geometry type
 // for LINEAR, QUADRATIC and CUBIC interpolation order
-TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
+TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 {
+
     // define an epsilon environment
     real tEpsilon = 1E-4;
 
     // define a perturbation relative size
     real tPerturbation = 1E-4;
 
-    // loop over the space dimension
+    // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set geometry inputs
@@ -76,6 +82,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
         // create the normal
         Matrix< DDRMat > tNormal;
+
+        // dof type list
+        Cell< MSI::Dof_Type > tDofTypes;
 
         switch( iSpaceDim )
         {
@@ -98,6 +107,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
                // set the normal
                tNormal = {{1.0},{0.0}};
+
+               // set dof type list
+               tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
 
                break;
             }
@@ -124,6 +136,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
                 // set the normal
                 tNormal = {{1.0},{0.0},{0.0}};
+
+                // set dof type list
+                tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
 
                 break;
             }
@@ -155,8 +170,8 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         // set the evaluation point
         tGI.set_space_time( tParamPoint );
 
-        // loop over the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 2; iInterpOrder++ )
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -167,7 +182,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             arma::Mat< double > tMasterMatrix;
             arma::Mat< double > tSlaveMatrix;
 
-            // number of dof
+            // get number of dof
             int tNumDof;
 
             // switch on interpolation order
@@ -179,13 +194,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
                     // get number of dof
-                    tNumDof = tNumCoeffs( 0 );
+                    tNumDof = tNumCoeffs( 0 ) * iSpaceDim;
 
                     // create random coefficients for master FI
-                    tMasterMatrix.randu( tNumCoeffs( 0 ), 1 );
+                    tMasterMatrix.randu( tNumCoeffs( 0 ), iSpaceDim );
 
                     // create random coefficients for slave FI
-                    tSlaveMatrix.randu( tNumCoeffs( 0 ), 1 );
+                    tSlaveMatrix.randu( tNumCoeffs( 0 ), iSpaceDim );
                     break;
                 }
                 case ( 2 ):
@@ -194,13 +209,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
 
                     // get number of dof
-                    tNumDof = tNumCoeffs( 1 );
+                    tNumDof = tNumCoeffs( 1 ) * iSpaceDim;
 
                     // create random coefficients for master FI
-                    tMasterMatrix.randu( tNumCoeffs( 1 ), 1 );
+                    tMasterMatrix.randu( tNumCoeffs( 1 ), iSpaceDim );
 
                     // create random coefficients for slave FI
-                    tSlaveMatrix.randu( tNumCoeffs( 1 ), 1 );
+                    tSlaveMatrix.randu( tNumCoeffs( 1 ), iSpaceDim );
                     break;
                 }
                 case ( 3 ):
@@ -209,13 +224,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
 
                     // get number of dof
-                    tNumDof = tNumCoeffs( 2 );
+                    tNumDof = tNumCoeffs( 2 ) * iSpaceDim;
 
                     // create random coefficients for master FI
-                    tMasterMatrix.randu( tNumCoeffs( 2 ), 1 );
+                    tMasterMatrix.randu( tNumCoeffs( 2 ), iSpaceDim );
 
                     // create random coefficients for slave FI
-                    tSlaveMatrix.randu( tNumCoeffs( 2 ), 1 );
+                    tSlaveMatrix.randu( tNumCoeffs( 2 ), iSpaceDim );
                     break;
                 }
                 default:
@@ -225,8 +240,6 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                 }
             }
 
-            // field interpolators
-            //------------------------------------------------------------------------------
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
                                          Interpolation_Type::LAGRANGE,
@@ -234,11 +247,11 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                                          Interpolation_Type::CONSTANT,
                                          mtk::Interpolation_Order::CONSTANT );
 
-            // fill random master coefficients
+            // fill random coefficients for master FI
             Matrix< DDRMat > tMasterDOFHat;
             tMasterDOFHat.matrix_data() = 10.0 * tMasterMatrix;
 
-            // fill random slave coefficients
+            // fill random coefficients for slave FI
             Matrix< DDRMat > tSlaveDOFHat;
             tSlaveDOFHat.matrix_data() = 10.0 * tSlaveMatrix;
 
@@ -246,7 +259,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             Cell< Field_Interpolator* > tMasterFIs( 1 );
 
             // create the field interpolator
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDofTypes );
 
             // set the coefficients uHat
             tMasterFIs( 0 )->set_coeff( tMasterDOFHat );
@@ -258,7 +271,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             Cell< Field_Interpolator* > tSlaveFIs( 1 );
 
             // create the field interpolator
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
+            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDofTypes );
 
             // set the coefficients uHat
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHat );
@@ -267,49 +280,48 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tSlaveFIs( 0 )->set_space_time( tParamPoint );
 
             // create the properties
-            std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
-            tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-            tPropMasterConductivity->set_val_function( tConstValFunction_UTVWGhost );
+            std::shared_ptr< fem::Property > tPropMasterYoungModulus = std::make_shared< fem::Property > ();
+            tPropMasterYoungModulus->set_parameters( { {{ 1.0 }} } );
+            //tPropMasterYoungModulus->set_val_function( tFIConstValFunction_UTDisplGhost );
+            tPropMasterYoungModulus->set_dof_type_list( { tDofTypes } );
+            tPropMasterYoungModulus->set_val_function( tFIValFunction_UTDisplGhost );
+            tPropMasterYoungModulus->set_dof_derivative_functions( { tFIDerFunction_UTDisplGhost } );
 
-            std::shared_ptr< fem::Property > tPropSlaveConductivity = std::make_shared< fem::Property > ();
-            tPropSlaveConductivity->set_parameters( { {{ 1.0 }} } );
-            tPropSlaveConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropSlaveConductivity->set_val_function( tFIValFunction_UTVWGhost );
-            tPropSlaveConductivity->set_dof_derivative_functions( { tFIDerFunction_UTVWGhost } );
-
-            // define constitutive models
-            fem::CM_Factory tCMFactory;
-
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-            tCMMasterDiffLinIso->set_space_dim( iSpaceDim );
-
-            std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMSlaveDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tCMSlaveDiffLinIso->set_property( tPropSlaveConductivity, "Conductivity" );
-            tCMSlaveDiffLinIso->set_space_dim( iSpaceDim );
+            // define stabilization parameters
+            fem::SP_Factory tSPFactory;
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_VW_GHOST );
-            tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
-            tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
+            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_GHOST );
 
-            // define stabilization parameters
-            fem::SP_Factory tSPFactory;
             if ( iInterpOrder > 0 )
             {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
+                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
                 tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-                tIWG->set_stabilization_parameter( tSP1, "GhostVWOrder1" );
+                tSP1->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
+                tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
+            }
+            if ( iInterpOrder > 1 )
+            {
+                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
+                tSP2->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
+                tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
+            }
+            if ( iInterpOrder > 2 )
+            {
+                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
+                tSP3->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
+                tIWG->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
             }
 
-            // set the normal
+            tIWG->set_residual_dof_type( tDofTypes );
+            tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
+            tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
+
+            // set IWG normal
             tIWG->set_normal( tNormal );
 
             // create and set the fem set for the IWG
@@ -321,13 +333,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
             // set size and populate the set dof type map
             tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
             // set size and populate the set master and slave dof type map
-            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-            tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+            tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 );
@@ -350,8 +362,8 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->build_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
-            tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::TEMP }};
+            tIWG->mRequestedMasterGlobalDofTypes = { tDofTypes };
+            tIWG->mRequestedSlaveGlobalDofTypes  = { tDofTypes };
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
@@ -395,7 +407,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 //            // print for debug
 //            print( tJacobians,"tJacobians");
 //            print( tJacobiansFD,"tJacobiansFD");
-
+//
 //            // print the treated case
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 

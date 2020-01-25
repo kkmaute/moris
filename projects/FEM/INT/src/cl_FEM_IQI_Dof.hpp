@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
+ * cl_FEM_IQI_Dof.hpp
  *
- *  Created on: Oct 17, 2019
+ *  Created on: Jan 23, 2020
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_
 
 #include <map>
 
@@ -16,8 +16,7 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI.hpp"                   //FEM/INT/src
 
 namespace moris
 {
@@ -25,56 +24,46 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost : public IWG
+        class IQI_Dof : public IQI
         {
-            // Ghost penalty parameter
-            real mGammaGhost;
-
-            // mesh parameter describing length of elements
-            real mMeshParameter;
-
-            // order of Shape functions
-            uint mOrder;
-
 //------------------------------------------------------------------------------
-        public:
-            enum class IWG_Property_Type
+
+            enum class IQI_Property_Type
             {
                 MAX_ENUM
             };
 
             // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
+            std::map< std::string, IQI_Property_Type > mPropertyMap;
 
-            enum class IWG_Constitutive_Type
+            enum class IQI_Constitutive_Type
             {
-                DIFF_LIN_ISO,
                 MAX_ENUM
             };
 
             // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+            std::map< std::string, IQI_Constitutive_Type > mConstitutiveMap;
 
-            enum class IWG_Stabilization_Type
+            enum class IQI_Stabilization_Type
             {
-                GHOST_VW_1,
                 MAX_ENUM
             };
 
             // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+            std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
 
+        public:
 //------------------------------------------------------------------------------
             /*
-             *  constructor
+             * constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost();
+            IQI_Dof();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost(){};
+            ~IQI_Dof(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -87,6 +76,10 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // can only be master
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IQI::set_property - can only be master." );
+
                 // FIXME check that property type makes sense?
 
                 // set the property in the property cell
@@ -104,6 +97,10 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // can only be master
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IQI::set_constitutive model - can only be master." );
+
                 // FIXME check that constitutive string makes sense?
 
                 // set the constitutive model in the constitutive model cell
@@ -127,46 +124,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * compute the quantity of interest
+             * @param[ in ] aQI quantity of interest matrix to fill
              */
-            void compute_residual(  real tWStar );
+            void compute_QI( Matrix< DDRMat > & aQI );
 
 //------------------------------------------------------------------------------
             /**
-             * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * compute the derivative of the quantity of interest wrt dof types
+             * @param[ in ] adQIdDof derivative of quantity of interest matrix to fill
              */
-            void compute_jacobian( real tWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
-             */
-            void compute_jacobian_and_residual( moris::Cell< Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >         & aResidual );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the residual wrt design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_drdpdv( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * method to assemble "normal matrix" from normal vector needed for
-             * 2nd and 3rd order Ghost formulations
-             * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
-             */
-            Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
+            void compute_dQIdDof( Matrix< DDRMat > & adQIdDof );
 
 //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+    }/* end namespace fem */
+} /* end namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRAIN_ENERGY_HPP_ */
