@@ -30,6 +30,7 @@ enum class CellTopology
     TRI3,
     QUAD4,
     QUAD9,
+    QUAD16,
     TET4,
     TET10,
     HEX8,

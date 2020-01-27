@@ -248,7 +248,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 {
 
 
-    if(par_size() == 1)
+    if(par_size() == 0)
     {
         std::string tFieldName = "Geometry";
 

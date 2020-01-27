@@ -152,6 +152,9 @@ option(MORIS_HAVE_SYMBOLIC
 option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
+option(MORIS_USE_OPENBLAS
+    "Use the open blas library as the linear algebra package." OFF )
+
 option(MORIS_USE_MKL
     "Use the Inel Math kernel library as the linear algebra package." OFF )
 
@@ -416,11 +419,9 @@ find_package(Threads)
 # -------------------------------------------------------------------------
 option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
 if (USE_GPERFTOOLS)
-    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/usr/include/gperftools/ -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free" )
 
-    #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
-    #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
-    list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+    list(APPEND MORIS_BASE_LIBS "-Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
 endif()
 
 # -------------------------------------------------------------------------
@@ -450,29 +451,38 @@ endif()
 # ACML/MKL/LAPACK libraries -----------------------------------------------
 # -------------------------------------------------------------------------
 
-if (MORIS_USE_ACML AND MORIS_USE_MKL)
-    message(FATAL_ERROR "Use either MKL or ACML")
+if (MORIS_USE_ACML)
+    IF (MORIS_USE_MKL OR MORIS_USE_OPENBLAS OR MORIS_USE_LAPACK)
+        message(FATAL_ERROR "Use either MKL or ACML, OPENBLAS, LAPACK")
+    endif()
 endif()
 
-if (MORIS_USE_ACML AND MORIS_USE_LAPACK)
-    message(FATAL_ERROR "Use either LAPACK or ACML")
+if (MORIS_USE_OPENBLAS)
+    IF (MORIS_USE_MKL OR MORIS_USE_ACML OR MORIS_USE_LAPACK)
+        message(FATAL_ERROR "Use either MKL or ACML")
+    endif()
 endif()
 
-#if (MORIS_USE_LAPACK AND MORIS_USE_MKL)
-#    message(FATAL_ERROR "Use either MKL or LAPACK")
-#endif()
+if (MORIS_USE_LAPACK)
+    IF (MORIS_USE_MKL OR MORIS_USE_ACML OR MORIS_USE_OPENBLAS)
+        message(FATAL_ERROR "Use either LAPACK or ACML")
+    endif()
+endif()
 
 if (MORIS_USE_ACML)
     #include(${SHARE}/${CMAKE}/acml.cmake)
-    set(ACML_LAPACK_MKL "acml")
+    set(ACML_LAPACK_MKL_OPENBLAS "acml")
 elseif(MORIS_USE_MKL)
     #include(${SHARE}/${CMAKE}/mkl.cmake)
-    set(ACML_LAPACK_MKL "mkl")
+    set(ACML_LAPACK_MKL_OPENBLAS "mkl")
 elseif(MORIS_USE_LAPACK)
     #include(${SHARE}/${CMAKE}/lapack.cmake)
-    set(ACML_LAPACK_MKL "lapack")
+    set(ACML_LAPACK_MKL_OPENBLAS "lapack")
+elseif(MORIS_USE_OPENBLAS)
+    #include(${SHARE}/${CMAKE}/openblas.cmake)
+    set(ACML_LAPACK_MKL_OPENBLAS "openblas")
 else()
-    message(FATAL_ERROR "MORIS only supports the ACML, LAPACK, and MKL linear algebra libraries." )
+    message(FATAL_ERROR "MORIS only supports the ACML, OPENBLAS, LAPACK, and MKL linear algebra libraries." )
 endif()
 
 if (MORIS_USE_32BIT)

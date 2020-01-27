@@ -231,6 +231,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
                                        tCutMesh);
 
+            tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
             // Verify parametric coordinates reproduce the same results as tabulated in global node coordinates
 

@@ -15,7 +15,7 @@ list(APPEND MORIS_SOURCE_DIRS ${STK})
 set(STK_TPL_DEPENDENCIES
     #"trilinos"
     "boost" #> used for hierarchical
-    ${ACML_LAPACK_MKL}
+    ${ACML_LAPACK_MKL_OPENBLAS}
     ${ARMADILLO_EIGEN} #> used for hierarchical
     "superlu"
     "trilinos"
