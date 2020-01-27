@@ -33,10 +33,11 @@ include_directories(../STK/src/Hierarchical)
 
 # List executable dependencies
 set(MAIN_DEPENDENCIES
+    ${HMR}-lib
     ${COM}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS}
 #     ${MORIS_MPI_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}

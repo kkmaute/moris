@@ -106,21 +106,39 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get the vertices local coordinates on the IP cell
+         */
+        moris::Matrix< moris::DDRMat >
+        get_vertices_local_coordinates_wrt_interp_cell();
+
+//------------------------------------------------------------------------------
+        /**
+         * get the vertices indices in cluster
+         */
+        moris::Cell< moris_index >
+        get_vertex_indices_in_cluster();
+
+//------------------------------------------------------------------------------
+        /**
          * get the IG cell local coordinates on the side wrt to the IP cell
          * @param[ in ] aCellIndexInCluster index of the IG cell within the cluster
          * @param[ in ] aSideOrdinal        ordinal for the side
          * @param[ in ] aIsMaster           enum for master or slave
          */
-        moris::Matrix< moris::DDRMat > get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
-                                                                                      moris::moris_index aSideOrdinal,
-                                                                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+        moris::Matrix< moris::DDRMat >
+        get_cell_local_coords_on_side_wrt_interp_cell
+        ( moris::moris_index aCellIndexInCluster,
+          moris::moris_index aSideOrdinal,
+          mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
         /**
          * get the IG cell local coordinates wrt IP cell
          * @param[ in ] aPrimaryCellIndexInCluster index of the IG cell within the cluster
          */
-        moris::Matrix< moris::DDRMat > get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster );
+        moris::Matrix< moris::DDRMat >
+        get_primary_cell_local_coords_on_side_wrt_interp_cell
+       ( moris::moris_index aPrimaryCellIndexInCluster );
 
 //------------------------------------------------------------------------------
         /**
@@ -172,10 +190,15 @@ namespace moris
          * @param[ in ] aFieldType  an enum for computation/return type
          *                          GLOBAL, NODAL, ELEMENTAL
          */
-        //void compute_quantity_of_interest( fem::QI_Compute_Type aQIComputeType );
         void compute_quantity_of_interest( const uint aMeshIndex,
                                            enum vis::Output_Type aOutputType,
                                            enum vis::Field_Type  aFieldType );
+
+//------------------------------------------------------------------------------
+        /**
+         * compute dRdp
+         */
+        void compute_dRdp();
 
 //------------------------------------------------------------------------------
         /**

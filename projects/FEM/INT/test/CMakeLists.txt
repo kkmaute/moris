@@ -41,6 +41,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
 	UT_FEM_IWG_Struc_Linear_Pressure_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Interface.cpp
+    UT_FEM_IWG_Struc_Linear_Ghost.cpp
+    UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     )
 

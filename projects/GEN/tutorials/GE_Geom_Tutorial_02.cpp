@@ -136,7 +136,7 @@ main( int    argc,
      */
     uint tMeshOrder = 2;    // Legrange order = B-spline order = 2
 
-    hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
     tParameters.set( "number_of_elements_per_dimension", "2, 2" );
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );

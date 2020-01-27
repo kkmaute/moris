@@ -69,6 +69,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * compute dRdp
+         */
+        void compute_dRdp();
+
+//------------------------------------------------------------------------------
+        /**
          * compute quantity of interest in a global way
          * @param[ in ] aOutputType an enum for the output type
          */

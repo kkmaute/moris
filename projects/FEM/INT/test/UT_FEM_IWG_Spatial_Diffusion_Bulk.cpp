@@ -53,6 +53,7 @@ moris::Matrix< moris::DDRMat > tFIDerFunction_UTIWGDIFFBULK( moris::Cell< moris:
 {
     return aParameters( 0 ) * aDofFI( 0 )->N();
 }
+
 moris::Matrix< moris::DDRMat > tFIValDvFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
@@ -679,6 +680,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
     tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDvTypeList.resize( 5, MSI::Dv_Type::END_ENUM );
 
     tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
@@ -727,12 +729,20 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     // init the jacobian for IWG and FD evaluation
     Cell< Matrix< DDRMat > > tdrdpdvMatFD;
     Cell< Matrix< DDRMat > > tdrdpdvGeoFD;
+    Cell< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
+                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
+                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }} };
 
     // check jacobian by FD
-    tIWG->compute_drdpdv_FD( 1.0,
-                             tPerturbation,
-                             tdrdpdvMatFD,
-                             tdrdpdvGeoFD );
+    tIWG->compute_drdpdv_FD_material( 1.0,
+                                      tPerturbation,
+                                      tIsActive,
+                                      tdrdpdvMatFD );
+
+    tIWG->compute_drdpdv_FD_geometry( 1.0,
+                                      tPerturbation,
+                                      tIsActive,
+                                      tdrdpdvGeoFD );
 
     // print for debug
     //print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );

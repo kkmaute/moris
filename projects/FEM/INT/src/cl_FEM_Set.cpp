@@ -8,6 +8,7 @@
 
 #include "cl_MSI_Model_Solver_Interface.hpp"     //FEM/MSI/src
 #include "cl_MSI_Solver_Interface.hpp"           //FEM/MSI/src
+#include "cl_FEM_Model.hpp"                      //FEM/INT/src
 #include "cl_FEM_Set.hpp"                        //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
@@ -23,13 +24,14 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-    Set::Set( moris::mtk::Set           * aMeshSet,
-              fem::Set_User_Info        & aSetInfo,
-              moris::Cell< Node_Base* > & aIPNodes )
-    : mMeshSet( aMeshSet ),
-      mNodes( aIPNodes ),
-      mIWGs( aSetInfo.get_IWGs() ),
-      mIQIs( aSetInfo.get_IQIs() )
+    Set::Set(       fem::FEM_Model            * aFemModel,
+                    moris::mtk::Set           * aMeshSet,
+              const fem::Set_User_Info        & aSetInfo,
+              const moris::Cell< Node_Base* > & aIPNodes ) : mFemModel( aFemModel ),
+                                                             mMeshSet( aMeshSet ),
+                                                             mNodes( aIPNodes ),
+                                                             mIWGs( aSetInfo.get_IWGs() ),
+                                                             mIQIs( aSetInfo.get_IQIs() )
     {
         this->determine_set_type();
 
@@ -129,6 +131,7 @@ namespace moris
         // FIXME if different for different fields
         mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
 
+        // FIXME change names to dof and dv
         // create a unique dof type list for solver
         this->create_unique_dof_type_list();
 
@@ -144,7 +147,7 @@ namespace moris
         // create an interpolation rule
         Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
                                                               Integration_Type::GAUSS,
-                                                              this->get_auto_integration_order( mIGGeometryType ),
+                                                              this->get_auto_integration_order( mIGGeometryType, mIPSpaceInterpolationOrder ),
                                                               Integration_Type::GAUSS,
                                                               Integration_Order::BAR_1 ); // fixme time order
 
@@ -188,6 +191,8 @@ namespace moris
             this->create_residual_dof_assembly_map();
 
             this->create_dof_assembly_map( aIsResidual );
+
+            this->create_dv_assembly_map();
 
             this->create_requested_IWG_list();
 
@@ -246,18 +251,21 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::create_unique_dof_type_list()
     {
-        // init dof type counter
+        // init dof and dv type counter
         uint tCounter = 0;
+        uint tDvCounter = 0;
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
             // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            tIWG->get_non_unique_dof_types( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >   tActiveDvType;
+            tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // update dof type counter
-            tCounter += tActiveDofType.size();
+            // update dof and dv type counter
+            tCounter   += tActiveDofType.size();
+            tDvCounter += tActiveDvType.size();
         }
 
         // loop over the IQIs
@@ -265,37 +273,45 @@ namespace moris
         {
             // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            tIQI->get_non_unique_dof_types( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >   tActiveDvType;
+            tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // update dof type counter
-            tCounter += tActiveDofType.size();
+            // update dof and dv type counter
+            tCounter   += tActiveDofType.size();
+            tDvCounter += tActiveDvType.size();
         }
 
-        // set max size for the dof type list
+        // set max size for the unique dof and dv type list
         mEqnObjDofTypeList.reserve( tCounter );
+        mUniqueDvTypeList.reserve( tDvCounter );
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
             // get non unique dof type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            tIWG->get_non_unique_dof_types( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >  tActiveDvType;
+            tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // populate the corresponding EqnObj dof type list
+            // populate the corresponding EqnObj dof and dv type list
             mEqnObjDofTypeList.append( tActiveDofType );
+            mUniqueDvTypeList.append( tActiveDvType );
         }
 
         // loop over the IQIs
         for ( std::shared_ptr< IQI > tIQI : mIQIs )
         {
-            // get non unique dof type list
+            // get non unique dof and dv type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            tIQI->get_non_unique_dof_types( tActiveDofType );
+            moris::Cell< MSI::Dv_Type >  tActiveDvType;
+            tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
-            // populate the corresponding EqnObj dof type list
+            // populate the corresponding EqnObj dof and dv type list
             mEqnObjDofTypeList.append( tActiveDofType );
+            mUniqueDvTypeList.append( tActiveDvType );
         }
 
+        {
         // make the EqnObj dof type list unique
         std::sort( ( mEqnObjDofTypeList.data() ).data(),
                    ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size());
@@ -303,27 +319,46 @@ namespace moris
                                  ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size() );
         auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
         mEqnObjDofTypeList.resize( pos );
+        }
+
+        {
+        // make the EqnObj dv type list unique
+        std::sort( ( mUniqueDvTypeList.data() ).data(),
+                   ( mUniqueDvTypeList.data() ).data() + mUniqueDvTypeList.size());
+        auto last = std::unique( ( mUniqueDvTypeList.data() ).data(),
+                                 ( mUniqueDvTypeList.data() ).data() + mUniqueDvTypeList.size() );
+        auto pos  = std::distance( ( mUniqueDvTypeList.data() ).data(), last );
+        mUniqueDvTypeList.resize( pos );
+        }
     }
 
 //------------------------------------------------------------------------------
     void Set::create_dof_type_list()
     {
+        // get number of dof and dv types
         uint tNumDofTypes = this->get_num_dof_types();
+        uint tNumDvTypes  = this->get_num_dv_types();
 
         // set size for the global dof type list
         mMasterDofTypes.reserve( tNumDofTypes );
         mSlaveDofTypes .reserve( tNumDofTypes );
+        mMasterDvTypes.reserve( tNumDvTypes );
+        mSlaveDvTypes .reserve( tNumDvTypes );
 
         // create a list to check if dof type is already in the list
         Matrix< DDSMat > tMasterCheckList( tNumDofTypes, 1, -1 );
         Matrix< DDSMat > tSlaveCheckList ( tNumDofTypes, 1, -1 );
+        Matrix< DDSMat > tMasterDvCheckList( tNumDvTypes, 1, -1 );
+        Matrix< DDSMat > tSlaveDvCheckList ( tNumDvTypes, 1, -1 );
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
-            // get master dof types for the IWG
+            // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIWG->get_global_dof_type_list();
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeMaster
+            = tIWG->get_global_dv_type_list();
 
             // loop over the IWG active master dof type
             for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
@@ -342,15 +377,34 @@ namespace moris
                 }
             }
 
-            // get slave dof types for the IWG
+            // loop over the IWG active master dv type
+            for ( uint iDv = 0; iDv < tDvTypeMaster.size(); iDv++ )
+            {
+                // get set index for the treated master dof type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeMaster( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tMasterDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dof type in the checklist
+                    tMasterDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dof type in the global type list
+                    mMasterDvTypes.push_back( tDvTypeMaster( iDv ) );
+                }
+            }
+
+            // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeSlave
+            = tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
             for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
             {
                 // get set index for the treated slave dof type
-                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
+                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeSlave( iDOF )( 0 ) );
 
                 // if dof enum not in the list
                 if ( tSlaveCheckList( tDofTypeindex ) != 1 )
@@ -359,7 +413,25 @@ namespace moris
                     tSlaveCheckList( tDofTypeindex ) = 1;
 
                     // put the dof type in the global type list
-                    mSlaveDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                    mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+                }
+            }
+
+
+            // loop over the IWG active slave dv type
+            for ( uint iDv = 0; iDv < tDvTypeSlave.size(); iDv++ )
+            {
+                // get set index for the treated slave dv type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeSlave( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tSlaveDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dv type in the checklist
+                    tSlaveDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dv type in the global type list
+                    mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
                 }
             }
         }
@@ -367,9 +439,11 @@ namespace moris
         // loop over the IQIs
         for ( std::shared_ptr< IQI > tIQI : mIQIs )
         {
-            // get master dof types for the IWG
+            // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIQI->get_global_dof_type_list();
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeMaster
+            = tIQI->get_global_dv_type_list();
 
             // loop over the IQI active master dof type
             for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
@@ -388,15 +462,34 @@ namespace moris
                 }
             }
 
-            // get slave dof types for the IQI
+            // loop over the IQI active master dv type
+            for ( uint iDv = 0; iDv < tDvTypeMaster.size(); iDv++ )
+            {
+                // get set index for the treated master dv type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeMaster( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tMasterDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dv type in the checklist
+                    tMasterDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dv type in the global type list
+                    mMasterDvTypes.push_back( tDvTypeMaster( iDv ) );
+                }
+            }
+
+            // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeSlave
+            = tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
             for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
             {
                 // get set index for the treated slave dof type
-                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeMaster( iDOF )( 0 ) );
+                sint tDofTypeindex = this->get_dof_index_for_type_1( tDofTypeSlave( iDOF )( 0 ) );
 
                 // if dof enum not in the list
                 if ( tSlaveCheckList( tDofTypeindex ) != 1 )
@@ -405,21 +498,40 @@ namespace moris
                     tSlaveCheckList( tDofTypeindex ) = 1;
 
                     // put the dof type in the global type list
-                    mSlaveDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                    mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+                }
+            }
+
+            // loop over the IWG active slave dv type
+            for ( uint iDv = 0; iDv < tDvTypeSlave.size(); iDv++ )
+            {
+                // get set index for the treated slave dv type
+                sint tDvTypeindex = this->get_dv_index_for_type_1( tDvTypeSlave( iDv )( 0 ) );
+
+                // if dv enum not in the list
+                if ( tSlaveDvCheckList( tDvTypeindex ) != 1 )
+                {
+                    // put the dv type in the checklist
+                    tSlaveDvCheckList( tDvTypeindex ) = 1;
+
+                    // put the dv type in the global type list
+                    mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
                 }
             }
         }
 
-        // shrink list to fit to number of unique dof types
+        // shrink list to fit to number of unique dof and dv types
         mMasterDofTypes.shrink_to_fit();
         mSlaveDofTypes .shrink_to_fit();
+        mMasterDvTypes.shrink_to_fit();
+        mSlaveDvTypes .shrink_to_fit();
     }
 
 //------------------------------------------------------------------------------
     void Set::create_dof_type_map()
     {
         // get number of master dof types
-        uint tMasterNumDofs = this->get_number_of_field_interpolators();
+        uint tMasterNumDofs = this->get_dof_type_list().size();
 
         // get maximal dof type enum
         sint tMaxEnum = -1;
@@ -435,7 +547,7 @@ namespace moris
         }
 
         // get number of slave dof types
-        uint tSlaveNumDofs =  this->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
+        uint tSlaveNumDofs = this->get_dof_type_list( mtk::Master_Slave::SLAVE ).size();
 
         // loop over the IWGs
         for ( uint iDOF = 0; iDOF < tSlaveNumDofs; iDOF++ )
@@ -468,6 +580,58 @@ namespace moris
         {
             mSlaveDofTypeMap( static_cast< int >( mSlaveDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
         }
+
+//-------------------------------------------------
+
+        uint tMasterNumDvs  = this->get_dv_type_list().size();
+
+        // get maximal dv type enum
+        tMaxEnum = -1;
+
+        // loop over the dv types
+        for ( uint iDv = 0; iDv < tMasterNumDvs; iDv++ )
+        {
+            for ( uint Ik = 0; Ik < mMasterDvTypes( iDv ).size(); Ik++ )
+            {
+                // get the highest dof type enum
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterDvTypes( iDv )( Ik ) ) );
+            }
+        }
+
+        // get number of slave dv types
+        uint tSlaveNumDvs =  this->get_dv_type_list( mtk::Master_Slave::SLAVE ).size();
+
+        // loop over the IWGs
+        for ( uint iDOF = 0; iDOF < tSlaveNumDvs; iDOF++ )
+        {
+            for ( uint Ik = 0; Ik < mSlaveDvTypes( iDOF ).size(); Ik++ )
+            {
+                // get the highest dof type enum
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveDvTypes( iDOF )( Ik ) ) );
+            }
+        }
+        // +1 since start at 0
+        tMaxEnum++;
+
+        MORIS_ASSERT( tMaxEnum != -1, "Set::create_dv_type_map(), no information to build dv type map" );
+
+        // set size of dv type map    // FIXME replace with map
+        mMasterDvTypeMap.set_size( tMaxEnum, 1, -1 );
+
+        // loop over dv types
+        for ( uint iDv = 0; iDv < tMasterNumDvs; iDv++ )
+        {
+            mMasterDvTypeMap( static_cast< int >( mMasterDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+        }
+
+        // set size of dv type map
+        mSlaveDvTypeMap.set_size( tMaxEnum, 1, -1 );
+
+        // loop over dv types
+        for ( uint iDv = 0; iDv < tSlaveNumDvs; iDv++ )
+        {
+            mSlaveDvTypeMap( static_cast< int >( mSlaveDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+        }
     }
 
 //-----------------------------------------------------------------------------
@@ -475,8 +639,8 @@ namespace moris
     {
         // create the master field interpolator manager
         mMasterFIManager = new Field_Interpolator_Manager( mMasterDofTypes,
-                                                           this,
-                                                           aModelSolverInterface );
+                                                           mMasterDvTypes,
+                                                           this );
 
         // create the geometry interpolators on the master FI manager
         mMasterFIManager->create_geometry_interpolators();
@@ -486,8 +650,8 @@ namespace moris
 
         // create the slave field interpolator manager
         mSlaveFIManager = new Field_Interpolator_Manager( mSlaveDofTypes,
+                                                          mSlaveDvTypes,
                                                           this,
-                                                          aModelSolverInterface,
                                                           mtk::Master_Slave::SLAVE );
 
         // create the geometry interpolators on the slave FI manager
@@ -553,7 +717,7 @@ namespace moris
     void Set::create_residual_dof_assembly_map()
     {
         // get the list of requested dof types by the solver
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -664,7 +828,7 @@ namespace moris
     void Set::create_jacobian_dof_assembly_map()
     {
         // get list of requested dof types (by the solver)
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -787,11 +951,11 @@ namespace moris
     void Set::create_staggered_jacobian_dof_assembly_map()
     {
         // get list of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
-        Cell< Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
+        moris::Cell< moris::Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
                                                                        ->get_solver_interface()
                                                                        ->get_secundary_dof_types();
 
@@ -1029,7 +1193,7 @@ namespace moris
     void Set::create_requested_IWG_list()
     {
         // get List of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+        moris::Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
                                                                ->get_solver_interface()
                                                                ->get_requested_dof_types();
 
@@ -1117,7 +1281,7 @@ namespace moris
                     }
                 }
 
-                Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
+                moris::Cell< moris::Cell<enum MSI::Dof_Type> > tSecDofTypes = this->get_secundary_dof_types();
 
                 for ( auto tSecDofTypesI : tSecDofTypes)
                 {
@@ -1218,7 +1382,7 @@ namespace moris
                        break;
 
                    default :
-                       MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for LINE and number of vertices. ");
+                       MORIS_ERROR( false, " Set::get_auto_interpolation_order - not defined for LINE and number of vertices. ");
                        return mtk::Interpolation_Order::UNDEFINED;
                        break;
                 }
@@ -1243,7 +1407,7 @@ namespace moris
                         break;
 
                     default :
-                        MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for QUAD and number of vertices. ");
+                        MORIS_ERROR( false, " Set::get_auto_interpolation_order - not defined for QUAD and number of vertices. ");
                         return mtk::Interpolation_Order::UNDEFINED;
                         break;
                 }
@@ -1268,7 +1432,7 @@ namespace moris
                         break;
 
                     default :
-                        MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for HEX and number of vertices. ");
+                        MORIS_ERROR( false, " Set::get_auto_interpolation_order - not defined for HEX and number of vertices. ");
                         return mtk::Interpolation_Order::UNDEFINED;
                         break;
                 }
@@ -1289,13 +1453,13 @@ namespace moris
                         break;
 
                     default :
-                        MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TET and number of vertices. ");
+                        MORIS_ERROR( false, " Set::get_auto_interpolation_order - not defined for TET and number of vertices. ");
                         return mtk::Interpolation_Order::UNDEFINED;
                         break;
                 }
 
             default :
-                MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for this geometry type. ");
+                MORIS_ERROR( false, " Set::get_auto_interpolation_order - not defined for this geometry type. ");
                 return mtk::Interpolation_Order::UNDEFINED;
                 break;
         }
@@ -1324,32 +1488,150 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
+//    fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
+//    {
+//        switch( aGeometryType )
+//        {
+//            case( mtk::Geometry_Type::LINE ) :
+//                return fem::Integration_Order::BAR_3;
+//                break;
+//
+//            case( mtk::Geometry_Type::QUAD ) :
+//                 return fem::Integration_Order::QUAD_2x2;         //FIXME
+//                 break;
+//
+//            case( mtk::Geometry_Type::HEX ) :
+//                return fem::Integration_Order::HEX_3x3x3;
+//                break;
+//
+//            case( mtk::Geometry_Type::TRI ) :
+//                return fem::Integration_Order::TRI_6;
+//                break;
+//
+//            case( mtk::Geometry_Type::TET ) :
+//                return fem::Integration_Order::TET_5;
+//                break;
+//
+//            default :
+//                MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
+//                return Integration_Order::UNDEFINED;
+//                break;
+//        }
+//    }
+
+    fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type       aGeometryType,
+                                                            const mtk::Interpolation_Order aInterpolationOrder )
     {
         switch( aGeometryType )
         {
             case( mtk::Geometry_Type::LINE ) :
-                return fem::Integration_Order::BAR_3;
+            {
+                switch( aInterpolationOrder )
+                {
+                    case( mtk::Interpolation_Order::LINEAR ):
+                        return fem::Integration_Order::BAR_1;
+
+                    case( mtk::Interpolation_Order::QUADRATIC ):
+                        return fem::Integration_Order::BAR_2;
+
+                    case( mtk::Interpolation_Order::CUBIC ):
+                        return fem::Integration_Order::BAR_3;
+
+                    default:
+                        MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
+                        return fem::Integration_Order::UNDEFINED;
+                }
                 break;
+            }
 
             case( mtk::Geometry_Type::QUAD ) :
-                 return fem::Integration_Order::QUAD_2x2;         //FIXME
-                 break;
+            {
+                switch( aInterpolationOrder )
+                {
+                    case( mtk::Interpolation_Order::LINEAR ):
+                         return fem::Integration_Order::QUAD_2x2;
+
+                    case( mtk::Interpolation_Order::SERENDIPITY ):
+                         return fem::Integration_Order::QUAD_3x3;
+
+                    case( mtk::Interpolation_Order::QUADRATIC ):
+                        return fem::Integration_Order::QUAD_3x3;
+
+                    case( mtk::Interpolation_Order::CUBIC ):
+                        return fem::Integration_Order::QUAD_4x4;
+
+                    default:
+                        MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
+                        return fem::Integration_Order::UNDEFINED;
+                }
+                break;
+            }
 
             case( mtk::Geometry_Type::HEX ) :
-                return fem::Integration_Order::HEX_3x3x3;
+            {
+                switch( aInterpolationOrder )
+                {
+                    case( mtk::Interpolation_Order::LINEAR ):
+                         return fem::Integration_Order::HEX_2x2x2;
+
+                    case( mtk::Interpolation_Order::SERENDIPITY ):
+                        return fem::Integration_Order::HEX_3x3x3;
+
+                    case( mtk::Interpolation_Order::QUADRATIC ):
+                        return fem::Integration_Order::HEX_3x3x3;
+
+                    case( mtk::Interpolation_Order::CUBIC ):
+                        return fem::Integration_Order::HEX_4x4x4;
+
+                    default:
+                        MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
+                        return fem::Integration_Order::UNDEFINED;
+                }
                 break;
+            }
 
             case( mtk::Geometry_Type::TRI ) :
-                return fem::Integration_Order::TRI_6;
+            {
+                switch( aInterpolationOrder )
+                {
+                    case( mtk::Interpolation_Order::LINEAR ):
+                         return fem::Integration_Order::TRI_3;
+
+                    case( mtk::Interpolation_Order::QUADRATIC ):
+                        return fem::Integration_Order::TRI_6;
+
+                    case( mtk::Interpolation_Order::CUBIC ):
+                        return fem::Integration_Order::TRI_7;
+
+                    default:
+                        MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
+                        return fem::Integration_Order::UNDEFINED;
+                }
                 break;
+            }
 
             case( mtk::Geometry_Type::TET ) :
-                return fem::Integration_Order::TET_5;
+            {
+                switch( aInterpolationOrder )
+                {
+                    case( mtk::Interpolation_Order::LINEAR ):
+                         return fem::Integration_Order::TET_4;
+
+                    case( mtk::Interpolation_Order::QUADRATIC ):
+                        return fem::Integration_Order::TET_11;
+
+                    case( mtk::Interpolation_Order::CUBIC ):
+                        return fem::Integration_Order::TET_15;
+
+                    default:
+                        MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
+                        return fem::Integration_Order::UNDEFINED;
+                }
                 break;
+            }
 
             default :
-                MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
+                MORIS_ERROR( false, " Set::get_auto_integration_order - Unknown or unsupported geometry type. ");
                 return Integration_Order::UNDEFINED;
                 break;
         }

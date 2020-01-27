@@ -185,8 +185,6 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
         mPermFileName += "." + std::to_string(moris::par_size()) + "." + std::to_string(moris::par_rank());
     }
 
-    std::cout<<"mTempFileName = "<<mTempFileName<<std::endl;
-
     // Create the database
     int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
     mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize);

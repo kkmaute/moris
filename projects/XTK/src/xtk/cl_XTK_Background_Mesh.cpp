@@ -240,13 +240,15 @@ Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    con
     // allocate space in the local to global node map
     mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
 
+    // allocate space in vertices
+    mXtkMtkVertices.resize(tNumNewNodes+tNumExistingNodes);
+
     for(moris::uint i = 0; i <tNumNewNodes; i++)
     {
-
         // create vertex
-        mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
+        mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK( aNewNodeIds(i),
                                                           aNewNodeIndices(i),
-                                                          this));
+                                                          this);
         // add to local to global map
         mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
 
@@ -285,11 +287,15 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
     // allocate space in the local to global node map
     mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
 
+    // allocate space in vertices
+    mXtkMtkVertices.resize(tNumNewNodes+tNumExistingNodes);
+
     for(moris::uint i = 0; i <tNumNewNodes; i++)
     {
-        mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
+        // create vertex
+        mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK( aNewNodeIds(i),
                                                           aNewNodeIndices(i),
-                                                          this));
+                                                          this);
 
         mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
 

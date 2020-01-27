@@ -119,7 +119,9 @@ namespace moris
             mMaxNumDofFI =  mEquationSet->get_num_unique_dof_types();
 
             // FIXME maximum number of dv field interpolators
-            mMaxNumDvFI =  mDvTypes.size();
+            mMaxNumDvFI =  3;          //FIXME FIXME FIXME
+
+            mDvTypeMap = mEquationSet->get_dv_type_map( aIsMaster );
 
         };
 
@@ -253,11 +255,11 @@ namespace moris
                               "Field_Interpolator_Manager::create_field_interpolators - Field interpolator was created previously." );
 
                 // create a field interpolator for the dof type group
-                mFI( tDvIndex ) = new Field_Interpolator( mDvTypes( iDv ).size(),
-                                                          tFieldInterpolationRule,
-                                                          mIPGeometryInterpolator,
-                                                          //reinterpret_cast< Set* >( mEquationSet )->get_IP_geometry_interpolator( mIsMaster ),
-                                                          mDvTypes( iDv ) );
+                mDvFI( tDvIndex ) = new Field_Interpolator( mDvTypes( iDv ).size(),
+                                                           tFieldInterpolationRule,
+                                                           mIPGeometryInterpolator,
+                                                           //reinterpret_cast< Set* >( mEquationSet )->get_IP_geometry_interpolator( mIsMaster ),
+                                                           mDvTypes( iDv ) );
             }
         };
 

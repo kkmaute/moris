@@ -110,7 +110,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         //Material Parameters
         moris::real tEa  = 1e6; // Pa
         moris::real tNua = 0.3;
-        moris::real tEb  = 1e6; // Pa
+        moris::real tEb  = 1e12; // Pa
         moris::real tNub = 0.3;
 
         // Boundary Conditions
@@ -131,9 +131,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tEnrIgMeshFileName = "./mdl_exo/contact_enr_ig.e";
 
         // flags
-        bool tVizGhost = true;
-        bool tVerboseGeometry = true;
-        bool tVizIGMeshBeforeFEM = true;
+        bool tVizGhost = false;
+        bool tVerboseGeometry = false;
+        bool tVizIGMeshBeforeFEM = false;
 
 
         // Construct Left Plane
@@ -203,7 +203,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tTopFieldName    = "TopPlane";
         std::string tBottomFieldName = "BottomPlane";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -225,6 +225,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
+        tParameters.set("use_number_aura",1);
 
         hmr::HMR tHMR( tParameters );
 
@@ -294,7 +295,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
-        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         // get meshes for FEM
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -314,10 +315,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         if(tVizIGMeshBeforeFEM)
         {
-            tEnrIntegMesh.print();
             tEnrIntegMesh.deactivate_empty_sets();
-            tEnrIntegMesh.print();
-
             // Write mesh
             Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", tEnrIgMeshFileName);
@@ -500,9 +498,20 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetDirichlet6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p5") );
         tSetDirichlet6.set_IWGs( { tIWGDirichlet } );
 
-        fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(2,0,2)) );
-        tSetNeumann.set_IWGs( { tIWGNeumann } );
+        std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,9,8) = "<<tEnrIntegMesh.get_interface_side_set_name(3,9,8)<<" Index = "<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,9,8))<<std::endl;
+        std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,5,4) = "<<tEnrIntegMesh.get_interface_side_set_name(3,5,4)<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,5,4))<<std::endl;
+
+        fem::Set_User_Info tSetNeumann1;
+        tSetNeumann1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(2,0,2)) );
+        tSetNeumann1.set_IWGs( { tIWGNeumann } );
+
+        fem::Set_User_Info tSetNeumann2;
+        tSetNeumann2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,5,4)) );
+        tSetNeumann2.set_IWGs( { tIWGNeumann } );
+
+        fem::Set_User_Info tSetNeumann3;
+        tSetNeumann3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,9,8)) );
+        tSetNeumann3.set_IWGs( { tIWGNeumann } );
 
         /* This is the contact interface*/
         fem::Set_User_Info tSetInterface1;
@@ -519,7 +528,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInterface3.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 18 );
+        moris::Cell< fem::Set_User_Info > tSetInfo( 20 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -534,10 +543,12 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInfo( 11 )  = tSetDirichlet4;
         tSetInfo( 12 )  = tSetDirichlet5;
         tSetInfo( 13 )  = tSetDirichlet6;
-        tSetInfo( 14 ) = tSetNeumann;
-        tSetInfo( 15 ) = tSetInterface1;
-        tSetInfo( 16 ) = tSetInterface2;
-        tSetInfo( 17 ) = tSetInterface3;
+        tSetInfo( 14 ) = tSetNeumann1;
+        tSetInfo( 15 ) = tSetNeumann2;
+        tSetInfo( 16 ) = tSetNeumann3;
+        tSetInfo( 17 ) = tSetInterface1;
+        tSetInfo( 18 ) = tSetInterface2;
+        tSetInfo( 19 ) = tSetInterface3;
 
 
         // create model

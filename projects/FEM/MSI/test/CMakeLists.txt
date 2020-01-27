@@ -1,6 +1,8 @@
 # Model Solver Interface Tests --------------------------------------------
 # -------------------------------------------------------------------------
 
+    include_directories(MSI_Test_Proxy)
+    
 # List source files
 set(TEST_SOURCES
     test_main.cpp
@@ -9,7 +11,13 @@ set(TEST_SOURCES
     cl_MSI_Pdof_Host_Test.cpp
     cl_MSI_Model_Solver_Interface_Test.cpp
     cl_MSI_Multigrid.cpp
+    UT_Equation_Object_Pdv.cpp
+    MSI_Test_Proxy/cl_MSI_Design_Variable_Interface_Proxy.hpp
+    MSI_Test_Proxy/cl_MTK_Vertex_Proxy.hpp
+    MSI_Test_Proxy/cl_MTK_Cell_Proxy.hpp
+    MSI_Test_Proxy/cl_MTK_Cluster_Proxy.hpp
     cl_MSI_SpaceTime_Test.cpp
+
     )
 
 # List test dependencies

@@ -19,9 +19,18 @@ set(HEADERS
     cl_FEM_IWG_Factory.hpp
     cl_FEM_IWG.hpp
     cl_FEM_IWG_L2.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
+    #cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
@@ -94,11 +103,11 @@ set(HEADERS
     cl_FEM_Constitutive_Model.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     cl_FEM_CM_Factory.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
     cl_FEM_IQI.hpp
     cl_FEM_IQI_Factory.hpp
     cl_FEM_IQI_Volume.hpp
     cl_FEM_IQI_Strain_Energy.hpp
+    cl_FEM_IQI_Dof.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -106,8 +115,10 @@ set(HEADERS
     cl_FEM_SP_Master_Weight_Interface.hpp
     cl_FEM_SP_Slave_Weight_Interface.hpp
     cl_FEM_SP_Ghost_Displacement.hpp
+    cl_FEM_SP_Ghost_Virtual_Work.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
+    cl_FEM_Model.hpp
     
     )
 
@@ -126,15 +137,17 @@ set(LIB_SOURCES
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
-	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
-	cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.cpp
     #cl_FEM_IWG_Helmholtz_Bulk.cpp
@@ -166,11 +179,14 @@ set(LIB_SOURCES
     cl_FEM_SP_Master_Weight_Interface.cpp
     cl_FEM_SP_Slave_Weight_Interface.cpp
     cl_FEM_SP_Ghost_Displacement.cpp
+    cl_FEM_SP_Ghost_Virtual_Work.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
+    cl_FEM_IQI_Dof.cpp
     cl_FEM_Interpolation_Element.cpp
+    cl_FEM_Model.cpp
     )
 
 # List library dependencies

@@ -144,9 +144,9 @@ public:
 
     void set_up_external_entity_data(moris::mtk::Interpolation_Mesh* aMeshData)
     {
-        mFirstAvailableIds.resize(4,  std::numeric_limits<moris::moris_index>::max());
-        mFirstExtEntityInds.resize(4, std::numeric_limits<moris::moris_index>::max());
-        mFirstAvailableInds.resize(4, std::numeric_limits<moris::moris_index>::max());
+        mFirstAvailableIds.resize(7,  std::numeric_limits<moris::moris_index>::max());
+        mFirstExtEntityInds.resize(7, std::numeric_limits<moris::moris_index>::max());
+        mFirstAvailableInds.resize(7, std::numeric_limits<moris::moris_index>::max());
 
         int tProcessorRank = moris::par_rank();
 
@@ -155,6 +155,13 @@ public:
 //        moris::moris_id tFirstEdge = aMeshData->get_max_entity_id(EntityRank::EDGE);
 //        moris::moris_id tFirstFace = aMeshData->get_max_entity_id(EntityRank::FACE);
         moris::moris_id tFirstElem = aMeshData->get_max_entity_id(EntityRank::ELEMENT)+1;
+        moris::moris_id tFirstBspline = 0;
+        if(aMeshData->get_mesh_type() == MeshType::HMR)
+        {
+        	tFirstBspline = aMeshData->get_max_entity_id(EntityRank::BSPLINE_1);
+        }
+
+
         if(tProcessorRank == 0)
         {
             // Processor 1 (rank 0) is responsible for first available Ids
@@ -162,6 +169,12 @@ public:
             mFirstAvailableIds(1) = MORIS_ID_MAX;
             mFirstAvailableIds(2) = MORIS_ID_MAX;
             mFirstAvailableIds(3) = tFirstElem;
+
+            if(aMeshData->get_mesh_type() == MeshType::HMR)
+            {
+                mFirstAvailableIds(4) = tFirstBspline;
+            }
+
         }
 
         mFirstExtEntityInds(0) = aMeshData->get_num_entities(moris::EntityRank::NODE);

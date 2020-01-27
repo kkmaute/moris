@@ -23,6 +23,7 @@
 #include "cl_MSI_Multigrid.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
+#include "cl_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
@@ -185,7 +186,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
 
             // create new fem set
-            tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
+            tElementBlocks( tFemSetCounter ) = new fem::Set( nullptr,
+                                                             tBlockSet,
                                                              tSetInfo( tFemSetCounter ),
                                                              tNodes );
 
@@ -215,13 +217,15 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 //
 //        tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
-        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
+        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
+
+        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                                     tElementBlocks,
                                                                                      tInterpolationMesh->get_communication_table(),
                                                                                      tCoefficientsMap,
                                                                                      tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
                                                                                      tInterpolationMesh.get() );
-
-        tMSI->set_param("L2")= (sint)tBSplineMeshIndex;
 
         tElementBlocks( 0 )->finalize( tMSI );
 
@@ -402,7 +406,10 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
                                                 tNodes );
          }
 
-         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+
+         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                                      tElements,
                                                                                       tMesh->get_communication_table(),
                                                                                       tCoefficientsMap,
                                                                                       tMesh->get_num_coeffs( tOrder ),
@@ -802,7 +809,10 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
                                                 tNodes );
          }
 
-         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+
+         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                                      tElements,
                                                                                       tMesh->get_communication_table(),
                                                                                       tCoefficientsMap,
                                                                                       tMesh->get_num_coeffs( tOrder ),

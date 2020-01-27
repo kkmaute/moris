@@ -14,6 +14,8 @@
 #include "core.hpp"
 #include "ios.hpp"
 
+
+
 namespace moris
 {
     namespace containers
@@ -31,6 +33,7 @@ namespace moris
 
 namespace moris
 {
+
     /**
      * The parameter list class.
      *
@@ -211,6 +214,11 @@ namespace moris
             return mParamMap.end();
         }
     };
+
+
+    //datatype for hmr paramater list
+    typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
+
 }
 
 #endif /* MORIS_CONTAINERS_CL_PARAM_LIST_HPP_ */

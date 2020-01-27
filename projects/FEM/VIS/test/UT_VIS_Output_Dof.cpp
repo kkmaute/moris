@@ -91,10 +91,10 @@ moris::real PlaneVisTest(const moris::Matrix< moris::DDRMat > & aPoint )
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-Matrix< DDRMat > tConstValFunction_MDLDIFF( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                            moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                            moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                            fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunc_OUTDOF( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                       moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                       moris::Cell< fem::Field_Interpolator* > & aDvFI,
+                                       fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
@@ -108,7 +108,7 @@ namespace moris
 {
     namespace vis
     {
-TEST_CASE(" Output Data","[VIS],[Output_Data]")
+    TEST_CASE(" Vis_Output_Dof","[VIS],[Vis_Output_Dof]")
     {
         if(par_size() == 1)
             {
@@ -160,8 +160,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 tHMR.finalize();
 
-//                tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
-
                 std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
                 moris::ge::GEN_Geom_Field tPlaneFieldAsGeom( tPlaneField );
@@ -189,40 +187,42 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
                 //------------------------------------------------------------------------------
-                // create the properties
+                // create residual dof types
+                moris::Cell< MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+
                 // create the properties
                 std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
                 tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
-                tPropMasterEMod->set_val_function( tConstValFunction_MDLDIFF );
+                tPropMasterEMod->set_val_function( tConstValFunc_OUTDOF );
 
                 std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property > ();
                 tPropMasterNu->set_parameters( { {{ 0.3 }} } );
-                tPropMasterNu->set_val_function( tConstValFunction_MDLDIFF );
+                tPropMasterNu->set_val_function( tConstValFunc_OUTDOF );
 
                 std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property > ();
                 tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }} } );
-                tPropDirichlet->set_val_function( tConstValFunction_MDLDIFF );
+                tPropDirichlet->set_val_function( tConstValFunc_OUTDOF );
 
                 std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
                 tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }}} );
-                tPropNeumann->set_val_function( tConstValFunction_MDLDIFF );
+                tPropNeumann->set_val_function( tConstValFunc_OUTDOF );
 
-                // define constitutive models
+                // create constitutive models
                 fem::CM_Factory tCMFactory;
 
                 std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-                tCMMasterElastLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+                tCMMasterElastLinIso->set_dof_type_list( { tResDofTypes } );
                 tCMMasterElastLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
                 tCMMasterElastLinIso->set_property( tPropMasterNu, "PoissonRatio" );
                 tCMMasterElastLinIso->set_space_dim( 2 );
 
                 std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso_bis = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-                tCMMasterElastLinIso_bis->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+                tCMMasterElastLinIso_bis->set_dof_type_list( { tResDofTypes } );
                 tCMMasterElastLinIso_bis->set_property( tPropMasterEMod, "YoungsModulus" );
                 tCMMasterElastLinIso_bis->set_property( tPropMasterNu, "PoissonRatio" );
                 tCMMasterElastLinIso_bis->set_space_dim( 2 );
 
-                // define stabilization parameters
+                // create stabilization parameters
                 fem::SP_Factory tSPFactory;
 
                 std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
@@ -242,36 +242,43 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 tSPSlaveWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
                 tSPSlaveWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::SLAVE );
 
-                // define the IWGs
+                // create the IQIs
                 fem::IQI_Factory tIQIFactory;
 
-                std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-                tIQI->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
+                std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUX->set_output_type( vis::Output_Type::UX );
+                tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+                tIQIUX->set_output_type_index( 0 );
 
-                // define the IWGs
+                std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUY->set_output_type( vis::Output_Type::UY );
+                tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+                tIQIUY->set_output_type_index( 1 );
+
+                // create the IWGs
                 fem::IWG_Factory tIWGFactory;
 
                 std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-                tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-                tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+                tIWGBulk->set_residual_dof_type( tResDofTypes );
+                tIWGBulk->set_dof_type_list( { tResDofTypes } );
                 tIWGBulk->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
-                tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-                tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+                tIWGDirichlet->set_residual_dof_type( tResDofTypes );
+                tIWGDirichlet->set_dof_type_list( { tResDofTypes } );
                 tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
                 tIWGDirichlet->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
                 tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-                tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-                tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+                tIWGNeumann->set_residual_dof_type( tResDofTypes );
+                tIWGNeumann->set_dof_type_list( { tResDofTypes } );
                 tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
-                tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-                tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-                tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
+                tIWGInterface->set_residual_dof_type( tResDofTypes );
+                tIWGInterface->set_dof_type_list( { tResDofTypes } );
+                tIWGInterface->set_dof_type_list( { tResDofTypes },mtk::Master_Slave::SLAVE );
                 tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
                 tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
                 tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
@@ -282,22 +289,22 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 fem::Set_User_Info tSetBulk1;
                 tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
                 tSetBulk1.set_IWGs( { tIWGBulk } );
-                tSetBulk1.set_IQIs( { tIQI } );
+                tSetBulk1.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk2;
                 tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
                 tSetBulk2.set_IWGs( { tIWGBulk } );
-                tSetBulk2.set_IQIs( { tIQI } );
+                tSetBulk2.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk3;
                 tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
                 tSetBulk3.set_IWGs( { tIWGBulk } );
-                tSetBulk3.set_IQIs( { tIQI } );
+                tSetBulk3.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk4;
                 tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
                 tSetBulk4.set_IWGs( { tIWGBulk } );
-                tSetBulk4.set_IQIs( { tIQI } );
+                tSetBulk4.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetDirichlet;
                 tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
@@ -336,19 +343,21 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 tOutputData.set_outputs( 0,
                                          VIS_Mesh_Type::STANDARD,
-//                                       VIS_Mesh_Type::OVERLAPPING_INTERFACE,
-                                         "Output_Vis_Mesh.exo",
+//                                         VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                         "Vis_Output_Dof.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },
-                                         { "strain energy elemental", "strain energy global", "strain energy nodal" },
-                                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL, Field_Type::NODAL_IP },
-                                         { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
+                                         { "Displacement nodal UX" },
+                                         { Field_Type::NODAL },
+                                         { Output_Type::UX } );
 
                 tModel->set_output_manager( &tOutputData );
 
                 // --------------------------------------------------------------------------------------
                 // Define Solver
-                moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );    tDofTypesU( 0 ) = MSI::Dof_Type::UX;     tDofTypesU( 1 ) = MSI::Dof_Type::UY;
+                moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+                tDofTypesU( 0 ) = MSI::Dof_Type::UX;
+                tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
                 dla::Solver_Factory  tSolFactory;
                 std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
@@ -403,27 +412,10 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 //------------------------------------------------------------------------------
                 tTimeSolver.solve();
 
-//                Output_Manager tOutputData;
-//
-//                tOutputData.create_visualization_mesh( 0,
-//                                                       &tMeshManager,
-//                                                       0 );
-//
-//                tOutputData.set_visualization_sets( 0,
-//                                                    tModel );
-//
-//                tOutputData.write_mesh( 0,
-//                                        0.0);
-//
-//                tOutputData.write_field( 0,
-//                                         tModel);
-//
-//                tOutputData.end_writing( 0 );
-
             }
     }
 
-    }
-}
+    }/*end_namespace_vis*/
+}/*end_namespace_moris*/
 
 

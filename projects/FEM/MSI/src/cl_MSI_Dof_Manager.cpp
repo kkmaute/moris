@@ -299,6 +299,8 @@ namespace moris
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
         Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
+        moris::print(mCommTable,"mCommTable");
+
         moris::uint tNumCommProcs = mCommTable.numel();
 
         // Loop over communication table to fill the communication table map
@@ -387,6 +389,7 @@ namespace moris
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                 {
                     // Get owned adof Id
+std::cout<<tMatsToReceive( Ik )( Ii )<<" Id to find"<<std::endl;
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
 
                     if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
@@ -412,6 +415,7 @@ namespace moris
     //-----------------------------------------------------------------------------------------------------------
     moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
+    	std::cout<<aNumOwnedAdofs<<" aNumOwnedAdofs"<<std::endl;
         // Get list containing the number of owned adofs of each processor
         Matrix< DDUMat > tNumOwnedAdofsList;
         comm_gather_and_broadcast( aNumOwnedAdofs, tNumOwnedAdofsList );

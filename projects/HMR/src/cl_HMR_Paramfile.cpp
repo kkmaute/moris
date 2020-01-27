@@ -18,8 +18,8 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
-    Paramfile::Paramfile( const std::string & aPath, const enum State aState ) :
-            mState( aState )
+    Paramfile::Paramfile( const std::string & aPath,
+                          const enum State aState ) : mState( aState )
     {
         // create parser
         mParser = new XML_Parser( aPath );

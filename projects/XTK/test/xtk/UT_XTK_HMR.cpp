@@ -80,15 +80,15 @@ LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     real mXn = 0.0;
     real mYn = 0.0;
     real mZn = 1.0;
-    real mXc = 1.0;
-    real mYc = 1.0;
-    real mZc = -0.1;
+    real mXc = 0.0;
+    real mYc = 0.0;
+    real mZc = 1.8;
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
 }
 
 TEST_CASE("XTK HMR Test","[XTK_HMR]")
 {
-    if(par_size() == 1)
+    if(par_size() == 2)
     {
         std::string tFieldName = "Cylinder";
 
@@ -97,7 +97,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         moris::hmr::Parameters tParameters;
 
-        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {2} } );
+        tParameters.set_number_of_elements_per_dimension( { {4}, {4}, {4} } );
         tParameters.set_domain_dimensions({ {2}, {2}, {4} });
         tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
         tParameters.set_bspline_truncation( true );
@@ -117,6 +117,9 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
+        tParameters.set_number_aura(  true );
+
+
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
@@ -131,12 +134,12 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tField->evaluate_scalar_function( LevelSetSphereCylinder );
 
-        for( uint k=0; k<2; ++k )
+        for( uint k=0; k<3; ++k )
         {
             tHMR.flag_surface_elements_on_working_pattern( tField );
             tHMR.perform_refinement_based_on_working_pattern(0 );
 
-            tField->evaluate_scalar_function( LevelSetPlaneFunction );
+            tField->evaluate_scalar_function( LevelSetSphereCylinder );
         }
 
         tHMR.finalize();
@@ -144,6 +147,8 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_ghost_interp.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+        std::cout<<"Number of Cells = "<<tInterpMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
 
 
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
@@ -202,7 +207,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
         // perform ghost stabilization
-        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
 
         xtk::Output_Options tOutputOptions;
@@ -219,29 +224,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         std::string tOutputFile = "./xtk_exo/xtk_hmr_cut.exo";
         tIntegMesh1->create_output_mesh(tOutputFile);
-
-        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
-        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss");
-        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs", CellTopology::HEX8);
-
-        // Write mesh
-        Writer_Exodus writer(&tEnrIgMesh);
-        writer.write_mesh("", "./xtk_exo/xtk_test_3d_ghost.exo");
-
-        // Write the fields
-        writer.set_time(0.0);
-        writer.close_file();
-
-        // check the mesh
-        mtk::Mesh_Checker tMeshCheck;
-        CHECK(tMeshCheck.verify_double_side_sets(&tEnrIgMesh));
-
-
-        // get the double side cluster associated with ghost 0
-
-
-
-
 
         delete tIntegMesh1;
     }

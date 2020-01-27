@@ -10,26 +10,27 @@
 using namespace moris;
 
 Vector_Epetra::Vector_Epetra( const Map_Class       * aMapClass,
-                              const enum VectorType   aVectorType) : Dist_Vector( aMapClass )
+                              const enum VectorType   aVectorType,
+                              const sint              aNumVectors ) : Dist_Vector( aMapClass )
 {
     // Build Epetra Vector
     if ( aVectorType == VectorType::FREE )
     {
-        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), true );
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), aNumVectors );
 
         // Get pointer to epetra free map
         mEpetraMap = aMapClass->get_epetra_free_map();
     }
     else if ( aVectorType == VectorType::FULL )
     {
-        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_map(), true );
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_map(), aNumVectors );
 
         // Get pointer to epetra free map
         mEpetraMap = aMapClass->get_epetra_full_map();
     }
     else if ( aVectorType == VectorType::FULL_OVERLAPPING )
     {
-        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_overlapping_map(), true );
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_overlapping_map(), aNumVectors );
 
         // Get pointer to epetra free map
         mEpetraMap = aMapClass->get_epetra_full_overlapping_map();

@@ -131,6 +131,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * compute dRdp
+         */
+        virtual void compute_dRdp()
+        {
+            MORIS_ERROR( false, "Element::compute_dRdp - This function does nothing.");
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * compute quantity of interest
          * @param[ in ] aMeshIndex  an index for the used IG mesh
          * @param[ in ] aOutputType an enum for the output type
@@ -159,7 +168,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknow field type." );
+                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
                     break;
                 }
             }

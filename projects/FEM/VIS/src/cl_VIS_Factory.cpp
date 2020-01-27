@@ -233,16 +233,16 @@ namespace moris
                 // add interpolation cell to vis cluster
                 tVisCellCluster->set_interpolation_cell( &tClustersOnSet( Ik )->get_interpolation_cell() );
 
-                // add void cells to cluster if requested by mesh type
-                if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
-                {
-                    tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
-                }
-
                 // mark as non trivial if old cluster was trivial
                 if( !tClustersOnSet( Ik )->is_trivial() )
                 {
                     tVisCellCluster->mark_as_nontrivial();
+                }
+
+                // add void cells to cluster if requested by mesh type
+                if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
+                {
+                    tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
                 }
 
                 // add vertices and local coordinates to vis cluster if non-trivial
@@ -283,7 +283,7 @@ namespace moris
 
                         if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
                         {
-                            tVisClusterVerticesLocalCoords.set_row( tCounter, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
+                            tVisClusterVerticesLocalCoords.set_row( tCounter++, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
                         }
                     }
 
@@ -310,11 +310,11 @@ namespace moris
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
             moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
-            std::cout<<tSetIndex<<std::endl;
-
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock( Ij ),
                                                          tMeshSet->get_spatial_dim() );
+
+            mListofBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );
         }
     }
 
