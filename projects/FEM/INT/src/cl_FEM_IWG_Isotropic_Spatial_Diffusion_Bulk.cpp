@@ -31,24 +31,22 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( real tWStar )
         {
-            // check master field interpolators, properties and constitutive models
+            // check master field interpolators
 #ifdef DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get index for a given dof type
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-
-            // get start and end indices for residual assembly
-            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+            // get master index for residual dof type, indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get indices for SP, CM and property
             uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
             uint tLoadIndex       = static_cast< uint >( IWG_Property_Type::LOAD );
 
             // compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->flux() * tWStar;
 
             // if body load
@@ -58,7 +56,7 @@ namespace moris
                 Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // compute contribution of body load to residual
-                mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+                mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                 += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
         }
@@ -67,12 +65,14 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( real tWStar )
         {
 #ifdef DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check master field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get index for a given dof type
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            // get master index for residual dof type, indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -91,8 +91,10 @@ namespace moris
                 // get the treated dof type
                 Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // get index for the treated dof type
-                uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if body load
                 if ( mMasterProp( tLoadIndex ) != nullptr )
@@ -101,9 +103,9 @@ namespace moris
                     if ( mMasterProp( tLoadIndex )->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
-                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                              { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                        += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDOF( tDofType ) * tWStar;
+                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
+                        -= trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDOF( tDofType ) * tWStar;
                     }
                 }
 
@@ -111,9 +113,8 @@ namespace moris
                 if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    // compute the jacobian
-                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDOF( tDofType ) ) * tWStar;
                     // fixme add derivative of the test strain
                 }

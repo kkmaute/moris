@@ -22,8 +22,6 @@ namespace moris
             void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
                                                       mtk::Master_Slave            aIsMaster )
             {
-                // FIXME why does this not work?
-                //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
                 switch ( aIsMaster )
                 {
                     case ( mtk::Master_Slave::MASTER ) :
@@ -44,7 +42,6 @@ namespace moris
                         break;
                     }
                 }
-                //END FIXME
 
                 // loop over the the SP
                 for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )

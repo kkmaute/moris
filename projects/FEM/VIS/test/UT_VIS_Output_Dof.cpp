@@ -347,9 +347,9 @@ namespace moris
                                          "Vis_Output_Dof.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },
-                                         { "Displacement nodal UX" },
-                                         { Field_Type::NODAL },
-                                         { Output_Type::UX } );
+                                         { "Displacement nodal UX", "Displacement nodal UY" },
+                                         { Field_Type::NODAL, Field_Type::NODAL },
+                                         { Output_Type::UX, Output_Type::UY } );
 
                 tModel->set_output_manager( &tOutputData );
 

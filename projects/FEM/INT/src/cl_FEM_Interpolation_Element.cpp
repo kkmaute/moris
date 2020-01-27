@@ -231,7 +231,6 @@ namespace moris
 
             // FIXME should not be like this
             mSet->set_IWG_field_interpolator_managers();
-            //mSet->set_IWG_geometry_interpolators();
 
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
@@ -254,7 +253,6 @@ namespace moris
 
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
-             //mSet->set_IWG_geometry_interpolators();
 
              MORIS_ERROR( false, "Interpolation_Element::compute_jacobian_and_residual(), function not tested and works only non staggered");
 

@@ -823,6 +823,7 @@ namespace moris
                 // verify the facet neighborhood makes sense
                 Facet * tFacet = tMyCell->get_hmr_facet(tThisCellFacetsOrds(k));
 
+                //MORIS_ASSERT( tFacet != nullptr, " facet nullptr ");
 
                 tIndices( 1, k ) = tFacet->get_index();
 
