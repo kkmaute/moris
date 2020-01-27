@@ -58,6 +58,7 @@ protected:
     moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
     moris::Cell<moris::Matrix<moris::DDRMat>>   mVertexLocalCoords;
+    moris::Matrix<moris::DDRMat>                mVertexLocalCoordsMat; /*FIXME: get rid of mVertexLocalCoords*/
     moris::mtk::Cell_Cluster const *            mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
 
 

@@ -53,6 +53,7 @@ namespace moris
         {
             PRIMARY,
             VOID,
+            INTERP,
             UNDEFINED
         };
 

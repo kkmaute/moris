@@ -29,6 +29,10 @@ namespace moris
         class SP_Master_Weight_Interface : public Stabilization_Parameter
         {
 
+            real mMasterVolume     = 0.5; // volume on master
+            real mSlaveVolume      = 0.5; // volume on slave
+            real mInterfaceSurface = 1.0; // surface on master/slave interface
+            real mElementSize      = 1.0; // element size
 //------------------------------------------------------------------------------
         public:
 

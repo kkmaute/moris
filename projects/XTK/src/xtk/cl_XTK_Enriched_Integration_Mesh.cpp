@@ -368,7 +368,100 @@ Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string     aSetName) 
 
     return tCellIndices;
 }
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::deactivate_empty_sets()
+{
+    this->deactivate_empty_block_sets();
+    this->deactivate_empty_side_sets();
+    this->collect_all_sets();
 
+}
+
+void
+Enriched_Integration_Mesh::deactivate_empty_side_sets()
+{
+    // copy old data
+    std::unordered_map<std::string, moris_index> tOldSetMap = mSideSideSetLabelToOrd;
+    moris::Cell<std::string> tOldSetNames = mSideSetLabels;
+    moris::Cell<moris::Cell<std::shared_ptr<xtk::Side_Cluster>>> tOldSetClusters = mSideSets;
+
+
+    // clear member data
+    mSideSideSetLabelToOrd.clear();
+    mSideSetLabels.clear();
+    mSideSets.clear();
+
+
+    for(auto iB: mListofSideSets)
+    {
+        delete iB;
+    }
+    mListofSideSets.clear();
+
+    // current index
+    moris_index tSetIndex = 0;
+
+    for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
+    {
+        if ( tOldSetClusters(i).size() > 0)
+        {
+            mSideSetLabels.push_back(tOldSetNames(i));
+            mSideSets.push_back(tOldSetClusters(i));
+
+            MORIS_ASSERT(mSideSideSetLabelToOrd.find(tOldSetNames(i)) ==  mSideSideSetLabelToOrd.end(),"Duplicate block set in mesh");
+            mSideSideSetLabelToOrd[tOldSetNames(i)] = tSetIndex ;
+            this->commit_side_set(tSetIndex);
+            tSetIndex++;
+
+        }
+    }
+
+}
+
+
+void
+Enriched_Integration_Mesh::deactivate_empty_block_sets()
+{
+    std::unordered_map<std::string, moris_index>        tOldSetMap      = mBlockSetLabelToOrd;
+    moris::Cell<std::string>                            tOldSetNames    = mBlockSetNames;
+    moris::Cell<enum CellTopology>                      tOldSetTopo     = mBlockSetTopology;
+    moris::Cell<moris::Cell<xtk::Cell_Cluster const *>> tOldSetClusters = mPrimaryBlockSetClusters;
+
+    // clear member data
+    mBlockSetLabelToOrd.clear();
+    mBlockSetNames.clear();
+    mBlockSetTopology.clear();
+    mPrimaryBlockSetClusters.clear();
+
+    for(auto iB: mListofBlocks)
+    {
+        delete iB;
+    }
+    mListofBlocks.clear();
+
+    // current index
+    moris_index tSetIndex = 0;
+
+    for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
+    {
+
+
+        if ( tOldSetClusters(i).size() > 0)
+        {
+            mBlockSetNames.push_back(tOldSetNames(i));
+            mPrimaryBlockSetClusters.push_back(tOldSetClusters(i));
+            mBlockSetTopology.push_back(tOldSetTopo(i));
+
+            MORIS_ASSERT(mBlockSetLabelToOrd.find(tOldSetNames(i)) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh");
+            mBlockSetLabelToOrd[tOldSetNames(i)] = tSetIndex ;
+            this->commit_block_set(tSetIndex);
+            tSetIndex++;
+        }
+
+    }
+
+}
 //------------------------------------------------------------------------------
 enum CellTopology
 Enriched_Integration_Mesh::get_blockset_topology(const  std::string & aSetName)
@@ -592,7 +685,6 @@ Enriched_Integration_Mesh::get_sidesets_num_faces( moris::Cell< moris_index > aS
 void
 Enriched_Integration_Mesh::print() const
 {
-    this->print_cell_clusters();
     this->print_block_sets();
     this->print_side_sets();
     this->print_double_side_sets();

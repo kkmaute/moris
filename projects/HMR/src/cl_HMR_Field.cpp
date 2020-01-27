@@ -292,24 +292,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Field::evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
-        {
-            // get pointer to node values
-            Matrix< DDRMat > & tNodeValues = this->get_node_values();
-
-            // get number of nodes on block
-            uint tNumberOfVertices = mMesh->get_num_nodes();
-
-            // set size of node values
-            tNodeValues.set_size( tNumberOfVertices, 1 );
-
-            // loop over all vertices
-            for( uint k=0; k<tNumberOfVertices; ++k )
-            {
-                // evaluate function at vertex cooridinates
-                tNodeValues( k ) = aFunction( mMesh->get_mtk_vertex( k ).get_coords() );
-            }
-        }
+//        void Field::evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
+//        {
+//            // get pointer to node values
+//            Matrix< DDRMat > & tNodeValues = this->get_node_values();
+//
+//            // get number of nodes on block
+//            uint tNumberOfVertices = mMesh->get_num_nodes();
+//
+//            // set size of node values
+//            tNodeValues.set_size( tNumberOfVertices, 1 );
+//
+//            // loop over all vertices
+//            for( uint k=0; k<tNumberOfVertices; ++k )
+//            {
+//                // evaluate function at vertex cooridinates
+//                tNodeValues( k ) = aFunction( mMesh->get_mtk_vertex( k ).get_coords() );
+//            }
+//        }
 
 //------------------------------------------------------------------------------
 

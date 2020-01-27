@@ -77,6 +77,15 @@ public:
     moris::mtk::Cell_Info *
     get_connectivity() {return mCellInfo;}
 
+    moris::real
+    compute_cell_measure() const { return mCellInfo->compute_cell_size(this);}
+
+    moris::real
+    compute_cell_side_measure(moris_index const & aCellSideOrd) const
+    {
+        return mCellInfo->compute_cell_side_size(this,aCellSideOrd);
+    }
+
 private:
     moris_id               mCellId;
     moris_id               mCellIndex;

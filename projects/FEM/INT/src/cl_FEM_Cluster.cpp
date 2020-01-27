@@ -120,15 +120,15 @@ namespace moris
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
                           "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side or double side cluster.");
 
-            // is trivial master or slave?
-            bool tIsTrivial = mSet->mIsTrivialMaster;
-            if ( aIsMaster == mtk::Master_Slave::SLAVE )
-            {
-                tIsTrivial = mSet->mIsTrivialSlave;
-            }
+//            // is trivial master or slave?
+//            bool tIsTrivial = mSet->mIsTrivialMaster;
+//            if ( aIsMaster == mtk::Master_Slave::SLAVE )
+//            {
+//                tIsTrivial = mSet->mIsTrivialSlave;
+//            }
 
             // if trivial cluster IP cell = IG cell
-            if( tIsTrivial )
+            if( mMeshCluster->is_trivial(aIsMaster) )
             {
                 // get the side param coords from the IG geometry interpolator
                 return mSet->get_field_interpolator_manager( aIsMaster )
@@ -281,6 +281,24 @@ namespace moris
             // return cluster volume value
             return tClusterVolume;
         }
+
+//------------------------------------------------------------------------------
+
+        moris::real
+        Cluster::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid ,
+                                              const mtk::Master_Slave aIsMaster) const
+        {
+            return mMeshCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+        }
+//------------------------------------------------------------------------------
+        moris::real
+        Cluster::compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid ,
+                                                   const mtk::Master_Slave aIsMaster) const
+        {
+            return mMeshCluster->compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
+        }
+
+
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

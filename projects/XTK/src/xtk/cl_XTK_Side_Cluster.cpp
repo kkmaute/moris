@@ -64,9 +64,16 @@ Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
 moris::Matrix<moris::DDRMat> const &
 Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
 {
-    MORIS_ASSERT(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
+    MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
 
+    if(mChildMesh != nullptr)
+    {
     return mChildMesh->get_parametric_coordinates();
+    }
+    else
+    {
+        return mVertexLocalCoordsMat;
+    }
 }
 //----------------------------------------------------------------
 moris::Matrix<moris::DDRMat>
@@ -134,7 +141,14 @@ moris::real
 Side_Cluster::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid,
                                            const mtk::Master_Slave aIsMaster) const
 {
-    return mAssociatedCellCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+    if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
+    {
+        return mAssociatedCellCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+    }
+    else
+    {
+        return mInterpolationCell->compute_cell_measure();
+    }
 }
 //----------------------------------------------------------------
 void
@@ -159,6 +173,20 @@ Side_Cluster::finalize_setup()
             this->add_vertex_to_map(tVerticesInCluster(i)->get_id(),i);
         }
     }
+
+    if( mChildMesh == nullptr && !mTrivial )
+    {
+        for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
+        {
+            if( i == 0)
+            {
+                mVertexLocalCoordsMat.resize(tVerticesInCluster.size(),mVertexLocalCoords(i).n_cols());
+            }
+
+            mVertexLocalCoordsMat.get_row(i) = mVertexLocalCoords(i).matrix_data();
+        }
+    }
+
 }
 //----------------------------------------------------------------
 void

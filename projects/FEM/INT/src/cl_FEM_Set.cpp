@@ -516,6 +516,21 @@ namespace moris
         }
     }
 
+    void Set::set_cluster_in_stabilization_params(fem::Cluster * aCluster)
+    {
+        for( auto tIWG : mIWGs)
+        {
+            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tStabParams = tIWG->get_stabilization_parameters();
+            for(auto iStabParam:tStabParams)
+            {
+                if(iStabParam != nullptr)
+                {
+                    iStabParam->set_cluster( aCluster );
+                }
+            }
+        }
+    }
+
 //------------------------------------------------------------------------------
     void Set::set_IQI_field_interpolator_managers()
     {

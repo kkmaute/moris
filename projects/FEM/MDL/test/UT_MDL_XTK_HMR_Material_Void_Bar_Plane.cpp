@@ -77,30 +77,17 @@
 #include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 moris::real
-Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
+PlaneMatVoidMDL(const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    moris::real mXC = 0.11;
+    moris::real mXC = 0.9545459;
     moris::real mYC = 0.11;
     moris::real mNx = 1.0;
     moris::real mNy = 0.0;
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-moris::real
-Circle2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    moris::real mXCenter = 0.01;
-    moris::real mYCenter = 0.01;
-    moris::real mRadius = 0.47334;
 
-
-    return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
-                    + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
-                    - (mRadius * mRadius);
-}
-
-
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
+Matrix< DDRMat > tConstValFunctionMatVoidMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
                                            moris::Cell< fem::Field_Interpolator* > & aDofFI,
                                            moris::Cell< fem::Field_Interpolator* > & aDvFI,
                                            fem::Geometry_Interpolator              * aGeometryInterpolator )
@@ -108,7 +95,7 @@ Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >      
     return aParameters( 0 );
 }
 
-TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]")
+TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_MAT_VOID_2D]")
 {
     if(par_size() == 1)
     {
@@ -152,19 +139,19 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // create field
         std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-        tPlaneField->evaluate_scalar_function( Plane2MatMDL);
+        tPlaneField->evaluate_scalar_function( PlaneMatVoidMDL);
 
         for( uint k=0; k<2; ++k )
         {
             tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
             tHMR.perform_refinement_based_on_working_pattern( 0 );
-            tPlaneField->evaluate_scalar_function( Plane2MatMDL);
+            tPlaneField->evaluate_scalar_function( PlaneMatVoidMDL);
         }
 
-        tPlaneField->evaluate_scalar_function( Plane2MatMDL);
+        tPlaneField->evaluate_scalar_function( PlaneMatVoidMDL);
         tHMR.finalize();
 
-        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
+        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_mat_void_ip.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
@@ -188,13 +175,15 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
+        tEnrIntegMesh.print();
 
-//        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
-//        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
+
+        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
+        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
 
         // Write mesh
         Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e");
+        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e");
 
         // Write the fields
         writer.set_time(0.0);
@@ -209,27 +198,20 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // create the properties
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
+        tPropConductivity1->set_val_function( tConstValFunctionMatVoidMDL );
 
-        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
-        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
-        tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
-        tPropDirichlet->set_val_function( tConstValFunction2MatMDL );
+        tPropDirichlet->set_val_function( tConstValFunctionMatVoidMDL );
 
         std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
         tPropNeumann->set_parameters( { {{ 20.0 }} } );
-        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
+        tPropNeumann->set_val_function( tConstValFunctionMatVoidMDL );
 
         std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
         tPropTempLoad1->set_parameters( { {{ 100.0 }} } );
-        tPropTempLoad1->set_val_function( tConstValFunction2MatMDL );
-
-        std::shared_ptr< fem::Property > tPropTempLoad2 = std::make_shared< fem::Property >();
-        tPropTempLoad2->set_parameters( { {{ 100.0 }} } );
-        tPropTempLoad2->set_val_function( tConstValFunction2MatMDL );
+        tPropTempLoad1->set_val_function( tConstValFunctionMatVoidMDL );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
@@ -239,29 +221,11 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 2 );
 
-        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
-        tCMDiffLinIso2->set_space_dim( 2 );
-
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-        tSPDirichletNitsche->set_property( tPropConductivity2, "Material", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
-        tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
-        tSPNitscheInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
-        tSPNitscheInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-        tSPMasterWeightInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
-        tSPMasterWeightInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-        tSPSlaveWeightInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
-        tSPSlaveWeightInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
+        tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
+        tSPDirichletNitsche->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -272,17 +236,11 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
-
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -290,18 +248,18 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
-        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
-        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::SLAVE );
-
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
-        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
+
+        // Ghost stabilization
+        std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+        tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+        tSP1->set_parameters( {{{ 0.1 }}, {{ 1.0 }} });
+        tSP1->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+        tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -312,35 +270,25 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
         tSetBulk2.set_IWGs( { tIWGBulk1 } );
 
-        fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
-        tSetBulk3.set_IWGs( { tIWGBulk2 } );
-
-        fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-        tSetBulk4.set_IWGs( { tIWGBulk2 } );
-
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName) );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
-        fem::Set_User_Info tSetInterface;
-        tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
-        tSetInterface.set_IWGs( { tIWGInterface } );
+        fem::Set_User_Info tSetGhost;
+        tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+        tSetGhost.set_IWGs( { tIWGGhost } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+        moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
         tSetInfo( 0 ) = tSetBulk1;
         tSetInfo( 1 ) = tSetBulk2;
-        tSetInfo( 2 ) = tSetBulk3;
-        tSetInfo( 3 ) = tSetBulk4;
-        tSetInfo( 4 ) = tSetDirichlet;
-        tSetInfo( 5 ) = tSetNeumann;
-        tSetInfo( 6 ) = tSetInterface;
+        tSetInfo( 2 ) = tSetDirichlet;
+        tSetInfo( 3 ) = tSetNeumann;
+        tSetInfo( 4 ) = tSetGhost;
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
@@ -358,7 +306,10 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
+        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+        tLinearSolverAlgorithm->set_param("AZ_precond") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_kspace") = 500;
 
         dla::Linear_Solver tLinSolver;
 
@@ -463,7 +414,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // add solution field to integration mesh
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
 
-        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d.e";
+        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         //    delete tInterpMesh1;

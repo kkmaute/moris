@@ -444,6 +444,13 @@ namespace MSI
         void set_IQI_field_interpolator_managers();
 
 //------------------------------------------------------------------------------
+        /*!
+         * Sets the cluster in the stabilization parameter associated with
+         * this set
+         */
+        void
+        set_cluster_in_stabilization_params(fem::Cluster * aCluster);
+//------------------------------------------------------------------------------
         /**
          * create the dof assembly map for the residual/rows
          */

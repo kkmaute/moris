@@ -222,6 +222,23 @@ namespace moris
         real compute_volume();
 
 //------------------------------------------------------------------------------
+        /*
+         * Compute the measure (volume 3d or area 2d) of the cells in the void or primary phase
+         */
+        moris::real
+        compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+//------------------------------------------------------------------------------
+
+        /*
+         * Compute the side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
+         * Only valid on side cluster type mtk clusters
+         */
+        moris::real
+        compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                          const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+//------------------------------------------------------------------------------
     protected:
 
 
