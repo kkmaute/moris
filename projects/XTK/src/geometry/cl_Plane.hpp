@@ -39,6 +39,11 @@ public:
     moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
                                                      moris::Matrix< moris::DDRMat > const & aCoordinates) const;
 
+    moris::real evaluate_field_value_with_single_coordinate(moris::Matrix< moris::DDRMat > const & aCoordinates) const
+    {
+        return this->evaluate_field_value_with_coordinate(0,aCoordinates);
+    }
+
 
 private:
     Matrix<moris::DDRMat> mCenters;

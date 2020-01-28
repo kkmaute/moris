@@ -213,6 +213,8 @@ namespace moris
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
 
+             mSet->set_cluster_in_stabilization_params(mFemCluster( 0 ).get());
+
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
          }

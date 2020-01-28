@@ -85,6 +85,7 @@ private:
     moris::moris_index                                 mSubPhaseIndex;
     moris::moris_index                                 mBulkPhaseIndex;
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
+    mtk::Cell_Info*                                    mCellInfo;
 };
 
 

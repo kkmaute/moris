@@ -482,7 +482,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         //------------------------------------------------------------------------------
         //    write solution ( uncomment this if you want to recreate solution files )
         //------------------------------------------------------------------------------
-
+//
 //        // create file
 //        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
 //
@@ -868,7 +868,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         //------------------------------------------------------------------------------
         //    write solution ( uncomment this if you want to recreate solution files )
         //------------------------------------------------------------------------------
-
+//
 //        // create file
 //        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
 //

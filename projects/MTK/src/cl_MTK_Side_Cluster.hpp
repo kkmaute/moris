@@ -137,6 +137,48 @@ public:
     moris_index
     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const  = 0;
 
+    moris::real
+    compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+    {
+        moris::real tVolume = 0.0;
+        moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+        if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+        {
+            tCells = &this->get_primary_cells_in_cluster();
+        }
+        else
+        {
+            tCells = & this->get_void_cells_in_cluster();
+        }
+
+        for(auto iC = tCells->cbegin(); iC < tCells->cend(); iC++)
+        {
+            tVolume = tVolume+(*iC)->compute_cell_measure();
+        }
+
+        return tVolume;
+    }
+
+    virtual
+    moris::real
+    compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                      const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+    {
+        MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,"Side cluster only operates on primary cells.");
+
+        moris::real tMeasure = 0.0;
+        moris::Cell<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+        moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+
+        for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
+        {
+            tMeasure = tMeasure+tCells(iC)->compute_cell_side_measure(tSideOrds(iC));
+        }
+
+        return tMeasure;
+    }
+
     //----------------------------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT IMPLEMENTATION
     //----------------------------------------------------------------

@@ -2780,10 +2780,14 @@ Model::construct_face_oriented_ghost_penalization_cells()
     {
         std::cout<<"XTK: Ghost stabilization setup completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
     }
-
-
 }
 
+Ghost_Stabilization &
+Model::get_ghost_stabilization(moris::moris_index  aIndex)
+{
+    MORIS_ERROR(mGhost,"Ghost has not been constructed on this model.");
+    return *mGhostStabilization;
+}
 
 void
 Model::perform_multilevel_enrichment_internal()

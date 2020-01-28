@@ -10,6 +10,7 @@
 
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "cl_MTK_Cell_Cluster.hpp"
 
 namespace moris
 {
@@ -29,6 +30,7 @@ namespace moris
             moris::uint              mSpatialDim   = 3;
             enum Geometry_Type       mGeometryType = Geometry_Type::UNDEFINED;
             enum Interpolation_Order mInterpOrder  = Interpolation_Order::UNDEFINED;
+            moris::mtk::Cell_Info*   mCellInfo;
 
 //------------------------------------------------------------------------------
 
@@ -174,6 +176,22 @@ namespace moris
             {
                 return mInterpOrder;
             }
+
+//------------------------------------------------------------------------------
+            moris::real
+            compute_cell_measure() const
+            {
+               return mCellInfo->compute_cell_size(this);
+            }
+
+//------------------------------------------------------------------------------
+            moris::real
+            compute_cell_side_measure(moris_index const & aSideOrdinal) const
+            {
+               return mCellInfo->compute_cell_side_size(this,aSideOrdinal);
+            }
+
+
 
 //------------------------------------------------------------------------------
         };

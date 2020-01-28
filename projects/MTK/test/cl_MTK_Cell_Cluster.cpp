@@ -12,6 +12,8 @@
 #include "cl_MTK_Cell_Cluster_Input.hpp"
 #include "cl_MTK_Vertex_Proxy.hpp"
 #include "cl_MTK_Cell_Proxy.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -81,15 +83,20 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     uint tNumVertices = tLocalToGlobalNodeMap.numel();
     moris::Cell<Vertex_Proxy> tVertices(tNumVertices);
 
+
     for(moris::uint  i = 0; i < tNumVertices; i++)
     {
         tVertices(i).mVertexId    = tLocalToGlobalNodeMap(i);
         tVertices(i).mVertexInd   = (moris_index) i;
         tVertices(i).mVertexCoord = tNodeCoordinates.get_row(i);
     }
+    moris::print(tVertices,"tVertices");
 
     // setup cells and cell cluster
     moris::Cell<Cell_Proxy> tPrimaryCells(tCellIdsPhase0.numel());
+    Cell_Info_Tet4 tTet4CellInfo;
+    Cell_Info_Hex8 tHex8CellInfo;
+
     Cell_Cluster_Proxy tCellCluster;
 
     moris_index  tCount = 0;
@@ -98,7 +105,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     {
         tPrimaryCells(i).mId = tCellIdsPhase0(i);
         tPrimaryCells(i).mIndex = tCount;
-
+        tPrimaryCells(i).mCellInfo = &tTet4CellInfo;
         // add vertices
         for(moris::uint j = 0; j< tCellToNodeGhost0.n_cols(); j++)
         {
@@ -117,6 +124,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     {
         tVoidCells(i).mId = tCellIdsGhost0(i);
         tVoidCells(i).mIndex = tCount;
+        tVoidCells(i).mCellInfo = &tTet4CellInfo;
 
         // add vertices
         for(moris::uint j = 0; j< tCellToNodeGhost0.n_cols(); j++)
@@ -167,6 +175,8 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         CHECK(tVerticesInCluster2(i)->get_id() == tVertexIDsInCluster(i));
     }
 
+    CHECK(tCellCluster.compute_cluster_cell_measure(Primary_Void::PRIMARY,Master_Slave::MASTER));
+    CHECK(tCellCluster.compute_cluster_cell_measure(Primary_Void::VOID,Master_Slave::MASTER));
         }
 
 TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH_CLUSTER]")

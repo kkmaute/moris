@@ -9,7 +9,10 @@
 #include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
-
+#include "fn_norm.hpp"
+#include "fn_trans.hpp"
+#include "fn_det.hpp"
+#include "fn_cross.hpp"
 namespace moris
 {
 namespace mtk
@@ -136,6 +139,20 @@ Cell_Info_Tet4::compute_cell_size( moris::mtk::Cell const * aCell ) const
 
     moris::real tVolume = (moris::det(J))/6; // Volume = 1/6*det(J)
     return tVolume;
+}
+// ----------------------------------------------------------------------------------
+moris::real
+Cell_Info_Tet4::compute_cell_side_size( moris::mtk::Cell const * aCell ,
+                                        moris_index const & aSideOrd) const
+{
+    // cell coordinates
+    moris::Cell< mtk::Vertex const* > tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
+
+    Matrix<DDRMat> tNodeCoords0 = tVertices(0)->get_coords();
+    Matrix<DDRMat> tNodeCoords1 = tVertices(1)->get_coords();
+    Matrix<DDRMat> tNodeCoords2 = tVertices(2)->get_coords();
+
+    return moris::norm(moris::cross( ( tNodeCoords0 - tNodeCoords1 ) , (tNodeCoords0 - tNodeCoords2) ))/2;
 }
 // ----------------------------------------------------------------------------------
 }

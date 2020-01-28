@@ -61,12 +61,11 @@ public:
     void
     setup_ghost_stabilization();
 
-    /*!
-     * For debugging purposes, this places the slave clusters in a block set
-     * and the master clusters in another block set.
-     */
     void
-    setup_ghost_stabilization_block_sets();
+    visualize_ghost_on_mesh(moris_index aBulkPhase);
+
+    std::string
+    get_ghost_dbl_side_set_name(moris_index aBulkPhase);
 
 private:
     /*!

@@ -152,6 +152,20 @@ public:
         return *mRightSideCluster;
     }
 
+    moris::mtk::Side_Cluster const &
+    get_cluster(const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+    {
+        if(aIsMaster == mtk::Master_Slave::MASTER)
+        {
+            return this->get_left_side_cluster();
+        }
+        else
+        {
+            return this->get_right_side_cluster();
+        }
+    }
+
+
     //##############################################
     // Vertex Pair Access
     //##############################################
@@ -566,6 +580,22 @@ public:
             MORIS_ERROR(false, "get_dim_of_param_coord(): can only be MASTER and SLAVE");
             return 0;
         }
+    }
+
+    moris::real
+    compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+    {
+        moris::mtk::Side_Cluster const & tCluster = this->get_cluster(aIsMaster);
+        return tCluster.compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+    }
+
+    moris::real
+    compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                      const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+    {
+        moris::mtk::Side_Cluster const & tCluster = this->get_cluster(aIsMaster);
+        return tCluster.compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
     }
 
     moris_index
