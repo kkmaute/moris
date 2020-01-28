@@ -59,9 +59,8 @@ namespace moris
                 mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
                 mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
 
-                // set function pointers
-                this->set_space_dim(3);
-
+//                // set function pointers
+//                this->set_space_dim(3);
             };
 
         //--------------------------------------------------------------------------------------------------------------

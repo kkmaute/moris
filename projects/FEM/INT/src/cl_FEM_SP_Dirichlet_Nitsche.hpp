@@ -52,6 +52,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /*
              * constructor
+             * Rem: mParameters( 0 ) - gamma penalty parameter
              */
             SP_Dirichlet_Nitsche();
 

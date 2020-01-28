@@ -17,7 +17,7 @@ namespace moris
             mFlux = this->constitutive() * this->strain();
 
             // if pressure dof
-            if (mDofFI.size() > 1)
+            if ( this->check_dof_dependency( { MSI::Dof_Type::P } ))
             {
                 moris::real tP = mDofFI(1)->val()(0);
 

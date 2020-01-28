@@ -717,7 +717,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
          Cell<std::shared_ptr< moris::hmr::Field >> tHMRFields;
          run_hmr_for_multi_mat_model_3d(tHMR, tHMRFields);
 
-
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
          moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tHMRFields(0));
