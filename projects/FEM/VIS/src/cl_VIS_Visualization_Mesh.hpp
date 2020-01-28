@@ -85,6 +85,9 @@ public:
         return tSetNames;
     }
 
+// ----------------------------------------------------------------------------
+
+
     //------------------------------------------------------------------------------
     /*
      * Get number of nodes
@@ -192,7 +195,7 @@ public:
 
     // ----------------------------------------------------------------------------
 
-    moris::mtk::Set * get_set_by_name( std::string aSetLabel )
+    moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const
     {
         moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
 
@@ -203,7 +206,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-    moris_index get_set_index_by_name( std::string aSetLabel )
+    moris_index get_set_index_by_name( std::string aSetLabel ) const
     {
         return  mSetNameToIndexMap.find( aSetLabel );
     }

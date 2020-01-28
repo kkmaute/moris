@@ -233,7 +233,6 @@ Enriched_Interpolation_Mesh::get_adof_map( const uint aBSplineIndex, map< moris_
 
 	for(moris::uint i = 0; i < mEnrichCoeffLocToGlob.numel(); i++)
 	{
-		std::cout<<mEnrichCoeffLocToGlob(i)<<" Id in map"<<std::endl;
         aAdofMap[mEnrichCoeffLocToGlob(i)] = i;
 	}
 }

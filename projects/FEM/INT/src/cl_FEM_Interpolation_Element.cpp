@@ -226,6 +226,9 @@ namespace moris
             // init the residual
             mSet->initialize_mResidual();
 
+            // init the jacobian
+            mSet->initialize_mJacobian();
+
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
