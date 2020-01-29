@@ -76,6 +76,9 @@ namespace moris
 
             moris::Cell< Writer_Exodus * >  mWriter;
 
+            mtk::Mesh_Manager *             mMTKMesh = nullptr;
+            moris::uint                     mMTKMeshPairIndex;
+
         protected:
 
         public:

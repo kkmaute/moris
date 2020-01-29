@@ -519,9 +519,7 @@ namespace moris
 
         Matrix< DDRMat > tElementalResidual = mEquationBlock->get_residual();
 
-//        print( mEquationBlock->get_residual(),"Residual");
-
-        this->add_staggered_contribution_to_residual( tElementalResidual );
+//        this->add_staggered_contribution_to_residual( tElementalResidual );
 
         Matrix< DDRMat > tTMatrix;
         this->build_PADofMap_1( tTMatrix );
@@ -585,9 +583,6 @@ namespace moris
                             }
                         }
 
-//                        print(aElementResidual,"aElementResidual");
-//                        print(tCoeff1,"tCoeff1");
-//                        print(mEquationBlock->get_jacobian(),"mEquationBlock->get_jacobian()");
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
                                -= mEquationBlock->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff1;
                     }
