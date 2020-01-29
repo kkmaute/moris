@@ -12,7 +12,7 @@
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_Matrix.hpp"
 
-#include "../projects/GEN/GEN_CORE/src/cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Dv_Enums.hpp"
 
 // CORE
 #include "cl_Cell.hpp"
@@ -176,12 +176,6 @@ public:
         MPI_Bcast( (mPdvTypeList.data()).data(), mPdvTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
     }
     //------------------------------------------------------------------------------
-
-
-
-
-
-
     void update_local_to_global_dv_type_map(  )
     {
         uint tNumDvTypes = mPdvTypeList.size();
@@ -204,7 +198,11 @@ public:
     {
         return this->get_pdv_host( aVertexIndex )->get_global_index_for_dv_type( aPdvType, mGlobalPdvTypeMap );
     }
-
+    //------------------------------------------------------------------------------
+    Matrix< IndexMat > get_global_map(  )
+    {
+        return mGlobalPdvTypeMap;
+    }
 
 
 

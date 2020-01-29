@@ -91,8 +91,19 @@ namespace mdl
                 return mVector;
             };
 
+            virtual void get_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                                            Cell< enum GEN_DV > & aDvTypes )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_unique_dv_types_for_set() - not implemented on GE side");
+            }
+
             virtual void get_unique_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                                            Cell< enum MSI::Dv_Type > & aDvTypes ) = 0;
+                                                            Cell< enum MSI::Dv_Type > & aDvTypes )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_unique_dv_types_for_set() - not implemented on GE side");
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -103,26 +114,52 @@ namespace mdl
              *
              */
             virtual void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                                     Cell<Cell< enum MSI::Dv_Type >> & aDvTypes ) = 0;
+                                                     Cell< Cell< enum GEN_DV > > & aDvTypes )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_dv_types_for_set() - not implemented on GE side");
+            }
+
+            virtual void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                                                     Cell< Cell< enum MSI::Dv_Type > > & aDvTypes )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_dv_types_for_set() - not implemented on GE side");
+            }
 
 //------------------------------------------------------------------------------
             /**
              * @brief Function providing pdv values for requested vertex indices and Dv types
              *
-             * @param[in] aVertexIndex   List of vertex indices
-             * @param[in] aDvType        List of Dv types
-             * @param[in] aDvValues      List of Dv values
+             * @param[in] aNodeIndices    - List of vertex indices
+             * @param[in] aDvTypes        - List of Dv types
+             * @param[in/out] aDvValues   - List of Dv values
+             * @param[in/out] aIsActiveDv - List of active whether or not DV is active
              *
              */
-            virtual void get_pdv_value( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                        const Cell< enum GEN_DV >               & aDvTypes,
-                                              Cell< moris::Matrix< DDRMat > >   & aDvValues,
-                                              Cell< moris::Matrix< DDSMat > >   & aIsActiveDv ) = 0;
+            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
+                                        const moris::Cell< enum GEN_DV >        & aDvTypes,
+                                        moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
+                                        moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv )
+            {
+                //FIXME: these functions [get_pdv_values()] need to be pure virtual
+            }
 
-            virtual void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                                        const Cell< enum MSI::Dv_Type >      & aDvTypes,
-                                              Cell<moris::Matrix< DDRMat > > & aDvValues ) = 0;
+            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
+                                        const moris::Cell< enum MSI::Dv_Type >  & aDvTypes,
+                                        moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
+                                        moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - not implementd on GE side");
+            }
 
+            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // temporary, once the interface is finalized, need to make FEM play nice with it
+                                        const moris::Cell< enum MSI::Dv_Type >  & aDvTypes,
+                                        moris::Cell< moris::Matrix< DDRMat > >  & aDvValues )
+            {
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - not implementd on GE side");
+            }
 //------------------------------------------------------------------------------
             /**
              * @brief Retunr local to global dv type map
@@ -141,7 +178,19 @@ namespace mdl
              */
             virtual void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
                                                       const Cell< enum GEN_DV >               & aDvTypes,
-                                                            Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
+                                                            Cell< moris::Matrix< IdMat > >    & aDvIds )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_dv_ids_for_type_and_ind() - not implemented on GE side");
+            }
+
+            virtual void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+                                                      const Cell< enum MSI::Dv_Type >         & aDvTypes,
+                                                            Cell< moris::Matrix< IdMat > >    & aDvIds )
+            {
+                //FIXME: need to change everywhere so that we have everything using GEN_DV list
+                MORIS_ASSERT(false, "Design_Variable_Interface::get_dv_ids_for_type_and_ind() - not implemented on GE side");
+            }
 
 //------------------------------------------------------------------------------
         };

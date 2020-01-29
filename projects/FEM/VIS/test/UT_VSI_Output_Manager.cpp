@@ -46,9 +46,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
 
 #include "cl_VIS_Factory.hpp"
 
@@ -336,7 +336,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 tOutputData.set_outputs( 0,
 //                                         VIS_Mesh_Type::STANDARD,
-                                       VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                           VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                          "Output_Vis_Mesh_overlapping.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },

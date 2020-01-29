@@ -394,7 +394,7 @@ public:
         mPdvHosts.set_pdv_types( aPdvType );
     }
     //------------------------------------------------------------------------------
-    void initialize_pdv_host_list( moris_index aWhichMesh = 0 )
+    void initialize_interp_pdv_host_list( moris_index aWhichMesh = 0 )
     {
         MORIS_ASSERT( mTypesSet, "GEN_Geometry_Engine::initialive_pdv_host_list() - set_pdv_types() must be called before this function " );
 
@@ -433,11 +433,50 @@ public:
 
         mPdvHosts.update_local_to_global_dv_type_map();
     }
+    //------------------------------------------------------------------------------
+    /*
+     * @brief assign the pdv type and property for each pdv host in a given set
+     */
+    void assign_hosts_by_set_index( moris_index                     aSetIndex,
+                                    std::shared_ptr< GEN_Property > aPropertyPointer,
+                                    enum GEN_DV                     aPdvType,
+                                    moris_index                     aWhichMesh = 0 )
+    {
+        moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
+
+        moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
+
+        uint tNumClusters = tClusterPointers.size();
+
+        for(uint iClust=0; iClust<tNumClusters; iClust++)
+        {
+            moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+
+            moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+            uint tNumVerts = tVertices.size();
+            for(uint iVert=0; iVert<tNumVerts; iVert++)
+            {
+                moris_index tVertIndex = tVertices(iVert)->get_index();
+                mPdvHosts.assign_property_to_pdv_type_by_vertex_index( aPropertyPointer, aPdvType, tVertIndex );
+            }
+        }
+
+        mPdvHosts.update_local_to_global_dv_type_map();
+    }
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
+    void initialize_integ_pdv_host_list( moris_index aWhichMesh = 0 )
+    {
+//        MORIS_ASSERT( mTypesSet, "GEN_Geometry_Engine::initialive_pdv_host_list() - set_pdv_types() must be called before this function " );
 
+        uint tTotalNumVertices = mMesh->get_integration_mesh(aWhichMesh)->get_num_nodes();
+
+        mPdvHosts.initalize_hosts( tTotalNumVertices );
+
+std::cout<<"number of integration vertices:  "<<tTotalNumVertices<<std::endl;
+    }
 
 
 

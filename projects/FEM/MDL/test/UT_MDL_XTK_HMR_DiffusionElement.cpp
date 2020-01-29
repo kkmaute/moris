@@ -81,8 +81,8 @@
 
 #include "fn_norm.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
 {

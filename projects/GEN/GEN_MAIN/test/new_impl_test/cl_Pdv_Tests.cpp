@@ -58,7 +58,7 @@ namespace moris
         {
             uint tLagrangeMeshIndex = 0;
             //  HMR Parameters setup
-            hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+            moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
             tParameters.set( "domain_dimensions",                "2, 2, 2" );
@@ -155,16 +155,19 @@ namespace moris
             bool tOutputXTKmesh = false;
             if (tOutputXTKmesh)
             {
-                xtk::Output_Options tOutputOptions1;
-                tOutputOptions1.mAddNodeSets = false;
-                tOutputOptions1.mAddSideSets = true;
-                tOutputOptions1.mAddClusters = false;
+                tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
-                moris::mtk::Integration_Mesh* tIntegMesh11 = tXTKModel.get_output_mesh(tOutputOptions1);
+                xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+                xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
-                std::string tMeshOutputFile1 = "./pdvCheckMesh.e";
-                tIntegMesh11->create_output_mesh(tMeshOutputFile1);
-                delete tIntegMesh11;
+                // Write mesh
+                Writer_Exodus writer(&tEnrIntegMesh);
+                writer.write_mesh("", "aaaaa_pdvGeomCheck.exo");
+
+                // Write the fields
+                writer.set_time(1.0);
+
+                writer.close_file();
             }
             //------------------------------------------------------------------------------
             uint tEnrMeshIndex = tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
@@ -172,7 +175,7 @@ namespace moris
             tGeometryEngine.register_mesh( &tMeshManager );
 
             tGeometryEngine.set_pdv_types( tPdvList );
-            tGeometryEngine.initialize_pdv_host_list(  );
+            tGeometryEngine.initialize_interp_pdv_host_list(  );
 
             // assign material property to the circle (density)
             tGeometryEngine.assign_hosts_by_set_name( "HMR_dummy_c_p0", tPropertyList(0), tPdvList(0), tEnrMeshIndex );
@@ -182,7 +185,8 @@ namespace moris
             tGeometryEngine.assign_hosts_by_set_name( "HMR_dummy_n_p1", tPropertyList(1), tPdvList(1), tEnrMeshIndex );
             //------------------------------------------------------------------------------
             // get the vertex indices of the circle to use below
-            Cell< moris::moris_index > tAllVertIndices;
+//            Cell< moris::moris_index > tAllVertIndices;
+            Matrix< IndexMat > tAllVertIndices;
             moris::mtk::Set* tTempSet = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p0" );
             moris::Cell< mtk::Cluster const * > tTempClusters = tTempSet->get_clusters_on_set();
 
@@ -195,7 +199,8 @@ namespace moris
                 moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
                 uint tNumVerts = tVertices.size();
 
-                uint tOldSize = tAllVertIndices.size();
+//                uint tOldSize = tAllVertIndices.size();
+                uint tOldSize = tAllVertIndices.length();
 
                 tAllVertIndices.resize( tOldSize + tNumVerts, 1 );
 
@@ -204,7 +209,6 @@ namespace moris
                     tAllVertIndices( tOldSize + iVert ) = tVertices( iVert )->get_index();
                 }
             }
-
             // ---------- check the circle density values ----------
             GEN_Design_Variable_Interface tDVInterface( tGeometryEngine.get_pdv_hosts() );
 
@@ -213,10 +217,11 @@ namespace moris
 
             tDVInterface.get_pdv_value( tAllVertIndices, tPdvList, tDvVals, tIsActive );
 
-            for( uint i=0; i<tAllVertIndices.size(); i++ )
+//            for( uint i=0; i<tAllVertIndices.size(); i++ )
+            for( uint i=0; i<tAllVertIndices.length(); i++ )
             {
-                REQUIRE( tDvVals(0)(i)   = 1234 );
-                REQUIRE( tIsActive(i)(0) = 1 );
+                REQUIRE( tDvVals(0)(i)   == 1234 );
+                REQUIRE( tIsActive(i)(0) == 1 );
             }
             // ------------------------ end ------------------------
         }
@@ -225,6 +230,109 @@ namespace moris
 
     TEST_CASE("pdv test 01","[GE],[pdv_check_01]")
     {
+        uint aNumElemTypes = 1;     // quad
+        uint aNumDim = 2;           // specify number of spatial dimensions
+
+        Matrix< IdMat > aElementConnQuad = {{ 1, 2, 5, 8 },
+                                            { 2, 3, 4, 5 },
+                                            { 8, 5, 6, 7 },
+                                            { 5, 4, 9, 6 }};        // specify element connectivity of quad for mesh
+
+        Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1, 2, 3, 4 }};      // specify the local to global element map for quads
+
+        Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
+                                    { 1.0, 0.0 },
+                                    { 2.0, 0.0 },
+                                    { 2.0, 1.0 },
+                                    { 1.0, 1.0 },
+                                    { 1.0, 2.0 },
+                                    { 0.0, 2.0 },
+                                    { 0.0, 1.0 },
+                                    { 2.0, 2.0 }};      // Node coordinate matrix
+
+        Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }};       // specify the local to global map
+
+        // create MORIS mesh using MTK database
+        mtk::MtkMeshData aMeshData( aNumElemTypes );
+        aMeshData.CreateAllEdgesAndFaces = true;
+        aMeshData.SpatialDim = & aNumDim;
+        aMeshData.ElemConn(0) = & aElementConnQuad;
+        aMeshData.NodeCoords = & aCoords;
+        aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
+        aMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
+
+        moris::mtk::Interpolation_Mesh* tInterpMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+        moris::mtk::Integration_Mesh*   tIntegMesh1 = moris::mtk::create_integration_mesh(MeshType::STK,aMeshData,tInterpMesh);
+
+        mtk::Mesh_Manager tMeshManager;
+        //------------------------------------------------------------------------------
+        bool tOutputMesh = false;
+        if (tOutputMesh)
+        {
+            // Write mesh
+            Writer_Exodus writer(tIntegMesh1);
+            writer.write_mesh("", "aaaaa_pdvGeomCheck.exo");
+            // Write the fields
+            writer.set_time(0.0);
+            writer.close_file();
+        }
+        //------------------------------------------------------------------------------
+        real tRadius  = 0.249;
+        real tXCenter = 1.0;
+        real tYCenter = 1.0;
+
+        Circle tCircle( tRadius, tXCenter, tYCenter );
+
+        uint tNumDims = 2;
+
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tCircle };
+
+        moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
+
+        xtk::Model tXTKModel( tNumDims, tInterpMesh, tGeometryEngine );
+        tXTKModel.mVerbose = false;
+
+        Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+        tXTKModel.decompose(tDecompositionMethods);
+
+        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh( );
+        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh( );
+
+        //------------------------------------------------------------------------------
+        bool tOutputXTKMesh = false;
+        if (tOutputXTKMesh)
+        {
+            // Write mesh
+            Writer_Exodus writer(&tEnrIntegMesh);
+            writer.write_mesh("", "aaaaa_integrationMesh.exo");
+            // Write the fields
+            writer.set_time(0.0);
+            writer.close_file();
+
+            xtk::Output_Options tOutputOptions;
+            tOutputOptions.mAddNodeSets = false;
+            tOutputOptions.mAddSideSets = false;
+            tOutputOptions.mAddClusters = false;
+
+            tIntegMesh1 = tXTKModel.get_output_mesh( tOutputOptions );
+            std::string tMeshOutputFile = "aaaaa_interpolationMesh.e";
+
+            std::cout<<"output mesh file name:  "<<tMeshOutputFile<<std::endl;
+
+            tIntegMesh1->create_output_mesh(tMeshOutputFile);
+            delete tIntegMesh1;
+        }
+        //------------------------------------------------------------------------------
+        uint tEnrMeshIndex = tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
+
+        tGeometryEngine.register_mesh( &tMeshManager );
+
+        tGeometryEngine.initialize_integ_pdv_host_list(  );
+
+
 
     }
     //------------------------------------------------------------------------------

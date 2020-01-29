@@ -122,6 +122,18 @@ endforeach()
 
 include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
      
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
+endforeach()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Library
 
@@ -263,7 +275,7 @@ if(BUILD_HMR)
 	    ${MDL}-lib # for L2
 	    ${MSI}-lib # for L2
 	    ${NLA}-lib # for L2
-	    ${GEN}-lib
+	    ${GEN_MAIN}-lib
 	    ${ALG}-lib
 	    ${MORIS_BASE_LIBS}
 	    )    

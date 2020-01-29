@@ -23,15 +23,15 @@ namespace ge
 
     public:
         GEN_Design_Variable_Interface( Pdv_Host_Manager* aManager ) : mManager(aManager)
-                {
-
-                };
+        {  };
 
 //------------------------------------------------------------------------------
 
         ~GEN_Design_Variable_Interface(){};
 
 //------------------------------------------------------------------------------
+
+
         /**
          * @brief Function providing pdv values for requested vertex indices and Dv types
          *
@@ -39,10 +39,17 @@ namespace ge
          * @param[in] aDvTypes                  List of Dv types
          *
          */
-        void get_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                                         Cell< enum GEN_DV > & aDvTypes )
+        void get_dv_types_for_set( const moris::moris_index            aIntegrationMeshSetIndex,
+                                         Cell< Cell< enum GEN_DV > > & aDvTypes )
         {
             // this may change, hold off for now...
+            MORIS_ASSERT( false,"GEN_Design_Variable_Interface::get_dv_types_for_set() - not implemented" );
+        }
+//------------------------------------------------------------------------------
+        void get_unique_dv_types_for_set( const moris::moris_index           aIntegrationMeshSetIndex,
+                                                       Cell< enum GEN_DV > & aDvTypes )
+        {
+            MORIS_ASSERT( false,"GEN_Design_Variable_Interface::get_unique_dv_types_for_set() - not implemented" );
         }
 
 //------------------------------------------------------------------------------
@@ -54,12 +61,13 @@ namespace ge
          * @param[in] aDvValues      List of Dv values
          *
          */
-        void get_pdv_value( const moris::Cell< moris::moris_index >      & aNodeIndices,
-                            const moris::Cell< enum GEN_DV >             & aDvTypes,
-                                  moris::Cell< moris::Matrix< DDRMat > > & aDvValues,
-                                  moris::Cell< moris::Matrix< DDSMat > > & aIsActiveDv )
+
+        void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     //FIXME: [should be a matrix everywhere]
+                            const moris::Cell< enum GEN_DV >        & aDvTypes,
+                            moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
+                            moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv )
         {
-            uint tNumIndices = aNodeIndices.size();
+            uint tNumIndices = aNodeIndices.length();
             uint tNumTypes   = aDvTypes.size();
 
             aDvValues.resize( tNumTypes );
@@ -87,14 +95,14 @@ namespace ge
          * @brief return local to global dv type map
          *
          */
-        moris::Matrix< DDSMat > get_my_local_global_map()
+        Matrix< DDSMat > get_my_local_global_map(  )
         {
-            return {{0}};
+            return mManager->get_global_map();
         }
 
 //------------------------------------------------------------------------------
         /**
-         * @brief return local to global dv type map
+         * @brief return local to global DV type map
          *
          * @param[in] aVertexIndex   List of vertex indices
          * @param[in] aDvType        List of Dv types
@@ -106,18 +114,7 @@ namespace ge
                                                 Cell< moris::Matrix< IdMat > >    & aDvIds )
         {
             // each cell is a row vector of global IDs per each type
-
             // return the global ids of the dv type on a specified vertex
-            /*
-             * routine:
-             * (0) - loop over node indices
-             * (1) - loop over DV types
-             *     - check if DV type exists on the corresponding host
-             * (2) - if exists, add the global ID to the list
-             *     - if not, move on
-             * (3) - update list of global dv IDs
-             */
-
 
             uint tNumIndices = aNodeIndices.size();
             uint tNumTypes   = aDvTypes.size();
@@ -130,9 +127,9 @@ namespace ge
                 aDvIds( Ik ).set_size( tNumIndices, 1);
             }
 
-            for( uint iType=0; iType<tNumTypes; iType++ )   // (1)
+            for( uint iType=0; iType<tNumTypes; iType++ )
             {
-                for( uint iInd=0; iInd<tNumIndices; iInd++ ) // (0)
+                for( uint iInd=0; iInd<tNumIndices; iInd++ )
                 {
 
                     bool tDvTypeExists = mManager->check_for_active_types( aNodeIndices(iInd), aDvTypes(iType) );   // flag for if the DV type exists on the current host

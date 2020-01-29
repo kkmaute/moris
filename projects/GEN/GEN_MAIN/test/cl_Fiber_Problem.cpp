@@ -121,7 +121,7 @@ moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > &
 
 int user_defined_refinement(       hmr::Element             * aElement,
         const Cell< Matrix< DDRMat > > & aElementLocalValues,
-        hmr::ParameterList       & aParameters )
+        moris::ParameterList       & aParameters )
 {
     int aDoRefine = -1;
 
@@ -203,9 +203,9 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
 {
     uint tLagrangeMeshIndex = 0;
     //  HMR Parameters setup
-    hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-    uint tInitialMesh = 0;
+    uint tInitialMesh = 1;
     switch(tInitialMesh)
     {
     case(1) :
@@ -540,107 +540,107 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         //==============================
         // bulk for plate
         fem::Set_User_Info tBulkPlate00;
-        tBulkPlate00.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p3") );
+        tBulkPlate00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
         tBulkPlate00.set_IWGs( { tIWGPlate } );
 
         fem::Set_User_Info tBulkPlate01;
-        tBulkPlate01.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p3") );
+        tBulkPlate01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
         tBulkPlate01.set_IWGs( { tIWGPlate } );
 
         //==============================
         // bulk for fibers
         fem::Set_User_Info tBulkFibers00;
-        tBulkFibers00.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tBulkFibers00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tBulkFibers00.set_IWGs( { tIWGFibers } );
 
         fem::Set_User_Info tBulkFibers01;
-        tBulkFibers01.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tBulkFibers01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tBulkFibers01.set_IWGs( { tIWGFibers } );
 
         //==============================
         // symmetry boundary conditions on side-set 4 ( fix Ux = 0 )
         fem::Set_User_Info tSetDirichletFixed00;
-        tSetDirichletFixed00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichletFixed00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
         tSetDirichletFixed00.set_IWGs( { tIWGDirichletFixedUx } );
 
         fem::Set_User_Info tSetDirichletFixed01;
-        tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p1") );
+        tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_c_p1") );
         tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx } );
 
         fem::Set_User_Info tSetDirichletFixed02;
-        tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p3") );
+        tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p3") );
         tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx } );
 
         fem::Set_User_Info tSetDirichletFixed03;
-        tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
+        tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_c_p3") );
         tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx } );
 
         //==============================
         // symmetry boundary conditions on side-set 1 ( fix Uy = 0 )
         fem::Set_User_Info tSetDirichletFixed04;
-        tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p1") );
+        tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p1") );
         tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUy } );
 
         fem::Set_User_Info tSetDirichletFixed05;
-        tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_c_p1") );
+        tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p1") );
         tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUy } );
 
         fem::Set_User_Info tSetDirichletFixed06;
-        tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p3") );
+        tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p3") );
         tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUy } );
 
         fem::Set_User_Info tSetDirichletFixed07;
-        tSetDirichletFixed07.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_c_p3") );
+        tSetDirichletFixed07.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p3") );
         tSetDirichletFixed07.set_IWGs( { tIWGDirichletFixedUy } );
 
         //==============================
         // symmetry boundary conditions on side-set 5 ( fix Uz = 0 )
         fem::Set_User_Info tSetDirichletFixed08;
-        tSetDirichletFixed08.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+        tSetDirichletFixed08.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_n_p1") );
         tSetDirichletFixed08.set_IWGs( { tIWGDirichletFixedUz } );
 
         fem::Set_User_Info tSetDirichletFixed09;
-        tSetDirichletFixed09.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+        tSetDirichletFixed09.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_c_p1") );
         tSetDirichletFixed09.set_IWGs( { tIWGDirichletFixedUz } );
 
         fem::Set_User_Info tSetDirichletFixed10;
-        tSetDirichletFixed10.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p3") );
+        tSetDirichletFixed10.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_n_p3") );
         tSetDirichletFixed10.set_IWGs( { tIWGDirichletFixedUz } );
 
         fem::Set_User_Info tSetDirichletFixed11;
-        tSetDirichletFixed11.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p3") );
+        tSetDirichletFixed11.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_c_p3") );
         tSetDirichletFixed11.set_IWGs( { tIWGDirichletFixedUz } );
 
         //==============================
         // Neumann load on side-set 2
         fem::Set_User_Info tSetNeumann00;
-        tSetNeumann00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
         tSetNeumann00.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetNeumann01;
-        tSetNeumann01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p1") );
+        tSetNeumann01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_c_p1") );
         tSetNeumann01.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetNeumann02;
-        tSetNeumann02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3") );
+        tSetNeumann02.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
         tSetNeumann02.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetNeumann03;
-        tSetNeumann03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_c_p3") );
+        tSetNeumann03.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_c_p3") );
         tSetNeumann03.set_IWGs( { tIWGNeumann } );
 
         //==============================
         // interface(s)
         fem::Set_User_Info tInterfaceFibersToPlate;
-        tInterfaceFibersToPlate.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index("dbl_iside_p0_1_p1_3") );
+        tInterfaceFibersToPlate.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("dbl_iside_p0_1_p1_3") );
         tInterfaceFibersToPlate.set_IWGs( { tIWGFiberInterfacePlateBulk } );
 
         fem::Set_User_Info tInterfaceFibersToBoundary00;
-        tInterfaceFibersToBoundary00.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+        tInterfaceFibersToBoundary00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_n_p1") );
         tInterfaceFibersToBoundary00.set_IWGs( { tIWGDirichletFixedUz } );
 
         fem::Set_User_Info tInterfaceFibersToBoundary01;
-        tInterfaceFibersToBoundary01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+        tInterfaceFibersToBoundary01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_5_c_p1") );
         tInterfaceFibersToBoundary01.set_IWGs( { tIWGDirichletFixedUz } );
 
         //==============================
@@ -693,43 +693,54 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        //    std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
 
-        tLinearSolverAlgorithm->set_param("rel_residual")   = 6e-02;
-        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;    // AZ_none
-        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 1000;
-        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-        tLinearSolverAlgorithm->set_param("AZ_kspace") = 500;
-        tLinearSolverAlgorithm->set_param("AZ_orthog") = AZ_modified;   // only to be used in serial
-        //    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm;
+        bool tDirectSolve = true;
+        if(tDirectSolve)
+        {
+            tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        }
+        else
+        {
+            tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
-        uint tPreConditioner = 2;
+            tLinearSolverAlgorithm->set_param("rel_residual")   = 6e-02;
+            tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+            tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
+            tLinearSolverAlgorithm->set_param("AZ_max_iter") = 1000;
+            tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
+            tLinearSolverAlgorithm->set_param("AZ_kspace") = 500;
 
-        switch (tPreConditioner)
-        {
-        case 0:
-        {
-            tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-            tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-            break;
-        }
-        case 1:
-        {
-            tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilut;
-            tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 10.0;
-            tLinearSolverAlgorithm->set_param("AZ_drop") = 1e-12;
-            tLinearSolverAlgorithm->set_param("AZ_athresh") = 0.0;
-            tLinearSolverAlgorithm->set_param("AZ_rthresh") = 1.0;
-            break;
-        }
-        default:
-        {
-            tLinearSolverAlgorithm->set_param("Use_ML_Prec")        = true;  // precondition the system
-            tLinearSolverAlgorithm->set_param("PDE equations" )     = 1;
-            tLinearSolverAlgorithm->set_param("aggregation: type")  = "Uncoupled";
-        }
+            if(par_size()==1)
+            {
+                tLinearSolverAlgorithm->set_param("AZ_orthog") = AZ_modified;   // only to be used in serial
+            }
+
+            uint tPreConditioner = 0;
+            switch (tPreConditioner)
+            {
+            case 0:
+            {
+                tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
+                tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 5;
+                break;
+            }
+            case 1:
+            {
+                tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilut;
+                tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 10.0;
+                tLinearSolverAlgorithm->set_param("AZ_drop") = 1e-12;
+                tLinearSolverAlgorithm->set_param("AZ_athresh") = 0.0;
+                tLinearSolverAlgorithm->set_param("AZ_rthresh") = 1.0;
+                break;
+            }
+            default:
+            {
+                tLinearSolverAlgorithm->set_param("Use_ML_Prec")        = true;  // precondition the system
+                tLinearSolverAlgorithm->set_param("PDE equations" )     = 1;
+                tLinearSolverAlgorithm->set_param("aggregation: type")  = "Uncoupled";
+            }
+            }
         }
 
         dla::Linear_Solver tLinSolver;

@@ -10,8 +10,8 @@
 
 #include "cl_XTK_Model.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Circle.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Geometry.hpp"
 //#include "cl_Circle.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
 

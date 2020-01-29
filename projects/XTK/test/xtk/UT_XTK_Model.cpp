@@ -17,7 +17,7 @@
 
 #include "cl_MTK_Visualization_STK.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "cl_GEN_Sphere.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 

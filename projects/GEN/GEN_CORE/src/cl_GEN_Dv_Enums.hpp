@@ -21,6 +21,10 @@ enum class GEN_DV
     TEMPERATURE0,
     TEMPERATURE1,
     TEMPERATURE2,
+    MODULUS0,
+    MODULUS1,
+    MODULUS2,
+
 
     END_ENUM
 };

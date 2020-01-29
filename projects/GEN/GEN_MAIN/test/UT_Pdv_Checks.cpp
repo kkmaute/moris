@@ -47,7 +47,7 @@ namespace ge
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
         moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
             {
-    return aCoeff( 0 );
+                return aCoeff( 0 );
             }
 //------------------------------------------------------------------------------
 TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_type_list_check_parallel]")
@@ -56,7 +56,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
     {
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", "2, 1" );
         tParameters.set( "domain_dimensions",                "2, 1" );
@@ -131,21 +131,22 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         if( par_rank()==0 )
         {
             tGeometryEngine.set_pdv_types( tPdvList0 );
-            tGeometryEngine.initialize_pdv_host_list(  );
+            tGeometryEngine.initialize_interp_pdv_host_list(  );
 
-            tGeometryEngine.assign_hosts_by_set_name( "HMR_dummy", tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
+            tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
+            std::cout<<"----------------00000000000000000-------------------"<<std::endl;
         }
         else if ( par_rank()==1 )
         {
             tGeometryEngine.set_pdv_types( tPdvList1 );
-            tGeometryEngine.initialize_pdv_host_list(  );
+            tGeometryEngine.initialize_interp_pdv_host_list(  );
 
-            tGeometryEngine.assign_hosts_by_set_name( "HMR_dummy", tPropertyList1(0), tPdvList1(0), tHMRMeshIndex );
+            tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList1(0), tPdvList1(0), tHMRMeshIndex );
         }
 
         // ----- check the global consistent lists -----
         moris::Cell< enum GEN_DV > tCheckCell = { {GEN_DV::DENSITY0},
-                {GEN_DV::DENSITY1} };
+                                                  {GEN_DV::DENSITY1} };
         if( par_rank()==0 )
         {
             moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_hosts()->get_pdv_type_list();

@@ -13,8 +13,8 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
 //
 //#include "cl_Plane.hpp"
