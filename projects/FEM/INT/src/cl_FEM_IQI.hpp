@@ -41,6 +41,9 @@ namespace moris
             // IQI type
             enum vis::Output_Type mIQIType;
 
+            // IQI type index
+            sint mIQITypeIndex = -1;
+
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
@@ -110,12 +113,32 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /*
-             * set fel set pointer
+             * set fem set pointer
              * @param[ in ] aSetPointer a FEM set pointer
              */
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set output type
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_output_type( enum vis::Output_Type aOutputType )
+            {
+                mIQIType = aOutputType;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set output type index
+             * @param[ in ] aOutputTypeIndex output type index
+             */
+            void set_output_type_index( sint aOutputTypeIndex )
+            {
+                mIQITypeIndex = aOutputTypeIndex;
             }
 
 //------------------------------------------------------------------------------

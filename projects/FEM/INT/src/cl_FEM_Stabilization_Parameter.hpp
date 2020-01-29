@@ -44,20 +44,13 @@ namespace moris
             Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // cluster pointer
-            fem::Cluster * mCluster;
+            fem::Cluster * mCluster = nullptr;
 
             // list of parameters
             moris::Cell< Matrix< DDRMat > > mParameters;
 
             // list of cluster measure enums
             moris::Cell< fem::Cluster_Measure > mClusterMeasures;
-
-            // cluster measures
-            // FIXME add enum for child class to select the needed ones
-            real mMasterVolume     = 0.5; // volume on master
-            real mSlaveVolume      = 0.5; // volume on slave
-            real mInterfaceSurface = 1.0; // surface on master/slave interface
-            real mElementSize      = 1.0; // element size
 
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -204,14 +197,13 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * reset cluster measures
+             * NOTE: only implement if your stabilization parameter requires
+             * cluster measure access. Otherwise no-op.
              */
+            virtual
             void reset_cluster_measures()
             {
-                // FIXME cluster measures to reset volume, surface, ...
-                mMasterVolume     = 0.5; // mCluster->compute_volume()
-                mSlaveVolume      = 0.5; // mCluster->compute_volume()
-                mInterfaceSurface = 1.0; // mCluster->compute_surface()
-                mElementSize      = 1.0; // mCluster->compute_element_size( arg on how to compute )
+
             }
 
 //------------------------------------------------------------------------------

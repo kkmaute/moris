@@ -321,6 +321,8 @@ void Writer_Exodus::write_blocks()
         // Get the block elements
         moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mMesh->get_set_cells(tBlockNames(tBlockIndex));
 
+        moris::mtk::Set * tSet = mMesh->get_set_by_name( tBlockNames(tBlockIndex) );
+
         // Add name to map
         mBlockNamesMap[tBlockNames(tBlockIndex)] = tBlockIndex;
 
@@ -330,25 +332,26 @@ void Writer_Exodus::write_blocks()
             tElementIdMap.resize(tElementIdMapStartIndex + tElementsInBlock.size(), 1);
 
             // Get the CellTopology of this block
+            enum CellTopology tMorisBlockTopology = tSet->get_cell_topology();
             //CellTopology tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
 
             // Get a description of the type of elements in this block FIXME once we always have a CellTopology on the mesh
-            CellTopology tMorisBlockTopology;
-            if (mMesh->get_spatial_dim() == 2)
-            {
-                if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
-                {
-                    tMorisBlockTopology = CellTopology::TRI3;
-                }
-                else
-                {
-                    tMorisBlockTopology = CellTopology::QUAD4;
-                }
-            }
-            else
-            {
-                tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
-            }
+//            CellTopology tMorisBlockTopology;
+//            if (mMesh->get_spatial_dim() == 2)
+//            {
+//                if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
+//                {
+//                    tMorisBlockTopology = CellTopology::TRI3;
+//                }
+//                else
+//                {
+//                    tMorisBlockTopology = CellTopology::QUAD4;
+//                }
+//            }
+//            else
+//            {
+//                tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
+//            }
 
             const char* tExodusBlockTopology = this->get_exodus_block_topology(tMorisBlockTopology);
 

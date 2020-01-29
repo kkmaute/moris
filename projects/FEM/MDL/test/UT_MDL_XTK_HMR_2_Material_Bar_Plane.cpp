@@ -28,6 +28,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "cl_Matrix.hpp"        //LINALG
 #include "linalg_typedefs.hpp"
@@ -182,9 +183,23 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+
+
+//        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
+//        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
+
+        // Write mesh
+        Writer_Exodus writer(&tEnrIntegMesh);
+        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;

@@ -257,8 +257,21 @@ protected:
         mListOfAllSets.clear();
         mSetNameToIndexMap.clear();
 
+        uint tCounter = 0;
+
         mListOfAllSets.append( mListofBlocks );
+
+        for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
+        {
+            std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+            mListOfAllSets( tCounter++ )->set_cell_topology( this->get_blockset_topology( tSetName ) );
+        }
+
         mListOfAllSets.append( mListofSideSets );
+
+        //FIXME implement cell tpopology for side set
+
         mListOfAllSets.append( mListofDoubleSideSets );
 
         for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )

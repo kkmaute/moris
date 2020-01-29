@@ -221,6 +221,18 @@ public:
 
     }
 
+    moris::real
+    compute_cell_measure() const
+    {
+       return mChildMeshPtr->get_cell_info()->compute_cell_size(this);
+    }
+
+    //------------------------------------------------------------------------------
+    moris::real
+    compute_cell_side_measure(moris_index const & aSideOrdinal) const
+    {
+       return mChildMeshPtr->get_cell_info()->compute_cell_side_size(this,aSideOrdinal);
+    }
     //------------------------------------------------------------------------------
 
 private:

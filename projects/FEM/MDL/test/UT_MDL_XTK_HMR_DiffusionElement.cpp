@@ -47,11 +47,16 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
+
+#include "cl_VIS_Factory.hpp"
+#include "cl_VIS_Visualization_Mesh.hpp"
+#include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
@@ -93,9 +98,9 @@ LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     real mXn = 0;
     real mYn = 0;
     real mZn = 1.0;
-    real mXc = 1.0;
-    real mYc = 1.0;
-    real mZc = 1.4;
+    real mXc = 1.011;
+    real mYc = 1.011;
+    real mZc = 1.411;
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
 }
 
@@ -153,6 +158,11 @@ Matrix< DDRMat > tConstValFunction_MDL_XTK_HMR( moris::Cell< Matrix< DDRMat > > 
                                                 fem::Geometry_Interpolator             * aGeometryInterpolator )
 {
     return aCoeff( 0 );
+}
+
+bool tSolverOutputCriteria( moris::tsa::Time_Solver * )
+{
+    return true;
 }
 
 TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_DIFF]")
@@ -424,8 +434,8 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF]")
 {
-    if(par_size() == 1)
-    {
+//    if(par_size() == 1)
+//    {
         std::string tFieldName = "Cylinder";
 
 
@@ -434,7 +444,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         moris::hmr::Parameters tParameters;
 
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {2} } );
+        tParameters.set_number_of_elements_per_dimension( { {4}, {4}, {4} } );
         tParameters.set_domain_dimensions({ {1}, {1}, {2} });
         tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
         tParameters.set_bspline_truncation( true );
@@ -454,6 +464,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
+        tParameters.set_number_aura(  true );
+
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
@@ -470,7 +482,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         for( uint k=0; k<1; ++k )
         {
-            tHMR.finalize();
+//            tHMR.finalize();
             tHMR.flag_surface_elements_on_working_pattern( tField );
             tHMR.perform_refinement_based_on_working_pattern( 0 );
 
@@ -504,10 +516,12 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
-        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+
+//        tEnrInterpMesh.print_vertex_interpolation();
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -566,14 +580,24 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
          tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
+         // define the IQIs
+         fem::IQI_Factory tIQIFactory;
+
+         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+         tIQITEMP->set_dof_type_list( { {MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+         tIQITEMP->set_output_type_index( 0 );
+
          // define set info
          fem::Set_User_Info tSetBulk1;
          tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
          tSetBulk1.set_IWGs( { tIWGBulk } );
+         tSetBulk1.set_IQIs( { tIQITEMP } );
 
          fem::Set_User_Info tSetBulk2;
          tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
          tSetBulk2.set_IWGs( { tIWGBulk } );
+         tSetBulk2.set_IQIs( { tIQITEMP } );
 
          fem::Set_User_Info tSetDirichlet;
          std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
@@ -595,6 +619,25 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                                 tBSplineMeshIndex,
                                                 tSetInfo );
+
+         // --------------------------------------------------------------------------------------
+         // Define outputs
+
+         vis::Output_Manager tOutputData;
+
+         tOutputData.set_outputs( 0,
+//                                         VIS_Mesh_Type::STANDARD,
+        		 vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                  "XTK_HMR_DIFF.exo",
+                                  { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
+                                  { 0, 2 },
+                                  { "Temp" },
+                                  {   vis::Field_Type::NODAL },
+                                  { vis::Output_Type::TEMP } );
+
+         tModel->set_output_manager( &tOutputData );
+
+         // --------------------------------------------------------------------------------------
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -652,6 +695,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         tNonlinearSolver.set_dof_type_list( tDofTypes1 );
         tTimeSolver.set_dof_type_list( tDofTypes1 );
 
+        tTimeSolver.set_output( 0, tSolverOutputCriteria );
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 4: Solve and check
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -660,8 +705,9 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
 
         // TODO: add gold solution data for this problem
-
-//        print_fancy(tFullSol,"Full Solution");
+//        Matrix<DDRMat> tFullSol;
+//        tTimeSolver.get_full_solution(tFullSol);
+//        print(tFullSol,"Full Solution");
 
         // verify solution
 //        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
@@ -697,28 +743,15 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
 
 
-        Matrix<DDRMat> tFullSol;
-        tTimeSolver.get_full_solution(tFullSol);
+//        Matrix<DDRMat> tFullSol;
+//        tTimeSolver.get_full_solution(tFullSol);
 
         std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
-        // Write mesh
-        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
-        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss");
-        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs", CellTopology::HEX8);
-
-        Writer_Exodus writer(&tEnrIgMesh);
-        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo");
-
-        // Write the fields
-        writer.set_time(0.0);
-        writer.close_file();
-
-
         delete tModel;
         delete tIntegMesh1;
-    }
+//    }
 }
 
 

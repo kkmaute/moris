@@ -119,8 +119,11 @@ namespace moris
 
         void HMR::finalize()
         {
+            MORIS_ERROR( !mFinalizedCalled, "HMR::finalize(), Finalize was called earlier. You should only call it once." );
             // finish database
             mDatabase->finalize();
+
+            mFinalizedCalled = true;
         }
 
 // -----------------------------------------------------------------------------

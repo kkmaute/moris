@@ -186,8 +186,6 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
 
         // get the cells
         moris::mtk::Cell & tCell = tMesh->get_mtk_cell(0);
-        std::cout<<tCell.get_id()<<std::endl;
-        std::cout<<tCell.get_index()<<std::endl;
 
         //Check that the vertices on side are correct
         moris::mtk::Cell_Info_Hex64 tConn;

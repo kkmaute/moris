@@ -8,6 +8,7 @@
 
 
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_Map.hpp"
 
 namespace xtk
 {
@@ -73,6 +74,20 @@ Enriched_Interpolation_Mesh::get_num_entities( enum EntityRank aEntityRank ) con
             return 0;
     }
 }
+//------------------------------------------------------------------------------
+uint
+Enriched_Interpolation_Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
+{
+	uint tNumCoeffs = 0;
+
+	for(auto it = mCoeffToEnrichCoeffs.cbegin(); it < mCoeffToEnrichCoeffs.cend(); it++)
+	{
+		tNumCoeffs = tNumCoeffs + it->numel();
+	}
+
+	return tNumCoeffs;
+}
+
 //------------------------------------------------------------------------------
 Matrix<IndexMat>
 Enriched_Interpolation_Mesh::get_entity_connected_to_entity_loc_inds(moris_index  aEntityIndex,
@@ -209,6 +224,17 @@ Enriched_Interpolation_Mesh::get_max_entity_id( enum EntityRank aEntityRank ) co
    moris_id tGlobalMaxId = 0;
    moris::max_all(tLocalMaxId,tGlobalMaxId);
    return tGlobalMaxId;
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::get_adof_map( const uint aBSplineIndex, map< moris_id, moris_index > & aAdofMap ) const
+{
+	aAdofMap.clear();
+
+	for(moris::uint i = 0; i < mEnrichCoeffLocToGlob.numel(); i++)
+	{
+        aAdofMap[mEnrichCoeffLocToGlob(i)] = i;
+	}
 }
 //------------------------------------------------------------------------------
 Matrix<IndexMat> const &
@@ -555,7 +581,8 @@ void Enriched_Interpolation_Mesh::print_vertex_interpolation() const
     {
         Interpolation_Vertex_Unzipped const & tVertex = this->get_xtk_interp_vertex(i);
 
-        std::cout<<"Vertex Id: "<<std::setw(9)<<tVertex.get_id();
+        std::cout<<"\nVertex Id: "<<std::setw(9)<<tVertex.get_id()<<std::endl;
+        std::cout<<*tVertex.get_xtk_interpolation(0)<<std::endl;
     }
 }
 //------------------------------------------------------------------------------
@@ -574,9 +601,15 @@ Enriched_Interpolation_Mesh::assign_vertex_interpolation_ids()
     moris::uint tNumVerts = this->get_num_entities(EntityRank::NODE);
     for(moris::moris_index i =0; i <(moris_index)tNumVerts; i++)
     {
-        Matrix<IndexMat> tVertexIndices = mInterpVertEnrichment(i)->mBasisIndices;
+        Matrix<IndexMat> tBasisIndices = mInterpVertEnrichment(i)->get_indices();
+        Matrix<IndexMat> tBasisIds(1,tBasisIndices.numel());
+        for(moris::uint j = 0; j < tBasisIndices.numel(); j++)
+        {
+        	tBasisIds(j) = mEnrichCoeffLocToGlob(tBasisIndices(j));
+        }
 
-        mInterpVertEnrichment(i)->mBasisIds = mInterpVertEnrichment(i)->mBasisIndices.copy();
+
+        mInterpVertEnrichment(i)->mBasisIds = tBasisIds;
     }
 }
 

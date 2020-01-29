@@ -9,6 +9,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX8_HPP_
 
 #include "cl_HMR_Lagrange_Element.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
@@ -163,6 +164,16 @@ namespace moris
         return tUnitOutwardNormal;
 		}
 // ----------------------------------------------------------------------------
+
+
+        template<>
+        inline
+        real
+        Lagrange_Element< 3, 8 >::compute_cell_measure() const
+        {
+            mtk::Cell_Info_Hex8 tCellInfo;
+            return tCellInfo.compute_cell_size(this);
+        }
 
         /**
          * returns the ijk position of a given basis

@@ -230,6 +230,22 @@ public:
 
     //------------------------------------------------------------------------------
 
+    moris::real
+    compute_cell_measure() const
+    {
+       return mCellInfo->compute_cell_size(this);
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    compute_cell_side_measure(moris_index const & aCellSideOrd) const
+    {
+        return mCellInfo->compute_cell_side_size(this,aCellSideOrd);
+    }
+
+    //------------------------------------------------------------------------------
+
     /**
      * returns an enum that defines the geometry type of the element
      */

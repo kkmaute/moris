@@ -560,6 +560,9 @@ Enrichment::communicate_basis_information_with_owner(Cell<Cell<moris_index>> con
         if(tBasisIdToBasisOwnerMat(i).numel()>0 && i != (uint)par_rank())
         {
             // send child element ids
+        	moris::print(tBasisIdToBasisOwnerMat(i),"tBasisIdToBasisOwnerMat(i)");
+        	moris::print(tSubphaseIdInSupport(i),"tSubphaseIdInSupport(i)");
+
             nonblocking_send(tBasisIdToBasisOwnerMat(i),tBasisIdToBasisOwnerMat(i).n_rows(),tBasisIdToBasisOwnerMat(i).n_cols(),i,tBasisIdsTag);
             // send element parent ids
             nonblocking_send(tSubphaseIdInSupport(i),tSubphaseIdInSupport(i).n_rows(),tSubphaseIdInSupport(i).n_cols(),i,tMaxSubphasetag);
@@ -617,6 +620,8 @@ Enrichment::communicate_basis_information_with_owner(Cell<Cell<moris_index>> con
             moris_index tSubphaseIndex = mXTKModelPtr->get_subphase_index(tSubphaseId);
 
              // iterate through the max integ ids and match
+
+            bool tFound = false;
             for(moris::uint k = 0; k < mBasisEnrichmentIndices(tBasisIndex).numel(); k++)
             {
                 if(this->subphase_is_in_support(tSubphaseIndex,mBasisEnrichmentIndices(tBasisIndex)(k)))
@@ -627,14 +632,18 @@ Enrichment::communicate_basis_information_with_owner(Cell<Cell<moris_index>> con
 
                     tEnrichedBasisIds(i)(tCount) = tEnrichedBasisId;
                     tCount++;
+                    tFound = true;
                 }
             }
+
+            MORIS_ERROR(tFound,"Basis not found");
         }
 
         // send the information back
         if(tEnrichedBasisIds(i).numel() > 0)
         {
             // send enriched ids
+        	moris::print(tEnrichedBasisIds(i),"tEnrichedBasisIds(i)");
             nonblocking_send(tEnrichedBasisIds(i),tEnrichedBasisIds(i).n_rows(),tEnrichedBasisIds(i).n_cols(),i,tReturnIdTag);
         }
     }
@@ -653,6 +662,8 @@ Enrichment::communicate_basis_information_with_owner(Cell<Cell<moris_index>> con
                 aEnrichedBasisId(i).resize(1,1);
 
                 receive(aEnrichedBasisId(i),tNumRow, i,tReturnIdTag);
+
+                moris::print(aEnrichedBasisId(i),"aEnrichedBasisId(i)");
             }
 
             else
@@ -681,6 +692,7 @@ Enrichment::set_received_enriched_basis_ids(Cell<moris::Matrix<moris::IndexMat>>
             moris_index tGlobaId  = aReceivedEnrichedIds(i)(j);
             MORIS_ASSERT(mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,"Id already set for this basis function");
             mEnrichedBasisIndexToId(tLocalBasisIndex) = tGlobaId;
+            std::cout<<tGlobaId<<" received enrichment ids"<<std::endl;
         }
     }
 }
@@ -909,6 +921,9 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
     moris_index tVertId      = 1;
     uint        tVertexCount = 0;
 
+    // my proc rank
+    moris_index tMyProcRank = par_rank();
+
     // iterate through children meshes and create the unzipped interpolation cells
     uint tNumChildMeshes = mCutMeshPtr->get_num_child_meshes();
 
@@ -941,6 +956,8 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             // owner
             moris_id tOwner = tParentCell.get_owner();
 
+            if(tMyProcRank == tOwner)
+            {
             // vertexes of cell
             moris::Cell<mtk::Vertex*> tVertices = tParentCell.get_vertex_pointers();
 
@@ -999,6 +1016,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             // increment the cell index/id
             tCellIndex++;
         }
+        }
     }
 
     // iterate through child meshes and construct the unzipped vertices if necessary and the cells
@@ -1013,6 +1031,9 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
 
         // owner
         moris_id tOwner = tParentCell.get_owner();
+
+        if(tMyProcRank == tOwner)
+        {
 
         // vertexes of cell
         moris::Cell<mtk::Vertex*> tVertices = tParentCell.get_vertex_pointers();
@@ -1077,7 +1098,12 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             // increment the cell index/id
             tCellIndex++;
         }
+        }
     }
+
+    //resize out aura cells
+    tEnrInterpCellToVertex.resize(tCellIndex,tEnrInterpMesh->mNumVertsPerInterpCell);
+    tEnrInterpMesh->mEnrichedInterpCells.resize(tCellIndex);
 
     // with the cell to vertex data fully setup, add the vertex pointers to the cell
 
@@ -1154,6 +1180,8 @@ Enrichment::construct_enriched_vertex_interpolation(mtk::Vertex_Interpolation*  
 
     aVertexEnrichment.add_basis_information(tEnrichCoeffInds);
     aVertexEnrichment.add_basis_weights(tEnrichCoeffInds,*tBaseVertWeights);
+    aVertexEnrichment.add_base_vertex_interpolation(aBaseVertexInterp);
+
 }
 
 std::unordered_map<moris_id,moris_id>

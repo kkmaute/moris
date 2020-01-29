@@ -14,6 +14,7 @@
 #include "cl_FEM_Enums.hpp"                                              //FEM//INT/src
 #include "cl_FEM_IWG_Factory.hpp"                                         //FEM//INT/src
 #include "cl_FEM_CM_Factory.hpp"                                         //FEM//INT/src
+#include "cl_FEM_SP_Factory.hpp"                                         //FEM//INT/src
 
 #include "op_equal_equal.hpp"
 
@@ -155,7 +156,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop over the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 2; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -298,6 +299,15 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
             tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
             tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
+
+            // define stabilization parameters
+            fem::SP_Factory tSPFactory;
+            if ( iInterpOrder > 0 )
+            {
+                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
+                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
+                tIWG->set_stabilization_parameter( tSP1, "GhostVWOrder1" );
+            }
 
             // set the normal
             tIWG->set_normal( tNormal );

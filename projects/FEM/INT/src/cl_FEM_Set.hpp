@@ -450,6 +450,13 @@ namespace MSI
         void set_IQI_field_interpolator_managers();
 
 //------------------------------------------------------------------------------
+        /*!
+         * Sets the cluster in the stabilization parameter associated with
+         * this set
+         */
+        void
+        set_cluster_in_stabilization_params(fem::Cluster * aCluster);
+//------------------------------------------------------------------------------
         /**
          * create the dof assembly map for the residual/rows
          */
@@ -581,9 +588,14 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * auto detect full integration scheme
-         * @param[ in ] aGeometryType a geometry type
+         * @param[ in ]  aGeometryType       a geometry type
+         * @param[ in ]  aInterpolationOrder an interpolation order
+         * @param[ out ] aIntegrationOrder   an integration order
          */
-        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+//        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+
+        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type       aGeometryType,
+                                                           const mtk::Interpolation_Order aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         /**
@@ -738,24 +750,13 @@ namespace MSI
        {
            mDesignVariableInterface = aDesignVariableInterface;
 
-           // FIXME create ge in model, pass pointer in model to Set, pass dv maps to set
-           moris::Cell<moris::Cell<MSI::Dv_Type >> tTypes;
-           mDesignVariableInterface->get_dv_types_for_set( 0, tTypes);     //FIXME use fem::SEt to MTK::set map
-           mMasterDvTypes  = tTypes;
-
-           mMasterDvTypeMap.set_size( static_cast<int>(MSI::Dv_Type::END_ENUM), 1, -1 );
-           for( uint Ik = 0; Ik <mMasterDvTypes.size(); Ik++)
-           {
-           	mMasterDvTypeMap( static_cast<int>(mMasterDvTypes( Ik )(0)) )= Ik;
-           }
-
            moris::Cell<MSI::Dv_Type > tTypesUnique;
            mDesignVariableInterface->get_unique_dv_types_for_set( 0, tTypesUnique);     //FIXME use fem::SEt to MTK::set map
 
            mDvTypeMap.set_size( static_cast<int>(MSI::Dv_Type::END_ENUM), 1, -1 );
            for( uint Ik = 0; Ik <tTypesUnique.size(); Ik++)
            {
-           	mDvTypeMap( static_cast<int>(tTypesUnique( Ik )) )= Ik;
+               mDvTypeMap( static_cast<int>(tTypesUnique( Ik )) )= Ik;
            }
        };
 

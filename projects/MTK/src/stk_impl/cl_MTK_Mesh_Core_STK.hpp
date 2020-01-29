@@ -420,8 +420,8 @@ public:
     Matrix< IdMat >
     get_communication_table() const
     {
-        MORIS_ERROR(0,"Not implemented in STK");
-        return mSTKMeshData->mEntityLocaltoGlobalMap(0);
+    	MORIS_ASSERT(par_size() == 1,"Only working in STK in serial.");
+    	return Matrix<IdMat>(1,1,0);
     }
 
     Matrix< IdMat >

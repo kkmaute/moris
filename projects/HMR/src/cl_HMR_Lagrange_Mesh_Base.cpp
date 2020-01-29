@@ -1697,6 +1697,8 @@ namespace moris
                         // get pointer to face
                         Background_Facet * tBackFacet = tBackElement->get_facet( f );
 
+                        MORIS_ASSERT(tBackFacet != nullptr, " background facet is nullptr");
+
                         // test if background facet is not flagged and element
                         if( ! tBackFacet->is_flagged() )
                         {
@@ -1737,6 +1739,8 @@ namespace moris
                         {
                             // create facet
                             Facet * tFacet = this->create_facet( tBackFacet );
+
+                            MORIS_ASSERT(tFacet != nullptr, " Facet facet is nullptr");
 
                             // test owner of facet
                             if( tFacet->get_owner() == tMyRank )

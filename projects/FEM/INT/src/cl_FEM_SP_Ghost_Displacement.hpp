@@ -19,6 +19,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"
 
 namespace moris
 {
@@ -31,6 +32,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
+
+            // cluster measures
+            // FIXME add enum for child class to select the needed ones
+            real mMasterVolume     = 0.5; // volume on master
+            real mSlaveVolume      = 0.5; // volume on slave
+            real mInterfaceSurface = 1.0; // surface on master/slave interface
+            real mElementSize      = 1.0; // element size
+
 
             enum class SP_Property_Type
             {
@@ -60,6 +69,18 @@ namespace moris
              * trivial destructor
              */
             ~SP_Ghost_Displacement(){};
+//------------------------------------------------------------------------------
+
+            void reset_cluster_measures()
+            {
+                // FIXME cluster measures to reset volume, surface, ...
+                mMasterVolume     = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::MASTER);
+//                mSlaveVolume      = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::SLAVE);
+//                mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY,mtk::Master_Slave::SLAVE);
+                mElementSize      = std::pow(mMasterVolume/M_PI,0.3333333333) ; // mCluster->compute_element_size( arg on how to compute ) //FIXME: decide what to do here and add the formula to cell info length measure.
+
+                std::cout<<"Element Size = "<<mElementSize<<std::endl;
+            }
 
 //------------------------------------------------------------------------------
             /**

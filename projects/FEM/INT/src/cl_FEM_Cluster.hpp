@@ -106,21 +106,39 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get the vertices local coordinates on the IP cell
+         */
+        moris::Matrix< moris::DDRMat >
+        get_vertices_local_coordinates_wrt_interp_cell();
+
+//------------------------------------------------------------------------------
+        /**
+         * get the vertices indices in cluster
+         */
+        moris::Cell< moris_index >
+        get_vertex_indices_in_cluster();
+
+//------------------------------------------------------------------------------
+        /**
          * get the IG cell local coordinates on the side wrt to the IP cell
          * @param[ in ] aCellIndexInCluster index of the IG cell within the cluster
          * @param[ in ] aSideOrdinal        ordinal for the side
          * @param[ in ] aIsMaster           enum for master or slave
          */
-        moris::Matrix< moris::DDRMat > get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
-                                                                                      moris::moris_index aSideOrdinal,
-                                                                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+        moris::Matrix< moris::DDRMat >
+        get_cell_local_coords_on_side_wrt_interp_cell
+        ( moris::moris_index aCellIndexInCluster,
+          moris::moris_index aSideOrdinal,
+          mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
         /**
          * get the IG cell local coordinates wrt IP cell
          * @param[ in ] aPrimaryCellIndexInCluster index of the IG cell within the cluster
          */
-        moris::Matrix< moris::DDRMat > get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster );
+        moris::Matrix< moris::DDRMat >
+        get_primary_cell_local_coords_on_side_wrt_interp_cell
+       ( moris::moris_index aPrimaryCellIndexInCluster );
 
 //------------------------------------------------------------------------------
         /**
@@ -182,7 +200,6 @@ namespace moris
          */
         void compute_dRdp();
 
-
 //------------------------------------------------------------------------------
         /**
          * get the nodal pdof values on an element
@@ -226,6 +243,23 @@ namespace moris
          * compute the cluster volume
          */
         real compute_volume();
+
+//------------------------------------------------------------------------------
+        /*
+         * Compute the measure (volume 3d or area 2d) of the cells in the void or primary phase
+         */
+        moris::real
+        compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+//------------------------------------------------------------------------------
+
+        /*
+         * Compute the side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
+         * Only valid on side cluster type mtk clusters
+         */
+        moris::real
+        compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                          const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
 //------------------------------------------------------------------------------
     protected:

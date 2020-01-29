@@ -17,6 +17,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
+
 namespace moris
 {
     namespace hmr
@@ -285,7 +286,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+//            void evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+
+
+            template<typename T>
+            void evaluate_scalar_function( T aLambda )
+            {
+                // get pointer to node values
+                Matrix< DDRMat > & tNodeValues = this->get_node_values();
+
+                // get number of nodes on block
+                uint tNumberOfVertices = mMesh->get_num_nodes();
+
+                // set size of node values
+                tNodeValues.set_size( tNumberOfVertices, 1 );
+
+                // loop over all vertices
+                for( uint k=0; k<tNumberOfVertices; ++k )
+                {
+                    // evaluate function at vertex cooridinates
+                    tNodeValues( k ) = aLambda( mMesh->get_mtk_vertex( k ).get_coords() );
+                }
+            }
 
 //------------------------------------------------------------------------------
 

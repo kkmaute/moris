@@ -188,25 +188,17 @@ namespace moris
                 }
                 case( EntityRank::ELEMENT ) :
                 {
-                    if( mDatabase->get_parameters()->use_number_aura() )
-                    {
-                        return this->get_num_elemens_including_aura();
-                    }
-                    else
-                    {
-                        return this->get_num_elems();
-                    }
-
+                    return this->get_num_elems();
                     break;
                 }
                 // aEntityRank is not unique for Bsplines
-//                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE_1 ) :
 //                case( EntityRank::BSPLINE_2 ) :
 //                case( EntityRank::BSPLINE_3 ) :
-//                {
-//                    return this->get_num_coeffs( mtk::entity_rank_to_order ( aEntityRank ) );
-//                    break;
-//                }
+                {
+                    return this->get_num_coeffs( 0 );
+                    break;
+                }
                 default :
                 {
                     MORIS_ERROR( false, "unknown entity rank");
@@ -247,7 +239,14 @@ namespace moris
 
         uint Mesh::get_num_elems() const
         {
-            return mMesh->get_number_of_elements();
+            if( mDatabase->get_parameters()->use_number_aura() )
+            {
+                return this->get_num_elemens_including_aura();
+            }
+            else
+            {
+            	return mMesh->get_number_of_elements();
+            }
         }
 
 //-----------------------------------------------------------------------------
@@ -809,7 +808,15 @@ namespace moris
             Matrix< IndexMat > tIndices( 2, tNumberOfNeighbors);
 
             // my cell
-            Element * tMyCell = mMesh->get_element( aElementIndex );
+            Element * tMyCell = nullptr;
+            if( mDatabase->get_parameters()->use_number_aura() )
+            {
+                tMyCell = mMesh->get_element_including_aura( aElementIndex );
+            }
+            else
+            {
+                tMyCell = mMesh->get_element( aElementIndex );
+            }
 
             // copy indices from pointers
             for( luint k=0; k<tNumberOfNeighbors; ++k )
@@ -822,7 +829,7 @@ namespace moris
 
                 // verify the facet neighborhood makes sense
                 Facet * tFacet = tMyCell->get_hmr_facet(tThisCellFacetsOrds(k));
-
+                MORIS_ASSERT( tFacet != nullptr, "get_elements_connected_to_element_and_face_ind_loc_inds(), facet is nullptr");
 
                 tIndices( 1, k ) = tFacet->get_index();
 
@@ -848,8 +855,6 @@ namespace moris
             // reserve memory for output matrix
             Matrix< IndexMat > tNeighborIndicesAndSideOrds( 4, tNumberOfNeighbors);
 
-
-
             // copy indices from pointers
             for( luint k=0; k<tNumberOfNeighbors; ++k )
             {
@@ -857,9 +862,9 @@ namespace moris
                 Element * tOtherCell = mMesh->get_element_by_memory_index( tMemoryIndices( k ) );
 
                 MORIS_ASSERT(tOtherCell->get_index() != MORIS_INDEX_MAX,"A Neighbor Cell with max index is about to be outputted.");
-                MORIS_ASSERT(tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level()     ||
-                             tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level() - 1 ||
-                             tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level() + 1   ,"Neighboring cells must be on the within 1 level of the provided cell.");
+//                MORIS_ASSERT(tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level()     ||
+//                             tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level() - 1 ||
+//                             tOtherCell->get_level() == mMesh->get_element( aElementIndex )->get_level() + 1   ,"Neighboring cells must be on the within 1 level of the provided cell.");
 
                 tNeighborIndicesAndSideOrds( 0, k ) = tOtherCell->get_index();
                 tNeighborIndicesAndSideOrds( 1, k ) = tThisCellFacetsOrds(k);
@@ -1118,6 +1123,12 @@ namespace moris
 
                     break;
                 }
+                case( EntityRank::BSPLINE_1 ) :
+                {
+//                    return mMesh->get_bspline( 0, aEntityIndex )->get_hmr_index();
+                    return mMesh->get_bspline( 0, aEntityIndex )->get_id();
+                    break;
+                }
                 default :
                 {
                     MORIS_ERROR( false, "unknown entity rank");
@@ -1170,6 +1181,29 @@ namespace moris
                     return mMesh->get_max_element_id();
                     break;
                 }
+                case( EntityRank::BSPLINE_1):
+				{
+
+                	moris::uint tNumEntities = this->get_num_entities(aEntityRank);
+
+                	moris_id tLocalMaxId = 0;
+
+                	for(moris::uint i = 0; i < tNumEntities; i++)
+                	{
+                		moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+
+                		if(tId > tLocalMaxId)
+                		{
+                			tLocalMaxId = tId;
+                		}
+                	}
+
+                	moris_id tGlobalMaxId = 0;
+                	moris::max_all(tLocalMaxId,tGlobalMaxId);
+                	return tGlobalMaxId;
+                	break;
+				}
+
                 default :
                 {
                     MORIS_ERROR( false, "unknown entity rank");
@@ -1218,6 +1252,11 @@ namespace moris
                     {
                         return mMesh->get_element( aEntityIndex )->get_owner();
                     }
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                {
+                    return mMesh->get_bspline( 0, aEntityIndex )->get_owner();
                     break;
                 }
                 default :
@@ -1525,7 +1564,8 @@ namespace moris
         {
             if (aSetEntityRank == EntityRank::ELEMENT)
             {
-                moris::uint tNumEntities = this->get_num_elems();
+                moris::uint tAuraSize = mMesh->get_number_of_elements_including_aura() - mMesh->get_number_of_elements();
+                moris::uint tNumEntities = mMesh->get_number_of_elements_including_aura() - tAuraSize;
 
                 Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
 
@@ -1705,12 +1745,13 @@ namespace moris
         void Mesh::setup_glb_to_local_maps()
         {
             // Initialize global to local map
-            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
+            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(5);
 
             setup_entity_global_to_local_map(EntityRank::NODE);
             setup_entity_global_to_local_map(EntityRank::EDGE);
             setup_entity_global_to_local_map(EntityRank::FACE);
             setup_entity_global_to_local_map(EntityRank::ELEMENT);
+            setup_entity_global_to_local_map(EntityRank::BSPLINE_1);
 //            setup_element_global_to_local_map();
         }
 
@@ -1730,6 +1771,86 @@ namespace moris
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
                 tCount++;
             }
+        }
+
+//-------------------------------------------------------------------------------
+
+        enum CellTopology Mesh::get_blockset_topology( const  std::string & aSetName )
+        {
+            sint tNumberOfDimensions = mDatabase->get_number_of_dimensions();
+
+            sint tOrder = mMesh->get_order();
+
+            enum CellTopology tCellTopology = CellTopology::END_ENUM;
+
+            switch( tNumberOfDimensions )
+            {
+                case( 1 ) :
+                {
+                    MORIS_ERROR(false, "1D not implemented");
+                    break;
+                }
+                case( 2 ) :
+                {
+                    switch( tOrder )
+                    {
+                        case( 1 ) :
+                        {
+                            tCellTopology = CellTopology::QUAD4;
+                            break;
+                        }
+                        case( 2 ) :
+                        {
+                            tCellTopology = CellTopology::QUAD9;
+                            break;
+                        }
+                        case( 3 ) :
+                        {
+                            tCellTopology = CellTopology::QUAD16;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, " Order not implemented");
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case( 3 ) :
+                {
+                    switch( tOrder )
+                    {
+                        case( 1 ) :
+                        {
+                            tCellTopology = CellTopology::HEX8;
+                            break;
+                        }
+                        case( 2 ) :
+                        {
+                            tCellTopology = CellTopology::HEX27;
+                            break;
+                        }
+                        case( 3 ) :
+                        {
+                            tCellTopology = CellTopology::HEX64;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, " Order not implemented");
+                            break;
+                        }
+                    }
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Number of dimensions not implemented");
+                    break;
+                }
+            }
+            return tCellTopology;
         }
 
 //-------------------------------------------------------------------------------

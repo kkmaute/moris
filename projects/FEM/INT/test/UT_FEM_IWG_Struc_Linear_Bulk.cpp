@@ -91,7 +91,7 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS );
 
     // define stabilization parameters
     

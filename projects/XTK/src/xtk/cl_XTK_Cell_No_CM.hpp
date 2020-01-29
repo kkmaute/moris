@@ -151,6 +151,14 @@ public:
     moris::Cell<moris::mtk::Vertex const *>
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
+
+    //------------------------------------------------------------------------------
+    moris::real
+    compute_cell_measure() const;
+
+    moris::real
+    compute_cell_side_measure(moris_index const & aSideOrdinal) const;
+
 private:
     mtk::Cell_Info const *    mCellInfo;
     moris_id                  mCellId;

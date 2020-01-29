@@ -2746,7 +2746,7 @@ Model::perform_basis_enrichment_internal(enum EntityRank  aBasisRank,
 {
     // initialize enrichment (ptr because of circular dependency)
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
-                                 EntityRank::NODE,
+    							 aBasisRank,
                                  aInterpIndex,
                                  mGeometryEngine.get_num_phases(),
                                  this,
@@ -2780,10 +2780,14 @@ Model::construct_face_oriented_ghost_penalization_cells()
     {
         std::cout<<"XTK: Ghost stabilization setup completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
     }
-
-
 }
 
+Ghost_Stabilization &
+Model::get_ghost_stabilization(moris::moris_index  aIndex)
+{
+    MORIS_ERROR(mGhost,"Ghost has not been constructed on this model.");
+    return *mGhostStabilization;
+}
 
 void
 Model::perform_multilevel_enrichment_internal()

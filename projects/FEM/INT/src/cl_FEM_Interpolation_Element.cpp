@@ -213,6 +213,8 @@ namespace moris
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
 
+             mSet->set_cluster_in_stabilization_params(mFemCluster( 0 ).get());
+
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
          }
@@ -225,6 +227,9 @@ namespace moris
 
             // init the residual
             mSet->initialize_mResidual();
+
+            // init the jacobian
+            mSet->initialize_mJacobian();
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
@@ -292,32 +297,27 @@ namespace moris
              // FIXME should not be like this
              mSet->get_requested_IQI( aOutputType )
                  ->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
-//             mSet->get_requested_IQI( aOutputType )
-//                 ->set_geometry_interpolator( mSet->get_IP_geometry_interpolator() );
 
              if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
              {
                  // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
                  mSet->get_requested_IQI( aOutputType )
-                     ->set_field_interpolator_manager( mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE ) );
-//                 mSet->get_requested_IQI( aOutputType )
-//                     ->set_geometry_interpolator( mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE) );
+                     ->set_field_interpolator_manager( mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE ),
+                                                       mtk::Master_Slave::SLAVE );
              }
 
              if( aFieldType == vis::Field_Type::NODAL )
              {
-                 // get the vertices on the treated mesh cluster
-                 // FIXME also slave?
-                 const moris::Cell< const moris::mtk::Vertex * > tVertices
-                 = mFemCluster( aMeshIndex )->get_mesh_cluster()
-                                            ->get_vertices_in_cluster();
+                 // get the master vertices indices on the mesh cluster
+                 moris::Cell< moris_index > tVertexIndices
+                 = mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster();
 
+                 // get the master vertices local coordinates on the mesh cluster
                  moris::Matrix<moris::DDRMat> tVertexLocalCoords
-                 = mFemCluster( aMeshIndex )->get_mesh_cluster()
-                                            ->get_vertices_local_coordinates_wrt_interp_cell();
+                 = mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
 
                  // get number of vertices on the treated mesh cluster
-                 uint tNumNodes = tVertices.size();
+                 uint tNumNodes = tVertexIndices.size();
 
                  // loop over the vertices on the treated mesh cluster
                  for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
@@ -327,11 +327,6 @@ namespace moris
                      tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
                      tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = this->get_time()( 0 );
                      tGlobalIntegPoint = trans( tGlobalIntegPoint );
-
-                     // set vertex coordinates for IP geometry interpolator
-                     mSet->get_field_interpolator_manager()
-                         ->get_IP_geometry_interpolator()
-                         ->set_space_time( tGlobalIntegPoint );
 
                      // set vertex coordinates for field interpolator
                      mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
@@ -344,7 +339,7 @@ namespace moris
                      mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
 
                      // fill in the nodal set values
-                     ( * mSet->mSetNodalValues )( tVertices( iVertex )->get_index(), 0 )
+                     ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 )
                      = tQIValue( 0 );
                  }
              }

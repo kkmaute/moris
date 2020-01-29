@@ -261,6 +261,28 @@ public:
         return  moris::Matrix<moris::DDRMat>(0,0);
     }
 
+    /*
+     * Volume in 3D, Surface Area in 2D
+     */
+    virtual
+    moris::real
+    compute_cell_measure() const
+    {
+       MORIS_ERROR(0,"Compute cell measure not implemented");
+       return 0;
+    }
+
+    /*
+     * Surface Area on side of cell in 3D, line length on side in 2D
+     */
+    virtual
+    moris::real
+    compute_cell_side_measure(moris_index const & aCellSideOrd) const
+    {
+       MORIS_ERROR(0,"Compute cell side measure not implemented");
+       return 0;
+    }
+
     /**
      * returns the order of the element
      */

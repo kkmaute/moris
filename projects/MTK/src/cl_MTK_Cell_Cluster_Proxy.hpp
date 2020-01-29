@@ -9,6 +9,7 @@
 #define PROJECTS_MTK_TEST_CL_MTK_CELL_CLUSTER_PROXY_HPP_
 
 #include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Cell_Info.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris
@@ -73,6 +74,37 @@ public:
     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         return mVertexParamCoords.n_cols();
+    }
+
+    moris::real
+    compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+    {
+        moris::real tVolume = 0.0;
+        moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+        if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+        {
+            tCells = &this->get_primary_cells_in_cluster();
+        }
+        else
+        {
+            tCells = & this->get_void_cells_in_cluster();
+        }
+
+        for(auto iC = tCells->cbegin(); iC < tCells->cend(); iC++)
+        {
+            tVolume = tVolume+(*iC)->compute_cell_measure();
+        }
+
+        return tVolume;
+    }
+
+    moris::real
+    compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                      const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+    {
+        MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
+        return 0;
     }
 };
 }

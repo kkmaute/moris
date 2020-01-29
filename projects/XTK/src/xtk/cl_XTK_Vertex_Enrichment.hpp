@@ -50,10 +50,7 @@ public:
      * returns the proc owners of the IDs of this vertex
      */
     Matrix< IdMat >
-    get_owners() const
-    {
-        return Matrix< IdMat >(1,mBasisIndices.numel(),0);
-    }
+    get_owners() const;
 
     //------------------------------------------------------------------------------
     /**
@@ -123,6 +120,9 @@ public:
     void
     set_node_index(moris::moris_index aNodeIndex);
 
+
+    mtk::Vertex_Interpolation const *
+	get_base_vertex_interpolation() const;
     /*
      * Add the basis information which includes weights, enrichment level, and basis index.
      * There is no "smartness" in this function. Duplicates should have been removed prior to call
@@ -134,6 +134,10 @@ public:
     void
     add_basis_weights(moris::Matrix<moris::IndexMat> const & aBasisIndices,
                       moris::Matrix<moris::DDRMat>   const & aBasisWeight);
+
+    void
+    add_base_vertex_interpolation(mtk::Vertex_Interpolation * aBaseVertInterp);
+
 
 
     std::unordered_map<moris::moris_index, moris::moris_index> &
@@ -164,6 +168,7 @@ protected:
     moris::Matrix< moris::IndexMat > mBasisIndices;
     moris::Matrix< moris::IndexMat > mBasisIds;
     moris::Matrix< moris::DDRMat >   mBasisWeights;
+    mtk::Vertex_Interpolation *      mBaseVertexInterp;
     std::unordered_map<moris::moris_index, moris::moris_index> mBasisMap; /*From basis to local index*/
 
 };
@@ -211,11 +216,13 @@ std::ostream &
 operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
 {
     moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
+    moris::Matrix< moris::IndexMat > const & tBasisIds     = dt.get_ids();
+    moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
     moris::Matrix< moris::DDRMat >   const & tBasisWeights = dt.get_basis_weights();
 
     for(moris::uint i = 0; i < tBasisIndices.numel(); i++)
     {
-        os<<"Basis Index: "<<std::setw(9)<<tBasisIndices(i)<<" | Basis Weight: "<<std::setw(9)<<tBasisWeights(i)<<std::endl;
+        os<<"Basis Index: "<<std::setw(9)<<tBasisIndices(i)<<" | Basis Id: "<<std::setw(9)<<tBasisIds(i)<<" | Basis Weight: "<<std::setw(9)<<tBasisWeights(i)<<" | Basis Owner: "<<std::setw(9)<<tBasisOwner(i)<<std::endl;
     }
 
     return os;

@@ -307,6 +307,8 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                                         {+5.00e+00},
                                         {+5.00e+00},
                                         {+5.00e+00}};
+//        print(tSolution11,"tSolution11");
+//        print(tGoldSolution,"tGoldSolution");
         // verify solution
         CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 

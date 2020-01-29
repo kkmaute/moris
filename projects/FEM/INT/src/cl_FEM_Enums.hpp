@@ -81,22 +81,24 @@ namespace moris
             UNDEFINED,
             L2,         // L2 projection
             HJ,         // Hamilton-Jacobi
-            HJTEST,     // FIXME for test only, to be deleted
+            HJTEST,     // Space time IWG for test only
             HELMHOLTZ,  // Helmholtz
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
+            SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
             SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
-            SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
             STRUC_LINEAR_BULK,     // linear elasticity bulk
-            STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
             STRUC_LINEAR_DIRICHLET,// linear elasticity Dirichlet (Nitsche)
-            STRUC_LINEAR_PRESSURE_DIRICHLET,// linear elasticity Dirichlet mixed formulation (Nitsche)
             STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE,// linear elasticity Nitsche interface condition
+            STRUC_LINEAR_GHOST,    // linear elasticity Ghost field based
+            STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
+            STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
+            STRUC_LINEAR_PRESSURE_DIRICHLET, // linear elasticity Dirichlet mixed formulation (Nitsche)
             END_IWG_TYPE
         };
 
@@ -106,6 +108,7 @@ namespace moris
             UNDEFINED,
             VOLUME,         // volume
             STRAIN_ENERGY,
+            DOF,
             END_IQI_TYPE
         };
 

@@ -17,7 +17,7 @@ list(APPEND MORIS_SOURCE_DIRS ${LINALG})
 # Third party libraries directly needed by LINALG
 set(LINALG_TPL_DEPENDENCIES
 	${ARMADILLO_EIGEN}
-	${ACML_LAPACK_MKL}
+	${ACML_LAPACK_MKL_OPENBLAS}
 	"superlu"
 	"arpack"
 	)

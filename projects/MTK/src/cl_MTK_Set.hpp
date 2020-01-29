@@ -51,6 +51,8 @@ namespace moris
 
             moris_index mSetIndex = MORIS_INDEX_MAX;
 
+            enum CellTopology mCellTopology = CellTopology::END_ENUM;
+
 //------------------------------------------------------------------------------
 
         protected :
@@ -225,6 +227,20 @@ namespace moris
                 return mSetIndex;
             }
 
+//------------------------------------------------------------------------------
+
+            void set_cell_topology( enum CellTopology aCellTopology )
+            {
+                mCellTopology = aCellTopology;
+            }
+
+//------------------------------------------------------------------------------
+
+            enum CellTopology get_cell_topology()
+            {
+                MORIS_ASSERT( mCellTopology != CellTopology::END_ENUM, "Set::get_cell_topology(), Cell topology not set" );
+                return mCellTopology;
+            }
 
 //------------------------------------------------------------------------------
 

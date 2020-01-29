@@ -1,0 +1,424 @@
+/*
+ * UT_MDL_XTK_HMR_Multi_Material_Bar_Plane.cpp
+ *
+ *  Created on: Oct 4, 2019
+ *      Author: doble
+ */
+
+#include "catch.hpp"
+
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_Geom_Field.hpp"
+#include "typedefs.hpp"
+
+#include "cl_MTK_Mesh_Manager.hpp"
+
+#include "cl_MTK_Vertex.hpp"    //MTK
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_MTK_Mesh.hpp"
+
+#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
+
+#include "cl_Matrix.hpp"        //LINALG
+#include "linalg_typedefs.hpp"
+#include "fn_equal_to.hpp" // ALG/src
+
+#include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
+#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
+#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
+
+#include "cl_MDL_Model.hpp"
+
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
+
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_MSI_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
+
+#include "cl_TSA_Time_Solver_Factory.hpp"
+#include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Time_Solver.hpp"
+
+#include "fn_norm.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+
+moris::real
+PlaneMatVoidMDL(const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real mXC = 0.9545459;
+    moris::real mYC = 0.11;
+    moris::real mNx = 1.0;
+    moris::real mNy = 0.0;
+    return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
+}
+
+
+Matrix< DDRMat > tConstValFunctionMatVoidMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
+                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    return aParameters( 0 );
+}
+
+TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_MAT_VOID_2D]")
+{
+    if(par_size() == 1)
+    {
+        std::string tFieldName = "Geometry";
+
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
+
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {11}, {4}} );
+        tParameters.set_domain_dimensions({ {6}, {2} });
+        tParameters.set_domain_offset({ {-3.0}, {-1.0} });
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_side_sets({{1},{2},{3},{4} });
+        tParameters.set_max_refinement_level( 2 );
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        hmr::HMR tHMR( tParameters );
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+        // create field
+        std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+
+        tPlaneField->evaluate_scalar_function( PlaneMatVoidMDL);
+
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+            tPlaneField->evaluate_scalar_function( PlaneMatVoidMDL);
+        }
+
+        tPlaneField->evaluate_scalar_function( PlaneMatVoidMDL);
+        tHMR.finalize();
+
+        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_mat_void_ip.e" );
+
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
+
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+
+        size_t tModelDimension = 2;
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        tXTKModel.mVerbose = false;
+
+        //Specify decomposition Method and Cut Mesh ---------------------------------------
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        tXTKModel.decompose(tDecompositionMethods);
+
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+
+        tEnrIntegMesh.print();
+
+
+        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
+        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
+
+        // Write mesh
+        Writer_Exodus writer(&tEnrIntegMesh);
+        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
+
+        // place the pair in mesh manager
+        mtk::Mesh_Manager tMeshManager;
+        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+
+        //------------------------------------------------------------------------------
+        // create the properties
+        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
+        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity1->set_val_function( tConstValFunctionMatVoidMDL );
+
+
+        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+        tPropDirichlet->set_val_function( tConstValFunctionMatVoidMDL );
+
+        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+        tPropNeumann->set_parameters( { {{ 20.0 }} } );
+        tPropNeumann->set_val_function( tConstValFunctionMatVoidMDL );
+
+        std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
+        tPropTempLoad1->set_parameters( { {{ 100.0 }} } );
+        tPropTempLoad1->set_val_function( tConstValFunctionMatVoidMDL );
+
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
+
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
+        tCMDiffLinIso1->set_space_dim( 2 );
+
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
+        tSPDirichletNitsche->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
+
+        std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+
+        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
+
+        // Ghost stabilization
+        std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+        tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+        tSP1->set_parameters( {{{ 0.1 }}, {{ 1.0 }} });
+        tSP1->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+        tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
+
+        // define set info
+        fem::Set_User_Info tSetBulk1;
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+        tSetBulk1.set_IWGs( { tIWGBulk1 } );
+
+        fem::Set_User_Info tSetBulk2;
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+        tSetBulk2.set_IWGs( { tIWGBulk1 } );
+
+        fem::Set_User_Info tSetDirichlet;
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+        fem::Set_User_Info tSetNeumann;
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName) );
+        tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+        fem::Set_User_Info tSetGhost;
+        tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+        tSetGhost.set_IWGs( { tIWGGhost } );
+
+        // create a cell of set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+        tSetInfo( 0 ) = tSetBulk1;
+        tSetInfo( 1 ) = tSetBulk2;
+        tSetInfo( 2 ) = tSetDirichlet;
+        tSetInfo( 3 ) = tSetNeumann;
+        tSetInfo( 4 ) = tSetGhost;
+
+        // create model
+        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+                                               1,
+                                               tSetInfo,
+                                               0, false );
+
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: create linear solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        dla::Solver_Factory  tSolFactory;
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
+        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+        tLinearSolverAlgorithm->set_param("AZ_precond") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_kspace") = 500;
+
+        dla::Linear_Solver tLinSolver;
+
+        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: create nonlinear solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+        //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+        //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+        //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+
+        NLA::Nonlinear_Solver tNonlinearSolver;
+
+        tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 3: create time Solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        tsa::Time_Solver_Factory tTimeSolverFactory;
+        std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
+
+        tsa::Time_Solver tTimeSolver;
+
+        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+
+        NLA::SOL_Warehouse tSolverWarehouse;
+
+        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
+
+        tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
+        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+        tNonlinearSolver.set_dof_type_list( tDofTypes1 );
+        tTimeSolver.set_dof_type_list( tDofTypes1 );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 4: Solve and check
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        tTimeSolver.solve();
+
+//
+//        // verify solution
+//        moris::Matrix<DDRMat> tGoldSolution =
+//        {{ 5.000000e+00},
+//         { 2.500000e+01},
+//         { 4.500000e+01},
+//         { 6.500000e+01},
+//         { 5.000000e+00},
+//         { 2.500000e+01},
+//         { 4.500000e+01},
+//         { 6.500000e+01}};
+//
+//        Matrix<DDRMat> tFullSol;
+//        tTimeSolver.get_full_solution(tFullSol);
+//
+//        CHECK(norm(tFullSol - tGoldSolution)<1e-08);
+
+        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+        // Declare the fields related to enrichment strategy in output options
+        // output solution and meshes
+        xtk::Output_Options tOutputOptions;
+        tOutputOptions.mAddNodeSets = false;
+        tOutputOptions.mAddSideSets = true;
+        tOutputOptions.mAddClusters = false;
+
+        // add solution field to integration mesh
+        std::string tIntegSolFieldName = "solution";
+        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+
+        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+
+        // Write to Integration mesh for visualization
+        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+
+
+        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+
+        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+        {
+            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
+
+            tSTKIntegSol(i) = tIntegSol(tMyIndex);
+        }
+
+        // crate field in integration mesh
+        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
+        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
+
+        // add solution field to integration mesh
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
+
+        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d.e";
+        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
+        //    delete tInterpMesh1;
+        delete tModel;
+        delete tIntegMesh1;
+    }
+}
