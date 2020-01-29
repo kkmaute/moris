@@ -221,10 +221,10 @@ namespace moris
         for( uint Ii = 0; Ii < tRequestedSets; Ii++ )
         {
             // get block index
-            uint tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
+//            uint tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
 
             // get vis set by index
-            moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( tBlockIndex );
+            moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( Ii );
 
             bool tOnlyPrimaryCells = true ;
 

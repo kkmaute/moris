@@ -1,7 +1,7 @@
 /*
- * UT_MDL_Gyroid.cpp
+ * UT_MDL_FEM_Benchmark.cpp
  *
- *  Created on: Oct 23, 2019
+ *  Created on: Jan 28, 2020
  *      Author: noel
  */
 
@@ -92,112 +92,27 @@ namespace moris
 {
 
 // define free function for properties
- Matrix< DDRMat > tPropValConstFunc( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                     moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                     moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                     fem::Geometry_Interpolator              * aGeometryInterpolator )
- {
-     return aParameters( 0 );
- }
- Matrix< DDRMat > tPropValFunc( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                fem::Geometry_Interpolator              * aGeometryInterpolator )
- {
-     return aParameters( 0 ) + aParameters( 1 ) * aDofFieldInterpolator( 0 )->val();
- }
- Matrix< DDRMat > tPropDerFunc( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                fem::Geometry_Interpolator              * aGeometryInterpolator )
- {
-     return aParameters( 1 ) * aDofFieldInterpolator( 0 )->N();
- }
+Matrix< DDRMat > tPropValConstFunc_MDLFEMBench( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                                moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+                                                moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+                                                fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    return aParameters( 0 );
+}
 
-bool tSolverOutputCriteria_UTGyroid( moris::tsa::Time_Solver * )
+moris::real tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real tOffset = 2;
+
+    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
+}
+
+bool tSolverOutputCriteria_MDLFEMBench( moris::tsa::Time_Solver * )
 {
     return true;
 }
 
-int user_defined_refinement(       hmr::Element                  * aElement,
-                             const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                                   ParameterList            & aParameters )
-{
-    int aDoRefine = -1;
-
-    // abs variable field threshold
-    real lsth = 0.0;
-
-    // abs variable field bandwidth (absolute)
-    real lsbwabs = 0.1;
-
-    // maximum refinement level
-    uint maxlevel = 4;
-
-    // min refinement level
-    uint minlevel = 0;
-
-    // max refinement level along interface
-    uint maxifcref = 4;
-
-    // max refinement level in volume
-    uint maxvolref = 1;
-
-    // current refinement level of element
-    uint curlevel = aElement->get_level();
-
-    // refinement strategy
-    if ( aElementLocalValues( 0 ).max() >= lsth - lsbwabs )
-    {
-        // for volume refinement
-        if ( aElementLocalValues( 0 ).min() >= lsth + lsbwabs )
-        {
-            if( curlevel < maxvolref && curlevel < maxlevel )
-            {
-                aDoRefine = 1; // refine
-            }
-            else if ( curlevel ==  maxvolref || curlevel == minlevel )
-            {
-                aDoRefine = 0; // keep
-            }
-            else
-            {
-                aDoRefine = -1; // coarsen
-            }
-        }
-        // for interface refinement
-        else
-        {
-            if( curlevel < maxifcref && curlevel < maxlevel )
-            {
-                aDoRefine = 1; // refine
-            }
-            else if ( curlevel ==  maxifcref || curlevel == minlevel )
-            {
-                aDoRefine = 0; // keep
-            }
-            else
-            {
-                aDoRefine = -1; // coarsen
-            }
-        }
-    }
-    else
-    {
-        if( curlevel <  minlevel )
-        {
-            aDoRefine = 1; // refine
-        }
-        else if ( curlevel == minlevel )
-        {
-            aDoRefine = 0; // keep
-        }
-    }
-
-    return aDoRefine;
-}
-
-TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
+TEST_CASE("MDL FEM Benchmark","[MDL_FEM_Benchmark]")
 {
 
 //    if(par_size() == 1)
@@ -205,6 +120,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 //	std::cout<<"I am proc: "<<par_rank()<<std::endl;
 
         uint tLagrangeMeshIndex = 0;
+
         // empty container for B-Spline meshes
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
@@ -214,9 +130,9 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         // Dummy parameter list
         ParameterList tParam = hmr::create_hmr_parameter_list();
 
-        tParameters.set_number_of_elements_per_dimension( { {10}, {10}, {10} } );
-        tParameters.set_domain_dimensions( 5, 5, 5 );
-        tParameters.set_domain_offset( 0.1, 0.1, 0.1 );
+        tParameters.set_number_of_elements_per_dimension( { {20}, {10}, {10} } );
+        tParameters.set_domain_dimensions( 10, 5, 5 );
+        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
         tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
 
         tParameters.set_bspline_truncation( true );
@@ -228,11 +144,11 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         tParameters.set_bspline_patterns ( { {0} } );
 
         tParameters.set_output_meshes( { {0} } );
-        tParameters.set_lagrange_input_mesh( { { 0 } } );
+//        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 2 );
+        tParameters.set_initial_refinement( 0 );
 
         tParameters.set_number_aura( true );
 
@@ -244,30 +160,24 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        // std::shared_ptr< Database >
-//        auto tDatabase = tHMR.get_database();
-
         tHMR.perform_initial_refinement( 0 );
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================
         std::shared_ptr< hmr::Field > tField = tMesh01->create_field( "gyroid", tLagrangeMeshIndex);
 
-        tField->evaluate_scalar_function( moris::ge::getDistanceToGyroidsMassive );
+        tField->evaluate_scalar_function( tPlane_MDLFEMBench );
 
         moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
-        for( uint k=0; k<1; ++k )
+        for( uint k=0; k<0; ++k )
         {
-//            tHMR.flag_surface_elements_on_working_pattern( tField );
-            tHMR.user_defined_flagging( user_defined_refinement, tFields, tParam, 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+//            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
-            tField->evaluate_scalar_function( moris::ge::getDistanceToGyroidsMassive );
+            tField->evaluate_scalar_function( tPlane_MDLFEMBench );
         }
         tHMR.finalize();
-
-//        tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_initial_3x3x3.vtk");
-
 
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
@@ -282,9 +192,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-//        moris::ge::GEN_Geometry_Engine tGeometryEngine;
-
-        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -334,27 +242,27 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        // create the properties
        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-       tPropConductivity1->set_val_function( tPropValConstFunc );
+       tPropConductivity1->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
-       tPropConductivity2->set_val_function( tPropValConstFunc );
+       tPropConductivity2->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
-       tPropDirichlet->set_val_function( tPropValConstFunc );
+       tPropDirichlet->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
        tPropNeumann->set_parameters( { {{ 20.0 }} } );
-       tPropNeumann->set_val_function( tPropValConstFunc );
+       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
        tPropTempLoad1->set_parameters( { {{ 100.0 }} } );
-       tPropTempLoad1->set_val_function( tPropValConstFunc );
+       tPropTempLoad1->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropTempLoad2 = std::make_shared< fem::Property >();
        tPropTempLoad2->set_parameters( { {{ 100.0 }} } );
-       tPropTempLoad2->set_val_function( tPropValConstFunc );
+       tPropTempLoad2->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        // define constitutive models
        fem::CM_Factory tCMFactory;
@@ -455,7 +363,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
@@ -488,7 +396,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
-                                "UT_Gyroid_Output_01.exo",
+                                "UT_MDL_FEM_Benchmark_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { 0, 1, 2, 3 },
                                 { "Temperature" },
@@ -541,12 +449,10 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
 
-//       tNonlinearSolver.set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//       tTimeSolver.set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
        tNonlinearSolver.set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tTimeSolver.set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
 
-       tTimeSolver.set_output( 0, tSolverOutputCriteria_UTGyroid );
+       tTimeSolver.set_output( 0, tSolverOutputCriteria_MDLFEMBench );
 
        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        // STEP 4: Solve and check
@@ -554,48 +460,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
-//       print(tFullSol,"tFullSol");
 
-//       // Declare the fields related to enrichment strategy in output options
-//       // output solution and meshes
-//       xtk::Output_Options tOutputOptions;
-//       tOutputOptions.mAddNodeSets = false;
-//       tOutputOptions.mAddSideSets = true;
-//       tOutputOptions.mAddClusters = false;
-//
-//       // add solution field to integration mesh
-//       std::string tIntegSolFieldName = "solution";
-//       tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-//
-//       moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//       // Write to Integration mesh for visualization
-//       Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-//
-//       Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-//
-//       for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-//       {
-//           moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-//           moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-//
-//           tSTKIntegSol(i) = tIntegSol(tMyIndex);
-//       }
-//
-//       // create field in integration mesh
-//       moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-//       tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-//
-//       // add solution field to integration mesh
-//       tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-//
-//
-//       std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_3d_l" + std::to_string(1) + "_b"+std::to_string(0)+".e";
-//       tIntegMesh1->create_output_mesh(tMeshOutputFile);
-//
-//       delete tIntegMesh1;
-
-//    }
 }/* END_TEST_CASE */
 
 }/* END_MORIS_NAMESPACE */

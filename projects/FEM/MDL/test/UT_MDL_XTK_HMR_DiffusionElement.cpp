@@ -47,6 +47,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
@@ -479,7 +480,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         tField->evaluate_scalar_function( LevelSetPlaneFunction );
 
-        for( uint k=0; k<3; ++k )
+        for( uint k=0; k<1; ++k )
         {
 //            tHMR.finalize();
             tHMR.flag_surface_elements_on_working_pattern( tField );
@@ -579,14 +580,24 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
          tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
+         // define the IQIs
+         fem::IQI_Factory tIQIFactory;
+
+         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+         tIQITEMP->set_dof_type_list( { {MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+         tIQITEMP->set_output_type_index( 0 );
+
          // define set info
          fem::Set_User_Info tSetBulk1;
          tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
          tSetBulk1.set_IWGs( { tIWGBulk } );
+         tSetBulk1.set_IQIs( { tIQITEMP } );
 
          fem::Set_User_Info tSetBulk2;
          tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
          tSetBulk2.set_IWGs( { tIWGBulk } );
+         tSetBulk2.set_IQIs( { tIQITEMP } );
 
          fem::Set_User_Info tSetDirichlet;
          std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
@@ -612,19 +623,19 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          // --------------------------------------------------------------------------------------
          // Define outputs
 
-//         vis::Output_Manager tOutputData;
+         vis::Output_Manager tOutputData;
 
-//         tOutputData.set_outputs( 0,
-////                                         VIS_Mesh_Type::STANDARD,
-//        		 vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
-//                                  "Output_Vis_Mesh_overlapping.exo",
-//                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-//                                  { 0, 1, 2, 3 },
-//                                  { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
-//                                  { vis::Field_Type::ELEMENTAL, vis::Field_Type::GLOBAL,  vis::Field_Type::NODAL },
-//                                  { vis::Output_Type::STRAIN_ENERGY, vis::Output_Type::STRAIN_ENERGY, vis::Output_Type::STRAIN_ENERGY } );
-//
-//         tModel->set_output_manager( &tOutputData );
+         tOutputData.set_outputs( 0,
+//                                         VIS_Mesh_Type::STANDARD,
+        		 vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                  "XTK_HMR_DIFF.exo",
+                                  { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
+                                  { 0, 2 },
+                                  { "Temp" },
+                                  {   vis::Field_Type::NODAL },
+                                  { vis::Output_Type::TEMP } );
+
+         tModel->set_output_manager( &tOutputData );
 
          // --------------------------------------------------------------------------------------
 
@@ -684,7 +695,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         tNonlinearSolver.set_dof_type_list( tDofTypes1 );
         tTimeSolver.set_dof_type_list( tDofTypes1 );
 
-//        tTimeSolver.set_output( 0, tSolverOutputCriteria );
+        tTimeSolver.set_output( 0, tSolverOutputCriteria );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 4: Solve and check
@@ -694,9 +705,9 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
 
         // TODO: add gold solution data for this problem
-        Matrix<DDRMat> tFullSol;
-        tTimeSolver.get_full_solution(tFullSol);
-        print(tFullSol,"Full Solution");
+//        Matrix<DDRMat> tFullSol;
+//        tTimeSolver.get_full_solution(tFullSol);
+//        print(tFullSol,"Full Solution");
 
         // verify solution
 //        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);

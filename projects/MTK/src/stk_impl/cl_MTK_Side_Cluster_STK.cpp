@@ -206,6 +206,14 @@ Side_Cluster_STK::add_vertex_to_map(moris_id aVertexId,
 }
 
 //----------------------------------------------------------------
+moris::real
+Side_Cluster_STK::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid,
+                                               const mtk::Master_Slave aIsMaster      ) const
+{
+    MORIS_ERROR(aPrimaryOrVoid==mtk::Primary_Void::INTERP," Cluster cell measure only supported on interpolation cell for this type of side cluster. ");
+    return mInterpolationCell->compute_cell_measure();
+}
+//----------------------------------------------------------------
 
 }
 }

@@ -61,6 +61,8 @@ namespace moris
 
                     // compute residual at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
             }
         }

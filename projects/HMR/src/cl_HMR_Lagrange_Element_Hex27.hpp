@@ -255,6 +255,15 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
+        template<>
+        inline
+        real
+        Lagrange_Element< 3, 27 >::compute_cell_measure() const
+        {
+            mtk::Cell_Info_Hex27 tCellInfo;
+            return tCellInfo.compute_cell_size(this);
+        }
+// ----------------------------------------------------------------------------
 
         /**
          * returns the ijk position of a given basis

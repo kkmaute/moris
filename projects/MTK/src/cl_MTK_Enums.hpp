@@ -49,6 +49,15 @@ namespace moris
             UNDEFINED
         };
 
+        enum class Primary_Void
+        {
+            PRIMARY,
+            VOID,
+            INTERP,
+            UNDEFINED
+        };
+
+
 //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */

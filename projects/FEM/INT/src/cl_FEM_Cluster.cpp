@@ -119,11 +119,12 @@ namespace moris
             MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
                           "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
 
-            // is trivial master or slave?
-            bool tIsTrivial = mSet->mIsTrivialMaster;
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::get_vertices_local_coordinates_wrt_interp_cell - empty cluster.");
 
             // if trivial cluster IP cell = IG cell
-            if( tIsTrivial )
+            if( mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
             {
                 // get the vertices param coords from the IP geometry interpolator
                 return mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )
@@ -149,28 +150,25 @@ namespace moris
         {
             // check that side cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
-                          "Cluster::get_vertices_in_cluster - not a bulk cluster.");
-
-            // is trivial master or slave?
-            bool tIsTrivial = mSet->mIsTrivialMaster;
+                          "Cluster::get_vertex_indices_in_cluster - not a bulk cluster.");
 
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
-                         "Cluster::get_vertices_in_cluster - empty cluster.");
+                         "Cluster::get_vertex_indices_in_cluster - empty cluster.");
 
-            //
+            // init container for vertex indices
             moris::Cell< moris_index > tVerticesIndices;
 
             // if trivial cluster IP cell = IG cell
-            if( tIsTrivial )
+            if( mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
             {
                 // get the integration cell on cluster
                 moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells
                 = mMeshCluster->get_primary_cells_in_cluster();
 
                 // check that there is only once IG cell on trivial cluster
-                MORIS_ASSERT( tPrimaryCells.size() ,
-                              "There needs to be exactly 1 primary cell in cluster for the trivial case");
+                MORIS_ASSERT( tPrimaryCells.size(),
+                              "Cluster::get_vertex_indices_in_cluster - There needs to be exactly 1 primary cell in cluster for the trivial case");
 
                 // an assumption is made here that the vertices on the primary correspond to the index in pdof vector
                 moris::Cell< moris::mtk::Vertex* > tVerticesOnPrimaryCell
@@ -222,15 +220,12 @@ namespace moris
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
                           "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side or double side cluster.");
 
-            // is trivial master or slave?
-            bool tIsTrivial = mSet->mIsTrivialMaster;
-            if ( aIsMaster == mtk::Master_Slave::SLAVE )
-            {
-                tIsTrivial = mSet->mIsTrivialSlave;
-            }
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
 
             // if trivial cluster IP cell = IG cell
-            if( tIsTrivial )
+            if( mMeshCluster->is_trivial( aIsMaster ) )
             {
                 // get the side param coords from the IG geometry interpolator
                 return mSet->get_field_interpolator_manager( aIsMaster )
@@ -252,10 +247,15 @@ namespace moris
         moris::Matrix< moris::DDRMat > Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster )
         {
             // check that bulk cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
+            MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
+                          "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
+
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
 
             // if trivial cluster IP cell = IG cell
-            if( mSet->mIsTrivialMaster )
+            if( mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
             {
                 // get the side param coords from the IG geometry interpolator
                 return mSet->get_field_interpolator_manager()
@@ -303,6 +303,10 @@ namespace moris
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
                           "Cluster::get_left_vertex_pair - not a double side cluster.");
 
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::get_left_vertex_pair - empty cluster.");
+
             // get the paired vertex on the right
             return mMeshCluster->get_left_vertex_pair( aLeftVertex );
         }
@@ -314,6 +318,10 @@ namespace moris
             // check that a double sided cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
                           "Cluster::get_left_vertex_pair - not a double side cluster.");
+
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::get_right_vertex_ordinal_on_facet - empty cluster.");
 
             // return the index of the paired vertex on the right
             return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
@@ -394,6 +402,32 @@ namespace moris
             // return cluster volume value
             return tClusterVolume;
         }
+
+//------------------------------------------------------------------------------
+
+        moris::real
+        Cluster::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid ,
+                                              const mtk::Master_Slave aIsMaster) const
+        {
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::compute_cluster_cell_measure - empty cluster.");
+
+            return mMeshCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+        }
+//------------------------------------------------------------------------------
+        moris::real
+        Cluster::compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid ,
+                                                   const mtk::Master_Slave aIsMaster) const
+        {
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::compute_cluster_cell_side_measure - empty cluster.");
+
+            return mMeshCluster->compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
+        }
+
+
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

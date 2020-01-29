@@ -106,6 +106,21 @@ public:
     Matrix< IndexMat >
     get_block_entity_loc_inds( std::string     aSetName) const;
 
+    /*
+     * For cleanup when writing to an exodus file (note: in general this should not be used because
+     * sets may not be always empty through an optimization run)
+     *
+     */
+    void
+    deactivate_empty_sets();
+
+    void
+    deactivate_empty_side_sets();
+
+    void
+    deactivate_empty_block_sets();
+
+
     //------------------------------------------------------------------------------
     // Additional Field Functions
     //------------------------------------------------------------------------------

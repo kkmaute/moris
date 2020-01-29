@@ -19,7 +19,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
-
+#include "cl_FEM_Cluster.hpp"
 namespace moris
 {
     namespace fem
@@ -32,6 +32,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
+            real mElementSize      = 1.0; // element size
+
             enum class SP_Property_Type
             {
                 MATERIAL,
@@ -94,6 +96,17 @@ namespace moris
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+            }
+
+            //------------------------------------------------------------------------------
+            void reset_cluster_measures()
+            {
+                // FIXME cluster measures to reset volume, surface, ...
+                moris::real tMasterVol     = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::MASTER);
+//                mSlaveVolume      = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::SLAVE);
+//                mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY,mtk::Master_Slave::SLAVE);
+                mElementSize      = 2*std::pow(tMasterVol/M_PI,0.3333333333) ; // mCluster->compute_element_size( arg on how to compute ) //FIXME: decide what to do here and add the formula to cell info length measure.
+
             }
 
 //------------------------------------------------------------------------------

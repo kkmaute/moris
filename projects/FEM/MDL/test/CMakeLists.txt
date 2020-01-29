@@ -12,13 +12,16 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_2D.cpp
     UT_MDL_XTK_HMR_Diffusion_Element_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
+    UT_MDL_XTK_HMR_Linear_Struc_Contact_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Incompressible.cpp
     UT_MDL_XTK_HMR_ThermoElastic_2D.cpp
     UT_MDL_XTK_HMR_2_Material_Bar_Plane.cpp
     UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
+    UT_MDL_XTK_HMR_Material_Void_Bar_Plane.cpp
     UT_MDL_XTK_HMR_Symm_BCs.cpp
     UT_MDL_Input.cpp
     #UT_MDL_Gyroid.cpp
+    #UT_MDL_FEM_Benchmark.cpp
 
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp

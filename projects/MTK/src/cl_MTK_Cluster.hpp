@@ -160,6 +160,23 @@ public:
     moris_index
     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
+    /*
+     * Compute the measure (volume 3d or area 2d) of the cells in the void or primary phase
+     */
+    virtual
+    moris::real
+    compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
+    /*
+     * Compute the side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
+     * Only valid on side cluster type mtk clusters
+     */
+    virtual
+    moris::real
+    compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                      const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
     // ---------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT
     // IMPLEMENTATION

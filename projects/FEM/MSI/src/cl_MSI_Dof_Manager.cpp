@@ -389,7 +389,6 @@ namespace moris
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                 {
                     // Get owned adof Id
-std::cout<<tMatsToReceive( Ik )( Ii )<<" Id to find"<<std::endl;
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
 
                     if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )

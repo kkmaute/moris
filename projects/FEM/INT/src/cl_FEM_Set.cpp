@@ -108,14 +108,14 @@ namespace moris
         // get spatial dimension
         mSpaceDim = mMeshSet->get_spatial_dim();
 
-        // bool true is master IG cells are trivial
-        mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
-
-        // bool true is slave IG cells are trivial
-        if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-        {
-            mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
-        }
+//        // bool true is master IG cells are trivial
+//        mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
+//
+//        // bool true is slave IG cells are trivial
+//        if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+//        {
+//            mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
+//        }
 
         // get interpolation geometry type
         mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
@@ -676,6 +676,21 @@ namespace moris
             {
                 // set IWG slave field interpolator manager
                 tIWG->set_field_interpolator_manager( mSlaveFIManager, mtk::Master_Slave::SLAVE );
+            }
+        }
+    }
+
+    void Set::set_cluster_in_stabilization_params(fem::Cluster * aCluster)
+    {
+        for( auto tIWG : mIWGs)
+        {
+            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tStabParams = tIWG->get_stabilization_parameters();
+            for(auto iStabParam:tStabParams)
+            {
+                if(iStabParam != nullptr)
+                {
+                    iStabParam->set_cluster( aCluster );
+                }
             }
         }
     }
@@ -1244,6 +1259,7 @@ namespace moris
             }
             else
             {
+
                 uint tNumCols = 0;
                 uint tNumRows = 0;
 

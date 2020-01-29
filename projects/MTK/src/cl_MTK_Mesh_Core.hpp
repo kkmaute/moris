@@ -110,7 +110,7 @@ public:
      */
     virtual moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const
     {
-        MORIS_ASSERT( false ,"get_set_by_index(), not implemented for base class");
+        MORIS_ASSERT( false ,"get_set_by_name(), not implemented for base class");
         return nullptr;
     };
 

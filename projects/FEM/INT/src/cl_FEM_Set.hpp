@@ -117,8 +117,8 @@ namespace MSI
         moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
         moris::Cell< uint >                    mMtkIgCellOnSet;
 
-        bool mIsTrivialMaster = false;
-        bool mIsTrivialSlave  = false;
+//        bool mIsTrivialMaster = false;
+//        bool mIsTrivialSlave  = false;
         bool mIsResidual = false;
 
         friend class MSI::Equation_Object;
@@ -449,6 +449,13 @@ namespace MSI
          */
         void set_IQI_field_interpolator_managers();
 
+//------------------------------------------------------------------------------
+        /*!
+         * Sets the cluster in the stabilization parameter associated with
+         * this set
+         */
+        void
+        set_cluster_in_stabilization_params(fem::Cluster * aCluster);
 //------------------------------------------------------------------------------
         /**
          * create the dof assembly map for the residual/rows

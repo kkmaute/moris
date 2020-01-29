@@ -93,8 +93,8 @@ namespace moris
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if body load
                 if ( mMasterProp( tLoadIndex ) != nullptr )

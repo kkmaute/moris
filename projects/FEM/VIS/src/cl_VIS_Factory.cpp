@@ -98,9 +98,9 @@ namespace moris
                 mVertexMapOnSet( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
 
                 // create vis vertex and renumber id and index
-                mVerticesOnSet( Ij )( Ik ) = new Vertex_Visualization( tVertexIdCounter++,
+                mVerticesOnSet( Ij )( Ik ) = new Vertex_Visualization(  tVertexIdCounter++,
                                                                         tVertexIndexCounter++,
-                                                                        &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
+                                                                       &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
             }
         }
     }

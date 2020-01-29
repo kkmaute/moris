@@ -31,6 +31,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
+            real mMasterVolume     = 0.5; // volume on master
+            real mSlaveVolume      = 0.5; // volume on slave
+            real mInterfaceSurface = 1.0; // surface on master/slave interface
+            real mElementSize      = 1.0; // element size
+
 
             enum class SP_Property_Type
             {

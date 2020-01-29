@@ -175,13 +175,18 @@ public:
     Enriched_Integration_Mesh &
     get_enriched_integ_mesh(moris::moris_index  aIndex = 0);
 
-    // ----------------------------------------------------------------------------------
 
+    // ----------------------------------------------------------------------------------
     /*!
      * Constructs the face oriented ghost penalization
      */
     void
     construct_face_oriented_ghost_penalization_cells();
+
+    // ----------------------------------------------------------------------------------
+
+    Ghost_Stabilization &
+    get_ghost_stabilization(moris::moris_index  aIndex = 0);
 
     // ----------------------------------------------------------------------------------
 

@@ -616,7 +616,14 @@ namespace moris
 		}
 
         // ----------------------------------------------------------------------------
-
+        template<>
+        inline
+        real
+        Lagrange_Element< 3, 64 >::compute_cell_measure() const
+        {
+            mtk::Cell_Info_Hex64 tCellInfo;
+            return tCellInfo.compute_cell_size(this);
+        }
 
 // ----------------------------------------------------------------------------
 

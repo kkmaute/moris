@@ -32,6 +32,8 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 
+            moris::real mElementSize;
+
             enum class SP_Property_Type
             {
                 MAX_ENUM

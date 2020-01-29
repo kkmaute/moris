@@ -32,6 +32,36 @@ namespace xtk
     }
 
     void
+    Ghost_Stabilization::visualize_ghost_on_mesh(moris_index aBulkPhase)
+    {
+        // get the enriched integration mesh
+        Enriched_Integration_Mesh & tEnrIgMesh = mXTKModel->get_enriched_integ_mesh(0);
+
+        // get the set name
+        std::string tGhostName = this->get_ghost_dbl_side_set_name(aBulkPhase);
+
+        // get the double side set index in the mesh
+        moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index(tGhostName);
+
+        // topology
+        enum CellTopology tFacetTopo = CellTopology::QUAD4;
+        if(mXTKModel->get_spatial_dim() == 2)
+        {
+            tFacetTopo = CellTopology::LINE2;
+        }
+
+        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_" + std::to_string(aBulkPhase), tFacetTopo);
+    }
+
+    std::string
+    Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index aBulkPhase)
+    {
+        MORIS_ASSERT(aBulkPhase < (moris_index)mXTKModel->get_geom_engine().get_num_bulk_phase(),"Bulk Phase index out of bounds.");
+        return "ghost_p" + std::to_string(aBulkPhase);
+    }
+
+    void
     Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters(Ghost_Setup_Data & aGhostSetupData)
     {
         // access enriched integration mesh and enriched interp mesh
@@ -253,7 +283,7 @@ namespace xtk
         for(moris::moris_index iP0 = 0; iP0 <(moris_index) tNumBulkPhases; iP0++)
         {
 
-            std::string tGhostSideSetName = "ghost_p" + std::to_string(iP0);
+            std::string tGhostSideSetName =this->get_ghost_dbl_side_set_name(iP0);
 
             tGhostDoubleSideNames(iP0) = tGhostSideSetName;
 

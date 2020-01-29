@@ -213,6 +213,8 @@ namespace moris
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
 
+             mSet->set_cluster_in_stabilization_params(mFemCluster( 0 ).get());
+
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
          }
@@ -225,6 +227,9 @@ namespace moris
 
             // init the residual
             mSet->initialize_mResidual();
+
+            // init the jacobian
+            mSet->initialize_mJacobian();
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
