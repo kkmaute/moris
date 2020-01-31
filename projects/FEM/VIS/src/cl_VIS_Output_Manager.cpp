@@ -79,7 +79,7 @@ namespace moris
     {
         // get number of requested sets
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
-
+std::cout<<"number of requested sets:  "<<tNumRequestedSets<<std::endl;
         // get mtk set index to fem set index map
         map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
 
@@ -96,7 +96,7 @@ namespace moris
         {
             // get block index
             moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
-
+std::cout<<"block index:  "<<tBlockIndex<<std::endl;
             // find set index for this block index
 //            moris_index tEquationSetIndex = Ii;
             moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
