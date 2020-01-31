@@ -630,7 +630,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         		 vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                   "XTK_HMR_DIFF.exo",
                                   { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
-                                  { 0, 2 },
                                   { "Temp" },
                                   {   vis::Field_Type::NODAL },
                                   { vis::Output_Type::TEMP } );

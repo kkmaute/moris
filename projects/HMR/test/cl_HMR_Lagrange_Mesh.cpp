@@ -18,6 +18,13 @@
 using namespace moris;
 using namespace hmr;
 
+moris::real tPlane_MBench( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real tOffset = 2;
+
+    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
+}
+
 TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagrange_mesh]")
 {
 //-------------------------------------------------------------------------------
@@ -736,6 +743,54 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
 
         // delete settings object
         delete tParameters;
+    }
+}
+
+TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_mesh]")
+{
+    if(par_size() == 1)
+    {
+        uint tLagrangeMeshIndex = 0;
+
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        // create settings object
+        moris::hmr::Parameters tParameters;
+
+        // Dummy parameter list
+        ParameterList tParam = hmr::create_hmr_parameter_list();
+
+        tParameters.set_number_of_elements_per_dimension( { {20}, {10}, {10} } );
+        tParameters.set_domain_dimensions( 10, 5, 5 );
+        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
+        tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
+
+        tParameters.set_bspline_truncation( true );
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns( { {0} });
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_output_meshes( { {0} } );
+//        tParameters.set_lagrange_input_mesh( { { 0 } } );
+
+        tParameters.set_staircase_buffer( 1 );
+        tParameters.set_initial_refinement( 0 );
+        tParameters.set_number_aura( true );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
+
+        tHMR.perform_initial_refinement( 0 );
+
+//        std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
+        tHMR.finalize();
     }
 }
 

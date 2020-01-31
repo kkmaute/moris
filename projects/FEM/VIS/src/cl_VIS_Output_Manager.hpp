@@ -46,9 +46,6 @@ namespace moris
             //! Set names which shall be part of this mesh
             moris::Cell< std::string >      mSetNames;
 
-            //! Set indices
-            moris::Cell< moris_index >      mSetIndices;
-
             //! Field names which shall be used for outputs
             moris::Cell< std::string >      mFieldNames;
 
@@ -75,6 +72,9 @@ namespace moris
             bool mOnlyPrimary = false;
 
             moris::Cell< Writer_Exodus * >  mWriter;
+
+            mtk::Mesh_Manager *             mMTKMesh = nullptr;
+            moris::uint                     mMTKMeshPairIndex;
 
         protected:
 
@@ -121,7 +121,6 @@ namespace moris
                               const enum VIS_Mesh_Type                aMeshType,
                               const std::string                     & aMeshName,
                               const moris::Cell< std::string >      & aBlockNames,
-                              const moris::Cell< moris_index >      & aBlockIndices,
                               const moris::Cell< std::string >      & aFieldNames,
                               const moris::Cell< enum Field_Type >  & aFieldType,
                               const moris::Cell< enum Output_Type > & aEnum );

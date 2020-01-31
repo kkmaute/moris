@@ -105,7 +105,6 @@ namespace moris
 //                mSlaveVolume      = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::SLAVE);
 //                mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY,mtk::Master_Slave::SLAVE);
                 mElementSize      = 2*std::pow(tMasterVol/M_PI,0.3333333333) ; // mCluster->compute_element_size( arg on how to compute ) //FIXME: decide what to do here and add the formula to cell info length measure.
-
             }
 
 //------------------------------------------------------------------------------

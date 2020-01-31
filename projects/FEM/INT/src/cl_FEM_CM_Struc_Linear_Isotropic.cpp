@@ -121,7 +121,7 @@ namespace moris
                 moris::real tTgp = mDofFI( 1 )->val()( 0 );
 
                 // add thermal contribution to the strain
-                mStrain.matrix_data() += tThermalExpansionVector * (  tTgp - tTref );
+                mStrain.matrix_data() += tThermalExpansionVector * ( tTref - tTgp );
             }
         }
 
@@ -384,7 +384,7 @@ namespace moris
                 Matrix< DDRMat > tThermalExpansionVector;
                 this->get_isotropic_thermal_expansion_vector( tThermalExpansionVector );
 
-                mdStraindDof( tDofIndex ).matrix_data() += ( 1.0 ) * tThermalExpansionVector * mDofFI( tDofIndex )->NBuild();
+                mdStraindDof( tDofIndex ).matrix_data() += ( -1.0 ) * tThermalExpansionVector * mDofFI( tDofIndex )->NBuild();
             }
         }
 
