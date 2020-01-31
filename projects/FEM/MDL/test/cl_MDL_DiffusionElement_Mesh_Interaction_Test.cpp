@@ -527,6 +527,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
+//        tParameters.set_number_aura( true );
+
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
@@ -554,7 +556,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
+        tMeshManager.register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get() );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -703,7 +705,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
 
-        //            tHMR.save_to_exodus( "Circle_diff_temp.exo" );
+        tHMR.save_to_exodus( 0,  "Circle_diff_temp.exo" );
 
         // Expected solution
         Matrix< DDRMat > tExpectedSolution;

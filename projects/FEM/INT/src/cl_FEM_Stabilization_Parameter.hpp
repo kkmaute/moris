@@ -49,9 +49,6 @@ namespace moris
             // list of parameters
             moris::Cell< Matrix< DDRMat > > mParameters;
 
-            // list of cluster measure enums
-            moris::Cell< fem::Cluster_Measure > mClusterMeasures;
-
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;

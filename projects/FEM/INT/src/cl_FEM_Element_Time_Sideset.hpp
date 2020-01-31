@@ -70,6 +70,16 @@ namespace moris
         void compute_jacobian_and_residual();
 
 //------------------------------------------------------------------------------
+        /**
+         * compute volume over the element
+         */
+        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            MORIS_ERROR( false, "Element_Time_Sideset::compute_volume - not implemented." );
+            return 0.0;
+        }
+
+//------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
 

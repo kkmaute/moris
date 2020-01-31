@@ -108,15 +108,6 @@ namespace moris
         // get spatial dimension
         mSpaceDim = mMeshSet->get_spatial_dim();
 
-//        // bool true is master IG cells are trivial
-//        mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
-//
-//        // bool true is slave IG cells are trivial
-//        if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-//        {
-//            mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
-//        }
-
         // get interpolation geometry type
         mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
 
@@ -680,20 +671,52 @@ namespace moris
         }
     }
 
-    void Set::set_cluster_in_stabilization_params(fem::Cluster * aCluster)
+//------------------------------------------------------------------------------
+    void Set::set_IWG_cluster_for_stabilization_parameters( fem::Cluster * aCluster )
     {
+        // loop over the IWGs
         for( auto tIWG : mIWGs)
         {
-            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tStabParams = tIWG->get_stabilization_parameters();
-            for(auto iStabParam:tStabParams)
+            // get the SP from the IWG
+            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs
+            = tIWG->get_stabilization_parameters();
+
+            // loop over the SP
+            for( auto tSP : tSPs )
             {
-                if(iStabParam != nullptr)
+                // check if SP is null
+                if( tSP != nullptr )
                 {
-                    iStabParam->set_cluster( aCluster );
+                    // set the fem cluster
+                    tSP->set_cluster( aCluster );
                 }
             }
         }
     }
+
+//------------------------------------------------------------------------------
+    void Set::set_IQI_cluster_for_stabilization_parameters( fem::Cluster * aCluster )
+    {
+        // loop over the IQIs
+        for( auto tIQI : mIQIs)
+        {
+            // get the SP from the IQI
+            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs
+            = tIQI->get_stabilization_parameters();
+
+            // loop over the SPs
+            for( auto tSP : tSPs )
+            {
+                // check if SP is null
+                if( tSP != nullptr )
+                {
+                    // set the fem cluster
+                    tSP->set_cluster( aCluster );
+                }
+            }
+        }
+    }
+
 
 //------------------------------------------------------------------------------
     void Set::set_IQI_field_interpolator_managers()
@@ -1489,37 +1512,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-//    fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
-//    {
-//        switch( aGeometryType )
-//        {
-//            case( mtk::Geometry_Type::LINE ) :
-//                return fem::Integration_Order::BAR_3;
-//                break;
-//
-//            case( mtk::Geometry_Type::QUAD ) :
-//                 return fem::Integration_Order::QUAD_2x2;         //FIXME
-//                 break;
-//
-//            case( mtk::Geometry_Type::HEX ) :
-//                return fem::Integration_Order::HEX_3x3x3;
-//                break;
-//
-//            case( mtk::Geometry_Type::TRI ) :
-//                return fem::Integration_Order::TRI_6;
-//                break;
-//
-//            case( mtk::Geometry_Type::TET ) :
-//                return fem::Integration_Order::TET_5;
-//                break;
-//
-//            default :
-//                MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
-//                return Integration_Order::UNDEFINED;
-//                break;
-//        }
-//    }
-
     fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type       aGeometryType,
                                                             const mtk::Interpolation_Order aInterpolationOrder )
     {
@@ -1682,9 +1674,6 @@ namespace moris
 
          moris::Matrix< DDSMat > tCellIndex = aVisMeshSet->get_cell_inds_on_block( aOnlyPrimayCells );
 
-         sint tMaxIndex = tCellIndex.max();
-//         sint tMinIndex = tCellIndex.min();
-
          sint tSize = std::max( ( sint )mCellAssemblyMap.size(), ( sint )aMeshIndex + 1 );
 
          mCellAssemblyMap.resize( tSize );
@@ -1692,13 +1681,19 @@ namespace moris
 
          mMtkIgCellOnSet( aMeshIndex )= tNumCells;
 
-         mCellAssemblyMap( aMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
-
-         for( uint Ik = 0; Ik < tNumCells; Ik++ )
+         if(tNumCells>0)
          {
-             mCellAssemblyMap( aMeshIndex )( tCellIndex( Ik ) ) = Ik;
-         }
+             sint tMaxIndex = tCellIndex.max();
+//             sint tMinIndex = tCellIndex.min();
 
+             mCellAssemblyMap( aMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
+
+             for( uint Ik = 0; Ik < tNumCells; Ik++ )
+             {
+                 mCellAssemblyMap( aMeshIndex )( tCellIndex( Ik ) ) = Ik;
+             }
+
+         }
 
     }
 

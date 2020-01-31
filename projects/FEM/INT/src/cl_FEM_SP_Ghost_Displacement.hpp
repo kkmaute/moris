@@ -31,16 +31,14 @@ namespace moris
         {
 
 //------------------------------------------------------------------------------
-        public:
+        private:
 
             // cluster measures
-            // FIXME add enum for child class to select the needed ones
-            real mMasterVolume     = 0.5; // volume on master
-            real mSlaveVolume      = 0.5; // volume on slave
-            real mInterfaceSurface = 1.0; // surface on master/slave interface
             real mElementSize      = 1.0; // element size
 
+        public:
 
+            // property type for the SP
             enum class SP_Property_Type
             {
                 MATERIAL,
@@ -50,6 +48,7 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, SP_Property_Type > mPropertyMap;
 
+            // constitutive type for the SP
             enum class SP_Constitutive_Type
             {
                 MAX_ENUM
@@ -71,17 +70,16 @@ namespace moris
              * trivial destructor
              */
             ~SP_Ghost_Displacement(){};
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+            /**
+             * reset the cluster measures required for this SP
+             */
             void reset_cluster_measures()
             {
-                // FIXME cluster measures to reset volume, surface, ...
-                mMasterVolume     = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::MASTER);
-//                mSlaveVolume      = mCluster->compute_cluster_cell_measure(mtk::Primary_Void::INTERP,mtk::Master_Slave::SLAVE);
-//                mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY,mtk::Master_Slave::SLAVE);
-                mElementSize      = std::pow(mMasterVolume/M_PI,0.3333333333) ; // mCluster->compute_element_size( arg on how to compute ) //FIXME: decide what to do here and add the formula to cell info length measure.
-
-                std::cout<<"Element Size = "<<mElementSize<<std::endl;
+                // evaluate element size from the cluster
+                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                              mtk::Master_Slave::MASTER );
             }
 
 //------------------------------------------------------------------------------

@@ -59,6 +59,9 @@ namespace moris
     {
         MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex, "create_visualization_meshes(), Visualization mesh not set" );
 
+        mMTKMesh = aMesh;
+        mMTKMeshPairIndex = aMeshPairIndex;
+
         // create vis factory
         vis::VIS_Factory tVisFactory( aMesh, aMeshPairIndex );
 
@@ -78,28 +81,27 @@ namespace moris
                                                        mdl::Model * aModel )
     {
         // get number of requested sets
-        uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
+        uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
         // get mtk set index to fem set index map
         map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
 
         // copy fem::Set to base class MSI::Equation_Set. can this be done with a reinterpret_cast?
-        moris::Cell< MSI::Equation_Set * > tEquationSets( aModel->get_equation_sets().size() );
+        moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
 
-        for(moris::uint iSet = 0; iSet < aModel->get_equation_sets().size(); iSet++ )
-        {
-            tEquationSets( iSet ) = aModel->get_equation_sets()( iSet );
-        }
+        // get integration mesh
+        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
+        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+        mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
         // loop over equation sets.
         for( uint Ii = 0; Ii < tNumRequestedSets; Ii++ )
         {
-            // get block index
-            moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
+            // get mtk set index
+            moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
             // find set index for this block index
-//            moris_index tEquationSetIndex = Ii;
-            moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
+            moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
 
             // set vis set to fem set. +1 because 0 is reserved for fem
             tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
@@ -131,7 +133,7 @@ namespace moris
         mWriter( aVisMeshIndex )->set_time( tTime );
 
         // write standard outputs like IDs and Indices to file
-        this->write_mesh_indices( aVisMeshIndex );
+//        this->write_mesh_indices( aVisMeshIndex );
     }
 
 
@@ -212,7 +214,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Output_Manager::write_mesh_indices( const uint aVisMeshIndex )
+    void Output_Manager::write_mesh_indices( const uint aVisMeshIndex )     //FIXME
     {
         // get mesh set indices
         uint tRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
@@ -321,11 +323,13 @@ namespace moris
         map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
 
         // get equation sets
-        moris::Cell< MSI::Equation_Set * > tEquationSets( aModel->get_equation_sets().size() );
-        for(moris::uint iSet = 0; iSet < aModel->get_equation_sets().size(); iSet++ )
-        {
-            tEquationSets( iSet ) = aModel->get_equation_sets()( iSet );
-        }
+        moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
+
+        // get integration mesh
+        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
+        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+        mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+
 
         // loop over all fields of this output object
         for( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
@@ -338,14 +342,12 @@ namespace moris
             moris::real      tGlobalValue;
 
             // loop over all blocks on this output object
-            for( uint Ii = 0; Ii < mOutputData( aVisMeshIndex ).mSetIndices.size(); Ii++ )
+            for( uint Ii = 0; Ii < mOutputData( aVisMeshIndex ).mSetNames.size(); Ii++ )
             {
-                // get block index
-                moris_index tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
+            	moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
                 // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tBlockIndex );
-//                moris_index tEquationSetIndex = Ii;
+                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
 
                 // elemental field values
                 Matrix< DDRMat > tElementValues;

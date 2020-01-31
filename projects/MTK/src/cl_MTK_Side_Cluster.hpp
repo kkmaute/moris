@@ -174,6 +174,7 @@ public:
         for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
         {
             tMeasure = tMeasure+tCells(iC)->compute_cell_side_measure(tSideOrds(iC));
+            //std::cout<<"tMeasure = "<<tMeasure<<std::endl;
         }
 
         return tMeasure;

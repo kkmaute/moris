@@ -84,23 +84,26 @@ namespace moris
             // get all vertices on set
             uint tNumVerticesOnSet = tMeshSet->get_num_vertieces_on_set( mOnlyPrimaryCells );
 
-            // get vertex indices on set
-            moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertieces_inds_on_block( mOnlyPrimaryCells );
-
-            // resize list of vertices for this set
-            mVerticesOnSet( Ij ).resize( tNumVerticesOnSet, nullptr );
-            mVertexMapOnSet( Ij ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
-
-            // Loop over all vertices on this set and create new vis vertices
-            for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
+            if( tNumVerticesOnSet > 0 )
             {
-                // create old index to set local index map
-                mVertexMapOnSet( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
+                // get vertex indices on set
+                moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertieces_inds_on_block( mOnlyPrimaryCells );
 
-                // create vis vertex and renumber id and index
-                mVerticesOnSet( Ij )( Ik ) = new Vertex_Visualization(  tVertexIdCounter++,
-                                                                        tVertexIndexCounter++,
-                                                                       &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
+                // resize list of vertices for this set
+                mVerticesOnSet( Ij ).resize( tNumVerticesOnSet, nullptr );
+                mVertexMapOnSet( Ij ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
+
+                // Loop over all vertices on this set and create new vis vertices
+                for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
+                {
+                    // create old index to set local index map
+                    mVertexMapOnSet( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
+
+                    // create vis vertex and renumber id and index
+                    mVerticesOnSet( Ij )( Ik ) = new Vertex_Visualization( tVertexIdCounter++,
+                                                                           tVertexIndexCounter++,
+                                                                           &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
+                }
             }
         }
     }
@@ -134,36 +137,39 @@ namespace moris
             // get number of cells on set
             uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set( mOnlyPrimaryCells );
 
-            // get cell indices on set
-            moris::Matrix< DDSMat > tCellIndOnSet = tMeshSet->get_cell_inds_on_block( mOnlyPrimaryCells );
-
-            // resize list of cells for this set
-            mCellsOnSet( Ij ).resize( tNumCellsOnSet, nullptr );
-            mCellMapOnSet( Ij ).set_size( tCellIndOnSet.max() + 1, 1, -1 );
-
-            // Loop over all cells on this set and create new vis cells
-            for( uint Ik = 0; Ik < tNumCellsOnSet; Ik++ )
+            if( tNumCellsOnSet > 0 )
             {
-                // get list of integration vertex indices
-                Matrix< IndexMat > tIntegrationVertexInd = tIntegrationMesh->get_mtk_cell( tCellIndOnSet( Ik ) ).get_vertex_inds();
+                // get cell indices on set
+                moris::Matrix< DDSMat > tCellIndOnSet = tMeshSet->get_cell_inds_on_block( mOnlyPrimaryCells );
 
-                // Create List of vis vertex pointers for this cell
-                moris::Cell< mtk::Vertex* > tCellVerices( tIntegrationVertexInd.numel(), nullptr );
+                // resize list of cells for this set
+                mCellsOnSet( Ij ).resize( tNumCellsOnSet, nullptr );
+                mCellMapOnSet( Ij ).set_size( tCellIndOnSet.max() + 1, 1, -1 );
 
-                // loop over integration vertices and get the corresponding vis vertices for this set
-                for( uint Ii = 0; Ii < tIntegrationVertexInd.numel(); Ii++ )
+                // Loop over all cells on this set and create new vis cells
+                for( uint Ik = 0; Ik < tNumCellsOnSet; Ik++ )
                 {
-                    tCellVerices( Ii ) = mVerticesOnSet( Ij )( mVertexMapOnSet( Ij )( tIntegrationVertexInd( Ii ) ) );
+                    // get list of integration vertex indices
+                    Matrix< IndexMat > tIntegrationVertexInd = tIntegrationMesh->get_mtk_cell( tCellIndOnSet( Ik ) ).get_vertex_inds();
+
+                    // Create List of vis vertex pointers for this cell
+                    moris::Cell< mtk::Vertex* > tCellVerices( tIntegrationVertexInd.numel(), nullptr );
+
+                    // loop over integration vertices and get the corresponding vis vertices for this set
+                    for( uint Ii = 0; Ii < tIntegrationVertexInd.numel(); Ii++ )
+                    {
+                        tCellVerices( Ii ) = mVerticesOnSet( Ij )( mVertexMapOnSet( Ij )( tIntegrationVertexInd( Ii ) ) );
+                    }
+
+                    // create old index to set local index map
+                    mCellMapOnSet( Ij )( tCellIndOnSet( Ik ) ) = Ik;
+
+                    // create vis cells and renumber id and index
+                    mCellsOnSet( Ij )( Ik ) = new Cell_Visualization( tCellIdCounter++,
+                                                                      tCellIndexCounter++,
+                                                                      tCellVerices,
+                                                                      &tIntegrationMesh->get_mtk_cell( tCellIndOnSet( Ik ) ) );
                 }
-
-                // create old index to set local index map
-                mCellMapOnSet( Ij )( tCellIndOnSet( Ik ) ) = Ik;
-
-                // create vis cells and renumber id and index
-                mCellsOnSet( Ij )( Ik ) = new Cell_Visualization( tCellIdCounter++,
-                                                                  tCellIndexCounter++,
-                                                                  tCellVerices,
-                                                                  &tIntegrationMesh->get_mtk_cell( tCellIndOnSet( Ik ) ) );
             }
         }
     }
@@ -192,106 +198,109 @@ namespace moris
             // get number of clusters on set
             uint tNumClustersOnSet = tMeshSet->get_num_clusters_on_set();
 
-            // get list of old clusters on set
-            moris::Cell< mtk::Cluster const * > tClustersOnSet = tMeshSet->get_clusters_on_set();
-
-            // resize list of clustersfor this set
-            mClustersOnBlock  ( Ij ).resize( tNumClustersOnSet, nullptr );
-
-            // loop over clusters on set
-            for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
+            if( tNumClustersOnSet > 0 )
             {
-                // get primary/void cells on old cluster
-                moris::Cell<moris::mtk::Cell const *> tPrimaryCells = tClustersOnSet( Ik )->get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Cell const * > tVoidCells = tClustersOnSet( Ik )->get_void_cells_in_cluster();
+                // get list of old clusters on set
+                moris::Cell< mtk::Cluster const * > tClustersOnSet = tMeshSet->get_clusters_on_set();
 
-                // resize primary/void cell list for vis cluster
-                moris::Cell< moris::mtk::Cell const * > tClusterPrimaryCells( tPrimaryCells.size(), nullptr );
-                moris::Cell< moris::mtk::Cell const * > tClusterVoidCells( tVoidCells.size(), nullptr );
+                // resize list of clustersfor this set
+                mClustersOnBlock  ( Ij ).resize( tNumClustersOnSet, nullptr );
 
-                // find vis primary cells corresponding to integration primary cells
-                for( uint Ii = 0; Ii < tPrimaryCells.size(); Ii++ )
+                // loop over clusters on set
+                for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
                 {
-                    tClusterPrimaryCells( Ii ) = mCellsOnSet( Ij )( mCellMapOnSet( Ij )( tPrimaryCells( Ii )->get_index() ) );
-                }
+                    // get primary/void cells on old cluster
+                    moris::Cell< moris::mtk::Cell const * > tPrimaryCells = tClustersOnSet( Ik )->get_primary_cells_in_cluster();
+                    moris::Cell< moris::mtk::Cell const * > tVoidCells    = tClustersOnSet( Ik )->get_void_cells_in_cluster();
 
-                // find vis void cells corresponding to integration void cells
-                if( !mOnlyPrimaryCells )
-                {
-                    for( uint Ii = 0; Ii < tVoidCells.size(); Ii++ )
+                    // resize primary/void cell list for vis cluster
+                    moris::Cell< moris::mtk::Cell const * > tClusterPrimaryCells( tPrimaryCells.size(), nullptr );
+                    moris::Cell< moris::mtk::Cell const * > tClusterVoidCells   ( tVoidCells.size()   , nullptr );
+
+                    // find vis primary cells corresponding to integration primary cells
+                    for( uint Ii = 0; Ii < tPrimaryCells.size(); Ii++ )
                     {
-                        tClusterVoidCells( Ii ) = mCellsOnSet( Ij )( mCellMapOnSet( Ij )( tVoidCells( Ii )->get_index() ) );
+                        tClusterPrimaryCells( Ii ) = mCellsOnSet( Ij )( mCellMapOnSet( Ij )( tPrimaryCells( Ii )->get_index() ) );
                     }
-                }
 
-                // create vis cluster
-                Cell_Cluster_Visualization * tVisCellCluster = new Cell_Cluster_Visualization;
-
-                // add vis primary cells to vis cluster
-                tVisCellCluster->add_primary_integration_cell( tClusterPrimaryCells );
-
-                // add interpolation cell to vis cluster
-                tVisCellCluster->set_interpolation_cell( &tClustersOnSet( Ik )->get_interpolation_cell() );
-
-                // mark as non trivial if old cluster was trivial
-                if( !tClustersOnSet( Ik )->is_trivial() )
-                {
-                    tVisCellCluster->mark_as_nontrivial();
-                }
-
-                // add void cells to cluster if requested by mesh type
-                if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
-                {
-                    tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
-                }
-
-                // add vertices and local coordinates to vis cluster if non-trivial
-                if( !tVisCellCluster->is_trivial() )
-                {
-                    // get vertices from old cluster
-                    moris::Cell<moris::mtk::Vertex const *> tVertices = tClustersOnSet( Ik )->get_vertices_in_cluster();
-
-                    moris::Cell< mtk::Vertex const * > tVisClusterVertices( tVertices.size() );
-
-                    uint tCounter = 0;
-
-                    for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
+                    // find vis void cells corresponding to integration void cells
+                    if( !mOnlyPrimaryCells )
                     {
-                        // get old vertex index
-                        moris_index tIndex = tVertices( Ii )->get_index();
-
-                        if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
+                        for( uint Ii = 0; Ii < tVoidCells.size(); Ii++ )
                         {
-                            tVisClusterVertices( tCounter++ ) = mVerticesOnSet( Ij )( mVertexMapOnSet( Ij )( tIndex ) );
+                            tClusterVoidCells( Ii ) = mCellsOnSet( Ij )( mCellMapOnSet( Ij )( tVoidCells( Ii )->get_index() ) );
                         }
                     }
 
-                    tVisClusterVertices.resize( tCounter );
+                    // create vis cluster
+                    Cell_Cluster_Visualization * tVisCellCluster = new Cell_Cluster_Visualization;
 
-                    tVisCellCluster->add_vertex_to_cluster( tVisClusterVertices );
+                    // add vis primary cells to vis cluster
+                    tVisCellCluster->add_primary_integration_cell( tClusterPrimaryCells );
 
-                    uint tNumCols = tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().n_cols();
+                    // add interpolation cell to vis cluster
+                    tVisCellCluster->set_interpolation_cell( &tClustersOnSet( Ik )->get_interpolation_cell() );
 
-                    moris::Matrix< DDRMat > tVisClusterVerticesLocalCoords( tCounter, tNumCols, 0.0 );
-
-                    tCounter = 0;
-
-                    for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
+                    // mark as non trivial if old cluster was trivial
+                    if( !tClustersOnSet( Ik )->is_trivial() )
                     {
-                        // get old vertex index
-                        moris_index tIndex = tVertices( Ii )->get_index();
-
-                        if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
-                        {
-                            tVisClusterVerticesLocalCoords.set_row( tCounter++, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
-                        }
+                        tVisCellCluster->mark_as_nontrivial();
                     }
 
-                    // add local coordinates to vis cluster
-                    tVisCellCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
-                }
+                    // add void cells to cluster if requested by mesh type
+                    if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
+                    {
+                        tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
+                    }
 
-                mClustersOnBlock( Ij )( Ik ) = tVisCellCluster;
+                    // add vertices and local coordinates to vis cluster if non-trivial
+                    if( !tVisCellCluster->is_trivial() )
+                    {
+                        // get vertices from old cluster
+                        moris::Cell<moris::mtk::Vertex const *> tVertices = tClustersOnSet( Ik )->get_vertices_in_cluster();
+
+                        moris::Cell< mtk::Vertex const * > tVisClusterVertices( tVertices.size() );
+
+                        uint tCounter = 0;
+
+                        for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
+                        {
+                            // get old vertex index
+                            moris_index tIndex = tVertices( Ii )->get_index();
+
+                            if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
+                            {
+                                tVisClusterVertices( tCounter++ ) = mVerticesOnSet( Ij )( mVertexMapOnSet( Ij )( tIndex ) );
+                            }
+                        }
+
+                        tVisClusterVertices.resize( tCounter );
+
+                        tVisCellCluster->add_vertex_to_cluster( tVisClusterVertices );
+
+                        uint tNumCols = tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().n_cols();
+
+                        moris::Matrix< DDRMat > tVisClusterVerticesLocalCoords( tCounter, tNumCols, 0.0 );
+
+                        tCounter = 0;
+
+                        for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
+                        {
+                            // get old vertex index
+                            moris_index tIndex = tVertices( Ii )->get_index();
+
+                            if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
+                            {
+                                tVisClusterVerticesLocalCoords.set_row( tCounter++, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
+                            }
+                        }
+
+                        // add local coordinates to vis cluster
+                        tVisCellCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
+                    }
+
+                    mClustersOnBlock( Ij )( Ik ) = tVisCellCluster;
+                }
             }
         }
     }
@@ -308,6 +317,7 @@ namespace moris
         for( uint Ij = 0; Ij <mNumRequestedSets; Ij++ )
         {
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+
             moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),

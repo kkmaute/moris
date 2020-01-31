@@ -20,10 +20,6 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
-
-            // set the list of cluster measures
-            mClusterMeasures = { fem::Cluster_Measure::MASTER_VOLUME,
-                                 fem::Cluster_Measure::SLAVE_VOLUME };
         }
 
 //------------------------------------------------------------------------------

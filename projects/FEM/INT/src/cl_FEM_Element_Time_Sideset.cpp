@@ -58,6 +58,7 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->compute_residual(  tWStar );
 
                     // compute jacobian at evaluation point
+                    // compute off-diagonal jacobian for staggered solve
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
             }

@@ -21,10 +21,7 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
-
-            // set the list of cluster measures
-            mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
-    }
+        }
 
 //------------------------------------------------------------------------------
         void SP_Dirichlet_Nitsche::eval_SP()

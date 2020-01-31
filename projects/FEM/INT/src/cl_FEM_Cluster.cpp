@@ -399,26 +399,26 @@ namespace moris
                 // add volume contribution for the IG element
                 tClusterVolume += mElements( iElem )->compute_volume();
             }
+
             // return cluster volume value
             return tClusterVolume;
         }
 
 //------------------------------------------------------------------------------
-
         moris::real
-        Cluster::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid ,
-                                              const mtk::Master_Slave aIsMaster) const
+        Cluster::compute_cluster_cell_measure( const mtk::Primary_Void aPrimaryOrVoid ,
+                                               const mtk::Master_Slave aIsMaster ) const
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
                           "Cluster::compute_cluster_cell_measure - empty cluster.");
 
-            return mMeshCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+            return mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
         }
 //------------------------------------------------------------------------------
         moris::real
-        Cluster::compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid ,
-                                                   const mtk::Master_Slave aIsMaster) const
+        Cluster::compute_cluster_cell_side_measure( const mtk::Primary_Void aPrimaryOrVoid ,
+                                                    const mtk::Master_Slave aIsMaster ) const
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
@@ -427,6 +427,42 @@ namespace moris
             return mMeshCluster->compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
         }
 
+//------------------------------------------------------------------------------
+        moris::real
+        Cluster::compute_cluster_cell_length_measure( const mtk::Primary_Void aPrimaryOrVoid,
+                                                      const mtk::Master_Slave aIsMaster ) const
+        {
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                          "Cluster::compute_cluster_cell_length_measure - empty cluster.");
+
+            // get spatial dimension from IP geometry interpolator
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )
+                                 ->get_IP_geometry_interpolator()
+                                 ->get_number_of_space_dimensions();
+
+            // compute the volume of the cluster
+//            real tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+            real tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
+
+            // compute element size
+            switch ( tSpaceDim )
+            {
+                case ( 3 ):
+                    return std::pow( 6 * tVolume / M_PI, 1.0 / 3.0 );
+
+                case ( 2 ):
+                    return std::pow( 4 * tVolume / M_PI, 1.0 / 2.0 );
+
+                case ( 1 ):
+                    return tVolume;
+
+                default:
+                    MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure - space dimension can only be 1, 2, or 3. ");
+                    return 0.0;
+            }
+
+        }
 
 
 //------------------------------------------------------------------------------

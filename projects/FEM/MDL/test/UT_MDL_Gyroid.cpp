@@ -129,7 +129,7 @@ int user_defined_refinement(       hmr::Element                  * aElement,
     real lsth = 0.0;
 
     // abs variable field bandwidth (absolute)
-    real lsbwabs = 0.1;
+    real lsbwabs = 0.4;
 
     // maximum refinement level
     uint maxlevel = 4;

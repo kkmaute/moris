@@ -106,6 +106,27 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get side ordinal information
+         * @param[ out ] mMeshCluster a mesh cluster
+         */
+        Matrix< IndexMat > & get_side_ordinal_info( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch( aIsMaster )
+            {
+                case( mtk::Master_Slave::MASTER ):
+                    return mMasterListOfSideOrdinals;
+
+                case( mtk::Master_Slave::SLAVE ):
+                    return mSlaveListOfSideOrdinals;
+
+                default:
+                    MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be master or slave." );
+                    return mMasterListOfSideOrdinals;
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * get the vertices local coordinates on the IP cell
          */
         moris::Matrix< moris::DDRMat >
@@ -249,17 +270,24 @@ namespace moris
          * Compute the measure (volume 3d or area 2d) of the cells in the void or primary phase
          */
         moris::real
-        compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+        compute_cluster_cell_measure( const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                      const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 //------------------------------------------------------------------------------
-
         /*
          * Compute the side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
          * Only valid on side cluster type mtk clusters
          */
         moris::real
-        compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                                          const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+        compute_cluster_cell_side_measure( const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                           const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+
+//------------------------------------------------------------------------------
+        /*
+         * Compute the element size (length) of the cells in the void or primary phase
+         */
+        moris::real
+        compute_cluster_cell_length_measure( const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                                             const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
 //------------------------------------------------------------------------------
     protected:
