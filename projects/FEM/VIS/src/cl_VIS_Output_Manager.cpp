@@ -20,7 +20,6 @@ namespace moris
                                       const enum VIS_Mesh_Type                aMeshType,
                                       const std::string                     & aMeshName,
                                       const moris::Cell< std::string >      & aBlockNames,
-                                      const moris::Cell< moris_index >      & aBlockIndices,
                                       const moris::Cell< std::string >      & aFieldNames,
                                       const moris::Cell< enum Field_Type >  & aFieldType,
                                       const moris::Cell< enum Output_Type > & aEnum )
@@ -33,7 +32,6 @@ namespace moris
         tOutputData.mMeshType   = aMeshType;
         tOutputData.mMeshName   = aMeshName;
         tOutputData.mSetNames   = aBlockNames;
-        tOutputData.mSetIndices = aBlockIndices;
         tOutputData.mFieldNames = aFieldNames;
         tOutputData.mFieldType  = aFieldType;
         tOutputData.mOutputType = aEnum;
@@ -133,7 +131,7 @@ namespace moris
         mWriter( aVisMeshIndex )->set_time( tTime );
 
         // write standard outputs like IDs and Indices to file
-//        this->write_mesh_indices( aVisMeshIndex );
+        //this->write_mesh_indices( aVisMeshIndex );
     }
 
 
@@ -217,14 +215,11 @@ namespace moris
     void Output_Manager::write_mesh_indices( const uint aVisMeshIndex )     //FIXME
     {
         // get mesh set indices
-        uint tRequestedSets = mOutputData( aVisMeshIndex ).mSetIndices.size();
+        uint tRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
         // loop over mesh sets
         for( uint Ii = 0; Ii < tRequestedSets; Ii++ )
         {
-            // get block index
-//            uint tBlockIndex = mOutputData( aVisMeshIndex ).mSetIndices( Ii );
-
             // get vis set by index
             moris::mtk::Set * tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( Ii );
 

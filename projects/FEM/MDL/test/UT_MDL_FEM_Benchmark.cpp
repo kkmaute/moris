@@ -258,7 +258,6 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Output_Block.exo",
                                 { "HMR_dummy" },
-                                { 0 },
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
                                 { vis::Output_Type::TEMP } );
@@ -581,7 +580,6 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-                                { 0, 1, 2, 3 },
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
                                 { vis::Output_Type::TEMP } );
@@ -925,7 +923,6 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Ghost_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-                                { 0, 1, 2, 3 },
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
                                 { vis::Output_Type::TEMP } );
@@ -1155,7 +1152,6 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Elast_Block_Output.exo",
                                 { "HMR_dummy" },
-                                { 0 },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
                                 { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::UZ } );
@@ -1490,7 +1486,6 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Elast_Interface_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
-                                { 0, 1, 2, 3 },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
                                 { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::UZ } );
@@ -1845,7 +1840,6 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Elast_Ghost_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
-                                { 0, 1, 2, 3 },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
                                 { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::UZ } );

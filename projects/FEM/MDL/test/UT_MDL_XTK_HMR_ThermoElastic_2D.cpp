@@ -672,7 +672,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	        fem::CM_Factory tCMFactory;
 
     	        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    	         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+    	         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+    	                                             { "Displacement",                           "Temperature" } );
     	         tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
     	         tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
     	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -681,7 +682,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     	         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    	         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+    	         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+    	                                             {  "Displacement",                          "Temperature" } );
     	         tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
     	         tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
     	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -1087,7 +1089,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+                                             { "Displacement", "Temperature" } );
          tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
          tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
          tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -1096,7 +1099,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
          std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+                                             { "Displacement", "Temperature" } );
          tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
          tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
          tCMStrucLinIso1->set_property( tCTE, "CTE" );

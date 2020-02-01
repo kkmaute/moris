@@ -21,8 +21,10 @@ namespace moris
         class CM_Struc_Linear_Isotropic : public Constitutive_Model
         {
 
-        //--------------------------------------------------------------------------------------------------------------
-        public:
+//--------------------------------------------------------------------------------------------------------------
+        private:
+
+            // property type for CM
             enum class Property_Type
             {
                 EMOD,
@@ -35,12 +37,11 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, CM_Struc_Linear_Isotropic::Property_Type > mPropertyMap;
 
-        private:
             Model_Type mPlaneType  = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
             Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
             void (moris::fem::CM_Struc_Linear_Isotropic:: *mConstFunc)(moris::real, moris::real) = &CM_Struc_Linear_Isotropic::full_3d;
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
         public:
             /*
              * trivial constructor
@@ -58,15 +59,20 @@ namespace moris
                 mPropertyMap[ "PoissonRatio" ]          = CM_Struc_Linear_Isotropic::Property_Type::NU;
                 mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
                 mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
+
+                // FIXME populate the dof map
+                mDofMap[ "Displacement" ] = MSI::Dof_Type::UX;
+                mDofMap[ "Temperature" ]  = MSI::Dof_Type::UNDEFINED;
+                mDofMap[ "Pressure" ]     = MSI::Dof_Type::UNDEFINED;
             };
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
             ~CM_Struc_Linear_Isotropic(){};
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * set a property pointer
              * @param[ in ] aProperty     a property pointer
@@ -81,7 +87,7 @@ namespace moris
                  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
              };
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux
              */

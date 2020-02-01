@@ -257,8 +257,7 @@ run_hmr_for_multi_mat_model_3d(hmr::HMR  &                    aHMR,
 TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE_BAR_HOLE_2D]")
 {
 
-
-    if(par_size() == 0)
+    if(par_size() == 1)
     {
         std::string tFieldName = "Geometry";
 
@@ -474,6 +473,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface3->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGInterface3->set_constitutive_model( tCMDiffLinIso1bis, "DiffLinIso", mtk::Master_Slave::SLAVE );
 
+        // create the IQIs
+        fem::IQI_Factory tIQIFactory;
+
+        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+
         // create a list of active block-sets
         std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
         std::string tDblInterfaceSideSetName02 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,2);
@@ -487,34 +493,42 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
+        tSetBulk1.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
+        tSetBulk2.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk3;
         tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk3.set_IWGs( { tIWGBulk2 } );
+        tSetBulk3.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk4.set_IWGs( { tIWGBulk2 } );
+        tSetBulk4.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk5;
         tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
         tSetBulk5.set_IWGs( { tIWGBulk1 } );
+        tSetBulk5.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk6;
         tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
         tSetBulk6.set_IWGs( { tIWGBulk1 } );
+        tSetBulk6.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk7;
         tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
         tSetBulk7.set_IWGs( { tIWGBulk1 } );
+        tSetBulk7.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk8;
         tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
         tSetBulk8.set_IWGs( { tIWGBulk1 } );
+        tSetBulk8.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
@@ -563,6 +577,21 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
                                                tSetInfo,
                                                0,
                                                false );
+
+        // --------------------------------------------------------------------------------------
+        // Define outputs
+        vis::Output_Manager tOutputData;
+        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_bl_2_mat_l" + std::to_string(tLagrangeOrder) + "_b"+std::to_string(tBsplineOrder)+".e";
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD,
+                                 tMeshOutputFile,
+                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3",
+                                   "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
+                                 { "Temperature" },
+                                 { vis::Field_Type::NODAL },
+                                 { vis::Output_Type::TEMP } );
+
+        tModel->set_output_manager( &tOutputData );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -627,6 +656,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tNonlinearSolver.set_dof_type_list( tDofTypes1 );
         tTimeSolver.set_dof_type_list( tDofTypes1 );
 
+        tTimeSolver.set_output( 0, tSolverOutputCriteria_4MatMDL );
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 4: Solve and check
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -648,46 +679,46 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
 
-        // Declare the fields related to enrichment strategy in output options
-        // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-
-
-        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-
-            tSTKIntegSol(i) = tIntegSol(tMyIndex);
-        }
-
-        // crate field in integration mesh
-        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-
-
-        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_bl_2_mat_l" + std::to_string(tLagrangeOrder) + "_b"+std::to_string(tBsplineOrder)+".e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//        // Declare the fields related to enrichment strategy in output options
+//        // output solution and meshes
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldName = "solution";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+//
+//
+//        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
+//
+//            tSTKIntegSol(i) = tIntegSol(tMyIndex);
+//        }
+//
+//        // crate field in integration mesh
+//        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
+//        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
+//
+//
+//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_bl_2_mat_l" + std::to_string(tLagrangeOrder) + "_b"+std::to_string(tBsplineOrder)+".e";
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         delete tModel;
-        delete tIntegMesh1;
+//        delete tIntegMesh1;
     }
 }
 
@@ -973,18 +1004,22 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         fem::Set_User_Info tSetBulk5;
         tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
         tSetBulk5.set_IWGs( { tIWGBulk1 } );
+        tSetBulk5.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk6;
         tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
         tSetBulk6.set_IWGs( { tIWGBulk1 } );
+        tSetBulk6.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk7;
         tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
         tSetBulk7.set_IWGs( { tIWGBulk1 } );
+        tSetBulk7.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk8;
         tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
         tSetBulk8.set_IWGs( { tIWGBulk1 } );
+        tSetBulk8.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
@@ -1042,12 +1077,11 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD,
                                  tMeshOutputFile,
-                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-                                 { 0, 1, 2, 3 },
+                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3",
+                                   "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
                                  { "Temperature" },
                                  { vis::Field_Type::NODAL },
                                  { vis::Output_Type::TEMP } );
-
         tModel->set_output_manager( &tOutputData );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1123,7 +1157,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tTimeSolver.get_full_solution(tFullSol);
 
         //print(tFullSol,"tFullSol");
-
 
 //        // Declare the fields related to enrichment strategy in output options
 //        // output solution and meshes

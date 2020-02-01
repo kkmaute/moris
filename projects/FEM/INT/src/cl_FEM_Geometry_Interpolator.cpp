@@ -97,7 +97,6 @@ namespace moris
 
             // set pointers for second derivative depending on space and time dimensions
             this->set_function_pointers();
-
         }
 
 //------------------------------------------------------------------------------
@@ -404,6 +403,9 @@ namespace moris
             {
                 // evaluate the shape functions
                 this->eval_NXi();
+
+                // set bool for evaluation
+                mNXiEval = false;
             }
 
             // return member value
@@ -427,6 +429,9 @@ namespace moris
             {
                 // evaluate the shape functions
                 this->eval_NTau();
+
+                // set bool for evaluation
+                mNTauEval = false;
             }
 
             // return member value
@@ -450,6 +455,9 @@ namespace moris
              {
                  // evaluate the shape functions 1st derivative
                  this->eval_dNdXi();
+
+                 // set bool for evaluation
+                 mdNdXiEval = false;
              }
 
              // return member value
@@ -473,6 +481,9 @@ namespace moris
             {
                 // evaluate the shape functions 1st derivative
                 this->eval_dNdTau();
+
+                // set bool for evaluation
+                mdNdTauEval = false;
             }
 
             // return member value
@@ -496,6 +507,9 @@ namespace moris
             {
                 // evaluate the shape functions 2nd derivative
                 this->eval_d2NdXi2();
+
+                // set bool for evaluation
+                md2NdXi2Eval = false;
             }
 
             // return member value
@@ -519,6 +533,9 @@ namespace moris
             {
                 // evaluate the shape functions 3rd derivative
                 this->eval_d3NdXi3();
+
+                // set bool for evaluation
+                md3NdXi3Eval = false;
             }
 
             // return member value
@@ -542,6 +559,9 @@ namespace moris
             {
                 // evaluate the shape functions 2nd derivative
                 this->eval_d2NdTau2();
+
+                // set bool for evaluation
+                md2NdTau2Eval = false;
             }
 
             // return member value
@@ -750,6 +770,31 @@ namespace moris
                  }
              }
          }
+
+//        template< mtk::Geometry_Type G >
+//        void
+//        Geometry_Interpolator< G >::get_normal( Matrix< DDRMat > & aNormal )
+//        {
+//            MORIS_ERROR( false, "get_normal() not implemented for this geometry type." );
+//        }
+//
+//        template<>
+//        void
+//        Geometry_Interpolator< mtk::Geometry_Type::LINE >::get_normal( Matrix< DDRMat > & aNormal )
+//        {
+//            // evaluate side space interpolation shape functions first parametric derivatives at aParamPoint
+//            Matrix< DDRMat > tdNSpacedXi;
+//            mSpaceInterpolation->eval_dNdXi( mXiLocal, tdNSpacedXi );
+//
+//            // evaluation of tangent vectors to the space side in the physical space
+//            Matrix< DDRMat > tRealTangents = trans( tdNSpacedXi * mXHat );
+//
+//            // computing the normal from the real tangent vectors
+//            aNormal = {{  tRealTangents( 1 ) },
+//                       { -tRealTangents( 0 ) }};
+//            aNormal = aNormal / norm( aNormal );
+//        }
+
 
 //------------------------------------------------------------------------------
         Matrix< DDRMat > Geometry_Interpolator::valx()
