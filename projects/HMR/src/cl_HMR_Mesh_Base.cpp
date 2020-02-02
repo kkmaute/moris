@@ -294,7 +294,7 @@ namespace moris
                         Cell< Basis* > tBasisInAura;
 
                         // collect basis within inverse aura
-                        this->collect_basis_from_aura( p, 1, tBasisInAura );
+                        this->collect_basis_from_aura( p, 2, tBasisInAura );
 
                         // calculate addresses of basis to ask for
                         this->encode_foreign_basis_path( tBasisInAura,
@@ -362,8 +362,7 @@ namespace moris
                                                                           tMemoryCounter );
 
                         // pick requested basis
-                        Basis * tBasis = mAllElementsOnProc( tElement->get_memory_index() )
-                                                             ->get_basis( tReceiveBasisIndex( p )( k ) );
+                        Basis * tBasis = mAllElementsOnProc( tElement->get_memory_index() )->get_basis( tReceiveBasisIndex( p )( k ) );
 
                         // write basis owner into send array
                         tSendOwner( p )( k ) = tBasis->get_owner();
@@ -397,7 +396,7 @@ namespace moris
                         Cell< Basis* > tBasisInAura;
 
                         // collect basis within inverse aura
-                        this->collect_basis_from_aura( p, 1, tBasisInAura );
+                        this->collect_basis_from_aura( p, 2, tBasisInAura );
 
                         // initialize counter
                         luint tCount = 0;
@@ -419,7 +418,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighborIndex,
-                                                 const bool           & aUseInverseAura,
+                                                 const uint           & aMode,
                                                        Cell< Basis* > & aBasisList )
         {
             // clear basis list
@@ -433,7 +432,7 @@ namespace moris
 
                 // get element list from background mesh
                 mBackgroundMesh->collect_active_elements_from_aura( aProcNeighborIndex,
-                                                                    aUseInverseAura,
+                                                                    aMode,
                                                                     tBackElements );
 
                 // initialize basis counter
@@ -557,9 +556,8 @@ namespace moris
             // determine memory needs for pedigree list
             for( luint k=0; k<tCount; ++k )
             {
-                tMemoryCount += mAllElementsOnProc( aElementAncestors( k ) )
-                                ->get_background_element()->
-                                 get_length_of_pedigree_path();
+                tMemoryCount += mAllElementsOnProc( aElementAncestors( k ) )->get_background_element()
+                                                                            ->get_length_of_pedigree_path();
             }
 
             // allocate pedigree path
@@ -572,10 +570,9 @@ namespace moris
             for( luint k = 0; k < tCount; ++k )
             {
                 // get pointer to element
-                Background_Element_Base* tElement =  mAllElementsOnProc( aElementAncestors( k )  )
-                                                            ->get_background_element();
-                // encode path and overwrite aElementAncestor with Ancestor Index
+                Background_Element_Base* tElement = mAllElementsOnProc( aElementAncestors( k ) )->get_background_element();
 
+                // encode path and overwrite aElementAncestor with Ancestor Index
                 tElement->endcode_pedigree_path( aElementAncestors( k ),
                                                  aElementPedigree,
                                                  tMemoryCount );
@@ -764,6 +761,136 @@ namespace moris
                     this->get_element( e )->set_index( e );
                 }
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        moris::luint Mesh_Base::get_max_basis_hmr_id()
+        {
+            luint tHMRID = 0;
+            for( auto tBasis : mAllBasisOnProc )
+            {
+                tHMRID = std::max(  tHMRID, (luint)tBasis->get_hmr_id() );
+            }
+
+            luint tHMRID_return = 0;
+
+            max_all( tHMRID, tHMRID_return );
+
+            return tHMRID_return;
+        }
+
+// -----------------------------------------------------------------------------
+
+        void Mesh_Base::sanity_check_for_ids_and_ownership()
+        {
+            luint tMax_HMR_ID = this->get_max_basis_hmr_id();
+
+            // create Map
+            std::map< luint, luint> tIdMap;
+            std::map< luint, moris_id > tOwnerMap;
+            for( auto tBasis : mAllBasisOnProc )
+            {
+                tIdMap[ tBasis->get_hmr_id() ] = tBasis->get_hmr_index();
+                tOwnerMap[ tBasis->get_hmr_id() ] = tBasis->get_owner();
+            }
+
+            for( int Ik = 0; Ik < (int)tMax_HMR_ID; Ik++ )
+            {
+                luint tId = gNoEntityID;
+                moris_id tOwner = gNoProcID;
+
+                auto tIter = tIdMap.find(Ik);
+
+                if ( tIter!=tIdMap.end()  )
+                {
+                	tId = tIter->second;
+                }
+
+                auto tIterOwner = tOwnerMap.find(Ik);
+
+                if ( tIterOwner!=tOwnerMap.end()  )
+                {
+                    tOwner = tIterOwner->second;
+                }
+
+                sint tNumProcs = par_size();
+                moris::Cell< luint > tReciveBuffer(tNumProcs);
+                moris::Cell< moris_id > tReciveBufferOwner(tNumProcs);
+
+                moris::Cell< sint > tReciveBufferNumber( tNumProcs, 1 );
+                moris::Cell< sint > tReciveBufferOFFSET( tNumProcs, 0 );
+
+                for( int Ii = 0; Ii < tNumProcs; Ii++ )
+                {
+                	tReciveBufferOFFSET( Ii) = Ii;
+                }
+
+
+                MPI_Gatherv( &tId,
+                             1,
+                             MPI_UNSIGNED_LONG,
+                             (tReciveBuffer.data()).data(),
+                             (tReciveBufferNumber.data()).data(),
+                             (tReciveBufferOFFSET.data()).data(),
+                             MPI_UNSIGNED_LONG,
+                             0,
+                             MPI_COMM_WORLD );
+
+                MPI_Gatherv( &tOwner,
+                             1,
+                             MPI_INT,
+                             (tReciveBufferOwner.data()).data(),
+                             (tReciveBufferNumber.data()).data(),
+                             (tReciveBufferOFFSET.data()).data(),
+                             MPI_INT,
+                             0,
+                             MPI_COMM_WORLD );
+
+                if ( par_rank() == 0 )
+                {
+                    // Sort this created list
+                    std::sort( ( tReciveBuffer.data() ).data(), ( tReciveBuffer.data() ).data() + tReciveBuffer.size() );
+
+                    // use std::unique and std::distance to create list containing all used dof types. This list is unique
+                    auto last = std::unique( ( tReciveBuffer.data() ).data(), ( tReciveBuffer.data() ).data() + tReciveBuffer.size() );
+                    auto pos  = std::distance( ( tReciveBuffer.data() ).data(), last );
+
+                    tReciveBuffer.resize( pos );
+
+                    MORIS_ERROR( tReciveBuffer.size() <= 2, " Basis has more than 1 uniqe Id" );
+
+                    if( tReciveBuffer.size() == 2 )
+                    {
+                        MORIS_ERROR( tReciveBuffer( 1 ) == gNoEntityID, " Basis Id are wrong" );
+                        MORIS_ERROR( tReciveBuffer( 0 ) != gNoEntityID, " Basis Id is MORIS_MAX_LONGUINT" );
+                    }
+                }
+
+                if ( par_rank() == 0 )
+                {
+                    // Sort this created list
+                    std::sort( ( tReciveBufferOwner.data() ).data(), ( tReciveBufferOwner.data() ).data() + tReciveBufferOwner.size() );
+
+                    // use std::unique and std::distance to create list containing all used dof types. This list is unique
+                    auto last = std::unique( ( tReciveBufferOwner.data() ).data(), ( tReciveBufferOwner.data() ).data() + tReciveBufferOwner.size() );
+                    auto pos  = std::distance( ( tReciveBufferOwner.data() ).data(), last );
+
+                    tReciveBufferOwner.resize( pos );
+
+
+                    MORIS_ERROR( tReciveBufferOwner.size() <= 2, " Basis has more than one owning processor" );
+
+
+                    if( tReciveBufferOwner.size() == 2 )
+                    {
+                        MORIS_ERROR( tReciveBufferOwner( 1 ) == gNoProcID, " Basis owners are wrong" );
+                        MORIS_ERROR( tReciveBufferOwner( 0 ) != gNoProcID, " Basis Id is MORIS_SINT_MAX" );
+                    }
+                }
+            }
+
+            MORIS_LOG_ERROR("Basis Id and ownership sanity check passed \n");
         }
 
 // -----------------------------------------------------------------------------

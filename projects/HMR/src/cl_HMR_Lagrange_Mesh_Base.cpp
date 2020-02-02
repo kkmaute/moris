@@ -207,6 +207,11 @@ namespace moris
 
             // create node numbers
             this->calculate_node_indices();
+
+//#ifdef DEBUG
+//            MORIS_LOG_WARNING("Sanity check for vertex basis Ids and ownership will be performed. This might slow down the execution significantly. \n");
+//            this->sanity_check_for_ids_and_ownership();
+//#endif
         }
 
 //------------------------------------------------------------------------------
@@ -684,10 +689,10 @@ namespace moris
 
                         for( Basis * tNode : tNodes )
                         {
-                            if( tNode->get_owner() == tMyRank )
-                            {
-                                tMap[ tNode->get_hmr_id() ] = tNode->get_hmr_index();
-                            }
+//                            if( tNode->get_owner() == tMyRank )
+//                            {
+                              tMap[ tNode->get_hmr_id() ] = tNode->get_hmr_index();
+//                            }
                         }
 
                         // get number of nodes

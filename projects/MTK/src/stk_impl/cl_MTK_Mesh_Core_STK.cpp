@@ -212,7 +212,8 @@ namespace mtk
 // General mesh information access
 //##############################################
     uint
-    Mesh_Core_STK::get_num_entities(enum EntityRank aEntityRank) const
+    Mesh_Core_STK::get_num_entities( enum EntityRank aEntityRank,
+                                     const moris_index     aIndex ) const
     {
         // Initialize
         stk::mesh::EntityRank requestedRank = this->get_stk_entity_rank(aEntityRank);
@@ -232,7 +233,8 @@ namespace mtk
     Matrix<IndexMat>
     Mesh_Core_STK::get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
                                             enum EntityRank aInputEntityRank,
-                                            enum EntityRank aOutputEntityRank) const
+                                            enum EntityRank aOutputEntityRank,
+											const moris_index     aIndex ) const
     {
         MORIS_ERROR(aInputEntityRank != aOutputEntityRank," Input and output entity rank cannot be the same (this is an invalid connectivity inside STK). Use get_element_to_element_loc_inds for element to element connectivity.");
 
@@ -449,14 +451,16 @@ namespace mtk
 
     moris_id
     Mesh_Core_STK::get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
-                                                      enum EntityRank aEntityRank) const
+                                                      enum EntityRank aEntityRank,
+                                                      const moris_index     aIndex ) const
     {
        return mSTKMeshData->mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex);
     }
 
     moris_index
     Mesh_Core_STK::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
-                                                    enum EntityRank aEntityRank) const
+                                                    enum EntityRank aEntityRank,
+													const moris_index     aIndex ) const
     {
         auto tIter = mSTKMeshData->mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
 
@@ -473,7 +477,8 @@ namespace mtk
     Mesh_Core_STK::get_entity_connected_to_entity_glob_ids(
             moris_id     aEntityId,
             enum EntityRank aInputEntityRank,
-            enum EntityRank aOutputEntityRank) const
+            enum EntityRank aOutputEntityRank,
+			const moris_index     aIndex ) const
     {
 
         // Call function that gets the connected entities
@@ -609,7 +614,8 @@ namespace mtk
         return aAvailableNodeIDs;
     }
     moris_id
-    Mesh_Core_STK::get_max_entity_id( enum EntityRank aEntityRank ) const
+    Mesh_Core_STK::get_max_entity_id( enum EntityRank aEntityRank,
+            const moris_index     aIndex ) const
     {
         return this->generate_unique_entity_ids(1,EntityRank::NODE)(0);
     }
@@ -650,7 +656,8 @@ namespace mtk
     //##############################################
     moris_id
     Mesh_Core_STK::get_entity_owner( moris_index     aEntityIndex,
-                                enum EntityRank aEntityRank ) const
+                                enum EntityRank aEntityRank,
+								const moris_index     aIndex ) const
     {
 
         // Convert index to ID
@@ -880,7 +887,7 @@ namespace mtk
     }
 
     uint
-    Mesh_Core_STK::get_num_fields(  const enum EntityRank aEntityRank ) const
+    Mesh_Core_STK::get_num_fields(  const enum EntityRank aEntityRank,const moris_index     aIndex ) const
     {
         stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aEntityRank);
         const stk::mesh::FieldVector & tFieldVector = mSTKMeshData->mMtkMeshMetaData->get_fields(tEntityRank);

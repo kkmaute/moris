@@ -330,6 +330,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
                 }
             }
 
+            tParameters->set_severity_level( 2 );
+
             // delete background mesh
             delete tBackgroundMesh;
 
@@ -854,6 +856,8 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
 
         std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
         std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
+
+        tParameters.set_severity_level( 0 );
     }
 }
 

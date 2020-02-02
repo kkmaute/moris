@@ -18,12 +18,7 @@
 using namespace moris;
 using namespace hmr;
 
-moris::real tPlane_MBench( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    moris::real tOffset = 2;
 
-    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
-}
 
 TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagrange_mesh]")
 {
@@ -746,11 +741,21 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
     }
 }
 
+moris::real tPlane_Bench( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real tOffset = 1.5;
+
+    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
+
+}
+
 TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_mesh]")
 {
-    if(par_size() == 1)
+//    if(par_size() == 1)
     {
-        uint tLagrangeMeshIndex = 0;
+    	std::cout<<"I am proc: "<<par_rank()<<std::endl;
+
+           uint tLagrangeMeshIndex = 0;
 
         // empty container for B-Spline meshes
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
@@ -761,22 +766,26 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         // Dummy parameter list
         ParameterList tParam = hmr::create_hmr_parameter_list();
 
-        tParameters.set_number_of_elements_per_dimension( { {20}, {10}, {10} } );
+        tParameters.set_number_of_elements_per_dimension( { {40}, {10}, {10} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
         tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
 
         tParameters.set_bspline_truncation( true );
+
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns( { {0} });
+
         tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
         tParameters.set_output_meshes( { {0} } );
 //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
-        tParameters.set_staircase_buffer( 1 );
+        tParameters.set_staircase_buffer( 2 );
+
         tParameters.set_initial_refinement( 0 );
+
         tParameters.set_number_aura( true );
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
@@ -789,8 +798,27 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
 
         tHMR.perform_initial_refinement( 0 );
 
-//        std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
+        std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
+        //==============================
+        std::shared_ptr< hmr::Field > tField = tMesh01->create_field( "gyroid", tLagrangeMeshIndex);
+
+        tField->evaluate_scalar_function( tPlane_Bench );
+
+        moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+//            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0, true );
+            tField->evaluate_scalar_function( tPlane_Bench );
+        }
         tHMR.finalize();
+
+//   //==============================
+//           tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
+//
+//           tHMR.save_mesh_to_vtk( "Lagrange_Mesh.vtk", 0 );
     }
 }
 

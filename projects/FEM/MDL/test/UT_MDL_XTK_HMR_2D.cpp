@@ -201,7 +201,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 ////        tXTKModel.decompose(tDecompositionMethods);
 ////
-////        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+////        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 ////
 ////        // get meshes
 ////        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -545,7 +545,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 ////    tXTKModel.decompose(tDecompositionMethods);
 ////
-////    tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+////    tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 ////
 ////    // get meshes
 ////    xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -865,7 +865,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 ////    tXTKModel.decompose(tDecompositionMethods);
 ////
-////    tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+////    tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 ////
 ////    // get meshes
 ////    xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -1168,7 +1168,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //    tXTKModel.decompose(tDecompositionMethods);
 //
-//    tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+//    tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 //
 //    // get meshes
 //    xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();

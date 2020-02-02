@@ -153,7 +153,8 @@ public:
      */
     uint
     get_num_entities(
-            enum EntityRank aEntityRank) const;
+            enum EntityRank aEntityRank,
+			const moris_index     aIndex = 0) const;
 
 
     //##############################################
@@ -166,7 +167,8 @@ public:
     Matrix<IndexMat>
     get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
                                             enum EntityRank aInputEntityRank,
-                                            enum EntityRank aOutputEntityRank) const;
+                                            enum EntityRank aOutputEntityRank,
+											const moris_index     aIndex = 0) const;
 
     /*
      * Since the connectivity between entities of the same rank are considered
@@ -207,14 +209,16 @@ public:
      */
     moris_id
     get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
-                                            enum EntityRank aEntityRank) const;
+                                            enum EntityRank aEntityRank,
+											const moris_index     aIndex = 0) const;
 
     /*
      * Get local indec of an entity from a global index
      */
     moris_index
     get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
-                                          enum EntityRank aEntityRank) const;
+                                          enum EntityRank aEntityRank,
+										  const moris_index     aIndex = 0) const;
 
     /*
      * Generic get global id of entities connected to
@@ -223,7 +227,8 @@ public:
     Matrix< IdMat >
     get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                              enum EntityRank aInputEntityRank,
-                                             enum EntityRank aOutputEntityRank) const;
+                                             enum EntityRank aOutputEntityRank,
+											 const moris_index     aIndex = 0) const;
 
     /*
      * Since the connectivity between entities of the same rank are considered
@@ -264,7 +269,8 @@ public:
                                 enum EntityRank aEntityRank) const;
 
     moris_id
-    get_max_entity_id( enum EntityRank aEntityRank ) const;
+    get_max_entity_id( enum EntityRank aEntityRank,
+            const moris_index     aIndex = 0 ) const;
 
 
     //##############################################
@@ -279,7 +285,8 @@ public:
     //##############################################
     moris_id
     get_entity_owner(  moris_index     aEntityIndex,
-                       enum EntityRank aEntityRank ) const;
+                       enum EntityRank aEntityRank,
+					   const moris_index     aIndex = 0) const;
 
 
     //TODO: function get_processors_whom_share_entity
@@ -334,7 +341,7 @@ public:
     // Field Access
     //##############################################
     uint
-    get_num_fields(  const enum EntityRank aEntityRank ) const;
+    get_num_fields(  const enum EntityRank aEntityRank,const moris_index     aIndex = 0 ) const;
 
     //------------------------------------------------------------------------------
 
@@ -345,7 +352,7 @@ public:
     moris_index
     get_field_ind(
             const std::string & aFieldLabel,
-            const enum EntityRank aEntityRank ) const;
+            const enum EntityRank aEntityRank) const;
 
 
 

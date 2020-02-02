@@ -1103,6 +1103,8 @@ namespace moris
                     {
                         moris_id tID = tMesh->get_node_by_index( k )->get_id();
 
+//                        std::cout<<tID<<std::endl;
+
                         MORIS_ERROR( 0 < tID && tID <= tMaxID, "Database::check_entity_ids(), Invalid Node ID" );
                     }
 

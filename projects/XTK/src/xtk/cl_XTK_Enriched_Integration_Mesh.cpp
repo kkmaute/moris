@@ -80,7 +80,7 @@ Enriched_Integration_Mesh::get_spatial_dim() const
 }
 //------------------------------------------------------------------------------
 uint
-Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank ) const
+Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank, const moris_index aIndex ) const
 {
     switch(aEntityRank)
     {
@@ -103,7 +103,8 @@ Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank ) const
 Matrix<IndexMat>
 Enriched_Integration_Mesh::get_entity_connected_to_entity_loc_inds(moris_index  aEntityIndex,
                                                                    enum EntityRank aInputEntityRank,
-                                                                   enum EntityRank aOutputEntityRank) const
+                                                                   enum EntityRank aOutputEntityRank,
+																   const moris_index aIndex) const
 {
     MORIS_ERROR(aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,"Only support element to node connectivity");
     return this->get_mtk_cell(aEntityIndex).get_vertex_inds();
@@ -131,14 +132,16 @@ Enriched_Integration_Mesh::get_all_vertices() const
 //------------------------------------------------------------------------------
 moris_id
 Enriched_Integration_Mesh::get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
-                                                                   enum EntityRank aEntityRank) const
+                                                                   enum EntityRank aEntityRank,
+																   const moris_index aIndex) const
 {
     return mModel->mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(aEntityIndex,aEntityRank);
 }
 //------------------------------------------------------------------------------
 moris_index
 Enriched_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
-                                                                 enum EntityRank aEntityRank) const
+                                                                 enum EntityRank aEntityRank,
+																 const moris_index aIndex) const
 {
     return mModel->mBackgroundMesh.get_loc_entity_ind_from_entity_glb_id( aEntityId, aEntityRank );
 }
@@ -148,7 +151,8 @@ Enriched_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id       
 Matrix<IdMat>
 Enriched_Integration_Mesh::get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                                                     enum EntityRank aInputEntityRank,
-                                                                    enum EntityRank aOutputEntityRank) const
+                                                                    enum EntityRank aOutputEntityRank,
+																	const moris_index aIndex) const
 {
     moris_index tEntityIndex = get_loc_entity_ind_from_entity_glb_id(aEntityId,aInputEntityRank);
 
@@ -310,7 +314,7 @@ Enriched_Integration_Mesh::get_sideset_elems_loc_inds_and_ords( const  std::stri
 }
 //------------------------------------------------------------------------------
 moris_id
-Enriched_Integration_Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
+Enriched_Integration_Mesh::get_max_entity_id( enum EntityRank aEntityRank, const moris_index aIndex ) const
 {
    MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have max id");
 
