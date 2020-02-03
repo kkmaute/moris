@@ -70,7 +70,7 @@ namespace moris
             mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
             += ( - trans( tFIMaster->N() ) * tTraction
                  + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
-                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) *tWStar ;
+                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) * tWStar ;
 
             // compute slave residual
             mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )

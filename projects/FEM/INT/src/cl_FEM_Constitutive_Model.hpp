@@ -46,12 +46,17 @@ namespace moris
             // dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
+            // Local string to dof enum map
+            std::map< std::string, MSI::Dof_Type > mDofMap;
+
             // dof type map
             Matrix< DDSMat > mDofTypeMap;
 
             // bool for global dof type list and map build
             bool mGlobalDofBuild = true;
             bool mGlobalDvBuild  = true;
+            bool mGlobalDofMapBuild = true;
+            bool mGlobalDvMapBuild  = true;
 
             // global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
@@ -59,8 +64,8 @@ namespace moris
             // global dof type map
             Matrix< DDSMat > mGlobalDofTypeMap;
 
-            // dof field interpolators
-            moris::Cell< Field_Interpolator* > mDofFI;
+//            // dof field interpolators
+//            moris::Cell< Field_Interpolator* > mDofFI;
 
             // dv type list
             moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
@@ -74,8 +79,8 @@ namespace moris
             // dv type map
             Matrix< DDSMat > mDvTypeMap;
 
-            // dv field interpolators
-            moris::Cell< Field_Interpolator* > mDvFI;
+//            // dv field interpolators
+//            moris::Cell< Field_Interpolator* > mDvFI;
 
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
@@ -161,7 +166,7 @@ namespace moris
             virtual void set_space_dim( uint aSpaceDim )
             {
                 // check that space dimension is 1, 2, 3
-                MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "Constitutive_Model::set_space_dim - wrong space dimension.");
+                MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "Constitutive_Model::set_space_dim - wrong space dimension." );
 
                 // set space dimension
                 mSpaceDim = aSpaceDim;
@@ -219,6 +224,27 @@ namespace moris
 
                 // build a map for the dof types
                 this->build_dof_type_map();
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set constitutive model dof types
+             * @param[ in ] aDofTypes a cell of cell of dof types
+             */
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                                    moris::Cell< std::string >                  aDofStrings )
+            {
+                // set the dof types
+                mDofTypes = aDofTypes;
+
+                // build a map for the dof types
+                this->build_dof_type_map();
+
+                // set the dof map
+                for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
+                {
+                    mDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -332,28 +358,28 @@ namespace moris
                 return mDvTypeMap;
             }
 
-//------------------------------------------------------------------------------
-            /**
-             * set dof field interpolators
-             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
-             */
-            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
-            {
-                // check input size
-                MORIS_ASSERT( aFieldInterpolators.size() == this->get_global_dof_type_list().size(),
-                              "Constitutive_Model::set_dof_field_interpolators - wrong input size. " );
-
-                // check field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == get_global_dof_type_list()( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dof_field_interpolators - wrong field interpolator dof type. ");
-
-                // set field interpolators
-                mDofFI = aFieldInterpolators;
-            }
+////------------------------------------------------------------------------------
+//            /**
+//             * set dof field interpolators
+//             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
+//             */
+//            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
+//            {
+//                // check input size
+//                MORIS_ASSERT( aFieldInterpolators.size() == this->get_global_dof_type_list().size(),
+//                              "Constitutive_Model::set_dof_field_interpolators - wrong input size. " );
+//
+//                // check field interpolator type
+//                bool tCheckFI = true;
+//                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
+//                {
+//                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == get_global_dof_type_list()( iFI )( 0 ) );
+//                }
+//                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dof_field_interpolators - wrong field interpolator dof type. ");
+//
+//                // set field interpolators
+//                mDofFI = aFieldInterpolators;
+//            }
 
 //------------------------------------------------------------------------------
             /**
@@ -378,92 +404,93 @@ namespace moris
                     }
                 }
             }
-//------------------------------------------------------------------------------
-            /**
-             * get dof field interpolators
-             * @param[ out ] mDofFI cell of dof field interpolator pointers
-             */
-            const moris::Cell< Field_Interpolator* > & get_dof_field_interpolators()
-            {
-                return mDofFI;
-            };
 
-//------------------------------------------------------------------------------
-            /**
-             * check that dof field interpolators were assigned
-             */
-            void check_dof_field_interpolators()
-            {
-                // check field interpolators cell size
-                MORIS_ASSERT( mDofFI.size() == this->get_global_dof_type_list().size(),
-                              "Constitutive_Model::check_dof_field_interpolators - wrong FI size. " );
+////------------------------------------------------------------------------------
+//            /**
+//             * get dof field interpolators
+//             * @param[ out ] mDofFI cell of dof field interpolator pointers
+//             */
+//            const moris::Cell< Field_Interpolator* > & get_dof_field_interpolators()
+//            {
+//                return mDofFI;
+//            };
 
-               // loop over the field interpolator pointers
-               for( uint iFI = 0; iFI < this->get_global_dof_type_list().size(); iFI++ )
-               {
-                   // check that the field interpolator was set
-                   MORIS_ASSERT( mDofFI( iFI ) != nullptr,
-                                 "Constitutive_Model::check_dof_field_interpolators - FI missing. " );
-               }
-            }
+////------------------------------------------------------------------------------
+//            /**
+//             * check that dof field interpolators were assigned
+//             */
+//            void check_dof_field_interpolators()
+//            {
+//                // check field interpolators cell size
+//                MORIS_ASSERT( mDofFI.size() == this->get_global_dof_type_list().size(),
+//                              "Constitutive_Model::check_dof_field_interpolators - wrong FI size. " );
+//
+//               // loop over the field interpolator pointers
+//               for( uint iFI = 0; iFI < this->get_global_dof_type_list().size(); iFI++ )
+//               {
+//                   // check that the field interpolator was set
+//                   MORIS_ASSERT( mDofFI( iFI ) != nullptr,
+//                                 "Constitutive_Model::check_dof_field_interpolators - FI missing. " );
+//               }
+//            }
 
-//------------------------------------------------------------------------------
-            /**
-             * set dv field interpolators
-             * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
-             */
-            void set_dv_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
-            {
-                // get input size
-                uint tNumInputFI = aFieldInterpolators.size();
+////------------------------------------------------------------------------------
+//            /**
+//             * set dv field interpolators
+//             * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
+//             */
+//            void set_dv_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
+//            {
+//                // get input size
+//                uint tNumInputFI = aFieldInterpolators.size();
+//
+//                // check input size
+//                MORIS_ASSERT( tNumInputFI == this->get_global_dv_type_list().size(),
+//                              "Constitutive_Model::set_dv_field_interpolators - wrong input size. " );
+//
+//                // check field interpolator type
+//                bool tCheckFI = true;
+//                for( uint iFI = 0; iFI < tNumInputFI; iFI++ )
+//                {
+//                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == this->get_global_dv_type_list()( iFI )( 0 ) );
+//                }
+//                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dv_field_interpolators - wrong field interpolator dv type. ");
+//
+//                // set field interpolators
+//                mDvFI = aFieldInterpolators;
+//            }
 
-                // check input size
-                MORIS_ASSERT( tNumInputFI == this->get_global_dv_type_list().size(),
-                              "Constitutive_Model::set_dv_field_interpolators - wrong input size. " );
+////------------------------------------------------------------------------------
+//            /**
+//             * get dv field interpolators
+//             * @param[ out ] mDvFI cell of dv field interpolator pointers
+//             */
+//            const moris::Cell< Field_Interpolator* > & get_dv_field_interpolators()
+//            {
+//                return mDvFI;
+//            };
 
-                // check field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < tNumInputFI; iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == this->get_global_dv_type_list()( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dv_field_interpolators - wrong field interpolator dv type. ");
-
-                // set field interpolators
-                mDvFI = aFieldInterpolators;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get dv field interpolators
-             * @param[ out ] mDvFI cell of dv field interpolator pointers
-             */
-            const moris::Cell< Field_Interpolator* > & get_dv_field_interpolators()
-            {
-                return mDvFI;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * check that dv field interpolators were assigned
-             */
-            void check_dv_field_interpolators()
-            {
-                // get num of dv types
-                uint tNumDvTypes = this->get_global_dv_type_list().size();
-
-                // check field interpolators cell size
-                MORIS_ASSERT( mDvFI.size() == tNumDvTypes,
-                              "Constitutive_Model::check_dv_field_interpolators - wrong FI size. " );
-
-               // loop over the field interpolator pointers
-               for( uint iFI = 0; iFI < tNumDvTypes; iFI++ )
-               {
-                   // check that the field interpolator was set
-                   MORIS_ASSERT( mDvFI( iFI ) != nullptr,
-                                 "Constitutive_Model::check_dv_field_interpolators - FI missing. " );
-               }
-            }
+////------------------------------------------------------------------------------
+//            /**
+//             * check that dv field interpolators were assigned
+//             */
+//            void check_dv_field_interpolators()
+//            {
+//                // get num of dv types
+//                uint tNumDvTypes = this->get_global_dv_type_list().size();
+//
+//                // check field interpolators cell size
+//                MORIS_ASSERT( mDvFI.size() == tNumDvTypes,
+//                              "Constitutive_Model::check_dv_field_interpolators - wrong FI size. " );
+//
+//               // loop over the field interpolator pointers
+//               for( uint iFI = 0; iFI < tNumDvTypes; iFI++ )
+//               {
+//                   // check that the field interpolator was set
+//                   MORIS_ASSERT( mDvFI( iFI ) != nullptr,
+//                                 "Constitutive_Model::check_dv_field_interpolators - FI missing. " );
+//               }
+//            }
 
 //------------------------------------------------------------------------------
             /**
@@ -586,11 +613,17 @@ namespace moris
                     // build the stabilization parameter global dof type list
                     this->build_global_dof_type_list();
 
+                    // update build flag
+                    mGlobalDofBuild = false;
+                }
+
+                if( mGlobalDofMapBuild )
+                {
                     // build the stabilization parameter global dof type map
                     this->build_global_dof_type_map();
 
                     // update build flag
-                    mGlobalDofBuild = false;
+                    mGlobalDofMapBuild = false;
                 }
 
                 return mGlobalDofTypes;
@@ -673,6 +706,15 @@ namespace moris
              */
             void build_global_dof_type_map()
             {
+                if( mGlobalDofBuild )
+                {
+                    // build the stabilization parameter global dof type list
+                    this->build_global_dof_type_list();
+
+                    // update build flag
+                    mGlobalDofBuild = false;
+                }
+
                 // get number of global dof types
                 uint tNumDofTypes = mGlobalDofTypes.size();
 
@@ -702,6 +744,15 @@ namespace moris
              */
             const Matrix< DDSMat > & get_global_dof_type_map()
             {
+                if( mGlobalDofMapBuild )
+                {
+                    // build the stabilization parameter global dof type map
+                    this->build_global_dof_type_map();
+
+                    // update build flag
+                    mGlobalDofMapBuild = false;
+                }
+
                 return mGlobalDofTypeMap;
             }
 
@@ -721,7 +772,7 @@ namespace moris
                 uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
 
                 // if aDofType is an active dv type for the constitutive model
-                if( tDofIndex < mGlobalDofTypeMap.numel() && mGlobalDofTypeMap( tDofIndex ) != -1 )
+                if( tDofIndex < this->get_global_dof_type_map().numel() && this->get_global_dof_type_map()( tDofIndex ) != -1 )
                 {
                     // bool is set to true
                     tDofDependency = true;
@@ -1085,7 +1136,7 @@ namespace moris
              */
             const Matrix< DDRMat > & dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
             {
-               // if aDofType is not an active dof type for the property
+               // if aDofType is not an active dof type for the CM
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dFluxdDOF - no dependency in this dof type." );
 
                // get the dof index
@@ -1443,82 +1494,8 @@ namespace moris
              * @param[ in ] aPerturbation   real to perturb for FD
              */
             void eval_dFluxdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                    Matrix< DDRMat >                   & adFluxdDOF_FD,
-                                    real                                 aPerturbation )
-            {
-                // get the index for the considered dof type
-                uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
-
-                // get number of coefficients, fields and bases for the considered FI
-                uint tDerNumDof    = mDofFI( iFI )->get_number_of_space_time_coefficients();
-                uint tDerNumBases  = mDofFI( iFI )->get_number_of_space_time_bases();
-                uint tDerNumFields = mDofFI( iFI )->get_number_of_fields();
-
-                // FIXME works only for diffusion
-                // set size for derivative
-                adFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
-
-                // coefficients for dof type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = mDofFI( iFI )->get_coeff();
-
-                // init dof counter
-                uint tDofCounter = 0;
-
-                // loop over coefficients columns
-                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-                {
-                    // loop over coefficients rows
-                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-                    {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        uint tNumProps = mProperties.size();
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tFlux_Plus = this->flux();
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tFlux_Minus = this->flux();
-
-                        // evaluate Jacobian
-                        adFluxdDOF_FD.get_column( tDofCounter ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                        // update dof counter
-                        tDofCounter++;
-                    }
-                }
-                // reset the coefficients values
-                mDofFI( iFI )->set_coeff( tCoeff );
-            }
+                                          Matrix< DDRMat >             & adFluxdDOF_FD,
+                                          real                           aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
@@ -1528,82 +1505,8 @@ namespace moris
             * @param[ in ] aPerturbation   real to perturb for FD
             */
             void eval_dStraindDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                      Matrix< DDRMat >                   & adStraindDOF_FD,
-                                      real                                 aPerturbation )
-            {
-                // get the index for the considered dof type
-                uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
-
-                // get number of master dofs wrt which derivative is computed
-                uint tDerNumDof    = mDofFI( iFI )->get_number_of_space_time_coefficients();
-                uint tDerNumBases  = mDofFI( iFI )->get_number_of_space_time_bases();
-                uint tDerNumFields = mDofFI( iFI )->get_number_of_fields();
-
-                // FIXME works only for diffusion
-                // set size for derivative
-                adStraindDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
-
-                // coefficients for dof type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = mDofFI( iFI )->get_coeff();
-
-                // init dof counter
-                uint tDofCounter = 0;
-
-                // loop over coefficients columns
-                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-                {
-                    // loop over coefficients rows
-                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-                    {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        uint tNumProps = mProperties.size();
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tStrain_Plus = this->strain();
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tStrain_Minus = this->strain();
-
-                        // evaluate Jacobian
-                        adStraindDOF_FD.get_column( tDofCounter ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                        // update dof counter
-                        tDofCounter++;
-                    }
-                }
-                // reset the coefficients values
-                mDofFI( iFI )->set_coeff( tCoeff );
-            }
+                                            Matrix< DDRMat >             & adStraindDOF_FD,
+                                            real                           aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
@@ -1613,82 +1516,8 @@ namespace moris
              * @param[ in ] aPerturbation real to perturb for FD
              */
             void eval_dFluxdDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                    Matrix< DDRMat >                  & adFluxdDV_FD,
-                                    real                                aPerturbation )
-            {
-                // get the index for the considered dv type
-                uint iFI = mGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ), 0 );
-
-                // get number of coefficients, fields and bases for the considered FI
-                uint tDerNumDv     = mDvFI( iFI )->get_number_of_space_time_coefficients();
-                uint tDerNumBases  = mDvFI( iFI )->get_number_of_space_time_bases();
-                uint tDerNumFields = mDvFI( iFI )->get_number_of_fields();
-
-                // FIXME works only for diffusion
-                // set size for derivative
-                adFluxdDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
-
-                // coefficients for dv type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = mDvFI( iFI )->get_coeff();
-
-                // init dv counter
-                uint tDvCounter = 0;
-
-                // loop over coefficients columns
-                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-                {
-                    // loop over coefficients rows
-                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-                    {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        uint tNumProps = mProperties.size();
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tFlux_Plus = this->flux();
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tFlux_Minus = this->flux();
-
-                        // evaluate Jacobian
-                        adFluxdDV_FD.get_column( tDvCounter ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                        // update dv counter
-                        tDvCounter++;
-                    }
-                }
-                // reset the coefficients values
-                mDvFI( iFI )->set_coeff( tCoeff );
-            }
+                                         Matrix< DDRMat >            & adFluxdDV_FD,
+                                         real                          aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
@@ -1699,81 +1528,7 @@ namespace moris
             */
             void eval_dStraindDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
                                      Matrix< DDRMat >                  & adStraindDV_FD,
-                                     real                                aPerturbation )
-            {
-                // get the index for the considered dof type
-                uint iFI = mGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ), 0 );
-
-                // get number of coefficients, fields and bases for the considered FI
-                uint tDerNumDv     = mDvFI( iFI )->get_number_of_space_time_coefficients();
-                uint tDerNumBases  = mDvFI( iFI )->get_number_of_space_time_bases();
-                uint tDerNumFields = mDvFI( iFI )->get_number_of_fields();
-
-                // FIXME works only for diffusion
-                // set size for derivative
-                adStraindDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
-
-                // coefficients for dv type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = mDvFI( iFI )->get_coeff();
-
-                // init dv counter
-                uint tDvCounter = 0;
-
-                // loop over coefficients columns
-                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-                {
-                    // loop over coefficients rows
-                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-                    {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        uint tNumProps = mProperties.size();
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tStrain_Plus = this->strain();
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                        // setting the perturbed coefficients
-                        mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                        {
-                            mProperties( iProp )->reset_eval_flags();
-                        }
-
-                        // reset constitutive model
-                        this->reset_eval_flags();
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tStrain_Minus = this->strain();
-
-                        // evaluate Jacobian
-                        adStraindDV_FD.get_column( tDvCounter ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                        // update dv counter
-                        tDvCounter++;
-                    }
-                }
-                // reset the coefficients values
-                mDvFI( iFI )->set_coeff( tCoeff );
-            }
+                                     real                                aPerturbation );
 
 //------------------------------------------------------------------------------
         };

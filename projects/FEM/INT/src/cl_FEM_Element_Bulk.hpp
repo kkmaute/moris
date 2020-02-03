@@ -98,6 +98,12 @@ namespace moris
                                                      enum vis::Output_Type aOutputType );
 
 //------------------------------------------------------------------------------
+        /**
+         * compute volume over the element
+         */
+        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
 
 //        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 

@@ -200,6 +200,53 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        real Element_Double_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
+        {
+            // get treated side ordinal on the master and on the slave
+            uint tSideOrd = mCluster->get_side_ordinal_info( aIsMaster )( mCellIndexInCluster );
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager( aIsMaster )
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( this->get_mtk_cell( aIsMaster )->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_field_interpolator_manager( aIsMaster )
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for master integration cell
+            mSet->get_field_interpolator_manager( aIsMaster )
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd, mtk::Master_Slave::MASTER ) );
+            mSet->get_field_interpolator_manager( aIsMaster )
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+
+            //get number of integration points
+            uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
+
+            // init volume
+            real tVolume = 0;
+
+            // loop over integration points
+            for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+            {
+                // set integration point for geometry interpolator
+                mSet->get_field_interpolator_manager( aIsMaster )
+                    ->get_IG_geometry_interpolator()
+                    ->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+
+                // compute and add integration point contribution to volume
+                tVolume += mSet->get_field_interpolator_manager( aIsMaster)
+                               ->get_IG_geometry_interpolator()
+                               ->det_J()
+                         * mSet->get_integration_weights()( iGP );
+            }
+
+            // return the volume value
+            return tVolume;
+        }
+
+//------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */

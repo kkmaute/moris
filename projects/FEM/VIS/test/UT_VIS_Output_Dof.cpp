@@ -108,7 +108,7 @@ namespace moris
 {
     namespace vis
     {
-    TEST_CASE(" Vis_Output_Dof","[VIS],[Vis_Output_Dof]")
+    TEST_CASE(" Vis_Output_Dof_2D","[VIS],[Vis_Output_Dof_2D]")
     {
         if(par_size() == 1)
             {
@@ -346,10 +346,9 @@ namespace moris
 //                                         VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                          "Vis_Output_Dof.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-                                         { "Displacement nodal UX" },
-                                         { Field_Type::NODAL },
-                                         { Output_Type::UX } );
-
+                                         { "Displacement nodal UX", "Displacement nodal UY" },
+                                         { Field_Type::NODAL, Field_Type::NODAL },
+                                         { Output_Type::UX, Output_Type::UY } );
                 tModel->set_output_manager( &tOutputData );
 
                 // --------------------------------------------------------------------------------------
@@ -390,7 +389,7 @@ namespace moris
                 // Create solver database
                 NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-                tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
+                tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 // STEP 3: create time Solver and algorithm

@@ -9,6 +9,8 @@
 #define protected public
 #define private   public
 #include "cl_FEM_Constitutive_Model.hpp" //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#include "cl_FEM_Set.hpp"                   //FEM//INT//src
 #undef protected
 #undef private
 
@@ -72,15 +74,29 @@ namespace moris
             tDvFIs( 0 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS1 } );
             tDvFIs( 1 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS2 } );
 
-            // set FI for constitutive model
-            tCM->set_dof_field_interpolators( tDofFIs );
+            // set a fem set pointer
+            MSI::Equation_Set * tSet = new fem::Set();
 
-            // set geo FI for constitutive model
-            tCM->set_geometry_interpolator( &tGI );
+            // set size and populate the set dof type map
+            reinterpret_cast<fem::Set*>(tSet)->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            reinterpret_cast<fem::Set*>(tSet)->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-            // check dof field interpolator
-            //------------------------------------------------------------------------------
-            tCM->check_dof_field_interpolators();
+            // set size and populate the set master dof type map
+            tSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Field_Interpolator_Manager tFIManager( tDummy, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tDofFIs;
+            tFIManager.mDvFI = tDvFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set IWG field interpolator manager
+            tCM->set_field_interpolator_manager( &tFIManager );
 
             // dof map
             //------------------------------------------------------------------------------
@@ -124,10 +140,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
             // delete the field interpolator pointers
-            for( Field_Interpolator* tFI : tDofFIs )
-            {
-                delete tFI;
-            }
             tDofFIs.clear();
 
         }/* TEST_CASE */

@@ -5,10 +5,10 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp" //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp" //FEM/INT/src
 
 #define protected public
 #define private   public
+#include "cl_FEM_Constitutive_Model.hpp" //FEM/INT/src
 #include "cl_FEM_Set.hpp"         //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #undef protected
@@ -51,7 +51,6 @@ namespace moris
 
             std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            //tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
             tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
             tCMMasterDiffLinIso->set_space_dim( 2 );
 
@@ -119,8 +118,9 @@ namespace moris
 
             // set field interpolators
             tCMMasterDiffLinIso->set_field_interpolator_manager( &tFIManager );
-            //tCMMasterDiffLinIso->set_dof_field_interpolators( tFIs );
             tCMMasterDiffLinIso->set_geometry_interpolator( &tGI );
+
+            //tCMMasterDiffLinIso->get_global_dof_type_list();
 
             // check flux-------------------------------------------------------------------
             //------------------------------------------------------------------------------

@@ -380,6 +380,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+           /*!
+            * Returns the outward normal on a side ordinal
+            */
+           moris::real
+   		   compute_cell_side_measure(moris_index const & aCellSideOrd) const;
+
+
+//------------------------------------------------------------------------------
            /**
             * returns the interpolation order of this element
             */
@@ -562,6 +570,14 @@ namespace moris
         Lagrange_Element< N, D >::compute_cell_measure() const
         {
             MORIS_ERROR( false, "compute_cell_measure() not available for this element.");
+            return 0;
+        }
+//------------------------------------------------------------------------------
+        template< uint N, uint D >
+        moris::real
+		Lagrange_Element< N, D >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
+        {
+            MORIS_ERROR( false, "compute_cell_side_measure() not available for this element.");
             return 0;
         }
 

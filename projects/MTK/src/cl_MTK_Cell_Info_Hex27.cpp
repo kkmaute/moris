@@ -5,7 +5,6 @@
  *      Author: doble
  */
 
-
 #include "cl_MTK_Cell_Info_Hex27.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -179,13 +178,19 @@ Cell_Info_Hex27::compute_cell_side_size( moris::mtk::Cell const * aCell ,
 {
     moris::Cell< Vertex const* > tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
 
-    Matrix<DDRMat> tNode1Coords0 = tVertices(0)->get_coords();
-    Matrix<DDRMat> tNodeCoords2 = tVertices(2)->get_coords();
+    Matrix<DDRMat> tNodeCoords0 = tVertices(0)->get_coords();
+    Matrix<DDRMat> tNodeCoords1 = tVertices(1)->get_coords();
+    Matrix<DDRMat> tNodeCoords2 = tVertices(3)->get_coords();
 
-    real tLx = std::abs(tNode1Coords0(0) - tNodeCoords2(0));
-    real tLy = std::abs(tNode1Coords0(1) - tNodeCoords2(1));
+    return norm( cross( tNodeCoords1 - tNodeCoords0, tNodeCoords2 - tNodeCoords0 ) );
 
-    return tLx*tLy;
+//    Matrix<DDRMat> tNode1Coords0 = tVertices(0)->get_coords();
+//    Matrix<DDRMat> tNodeCoords2 = tVertices(2)->get_coords();
+//
+//    real tLx = std::abs(tNode1Coords0(0) - tNodeCoords2(0));
+//    real tLy = std::abs(tNode1Coords0(1) - tNodeCoords2(1));
+//
+//    return tLx*tLy;
 }
 // ----------------------------------------------------------------------------------
 

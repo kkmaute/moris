@@ -61,7 +61,6 @@ namespace moris
             TET_10,
             TET_11,
             TET_15,
-            ST_QUAD_3x3x1 // < -- space time combined
         };
 
 //------------------------------------------------------------------------------
@@ -160,18 +159,7 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-        enum class QI_Compute_Type
-        {
-            UNDEFINED,
-            GLOBAL,
-            NODAL,
-            ELEMENTAL,
-            END_IQ_COMPUTE_TYPE,
-        };
-
-//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */

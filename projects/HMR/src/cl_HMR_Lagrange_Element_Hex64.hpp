@@ -625,7 +625,17 @@ namespace moris
             return tCellInfo.compute_cell_size(this);
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+
+        template<>
+        moris::real
+		Lagrange_Element< 3, 64 >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
+        {
+            mtk::Cell_Info_Hex64 tCellInfo;
+            return tCellInfo.compute_cell_side_size( this, aCellSideOrd);
+        }
+
+        // ----------------------------------------------------------------------------
 
         /**
         * Creates all nodes on the coarsest level.

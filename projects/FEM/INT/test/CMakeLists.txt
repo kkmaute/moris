@@ -26,7 +26,7 @@ set(TEST_SOURCES
     cl_FEM_Double_Sided_Sideset_Test.cpp
     cl_FEM_Element_HJ_Test.cpp
     UT_FEM_Set.cpp
-    UT_FEM_Element.cpp
+    #UT_FEM_Element.cpp
     UT_FEM_Property.cpp
     UT_FEM_IWG.cpp
     UT_FEM_CM.cpp

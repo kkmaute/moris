@@ -12,6 +12,7 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
         SP_Ghost_Displacement::SP_Ghost_Displacement()
         {
             // set size for the property pointer cells
@@ -19,15 +20,15 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
-
-            // set the list of cluster measures
-            mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
         }
+
 //------------------------------------------------------------------------------
         void SP_Ghost_Displacement::eval_SP()
         {
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2 * ( mParameters( 1 )( 0 ) - 1 ) + 1 ) * mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
+            mPPVal = mParameters( 0 )
+                   * std::pow( mElementSize, 2 * ( mParameters( 1 )( 0 ) - 1 ) + 1 )
+                   * mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
         }
 
 //------------------------------------------------------------------------------
