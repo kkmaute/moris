@@ -593,9 +593,19 @@ namespace moris
                     {
                         tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2*mPaddingSize;
 
-                        if ( tProcSplit( k ) < mPaddingSize )
+                        if( mParameters->use_number_aura() )
                         {
-                            tError = true;
+                            if ( tProcSplit( k ) < (mPaddingSize * 2) + 1 )
+                            {
+                                tError = true;
+                            }
+                        }
+                        else
+                        {
+                            if ( tProcSplit( k ) < mPaddingSize )
+                            {
+                                tError = true;
+                            }
                         }
                     }
 

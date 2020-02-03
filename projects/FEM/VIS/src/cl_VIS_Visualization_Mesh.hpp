@@ -267,7 +267,7 @@ public:
        return this->get_set_by_index( 0 )->get_spatial_dim();
     }
 
-    uint get_num_entities( enum EntityRank aEntityRank ) const
+    uint get_num_entities( enum EntityRank aEntityRank, const moris_index aIndex = 0 ) const
     {
         MORIS_ERROR( false, "get_num_entities(), not implemented for visualization mesh" );
         return 0;
@@ -275,7 +275,8 @@ public:
 
     Matrix<IndexMat> get_entity_connected_to_entity_loc_inds (moris_index     aEntityIndex,
                                                              enum EntityRank aInputEntityRank,
-                                                             enum EntityRank aOutputEntityRank) const
+                                                             enum EntityRank aOutputEntityRank,
+															 const moris_index aIndex = 0) const
     {
         MORIS_ERROR( false, "get_entity_connected_to_entity_loc_inds(), not implemented for visualization mesh" );
         return Matrix<IndexMat>( 0, 0 );

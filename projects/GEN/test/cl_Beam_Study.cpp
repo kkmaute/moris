@@ -221,7 +221,7 @@ TEST_CASE("beamStudy","[beamStudy_3D]")
 //        tIntegMesh11->create_output_mesh(tMeshOutputFile1);
 //        delete tIntegMesh11;
         //============================= end temporary ==========================================
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();

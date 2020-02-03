@@ -71,7 +71,7 @@ namespace moris
         EDGE      ,   // Indicates the entity has rank EDGE
         FACE      ,   // Indicates the entity has rank FACE
         ELEMENT   ,// Indicates the entity has rank ELEMENT
-        BSPLINE_1 , // Indicates the entity has rank BSPLINE
+        BSPLINE , // Indicates the entity has rank BSPLINE
         BSPLINE_2 , // Indicates the entity has rank BSPLINE
         BSPLINE_3 , // Indicates the entity has rank BSPLINE
         INVALID   , // Indicates the entity is invalid
@@ -96,7 +96,7 @@ const std::string get_enum_str(enum EntityRank aCellTopoEnum)
         case EntityRank::EDGE     : return "EDGE"; break;
         case EntityRank::FACE     : return "FACE"; break;
         case EntityRank::ELEMENT  : return "ELEMENT"; break;
-        case EntityRank::BSPLINE_1: return "BSPLINE_1"; break;
+        case EntityRank::BSPLINE: return "BSPLINE"; break;
         case EntityRank::BSPLINE_2: return "BSPLINE_2"; break;
         case EntityRank::BSPLINE_3: return "BSPLINE_3"; break;
         case EntityRank::INVALID  : return "INVALID"; break;

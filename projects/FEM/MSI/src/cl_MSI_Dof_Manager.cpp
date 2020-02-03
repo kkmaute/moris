@@ -299,8 +299,6 @@ namespace moris
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
         Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
-        moris::print(mCommTable,"mCommTable");
-
         moris::uint tNumCommProcs = mCommTable.numel();
 
         // Loop over communication table to fill the communication table map

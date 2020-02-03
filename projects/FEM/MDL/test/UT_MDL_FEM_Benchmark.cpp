@@ -409,7 +409,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
 
        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
@@ -732,7 +732,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -1302,7 +1302,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
 
        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
@@ -1636,7 +1636,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();

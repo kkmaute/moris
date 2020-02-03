@@ -298,28 +298,31 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 ////        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
 //        //++++++++++++++++++++++++++++++++
 //
-//        // output solution and meshes
-//        xtk::Output_Options tOutputOptions1;
-//        tOutputOptions1.mAddNodeSets = false;
-//        tOutputOptions1.mAddSideSets = true;
-//        tOutputOptions1.mAddClusters = false;
+//               // output solution and meshes
+//                       xtk::Output_Options tOutputOptions1;
+//                       tOutputOptions1.mAddNodeSets = false;
+//                       tOutputOptions1.mAddSideSets = true;
+//                       tOutputOptions1.mAddClusters = false;
 //
-////        tOutputOptions1.mRealElementExternalFieldNames = tEnrichmentFieldNames;
+////                       tOutputOptions1.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 //
-//        //++++++++++++++++++++++++++++++++
-//        // add solution field to integration mesh
-//        std::string tIntegSolFieldName1 = "solution";
-//        tOutputOptions1.mRealNodeExternalFieldNames = {tIntegSolFieldName1};
-//        //++++++++++++++++++++++++++++++++
+//                       //++++++++++++++++++++++++++++++++
+//                       // add solution field to integration mesh
+//                       std::string tIntegSolFieldName1 = "solution";
+//                       tOutputOptions1.mRealNodeExternalFieldNames = {tIntegSolFieldName1};
+//                       //++++++++++++++++++++++++++++++++
 //
-//        moris::mtk::Integration_Mesh* tIntegMesh11 = tXTKModel.get_output_mesh(tOutputOptions1);
+//                       moris::mtk::Integration_Mesh* tIntegMesh11 = tXTKModel.get_output_mesh(tOutputOptions1);
 //
-////       //++++++++++++++++++++++++++++++++
-////       //tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh11);
-////       //++++++++++++++++++++++++++++++++
-//       std::string tMeshOutputFile1 = "./output_general_geomEng.e";
-//       tIntegMesh11->create_output_mesh(tMeshOutputFile1);
-       tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+////                       ++++++++++++++++++++++++++++++++
+////                       tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh11);
+////                       ++++++++++++++++++++++++++++++++
+//
+//
+//
+//                       std::string tMeshOutputFile1 = "./output_general_geomEng.e";
+//                       tIntegMesh11->create_output_mesh(tMeshOutputFile1);
+       tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();

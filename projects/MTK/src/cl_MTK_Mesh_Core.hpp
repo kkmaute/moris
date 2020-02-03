@@ -84,7 +84,8 @@ public:
     /*
      * Get number of entities for specified rank
      */
-    virtual uint get_num_entities( enum EntityRank aEntityRank) const = 0;
+    virtual uint get_num_entities( enum EntityRank aEntityRank,
+                                   const moris_index     aIndex = 0) const = 0;
 
     // ----------------------------------------------------------------------------
 
@@ -168,7 +169,8 @@ public:
     Matrix<IndexMat>
     get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
                                             enum EntityRank aInputEntityRank,
-                                            enum EntityRank aOutputEntityRank) const = 0;
+                                            enum EntityRank aOutputEntityRank,
+											const moris_index     aIndex = 0) const = 0;
     //------------------------------------------------------------------------------
     /*
      * Since the connectivity between entities of the same rank are considered
@@ -323,7 +325,8 @@ public:
     virtual
     moris_id
     get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
-                                            enum EntityRank aEntityRank) const
+                                            enum EntityRank aEntityRank,
+											const moris_index     aIndex = 0) const
     {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
         return 0;
@@ -335,7 +338,8 @@ public:
     virtual
     moris_index
     get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
-                                          enum EntityRank aEntityRank) const
+                                          enum EntityRank aEntityRank,
+										  const moris_index     aIndex = 0) const
     {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
         return 0;
@@ -349,7 +353,8 @@ public:
     Matrix<IdMat>
     get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                              enum EntityRank aInputEntityRank,
-                                             enum EntityRank aOutputEntityRank) const
+                                             enum EntityRank aOutputEntityRank,
+											 const moris_index     aIndex = 0) const
                                              {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
         return Matrix<IdMat>(0,0);
@@ -658,7 +663,8 @@ public:
     // FIXME: REMOVE SINCE NOT USED
     virtual
     moris_id
-    get_max_entity_id( enum EntityRank aEntityRank ) const
+    get_max_entity_id( enum EntityRank aEntityRank,
+                       const moris_index     aIndex =0 ) const
     {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
         return 0;
@@ -676,7 +682,8 @@ public:
     virtual
     moris_id
     get_entity_owner(  moris_index     aEntityIndex,
-                       enum EntityRank aEntityRank ) const
+                       enum EntityRank aEntityRank,
+					   const moris_index     aIndex = 0) const
     {
         MORIS_ERROR(0," get entity owner has no base implementation");
         return 0;
@@ -773,7 +780,8 @@ public:
      * return the number of fields that are connected to this field
      */
     virtual uint
-    get_num_fields(  const enum EntityRank aEntityRank ) const
+    get_num_fields(  const enum EntityRank aEntityRank,
+                     const moris_index     aIndex = 0) const
     {
         MORIS_ERROR( false ,"get_num_fields() not implemented" );
         return 0;
@@ -786,7 +794,7 @@ public:
      * return gNoIndex if not found
      */
     virtual moris_index get_field_ind( const std::string     & aFieldLabel,
-                                       const enum EntityRank   aEntityRank ) const
+                                       const enum EntityRank   aEntityRank) const
     {
         MORIS_ERROR( false ,"get_field_ind() not implemented" );
         return gNoIndex;
@@ -834,7 +842,8 @@ public:
     get_value_of_scalar_field(
             const moris_index     aFieldIndex,
             const enum EntityRank aEntityRank,
-            const uint            aEntityIndex )
+            const uint            aEntityIndex,
+			const moris_index     aIndex = 0)
     {
         MORIS_ERROR( false ,"get_value_of_scalar_field() not implemented" );
         return mDummyReal;
@@ -849,7 +858,8 @@ public:
     get_value_of_scalar_field(
             const moris_index     aFieldIndex,
             const enum EntityRank aEntityRank,
-            const uint            aEntityIndex ) const
+            const uint            aEntityIndex,
+			const moris_index     aIndex = 0) const
     {
         MORIS_ERROR( false ,"get_value_of_scalar_field() const not implemented" );
         return mDummyReal;
@@ -895,7 +905,8 @@ public:
      */
     virtual Matrix<DDRMat> &
     get_field( const moris_index     aFieldIndex,
-               const enum EntityRank aEntityRank )
+               const enum EntityRank aEntityRank,
+               const moris_index     aIndex =0)
     {
         MORIS_ERROR( false ,"get_field() not implemented" );
         return mDummyMatrix;
@@ -923,7 +934,7 @@ public:
      * needed for multigrid and HMR
      */
     virtual uint
-    get_max_level_of_entity( const enum EntityRank aEntityRank )
+    get_max_level_of_entity( const enum EntityRank aEntityRank, const moris_index     aIndex=0  )
     {
         // no error is thrown here
         return 0;
@@ -936,7 +947,8 @@ public:
      */
     virtual uint
     get_level_of_entity_loc_ind( const enum EntityRank aEntityRank,
-                                 const uint            aEntityIndex )
+                                 const uint            aEntityIndex,
+								 const moris_index     aIndex =0)
     {
         // no error is thrown here
         return 0;

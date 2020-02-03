@@ -21,11 +21,11 @@ TEST_CASE("moris::model::Bspline",
 //        moris::real comp_value = 0; // Variable for comparison purposes
 //
 //        // Creates 1D b-spline basis functions
-//        moris::Mat<moris::real> bspline_1d = moris::Bspline::build_spline_1d(Xi1,KnotVector,PolynomialDegree1);
+//        moris::Mat<moris::real> BSPLINEd = moris::Bspline::build_spline_1d(Xi1,KnotVector,PolynomialDegree1);
 //
 //        for (moris::uint  i = 0; i<n;i++)
 //        {
-//            comp_value = comp_value + bspline_1d(i);
+//            comp_value = comp_value + BSPLINEd(i);
 //        }
 //        // The sum of the shape functions must be one
 //        REQUIRE( moris::equal_to( comp_value, 1.0 ) );
