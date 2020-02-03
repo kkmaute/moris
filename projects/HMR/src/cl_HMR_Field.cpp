@@ -480,29 +480,30 @@ namespace moris
 
         EntityRank Field::get_bspline_rank() const
         {
-            switch( this->get_bspline_order() )
-            {
-                case( 1 ) :
-                {
-                    return EntityRank::BSPLINE_1;
-                    break;
-                }
-                case( 2 ) :
-                {
-                    return EntityRank::BSPLINE_2;
-                    break;
-                }
-                case( 3 ) :
-                {
-                    return EntityRank::BSPLINE_3;
-                    break;
-                }
-                default :
-                {
-                    return EntityRank::INVALID;
-                    break;
-                }
-            }
+//            switch( this->get_bspline_order() )
+//            {
+//                case( 1 ) :
+//                {
+//                    return EntityRank::BSPLINE;
+//                    break;
+//                }
+//                case( 2 ) :
+//                {
+//                    return EntityRank::BSPLINE_2;
+//                    break;
+//                }
+//                case( 3 ) :
+//                {
+//                    return EntityRank::BSPLINE_3;
+//                    break;
+//                }
+//                default :
+//                {
+//                    return EntityRank::INVALID;
+//                    break;
+//                }
+//            }
+        	return EntityRank::BSPLINE;
         }
 
 //------------------------------------------------------------------------------

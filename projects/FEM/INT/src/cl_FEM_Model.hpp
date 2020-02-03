@@ -57,14 +57,8 @@ namespace moris
             // list of IP node pointers
             moris::Cell< fem::Node_Base* > mIPNodes;
 
-            // list of IG node pointers
-             moris::Cell< fem::Node_Base* > mIGNodes;
-
             // list of IP cell pointers
             moris::Cell< fem::Cell* > mIPCells;
-
-            // list of IG cell pointers
-            moris::Cell< fem::Cell* > mIGCells;
 
             // list of FEM sets
             moris::Cell< MSI::Equation_Set * > mFemSets;

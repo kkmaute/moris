@@ -41,6 +41,7 @@ namespace moris
         {
             return mtk::Interpolation_Order::CUBIC;
         }
+
 // ----------------------------------------------------------------------------
         /**
          * string needed for gmsh output
@@ -65,6 +66,27 @@ namespace moris
 
             // return the string that goes into the gmsh file
             return aString;
+        }
+
+// ----------------------------------------------------------------------------
+
+        template<>
+        inline
+        real
+        Lagrange_Element< 2, 16 >::compute_cell_measure() const
+        {
+            mtk::Cell_Info_Quad4 tCellInfo;
+            return tCellInfo.compute_cell_size(this);
+        }
+
+// ----------------------------------------------------------------------------
+
+        template<>
+        moris::real
+        Lagrange_Element< 2, 16 >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
+        {
+            mtk::Cell_Info_Quad4 tCellInfo;
+            return tCellInfo.compute_cell_side_size( this, aCellSideOrd);
         }
 
 // ----------------------------------------------------------------------------

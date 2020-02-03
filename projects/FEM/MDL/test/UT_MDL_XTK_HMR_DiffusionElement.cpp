@@ -434,8 +434,8 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF]")
 {
-//    if(par_size() == 1)
-//    {
+    if(par_size() == 1)
+    {
         std::string tFieldName = "Cylinder";
 
 
@@ -515,7 +515,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         tXTKModel.decompose(tDecompositionMethods);
 
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 //        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -631,7 +631,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         		         "./",
                                   "XTK_HMR_DIFF.exo",
                                   { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
-                                  { 0, 2 },
                                   { "Temp" },
                                   {   vis::Field_Type::NODAL },
                                   { vis::Output_Type::TEMP } );
@@ -752,7 +751,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         delete tModel;
         delete tIntegMesh1;
-//    }
+    }
 }
 
 

@@ -38,13 +38,13 @@ public:
     //------------------------------------------------------------------------------
     MeshType                  get_mesh_type() const;
     moris::uint               get_spatial_dim() const;
-    uint                      get_num_entities( enum EntityRank aEntityRank ) const;
-    Matrix< IndexMat >        get_entity_connected_to_entity_loc_inds(moris_index aEntityIndex, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank) const;
+    uint                      get_num_entities( enum EntityRank aEntityRank, const moris_index aIndex =0 ) const;
+    Matrix< IndexMat >        get_entity_connected_to_entity_loc_inds(moris_index aEntityIndex, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank,const moris_index aIndex =0) const;
     Matrix< IndexMat >        get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
-    moris_id                  get_glb_entity_id_from_entity_loc_index(moris_index aEntityIndex,enum EntityRank aEntityRank) const;
-    moris_index               get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, enum EntityRank aEntityRank) const;
+    moris_id                  get_glb_entity_id_from_entity_loc_index(moris_index aEntityIndex,enum EntityRank aEntityRank, const moris_index aIndex =0) const;
+    moris_index               get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, enum EntityRank aEntityRank, const moris_index aIndex =0) const;
     Cell<mtk::Vertex const *> get_all_vertices() const;
-    Matrix< IdMat >           get_entity_connected_to_entity_glob_ids( moris_id aEntityId, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank) const;
+    Matrix< IdMat >           get_entity_connected_to_entity_glob_ids( moris_id aEntityId, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank, const moris_index aIndex =0) const;
     Matrix< DDRMat >          get_node_coordinate( moris_index aNodeIndex ) const;
     mtk::Vertex &             get_mtk_vertex( moris_index aVertexIndex );
     mtk::Vertex const &       get_mtk_vertex( moris_index aVertexIndex ) const;
@@ -56,7 +56,7 @@ public:
     enum CellTopology         get_blockset_topology(const  std::string & aSetName);
     Matrix< IndexMat >        get_set_entity_loc_inds( enum EntityRank aSetEntityRank, std::string     aSetName) const;
     void                      get_sideset_elems_loc_inds_and_ords( const  std::string     & aSetName, Matrix< IndexMat >     & aElemIndices, Matrix< IndexMat >     & aSidesetOrdinals ) const;
-    moris_id                  get_max_entity_id( enum EntityRank aEntityRank ) const;
+    moris_id                  get_max_entity_id( enum EntityRank aEntityRank,const moris_index aIndex =0 ) const;
 
     //------------------------------------------------------------------------------
     // end mesh core functions

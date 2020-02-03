@@ -158,7 +158,7 @@ public:
         moris::moris_id tFirstBspline = 0;
         if(aMeshData->get_mesh_type() == MeshType::HMR)
         {
-        	tFirstBspline = aMeshData->get_max_entity_id(EntityRank::BSPLINE_1);
+        	tFirstBspline = aMeshData->get_max_entity_id(EntityRank::BSPLINE);
         }
 
 

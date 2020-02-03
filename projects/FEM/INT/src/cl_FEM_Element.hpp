@@ -113,6 +113,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get mesh cell associated with the element
+         * param[ in ]  aIsMaster                 enum for master or slave
+         * param[ out ] mMasterCell or mSlaveCell a pointer to mtk cell
+         */
+        const mtk::Cell * get_mtk_cell( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch( aIsMaster )
+            {
+                case( mtk::Master_Slave::MASTER ):
+                    return mMasterCell;
+
+                case( mtk::Master_Slave::SLAVE ):
+                    return mSlaveCell;
+
+                default:
+                    MORIS_ERROR( false, "Element::get_mtk_cell - can only be master or slave." );
+                    return mMasterCell;
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * compute jacobian
          */
         virtual void compute_jacobian() = 0;
@@ -215,29 +237,10 @@ namespace moris
          * compute volume of the integration element
          * @param[ in ] aIsMaster enum master or slave
          */
-        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        virtual real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
-            //get number of integration points
-            uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
-
-            // init volume
-            real tVolume = 0;
-
-            // loop over integration points
-            for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-            {
-                // set integration point for geometry interpolator
-                mSet->get_field_interpolator_manager( aIsMaster )
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( mSet->get_integration_points().get_column( iGP ) );
-
-                // compute and add integration point contribution to volume
-                tVolume += mSet->get_field_interpolator_manager( aIsMaster)->get_IG_geometry_interpolator()->det_J()
-                         * mSet->get_integration_weights()( iGP );
-            }
-
-            // return the volume value
-            return tVolume;
+            MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
+            return 0.0;
         }
 
 //------------------------------------------------------------------------------

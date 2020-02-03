@@ -179,7 +179,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
                 tXTKModel.decompose(tDecompositionMethods);
 
-                tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+                tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
@@ -340,7 +340,6 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                                          "./",
                                          "Output_Vis_Mesh_overlapping.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-                                         { 0, 1, 2, 3 },
                                          { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
                                          { Field_Type::ELEMENTAL, Field_Type::GLOBAL,  Field_Type::NODAL },
                                          { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );

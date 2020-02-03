@@ -88,7 +88,7 @@ LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("XTK HMR Test","[XTK_HMR]")
 {
-    if(par_size() == 2)
+    if(par_size() == 1)
     {
         std::string tFieldName = "Cylinder";
 
@@ -204,7 +204,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tXTKModel.decompose(tDecompositionMethods);
 
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
         // perform ghost stabilization
 //        tXTKModel.construct_face_oriented_ghost_penalization_cells();

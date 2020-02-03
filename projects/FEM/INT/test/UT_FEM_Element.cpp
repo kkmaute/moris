@@ -145,7 +145,6 @@ namespace moris
 
             tFIManager.mIGGeometryInterpolator = tGeoInterpIG;
             reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
-            //tFEMSet.mMasterIGGeometryInterpolator = tGeoInterpIG;
 
             // create a integration rule
             Integration_Rule tIntegrationRule( tGeoTypeIG,

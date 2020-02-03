@@ -146,7 +146,7 @@ namespace moris
                 {
                    switch( aTargetEntityRank )
                    {
-                       case( EntityRank::BSPLINE_1 ) :
+                       case( EntityRank::BSPLINE ) :
                        case( EntityRank::BSPLINE_2 ) :
                        case( EntityRank::BSPLINE_3 ) :
                        {
@@ -163,7 +163,7 @@ namespace moris
                    }
                    break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
                 {

@@ -74,6 +74,11 @@ namespace moris
             // write all active basis into a container
             this->collect_active_and_refined_basis();
 
+//#ifdef DEBUG
+//            MORIS_LOG_WARNING("Sanity check for Bspline basis Ids and ownership will be performed. This might slow down the execution significantly. \n");
+//            this->sanity_check_for_ids_and_ownership();
+//#endif
+
             // determine indices of active and flagged basis
             // fixme: try Lagrange to B-Spline distance > 1 works if this is uncommented
 //            this->calculate_basis_indices();

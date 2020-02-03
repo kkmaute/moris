@@ -55,7 +55,7 @@ Enriched_Interpolation_Mesh::get_spatial_dim() const
 }
 //------------------------------------------------------------------------------
 uint
-Enriched_Interpolation_Mesh::get_num_entities( enum EntityRank aEntityRank ) const
+Enriched_Interpolation_Mesh::get_num_entities( enum EntityRank aEntityRank, const moris_index aIndex ) const
 {
     switch(aEntityRank)
     {
@@ -92,7 +92,8 @@ Enriched_Interpolation_Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
 Matrix<IndexMat>
 Enriched_Interpolation_Mesh::get_entity_connected_to_entity_loc_inds(moris_index  aEntityIndex,
                                                                      enum EntityRank aInputEntityRank,
-                                                                     enum EntityRank aOutputEntityRank) const
+                                                                     enum EntityRank aOutputEntityRank,
+																	 const moris_index aIndex ) const
 {
     MORIS_ERROR(aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,"Only support element to node connectivity");
     MORIS_ASSERT(aEntityIndex<(moris_index)mEnrichedInterpCells.size(),"Element index out of bounds");
@@ -120,7 +121,8 @@ Enriched_Interpolation_Mesh::get_all_vertices() const
 //------------------------------------------------------------------------------
 moris_id
 Enriched_Interpolation_Mesh::get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
-                                                                     enum EntityRank aEntityRank) const
+                                                                     enum EntityRank aEntityRank,
+																	 const moris_index aIndex ) const
 {
     moris::uint tMapIndex = (uint)aEntityRank;
 
@@ -131,7 +133,8 @@ Enriched_Interpolation_Mesh::get_glb_entity_id_from_entity_loc_index(moris_index
 //------------------------------------------------------------------------------
 moris_index
 Enriched_Interpolation_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
-                                                                   enum EntityRank aEntityRank) const
+                                                                   enum EntityRank aEntityRank,
+																   const moris_index aIndex ) const
 {
     moris::uint tMapIndex = (uint)aEntityRank;
 
@@ -147,7 +150,8 @@ Enriched_Interpolation_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id     
 Matrix<IdMat>
 Enriched_Interpolation_Mesh::get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                                                       enum EntityRank aInputEntityRank,
-                                                                      enum EntityRank aOutputEntityRank) const
+                                                                      enum EntityRank aOutputEntityRank,
+																	  const moris_index aIndex ) const
 {
     moris_index tEntityIndex = get_loc_entity_ind_from_entity_glb_id(aEntityId,aInputEntityRank);
 
@@ -203,7 +207,7 @@ Enriched_Interpolation_Mesh::get_num_elements()
 }
 //------------------------------------------------------------------------------
 moris_id
-Enriched_Interpolation_Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
+Enriched_Interpolation_Mesh::get_max_entity_id( enum EntityRank aEntityRank,const moris_index aIndex ) const
 {
    MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have max id");
 

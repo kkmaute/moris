@@ -343,7 +343,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { {4}, {6} } );
+            tParameters.set_number_of_elements_per_dimension( { {6}, {6} } );
             tParameters.set_domain_dimensions({ {4}, {6} });
             tParameters.set_domain_offset({ {0.0}, {0.0} });
             tParameters.set_bspline_truncation( true );
@@ -422,8 +422,6 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 //                      tMesh->get_sideset_elems_loc_inds_and_ords(
 //                              tSetLabel, tElements, tOrds );
 //
-//                      print(tElements,"tElements");
-//
 //                      // save data
 //                      save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
 //                  }
@@ -438,7 +436,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 //------------------------------------------------------------------------------
 //    open solution
 //------------------------------------------------------------------------------
-
+//
             // create file
             hid_t tFileID = open_hdf5_file( tHdf5FilePath );
 
@@ -483,7 +481,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 
           moris::hmr::Parameters tParameters;
 
-          tParameters.set_number_of_elements_per_dimension( { {4}, {6}, {10} } );
+          tParameters.set_number_of_elements_per_dimension( { {6}, {6}, {10} } );
           tParameters.set_domain_dimensions({ {4}, {6}, {10} });
           tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
           tParameters.set_bspline_truncation( true );
