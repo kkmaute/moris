@@ -30,11 +30,15 @@
 
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
+
+#include "cl_VIS_Output_Manager.hpp"
+#include "cl_VIS_Output_Enums.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
@@ -91,13 +95,20 @@ moris::Matrix< moris::DDRMat > tMValFunctionContact( moris::Cell< moris::Matrix<
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
+
+bool fOutputVizMesh( moris::tsa::Time_Solver * )
+{
+    return true;
+}
+
+
 //-------------------------------------------------------------------------------------
 
 
 
 TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 {
-    if(par_size()<=1)
+    if(par_size()<=4)
     {
         // Geometry Parameters
         moris::real tBlockL   =  1.0; /* Length of the block  (m) */
@@ -110,7 +121,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         //Material Parameters
         moris::real tEa  = 1e6; // Pa
         moris::real tNua = 0.3;
-        moris::real tEb  = 1e12; // Pa
+        moris::real tEb  = 1e6; // Pa
         moris::real tNub = 0.3;
 
         // Boundary Conditions
@@ -121,9 +132,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::real tForce =  -10000.0; // N/m (normal to top surface)
 
         // Mesh Setup
-        moris::uint tNumX   = 20; /* Number of elements in x*/
-        moris::uint tNumY   = 20; /* Number of elements in y*/
-        moris::uint tNumRef = 1;  /* Number of HMR refinements */
+        moris::uint tNumX   = 40; /* Number of elements in x*/
+        moris::uint tNumY   = 40; /* Number of elements in y*/
+        moris::uint tNumRef = 2;  /* Number of HMR refinements */
         moris::uint tOrder = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         // Files
@@ -315,7 +326,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         if(tVizIGMeshBeforeFEM)
         {
-            tEnrIntegMesh.deactivate_empty_sets();
+//            tEnrIntegMesh.deactivate_empty_sets();
             // Write mesh
             Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", tEnrIgMeshFileName);
@@ -341,6 +352,8 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         //------------------------------------------------------------------------------
         // create the properties
+        moris::Cell< MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+
         std::shared_ptr< fem::Property > tPropEModA = std::make_shared< fem::Property >();
         tPropEModA->set_parameters( { {{ tEa }} } );
         tPropEModA->set_val_function( ConstFunctionVal );
@@ -406,6 +419,23 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSPSlaveWeightInterface->set_property( tPropEModA, "Material", mtk::Master_Slave::SLAVE );
 
         // define the IWGs
+        fem::IQI_Factory tIQIFactory;
+
+        std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+        tIQI->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUX->set_output_type( vis::Output_Type::UX );
+        tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+        tIQIUX->set_output_type_index( 0 );
+
+        std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUY->set_output_type( vis::Output_Type::UY );
+        tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+        tIQIUY->set_output_type_index( 1 );
+
+
+        // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
@@ -445,34 +475,42 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
         tSetBulk1.set_IWGs( { tIWGBulkA } );
+        tSetBulk1.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
         tSetBulk2.set_IWGs( { tIWGBulkA } );
+        tSetBulk2.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk3;
         tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk3.set_IWGs( { tIWGBulkB } );
+        tSetBulk3.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk4.set_IWGs( { tIWGBulkB } );
+        tSetBulk4.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk5;
         tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p5") );
         tSetBulk5.set_IWGs( { tIWGBulkB } );
+        tSetBulk5.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk6;
         tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p5") );
         tSetBulk6.set_IWGs( { tIWGBulkB } );
+        tSetBulk6.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk7;
         tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p9") );
         tSetBulk7.set_IWGs( { tIWGBulkB } );
+        tSetBulk7.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetBulk8;
         tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p9") );
         tSetBulk8.set_IWGs( { tIWGBulkB } );
+        tSetBulk8.set_IQIs( { tIQI, tIQIUX, tIQIUY } );
 
         fem::Set_User_Info tSetDirichlet1;
         tSetDirichlet1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p9") );
@@ -497,9 +535,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         fem::Set_User_Info tSetDirichlet6;
         tSetDirichlet6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p5") );
         tSetDirichlet6.set_IWGs( { tIWGDirichlet } );
-
-        std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,9,8) = "<<tEnrIntegMesh.get_interface_side_set_name(3,9,8)<<" Index = "<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,9,8))<<std::endl;
-        std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,5,4) = "<<tEnrIntegMesh.get_interface_side_set_name(3,5,4)<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,5,4))<<std::endl;
 
         fem::Set_User_Info tSetNeumann1;
         tSetNeumann1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(2,0,2)) );
@@ -551,11 +586,36 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInfo( 19 ) = tSetInterface3;
 
 
+
+
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                               0,
                                               tSetInfo,
                                               0, false );
+
+        // --------------------------------------------------------------------------------------
+        // Define outputs
+
+        vis::Output_Manager tOutputData;
+
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                 "./",
+                                 "Output_Vis_Mesh_overlapping.exo",
+                                 { "HMR_dummy_n_p0", "HMR_dummy_c_p0",
+                                   "HMR_dummy_n_p1", "HMR_dummy_c_p1",
+                                   "HMR_dummy_n_p5", "HMR_dummy_c_p5",
+                                   "HMR_dummy_n_p9", "HMR_dummy_c_p9"},
+                                 { 0, 1, 2, 3 },
+                                 { "strain energy elemental", "strain energy global", "strain energy nodal IP", "UX", "UY" },
+                                 { vis::Field_Type::ELEMENTAL, vis::Field_Type::GLOBAL,  vis::Field_Type::NODAL, vis::Field_Type::NODAL,vis::Field_Type::NODAL   },
+                                 { vis::Output_Type::STRAIN_ENERGY, vis::Output_Type::STRAIN_ENERGY, vis::Output_Type::STRAIN_ENERGY, vis::Output_Type::UX , vis::Output_Type::UY} );
+
+
+        tModel->set_output_manager( &tOutputData );
+
+        // --------------------------------------------------------------------------------------
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -575,7 +635,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
         tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
         //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
-
         dla::Linear_Solver tLinSolver;
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 
@@ -590,6 +649,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+        tNonlinearSolverAlgorithm->set_param("NLA_rel_residual") = 1e-6;
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
         //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
@@ -618,6 +678,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
 
         tTimeSolver.set_dof_type_list( tDofTypesU );
+        tTimeSolver.set_output( 0, fOutputVizMesh );
 
         //------------------------------------------------------------------------------
         tTimeSolver.solve();

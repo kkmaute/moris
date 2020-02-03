@@ -337,6 +337,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 tOutputData.set_outputs( 0,
 //                                         VIS_Mesh_Type::STANDARD,
                                          VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                         "./",
                                          "Output_Vis_Mesh_overlapping.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { 0, 1, 2, 3 },

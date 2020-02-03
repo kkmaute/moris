@@ -102,7 +102,11 @@ namespace moris
             // create a list of clusters
             moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( aSetInfo( iSet ).get_mesh_index() );
 
-            if ( tMeshSet->get_num_clusters_on_set() !=0 )
+            // get global number of clusters
+            moris::uint tNumClusters = 0;
+            moris::sum_all(tMeshSet->get_num_clusters_on_set(),tNumClusters);
+
+            if (  tNumClusters !=0 )
             {
                 // create new fem set
                 mFemSets( tFemSetCounter ) = new fem::Set( this,
