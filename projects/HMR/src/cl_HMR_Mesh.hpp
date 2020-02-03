@@ -173,7 +173,7 @@ namespace moris
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank,
-									   const moris_index     aIndex = 0 ) const;
+                                       const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ namespace moris
                                        moris_index     aEntityId,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank,
-									   const moris_index     aIndex = 0 ) const;
+                                       const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ namespace moris
             moris_id get_glb_entity_id_from_entity_loc_index(
                     moris_index     aEntityIndex,
                     enum EntityRank aEntityRank,
-					const moris_index     aIndex = 0 ) const ;
+                    const moris_index     aIndex = 0 ) const ;
 
             moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
 
@@ -258,7 +258,7 @@ namespace moris
             moris_index get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
                     enum EntityRank aEntityRank,
-					const moris_index     aIndex = 0) const;
+                    const moris_index     aIndex = 0) const;
 
 //-------------------------------------------------------------------------------
 
@@ -384,7 +384,7 @@ namespace moris
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
                     const uint              aEntityIndex,
-					const moris_index     aIndex = 0);
+                    const moris_index     aIndex = 0);
 
 //-------------------------------------------------------------------------------
 
@@ -392,13 +392,13 @@ namespace moris
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
                     const uint              aEntityIndex,
-					const moris_index     aIndex = 0) const;
+                    const moris_index     aIndex = 0) const;
 
 //-------------------------------------------------------------------------------
 
             Matrix<DDRMat> & get_field( const moris_index     aFieldIndex,
                                         const enum EntityRank aEntityRank,
-										const moris_index     aIndex = 0);
+                                        const moris_index     aIndex = 0);
 
 //-------------------------------------------------------------------------------
 
@@ -466,11 +466,7 @@ private:
 
 //-------------------------------------------------------------------------------
 
-            void setup_entity_global_to_local_map(enum EntityRank aEntityRank);
-
-//-------------------------------------------------------------------------------
-
-            void setup_element_global_to_local_map();
+            void setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index     aIndex = 0);
 
 
 //-------------------------------------------------------------------------------

@@ -18,7 +18,8 @@ CMakeCache.txt
 *.exo*
 *.g*
 *.vtk*
-*.hdf5
+
+#*.hdf5
 *.h5
 *.e
 
