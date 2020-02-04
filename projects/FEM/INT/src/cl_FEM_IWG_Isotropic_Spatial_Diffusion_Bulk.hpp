@@ -99,26 +99,30 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed" );
+
                 // FIXME check that constitutive string makes sense?
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
             }
 
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // FIXME check that stabilization string makes sense?
-
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-            }
+////------------------------------------------------------------------------------
+//            /**
+//             * set stabilization parameter
+//             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+//             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+//             */
+//            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+//                                              std::string                                aStabilizationString )
+//            {
+//                // FIXME check that stabilization string makes sense?
+//
+//                // set the stabilization parameter in the stabilization parameter cell
+//                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+//            }
 
 //------------------------------------------------------------------------------
             /**
@@ -142,8 +146,7 @@ namespace moris
              * @param[ in ] aJacobians list of jacobian matrices to fill
              * @param[ in ] aResidual  residual vector to fill
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**

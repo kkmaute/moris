@@ -103,8 +103,7 @@ namespace moris
                     if ( mMasterProp( tLoadIndex )->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
+                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                         -= trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDOF( tDofType ) * tWStar;
                     }
                 }
@@ -113,8 +112,7 @@ namespace moris
                 if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDOF( tDofType ) ) * tWStar;
                     // fixme add derivative of the test strain
                 }
@@ -122,8 +120,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual - Not implemented." );
         }
@@ -135,6 +132,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
+
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv - Not implemented." );
 
 //            // get index for a given dof type
 //            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -180,8 +179,6 @@ namespace moris
 //                    += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDV( tDvType ) ) * tWStar;
 //                }
 //            }
-
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

@@ -101,6 +101,10 @@ namespace moris
             {
                 // FIXME check that property type makes sense?
 
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_property - No slave allowed" );
+
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
 
@@ -118,6 +122,10 @@ namespace moris
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // FIXME check that constitutive string makes sense?
+
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_property - No slave allowed" );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -158,8 +166,7 @@ namespace moris
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              * @param[ in ] aResidual  cell of residual vectors to fill
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 //------------------------------------------------------------------------------
             /**
              * compute the derivative of the residual wrt design variables

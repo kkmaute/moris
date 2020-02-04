@@ -100,6 +100,15 @@ Matrix< DDRMat > tPropValConstFunc_MDLFEMBench( moris::Cell< Matrix< DDRMat > > 
     return aParameters( 0 );
 }
 
+Matrix< DDRMat > tPropValFuncL2_MDLFEMBench( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                             moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+                                             moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+                                             fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    return {{ 20 * aGeometryInterpolator->valx()( 0 ) }};
+}
+
+// define function for cutting plane
 moris::real tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tOffset = 2.6;
@@ -183,6 +192,9 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        tPropTempLoad1->set_parameters( { {{ 0.0 }} } );
        tPropTempLoad1->set_val_function( tPropValConstFunc_MDLFEMBench );
 
+       std::shared_ptr< fem::Property > tPropL2Analytic = std::make_shared< fem::Property >();
+       tPropL2Analytic->set_val_function( tPropValFuncL2_MDLFEMBench );
+
        // define constitutive models
        fem::CM_Factory tCMFactory;
 
@@ -226,11 +238,16 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQITEMP->set_output_type_index( 0 );
 
+       std::shared_ptr< fem::IQI > tIQIL2TEMP = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
+       tIQIL2TEMP->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
+       tIQIL2TEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+       tIQIL2TEMP->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
+
        // define set info
        fem::Set_User_Info tSetBulk1;
        tSetBulk1.set_mesh_index( 0 );
        tSetBulk1.set_IWGs( { tIWGBulk1 } );
-       tSetBulk1.set_IQIs( { tIQITEMP } );
+       tSetBulk1.set_IQIs( { tIQITEMP, tIQIL2TEMP } );
 
        fem::Set_User_Info tSetDirichlet;
        tSetDirichlet.set_mesh_index( 4 );
@@ -258,10 +275,9 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_MDL_FEM_Benchmark_Output_Block.exo",
                                 { "HMR_dummy" },
-                                { "Temperature" },
-                                { vis::Field_Type::NODAL },
-                                { vis::Output_Type::TEMP } );
-
+                                { "Temperature", "L2 error" },
+                                { vis::Field_Type::NODAL, vis::Field_Type::GLOBAL },
+                                { vis::Output_Type::TEMP, vis::Output_Type::L2_ERROR_ANALYTIC } );
        tModel->set_output_manager( &tOutputData );
 
        // --------------------------------------------------------------------------------------

@@ -82,6 +82,10 @@ namespace moris
             {
                 // FIXME check that property type makes sense?
 
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Struc_Linear_Bulk::set_property - No slave allowed" );
+
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
             }
@@ -98,6 +102,10 @@ namespace moris
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // FIXME check that constitutive string makes sense?
+
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Struc_Linear_Bulk::set_property - No slave allowed" );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -140,8 +148,7 @@ namespace moris
              * @param[ in ] aJacobians list of jacobian matrices to fill
              * @param[ in ] aResidual  residual vector to fill
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**

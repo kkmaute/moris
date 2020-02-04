@@ -49,9 +49,8 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::eval_traction( const Matrix< DDRMat > & aNormal )
         {
-            Matrix< DDRMat > tNormal;
-
             // flatten normal
+            Matrix< DDRMat > tNormal;
             this->flatten_normal( aNormal, tNormal );
 
             // compute traction
@@ -62,9 +61,8 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::eval_testTraction( const Matrix< DDRMat > & aNormal )
         {
-            Matrix< DDRMat > tNormal;
-
             // flatten normal
+            Matrix< DDRMat > tNormal;
             this->flatten_normal( aNormal, tNormal );
 
             // compute test traction
@@ -76,12 +74,12 @@ namespace moris
         void CM_Struc_Linear_Isotropic::eval_strain()
         {
             // compute displacement gradient
-            Matrix< DDRMat > tGradx;
-            //tGradx = mDofFI( 0 )->gradx( 1 );
-            tGradx = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->gradx( 1 );
+            Matrix< DDRMat > tGradx = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->gradx( 1 );
 
+            // switch on space dimension
             switch ( mSpaceDim )
             {
+                // if 2D
                 case ( 2 ):
                 {
                     mStrain.set_size( 3, 1 , 0.0 );
@@ -90,6 +88,7 @@ namespace moris
                     mStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 );
                     break;
                 }
+                // if 3D
                 case( 3 ):
                 {
                     mStrain.set_size( 6, 1 , 0.0 );
@@ -120,7 +119,6 @@ namespace moris
                 moris::real tTref = mProperties( tTempRefIndex )->val()( 0 );
 
                 // get temperature from field interpolator
-                //moris::real tTgp = mDofFI( 1 )->val()( 0 );
                 moris::real tTgp = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temperature" ] )->val()( 0 );
 
                 // add thermal contribution to the strain
@@ -133,30 +131,26 @@ namespace moris
         void CM_Struc_Linear_Isotropic::eval_testStrain()
         {
             // compute displacement gradient
-//            Matrix< DDRMat > tdnNdxn = mDofFI( 0 )->dnNdxn( 1 );
             Matrix< DDRMat > tdnNdxn = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->dnNdxn( 1 );
 
-//            uint tNumSpaceTimeBasis = mDofFI( 0 )->get_number_of_space_time_bases();
+            // get number of bases for displacement
             uint tNumSpaceTimeBasis = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->get_number_of_space_time_bases();
 
+            // switch on space dimesion
             switch ( mSpaceDim )
             {
+                // if 2D
                 case ( 2 ):
                 {
                     mTestStrain.set_size( 3, tNumSpaceTimeBasis * mSpaceDim, 0.0 );
                     mTestStrain( { 0, 0 },{ 0, tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumSpaceTimeBasis-1 } );
                     mTestStrain( { 2, 2 },{ 0, tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumSpaceTimeBasis-1 } );
 
-                    mTestStrain( { 1, 1 },{ tNumSpaceTimeBasis, 2*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 1, 1 }, {0,tNumSpaceTimeBasis-1});
-                    mTestStrain( { 2, 2 },{ tNumSpaceTimeBasis, 2*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 0, 0 }, {0,tNumSpaceTimeBasis-1});
-//                     mTestStrain.set_size( 3, tNumSpaceTimeBasis * mSpaceDim, 0.0 );
-//                     mTestStrain( {0,0},{0,tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,tNumSpaceTimeBasis-1});
-//                     mTestStrain( {2,2},{0,tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,tNumSpaceTimeBasis-1});
-//
-//                     mTestStrain( {1,1},{tNumSpaceTimeBasis,2*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,tNumSpaceTimeBasis-1});
-//                     mTestStrain( {2,2},{tNumSpaceTimeBasis,2*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,tNumSpaceTimeBasis-1});
-                     break;
+                    mTestStrain( { 1, 1 },{ tNumSpaceTimeBasis, 2*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumSpaceTimeBasis-1 } );
+                    mTestStrain( { 2, 2 },{ tNumSpaceTimeBasis, 2*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumSpaceTimeBasis-1 } );
+                    break;
                 }
+                // if 3D
                 case( 3 ):
                 {
                     mTestStrain.set_size( 6, tNumSpaceTimeBasis * mSpaceDim , 0.0 );
@@ -171,18 +165,6 @@ namespace moris
                     mTestStrain( { 2, 2 }, { 2*tNumSpaceTimeBasis, 3*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumSpaceTimeBasis-1 } );
                     mTestStrain( { 3, 3 }, { 2*tNumSpaceTimeBasis, 3*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumSpaceTimeBasis-1 } );
                     mTestStrain( { 4, 4 }, { 2*tNumSpaceTimeBasis, 3*tNumSpaceTimeBasis-1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumSpaceTimeBasis-1 } );
-
-//                    mTestStrain( {0,0},{0,tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,tNumSpaceTimeBasis-1});
-//                    mTestStrain( {4,4},{0,tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({2,2},{0,tNumSpaceTimeBasis-1});
-//                    mTestStrain( {5,5},{0,tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,tNumSpaceTimeBasis-1});
-//
-//                    mTestStrain( {1,1},{tNumSpaceTimeBasis,2*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,tNumSpaceTimeBasis-1});
-//                    mTestStrain( {3,3},{tNumSpaceTimeBasis,2*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({2,2},{0,tNumSpaceTimeBasis-1});
-//                    mTestStrain( {5,5},{tNumSpaceTimeBasis,2*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,tNumSpaceTimeBasis-1});
-//
-//                    mTestStrain( {2,2},{2*tNumSpaceTimeBasis,3*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({2,2},{0,tNumSpaceTimeBasis-1});
-//                    mTestStrain( {3,3},{2*tNumSpaceTimeBasis,3*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,tNumSpaceTimeBasis-1});
-//                    mTestStrain( {4,4},{2*tNumSpaceTimeBasis,3*tNumSpaceTimeBasis-1} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,tNumSpaceTimeBasis-1});
                     break;
                 }
                 default:
@@ -237,19 +219,23 @@ namespace moris
 
         moris::Matrix<moris::DDRMat> CM_Struc_Linear_Isotropic::eval_B_flat()
         {
-//            moris::Matrix<moris::DDRMat> tB = mDofFI( 0 )->dnNdxn( 1 );
+            // compute displacement gradient
             moris::Matrix<moris::DDRMat> tB = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->dnNdxn( 1 );
-            moris::Matrix<moris::DDRMat> tBf(1, tB.numel(), 0.0);
+            moris::Matrix<moris::DDRMat> tBf( 1, tB.numel(), 0.0 );
 
             uint tInd = 0;
-            for (uint tRow = 0; tRow < tB.n_rows(); tRow++)
+            for ( uint tRow = 0; tRow < tB.n_rows(); tRow++ )
             {
                 for (uint tCol = 0; tCol < tB.n_cols(); tCol++)
                 {
-                    tBf(tInd) = tB(tRow, tCol);
+                    tBf( tInd ) = tB( tRow, tCol );
                     tInd++;
                 }
             }
+
+            moris::Matrix<moris::DDRMat> tBf2 = reshape( tB, 1, tB.numel() );
+            print(tBf, "tBf");
+            print(tBf2, "tBf2");
             return tBf;
         }
 
@@ -267,12 +253,13 @@ namespace moris
             mdFluxdDof( tDofIndex ).set_size( ( mSpaceDim - 1) * 3, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if displacements
-            if( aDofTypes( 0 ) == mDofMap[ "Displacement" ] )
+            if( aDofTypes( 0 ) == mDofMap[ "Displacement" ] || aDofTypes( 0 ) == mDofMap[ "Temperature" ] )
             {
                 mdFluxdDof( tDofIndex ).matrix_data() += this->constitutive() * this->dStraindDOF( aDofTypes );
             }
 
             // if pressure
+            // FIXME should this be handled by dStraindDOF???
             if ( aDofTypes( 0 ) == mDofMap[ "Pressure" ] )
             {
                 Matrix< DDRMat > tN = mFIManager->get_field_interpolators_for_type( mDofMap[ "Pressure" ] )->N();
@@ -472,7 +459,6 @@ namespace moris
              uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
              // init mdStraindDof
-             // FIXME 3 for all cases?
              mdStraindDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if displacements

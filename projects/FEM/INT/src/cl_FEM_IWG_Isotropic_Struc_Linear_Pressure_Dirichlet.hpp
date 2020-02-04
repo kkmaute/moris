@@ -142,8 +142,7 @@ namespace moris
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              * @param[ in ] aResidual  cell of residual vectors to fill
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
