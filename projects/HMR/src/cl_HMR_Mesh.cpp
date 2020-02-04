@@ -243,7 +243,7 @@ namespace moris
             }
             else
             {
-            	return mMesh->get_number_of_elements();
+                return mMesh->get_number_of_elements();
             }
         }
 
@@ -449,7 +449,7 @@ namespace moris
         Matrix< IndexMat > Mesh::get_entity_connected_to_entity_glob_ids( moris_index     aEntityId,
                                                                           enum EntityRank aInputEntityRank,
                                                                           enum EntityRank aOutputEntityRank,
-																		  const moris_index     aIndex) const
+                                                                          const moris_index     aIndex) const
         {
 
             moris_index tEntityIndex = this->get_loc_entity_ind_from_entity_glb_id(aEntityId,aInputEntityRank);
@@ -1056,7 +1056,7 @@ namespace moris
 
         moris_id Mesh::get_glb_entity_id_from_entity_loc_index( moris_index     aEntityIndex,
                                                                 enum EntityRank aEntityRank,
-																const moris_index     aIndex ) const
+                                                                const moris_index     aIndex ) const
         {
             switch ( aEntityRank )
             {
@@ -1111,11 +1111,11 @@ namespace moris
 
         moris_index Mesh::get_loc_entity_ind_from_entity_glb_id( moris_id        aEntityId,
                                                                  enum EntityRank aEntityRank,
-																 const moris_index     aIndex) const
+                                                                 const moris_index     aIndex) const
         {
-            auto tIter = mEntityGlobaltoLocalMap( ( uint )aEntityRank ).find( aEntityId );
+            auto tIter = mEntityGlobaltoLocalMap( ( uint )aEntityRank + aIndex ).find( aEntityId );
 
-            MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(),
+            MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank+aIndex).end(),
                         "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
 
             return tIter->second;
@@ -1148,26 +1148,26 @@ namespace moris
                     break;
                 }
                 case( EntityRank::BSPLINE):
-				{
-                	moris::uint tNumEntities = this->get_num_entities(aEntityRank, aIndex);
+                {
+                    moris::uint tNumEntities = this->get_num_entities(aEntityRank, aIndex);
 
-                	moris_id tLocalMaxId = 0;
+                    moris_id tLocalMaxId = 0;
 
-                	for(moris::uint i = 0; i < tNumEntities; i++)
-                	{
-                		moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank,aIndex);
+                    for(moris::uint i = 0; i < tNumEntities; i++)
+                    {
+                        moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank,aIndex);
 
-                		if(tId > tLocalMaxId)
-                		{
-                			tLocalMaxId = tId;
-                		}
-                	}
+                        if(tId > tLocalMaxId)
+                        {
+                            tLocalMaxId = tId;
+                        }
+                    }
 
-                	moris_id tGlobalMaxId = 0;
-                	moris::max_all(tLocalMaxId,tGlobalMaxId);
-                	return tGlobalMaxId;
-                	break;
-				}
+                    moris_id tGlobalMaxId = 0;
+                    moris::max_all(tLocalMaxId,tGlobalMaxId);
+                    return tGlobalMaxId;
+                    break;
+                }
 
                 default :
                 {
@@ -1182,7 +1182,7 @@ namespace moris
 
         moris_id Mesh::get_entity_owner( moris_index     aEntityIndex,
                                          enum EntityRank aEntityRank,
-										 const moris_index     aIndex) const
+                                         const moris_index     aIndex) const
         {
             switch ( aEntityRank )
             {
@@ -1360,7 +1360,7 @@ namespace moris
         const real & Mesh::get_value_of_scalar_field( const      moris_index  aFieldIndex,
                                                       const enum EntityRank   aEntityRank,
                                                       const uint              aEntityIndex,
-													  const moris_index       aIndex) const
+                                                      const moris_index       aIndex) const
         {
             switch ( aEntityRank )
             {
@@ -1690,30 +1690,38 @@ namespace moris
         void Mesh::setup_glb_to_local_maps()
         {
             // Initialize global to local map
-            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(5);
+            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>( 4 + mMesh->get_number_of_bspline_meshes() );
 
             setup_entity_global_to_local_map(EntityRank::NODE);
             setup_entity_global_to_local_map(EntityRank::EDGE);
             setup_entity_global_to_local_map(EntityRank::FACE);
             setup_entity_global_to_local_map(EntityRank::ELEMENT);
-            setup_entity_global_to_local_map(EntityRank::BSPLINE);                                        //FIXME add more BSPLINES
-//            setup_element_global_to_local_map();
+
+            for( uint Ik = 0; Ik < mMesh->get_number_of_bspline_meshes(); Ik++ )
+            {
+                setup_entity_global_to_local_map( EntityRank::BSPLINE, Ik );
+            }
+
         }
 
 //-------------------------------------------------------------------------------
 
-        void Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank)
+        void Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index aIndex)
         {
-//            this->get_lagrange_mesh()->select_activation_pattern(  );
-//            MORIS_ERROR( aEntityRank != EntityRank::ELEMENT," function does not work for element use setup_element_global_to_local_map instead()");
+            uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
 
-            uint tNumEntities = this->get_num_entities(aEntityRank);
             moris_id tCount = 0;
+
             for( uint i = 0; i < tNumEntities; i++ )
             {
-                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index( i, aEntityRank );
+                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index( i,
+                                                                                    aEntityRank,
+                                                                                    aIndex);
+
 //                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
-                mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
+
+                mEntityGlobaltoLocalMap( ( uint )aEntityRank + aIndex )[ tEntityId ] = tCount;
+
                 tCount++;
             }
         }
@@ -1799,28 +1807,6 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-
-        void Mesh::setup_element_global_to_local_map()
-        {
-////            this->get_lagrange_mesh()->select_activation_pattern(  );
-//
-//            uint tNumEntities = this->get_num_entities(aEntityRank);
-//
-//            moris_id tCount = 0;
-//
-//            for( uint i = 0; i < tNumElements; i++ )
-//            {
-//                moris_id tEntityId = this->get_glb_element_id_from_element_loc_index( i );
-////                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
-//                mEntityGlobaltoLocalMap((uint)EntityRank::ELEMENT)[ tEntityId ] = tCount;
-//                tCount++;
-//            }
-
-//    moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
-
-//    mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
-
-        }
 
     } /* namespace hmr */
 } /* namespace moris */
