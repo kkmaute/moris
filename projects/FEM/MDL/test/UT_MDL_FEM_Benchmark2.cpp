@@ -90,11 +90,15 @@ moris::Matrix< moris::DDRMat > tMValFunctionContact( moris::Cell< moris::Matrix<
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
+bool tSolverOutputCriteria_MDLFEMBench2( moris::tsa::Time_Solver * )
+{
+    return true;
+}
 //-------------------------------------------------------------------------------------
 
 
 
-TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
+TEST_CASE("FEM Benchmark 2","[MDL_FEM_Benchmark2]")
 {
     if(par_size()<=1)
     {
@@ -440,38 +444,54 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
         tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::SLAVE );
 
+        // define the IQIs
+        fem::IQI_Factory tIQIFactory;
+
+        std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUX->set_output_type( vis::Output_Type::UX );
+        tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX } }, mtk::Master_Slave::MASTER );
+        tIQIUX->set_output_type_index( 0 );
+
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
         tSetBulk1.set_IWGs( { tIWGBulkA } );
+        tSetBulk1.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
         tSetBulk2.set_IWGs( { tIWGBulkA } );
+        tSetBulk2.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk3;
         tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
         tSetBulk3.set_IWGs( { tIWGBulkB } );
+        tSetBulk3.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
         tSetBulk4.set_IWGs( { tIWGBulkB } );
+        tSetBulk4.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk5;
         tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p5") );
         tSetBulk5.set_IWGs( { tIWGBulkB } );
+        tSetBulk5.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk6;
         tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p5") );
         tSetBulk6.set_IWGs( { tIWGBulkB } );
+        tSetBulk6.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk7;
         tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p9") );
         tSetBulk7.set_IWGs( { tIWGBulkB } );
+        tSetBulk7.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetBulk8;
         tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p9") );
         tSetBulk8.set_IWGs( { tIWGBulkB } );
+        tSetBulk8.set_IQIs( { tIQIUX } );
 
         fem::Set_User_Info tSetDirichlet1;
         tSetDirichlet1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p9") );
@@ -555,6 +575,29 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
                                               tSetInfo,
                                               0, false );
 
+        // --------------------------------------------------------------------------------------
+        // define outputs
+//        vis::Output_Manager tOutputData;
+//        tOutputData.set_outputs( 0,
+//                                 vis::VIS_Mesh_Type::STANDARD,
+//                                 "UT_MDL_FEM_Benchmark_Output_2.exo",
+//                                 { "HMR_dummy" },
+//                                 { "UX", "L2 error", "H1 error", "H1-semi error" },
+//                                 { vis::Field_Type::NODAL, vis::Field_Type::GLOBAL, vis::Field_Type::GLOBAL, vis::Field_Type::GLOBAL },
+//                                 { vis::Output_Type::TEMP, vis::Output_Type::L2_ERROR_ANALYTIC, vis::Output_Type::H1_ERROR_ANALYTIC, vis::Output_Type::H1_SEMI_ERROR } );
+//        tModel->set_output_manager( &tOutputData );
+
+        vis::Output_Manager tOutputData;
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD,
+                                 "UT_MDL_FEM_Benchmark_Output_2.exo",
+                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p5", "HMR_dummy_c_p9",
+                                   "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p5", "HMR_dummy_n_p9"},
+                                 { "UX" },
+                                 { vis::Field_Type::NODAL },
+                                 { vis::Output_Type::UX } );
+        tModel->set_output_manager( &tOutputData );
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -617,53 +660,55 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         tTimeSolver.set_dof_type_list( tDofTypesU );
 
+        tTimeSolver.set_output( 0, tSolverOutputCriteria_MDLFEMBench2 );
+
         //------------------------------------------------------------------------------
         tTimeSolver.solve();
 
-        // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldNameUX = "UX";
-        std::string tIntegSolFieldNameUY = "UY";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-
-        //    print(tIntegSolUX,"tIntegSolUX");
-        //    print(tIntegSolUY,"tIntegSolUY");
-
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-        }
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-
-        //    Matrix<DDRMat> tFullSol;
-        //    tNonlinearSolver.get_full_solution(tFullSol);
-        //
-        //    print(tFullSol,"tFullSol");
-
-        std::string tMeshOutputFile = "./mdl_exo/stk_xtk_linear_struc_2D.e";
-
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
-        delete tIntegMesh1;
+//        // output solution and meshes
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldNameUX = "UX";
+//        std::string tIntegSolFieldNameUY = "UY";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
+//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
+//
+//        //    print(tIntegSolUX,"tIntegSolUX");
+//        //    print(tIntegSolUY,"tIntegSolUY");
+//
+//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+//        }
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
+//
+//        //    Matrix<DDRMat> tFullSol;
+//        //    tNonlinearSolver.get_full_solution(tFullSol);
+//        //
+//        //    print(tFullSol,"tFullSol");
+//
+//        std::string tMeshOutputFile = "./mdl_exo/stk_xtk_linear_struc_2D.e";
+//
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//
+//        delete tIntegMesh1;
 
         delete tModel;
     }
