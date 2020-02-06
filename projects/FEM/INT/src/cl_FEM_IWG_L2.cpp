@@ -86,7 +86,7 @@ namespace moris
 //
 //            // compute residual
 //            //FIXME mNodalWeakBCs
-//            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+//            mSet->get_residual()( 0 )( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
 //                                += aJacobians( 0 )( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
 
         }
@@ -112,7 +112,7 @@ namespace moris
 
             // compute residual
             //FIXME: mNodalWeakBCs
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
                     += mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                              { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                             * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
@@ -225,7 +225,7 @@ namespace moris
 
             // compute residual
             //FIXME: mNodalWeakBCs
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
                                 += trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs ) * aWStar;
 
         }
@@ -243,7 +243,7 @@ namespace moris
 
             // compute residual
             //FIXME mNodalWeakBCs
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
                           += ( trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs )
                            + mAlpha * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs ) )        * aWStar;
         }

@@ -55,7 +55,8 @@ Vector_PETSc::~Vector_PETSc()
 
 void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMyDof,
                                           const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                          const moris::Matrix< DDRMat > & aRHSVal)
+                                          const moris::Matrix< DDRMat > & aRHSVal,
+                                          const uint                    & aVectorIndex )
 {
     moris::Matrix< DDSMat >tTempElemDofs ( aNumMyDof, 1 );
     tTempElemDofs = aEleDofConectivity;

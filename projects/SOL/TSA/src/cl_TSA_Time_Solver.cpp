@@ -203,7 +203,16 @@ using namespace tsa;
 
         for( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
         {
-            bool tIsOutput = tOutputCriterias( this );
+            bool tIsOutput = false;
+
+            if( tOutputCriterias == nullptr )
+            {
+                tIsOutput = true;
+            }
+            else
+            {
+                tIsOutput = tOutputCriterias( this );
+            }
 
             if( tIsOutput )
             {

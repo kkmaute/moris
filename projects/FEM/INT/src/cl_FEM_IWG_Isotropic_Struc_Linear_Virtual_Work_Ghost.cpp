@@ -97,10 +97,10 @@ namespace moris
                                            - mSlaveCM( tElastLinIsoIndex )->traction( mNormal );
 
                 // compute the residual
-                mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                 += tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump * aWStar;
 
-                mSet->get_residual()( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
                 -= tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump * aWStar;
             }
         }

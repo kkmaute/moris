@@ -82,7 +82,8 @@ public:
      */
     virtual void sum_into_global_values( const moris::uint             & aNumMyDof,
                                          const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                         const moris::Matrix< DDRMat > & aRHSVal ) = 0;
+                                         const moris::Matrix< DDRMat > & aRHSVal,
+                                         const uint                    & aVectorIndex = 0 ) = 0;
 
     /**
      * @brief Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.

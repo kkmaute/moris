@@ -34,7 +34,7 @@ namespace moris
             Matrix< DDRMat > tVN( 1, tFI->get_number_of_fields(), 1.0 );
 
            //compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += trans( tFI->N() ) * ( tFI->gradt( 1 ) + tVN * tFI->gradx( 1 ) ) * aWStar;
         }
 

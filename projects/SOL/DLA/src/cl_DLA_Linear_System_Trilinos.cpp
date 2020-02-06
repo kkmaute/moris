@@ -32,11 +32,13 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMap );
 
-        // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
+        uint tNumRHS = aInput->get_num_rhs();
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
+        // Build RHS/LHS vector
+        mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE, tNumRHS );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE, tNumRHS );
+
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING, tNumRHS );
 
         mInput->build_graph( mMat );
 

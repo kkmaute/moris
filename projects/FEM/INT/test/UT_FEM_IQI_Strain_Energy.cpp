@@ -187,30 +187,30 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tIQI->compute_QI( tQI );
     //print( tQI, "tQI" );
 
-    // check evaluation of the derivative of the quantity of interest wrt to dof
-    //------------------------------------------------------------------------------
-    // evaluate the quantity of interest derivatives wrt to dof
-    Matrix< DDRMat > tdQIdDof;
-    Matrix< DDRMat > tdQIdDofFD;
-    bool tCheckdQIdDof = tIQI->check_dQIdDof_FD( tPerturbation,
-                                                 tEpsilon,
-                                                 tdQIdDof,
-                                                 tdQIdDofFD );
-
-    // require check is true
-    REQUIRE( tCheckdQIdDof );
-    //print( tdQIdDof,   "tdQIdDof" );
-    //print( tdQIdDofFD, "tdQIdDofFD" );
-
-    // check evaluation of the derivative of the quantity of interest wrt to dv
-    //------------------------------------------------------------------------------
-    Matrix< DDRMat > tdQIdpMatFD;
-    Matrix< DDRMat > tdQIdpGeoFD;
-    tIQI->compute_dQIdDv_FD( tdQIdpMatFD,
-                             tdQIdpGeoFD,
-                             tPerturbation );
-    //print( tdQIdpMatFD, "tdQIdpMatFD" );
-    //print( tdQIdpGeoFD, "tdQIdpGeoFD" );
+//    // check evaluation of the derivative of the quantity of interest wrt to dof
+//    //------------------------------------------------------------------------------
+//    // evaluate the quantity of interest derivatives wrt to dof
+//    Matrix< DDRMat > tdQIdDof;
+//    Matrix< DDRMat > tdQIdDofFD;
+//    bool tCheckdQIdDof = tIQI->check_dQIdDof_FD( tPerturbation,
+//                                                 tEpsilon,
+//                                                 tdQIdDof,
+//                                                 tdQIdDofFD );
+//
+//    // require check is true
+//    REQUIRE( tCheckdQIdDof );
+//    //print( tdQIdDof,   "tdQIdDof" );
+//    //print( tdQIdDofFD, "tdQIdDofFD" );
+//
+//    // check evaluation of the derivative of the quantity of interest wrt to dv
+//    //------------------------------------------------------------------------------
+//    Matrix< DDRMat > tdQIdpMatFD;
+//    Matrix< DDRMat > tdQIdpGeoFD;
+//    tIQI->compute_dQIdDv_FD( tdQIdpMatFD,
+//                             tdQIdpGeoFD,
+//                             tPerturbation );
+//    //print( tdQIdpMatFD, "tdQIdpMatFD" );
+//    //print( tdQIdpGeoFD, "tdQIdpGeoFD" );
 
 
 }/*END_TEST_CASE*/

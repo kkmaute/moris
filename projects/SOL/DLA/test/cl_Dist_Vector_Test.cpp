@@ -47,13 +47,13 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Matrix< DDRMat > tElementRHS;
-            tSolverInput->get_element_rhs(Ii, tElementRHS );
+            Cell< Matrix< DDRMat > > tElementRHS;
+            tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
             tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
-                                              tElementRHS);
+                                              tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
 
@@ -115,17 +115,17 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Matrix< DDRMat > tElementRHS;
-            tSolverInput->get_element_rhs(Ii, tElementRHS );
+            Cell< Matrix< DDRMat > > tElementRHS;
+            tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
             tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
-                                              tElementRHS);
+                                              tElementRHS(0));
 
             tVectorB->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
-                                              tElementRHS);
+                                              tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
         tVectorB->vector_global_asembly();
@@ -187,13 +187,13 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Matrix< DDRMat > tElementRHS;
-            tSolverInput->get_element_rhs(Ii, tElementRHS );
+            Cell< Matrix< DDRMat > > tElementRHS;
+            tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
             tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
-                                              tElementRHS);
+                                              tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
 
@@ -253,13 +253,13 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Matrix< DDRMat > tElementRHS;
-            tSolverInput->get_element_rhs(Ii, tElementRHS );
+            Cell< Matrix< DDRMat > > tElementRHS;
+            tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
             tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
-                                              tElementRHS);
+                                              tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
 
@@ -319,13 +319,13 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Matrix< DDRMat > tElementRHS;
-            tSolverInput->get_element_rhs(Ii, tElementRHS );
+            Cell< Matrix< DDRMat >> tElementRHS;
+            tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
             tVectorFree->sum_into_global_values( tElementTopology.length(),
                                                  tElementTopology,
-                                                 tElementRHS);
+                                                 tElementRHS(0));
         }
         tVectorFree->vector_global_asembly();
 

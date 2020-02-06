@@ -46,7 +46,7 @@ namespace moris
             uint tLoadIndex       = static_cast< uint >( IWG_Property_Type::LOAD );
 
             // compute the residual
-            mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->flux() * tWStar;
 
             // if body load
@@ -56,7 +56,7 @@ namespace moris
                 Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // compute contribution of body load to residual
-                mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                 += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
         }

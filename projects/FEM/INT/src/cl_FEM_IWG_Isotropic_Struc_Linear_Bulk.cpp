@@ -51,14 +51,14 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * mMasterCM( tElastLinIsoIndex )->flux() * tWStar;
 
             // if body load
             if ( mMasterProp( tLoadIndex ) != nullptr )
             {
                 // compute body load contribution
-                mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+                mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
                 += - trans( tDisplacementFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
         }

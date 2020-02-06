@@ -1,4 +1,4 @@
-/*
+ /*
  * UT_MDL_XTK_HMR_2D.cpp
  *
  *  Created on: Sep 18, 2019
@@ -825,7 +825,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;

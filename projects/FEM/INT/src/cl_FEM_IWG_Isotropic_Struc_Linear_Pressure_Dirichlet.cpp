@@ -87,7 +87,7 @@ namespace moris
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += trans(tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )) * trans(tFlattenedNormal) * tM * tJump * aWStar;
 
 //            moris::print(trans(tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )), "dfluxddof");
