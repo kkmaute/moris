@@ -138,7 +138,6 @@ namespace moris
         	mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( tPdvValues );
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
 
-
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme

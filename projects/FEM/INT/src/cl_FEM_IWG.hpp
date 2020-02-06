@@ -572,14 +572,9 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the residual and the Jacobian
-             * @param[ in ] aResidual matrix to fill with residual
-             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            virtual void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
-            {
-                MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
-            }
+            virtual void compute_jacobian_and_residual( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**

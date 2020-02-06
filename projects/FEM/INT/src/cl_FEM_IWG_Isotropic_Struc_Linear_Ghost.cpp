@@ -239,8 +239,8 @@ namespace moris
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                    uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( tDofDepIndex, 0 );
-                    uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( tDofDepIndex, 1 );
+                    uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofDepIndex, 0 );
+                    uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofDepIndex, 1 );
 
                     // if dependency on the dof type
                     if ( mStabilizationParam( iOrder - 1 )->check_dof_dependency( tDofType ) )
@@ -268,8 +268,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Ghost::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                              moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Struc_Linear_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Ghost::compute_jacobian_and_residual - Not implemented." );
         }

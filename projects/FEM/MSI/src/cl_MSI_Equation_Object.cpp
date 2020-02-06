@@ -500,8 +500,6 @@ namespace moris
 //        print( tTMatrix,"tTMatrix");
 //        print( mEquationSet->get_jacobian(),"tJacobian");
 
-
-
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationSet->get_jacobian() * tTMatrix;
 

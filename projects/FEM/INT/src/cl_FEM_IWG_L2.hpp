@@ -105,6 +105,7 @@ namespace moris
              * j = N'*N, r =
              */
             void compute_jacobian_and_residual_without_alpha( real aWStar );
+
 //------------------------------------------------------------------------------
             /**
              * j = N'*N + alpha * B'*B
