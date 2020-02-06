@@ -40,7 +40,7 @@ namespace moris
 
             // FIXME
             // get the list of dv types for the CM
-            moris::Cell< moris::Cell< MSI::Dv_Type > > tCMDvTypes
+            moris::Cell< moris::Cell< GEN_DV > > tCMDvTypes
             = this->get_global_dv_type_list();
 
             // get the number of dv type for the CM
@@ -70,7 +70,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Constitutive_Model::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes )
+                                                                  moris::Cell< GEN_DV >        & aDvTypes )
         {
             // init dof counter
             uint tDofCounter = 0;
@@ -97,7 +97,7 @@ namespace moris
                 {
                     // get property dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -132,7 +132,7 @@ namespace moris
                 {
                     // get property dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 

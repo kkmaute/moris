@@ -32,9 +32,9 @@
 #include "cl_GE_Intersection_Object_Line.hpp"
 #include "cl_GE_Node.hpp"
 
-#include "../src/geometry/cl_GEN_Geometry.hpp"
-#include "../src/geomeng/cl_GEN_Geometry_Engine.hpp"
-#include "../src/geometry/cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_Geom_Field.hpp"
 
 // LINALG includes
 #include "cl_Matrix.hpp"
@@ -334,11 +334,4 @@ TEST_CASE( "GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]" )
 */
 }
 
-TEST_CASE( "GE_HMR_Interaction_02","[GE_HMR_Interaction_Bounding_Box]" )
-{
-    if(par_size() == 1)
-    {
-
-    }
-}
 }   // ge namepsace

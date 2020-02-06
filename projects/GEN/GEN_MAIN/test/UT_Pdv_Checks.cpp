@@ -134,7 +134,6 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
             tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
-            std::cout<<"----------------00000000000000000-------------------"<<std::endl;
         }
         else if ( par_rank()==1 )
         {

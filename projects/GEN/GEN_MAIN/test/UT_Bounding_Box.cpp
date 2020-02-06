@@ -8,7 +8,7 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 
-#include "../src/geometry/fn_bounding_box.hpp"
+#include "fn_bounding_box.hpp"
 
 namespace moris
 {

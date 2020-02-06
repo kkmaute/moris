@@ -60,12 +60,12 @@ namespace moris
             Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // master and slave dv type lists
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mMasterDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mSlaveDvTypes;
 
             // master and slave global dv type list
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterGlobalDvTypes;
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mMasterGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mSlaveGlobalDvTypes;
 
             // flag for building global dv type list
             bool mGlobalDvBuild = true;
@@ -241,7 +241,7 @@ namespace moris
              */
             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes );
+                                                  moris::Cell< GEN_DV >  & aDvTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -299,8 +299,8 @@ namespace moris
              * @param[ in ] aDvTypes  a cell of cell of dv types
              * @param[ in ] aIsMaster enum for master or slave
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes,
-                                   mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER )
+            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+                                   mtk::Master_Slave                            aIsMaster = mtk::Master_Slave::MASTER )
             {
                 switch ( aIsMaster )
                 {
@@ -327,7 +327,7 @@ namespace moris
              * return a cell of dv types
              * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // switch on master/slave
                 switch( aIsMaster )
@@ -359,7 +359,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aGlobalDvTypeList a non unique list of dv types to fill
              */
-            void get_non_unique_global_dv_type_list( moris::Cell< MSI::Dv_Type > & aGlobalDvTypeList );
+            void get_non_unique_global_dv_type_list( moris::Cell< GEN_DV > & aGlobalDvTypeList );
 
 //------------------------------------------------------------------------------
             /**
@@ -367,7 +367,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< moris::Cell< MSI::Dv_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            moris::Cell< moris::Cell< GEN_DV > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // if the global list was not yet built
                 if( mGlobalDvBuild )

@@ -32,7 +32,7 @@ namespace moris
 
             // FIXME set mDvFI
             // get the list of dv types for the property
-            moris::Cell< moris::Cell< MSI::Dv_Type > > tPropDvTypes
+            moris::Cell< moris::Cell< GEN_DV > > tPropDvTypes
             = this->get_dv_type_list();
 
             // get the number of dv type for the property
@@ -154,7 +154,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        bool Property::check_dv_dependency( const moris::Cell< MSI::Dv_Type > aDvType )
+        bool Property::check_dv_dependency( const moris::Cell< GEN_DV > aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -289,7 +289,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Property::dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType )
+        const Matrix< DDRMat > & Property::dPropdDV( const moris::Cell< GEN_DV > aDvType )
         {
            // if aDvType is not an active dv type for the property
            MORIS_ERROR( this->check_dv_dependency( aDvType ), "Property::dPropdDV - no dependency in this dv type." );
@@ -312,7 +312,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Property::eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType )
+        void Property::eval_dPropdDV( const moris::Cell< GEN_DV > aDvType )
         {
             // get the dv index
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );

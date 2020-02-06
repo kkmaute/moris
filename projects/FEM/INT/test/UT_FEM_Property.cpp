@@ -129,7 +129,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             //set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            Cell< Cell< GEN_DV > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameter
@@ -223,7 +223,7 @@ namespace moris
              tProperty.set_dof_type_list( tDofTypes );
 
              // set dv types
-             Cell< Cell< MSI::Dv_Type > > tDvTypes;
+             Cell< Cell< GEN_DV > > tDvTypes;
              tProperty.set_dv_type_list( tDvTypes );
 
              // set parameters
@@ -349,7 +349,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             // set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes = {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }};
+            Cell< Cell< GEN_DV > > tDvTypes = {{ GEN_DV::LS1 }, { GEN_DV::LS2 }};
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameters
@@ -392,11 +392,11 @@ namespace moris
             tDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                   tInterpolationRule,
                                                   tGeomInterpolator,
-                                                  { MSI::Dv_Type::LS1 } );
+                                                  { GEN_DV::LS1 } );
             tDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields,
                                                   tInterpolationRule,
                                                   tGeomInterpolator,
-                                                  { MSI::Dv_Type::LS2 } );
+                                                  { GEN_DV::LS2 } );
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0( 8, 1, 2.0 );
@@ -441,20 +441,20 @@ namespace moris
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // check that property depends on dv LS1
-            REQUIRE( tProperty.check_dv_dependency( { MSI::Dv_Type::LS1 } ) );
+            REQUIRE( tProperty.check_dv_dependency( { GEN_DV::LS1 } ) );
 
             // check that property depends on dv LS2
-            REQUIRE( tProperty.check_dv_dependency( { MSI::Dv_Type::LS2 } ) );
+            REQUIRE( tProperty.check_dv_dependency( { GEN_DV::LS2 } ) );
 
             // check that property does not depend on dv UNDEFINED
-            REQUIRE( !tProperty.check_dv_dependency( { MSI::Dv_Type::UNDEFINED } ) );
+            REQUIRE( !tProperty.check_dv_dependency( { GEN_DV::UNDEFINED } ) );
 
             // evaluate the property derivative wrt to LS1 (in dependencies)
-            tPropertyDerivative = tProperty.dPropdDV( {MSI::Dv_Type::LS1} );
+            tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS1} );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.25 ) );
 
             // evaluate the property derivative wrt to LS2 (in dependencies)
-            tPropertyDerivative = tProperty.dPropdDV( {MSI::Dv_Type::LS2 } );
+            tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS2 } );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // clean up
@@ -519,7 +519,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             // set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            Cell< Cell< GEN_DV > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameters

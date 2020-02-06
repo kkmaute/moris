@@ -14,10 +14,13 @@ enum class GEN_DV
     YCOORD,
     ZCOORD,
 
-    RADIUS,
     DENSITY0,
     DENSITY1,
     DENSITY2,
+    LS1,
+    LS2,
+    LS3,
+    RADIUS,
     TEMPERATURE0,
     TEMPERATURE1,
     TEMPERATURE2,
@@ -25,6 +28,7 @@ enum class GEN_DV
     MODULUS1,
     MODULUS2,
 
+    UNDEFINED,
 
     END_ENUM
 };

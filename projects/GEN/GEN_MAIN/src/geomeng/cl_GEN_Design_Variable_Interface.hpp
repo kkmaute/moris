@@ -59,7 +59,7 @@ namespace ge
          * @param[in] aNodeIndices   List of node indices
          * @param[in] aDvType        List of Dv types
          * @param[in] aDvValues      List of Dv values
-         *
+         * @param[in] aIsActive      List of active design variables
          */
 
         void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     //FIXME: [should be a matrix everywhere]
@@ -88,6 +88,13 @@ namespace ge
                     }
                 }
             }
+        }
+
+        void get_pdv_value( const Matrix< IndexMat >                    & aNodeIndices,
+                                const moris::Cell< enum GEN_DV >        & aDvTypes,
+                                moris::Cell< moris::Matrix< DDRMat > >  & aDvValues )
+        {
+            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - not implemented on GE side");
         }
 
 //------------------------------------------------------------------------------

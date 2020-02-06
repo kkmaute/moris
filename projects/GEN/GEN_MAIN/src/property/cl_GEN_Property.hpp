@@ -47,7 +47,7 @@ protected:
 //    moris::Cell< moris::fem::Field_Interpolator* > mDofFI;
 
     // active dv types
-    moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
+    moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
 
     // active dv type map
     Matrix< DDSMat > mDvTypeMap;
@@ -310,7 +310,7 @@ public:
      * set a list of dv types
      * @param[ in ] aDvTypes list of dv type
      */
-    void set_dv_type_list( const moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes )
+    void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes )
     {
         // set dv type list
         mDvTypes = aDvTypes;
@@ -336,7 +336,7 @@ public:
      * return a list of dv types
      * @param[ out ] mDvTypes list of dv type
      */
-    const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( ) const
+    const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( ) const
     {
         return mDvTypes;
     };
@@ -363,7 +363,7 @@ public:
      * @param[ in ]  aDvType cell of dv type
      * @param[ out ] aBool   boolean, true if dependency on the dv type
      */
-    bool check_dv_dependency( const moris::Cell< MSI::Dv_Type > aDvType );
+    bool check_dv_dependency( const moris::Cell< GEN_DV > aDvType );
 
     //------------------------------------------------------------------------------
     /**
@@ -438,14 +438,14 @@ public:
      * @param[ in ]  aDvType   cell of dv type
      * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
      */
-    const Matrix< DDRMat > & dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+    const Matrix< DDRMat > & dPropdDV( const moris::Cell< GEN_DV > aDvType );
 
     //------------------------------------------------------------------------------
     /**
      * evaluate property derivatives wrt a design variable
      * @param[ in ] aDvType cell of dv type
      */
-    void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+    void eval_dPropdDV( const moris::Cell< GEN_DV > aDvType );
 
     //------------------------------------------------------------------------------
 //    /**

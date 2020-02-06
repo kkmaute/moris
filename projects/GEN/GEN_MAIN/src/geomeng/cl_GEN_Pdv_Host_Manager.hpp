@@ -88,14 +88,16 @@ public:
     //------------------------------------------------------------------------------
     void set_pdv_types( Cell< enum GEN_DV > aPdvTypeList )
     {
-        uint tNumTypes = aPdvTypeList.size();
+
+        this->communicate_dof_types( aPdvTypeList );
+
+        uint tNumTypes = mPdvTypeList.size();
         for( uint i=0; i<tNumTypes; i++)
         {
-            mGlobalPdvTypeMap( static_cast<sint>(aPdvTypeList(i)) ) = mNumPDVs;
+            mGlobalPdvTypeMap( static_cast<sint>(mPdvTypeList(i)) ) = mNumPDVs;
             mNumPDVs++;
         }
 
-        this->communicate_dof_types( aPdvTypeList );
     }
     //------------------------------------------------------------------------------
     moris::Cell< enum GEN_DV > get_pdv_type_list(  )

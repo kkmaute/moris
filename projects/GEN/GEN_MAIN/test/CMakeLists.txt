@@ -8,7 +8,7 @@ set(TEST_SOURCES
     
   #  cl_Beam_Study.cpp
   #  cl_Fiber_Problem.cpp
-  #  cl_For_Thesis.cpp
+    cl_For_Thesis.cpp
     
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
@@ -18,7 +18,7 @@ set(TEST_SOURCES
     UT_Bounding_Box.cpp
   #  UT_Finite_Difference_Checks.cpp
     UT_GE_HMR_Interaction.cpp
-  #  UT_Pdv_Checks.cpp
+    UT_Pdv_Checks.cpp
     UT_GE_Properties.cpp
     
    # geometry_classes/cl_GE_test_analytic.cpp

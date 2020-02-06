@@ -127,7 +127,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dPPdMasterDV ( 1 x numDerDv )
              */
-            void eval_dSPdMasterDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Dirichlet_Nitsche - eval_dSPdMasterDV: not implemented." );
             }

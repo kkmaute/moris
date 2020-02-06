@@ -65,8 +65,8 @@ namespace moris
         Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
         // lists of master and slave groups of dv types
-        moris::Cell< moris::Cell< enum MSI::Dv_Type > > mMasterDvTypes;
-        moris::Cell< moris::Cell< enum MSI::Dv_Type > > mSlaveDvTypes;
+        moris::Cell< moris::Cell< enum GEN_DV > > mMasterDvTypes;
+        moris::Cell< moris::Cell< enum GEN_DV > > mSlaveDvTypes;
 
         // maps for the master and slave dv type
         moris::Matrix< DDSMat > mMasterDvTypeMap;
@@ -84,7 +84,7 @@ namespace moris
 
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
-        moris::Cell< enum MSI::Dv_Type >  mUniqueDvTypeList; // List of dv types of this equation obj
+        moris::Cell< enum GEN_DV >  mUniqueDvTypeList; // List of dv types of this equation obj
 
         Model_Solver_Interface * mModelSolverInterface = nullptr;
 
@@ -176,8 +176,8 @@ namespace moris
         /**
          * get set index for a dv type
          */
-        sint get_dv_index_for_type( enum MSI::Dv_Type aDvType,
-                                    mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER )
+        sint get_dv_index_for_type( enum GEN_DV       aDvType,
+                                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             switch ( aIsMaster )
             {
@@ -229,8 +229,8 @@ namespace moris
         /**
          * get set index for dv type
          */
-        sint get_dv_index_for_type_1( enum MSI::Dv_Type aDvType,
-                                      mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER )
+        sint get_dv_index_for_type_1( enum GEN_DV       aDvType,
+                                      mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             switch ( aIsMaster )
             {
@@ -385,7 +385,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< enum MSI::Dv_Type > & get_unique_dv_type_list()
+        moris::Cell< enum GEN_DV > & get_unique_dv_type_list()
         {
             return mUniqueDvTypeList;
         }

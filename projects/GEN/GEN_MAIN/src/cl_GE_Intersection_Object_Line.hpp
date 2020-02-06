@@ -131,7 +131,7 @@ public:
                                                      aGeomPointer->get_my_time_interpolation_order() );
         //fixme the geometry pointer information needs to be accessed in a better way
         uint tNumFields = 1;
-        mMyFieldInterp = new fem::Field_Interpolator( tNumFields, tLevelSetInterpRule, mMyGeomInterp, { MSI::Dv_Type::UNDEFINED } );
+        mMyFieldInterp = new fem::Field_Interpolator( tNumFields, tLevelSetInterpRule, mMyGeomInterp, { GEN_DV::UNDEFINED } );
 
         mMyParamPoint   = aParamPoint; // set the parameter point where the interpolation begins
         mMyGlobalCoords = aGlobCoords;

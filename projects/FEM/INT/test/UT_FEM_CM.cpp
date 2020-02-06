@@ -55,7 +55,7 @@ namespace moris
             tCM->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
 
             // set dv types
-            tCM->set_dv_type_list( {{ MSI::Dv_Type::LS1 }} );
+            tCM->set_dv_type_list( {{ GEN_DV::LS1 }} );
 
             // set property
             tCM->set_property( tProp, "Conductivity" );
@@ -69,8 +69,8 @@ namespace moris
 
             // create a dv field interpolator
             Cell< Field_Interpolator* > tDvFIs( 2, nullptr );
-            tDvFIs( 0 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS1 } );
-            tDvFIs( 1 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS2 } );
+            tDvFIs( 0 ) = new Field_Interpolator ( 1, { GEN_DV::LS1 } );
+            tDvFIs( 1 ) = new Field_Interpolator ( 1, { GEN_DV::LS2 } );
 
             // set FI for constitutive model
             tCM->set_dof_field_interpolators( tDofFIs );

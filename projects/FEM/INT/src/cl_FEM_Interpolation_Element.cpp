@@ -130,7 +130,7 @@ namespace moris
              for( uint iDv = 0; iDv < tMasterNumDvTypes; iDv++ )
              {
                  // get the dv type group
-                 moris::Cell< MSI::Dv_Type > tDvTypeGroup
+                 moris::Cell< GEN_DV > tDvTypeGroup
                  = mSet->get_dv_type_list()( iDv );
 
                 // get the pdv values for the ith dv type group
@@ -157,7 +157,7 @@ namespace moris
              for( uint iDv = 0; iDv < tSlaveNumDvTypes; iDv++ )
              {
                  // get the dv type group
-                 moris::Cell< MSI::Dv_Type > tDvTypeGroup
+                 moris::Cell< GEN_DV > tDvTypeGroup
                  = mSet->get_dv_type_list( mtk::Master_Slave::SLAVE )( iDv );
 
                  // get the pdv values for the ith dv type group

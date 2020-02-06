@@ -151,7 +151,7 @@ namespace moris
 //            for( uint iDv = 0; iDv < tNumDvDependencies; iDv++ )
 //            {
 //                // get the treated dv type
-//                Cell< MSI::Dv_Type > tDvType = mMasterGlobalDvTypes( iDv );
+//                Cell< GEN_DV > tDvType = mMasterGlobalDvTypes( iDv );
 //
 //                // get index for the treated dv type
 //                uint tIndexDep = mSet->get_dv_index_for_type( tDvType( 0 ), mtk::Master_Slave::MASTER );

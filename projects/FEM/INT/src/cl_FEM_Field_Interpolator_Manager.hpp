@@ -61,7 +61,7 @@ namespace moris
         moris::uint mMaxNumDofFI;
 
         // dof type list for the FI manager
-        const moris::Cell< moris::Cell< enum MSI::Dv_Type > > mDvTypes;
+        const moris::Cell< moris::Cell< enum GEN_DV > > mDvTypes;
 
         // dof type map
         moris::Matrix< DDSMat > mDvTypeMap;
@@ -104,7 +104,7 @@ namespace moris
         };
 
         Field_Interpolator_Manager( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
-                                    const moris::Cell< moris::Cell< enum MSI::Dv_Type > >  & aDvTypes,
+                                    const moris::Cell< moris::Cell< enum GEN_DV > >        & aDvTypes,
                                           MSI::Equation_Set                                * aEquationSet,
                                           mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER )
         : mDofTypes( aDofTypes ),
@@ -365,7 +365,7 @@ namespace moris
          * get the field interpolator for a given dv type
          * @param[ in ] aDvType a dv type enum
          */
-        Field_Interpolator * get_field_interpolators_for_type( enum MSI::Dv_Type aDvType )
+        Field_Interpolator * get_field_interpolators_for_type( enum GEN_DV aDvType )
         {
             // get the set index for the requested dv type
             sint tDvIndex =  mEquationSet->get_dv_index_for_type_1( aDvType, mIsMaster );
@@ -454,8 +454,8 @@ namespace moris
          * @param[ in ] aDofType a dof type for which the coeff will be set
          * @param[ in ] aCoeff   coefficients to be set
          */
-        void set_coeff_for_type( enum MSI::Dv_Type    aDvType,
-                                 Matrix< DDRMat >   & aCoeff )
+        void set_coeff_for_type( enum GEN_DV        aDvType,
+                                 Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aDvType )->set_coeff( aCoeff );

@@ -260,7 +260,7 @@ namespace moris
         {
             // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            moris::Cell< MSI::Dv_Type >   tActiveDvType;
+            moris::Cell< GEN_DV >   tActiveDvType;
             tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // update dof and dv type counter
@@ -273,7 +273,7 @@ namespace moris
         {
             // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            moris::Cell< MSI::Dv_Type >   tActiveDvType;
+            moris::Cell< GEN_DV >   tActiveDvType;
             tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // update dof and dv type counter
@@ -290,7 +290,7 @@ namespace moris
         {
             // get non unique dof type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            moris::Cell< MSI::Dv_Type >  tActiveDvType;
+            moris::Cell< GEN_DV >  tActiveDvType;
             tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // populate the corresponding EqnObj dof and dv type list
@@ -303,7 +303,7 @@ namespace moris
         {
             // get non unique dof and dv type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            moris::Cell< MSI::Dv_Type >  tActiveDvType;
+            moris::Cell< GEN_DV >  tActiveDvType;
             tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // populate the corresponding EqnObj dof and dv type list
@@ -357,7 +357,7 @@ namespace moris
             // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIWG->get_global_dof_type_list();
-            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeMaster
+            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeMaster
             = tIWG->get_global_dv_type_list();
 
             // loop over the IWG active master dof type
@@ -397,7 +397,7 @@ namespace moris
             // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeSlave
+            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeSlave
             = tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
@@ -442,7 +442,7 @@ namespace moris
             // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIQI->get_global_dof_type_list();
-            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeMaster
+            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeMaster
             = tIQI->get_global_dv_type_list();
 
             // loop over the IQI active master dof type
@@ -482,7 +482,7 @@ namespace moris
             // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-            moris::Cell< moris::Cell< MSI::Dv_Type > >  tDvTypeSlave
+            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeSlave
             = tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
@@ -1096,7 +1096,7 @@ namespace moris
     {
         // get the list of requested dv types by the opt solver
         // FIXME for now everything is evaluated
-        //Cell < enum MSI::Dv_Type >  tRequestedDvTypes;
+        //Cell < enum GEN_DV >  tRequestedDvTypes;
 
         // init the max index for dv types
         sint tMaxDvIndex = -1;
@@ -1645,7 +1645,7 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    moris::sint Set::get_dv_index_for_type_1( enum MSI::Dv_Type aDvType )
+    moris::sint Set::get_dv_index_for_type_1( enum GEN_DV aDvType )
     {
         return mDvTypeMap( static_cast< int >( aDvType ), 0 );
     }
