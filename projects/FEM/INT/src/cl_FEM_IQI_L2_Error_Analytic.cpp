@@ -36,7 +36,6 @@ namespace moris
 
             // evaluate the QI
             aQI = ( trans( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) * ( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) );
-            // / ( mMasterProp( tL2CheckIndex )->val() * mMasterProp( tL2CheckIndex )->val());
         }
 
 //------------------------------------------------------------------------------

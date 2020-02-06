@@ -217,7 +217,9 @@ namespace moris
 
 
     //datatype for hmr paramater list
-    typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
+//    typedef Param_List< boost::variant< sint, real, std::string, std::pair  > > ParameterList;
+    typedef Param_List< boost::variant< sint, real, std::string > > ParameterList;
+
 
 }
 

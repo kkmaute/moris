@@ -79,15 +79,15 @@ namespace moris
 //-------------------------------------------------------------------------------------
 // Functions for Parameters in FEM
 Matrix< DDRMat > ConstFunctionVal_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+  moris::fem::Field_Interpolator_Manager *        aFIManager )
 {
     return aParameters( 0 );
 }
 
 Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+  moris::fem::Field_Interpolator_Manager *        aFIManager )
 {
     // get parameters
     real RInner  = aParameters( 0 )( 0 ); // inner radius

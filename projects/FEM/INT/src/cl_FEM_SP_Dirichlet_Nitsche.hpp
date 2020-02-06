@@ -88,23 +88,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // FIXME check that constitutive string makes sense?
-
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * reset the cluster measures required for this SP
              */
             void reset_cluster_measures()

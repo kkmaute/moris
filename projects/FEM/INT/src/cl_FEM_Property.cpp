@@ -11,45 +11,6 @@ namespace moris
         {
             // set field interpolator manager
             mFIManager = aFieldInterpolatorManager;
-
-            // FIXME set mDofFI
-            // get the list of dof types for the property
-            moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes
-            = this->get_dof_type_list();
-
-            // get the number of dof type for the property
-            uint tNumDofTypes = tPropDofTypes.size();
-
-            // set the size of the field interpolators list for the property
-            mDofFI.resize( tNumDofTypes, nullptr );
-
-            // loop over the dof types
-            for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-            {
-                mDofFI( iDof ) = mFIManager->get_field_interpolators_for_type( tPropDofTypes( iDof )( 0 ) );
-            }
-            // END FIXME
-
-            // FIXME set mDvFI
-            // get the list of dv types for the property
-            moris::Cell< moris::Cell< MSI::Dv_Type > > tPropDvTypes
-            = this->get_dv_type_list();
-
-            // get the number of dv type for the property
-            uint tNumDvTypes = tPropDvTypes.size();
-
-            // set the size of the field interpolators list for the property
-            mDvFI.resize( tNumDvTypes, nullptr );
-
-            // loop over the dv types
-            for( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
-            {
-                mDvFI( iDv ) = mFIManager->get_field_interpolators_for_type( tPropDvTypes( iDv )( 0 ) );
-            }
-            // END FIXME
-
-            // set geometry interpolator
-            mGeometryInterpolator =  mFIManager->get_IP_geometry_interpolator();
         }
 
 //------------------------------------------------------------------------------
@@ -91,41 +52,6 @@ namespace moris
             }
             // return bool for dependency
             return tDofDependency;
-        }
-
-//------------------------------------------------------------------------------
-        void Property::set_dof_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-        {
-            // check size
-            MORIS_ASSERT( aFieldInterpolators.size() == mDofTypes.size(),
-                          "Property::set_field_interpolators - wrong input size. " );
-
-            // check field interpolator type
-            bool tCheckFI = true;
-            for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-            {
-                tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == mDofTypes( iFI )( 0 ) );
-            }
-            MORIS_ASSERT( tCheckFI, "Property::set_field_interpolators - wrong field interpolator dof type. ");
-
-            // set field interpolators
-            mDofFI = aFieldInterpolators;
-        }
-
-//------------------------------------------------------------------------------
-        void Property::check_dof_field_interpolators()
-        {
-            // check field interpolators cell size
-            MORIS_ASSERT( mDofFI.size() == mDofTypes.size(),
-                          "Property::check_dof_field_interpolators - wrong FI size. " );
-
-           // loop over the field interpolator pointers
-           for( uint iFI = 0; iFI < mDofTypes.size(); iFI++ )
-           {
-               // check that the field interpolator was set
-               MORIS_ASSERT( mDofFI( iFI ) != nullptr,
-                             "Property::check_dof_field_interpolators - FI missing. " );
-           }
         }
 
 //------------------------------------------------------------------------------
@@ -173,42 +99,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Property::set_dv_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-        {
-            // check size
-            MORIS_ASSERT( aFieldInterpolators.size() == mDvTypes.size(),
-                          "Property::set_dv_field_interpolators - wrong input size. " );
-
-            // check field interpolator type
-            bool tCheckFI = true;
-            for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-            {
-                tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == mDvTypes( iFI )( 0 ) );
-            }
-            MORIS_ASSERT( tCheckFI, "Property::set_dv_field_interpolators - wrong field interpolator dv type. ");
-
-            // set field interpolators
-            mDvFI = aFieldInterpolators;
-        }
-
-//------------------------------------------------------------------------------
-        void Property::check_dv_field_interpolators()
-        {
-            // get number of dv types
-            uint tNumDvTypes = mDvTypes.size();
-
-            // check field interpolators cell size
-            MORIS_ASSERT( mDvFI.size() == tNumDvTypes, "Property::check_dv_field_interpolators - wrong FI size. " );
-
-           // loop over the field interpolator pointers
-           for( uint iFI = 0; iFI < tNumDvTypes; iFI++ )
-           {
-               // check that the field interpolator was set
-               MORIS_ASSERT( mDvFI( iFI ) != nullptr, "Property::check_dv_field_interpolators - FI missing. " );
-           }
-        }
-
-//------------------------------------------------------------------------------
         const Matrix< DDRMat > & Property::val()
         {
             // if the property was not evaluated
@@ -228,17 +118,12 @@ namespace moris
         void Property::eval_Prop()
         {
             // check that mValFunc was assigned
-            MORIS_ASSERT( mValFunction != nullptr, "Property::eval_Prop - mValFunction not assigned. " );
+            MORIS_ASSERT( mSetValFunction == true, "Property::eval_Prop - mValFunction not assigned. " );
 
-            // check that mGeometryInterpolator was assigned
-            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_Prop - mGeometryInterpolator not assigned. " );
-
-            // check that the field interpolators are set
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            // check that mFIManager was assigned
+            MORIS_ASSERT( mFIManager != nullptr, "Property::eval_Prop - mFIManager not assigned. " );
 
             // use mValFunction to evaluate the property
-//            mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
             mProp = mValFunction( mParameters, mFIManager );
         }
 
@@ -272,20 +157,13 @@ namespace moris
             uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // check that mDofDerFunctions was assigned
-            MORIS_ASSERT( mDofDerFunctions( tDofIndex ) != nullptr, "Property::dPdDOF - mDerFunction not assigned. " );
+            MORIS_ASSERT( mSetDofDerFunctions == true, "Property::eval_dPropdDOF - mDofDerFunctions not assigned. " );
+            MORIS_ASSERT( mDofDerFunctions( tDofIndex ) != nullptr, "Property::eval_dPropdDOF - mDerFunction not assigned. " );
 
-            // check that mGeometryInterpolator was assigned
-            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_dPropdDOF - mGeometryInterpolator not assigned. " );
-
-            // check that the field interpolators are set
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            // check that mFIManager was assigned
+            MORIS_ASSERT( mFIManager != nullptr, "Property::eval_Prop - mFIManager not assigned. " );
 
             // if so use mDerivativeFunction to compute the derivative
-//            mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters,
-//                                                                      mDofFI,
-//                                                                      mDvFI,
-//                                                                      mGeometryInterpolator );
             mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters, mFIManager );
         }
 
@@ -319,20 +197,13 @@ namespace moris
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );
 
             // check that mDofDerFunctions was assigned
+            MORIS_ASSERT( mSetDvDerFunctions == true, "Property::eval_dPropdDV - mDvDerFunctions not assigned. " );
             MORIS_ASSERT( mDvDerFunctions( tDvIndex ) != nullptr, "Property::eval_dPropdDV - mDvDerFunctions not assigned. " );
 
-            // check that mGeometryInterpolator was assigned
-            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_dPropdDV - mGeometryInterpolator not assigned. " );
-
-            // check that the field interpolators are set
-            this->check_dof_field_interpolators();
-            this->check_dv_field_interpolators();
+            // check that mFIManager was assigned
+            MORIS_ASSERT( mFIManager != nullptr, "Property::eval_Prop - mFIManager not assigned. " );
 
             // if so use mDerivativeFunction to compute the derivative
-//            mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
-//                                                                  mDofFI,
-//                                                                  mDvFI,
-//                                                                  mGeometryInterpolator );
             mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters, mFIManager );
         }
 
