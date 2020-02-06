@@ -1,4 +1,4 @@
-/*
+ /*
  * UT_MDL_XTK_HMR_2D.cpp
  *
  *  Created on: Sep 18, 2019
@@ -614,7 +614,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
     	        tXTKModel.decompose(tDecompositionMethods);
 
-    	        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+    	        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
     	        // get meshes
     	        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -672,7 +672,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	        fem::CM_Factory tCMFactory;
 
     	        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    	         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+    	         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+    	                                             { "Displacement",                           "Temperature" } );
     	         tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
     	         tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
     	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -681,7 +682,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     	         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    	         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+    	         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+    	                                             {  "Displacement",                          "Temperature" } );
     	         tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
     	         tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
     	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -823,7 +825,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
@@ -1029,7 +1031,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -1087,7 +1089,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+                                             { "Displacement", "Temperature" } );
          tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
          tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
          tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -1096,7 +1099,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
          std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }} );
+         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+                                             { "Displacement", "Temperature" } );
          tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
          tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
          tCMStrucLinIso1->set_property( tCTE, "CTE" );
@@ -1467,7 +1471,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //
 //      Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 //      tXTKModel.decompose(tDecompositionMethods);
-//      tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+//      tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 //
 //      // get meshes
 //      xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();

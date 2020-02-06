@@ -182,7 +182,8 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
@@ -354,7 +355,8 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
@@ -530,7 +532,8 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;

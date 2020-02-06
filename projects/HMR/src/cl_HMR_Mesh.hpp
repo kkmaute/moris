@@ -135,7 +135,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            uint get_num_entities( enum EntityRank aEntityRank) const;
+            uint get_num_entities( const enum EntityRank aEntityRank,
+                                   const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -164,21 +165,23 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat > get_bspline_inds_of_node_loc_ind( const moris_index      aNodeIndex,
-                                                                 const enum EntityRank  aBSplineRank );
+                                                                 const enum EntityRank  aBSplineRank );                //FIXME
 
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
-                                       enum EntityRank aOutputEntityRank) const;
+                                       enum EntityRank aOutputEntityRank,
+                                       const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
                                        moris_index     aEntityId,
                                        enum EntityRank aInputEntityRank,
-                                       enum EntityRank aOutputEntityRank) const;
+                                       enum EntityRank aOutputEntityRank,
+                                       const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -246,18 +249,21 @@ namespace moris
 
             moris_id get_glb_entity_id_from_entity_loc_index(
                     moris_index     aEntityIndex,
-                    enum EntityRank aEntityRank) const ;
+                    enum EntityRank aEntityRank,
+                    const moris_index     aIndex = 0 ) const ;
 
             moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
 
 //-------------------------------------------------------------------------------
             moris_index get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
-                    enum EntityRank aEntityRank) const;
+                    enum EntityRank aEntityRank,
+                    const moris_index     aIndex = 0) const;
 
 //-------------------------------------------------------------------------------
 
-            moris_id get_max_entity_id( enum EntityRank aEntityRank ) const ;
+            moris_id get_max_entity_id( enum EntityRank aEntityRank,
+                                        const moris_index     aIndex ) const ;
 
 //-------------------------------------------------------------------------------
 //          Coordinate Field Functions
@@ -270,7 +276,8 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             moris_id get_entity_owner( moris_index     aEntityIndex,
-                                       enum EntityRank aEntityRank ) const;
+                                       enum EntityRank aEntityRank,
+                                       const moris_index     aIndex = 0 ) const;
 
             //FIXME Needs parallel implementation
             void
@@ -364,30 +371,34 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             moris_index get_field_ind( const std::string     & aFieldLabel,
-                                       const enum EntityRank   aEntityRank  ) const;
+                                       const enum EntityRank   aEntityRank) const;
 
 //-------------------------------------------------------------------------------
 
-            uint get_num_fields( const enum EntityRank aEntityRank ) const;
+            uint get_num_fields( const enum EntityRank aEntityRank,
+                                 const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
             real & get_value_of_scalar_field(
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
-                    const uint              aEntityIndex );
+                    const uint              aEntityIndex,
+                    const moris_index     aIndex = 0);
 
 //-------------------------------------------------------------------------------
 
             const real & get_value_of_scalar_field(
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
-                    const uint              aEntityIndex ) const;
+                    const uint              aEntityIndex,
+                    const moris_index     aIndex = 0) const;
 
 //-------------------------------------------------------------------------------
 
             Matrix<DDRMat> & get_field( const moris_index     aFieldIndex,
-                                        const enum EntityRank aEntityRank );
+                                        const enum EntityRank aEntityRank,
+                                        const moris_index     aIndex = 0);
 
 //-------------------------------------------------------------------------------
 
@@ -437,12 +448,13 @@ private:
 
             uint get_level_of_entity_loc_ind(
                     const enum EntityRank aEntityRank,
-                    const uint            aEntityIndex );
+                    const uint            aEntityIndex,
+                    const moris_index     aIndex = 0);
 
 
 //-------------------------------------------------------------------------------
 
-            uint get_max_level_of_entity( const enum EntityRank aEntityRank );
+            uint get_max_level_of_entity( const enum EntityRank aEntityRank, const moris_index     aIndex= 0 );
 
 //-------------------------------------------------------------------------------
 
@@ -454,11 +466,7 @@ private:
 
 //-------------------------------------------------------------------------------
 
-            void setup_entity_global_to_local_map(enum EntityRank aEntityRank);
-
-//-------------------------------------------------------------------------------
-
-            void setup_element_global_to_local_map();
+            void setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index     aIndex = 0);
 
 
 //-------------------------------------------------------------------------------

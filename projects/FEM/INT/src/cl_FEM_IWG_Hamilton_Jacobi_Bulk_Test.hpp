@@ -79,7 +79,7 @@ namespace moris
             {
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed" );
+                             "IWG_Hamilton_Jacobi_Bulk_Test::set_property - No slave allowed" );
 
                 // FIXME check that property type makes sense?
 
@@ -98,6 +98,10 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Hamilton_Jacobi_Bulk_Test::set_property - No slave allowed" );
+
                 // FIXME check that constitutive string makes sense?
 
                 // set the constitutive model in the constitutive model cell
@@ -138,8 +142,7 @@ namespace moris
              * compute the residual and the jacobian
              * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**

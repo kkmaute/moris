@@ -65,10 +65,11 @@ void Vector_Epetra::replace_global_values()
 
 void Vector_Epetra::sum_into_global_values( const moris::uint             & aNumMyDofs,
                                             const moris::Matrix< DDSMat > & aElementTopology,
-                                            const moris::Matrix< DDRMat > & aRHSVal )
+                                            const moris::Matrix< DDRMat > & aRHSVal,
+                                            const uint                    & aVectorIndex )
 {
     // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-    mEpetraVector->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data() );
+    mEpetraVector->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data(), aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------

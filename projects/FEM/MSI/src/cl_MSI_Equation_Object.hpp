@@ -77,7 +77,7 @@ class Dist_Vector;
 
             Matrix< DDRMat > mTime;
 
-            Equation_Set * mEquationBlock;
+            Equation_Set * mEquationSet;
 
             moris::uint mNumPdofSystems = 0;
 
@@ -90,7 +90,7 @@ class Dist_Vector;
 
             Equation_Object() {};
 
-            Equation_Object( Equation_Set * aElementBlock) : mEquationBlock( aElementBlock )
+            Equation_Object( Equation_Set * aElementBlock) : mEquationSet( aElementBlock )
             {};
 
 //-------------------------------------------------------------------------------------------------
@@ -237,8 +237,8 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS,
-                                            Dist_Vector * aSolutionVector );
+            void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS,
+                                            Dist_Vector              * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
 

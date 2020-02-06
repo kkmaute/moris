@@ -264,6 +264,14 @@ namespace moris
             return tCellInfo.compute_cell_size(this);
         }
 // ----------------------------------------------------------------------------
+        template<>
+        moris::real
+		Lagrange_Element< 3, 27 >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
+        {
+            mtk::Cell_Info_Hex27 tCellInfo;
+            return tCellInfo.compute_cell_side_size( this,aCellSideOrd);
+        }
+// ----------------------------------------------------------------------------
 
         /**
          * returns the ijk position of a given basis

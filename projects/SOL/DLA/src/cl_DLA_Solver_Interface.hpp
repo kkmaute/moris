@@ -101,6 +101,12 @@ public:
     // local dimension of the problem
     virtual moris::uint get_num_my_dofs()         =0;
 
+    virtual moris::uint get_num_rhs()
+    {
+    	return 1;
+//        MORIS_ERROR( false, "Solver_Interface::get_num_rhs: not set.");
+    };
+
     virtual uint get_max_num_global_dofs() = 0;
 
     // number local elements blocks
@@ -152,12 +158,12 @@ public:
                                       const moris::uint             & aMyElementInd,
                                             moris::Matrix< DDSMat > & aElementTopology) = 0;
 
-    virtual void get_element_rhs(const moris::uint             & aMyElementInd,
-                                       moris::Matrix< DDRMat > & aElementRHS ) =0;
+    virtual void get_equation_object_rhs(const moris::uint              & aMyElementInd,
+                                       Cell< Matrix< DDRMat > > & aElementRHS ) =0;
 
-    virtual void get_element_rhs(const moris::uint             & aMyBlockInd,
-                                 const moris::uint             & aMyElementInd,
-                                       moris::Matrix< DDRMat > & aElementRHS ) =0;
+    virtual void get_equation_object_rhs(const moris::uint              & aMyBlockInd,
+                                 const moris::uint              & aMyElementInd,
+                                       Cell< Matrix< DDRMat > > & aElementRHS ) =0;
 
     //------------------------------------------------------------
     virtual void set_time_value( const moris::real & aLambda,

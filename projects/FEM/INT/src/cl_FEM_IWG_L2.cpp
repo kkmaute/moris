@@ -14,12 +14,6 @@ namespace moris
 //------------------------------------------------------------------------------
     IWG_L2::IWG_L2( const real aAlpha )
     {
-//        // set the residual dof type
-//        mResidualDofType = { MSI::Dof_Type::L2 };
-//
-//        // set the active dof types
-//        mMasterDofTypes = { { MSI::Dof_Type::L2 } };
-
         // set alpha
         this->set_alpha( aAlpha );
     }
@@ -66,63 +60,197 @@ namespace moris
 
         void IWG_L2::compute_jacobian_and_residual_without_alpha( real aWStar )
         {
-            MORIS_ERROR( false, "will not work because of weights");
-//            // check master field interpolators
-//            this->check_dof_field_interpolators();
-//            this->check_dv_field_interpolators();
-//
-//            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-//
-//            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-//
-//            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-//
-//            // compute Jacobian
-//            aJacobians( 0 ).resize( 1 );
-//            aJacobians( 0 )( 0 ) = trans( tFI->N() ) * tFI->N();
-//
-//            // set the jacobian size
-//            aResidual.resize( 1 );
-//
-//            // compute residual
-//            //FIXME mNodalWeakBCs
-//            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-//                                += aJacobians( 0 )( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
+            MORIS_ERROR( false, "IWG_L2::compute_jacobian_and_residual_without_alpha - will not work because of weights.");
 
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get the field interpolator for residual dof type
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            if( mResidualDofTypeRequested )
+            {
+                // get the dof type indices for assembly
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+
+                // compute Jacobian
+                mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                += trans( tFI->N() ) * tFI->N() * aWStar;
+
+                // compute residual
+                mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+                += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                 * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
+            }
         }
 
 //------------------------------------------------------------------------------
 
         void IWG_L2::compute_jacobian_and_residual_with_alpha( real aWStar )
         {
-            MORIS_ERROR( false, "will not work because of weights");
-
+#ifdef DEBUG
             // check master field interpolators
             this->check_field_interpolators();
+#endif
 
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            MORIS_ERROR( false, "IWG_L2::compute_jacobian_and_residual_with_alpha - will not work because of weights.");
 
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get the field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // compute Jacobian
-            mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-                    += (   trans( tFI->N() ) * tFI->N()
-                         + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+            if( mResidualDofTypeRequested )
+            {
+                // get the dof type indices for assembly
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
 
-            // compute residual
-            //FIXME: mNodalWeakBCs
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-                    += mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                             { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-                            * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
+                // compute Jacobian
+                mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                += ( trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+
+                // compute residual
+                mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+                += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                 * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
+            }
         }
 
 //------------------------------------------------------------------------------
-            void IWG_L2::compute_drdpdv( real aWStar )
+
+        void IWG_L2::compute_jacobian( real aWStar )
+        {
+            // call the right mComputeJacFunction for jacobian evaluation
+            ( this->*mComputeJacFunction )( aWStar );
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_L2::compute_jacobian_without_alpha( real aWStar )
+        {
+#ifdef DEBUG
+            // check master field interpolators
+            this->check_field_interpolators();
+#endif
+
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get the field interpolator for residual dof type
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            if( mResidualDofTypeRequested )
             {
-                MORIS_ERROR( false, "IWG_L2::compute_drdpdv - not implemented." );
+                // get the dof type indices for assembly
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+
+                // compute Jacobian
+                mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
+                                      { tDepStartIndex, tDepStopIndex } )
+                += trans( tFI->N() ) * tFI->N() * aWStar;
             }
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_L2::compute_jacobian_with_alpha( real aWStar )
+        {
+#ifdef DEBUG
+            // check master field interpolators
+            this->check_field_interpolators();
+#endif
+
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get the field interpolator for residual dof type
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            if( mResidualDofTypeRequested )
+            {
+                // get the dof type indices for assembly
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+
+                // compute Jacobian
+                mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
+                                      { tDepStartIndex, tDepStopIndex } )
+                += ( trans( tFI->N() ) * tFI->N()
+                + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_L2::compute_residual( real aWStar )
+        {
+            // call the right mComputeResFunction for residual evaluation
+            ( this->*mComputeResFunction )( aWStar );
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_L2::compute_residual_without_alpha( real aWStar )
+        {
+#ifdef DEBUG
+            // check master field interpolators
+            this->check_field_interpolators();
+#endif
+
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get the field interpolator for residual dof type
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // compute residual
+            mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+            += trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs ) * aWStar;
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_L2::compute_residual_with_alpha( real aWStar )
+        {
+#ifdef DEBUG
+            // check master field interpolators
+            this->check_field_interpolators();
+#endif
+
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // get the field interpolator for residual dof type
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // compute residual
+            mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+            += ( trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs )
+            + mAlpha * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs ) ) * aWStar;
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_L2::compute_drdpdv( real aWStar )
+        {
+            MORIS_ERROR( false, "IWG_L2::compute_drdpdv - not implemented." );
+        }
 
 //------------------------------------------------------------------------------
 //
@@ -155,98 +283,6 @@ namespace moris
 //
 //            return std::pow( tPhiHat( 0 ) - aFunction( tCoords ), 2 );
 //        }
-//------------------------------------------------------------------------------
-
-        void IWG_L2::compute_jacobian( real aWStar )
-        {
-            // call the right mComputeJacFunction for jacobian evaluation
-            ( this->*mComputeJacFunction )( aWStar );
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_L2::compute_jacobian_without_alpha( real aWStar )
-        {
-            // check master field interpolators
-            this->check_field_interpolators();
-
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            if( mResidualDofTypeRequested )
-            {
-                // compute Jacobian
-                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-                        += trans( tFI->N() ) * tFI->N() * aWStar;
-            }
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_L2::compute_jacobian_with_alpha( real aWStar )
-        {
-            // check master field interpolators
-            this->check_field_interpolators();
-
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            if( mResidualDofTypeRequested )
-            {
-                // compute Jacobian
-                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-                        += (   trans( tFI->N() ) * tFI->N()
-                             + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
-            }
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_L2::compute_residual( real aWStar )
-        {
-            // call the right mComputeResFunction for residual evaluation
-            ( this->*mComputeResFunction )( aWStar );
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_L2::compute_residual_without_alpha( real aWStar )
-        {
-            // check master field interpolators
-            this->check_field_interpolators();
-
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // compute residual
-            //FIXME: mNodalWeakBCs
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-                                += trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs ) * aWStar;
-
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_L2::compute_residual_with_alpha( real aWStar )
-        {
-            // check master field interpolators
-            this->check_field_interpolators();
-
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // compute residual
-            //FIXME mNodalWeakBCs
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-                          += ( trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs )
-                           + mAlpha * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs ) )        * aWStar;
-        }
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

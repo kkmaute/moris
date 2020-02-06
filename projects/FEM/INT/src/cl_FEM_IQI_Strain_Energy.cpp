@@ -79,11 +79,14 @@ namespace moris
                 uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
                 uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
+//                uint tDvIndex = mSet->get_requested_dv_index_for_type(     ---------------------    );
+                uint tDvIndex = 0;
+
                 // if constitutive model has dependency on the dof type
                 if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( { tDofType } ) )
                 {
                     // compute dQIdDof
-                    adQIdDof( { tStartRow, tEndRow }, { 0, 0 } )
+                   mSet->get_residual()( tDvIndex )( { tStartRow, tEndRow }, { 0, 0 } )
                     += trans( mMasterCM( tElastLinIsoIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastLinIsoIndex )->strain( )
                      + trans( trans(mMasterCM( tElastLinIsoIndex )->flux()) * mMasterCM( tElastLinIsoIndex )->dStraindDOF( { tDofType } ) );
                 }

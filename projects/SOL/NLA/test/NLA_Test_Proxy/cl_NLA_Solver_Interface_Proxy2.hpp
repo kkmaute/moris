@@ -241,12 +241,12 @@ namespace NLA
         Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_rhs( const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS );
+        void get_equation_object_rhs( const uint                     & aMyElementInd,
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
-        void get_element_rhs( const uint             & aMyBlockInd,
-                              const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS );
+        void get_equation_object_rhs( const uint                     & aMyBlockInd,
+                              const uint                     & aMyElementInd,
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------
 

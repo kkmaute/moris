@@ -21,6 +21,8 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_Symm_BCs.cpp
     UT_MDL_Input.cpp
     #UT_MDL_Gyroid.cpp
+    UT_MDL_FEM_Benchmark.cpp
+    UT_MDL_FEM_DQ_Dp.cpp
 
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp

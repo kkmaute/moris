@@ -97,10 +97,10 @@ namespace moris
                                            - mSlaveCM( tElastLinIsoIndex )->traction( mNormal );
 
                 // compute the residual
-                mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                 += tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump * aWStar;
 
-                mSet->get_residual()( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
                 -= tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump * aWStar;
             }
         }
@@ -156,7 +156,6 @@ namespace moris
             }
 
             MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
-
 
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -236,8 +235,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                           moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
         }

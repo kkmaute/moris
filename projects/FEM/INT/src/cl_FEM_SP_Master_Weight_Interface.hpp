@@ -19,6 +19,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"
 
 namespace moris
 {
@@ -29,13 +30,17 @@ namespace moris
         class SP_Master_Weight_Interface : public Stabilization_Parameter
         {
 
+        private:
+
+            // Cluster measures for the SP
             real mMasterVolume     = 0.5; // volume on master
             real mSlaveVolume      = 0.5; // volume on slave
             real mInterfaceSurface = 1.0; // surface on master/slave interface
-            real mElementSize      = 1.0; // element size
+
 //------------------------------------------------------------------------------
         public:
 
+            // Property type for the SP
             enum class SP_Property_Type
             {
                 MATERIAL,
@@ -45,6 +50,7 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, SP_Property_Type > mPropertyMap;
 
+            // CM type for the SP
             enum class SP_Constitutive_Type
             {
                 MAX_ENUM
@@ -64,6 +70,17 @@ namespace moris
              * trivial destructor
              */
             ~SP_Master_Weight_Interface(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * reset the cluster measures required for this SP
+             */
+            void reset_cluster_measures()
+            {
+                // evaluate cluster measures from the cluster
+                mMasterVolume = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Master_Slave::MASTER );
+                mSlaveVolume  = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Master_Slave::SLAVE );
+            }
 
 //------------------------------------------------------------------------------
             /**

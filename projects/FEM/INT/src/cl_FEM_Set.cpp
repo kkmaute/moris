@@ -108,15 +108,6 @@ namespace moris
         // get spatial dimension
         mSpaceDim = mMeshSet->get_spatial_dim();
 
-        // bool true is master IG cells are trivial
-        mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
-
-        // bool true is slave IG cells are trivial
-        if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-        {
-            mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
-        }
-
         // get interpolation geometry type
         mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
 
@@ -182,11 +173,14 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::initialize_set( const bool aIsResidual )
+    void Set::initialize_set( const bool aIsResidual,
+                              const bool aIsForward )
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
         {
             mIsResidual = aIsResidual;
+
+            mIsForward = aIsForward;
 
             this->create_residual_dof_assembly_map();
 
@@ -203,8 +197,17 @@ namespace moris
             {
                 tIWG->set_set_pointer( this );
             }
+
+            if( !aIsForward )
+            {
+                this->create_requested_dv_assembly_map();
+            }
         }
     }
+
+//------------------------------------------------------------------------------
+
+
 
 //------------------------------------------------------------------------------
     void Set::free_memory()
@@ -216,10 +219,22 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+
     moris::Cell < enum MSI::Dof_Type > Set::get_requested_dof_types()
     {
         return mModelSolverInterface->get_solver_interface()
                                     ->get_requested_dof_types();
+    }
+
+//------------------------------------------------------------------------------
+
+    moris::Cell < enum MSI::Dv_Type > Set::get_requested_dv_types()
+    {
+        moris::Cell< enum MSI::Dv_Type > tDvTypes;
+
+        mDesignVariableInterface->get_requested_dv_types( tDvTypes );
+
+        return tDvTypes;
     }
 
 //------------------------------------------------------------------------------
@@ -680,20 +695,52 @@ namespace moris
         }
     }
 
-    void Set::set_cluster_in_stabilization_params(fem::Cluster * aCluster)
+//------------------------------------------------------------------------------
+    void Set::set_IWG_cluster_for_stabilization_parameters( fem::Cluster * aCluster )
     {
+        // loop over the IWGs
         for( auto tIWG : mIWGs)
         {
-            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tStabParams = tIWG->get_stabilization_parameters();
-            for(auto iStabParam:tStabParams)
+            // get the SP from the IWG
+            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs
+            = tIWG->get_stabilization_parameters();
+
+            // loop over the SP
+            for( auto tSP : tSPs )
             {
-                if(iStabParam != nullptr)
+                // check if SP is null
+                if( tSP != nullptr )
                 {
-                    iStabParam->set_cluster( aCluster );
+                    // set the fem cluster
+                    tSP->set_cluster( aCluster );
                 }
             }
         }
     }
+
+//------------------------------------------------------------------------------
+    void Set::set_IQI_cluster_for_stabilization_parameters( fem::Cluster * aCluster )
+    {
+        // loop over the IQIs
+        for( auto tIQI : mIQIs)
+        {
+            // get the SP from the IQI
+            moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs
+            = tIQI->get_stabilization_parameters();
+
+            // loop over the SPs
+            for( auto tSP : tSPs )
+            {
+                // check if SP is null
+                if( tSP != nullptr )
+                {
+                    // set the fem cluster
+                    tSP->set_cluster( aCluster );
+                }
+            }
+        }
+    }
+
 
 //------------------------------------------------------------------------------
     void Set::set_IQI_field_interpolator_managers()
@@ -1349,7 +1396,23 @@ namespace moris
                 }
             }
 
-            mResidual.set_size( tNumCoeff, 1, 0.0 );
+            if( mIsForward )
+            {
+                mResidual.resize( 1 );
+
+                mResidual( 0 ).set_size( tNumCoeff, 1, 0.0 );
+            }
+            else
+            {
+                uint tNumRequestedTypes = this->get_requested_dv_types().size();
+
+                mResidual.resize( tNumRequestedTypes );
+
+                for( auto & tRes : mResidual )
+                {
+                    tRes.set_size( tNumCoeff, 1, 0.0 );
+                }
+            }
 
             mResidualExist = true;
         }
@@ -1357,9 +1420,14 @@ namespace moris
         {
             //            MORIS_ASSERT( mResidual.numel() > 0, "Set::initialize_mResidual() - Residual not properly initialized.");
 
-            mResidual.fill( 0.0 );
+            for( auto & tRes : mResidual )
+            {
+                tRes.fill( 0.0 );
+            }
+
         }
     }
+
 
 //------------------------------------------------------------------------------
     mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint        aNumVertices,
@@ -1489,37 +1557,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-//    fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
-//    {
-//        switch( aGeometryType )
-//        {
-//            case( mtk::Geometry_Type::LINE ) :
-//                return fem::Integration_Order::BAR_3;
-//                break;
-//
-//            case( mtk::Geometry_Type::QUAD ) :
-//                 return fem::Integration_Order::QUAD_2x2;         //FIXME
-//                 break;
-//
-//            case( mtk::Geometry_Type::HEX ) :
-//                return fem::Integration_Order::HEX_3x3x3;
-//                break;
-//
-//            case( mtk::Geometry_Type::TRI ) :
-//                return fem::Integration_Order::TRI_6;
-//                break;
-//
-//            case( mtk::Geometry_Type::TET ) :
-//                return fem::Integration_Order::TET_5;
-//                break;
-//
-//            default :
-//                MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
-//                return Integration_Order::UNDEFINED;
-//                break;
-//        }
-//    }
-
     fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type       aGeometryType,
                                                             const mtk::Interpolation_Order aInterpolationOrder )
     {
@@ -1658,6 +1695,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Set::create_requested_dv_assembly_map()
+    {
+        moris::Cell< enum MSI::Dv_Type > tRequestedDvTypes = this->get_requested_dv_types();
+
+        uint tMaxDvIndex = 0;
+
+        for( auto tDvType : tRequestedDvTypes )
+        {
+            tMaxDvIndex = std::max( tMaxDvIndex, static_cast< uint >( tDvType ) );
+        }
+
+        mDVTypeMap.set_size( tMaxDvIndex+1, 1, -1 );
+
+        uint tCounter = 0;
+
+        for( auto tDvType : tRequestedDvTypes )
+        {
+            mDVTypeMap( static_cast< uint >( tDvType ) ) = tCounter++;
+        }
+    }
+
+//------------------------------------------------------------------------------
+
     void Set::set_visualization_set( const uint              aMeshIndex,
                                            moris::mtk::Set * aVisMeshSet,
                                      const bool              aOnlyPrimayCells)
@@ -1682,9 +1742,6 @@ namespace moris
 
          moris::Matrix< DDSMat > tCellIndex = aVisMeshSet->get_cell_inds_on_block( aOnlyPrimayCells );
 
-         sint tMaxIndex = tCellIndex.max();
-//         sint tMinIndex = tCellIndex.min();
-
          sint tSize = std::max( ( sint )mCellAssemblyMap.size(), ( sint )aMeshIndex + 1 );
 
          mCellAssemblyMap.resize( tSize );
@@ -1692,13 +1749,19 @@ namespace moris
 
          mMtkIgCellOnSet( aMeshIndex )= tNumCells;
 
-         mCellAssemblyMap( aMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
-
-         for( uint Ik = 0; Ik < tNumCells; Ik++ )
+         if(tNumCells>0)
          {
-             mCellAssemblyMap( aMeshIndex )( tCellIndex( Ik ) ) = Ik;
-         }
+             sint tMaxIndex = tCellIndex.max();
+//             sint tMinIndex = tCellIndex.min();
 
+             mCellAssemblyMap( aMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
+
+             for( uint Ik = 0; Ik < tNumCells; Ik++ )
+             {
+                 mCellAssemblyMap( aMeshIndex )( tCellIndex( Ik ) ) = Ik;
+             }
+
+         }
 
     }
 
@@ -1728,10 +1791,10 @@ namespace moris
         //FIXME I do not like this at all. someone change it
         for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
         {
-        	if( mSetNodalCounter(Ik) != 0)
-        	{
-        	    (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
-        	}
+            if( mSetNodalCounter(Ik) != 0)
+            {
+                (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
+            }
         }
 //        if( aFieldType==vis::Field_Type::NODAL || aFieldType==vis::Field_Type::NODAL_IP )
 //        {

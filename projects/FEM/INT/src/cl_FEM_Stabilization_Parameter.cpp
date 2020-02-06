@@ -17,8 +17,6 @@ namespace moris
         void Stabilization_Parameter::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
                                                                       mtk::Master_Slave            aIsMaster )
         {
-    //        // FIXME why does this not work?
-            //this->get_field_interpolator_manager( aIsMaster ) = aFieldInterpolatorManager;
 
             switch ( aIsMaster )
             {

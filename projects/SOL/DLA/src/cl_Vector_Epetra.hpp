@@ -44,7 +44,8 @@ public:
 
     void sum_into_global_values(const moris::uint             & aNumMyDofs,
                                 const moris::Matrix< DDSMat > & aElementTopology,
-                                const moris::Matrix< DDRMat > & aRHSVal);
+                                const moris::Matrix< DDRMat > & aRHSVal,
+                                const uint                    & aVectorIndex = 0 );
 
     void vector_global_asembly();
 

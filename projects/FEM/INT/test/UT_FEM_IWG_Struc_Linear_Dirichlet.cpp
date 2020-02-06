@@ -212,7 +212,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     // set requested residual dof type flag to true
@@ -415,7 +416,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement", "[IWG_Struc_Dirichlet_Mixed
     tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 0 }, {0, 0} };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 12, 0.0 );
 
     // set requested residual dof type flag to true
@@ -606,7 +608,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     // set requested residual dof type flag to true
@@ -797,7 +800,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     // set requested residual dof type flag to true
@@ -993,7 +997,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     // set requested residual dof type flag to true
@@ -1185,7 +1190,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 23 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 24, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 24, 24, 0.0 );
 
     // set requested residual dof type flag to true

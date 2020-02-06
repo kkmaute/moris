@@ -20,7 +20,8 @@ namespace moris
             UNDEFINED,
             CONSTANT, // constant interpolation
             LAGRANGE, // the most common finite element types
-            BEZIER    // Bezier type elements
+            BEZIER,   // Bezier type elements
+            END_INTERPOLATION_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -28,7 +29,8 @@ namespace moris
         {
             UNDEFINED,
             CONSTANT,
-            GAUSS    // Gauss ( Quad and Hex ), Dunavant ( Tri ), Hammer ( Tet )
+            GAUSS,    // Gauss ( Quad and Hex ), Dunavant ( Tri ), Hammer ( Tet )
+            END_INTEGRATION_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -61,7 +63,7 @@ namespace moris
             TET_10,
             TET_11,
             TET_15,
-            ST_QUAD_3x3x1 // < -- space time combined
+            END_INTEGRATION_ORDER
         };
 
 //------------------------------------------------------------------------------
@@ -109,6 +111,8 @@ namespace moris
             VOLUME,         // volume
             STRAIN_ENERGY,
             DOF,
+            L2_ERROR_ANALYTIC,
+            H1_ERROR_ANALYTIC,
             END_IQI_TYPE
         };
 
@@ -132,7 +136,7 @@ namespace moris
             FULL,
             HYDROSTATIC, // not implemented yet
             DEVIATORIC,
-            MAX_ENUM
+            END_MODEL_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -160,18 +164,7 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-        enum class QI_Compute_Type
-        {
-            UNDEFINED,
-            GLOBAL,
-            NODAL,
-            ELEMENTAL,
-            END_IQ_COMPUTE_TYPE,
-        };
-
-//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */

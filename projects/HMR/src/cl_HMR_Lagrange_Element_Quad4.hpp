@@ -120,6 +120,29 @@ namespace moris
             return tVerticesOnSide;
         }
 
+// ----------------------------------------------------------------------------
+
+        template<>
+        inline
+        real
+        Lagrange_Element< 2, 4 >::compute_cell_measure() const
+        {
+            mtk::Cell_Info_Quad4 tCellInfo;
+            return tCellInfo.compute_cell_size(this);
+        }
+
+// ----------------------------------------------------------------------------
+
+        template<>
+        moris::real
+        Lagrange_Element< 2, 4 >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
+        {
+            mtk::Cell_Info_Quad4 tCellInfo;
+            return tCellInfo.compute_cell_side_size( this, aCellSideOrd);
+        }
+
+// ----------------------------------------------------------------------------
+
         /**
          * returns the ijk position of a given basis
          *

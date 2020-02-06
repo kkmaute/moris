@@ -67,7 +67,8 @@ namespace moris
 
             tMyValues = tTMatrix * tMyValues;
 
-            mElementBlock->mResidual = mFunction( tMyValues, mEqnObjInd );
+            mElementBlock->mResidual.resize( 1 );
+            mElementBlock->mResidual( 0 ) = mFunction( tMyValues, mEqnObjInd );
         };
     };
 

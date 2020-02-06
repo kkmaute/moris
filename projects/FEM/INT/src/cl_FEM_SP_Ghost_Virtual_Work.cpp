@@ -12,11 +12,9 @@ namespace moris
 {
     namespace fem
     {
-        SP_Ghost_Virtual_Work::SP_Ghost_Virtual_Work()
-        {
-            // set the list of cluster measures
-            mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
-        }
+//------------------------------------------------------------------------------
+        SP_Ghost_Virtual_Work::SP_Ghost_Virtual_Work(){}
+
 //------------------------------------------------------------------------------
         void SP_Ghost_Virtual_Work::eval_SP()
         {

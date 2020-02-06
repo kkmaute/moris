@@ -213,7 +213,8 @@ namespace moris
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
 
-             mSet->set_cluster_in_stabilization_params(mFemCluster( 0 ).get());
+             // set cluster for stabilization parameter
+             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
@@ -236,7 +237,9 @@ namespace moris
 
             // FIXME should not be like this
             mSet->set_IWG_field_interpolator_managers();
-            //mSet->set_IWG_geometry_interpolators();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
@@ -259,7 +262,9 @@ namespace moris
 
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
-             //mSet->set_IWG_geometry_interpolators();
+
+             // set cluster for stabilization parameter
+             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
              MORIS_ERROR( false, "Interpolation_Element::compute_jacobian_and_residual(), function not tested and works only non staggered");
 
@@ -279,6 +284,9 @@ namespace moris
              // FIXME should not be like this
              mSet->set_IWG_field_interpolator_managers();
 
+             // set cluster for stabilization parameter
+             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_dRdp();
          }
@@ -297,6 +305,9 @@ namespace moris
              // FIXME should not be like this
              mSet->get_requested_IQI( aOutputType )
                  ->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
+
+             // set cluster for stabilization parameter
+             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
              if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
              {
@@ -353,6 +364,9 @@ namespace moris
 //------------------------------------------------------------------------------
         real Interpolation_Element::compute_volume()
         {
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
             // ask cluster to compute colume
             return mFemCluster( 0 )->compute_volume();
         }

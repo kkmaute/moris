@@ -87,7 +87,7 @@ namespace moris
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += trans(tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )) * trans(tFlattenedNormal) * tM * tJump * aWStar;
 
 //            moris::print(trans(tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )), "dfluxddof");
@@ -174,8 +174,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual - This function does nothing.");
         }

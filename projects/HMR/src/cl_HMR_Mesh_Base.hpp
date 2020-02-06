@@ -440,7 +440,7 @@ namespace moris
          *  @param[out]  aNodeList     cell with node pointers on aura
          */
         void collect_basis_from_aura( const uint            & aProcNeighborIndex,
-                                      const bool            & aUseInverseAura,
+                                      const uint            & aMode,
                                             Cell< Basis * > & aNodeList);
 
     protected:
@@ -503,6 +503,15 @@ namespace moris
         //get_number_of_serendipity_basis();
 
 // ----------------------------------------------------------------------------
+    protected:
+        moris::luint get_max_basis_hmr_id();
+
+//------------------------------------------------------------------------------
+
+        void sanity_check_for_ids_and_ownership();
+
+//------------------------------------------------------------------------------
+
     };
 
 //------------------------------------------------------------------------------

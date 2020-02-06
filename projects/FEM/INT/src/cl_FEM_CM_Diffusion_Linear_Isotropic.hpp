@@ -30,8 +30,9 @@ namespace moris
         {
 
 //------------------------------------------------------------------------------
-        public:
+        private:
 
+            // property type for CM
             enum class Property_Type
             {
                 CONDUCTIVITY,
@@ -42,19 +43,20 @@ namespace moris
             std::map< std::string, CM_Diffusion_Linear_Isotropic::Property_Type > mPropertyMap;
 
 //------------------------------------------------------------------------------
+        public:
             /*
              * trivial constructor
              */
             CM_Diffusion_Linear_Isotropic()
             {
-                // set the constitutive type
-                mConstitutiveType = fem::Constitutive_Type::DIFF_LIN_ISO;
-
                 // set the property pointer cell size
                 mProperties.resize( static_cast< uint >( CM_Diffusion_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
 
-                // populate the map
+                // populate the property map
                 mPropertyMap[ "Conductivity" ] = CM_Diffusion_Linear_Isotropic::Property_Type::CONDUCTIVITY;
+
+                // FIXME populate dof map
+                mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
             };
 
 //------------------------------------------------------------------------------

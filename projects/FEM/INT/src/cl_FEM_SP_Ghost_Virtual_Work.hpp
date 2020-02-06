@@ -19,6 +19,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"     //FEM/INT/src
 
 namespace moris
 {
@@ -30,10 +31,14 @@ namespace moris
         {
 
 //------------------------------------------------------------------------------
-        public:
+        private:
 
+            // cluster measures for the SP
             moris::real mElementSize;
 
+        public:
+
+            // property type for the SP
             enum class SP_Property_Type
             {
                 MAX_ENUM
@@ -42,6 +47,7 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, SP_Property_Type > mPropertyMap;
 
+            // CM type for the SP
             enum class SP_Constitutive_Type
             {
                 MAX_ENUM
@@ -53,6 +59,8 @@ namespace moris
 //------------------------------------------------------------------------------
             /*
              * constructor
+             * Rem: mParameters( 0 ) - gamma penalty parameter
+             *      mParameters( 1 ) - interpolation order
              */
             SP_Ghost_Virtual_Work();
 
@@ -61,6 +69,17 @@ namespace moris
              * trivial destructor
              */
             ~SP_Ghost_Virtual_Work(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * reset the cluster measures required for this SP
+             */
+            void reset_cluster_measures()
+            {
+                // evaluate element size from the cluster
+                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                              mtk::Master_Slave::MASTER );
+            }
 
 //------------------------------------------------------------------------------
             /**

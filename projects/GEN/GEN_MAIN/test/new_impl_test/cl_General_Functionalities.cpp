@@ -273,7 +273,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
         tXTKModel.decompose( tDecompositionMethods );
 
-        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE_1, 0 );
+        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh( );
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh( );

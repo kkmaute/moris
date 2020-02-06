@@ -19,10 +19,8 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get index for residual dof type
+            // get index for residual dof type and indices for residual assembly
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-
-            // get start and end indices for residual assembly
             uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
@@ -34,15 +32,21 @@ namespace moris
             Matrix< DDRMat > tVN( 1, tFI->get_number_of_fields(), 1.0 );
 
            //compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += trans( tFI->N() ) * ( tFI->gradt( 1 ) + tVN * tFI->gradx( 1 ) ) * aWStar;
         }
 
 //------------------------------------------------------------------------------
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian( real aWStar )
         {
-            // get index for residual dof type
+#ifdef DEBUG
+            this->check_field_interpolators();
+#endif
+
+            // get index for residual dof type and indices for residual assembly
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -51,10 +55,7 @@ namespace moris
             // velocity field value
             Matrix< DDRMat > tVN( 1, tFI->get_number_of_fields(), 1.0 );
 
-            // get start and end indices for residual assembly
-            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
+            // get indices for jacobian assembly
             uint tStartCol = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
             uint tEndCol   = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
 
@@ -64,8 +65,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                           moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual - Not implemented.");
         }

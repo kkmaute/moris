@@ -131,7 +131,7 @@ namespace moris
         mWriter( aVisMeshIndex )->set_time( tTime );
 
         // write standard outputs like IDs and Indices to file
-        this->write_mesh_indices( aVisMeshIndex );
+        //this->write_mesh_indices( aVisMeshIndex );
     }
 
 

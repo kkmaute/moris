@@ -556,7 +556,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
+        tMeshManager.register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get() );
 
         //------------------------------------------------------------------------------
         // create the properties

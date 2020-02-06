@@ -167,7 +167,8 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        uint Mesh::get_num_entities( enum EntityRank aEntityRank ) const
+        uint Mesh::get_num_entities( const enum EntityRank aEntityRank,
+                                     const moris_index     aIndex ) const
         {
             switch ( aEntityRank )
             {
@@ -191,12 +192,9 @@ namespace moris
                     return this->get_num_elems();
                     break;
                 }
-                // aEntityRank is not unique for Bsplines
-                case( EntityRank::BSPLINE_1 ) :
-//                case( EntityRank::BSPLINE_2 ) :
-//                case( EntityRank::BSPLINE_3 ) :
+                case( EntityRank::BSPLINE ) :
                 {
-                    return this->get_num_coeffs( 0 );
+                    return this->get_num_coeffs( aIndex );
                     break;
                 }
                 default :
@@ -245,7 +243,7 @@ namespace moris
             }
             else
             {
-            	return mMesh->get_number_of_elements();
+                return mMesh->get_number_of_elements();
             }
         }
 
@@ -267,7 +265,8 @@ namespace moris
 //-----------------------------------------------------------------------------
         Matrix<IndexMat> Mesh::get_entity_connected_to_entity_loc_inds( moris_index     aEntityIndex,
                                                                         enum EntityRank aInputEntityRank,
-                                                                        enum EntityRank aOutputEntityRank) const
+                                                                        enum EntityRank aOutputEntityRank,
+                                                                        const moris_index     aIndex) const
         {
             switch ( aOutputEntityRank )
             {
@@ -419,13 +418,13 @@ namespace moris
                     }
                     break;
                 } // end output rank element
-                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE ) :
                 {
                     switch( aInputEntityRank )
                     {
                         case( EntityRank::ELEMENT ) :
                         {
-                            return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( 1 )
+                            return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( aIndex )
                                                                                               ->get_active_basis( aEntityIndex ) );
                             break;
                         }
@@ -437,42 +436,6 @@ namespace moris
                         }
                     }
                 }  // end output rank linear bspline
-                case( EntityRank::BSPLINE_2 ) :
-                {
-                    switch( aInputEntityRank )
-                    {
-                        case( EntityRank::ELEMENT ) :
-                        {
-                            return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( 2 )
-                                                                                              ->get_active_basis( aEntityIndex ) );
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                            return Matrix<IndexMat>( 0, 0 );
-                            break;
-                        }
-                    }
-                }  // end output rank quadratic bspline
-                case( EntityRank::BSPLINE_3 ) :
-                {
-                    switch( aInputEntityRank )
-                    {
-                        case( EntityRank::ELEMENT ) :
-                        {
-                                return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( 3 )
-                                                                                                  ->get_active_basis( aEntityIndex ) );
-                                break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                            return Matrix<IndexMat>( 0, 0 );
-                            break;
-                        }
-                    }
-                }  // end output rank cubic bspline
                 default :
                 {
                     MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
@@ -485,16 +448,17 @@ namespace moris
 //-----------------------------------------------------------------------------
         Matrix< IndexMat > Mesh::get_entity_connected_to_entity_glob_ids( moris_index     aEntityId,
                                                                           enum EntityRank aInputEntityRank,
-                                                                          enum EntityRank aOutputEntityRank) const
+                                                                          enum EntityRank aOutputEntityRank,
+                                                                          const moris_index     aIndex) const
         {
 
             moris_index tEntityIndex = this->get_loc_entity_ind_from_entity_glb_id(aEntityId,aInputEntityRank);
 
-            Matrix<IndexMat> tEntityToEntity = this->get_entity_connected_to_entity_loc_inds(tEntityIndex,aInputEntityRank,aOutputEntityRank);
+            Matrix<IndexMat> tEntityToEntity = this->get_entity_connected_to_entity_loc_inds(tEntityIndex,aInputEntityRank,aOutputEntityRank, aIndex);
 
             for(moris::uint i = 0; i <tEntityToEntity.numel(); i++)
             {
-                tEntityToEntity(i) = this->get_glb_entity_id_from_entity_loc_index(tEntityToEntity(i),aOutputEntityRank);
+                tEntityToEntity(i) = this->get_glb_entity_id_from_entity_loc_index(tEntityToEntity(i),aOutputEntityRank,aIndex);
             }
 
             return tEntityToEntity;
@@ -1091,7 +1055,8 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         moris_id Mesh::get_glb_entity_id_from_entity_loc_index( moris_index     aEntityIndex,
-                                                                enum EntityRank aEntityRank) const
+                                                                enum EntityRank aEntityRank,
+                                                                const moris_index     aIndex ) const
         {
             switch ( aEntityRank )
             {
@@ -1123,10 +1088,9 @@ namespace moris
 
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE ) :
                 {
-//                    return mMesh->get_bspline( 0, aEntityIndex )->get_hmr_index();
-                    return mMesh->get_bspline( 0, aEntityIndex )->get_id();
+                    return mMesh->get_bspline( aIndex, aEntityIndex )->get_id();
                     break;
                 }
                 default :
@@ -1146,18 +1110,20 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         moris_index Mesh::get_loc_entity_ind_from_entity_glb_id( moris_id        aEntityId,
-                                                                 enum EntityRank aEntityRank) const
+                                                                 enum EntityRank aEntityRank,
+                                                                 const moris_index     aIndex) const
         {
-            auto tIter = mEntityGlobaltoLocalMap( ( uint )aEntityRank ).find( aEntityId );
+            auto tIter = mEntityGlobaltoLocalMap( ( uint )aEntityRank + aIndex ).find( aEntityId );
 
-            MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(),
+            MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank+aIndex).end(),
                         "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
 
             return tIter->second;
         }
 
 //-----------------------------------------------------------------------------
-        moris_id Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
+        moris_id Mesh::get_max_entity_id( enum EntityRank aEntityRank,
+                                          const moris_index     aIndex) const
         {
             switch ( aEntityRank )
             {
@@ -1181,28 +1147,27 @@ namespace moris
                     return mMesh->get_max_element_id();
                     break;
                 }
-                case( EntityRank::BSPLINE_1):
-				{
+                case( EntityRank::BSPLINE):
+                {
+                    moris::uint tNumEntities = this->get_num_entities(aEntityRank, aIndex);
 
-                	moris::uint tNumEntities = this->get_num_entities(aEntityRank);
+                    moris_id tLocalMaxId = 0;
 
-                	moris_id tLocalMaxId = 0;
+                    for(moris::uint i = 0; i < tNumEntities; i++)
+                    {
+                        moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank,aIndex);
 
-                	for(moris::uint i = 0; i < tNumEntities; i++)
-                	{
-                		moris_id tId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+                        if(tId > tLocalMaxId)
+                        {
+                            tLocalMaxId = tId;
+                        }
+                    }
 
-                		if(tId > tLocalMaxId)
-                		{
-                			tLocalMaxId = tId;
-                		}
-                	}
-
-                	moris_id tGlobalMaxId = 0;
-                	moris::max_all(tLocalMaxId,tGlobalMaxId);
-                	return tGlobalMaxId;
-                	break;
-				}
+                    moris_id tGlobalMaxId = 0;
+                    moris::max_all(tLocalMaxId,tGlobalMaxId);
+                    return tGlobalMaxId;
+                    break;
+                }
 
                 default :
                 {
@@ -1216,7 +1181,8 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         moris_id Mesh::get_entity_owner( moris_index     aEntityIndex,
-                                         enum EntityRank aEntityRank ) const
+                                         enum EntityRank aEntityRank,
+                                         const moris_index     aIndex) const
         {
             switch ( aEntityRank )
             {
@@ -1254,9 +1220,9 @@ namespace moris
                     }
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE ) :
                 {
-                    return mMesh->get_bspline( 0, aEntityIndex )->get_owner();
+                    return mMesh->get_bspline( aIndex, aEntityIndex )->get_owner();
                     break;
                 }
                 default :
@@ -1338,7 +1304,8 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        uint Mesh::get_num_fields( const enum EntityRank aEntityRank ) const
+        uint Mesh::get_num_fields( const enum EntityRank aEntityRank,
+                                   const moris_index     aIndex) const
         {
             switch ( aEntityRank )
             {
@@ -1347,9 +1314,7 @@ namespace moris
                     return mMesh->get_number_of_real_scalar_fields();
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
-                case( EntityRank::BSPLINE_2 ) :
-                case( EntityRank::BSPLINE_3 ) :
+                case( EntityRank::BSPLINE ) :
                 {
                     return mMesh->get_number_of_real_scalar_fields();
                     break;
@@ -1366,7 +1331,8 @@ namespace moris
 
         real & Mesh::get_value_of_scalar_field( const      moris_index aFieldIndex,
                                                 const enum EntityRank  aEntityRank,
-                                                const uint             aEntityIndex )
+                                                const uint             aEntityIndex,
+                                                const moris_index      aIndex)
         {
             switch ( aEntityRank )
             {
@@ -1375,9 +1341,7 @@ namespace moris
                     return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
-                case( EntityRank::BSPLINE_2 ) :
-                case( EntityRank::BSPLINE_3 ) :
+                case( EntityRank::BSPLINE ) :
                 {
                     return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
                     break;
@@ -1395,7 +1359,8 @@ namespace moris
 
         const real & Mesh::get_value_of_scalar_field( const      moris_index  aFieldIndex,
                                                       const enum EntityRank   aEntityRank,
-                                                      const uint              aEntityIndex ) const
+                                                      const uint              aEntityIndex,
+                                                      const moris_index       aIndex) const
         {
             switch ( aEntityRank )
             {
@@ -1404,9 +1369,7 @@ namespace moris
                     return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
-                case( EntityRank::BSPLINE_2 ) :
-                case( EntityRank::BSPLINE_3 ) :
+                case( EntityRank::BSPLINE ) :
                 {
                     return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
                     break;
@@ -1422,7 +1385,8 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         Matrix<DDRMat> & Mesh::get_field( const moris_index     aFieldIndex,
-                                          const enum EntityRank aEntityRank )
+                                          const enum EntityRank aEntityRank,
+                                          const moris_index      aIndex )
         {
             switch ( aEntityRank )
             {
@@ -1431,7 +1395,7 @@ namespace moris
                     return mMesh->get_real_scalar_field_data( aFieldIndex );
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
                 {
@@ -1449,10 +1413,9 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         moris_index Mesh::get_field_ind( const std::string     & aFieldLabel,
-                                         const enum EntityRank   aEntityRank  ) const
+                                         const enum EntityRank   aEntityRank) const
         {
-            if( aEntityRank == EntityRank::NODE      || aEntityRank == EntityRank::BSPLINE_1 ||
-                aEntityRank == EntityRank::BSPLINE_2 || aEntityRank == EntityRank::BSPLINE_3 )
+            if( aEntityRank == EntityRank::NODE      || aEntityRank == EntityRank::BSPLINE )
             {
                 // fixme: this is not a good method. A map would be better
                 moris_index aIndex = gNoIndex;
@@ -1594,7 +1557,8 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         uint Mesh::get_level_of_entity_loc_ind( const enum EntityRank aEntityRank,
-                                                const uint            aEntityIndex )
+                                                const uint            aEntityIndex,
+                                                const moris_index     aIndex )
         {
             switch ( aEntityRank )
             {
@@ -1608,21 +1572,11 @@ namespace moris
                     return mMesh->get_node_by_index( aEntityIndex )->get_level();
                     break;
                 }
-//                case( EntityRank::BSPLINE_1 ) :
-//                {
-//                    return mMesh->get_bspline( 1, aEntityIndex )->get_level();
-//                    break;
-//                }
-//                case( EntityRank::BSPLINE_2 ) :
-//                {
-//                    return mMesh->get_bspline( 2, aEntityIndex )->get_level();
-//                    break;
-//                }
-//                case( EntityRank::BSPLINE_3 ) :
-//                {
-//                    return mMesh->get_bspline( 3, aEntityIndex )->get_level();
-//                    break;
-//                }
+                case( EntityRank::BSPLINE ) :
+                {
+                    return mMesh->get_bspline( aIndex, aEntityIndex )->get_level();
+                    break;
+                }
                 default :
                 {
                     MORIS_ERROR( false, "get_level_of_entity_loc_ind: invalid entity rank" );
@@ -1634,7 +1588,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        uint Mesh::get_max_level_of_entity( const enum EntityRank aEntityRank )
+        uint Mesh::get_max_level_of_entity( const enum EntityRank aEntityRank,
+                                            const moris_index     aIndex)
         {
             switch ( aEntityRank )
             {
@@ -1643,19 +1598,9 @@ namespace moris
                     return mMesh->get_max_level();
                     break;
                 }
-                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE ) :
                 {
-                    return mMesh->get_bspline_mesh( 1 )->get_max_level();
-                    break;
-                }
-                case( EntityRank::BSPLINE_2 ) :
-                {
-                    return mMesh->get_bspline_mesh( 2 )->get_max_level();
-                    break;
-                }
-                case( EntityRank::BSPLINE_3 ) :
-                {
-                    return mMesh->get_bspline_mesh( 3 )->get_max_level();
+                    return mMesh->get_bspline_mesh( aIndex )->get_max_level();
                     break;
                 }
                 default :
@@ -1745,30 +1690,38 @@ namespace moris
         void Mesh::setup_glb_to_local_maps()
         {
             // Initialize global to local map
-            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(5);
+            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>( 4 + mMesh->get_number_of_bspline_meshes() );
 
             setup_entity_global_to_local_map(EntityRank::NODE);
             setup_entity_global_to_local_map(EntityRank::EDGE);
             setup_entity_global_to_local_map(EntityRank::FACE);
             setup_entity_global_to_local_map(EntityRank::ELEMENT);
-            setup_entity_global_to_local_map(EntityRank::BSPLINE_1);
-//            setup_element_global_to_local_map();
+
+            for( uint Ik = 0; Ik < mMesh->get_number_of_bspline_meshes(); Ik++ )
+            {
+                setup_entity_global_to_local_map( EntityRank::BSPLINE, Ik );
+            }
+
         }
 
 //-------------------------------------------------------------------------------
 
-        void Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank)
+        void Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index aIndex)
         {
-//            this->get_lagrange_mesh()->select_activation_pattern(  );
-//            MORIS_ERROR( aEntityRank != EntityRank::ELEMENT," function does not work for element use setup_element_global_to_local_map instead()");
+            uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
 
-            uint tNumEntities = this->get_num_entities(aEntityRank);
             moris_id tCount = 0;
+
             for( uint i = 0; i < tNumEntities; i++ )
             {
-                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index( i, aEntityRank );
+                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index( i,
+                                                                                    aEntityRank,
+                                                                                    aIndex);
+
 //                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
-                mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
+
+                mEntityGlobaltoLocalMap( ( uint )aEntityRank + aIndex )[ tEntityId ] = tCount;
+
                 tCount++;
             }
         }
@@ -1854,28 +1807,6 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-
-        void Mesh::setup_element_global_to_local_map()
-        {
-////            this->get_lagrange_mesh()->select_activation_pattern(  );
-//
-//            uint tNumEntities = this->get_num_entities(aEntityRank);
-//
-//            moris_id tCount = 0;
-//
-//            for( uint i = 0; i < tNumElements; i++ )
-//            {
-//                moris_id tEntityId = this->get_glb_element_id_from_element_loc_index( i );
-////                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
-//                mEntityGlobaltoLocalMap((uint)EntityRank::ELEMENT)[ tEntityId ] = tCount;
-//                tCount++;
-//            }
-
-//    moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
-
-//    mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
-
-        }
 
     } /* namespace hmr */
 } /* namespace moris */

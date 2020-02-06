@@ -287,7 +287,7 @@ TEST_CASE( "GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]" )
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-        //tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        //tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
         //++++++++++++++++++++++++++++++++
 //        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();

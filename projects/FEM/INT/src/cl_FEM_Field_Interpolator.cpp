@@ -7,6 +7,8 @@
 #include "fn_norm.hpp"
 #include "fn_reshape.hpp"
 #include "fn_det.hpp"
+#include "fn_sum.hpp"
+#include "fn_diag_vec.hpp"
 #include "op_times.hpp"
 #include "op_equal_equal.hpp"
 #include "op_less_equal.hpp"
@@ -154,6 +156,9 @@ namespace moris
             {
                 // evaluate the shape functions
                 this->eval_NBuild();
+
+                // set bool for evaluation
+                mNBuildEval = false;
             }
 
             // return member value
@@ -176,8 +181,8 @@ namespace moris
              //evaluate space time SF by multiplying space and time SF
              mNBuild = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
 
-             // set bool for evaluation
-             mNBuildEval = false;
+//             // set bool for evaluation
+//             mNBuildEval = false;
          }
 
 //------------------------------------------------------------------------------
@@ -188,6 +193,9 @@ namespace moris
              {
                  // evaluate the shape functions
                  this->eval_N();
+
+                 // set bool for evaluation
+                 mNEval = false;
              }
 
              // return member value
@@ -222,6 +230,9 @@ namespace moris
                      {
                          // evaluate d1Ndx1
                          this->eval_d1Ndx1();
+
+                         // set bool for evaluation
+                         mdNdxEval = false;
                      }
                      // return member data
                      return mdNdx;
@@ -234,6 +245,9 @@ namespace moris
                      {
                          // evaluate d2Ndx2
                          this->eval_d2Ndx2();
+
+                         // set bool for evaluation
+                         md2Ndx2Eval = false;
                      }
                      // return member data
                      return md2Ndx2;
@@ -245,6 +259,9 @@ namespace moris
                      {
                          // evaluate d3Ndx3
                          this->eval_d3Ndx3();
+
+                         // set bool for evaluation
+                         md3Ndx3Eval = false;
                      }
                      // return member data
                      return md3Ndx3;
@@ -291,8 +308,8 @@ namespace moris
 //            mdNdx = solve( tJGeot, tdNFielddXi );
             mdNdx = inv( tJGeot ) * tdNFielddXi;
 
-            // set bool for evaluation
-            mdNdxEval = false;
+//            // set bool for evaluation
+//            mdNdxEval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -336,8 +353,8 @@ namespace moris
             Matrix< DDRMat > td2NFielddXi2 = td2NFielddxi2 - tKGeot * tdNFielddx;
             md2Ndx2 = solve( tLGeot, td2NFielddXi2 );
 
-            // set bool for evaluation
-            md2Ndx2Eval = false;
+//            // set bool for evaluation
+//            md2Ndx2Eval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -389,8 +406,8 @@ namespace moris
             Matrix< DDRMat > td3NFielddXi3 = td3NFielddxi3 - tJ3bGeot * td2NFielddx2 - tJ3cGeot * tdNFielddx;
             md3Ndx3 = solve( tJ3aGeot, td3NFielddXi3 );
 
-            // set bool for evaluation
-            md3Ndx3Eval = false;
+//            // set bool for evaluation
+//            md3Ndx3Eval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -407,6 +424,9 @@ namespace moris
                      {
                          // evaluate d1Ndt1
                          this->eval_d1Ndt1();
+
+                        // set bool for evaluation
+                         mdNdtEval = false;
                      }
                      // return member data
                      return mdNdt;
@@ -419,6 +439,9 @@ namespace moris
                      {
                          // evaluate d2Ndt2
                          this->eval_d2Ndt2();
+
+                         // set bool for evaluation
+                         md2Ndt2Eval = false;
                      }
                      // return member data
                      return md2Ndt2;
@@ -463,8 +486,8 @@ namespace moris
             // transform output matrix to dNdX
             mdNdt = solve( tJGeot, tdNFielddTau );
 
-            // set bool for evaluation
-            mdNdtEval = false;
+//            // set bool for evaluation
+//            mdNdtEval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -510,8 +533,8 @@ namespace moris
             Matrix< DDRMat > td2NFielddTau2 = td2NFielddtau2 - tKGeot * tdNFielddt;
             md2Ndt2 = solve( tLGeot, td2NFielddTau2 );
 
-            // set bool for evaluation
-            md2Ndt2Eval = false;
+//            // set bool for evaluation
+//            md2Ndt2Eval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -544,18 +567,20 @@ namespace moris
         moris::real Field_Interpolator::div()
         {
             // check that mUHat is set
-            MORIS_ASSERT( mUHat.numel() > 0,  "Field_Interpolator::div - mUHat  is not set." );
+            MORIS_ASSERT( mUHat.numel() > 0,  "Field_Interpolator::div - mUHat is not set." );
 
-            // evaluate gradient
-            Matrix< DDRMat > tGradx = this->gradx(1);
+//            // evaluate gradient
+//            Matrix< DDRMat > tGradx = this->gradx( 1 );
+//
+//            // evaluate divergence
+//            moris::real tDivergence = 0;
+//            for (uint tIndex = 0; tIndex < tGradx.n_rows(); tIndex++)
+//            {
+//                tDivergence += tGradx(tIndex, tIndex);
+//            }
+//            return tDivergence;
 
-            // evaluate divergence
-            moris::real tDivergence = 0;
-            for (uint tIndex = 0; tIndex < tGradx.n_rows(); tIndex++)
-            {
-                tDivergence += tGradx(tIndex, tIndex);
-            }
-            return tDivergence;
+            return sum( diag_vec( this->gradx( 1 ).matrix_data() ) );
         }
 
 //------------------------------------------------------------------------------

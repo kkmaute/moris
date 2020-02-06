@@ -22,7 +22,7 @@ namespace moris
     {
         switch( aEntityRank )
         {
-            case( EntityRank::BSPLINE_1 ) :
+            case( EntityRank::BSPLINE ) :
             {
                 return 1;
                 break;
@@ -53,7 +53,7 @@ namespace moris
             {
                 case( 1 ) :
                 {
-                    return EntityRank::BSPLINE_1;
+                    return EntityRank::BSPLINE;
                     break;
                 }
                 case( 2 ) :

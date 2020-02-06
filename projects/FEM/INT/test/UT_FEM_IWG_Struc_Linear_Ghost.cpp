@@ -352,7 +352,8 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
 
             // set size and init the set residual and jacobian
-            tIWG->mSet->mResidual.set_size( 2*tNumDof, 1 , 0.0 );
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
             tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
 
             // set requested residual dof type flag to true
