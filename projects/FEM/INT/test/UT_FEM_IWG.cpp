@@ -19,10 +19,9 @@
 
 #include "cl_FEM_IWG_Factory.hpp"         //FEM/INT/src
 
-moris::Matrix< moris::DDRMat > tValFunction_UTIWG( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                   moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                   moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                   moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tValFunction_UTIWG
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     moris::Matrix< moris::DDRMat > tPropertyVal( 1, 1, 1.0);
     return tPropertyVal;

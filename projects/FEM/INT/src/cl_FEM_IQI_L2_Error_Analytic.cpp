@@ -35,7 +35,8 @@ namespace moris
             uint tL2CheckIndex = static_cast< uint >( IQI_Property_Type::L2_CHECK );
 
             // evaluate the QI
-            aQI = trans( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) * ( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) ;
+            aQI = ( trans( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) * ( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) );
+            // / ( mMasterProp( tL2CheckIndex )->val() * mMasterProp( tL2CheckIndex )->val());
         }
 
 //------------------------------------------------------------------------------

@@ -19,9 +19,9 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
     UT_MDL_XTK_HMR_Material_Void_Bar_Plane.cpp
     UT_MDL_XTK_HMR_Symm_BCs.cpp
-    UT_MDL_Input.cpp
     #UT_MDL_Gyroid.cpp
     UT_MDL_FEM_Benchmark.cpp
+    UT_MDL_FEM_Benchmark2.cpp
 
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp

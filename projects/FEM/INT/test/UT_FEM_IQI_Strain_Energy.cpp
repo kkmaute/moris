@@ -28,28 +28,11 @@
 
 #include "op_equal_equal.hpp"
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTIQISTRAINENERGY( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                    moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                    moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                    moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tConstValFunction_UTIQISTRAINENERGY
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return aParameters( 0 );
-}
-
-moris::Matrix< moris::DDRMat > tFIValFunction_UTIQISTRAINENERGY( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return aParameters( 0 ) * aDofFI( 0 )->val();
-}
-
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTIQISTRAINENERGY( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return aParameters( 0 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;

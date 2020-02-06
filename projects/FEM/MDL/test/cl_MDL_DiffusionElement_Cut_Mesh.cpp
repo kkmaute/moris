@@ -69,10 +69,9 @@ namespace moris
 {
     namespace mdl
     {
-        Matrix< DDRMat > tConstValFunction_MDLCUT( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                                   moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                                   moris::Cell< fem::Field_Interpolator* > & aDvF,
-                                                   fem::Geometry_Interpolator              * aGeometryInterpolator )
+        Matrix< DDRMat > tConstValFunction_MDLCUT
+        ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+          moris::fem::Field_Interpolator_Manager *         aFIManager )
         {
             return aParameters( 0 );
         }

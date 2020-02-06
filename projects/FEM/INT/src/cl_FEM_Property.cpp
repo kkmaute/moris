@@ -238,7 +238,8 @@ namespace moris
             this->check_dv_field_interpolators();
 
             // use mValFunction to evaluate the property
-            mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
+//            mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
+            mProp = mValFunction( mParameters, mFIManager );
         }
 
 //------------------------------------------------------------------------------
@@ -281,11 +282,11 @@ namespace moris
             this->check_dv_field_interpolators();
 
             // if so use mDerivativeFunction to compute the derivative
-
-            mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters,
-                                                                      mDofFI,
-                                                                      mDvFI,
-                                                                      mGeometryInterpolator );
+//            mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters,
+//                                                                      mDofFI,
+//                                                                      mDvFI,
+//                                                                      mGeometryInterpolator );
+            mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters, mFIManager );
         }
 
 //------------------------------------------------------------------------------
@@ -328,10 +329,11 @@ namespace moris
             this->check_dv_field_interpolators();
 
             // if so use mDerivativeFunction to compute the derivative
-            mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
-                                                                  mDofFI,
-                                                                  mDvFI,
-                                                                  mGeometryInterpolator );
+//            mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
+//                                                                  mDofFI,
+//                                                                  mDvFI,
+//                                                                  mGeometryInterpolator );
+            mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters, mFIManager );
         }
 
 //------------------------------------------------------------------------------
