@@ -1518,9 +1518,9 @@ namespace moris
              * @param[ in ] aPerturbation real to perturb for FD
              */
 
-            void eval_dFluxdDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                         Matrix< DDRMat >            & adFluxdDV_FD,
-                                         real                          aPerturbation );
+            void eval_dFluxdDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                         Matrix< DDRMat >      & adFluxdDV_FD,
+                                         real                    aPerturbation );
 //------------------------------------------------------------------------------
             /**
             * evaluate the constitutive model strain derivative wrt to a dv type
@@ -1529,9 +1529,9 @@ namespace moris
             * @param[ in ] aPerturbation  real to perturb for FD
             */
 
-            void eval_dStraindDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                     Matrix< DDRMat >                  & adStraindDV_FD,
-                                     real                                aPerturbation );
+            void eval_dStraindDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                     Matrix< DDRMat >            & adStraindDV_FD,
+                                     real                          aPerturbation );
 
 //------------------------------------------------------------------------------
         };

@@ -40,7 +40,7 @@ namespace moris
 //
 //            // FIXME
 //            // get the list of dv types for the CM
-//            moris::Cell< moris::Cell< MSI::Dv_Type > > tCMDvTypes
+//            moris::Cell< moris::Cell< GEN_DV > > tCMDvTypes
 //            = this->get_global_dv_type_list();
 //
 //            // get the number of dv type for the CM
@@ -302,9 +302,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-            void Constitutive_Model::eval_dFluxdDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                                             Matrix< DDRMat >            & adFluxdDV_FD,
-                                                             real                          aPerturbation )
+            void Constitutive_Model::eval_dFluxdDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                                             Matrix< DDRMat >      & adFluxdDV_FD,
+                                                             real                    aPerturbation )
             {
                 // get the field interpolator for type
                 Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDvTypes( 0 ) );
@@ -381,9 +381,9 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-            void Constitutive_Model::eval_dStraindDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                                               Matrix< DDRMat >            & adStraindDV_FD,
-                                                               real                          aPerturbation )
+            void Constitutive_Model::eval_dStraindDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                                               Matrix< DDRMat >      & adStraindDV_FD,
+                                                               real                    aPerturbation )
             {
                 // get the field interpolator for type
                 Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDvTypes( 0 ) );

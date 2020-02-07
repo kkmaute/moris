@@ -399,7 +399,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         bool tOutputXTKmesh = false;
         if (tOutputXTKmesh)
         {
-            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, 0);
 
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
@@ -417,7 +417,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         bool tFullProblem = true;
         if(tFullProblem)
         {
-            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, 0);
 
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();

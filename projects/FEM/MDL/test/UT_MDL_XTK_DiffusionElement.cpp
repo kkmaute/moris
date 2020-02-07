@@ -70,8 +70,8 @@
 
 #include "fn_norm.hpp"
 
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Plane.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
 
 namespace moris
 {
