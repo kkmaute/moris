@@ -120,6 +120,9 @@ namespace MSI
 
         bool mIsResidual = false;
 
+        bool mIsForward = true;
+
+
         friend class MSI::Equation_Object;
         friend class Cluster;
         friend class Element_Bulk;
@@ -176,7 +179,8 @@ namespace MSI
          * initialize the set
          * @param[ in ] aIsResidual bool true if ???
          */
-        void initialize_set( const bool aIsResidual );
+        void initialize_set( const bool aIsResidual,
+                             const bool aIsForward);
 
 //------------------------------------------------------------------------------
         /**
@@ -336,6 +340,21 @@ namespace MSI
         moris::Cell< moris::Matrix< DDSMat > > & get_dv_assembly_map()
         {
             return mDvAssemblyMap;
+        }
+
+
+//------------------------------------------------------------------------------
+
+        moris::Matrix< DDSMat > & get_dv_assembly_map_1()
+        {
+            return mDVTypeMap;
+        }
+
+//------------------------------------------------------------------------------
+
+        moris::sint & get_requested_dv_index_for_type( enum MSI::Dv_Type aDvType )
+        {
+            return mDVTypeMap( static_cast< int >( aDvType ) );
         }
 
 //------------------------------------------------------------------------------
@@ -653,6 +672,8 @@ namespace MSI
          */
         moris::uint get_num_dof_types();
 
+        void create_requested_dv_assembly_map();
+
 //------------------------------------------------------------------------------
         /**
          * get number of dv types on the set
@@ -665,6 +686,8 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+
+        moris::Cell < enum MSI::Dv_Type > get_requested_dv_types();
 
 //------------------------------------------------------------------------------
 
@@ -751,6 +774,8 @@ namespace MSI
          * determine set type from mtk set type
          */
         void determine_set_type();
+
+//------------------------------------------------------------------------------
 
         void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
        {

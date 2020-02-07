@@ -232,8 +232,8 @@ namespace moris
 
         Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj_1.mEquationBlock = &tEqnBlock;
-        EquObj_2.mEquationBlock = &tEqnBlock;
+        EquObj_1.mEquationSet = &tEqnBlock;
+        EquObj_2.mEquationSet = &tEqnBlock;
 
         // Create List with equation objects
         tListEqnObj( 0 ) = & EquObj_1;

@@ -53,8 +53,8 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
         Matrix< DDRMat > tElementMatrix;
         this->get_element_matrix( Ii, tElementMatrix );
 
-        Matrix< DDRMat > tElementRHS;
-        this->get_element_rhs( Ii, tElementRHS );
+        Cell< Matrix< DDRMat > > tElementRHS;
+        this->get_equation_object_rhs( Ii, tElementRHS );
 
         // Fill element in distributed matrix
         aMat->fill_matrix( tElementTopology.length(),
@@ -64,7 +64,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
         // Fill elementRHS in distributed RHS
         aVectorRHS->sum_into_global_values( tElementTopology.length(),
                                             tElementTopology,
-                                            tElementRHS );
+                                            tElementRHS(0) );
     }
     // global assembly to switch entries to the right proceccor
     aVectorRHS->vector_global_asembly();
@@ -80,31 +80,37 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 //    aFullSolutionVector->print();
 
     // Get local number of elements
-    moris::uint numBlocks = this->get_num_my_blocks();
+    moris::uint tNumBlocks = this->get_num_my_blocks();
+
+    moris::uint tNumRHS = this->get_num_rhs();
 
     // Loop over all local elements to build matrix graph
-    for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
+    for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
     {
-        moris::uint tNumEquationOnjOnBlock = this->get_num_my_elements_on_block( Ii );
+        moris::uint tNumEquationOnjOnSet = this->get_num_my_elements_on_block( Ii );
 
         this->initialize_block( Ii, true );
 
-        for ( moris::uint Ik=0; Ik < tNumEquationOnjOnBlock; Ik++ )
+        for ( moris::uint Ik=0; Ik < tNumEquationOnjOnSet; Ik++ )
         {
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
 //            print(tElementTopology,"tElementTopology");
 
-            Matrix< DDRMat > tElementRHS;
-            this->get_element_rhs( Ii, Ik, tElementRHS );
+            Cell< Matrix< DDRMat > > tElementRHS;
+            this->get_equation_object_rhs( Ii, Ik, tElementRHS );
 
 //            print(tElementRHS,"tElementRHS");
 
-            // Fill elementRHS in distributed RHS
-            aVectorRHS->sum_into_global_values( tElementTopology.length(),
-                                                tElementTopology,
-                                                tElementRHS );
+            for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+            {
+                // Fill elementRHS in distributed RHS
+                aVectorRHS->sum_into_global_values( tElementTopology.length(),
+                                                    tElementTopology,
+                                                    tElementRHS( Ia ),
+                                                    Ia );
+            }
         }
 
         this->free_block_memory( Ii );
@@ -114,7 +120,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
     aVectorRHS->vector_global_asembly();
 
 //    std::cout<<"Assembled Residual Vector"<<std::endl;
-//    aVectorRHS->print();
+    aVectorRHS->print();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -186,8 +192,8 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
         Matrix< DDRMat > tElementMatrix;
         this->get_element_matrix( Ii, tElementMatrix );
 
-        Matrix< DDRMat > tElementRHS;
-        this->get_element_rhs( Ii, tElementRHS );
+        Cell< Matrix< DDRMat > >tElementRHS;
+        this->get_equation_object_rhs( Ii, tElementRHS );
 
         // Fill element in distributed matrix
         aMat->fill_matrix( tElementTopology.length(),
@@ -197,7 +203,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
         // Fill elementRHS in distributed RHS
         aVectorRHS->sum_into_global_values( tElementTopology.length(),
                                             tElementTopology,
-                                            tElementRHS );
+                                            tElementRHS(0) );
     }
 
     // global assembly to switch entries to the right proceccor

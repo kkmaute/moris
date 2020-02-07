@@ -173,11 +173,14 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::initialize_set( const bool aIsResidual )
+    void Set::initialize_set( const bool aIsResidual,
+                              const bool aIsForward )
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
         {
             mIsResidual = aIsResidual;
+
+            mIsForward = aIsForward;
 
             this->create_residual_dof_assembly_map();
 
@@ -194,8 +197,17 @@ namespace moris
             {
                 tIWG->set_set_pointer( this );
             }
+
+            if( !aIsForward )
+            {
+                this->create_requested_dv_assembly_map();
+            }
         }
     }
+
+//------------------------------------------------------------------------------
+
+
 
 //------------------------------------------------------------------------------
     void Set::free_memory()
@@ -207,10 +219,22 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+
     moris::Cell < enum MSI::Dof_Type > Set::get_requested_dof_types()
     {
         return mModelSolverInterface->get_solver_interface()
                                     ->get_requested_dof_types();
+    }
+
+//------------------------------------------------------------------------------
+
+    moris::Cell < enum MSI::Dv_Type > Set::get_requested_dv_types()
+    {
+        moris::Cell< enum MSI::Dv_Type > tDvTypes;
+
+        mDesignVariableInterface->get_requested_dv_types( tDvTypes );
+
+        return tDvTypes;
     }
 
 //------------------------------------------------------------------------------
@@ -1372,7 +1396,23 @@ namespace moris
                 }
             }
 
-            mResidual.set_size( tNumCoeff, 1, 0.0 );
+            if( mIsForward )
+            {
+                mResidual.resize( 1 );
+
+                mResidual( 0 ).set_size( tNumCoeff, 1, 0.0 );
+            }
+            else
+            {
+                uint tNumRequestedTypes = this->get_requested_dv_types().size();
+
+                mResidual.resize( tNumRequestedTypes );
+
+                for( auto & tRes : mResidual )
+                {
+                    tRes.set_size( tNumCoeff, 1, 0.0 );
+                }
+            }
 
             mResidualExist = true;
         }
@@ -1380,9 +1420,14 @@ namespace moris
         {
             //            MORIS_ASSERT( mResidual.numel() > 0, "Set::initialize_mResidual() - Residual not properly initialized.");
 
-            mResidual.fill( 0.0 );
+            for( auto & tRes : mResidual )
+            {
+                tRes.fill( 0.0 );
+            }
+
         }
     }
+
 
 //------------------------------------------------------------------------------
     mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint        aNumVertices,
@@ -1650,6 +1695,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Set::create_requested_dv_assembly_map()
+    {
+        moris::Cell< enum MSI::Dv_Type > tRequestedDvTypes = this->get_requested_dv_types();
+
+        uint tMaxDvIndex = 0;
+
+        for( auto tDvType : tRequestedDvTypes )
+        {
+            tMaxDvIndex = std::max( tMaxDvIndex, static_cast< uint >( tDvType ) );
+        }
+
+        mDVTypeMap.set_size( tMaxDvIndex+1, 1, -1 );
+
+        uint tCounter = 0;
+
+        for( auto tDvType : tRequestedDvTypes )
+        {
+            mDVTypeMap( static_cast< uint >( tDvType ) ) = tCounter++;
+        }
+    }
+
+//------------------------------------------------------------------------------
+
     void Set::set_visualization_set( const uint              aMeshIndex,
                                            moris::mtk::Set * aVisMeshSet,
                                      const bool              aOnlyPrimayCells)
@@ -1723,10 +1791,10 @@ namespace moris
         //FIXME I do not like this at all. someone change it
         for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
         {
-        	if( mSetNodalCounter(Ik) != 0)
-        	{
-        	    (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
-        	}
+            if( mSetNodalCounter(Ik) != 0)
+            {
+                (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
+            }
         }
 //        if( aFieldType==vis::Field_Type::NODAL || aFieldType==vis::Field_Type::NODAL_IP )
 //        {

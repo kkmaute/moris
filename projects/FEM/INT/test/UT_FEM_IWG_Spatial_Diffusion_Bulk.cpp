@@ -188,7 +188,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     // set requested residual dof type flag to true
@@ -351,7 +352,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
@@ -511,7 +513,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
@@ -694,7 +697,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     tIWG->mSet->mDvAssemblyMap.resize( 1 );
     tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
 

@@ -92,6 +92,10 @@ namespace mdl
             virtual void get_unique_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                                             Cell< enum MSI::Dv_Type > & aDvTypes ) = 0;
 
+            virtual void get_requested_dv_types( Cell< enum MSI::Dv_Type > & aDvTypes )
+            {
+            };
+
 //------------------------------------------------------------------------------
             /**
              * @brief Function providing pdv values for requested vertex indices and Dv types

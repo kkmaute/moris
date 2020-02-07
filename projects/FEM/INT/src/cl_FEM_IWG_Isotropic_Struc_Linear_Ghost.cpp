@@ -115,11 +115,11 @@ namespace moris
                  }
 
                  // compute master residual
-                 mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                  += tMasterdNdxFlat * tPreMultiply * aWStar;
 
                  // compute slave residual
-                 mSet->get_residual()( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
+                 mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
                  -= tSlavedNdxFlat * tPreMultiply * aWStar;
             }
         }

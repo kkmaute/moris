@@ -1300,11 +1300,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus
-                        =  mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1317,11 +1317,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus
-                        =  mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } );
 
                         // evaluate Jacobian
                         aJacobiansFD.get_column( tDofCounter )
@@ -1419,13 +1419,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus_Master
-                        =  mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Plus_Slave
-                        =  mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1438,13 +1438,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus_Master
-                        =  mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Minus_Slave
-                        =  mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // evaluate Jacobian
                         aJacobiansFD( { 0, tMasterNumRows -1 }, { tDofCounter, tDofCounter } )
@@ -1490,13 +1490,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus_Master
-                        = mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Plus_Slave
-                        = mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1509,13 +1509,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus_Master
-                        = mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Minus_Slave
-                        = mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // evaluate Jacobian
                         aJacobiansFD( { 0, tMasterNumRows -1 }, { tDofCounter, tDofCounter } )
@@ -1683,11 +1683,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus
-                                  =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                                  =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // perturbation of the coefficient
                         tCoeffPert = tCoeff;
@@ -1700,11 +1700,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus
-                                 =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                                 =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // evaluate drdpdvGeo
                         adrdpdvGeoFD( 0 ).get_column( tDvCounter )
@@ -1795,11 +1795,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus
-                        =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1812,11 +1812,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus
-                        =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // evaluate Jacobian
                        // uint tDvAssemblyStart = mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 );

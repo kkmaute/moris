@@ -49,7 +49,7 @@ namespace moris
     protected:
         Cell< MSI::Equation_Object* > mEquationObjList;
 
-        Matrix< DDRMat > mResidual;
+        Cell< Matrix< DDRMat > > mResidual;
         Matrix< DDRMat > mJacobian;
 
         // lists of master and slave groups of dof types
@@ -75,6 +75,8 @@ namespace moris
         // map of master and slave dv types for assembly
         Cell< moris::Matrix< DDSMat > > mDvAssemblyMap;
 
+        moris::Matrix< DDSMat > mDVTypeMap;
+
         Cell< moris::map< enum MSI::Dof_Type, moris::uint > > mRequestedTypeToIndexMap;
 
         bool mJacobianExist = false;
@@ -97,6 +99,8 @@ namespace moris
         Matrix< DDUMat > mSetNodalCounter;
 
         MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
+        uint tNumRHS = 1;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -293,7 +297,11 @@ namespace moris
             }
             if ( mResidualExist )
             {
-                mResidual.resize( 0, 0 );
+            	for( auto & tResidual : mResidual )
+            	{
+            		tResidual.resize( 0, 0 );
+            	}
+            	mResidual.clear();
 
                 mResidualExist = false;
             }
@@ -302,7 +310,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        virtual void initialize_set( const bool aIsResidual )
+        virtual void initialize_set( const bool aIsResidual,
+                                     const bool aIsForward )
         {
             MORIS_ERROR(false, "initialize_set(), not implemented for virtual memeber function");
         };
@@ -329,7 +338,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat > & get_residual()
+        Cell< Matrix< DDRMat > > & get_residual()
         {
             return mResidual;
         };
@@ -339,6 +348,12 @@ namespace moris
         Matrix< DDRMat > & get_jacobian()
         {
             return mJacobian;
+        };
+
+//-------------------------------------------------------------------------------------------------
+        uint get_num_rhs()
+        {
+           return tNumRHS;
         };
 
 //------------------------------------------------------------------------------

@@ -232,7 +232,7 @@ namespace moris
         // Create generic equation objects
         MSI::Equation_Object * EquObj = new fem::Interpolation_Element();
 
-        EquObj->mEquationBlock = tSet;
+        EquObj->mEquationSet = tSet;
         reinterpret_cast< fem::Interpolation_Element *> ( EquObj )->mSet = reinterpret_cast< fem::Set *> (tSet);
 
         tSet->mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
@@ -340,7 +340,8 @@ namespace moris
             tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 3 } };
 
             // set size and init the set residual and jacobian
-            tIWG->mSet->mResidual.set_size( 4, 1, 0.0 );
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
             tIWG->mSet->mJacobian.set_size( 4, 4, 0.0 );
 
             // set requested residual dof type flag to true
@@ -371,7 +372,7 @@ namespace moris
 //
 //        Equation_Set tEqnBlock;
 //        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-//        EquObj.mEquationBlock = &tEqnBlock;
+//        EquObj.mEquationSet = &tEqnBlock;
 //
 //        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 //

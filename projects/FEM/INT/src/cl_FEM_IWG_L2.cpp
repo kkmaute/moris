@@ -60,11 +60,6 @@ namespace moris
 
         void IWG_L2::compute_jacobian_and_residual_without_alpha( real aWStar )
         {
-#ifdef DEBUG
-            // check master field interpolators
-            this->check_field_interpolators();
-#endif
-
             MORIS_ERROR( false, "IWG_L2::compute_jacobian_and_residual_without_alpha - will not work because of weights.");
 
             // get index for residual dof type, indices for assembly
@@ -86,7 +81,7 @@ namespace moris
                 += trans( tFI->N() ) * tFI->N() * aWStar;
 
                 // compute residual
-                mSet->get_residual()( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+                mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
                 += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
                  * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
             }
@@ -122,7 +117,7 @@ namespace moris
                 += ( trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
 
                 // compute residual
-                mSet->get_residual()( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+                mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
                 += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
                  * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
             }
@@ -223,7 +218,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute residual
-            mSet->get_residual()( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+            mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
             += trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs ) * aWStar;
         }
 
@@ -245,7 +240,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute residual
-            mSet->get_residual()( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+            mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
             += ( trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs )
             + mAlpha * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs ) ) * aWStar;
         }

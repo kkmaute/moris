@@ -199,7 +199,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 }, {8, 11} };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 4, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 4, 12, 0.0 );
 
     // set requested residual dof type flag to true

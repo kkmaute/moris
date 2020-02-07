@@ -87,6 +87,19 @@ int main( int argc, char * argv[] )
 
     hmr::HMR tHMR( tParameters );
 
+    moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+
+    MORIS_PARAMETER_FUNCTION tMSIParameters = tLibrary.load_parameter_file( "MSI_Paramters" );
+
+    tMSIParameters( tMSIParameters );
+
+    moris::MSI::Model_Solver_Interface  tModelSolverInterface ( tMSIParameters,
+                                                                 mEquationSets,
+                                                                 tCommTable,
+                                                                 tIdToIndMap,
+                                                                 tMaxNumAdofs,
+                                                                 tInterpolationMesh );
+
    //initial refinement
     tHMR.perform_initial_refinement( 0 );
 

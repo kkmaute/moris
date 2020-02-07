@@ -178,7 +178,7 @@ namespace moris
 
         Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj.mEquationBlock = &tEqnBlock;
+        EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
@@ -275,7 +275,7 @@ namespace moris
 
         Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj.mEquationBlock = &tEqnBlock;
+        EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
@@ -373,7 +373,7 @@ namespace moris
 
         Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj.mEquationBlock = &tEqnBlock;
+        EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 

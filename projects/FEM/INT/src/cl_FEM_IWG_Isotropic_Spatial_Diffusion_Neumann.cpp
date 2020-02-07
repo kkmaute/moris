@@ -42,7 +42,7 @@ namespace moris
             uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
 
             // compute the residual
-            mSet->get_residual()( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } )
             += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() * tWStar;
         }
 

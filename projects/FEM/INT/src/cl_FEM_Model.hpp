@@ -68,6 +68,8 @@ namespace moris
 
             map< moris_index, moris_index >   mMeshSetToFemSetMap;
 
+            moris::Cell< moris::real >       mQi;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------

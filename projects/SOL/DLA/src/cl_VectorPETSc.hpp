@@ -38,7 +38,8 @@ public:
 
     void sum_into_global_values( const moris::uint             & aNumMyDof,
                                  const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                 const moris::Matrix< DDRMat > & aRHSVal );
+                                 const moris::Matrix< DDRMat > & aRHSVal,
+                                 const uint                    & aVectorIndex = 0 );
 
     void replace_global_values(){};
 
