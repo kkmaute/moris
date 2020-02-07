@@ -22,41 +22,36 @@
 #include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
 
-moris::Matrix< moris::DDRMat > tConstValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tConstValFunction_STRUCBULK
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCBULK
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
+    return aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIValFunction_STRUCBULK
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
+    return aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCBULK
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return -1.0 * aParameters( 1 )( 0, 0 ) * aDofFI( 0 )->N();
+    return -1.0 * aParameters( 1 )( 0, 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
 }
-moris::Matrix< moris::DDRMat > tMValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tMValFunction_STRUCBULK
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return {{ aParameters( 0 )( 0 ), 0.0 },
             { 0.0, aParameters( 0 )( 1 ) }};

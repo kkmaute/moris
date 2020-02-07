@@ -313,6 +313,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get the dof field interpolators
+         */
+        moris::Cell< Field_Interpolator * > & get_dof_field_interpolators()
+        {
+            return mFI;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get the dv field interpolators
+         */
+        moris::Cell< Field_Interpolator * > & get_dv_field_interpolators()
+        {
+            return mDvFI;
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * get the maximum number of dof field interpolators on the manager
          * @param[ out ] mMaxNumDofFI the maximum number of dof FI on the manager
          */

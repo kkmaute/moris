@@ -55,9 +55,6 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
 
-            // bool for global dof type list and map
-            bool mGlobalDofBuild = true;
-
             // master and slave global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
@@ -65,10 +62,6 @@ namespace moris
             // master and slave global dof type maps
             Matrix< DDSMat > mMasterGlobalDofTypeMap;
             Matrix< DDSMat > mSlaveGlobalDofTypeMap;
-
-            // master and slave dof field interpolators
-            moris::Cell< Field_Interpolator* > mMasterDofFI;
-            moris::Cell< Field_Interpolator* > mSlaveDofFI;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< GEN_DV > > mMasterDvTypes;
@@ -82,10 +75,6 @@ namespace moris
             Matrix< DDSMat > mMasterGlobalDvTypeMap;
             Matrix< DDSMat > mSlaveGlobalDvTypeMap;
 
-            // master and slave dv field interpolators
-            moris::Cell< Field_Interpolator* > mMasterDvFI;
-            moris::Cell< Field_Interpolator* > mSlaveDvFI;
-
             // master and slave properties
             moris::Cell< std::shared_ptr< Property > > mMasterProp;
             moris::Cell< std::shared_ptr< Property > > mSlaveProp;
@@ -94,19 +83,32 @@ namespace moris
             moris::Cell< std::shared_ptr< Constitutive_Model > > mMasterCM;
             moris::Cell< std::shared_ptr< Constitutive_Model > > mSlaveCM;
 
-            // flag for evaluation
-            bool mPPEval = true;
-            moris::Cell< bool > mdPPdMasterDofEval;
-            moris::Cell< bool > mdPPdSlaveDofEval;
-            moris::Cell< bool > mdPPdMasterDvEval;
-            moris::Cell< bool > mdPPdSlaveDvEval;
-
             // storage
             Matrix< DDRMat > mPPVal;
             moris::Cell< Matrix< DDRMat > > mdPPdMasterDof;
             moris::Cell< Matrix< DDRMat > > mdPPdSlaveDof;
             moris::Cell< Matrix< DDRMat > > mdPPdMasterDv;
             moris::Cell< Matrix< DDRMat > > mdPPdSlaveDv;
+
+            // local string to dof enum map
+            std::map< std::string, MSI::Dof_Type > mMasterDofMap;
+            std::map< std::string, MSI::Dof_Type > mSlaveDofMap;
+
+            // local string to dv enum map
+            std::map< std::string, MSI::Dv_Type > mMasterDvMap;
+            std::map< std::string, MSI::Dv_Type > mSlaveDvMap;
+
+        private:
+
+            // bool for global dof type list and map
+            bool mGlobalDofBuild = true;
+
+            // flag for evaluation
+            bool mPPEval = true;
+            moris::Cell< bool > mdPPdMasterDofEval;
+            moris::Cell< bool > mdPPdSlaveDofEval;
+            moris::Cell< bool > mdPPdMasterDvEval;
+            moris::Cell< bool > mdPPdSlaveDvEval;
 
 //------------------------------------------------------------------------------
         public :
@@ -199,10 +201,9 @@ namespace moris
              * NOTE: only implement if your stabilization parameter requires
              * cluster measure access. Otherwise no-op.
              */
-            virtual
-            void reset_cluster_measures()
+            virtual void reset_cluster_measures()
             {
-
+                MORIS_ERROR( false, "Stabilization_Parameter::reset_cluster_measures - not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -512,157 +513,11 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
-            /**
-             * set field interpolators
-             * @param[ in ] afieldInterpolators a lisy of field interpolator pointers
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators,
-                                              mtk::Master_Slave                  aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // get input size
-                uint tInputNumFI = aFieldInterpolators.size();
-
-                // check input size
-                MORIS_ASSERT( tInputNumFI == this->get_global_dof_type_list( aIsMaster ).size(),
-                              "Stabilization_Parameter::set_dof_field_interpolators - wrong input size. " );
-
-                // check dof field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < tInputNumFI; iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == this->get_global_dof_type_list( aIsMaster )( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "Stabilization_Parameter::set_dof_field_interpolators - wrong field interpolator dof type. ");
-
-                // set field interpolators
-                this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
-
-//                // set field interpolators for constitutive models
-//                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-//                {
-//                    if( tCM != nullptr )
-//                    {
-//                        // get the list of dof types for the CM
-//                        moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
-//
-//                        // get the number of dof type for the CM
-//                        uint tNumDofTypes = tCMDofTypes.size();
-//
-//                        // set the size of the field interpolators list for the CM
-//                        moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-//
-//                        // loop over the dof types
-//                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-//                        {
-//                            // get the dof type index in set
-//                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
-//
-//                            // fill the field interpolators list for the CM
-//                            tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
-//                        }
-//
-//                        // set the field interpolators for the CM
-//                        tCM->set_dof_field_interpolators( tCMFIs );
-//                    }
-//                }
-//
-//                // set field interpolators for properties
-//                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-//                {
-//                    if( tProp != nullptr )
-//                    {
-//                        // get the list of dof types for the property
-//                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-//
-//                        // get the number of dof type for the property
-//                        uint tNumDofTypes = tPropDofTypes.size();
-//
-//                        // set the size of the field interpolators list for the property
-//                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-//
-//                        // loop over the dof types
-//                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-//                        {
-//                            // get the dof type index in SP
-//                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
-//
-//                            // fill the field interpolators list for the property
-//                            tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
-//                        }
-//
-//                        // set the field interpolators for the property
-//                        tProp->set_dof_field_interpolators( tPropFIs );
-//                    }
-//                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get dof field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of dof field interpolator pointers
-             */
-            moris::Cell< Field_Interpolator* > & get_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master field interpolator pointers
-                        return mMasterDofFI;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave field interpolator pointers
-                        return mSlaveDofFI;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "Stabilization_Parameter::set_dof_field_interpolators - can only be master or slave." );
-                        return mMasterDofFI;
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set geometry interpolator
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointers
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // set geometry interpolator for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
-
-                // set geometry interpolator for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
             virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                                                  std::string                           aConstitutiveString,
                                                  mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
-                MORIS_ERROR( false, "Stabilization_Parameter::set_constitutive_model - This function does nothing." );
+                MORIS_ERROR( false, "Stabilization_Parameter::set_constitutive_model - Not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -699,7 +554,7 @@ namespace moris
                                        std::string                 aPropertyString,
                                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
-                MORIS_ERROR( false, "Stabilization_Parameter::set_property - This function does nothing." );
+                MORIS_ERROR( false, "Stabilization_Parameter::set_property - Not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -1149,7 +1004,7 @@ namespace moris
              */
             virtual void eval_SP()
             {
-                MORIS_ERROR( false, " Stabilization_Parameter::eval_PP - This function does nothing. " );
+                MORIS_ERROR( false, " Stabilization_Parameter::eval_PP - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1187,7 +1042,7 @@ namespace moris
              */
             virtual void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
-                MORIS_ERROR( false, " Penalty_Parameter::eval_dSPdMasterDOF - This function does nothing. " );
+                MORIS_ERROR( false, " Penalty_Parameter::eval_dSPdMasterDOF - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1225,7 +1080,7 @@ namespace moris
              */
             virtual void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
-                MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDOF - This function does nothing. " );
+                MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDOF - Not implemented for base class. " );
             }
 
  //------------------------------------------------------------------------------
@@ -1262,7 +1117,7 @@ namespace moris
               */
              virtual void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
              {
-                 MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdMasterDV - This function does nothing. " );
+                 MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdMasterDV - Not implemented for base class. " );
              }
 
  //------------------------------------------------------------------------------

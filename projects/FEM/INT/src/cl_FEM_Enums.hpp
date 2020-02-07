@@ -111,8 +111,10 @@ namespace moris
             VOLUME,         // volume
             STRAIN_ENERGY,
             DOF,
+            PROPERTY,
             L2_ERROR_ANALYTIC,
             H1_ERROR_ANALYTIC,
+            H1_SEMI_ERROR,
             END_IQI_TYPE
         };
 

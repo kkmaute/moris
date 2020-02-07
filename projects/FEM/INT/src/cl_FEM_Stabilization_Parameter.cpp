@@ -17,7 +17,7 @@ namespace moris
         void Stabilization_Parameter::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
                                                                       mtk::Master_Slave            aIsMaster )
         {
-
+            // switch on master or slave
             switch ( aIsMaster )
             {
                 case ( mtk::Master_Slave::MASTER ) :
@@ -39,26 +39,26 @@ namespace moris
                 }
             }
 
-            // FIXME
-            // get the list of dof types for the SP
-            moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes
-            = this->get_global_dof_type_list( aIsMaster );
-
-            // get the number of dof type for the SP
-            uint tNumDofTypes = tSPDofTypes.size();
-
-            // set the size of the field interpolators list for the SP
-            this->get_dof_field_interpolators( aIsMaster ).resize( tNumDofTypes, nullptr );
-
-            // loop over the dof types
-            for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-            {
-                // grab the field interpolator for the dof type
-                this->get_dof_field_interpolators( aIsMaster )( iDof )
-                = this->get_field_interpolator_manager( aIsMaster )
-                      ->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ) );
-            }
-            // END FIXME
+//            // FIXME
+//            // get the list of dof types for the SP
+//            moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes
+//            = this->get_global_dof_type_list( aIsMaster );
+//
+//            // get the number of dof type for the SP
+//            uint tNumDofTypes = tSPDofTypes.size();
+//
+//            // set the size of the field interpolators list for the SP
+//            this->get_dof_field_interpolators( aIsMaster ).resize( tNumDofTypes, nullptr );
+//
+//            // loop over the dof types
+//            for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+//            {
+//                // grab the field interpolator for the dof type
+//                this->get_dof_field_interpolators( aIsMaster )( iDof )
+//                = this->get_field_interpolator_manager( aIsMaster )
+//                      ->get_field_interpolators_for_type( tSPDofTypes( iDof )( 0 ) );
+//            }
+//            // END FIXME
 
             // loop over the underlying constitutive models
             for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )

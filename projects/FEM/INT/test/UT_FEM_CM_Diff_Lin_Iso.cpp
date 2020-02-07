@@ -14,20 +14,19 @@
 #undef protected
 #undef private
 
-moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 ) * aDofFI( 0 )->val();
+    return aParameters( 0 )
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunctionCM_Diff_Lin_Iso( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tDerFunctionCM_Diff_Lin_Iso
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 1 ) * aDofFI( 0 )->N();
+    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris
@@ -115,12 +114,10 @@ namespace moris
             Cell< Cell < MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }};
             Field_Interpolator_Manager tFIManager( tDofTypes, &tSet );
             tFIManager.mFI = tFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
 
-            // set field interpolators
+            // set field interpolator manager
             tCMMasterDiffLinIso->set_field_interpolator_manager( &tFIManager );
-            tCMMasterDiffLinIso->set_geometry_interpolator( &tGI );
-
-            //tCMMasterDiffLinIso->get_global_dof_type_list();
 
             // check flux-------------------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -214,14 +211,7 @@ namespace moris
 
             // clean up
             //------------------------------------------------------------------------------
-            // delete the field interpolator pointers
-//            for( Field_Interpolator* tFI : tFIs )
-//            {
-//                delete tFI;
-//            }
             tFIs.clear();
-
-            //delete tSet;
 
         }/* TEST_CASE */
 

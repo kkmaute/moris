@@ -31,43 +31,28 @@ namespace moris
         class Constitutive_Model
         {
 
-        private:
-
-            bool mFluxEval = true;
-
         protected :
-
-            // constitutive model type
-            fem::Constitutive_Type mConstitutiveType;
 
             // field interpolator manager
             Field_Interpolator_Manager * mFIManager = nullptr;
 
+            // fem set pointer
             Set * mSet = nullptr;
 
             // dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
-            // Local string to dof enum map
+            // local string to dof enum map
             std::map< std::string, MSI::Dof_Type > mDofMap;
 
             // dof type map
             Matrix< DDSMat > mDofTypeMap;
-
-            // bool for global dof type list and map build
-            bool mGlobalDofBuild = true;
-            bool mGlobalDvBuild  = true;
-            bool mGlobalDofMapBuild = true;
-            bool mGlobalDvMapBuild  = true;
 
             // global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
 
             // global dof type map
             Matrix< DDSMat > mGlobalDofTypeMap;
-
-//            // dof field interpolators
-//            moris::Cell< Field_Interpolator* > mDofFI;
 
             // dv type list
             moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
@@ -81,36 +66,11 @@ namespace moris
             // dv type map
             Matrix< DDSMat > mDvTypeMap;
 
-//            // dv field interpolators
-//            moris::Cell< Field_Interpolator* > mDvFI;
-
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
 
             // spatial dimensions
             uint mSpaceDim;
-
-            // flag for evaluation
-            moris::Cell< bool > mdFluxdDofEval;
-            moris::Cell< bool > mdFluxdDvEval;
-
-            bool mTractionEval   = true;
-            moris::Cell< bool > mdTractiondDofEval;
-            moris::Cell< bool > mdTractiondDvEval;
-
-            bool mTestTractionEval   = true;
-            moris::Cell< bool > mdTestTractiondDofEval;
-            moris::Cell< bool > mdTestTractiondDvEval;
-
-            bool mStrainEval     = true;
-            moris::Cell< bool > mdStraindDofEval;
-            moris::Cell< bool > mdStraindDvEval;
-
-            bool mTestStrainEval = true;
-
-            bool mConstEval      = true;
-            moris::Cell< bool > mdConstdDofEval;
-            moris::Cell< bool > mdConstdDvEval;
 
             // storage for evaluation
             Matrix< DDRMat > mFlux;
@@ -134,6 +94,37 @@ namespace moris
             Matrix< DDRMat > mConst;
             moris::Cell< Matrix< DDRMat > > mdConstdDof;
             moris::Cell< Matrix< DDRMat > > mdConstdDv;
+
+        private:
+
+            // bool for global dof type list and map build
+            bool mGlobalDofBuild = true;
+            bool mGlobalDvBuild  = true;
+            bool mGlobalDofMapBuild = true;
+            bool mGlobalDvMapBuild  = true;
+
+            // flag for evaluation
+            bool mFluxEval = true;
+            moris::Cell< bool > mdFluxdDofEval;
+            moris::Cell< bool > mdFluxdDvEval;
+
+            bool mTractionEval = true;
+            moris::Cell< bool > mdTractiondDofEval;
+            moris::Cell< bool > mdTractiondDvEval;
+
+            bool mTestTractionEval = true;
+            moris::Cell< bool > mdTestTractiondDofEval;
+            moris::Cell< bool > mdTestTractiondDvEval;
+
+            bool mStrainEval = true;
+            moris::Cell< bool > mdStraindDofEval;
+            moris::Cell< bool > mdStraindDvEval;
+
+            bool mTestStrainEval = true;
+
+            bool mConstEval = true;
+            moris::Cell< bool > mdConstdDofEval;
+            moris::Cell< bool > mdConstdDvEval;
 
 //------------------------------------------------------------------------------
         public :
@@ -360,29 +351,6 @@ namespace moris
                 return mDvTypeMap;
             }
 
-////------------------------------------------------------------------------------
-//            /**
-//             * set dof field interpolators
-//             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
-//             */
-//            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
-//            {
-//                // check input size
-//                MORIS_ASSERT( aFieldInterpolators.size() == this->get_global_dof_type_list().size(),
-//                              "Constitutive_Model::set_dof_field_interpolators - wrong input size. " );
-//
-//                // check field interpolator type
-//                bool tCheckFI = true;
-//                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-//                {
-//                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == get_global_dof_type_list()( iFI )( 0 ) );
-//                }
-//                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dof_field_interpolators - wrong field interpolator dof type. ");
-//
-//                // set field interpolators
-//                mDofFI = aFieldInterpolators;
-//            }
-
 //------------------------------------------------------------------------------
             /**
              * set field interpolator manager
@@ -392,107 +360,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set dof field interpolators
-             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
+             * set model type
+             * @param[ in ] aModelType an enum for model type
              */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator )
+            virtual void set_model_type( fem::Model_Type aModelType )
             {
-                // set geometry interpolator for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties() )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
+                MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
             }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * get dof field interpolators
-//             * @param[ out ] mDofFI cell of dof field interpolator pointers
-//             */
-//            const moris::Cell< Field_Interpolator* > & get_dof_field_interpolators()
-//            {
-//                return mDofFI;
-//            };
-
-////------------------------------------------------------------------------------
-//            /**
-//             * check that dof field interpolators were assigned
-//             */
-//            void check_dof_field_interpolators()
-//            {
-//                // check field interpolators cell size
-//                MORIS_ASSERT( mDofFI.size() == this->get_global_dof_type_list().size(),
-//                              "Constitutive_Model::check_dof_field_interpolators - wrong FI size. " );
-//
-//               // loop over the field interpolator pointers
-//               for( uint iFI = 0; iFI < this->get_global_dof_type_list().size(); iFI++ )
-//               {
-//                   // check that the field interpolator was set
-//                   MORIS_ASSERT( mDofFI( iFI ) != nullptr,
-//                                 "Constitutive_Model::check_dof_field_interpolators - FI missing. " );
-//               }
-//            }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * set dv field interpolators
-//             * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
-//             */
-//            void set_dv_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
-//            {
-//                // get input size
-//                uint tNumInputFI = aFieldInterpolators.size();
-//
-//                // check input size
-//                MORIS_ASSERT( tNumInputFI == this->get_global_dv_type_list().size(),
-//                              "Constitutive_Model::set_dv_field_interpolators - wrong input size. " );
-//
-//                // check field interpolator type
-//                bool tCheckFI = true;
-//                for( uint iFI = 0; iFI < tNumInputFI; iFI++ )
-//                {
-//                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == this->get_global_dv_type_list()( iFI )( 0 ) );
-//                }
-//                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dv_field_interpolators - wrong field interpolator dv type. ");
-//
-//                // set field interpolators
-//                mDvFI = aFieldInterpolators;
-//            }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * get dv field interpolators
-//             * @param[ out ] mDvFI cell of dv field interpolator pointers
-//             */
-//            const moris::Cell< Field_Interpolator* > & get_dv_field_interpolators()
-//            {
-//                return mDvFI;
-//            };
-
-////------------------------------------------------------------------------------
-//            /**
-//             * check that dv field interpolators were assigned
-//             */
-//            void check_dv_field_interpolators()
-//            {
-//                // get num of dv types
-//                uint tNumDvTypes = this->get_global_dv_type_list().size();
-//
-//                // check field interpolators cell size
-//                MORIS_ASSERT( mDvFI.size() == tNumDvTypes,
-//                              "Constitutive_Model::check_dv_field_interpolators - wrong FI size. " );
-//
-//               // loop over the field interpolator pointers
-//               for( uint iFI = 0; iFI < tNumDvTypes; iFI++ )
-//               {
-//                   // check that the field interpolator was set
-//                   MORIS_ASSERT( mDvFI( iFI ) != nullptr,
-//                                 "Constitutive_Model::check_dv_field_interpolators - FI missing. " );
-//               }
-//            }
 
 //------------------------------------------------------------------------------
             /**
@@ -503,12 +377,7 @@ namespace moris
             virtual void set_property( std::shared_ptr< fem::Property > aProperty,
                                        std::string                      aPropertyType )
             {
-                MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
-            }
-
-            virtual void set_model_type(fem::Model_Type aModelType)
-            {
-                MORIS_ERROR( false, "Constitutive_Model::set_model_type - This function does nothing." );
+                MORIS_ERROR( false, "Constitutive_Model::set_property - Not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------

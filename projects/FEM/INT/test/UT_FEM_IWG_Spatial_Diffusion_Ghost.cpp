@@ -19,20 +19,18 @@
 
 #include "op_equal_equal.hpp"
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                       moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                       moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                       moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIValFunction_UTGhost
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->val();
+    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                       moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                       moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                       moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIDerFunction_UTGhost
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->N();
+    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 using namespace moris;

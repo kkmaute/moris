@@ -1,6 +1,7 @@
 
 #include "cl_FEM_SP_Ghost_Virtual_Work.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"              //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -31,8 +32,11 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( tDofType );
 
+//            // reset the matrix
+//            mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+
             // reset the matrix
-            mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
         }
 
 //------------------------------------------------------------------------------

@@ -19,10 +19,9 @@
 #include "op_equal_equal.hpp"
 
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTElastVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tConstValFunction_UTElastVWGhost
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return aParameters( 0 );
 }

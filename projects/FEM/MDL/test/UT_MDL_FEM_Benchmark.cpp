@@ -49,6 +49,7 @@
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"           //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 #include "cl_VIS_Factory.hpp"
@@ -92,20 +93,18 @@ namespace moris
 {
 
 // define free function for properties
-Matrix< DDRMat > tPropValConstFunc_MDLFEMBench( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                                moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                                moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                                fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > tPropValConstFunc_MDLFEMBench
+( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+  moris::fem::Field_Interpolator_Manager *        aFIManager )
 {
     return aParameters( 0 );
 }
 
-Matrix< DDRMat > tPropValFuncL2_MDLFEMBench( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                             moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                             moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                             fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > tPropValFuncL2_MDLFEMBench
+( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+  moris::fem::Field_Interpolator_Manager *        aFIManager )
 {
-    return {{ 20 * aGeometryInterpolator->valx()( 0 ) }};
+    return {{ 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) }};
 }
 
 // define function for cutting plane

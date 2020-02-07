@@ -18,28 +18,25 @@
 
 
 #include "op_equal_equal.hpp"
-moris::Matrix< moris::DDRMat > tFIConstValFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIConstValFunction_UTDisplGhost
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIValFunction_UTDisplGhost
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) * sum( aDofFI( 0 )->val() );
+    return aParameters( 0 ) * sum( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+moris::Matrix< moris::DDRMat > tFIDerFunction_UTDisplGhost
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    moris::Matrix< moris::DDRMat > tTemp = trans( aDofFI( 0 )->N() );
+    moris::Matrix< moris::DDRMat > tTemp = trans( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N() );
     moris::Matrix< moris::DDRMat > tReturn( tTemp.n_rows(), 1 );
     for( uint i = 0; i < tTemp.n_rows(); i++ )
     {

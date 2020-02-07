@@ -74,18 +74,16 @@ namespace moris
 
 //-------------------------------------------------------------------------------------
 // Functions for Parameters in FEM
-Matrix< DDRMat > ConstFunctionVal( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > ConstFunctionVal
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aCoeff( 0 );
+    return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunctionContact( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tMValFunctionContact
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return {{ aParameters( 0 )( 0 ),                   0.0 },
             { 0.0,                   aParameters( 0 )( 1 ) }};
