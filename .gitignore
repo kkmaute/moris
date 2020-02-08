@@ -21,7 +21,7 @@ CMakeCache.txt
 
 #*.hdf5
 *.h5
-*.e
+#*.e
 
 # Used by individual developers
 mains/

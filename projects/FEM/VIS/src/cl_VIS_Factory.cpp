@@ -322,6 +322,7 @@ namespace moris
 
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock( Ij ),
+                                                         tMeshSet->get_set_colors(),
                                                          tMeshSet->get_spatial_dim() );
 
             mListofBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );

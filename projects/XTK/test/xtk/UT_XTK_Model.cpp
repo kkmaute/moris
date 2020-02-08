@@ -10,6 +10,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 #include "xtk/fn_write_element_ownership_as_field.hpp"
 
@@ -417,6 +418,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
 
 
     tXTKModel.perform_basis_enrichment(EntityRank::NODE);
+
 
     /*
      * Get the output mesh and write to exodus file
