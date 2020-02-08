@@ -12,7 +12,7 @@
 #include "AztecOO_ConfigDefs.h"
 #include "AztecOO_ConditionNumber.h"
 
-#include "cl_Sparse_Matrix.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
 
 // Ifpack
 #include "Ifpack.h"
@@ -41,10 +41,12 @@ Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 }
 
 //----------------------------------------------------------------------------------------
-Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mAztecSolver ( *aLinearSystem->get_linear_system_epetra() ),
-                                                                                              mMlPrec ( NULL )
+Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mMlPrec ( NULL )
 {
+	this->set_linear_problem( aLinearSystem );
     this->set_solver_parameters();
+
+    mAztecSolver.SetProblem( mEpetraProblem );
 }
 
 //----------------------------------------------------------------------------------------

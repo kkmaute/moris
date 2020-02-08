@@ -11,7 +11,7 @@
 #include "linalg_typedefs.hpp"
 
 //#include "cl_MatrixPETSc.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 #include "cl_Map_PETSc.hpp"
 namespace moris
 {

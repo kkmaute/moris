@@ -12,7 +12,7 @@
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Equation_Set.hpp"
 
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {

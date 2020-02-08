@@ -6,7 +6,7 @@
  */
 #include "cl_NLA_Solver_Interface_Proxy.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 using namespace moris;
 using namespace NLA;

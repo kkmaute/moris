@@ -1,5 +1,5 @@
 /*
- * cl_Vector.hpp
+ * cl_SOL_Dist_Vector.hpp
  *
  *  Created on: Mar 27, 2018
  *      Author: schmidt

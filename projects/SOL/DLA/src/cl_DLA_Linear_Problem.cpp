@@ -5,8 +5,8 @@
  *      Author: schmidt
  */
 #include "cl_DLA_Linear_Problem.hpp"
-#include "cl_Vector.hpp"
-#include "cl_Sparse_Matrix.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
 
 #include "cl_Stopwatch.hpp" //CHR/src
 

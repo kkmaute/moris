@@ -13,8 +13,8 @@
 #include "cl_Communication_Tools.hpp" // COM/src/
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src/
-#include "cl_Vector.hpp" // DLA/src/
-#include "cl_Sparse_Matrix.hpp" // DLA/src/
+#include "cl_SOL_Dist_Vector.hpp" // DLA/src/
+#include "cl_SOL_Dist_Matrix.hpp" // DLA/src/
 
 namespace moris
 {

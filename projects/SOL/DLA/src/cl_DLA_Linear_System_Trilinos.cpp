@@ -41,41 +41,39 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING, tNumRHS );
 
         mInput->build_graph( mMat );
-
-        this->build_linear_system();
     }
 
     else
     {
-        // Initialize communicator object
-        Communicator_Epetra      tEpetraComm;
+//        // Initialize communicator object
+//        Communicator_Epetra      tEpetraComm;
+//
+//        // Build strings fot path to matrix, RHS and map
+//        char tMapString[500];      strcpy ( tMapString   , aInput->get_matrix_market_path() );   strcat( tMapString   , "map.mtx" );
+//        char tMatrixString[500];   strcpy ( tMatrixString, aInput->get_matrix_market_path() );   strcat( tMatrixString, "matrix.mtx" );
+//        char tVectorString[500];   strcpy ( tVectorString, aInput->get_matrix_market_path() );   strcat( tVectorString, "vector.mtx" );
+//
+//        // Create map from matrix market file
+//        Epetra_Map * tMap;
+//        EpetraExt::MatrixMarketFileToMap( tMapString, *tEpetraComm.get_epetra_comm(), tMap );
+//
+//        // Create matrix from matrix market file
+//        Epetra_CrsMatrix*   mMatFromMatrixMatket;
+//        //EpetraExt::MatrixMarketFileToCrsMatrix("/home/schmidt/matrix1.mtx", *tEpetraComm.get_epetra_comm(), mMatFromMatrixMatket);
+//        EpetraExt::MatrixMarketFileToCrsMatrix( tMatrixString, *tMap, mMatFromMatrixMatket );
+//
+//        // Create RHS from matrix market file
+//        Epetra_MultiVector* mVecRHSFromMatrixMatket;
+//        EpetraExt::MatrixMarketFileToMultiVector( tVectorString , *tMap, mVecRHSFromMatrixMatket );
+//
+//        Epetra_MultiVector* mVecLHSFromMatrixMatket;
+//        EpetraExt::MatrixMarketFileToMultiVector( tVectorString, *tMap, mVecLHSFromMatrixMatket );
+//        mVecLHSFromMatrixMatket->PutScalar(0.0);
+//
+//        mMat->get_matrix()             = mMatFromMatrixMatket;
+//		mVectorRHS->get_vector()       = mVecRHSFromMatrixMatket;
+//		mFreeVectorLHS->get_vector()   = mVecLHSFromMatrixMatket;
 
-        // Build strings fot path to matrix, RHS and map
-        char tMapString[500];      strcpy ( tMapString   , aInput->get_matrix_market_path() );   strcat( tMapString   , "map.mtx" );
-        char tMatrixString[500];   strcpy ( tMatrixString, aInput->get_matrix_market_path() );   strcat( tMatrixString, "matrix.mtx" );
-        char tVectorString[500];   strcpy ( tVectorString, aInput->get_matrix_market_path() );   strcat( tVectorString, "vector.mtx" );
-
-        // Create map from matrix market file
-        Epetra_Map * tMap;
-        EpetraExt::MatrixMarketFileToMap( tMapString, *tEpetraComm.get_epetra_comm(), tMap );
-
-        // Create matrix from matrix market file
-        Epetra_CrsMatrix*   mMatFromMatrixMatket;
-        //EpetraExt::MatrixMarketFileToCrsMatrix("/home/schmidt/matrix1.mtx", *tEpetraComm.get_epetra_comm(), mMatFromMatrixMatket);
-        EpetraExt::MatrixMarketFileToCrsMatrix( tMatrixString, *tMap, mMatFromMatrixMatket );
-
-        // Create RHS from matrix market file
-        Epetra_MultiVector* mVecRHSFromMatrixMatket;
-        EpetraExt::MatrixMarketFileToMultiVector( tVectorString , *tMap, mVecRHSFromMatrixMatket );
-
-        Epetra_MultiVector* mVecLHSFromMatrixMatket;
-        EpetraExt::MatrixMarketFileToMultiVector( tVectorString, *tMap, mVecLHSFromMatrixMatket );
-        mVecLHSFromMatrixMatket->PutScalar(0.0);
-
-        // Set matrix. solution vector and RHS
-        mEpetraProblem.SetOperator( mMatFromMatrixMatket );
-        mEpetraProblem.SetRHS( mVecRHSFromMatrixMatket );
-        mEpetraProblem.SetLHS( mVecLHSFromMatrixMatket );
     }
 }
 
@@ -96,8 +94,6 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
         mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
         mInput->build_graph( mMat );
-
-        this->build_linear_system();
 }
 
 //----------------------------------------------------------------------------------------
@@ -114,21 +110,18 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
     delete( mMap );
 }
 
-//----------------------------------------------------------------------------------------
-void Linear_System_Trilinos::build_linear_system()
- {
-     // Set matrix. solution vector and RHS
-     mEpetraProblem.SetOperator( mMat->get_matrix() );
-     mEpetraProblem.SetRHS( mVectorRHS->get_vector() );
-     mEpetraProblem.SetLHS( mFreeVectorLHS->get_vector() );
- }
-
 //------------------------------------------------------------------------------------------
 moris::sint Linear_System_Trilinos::solve_linear_system()
 {
     moris::sint error = 0;
     // Get the linear system for the solver
-    AztecOO Solver( mEpetraProblem );
+
+    Epetra_LinearProblem      tEpetraProblem;
+    tEpetraProblem.SetOperator( mMat->get_matrix() );
+    tEpetraProblem.SetRHS( mVectorRHS->get_vector() );
+    tEpetraProblem.SetLHS( mFreeVectorLHS->get_vector() );
+
+    AztecOO Solver( tEpetraProblem );
 
     //Set solver options
     Solver.SetAztecOption( AZ_solver, AZ_gmres);
