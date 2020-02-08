@@ -148,11 +148,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        std::cout<<"Number of Cells = "<<tInterpMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-
-
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
-
 
         for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
         {

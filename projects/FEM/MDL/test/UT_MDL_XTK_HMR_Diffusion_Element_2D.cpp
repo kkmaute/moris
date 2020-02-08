@@ -88,12 +88,11 @@ CircleFunc(const moris::Matrix< moris::DDRMat > & aPoint )
             - (mRadius * mRadius));
 }
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                    moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                    fem::Geometry_Interpolator             * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aCoeff( 0 );
+    return aParameters( 0 );
 }
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2 In 2D","[XTK_HMR_DIFF_2D]")

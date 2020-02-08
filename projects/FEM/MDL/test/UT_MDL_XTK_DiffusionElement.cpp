@@ -76,10 +76,9 @@
 namespace moris
 {
 
-Matrix< DDRMat > tConstValFunction_MDL_XTK( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                            moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                            moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                            fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction_MDL_XTK
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return aParameters( 0 );
 }

@@ -52,6 +52,9 @@ namespace xtk
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_" + std::to_string(aBulkPhase), tFacetTopo);
+
+        tEnrIgMesh.setup_color_to_set();
+        tEnrIgMesh.collect_all_sets();
     }
 
     std::string
@@ -417,6 +420,7 @@ namespace xtk
             }
 
             tEnrIntegMesh.commit_double_side_set(aGhostSetupData.mDblSideSetIndexInMesh(i));
+            tEnrIntegMesh.set_double_side_set_colors(aGhostSetupData.mDblSideSetIndexInMesh(i),{{(moris_index)i}},{{(moris_index)i}});
         }
 
     }

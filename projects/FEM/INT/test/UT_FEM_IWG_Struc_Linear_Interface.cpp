@@ -26,45 +26,11 @@
 
 
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
     return aParameters( 0 );
-}
-
-moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
-}
-
-moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
-}
-
-
-moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
-}
-
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;

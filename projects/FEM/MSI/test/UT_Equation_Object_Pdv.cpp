@@ -74,28 +74,25 @@ namespace moris
 {
     namespace MSI
     {
-    moris::Matrix< moris::DDRMat > tConstValFunction_FDTest( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                    moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                    moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                    moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+    moris::Matrix< moris::DDRMat > tConstValFunction_FDTest
+    ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+      moris::fem::Field_Interpolator_Manager *         aFIManager )
     {
         return aParameters( 0 );
     }
 
-    moris::Matrix< moris::DDRMat > tFIValDvFunction_FDTest( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+    moris::Matrix< moris::DDRMat > tFIValDvFunction_FDTest
+    ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+      moris::fem::Field_Interpolator_Manager *         aFIManager )
     {
-        return aParameters( 0 ) * aDvFI( 0 )->val();
+        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::DENSITY )->val();
     }
 
-    moris::Matrix< moris::DDRMat > tFIDerDvFunction_FDTest( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+    moris::Matrix< moris::DDRMat > tFIDerDvFunction_FDTest
+   ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+     moris::fem::Field_Interpolator_Manager *         aFIManager )
     {
-        return aParameters( 0 ) * aDvFI( 0 )->N();
+        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::DENSITY )->N();
     }
 
     TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")

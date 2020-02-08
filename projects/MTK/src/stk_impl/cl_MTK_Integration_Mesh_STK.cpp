@@ -299,7 +299,7 @@ void Integration_Mesh_STK::setup_blockset_with_cell_clusters_trivial()
             tCellClusters( Ii ) = &mCellClusters( tCellIndices( Ii ) );
         }
 
-        mListofBlocks( Ik ) = new moris::mtk::Block( mPrimaryBlockSetNames(Ik), tCellClusters, this->get_spatial_dim() );
+        mListofBlocks( Ik ) = new moris::mtk::Block( mPrimaryBlockSetNames(Ik), tCellClusters, {{0}}, this->get_spatial_dim() );
 
         MORIS_ASSERT( mBlockSetLabelToOrd.find(mPrimaryBlockSetNames(Ik) ) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh" );
 
@@ -349,7 +349,7 @@ void Integration_Mesh_STK::setup_side_set_clusters_trivial()
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( aSideSetNames(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim() );
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( aSideSetNames(Ik), this->get_side_set_cluster( Ik ), {{0}}, this->get_spatial_dim() );
     }
 }
 
@@ -507,7 +507,7 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
 
      for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
      {
-         mListofBlocks( Ik ) = new moris::mtk::Block( tBSNames(Ik), this->get_cell_clusters_in_set( Ik ), this->get_spatial_dim() );
+         mListofBlocks( Ik ) = new moris::mtk::Block( tBSNames(Ik), this->get_cell_clusters_in_set( Ik ), {{0}}, this->get_spatial_dim() );
          MORIS_ASSERT(mBlockSetLabelToOrd.find(mPrimaryBlockSetNames(Ik)) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh");
          mBlockSetLabelToOrd[mPrimaryBlockSetNames(Ik)] = Ik ;
      }
@@ -653,7 +653,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim());
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ),{{0}}, this->get_spatial_dim());
     }
 }
 
@@ -775,7 +775,7 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 
     for(moris::uint Ik = 0; Ik<mListofDoubleSideSets.size(); Ik++)
     {
-        mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(mDoubleSideSetLabels(Ik), this->get_double_side_set_cluster( Ik ), this->get_spatial_dim());
+        mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(mDoubleSideSetLabels(Ik), this->get_double_side_set_cluster( Ik ), {{0}}, this->get_spatial_dim());
     }
 
 }

@@ -23,10 +23,9 @@ namespace moris
     class Set;
     class Field_Interpolator_Manager;
 
-    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                              moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                              fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
+    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >        & aCoeff,
+                                              moris::fem::Field_Interpolator_Manager * aFIManager ) > PropertyFunc;
+
 //------------------------------------------------------------------------------
         /**
          * Property
@@ -38,29 +37,20 @@ namespace moris
             // field interpolator manager pointer
             Field_Interpolator_Manager * mFIManager = nullptr;
 
-            // FIXME used? FEM set pointer
+            // FEM set pointer
             Set * mSet = nullptr;
 
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
-//            // single dof type
-//            MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
-
             // active dof type map
             Matrix< DDSMat > mDofTypeMap;
-
-            // dof field interpolators
-            moris::Cell< Field_Interpolator* > mDofFI;
 
             // active dv types
             moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
 
             // active dv type map
             Matrix< DDSMat > mDvTypeMap;
-
-            // dv field interpolators
-            moris::Cell< Field_Interpolator* > mDvFI;
 
             // parameters
             moris::Cell< Matrix< DDRMat> > mParameters;
@@ -72,18 +62,22 @@ namespace moris
             moris::Cell< PropertyFunc > mDofDerFunctions;
             moris::Cell< PropertyFunc > mDvDerFunctions;
 
-            // geometry interpolator
-            Geometry_Interpolator* mGeometryInterpolator = nullptr;
+            // storage
+            Matrix< DDRMat > mProp;
+            moris::Cell< Matrix< DDRMat > > mPropDofDer;
+            moris::Cell< Matrix< DDRMat > > mPropDvDer;
+
+        private:
 
             // flag for evaluation
             bool mPropEval = true;
             moris::Cell< bool > mPropDofDerEval;
             moris::Cell< bool > mPropDvDerEval;
 
-            // storage
-            Matrix< DDRMat > mProp;
-            moris::Cell< Matrix< DDRMat > > mPropDofDer;
-            moris::Cell< Matrix< DDRMat > > mPropDvDer;
+            // flag for setting of mValFunction, mDofDerFunctions, mDvDerFunctions
+            bool mSetValFunction     = false;
+            bool mSetDofDerFunctions = false;
+            bool mSetDvDerFunctions  = false;
 
 //------------------------------------------------------------------------------
         public :
@@ -144,7 +138,11 @@ namespace moris
              */
             void set_val_function( PropertyFunc aValFunction )
             {
+                // set the value function
                 mValFunction = aValFunction;
+
+                // set setting flag
+                mSetValFunction = true;
             };
 
 //------------------------------------------------------------------------------
@@ -164,7 +162,11 @@ namespace moris
              */
             void set_dof_derivative_functions( moris::Cell< PropertyFunc > aDofDerFunctions )
             {
+                // set functions for derivatives wrt dof
                 mDofDerFunctions = aDofDerFunctions;
+
+                // set setting flag
+                mSetDofDerFunctions = true;
             };
 
 //------------------------------------------------------------------------------
@@ -184,7 +186,11 @@ namespace moris
              */
             void set_dv_derivative_functions( moris::Cell< PropertyFunc > aDvDerFunctions )
             {
+                // set functions for derivatives wrt dv
                 mDvDerFunctions = aDvDerFunctions;
+
+                // set setting flag
+                mSetDvDerFunctions = true;
             };
 
 //------------------------------------------------------------------------------
@@ -199,23 +205,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set geometry interpolator
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointer
+             * set parameters, val, dof derivative and dv derivative functions
+             * @param[ in ] aParameters      list of parameters for property evaluation
+             * @param[ in ] aValFunction     function for property value
+             * @param[ in ] aDvDerFunctions  list function for property derivatives wrt dof
+             * @param[ in ] aDofDerFunctions list function for property derivatives wrt dv
              */
-            void set_geometry_interpolator( fem::Geometry_Interpolator * aGeometryInterpolator )
+            void set_parameters_and_functions( moris::Cell< moris::Matrix< DDRMat > > aParameters,
+                                               PropertyFunc aValFunction,
+                                               moris::Cell< PropertyFunc > aDofDerFunctions,
+                                               moris::Cell< PropertyFunc > aDvDerFunctions )
             {
-                mGeometryInterpolator = aGeometryInterpolator;
+                mParameters      = aParameters;
+                mValFunction     = aValFunction;
+                mDofDerFunctions = aDofDerFunctions;
+                mDvDerFunctions  = aDvDerFunctions;
+
+                // set setting flag
+                mSetValFunction     = true;
+                mSetDofDerFunctions = true;
+                mSetDvDerFunctions  = true;
             };
 
-//------------------------------------------------------------------------------
-            /**
-             * get dv derivative functions
-             * @param[ out ] mDofDerFunctions list function for property derivatives wrt dv
-             */
-            fem::Geometry_Interpolator * get_geometry_interpolator() const
-            {
-                return mGeometryInterpolator;
-            };
 //------------------------------------------------------------------------------
             /**
              * set a list of active dof types
@@ -241,26 +252,6 @@ namespace moris
                 // set mPropDofDer size
                 mPropDofDer.resize( tNumDofTypes );
             };
-
-////------------------------------------------------------------------------------
-//            /*
-//             * set dof type for the single dof type case
-//             * @param[ in ] aDof a dof type
-//             */
-//            void set_dof_type( MSI::Dof_Type aDof )
-//            {
-//                mDof = aDof;
-//            };
-//
-////------------------------------------------------------------------------------
-//            /*
-//             * get dof type for the single dof type case
-//             * @param[ out ] mDof a dof type
-//             */
-//            MSI::Dof_Type get_dof_type( )
-//            {
-//                return mDof;
-//            };
 
 //------------------------------------------------------------------------------
             /**
@@ -295,29 +286,6 @@ namespace moris
              * @param[ out ] aBool    boolean, true if dependency on the dof type
              */
             bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > aDofType );
-
-//------------------------------------------------------------------------------
-            /**
-             * set dof field interpolators
-             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
-             */
-            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
-
-//------------------------------------------------------------------------------
-            /**
-             * get dof field interpolators
-             * @param[ out ] mDofFI cell of dof field interpolator pointers
-             */
-            const moris::Cell< fem::Field_Interpolator* > & get_dof_field_interpolators() const
-            {
-                return mDofFI;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * check that dof field interpolators are assigned
-             */
-            void check_dof_field_interpolators();
 
 //------------------------------------------------------------------------------
             /**
@@ -378,29 +346,6 @@ namespace moris
              * @param[ out ] aBool   boolean, true if dependency on the dv type
              */
             bool check_dv_dependency( const moris::Cell< MSI::Dv_Type > aDvType );
-
-//------------------------------------------------------------------------------
-            /**
-             * set dv field interpolators
-             * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
-             */
-            void set_dv_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
-
-//------------------------------------------------------------------------------
-            /**
-             * get dv field interpolators
-             * @param[ out ] mDvFI cell of dv field interpolator pointers
-             */
-            const moris::Cell< fem::Field_Interpolator* > & get_dv_field_interpolators() const
-            {
-                return mDvFI;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * check that dv field interpolators are assigned
-             */
-            void check_dv_field_interpolators();
 
 //------------------------------------------------------------------------------
             /**

@@ -55,6 +55,7 @@
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -93,18 +94,6 @@
 namespace moris
 {
 
-Matrix< DDRMat > exactTempFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-                                fem::Geometry_Interpolator             * aGeometryInterpolator )
-{
-    Matrix< DDRMat > tCoord = aGeometryInterpolator->valx();
-    real xcoord = tCoord(0);
-    real ycoord = tCoord(1);
-
-    real rad = std::pow (  std::pow( xcoord - 0, 2.0) + std::pow( ycoord - 0, 2.0), 0.5);
-    return {{(1.0/3.0)*(1.0/rad-0.501)}};
-}
-
 moris::real LvlSetCircle_2D(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     return    std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.2505;
@@ -116,12 +105,11 @@ moris::real LvlSetPlane(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                    fem::Geometry_Interpolator             * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aCoeff( 0 );
+    return aParameters( 0 );
 }
 
 moris::real LevelSetFunction_star1( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -152,20 +140,19 @@ moris::real Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
                     - (mRadius * mRadius);
 }
-moris::Matrix< moris::DDRMat > tFIVal_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIVal_STRUCDIRICHLET
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 ) * ( aDofFI( 0 )->val() - aParameters( 2 ) );
+    return aParameters( 0 )
+         + aParameters( 1 ) * ( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val() - aParameters( 2 ) );
 }
 
-moris::Matrix< moris::DDRMat > tFIDer_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIDer_STRUCDIRICHLET
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aParameters( 1 ) * aDofFI( 0 )->N();
+    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 //enum class Type

@@ -48,9 +48,6 @@ namespace moris
              */
             CM_Struc_Linear_Isotropic()
             {
-                // set the constitutive type
-                mConstitutiveType = fem::Constitutive_Type::STRUC_LIN_ISO;
-
                 // set the property pointer cell size
                 mProperties.resize( static_cast< uint >( CM_Struc_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
 
@@ -60,7 +57,7 @@ namespace moris
                 mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
                 mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
 
-                // FIXME populate the dof map
+                // populate the dof map
                 mDofMap[ "Displacement" ] = MSI::Dof_Type::UX;
                 mDofMap[ "Temperature" ]  = MSI::Dof_Type::UNDEFINED;
                 mDofMap[ "Pressure" ]     = MSI::Dof_Type::UNDEFINED;

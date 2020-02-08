@@ -221,21 +221,20 @@ namespace moris
         {
             // compute displacement gradient
             moris::Matrix<moris::DDRMat> tB = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->dnNdxn( 1 );
-            moris::Matrix<moris::DDRMat> tBf( 1, tB.numel(), 0.0 );
 
-            uint tInd = 0;
-            for ( uint tRow = 0; tRow < tB.n_rows(); tRow++ )
-            {
-                for (uint tCol = 0; tCol < tB.n_cols(); tCol++)
-                {
-                    tBf( tInd ) = tB( tRow, tCol );
-                    tInd++;
-                }
-            }
+//            moris::Matrix<moris::DDRMat> tBf( 1, tB.numel(), 0.0 );
+//
+//            uint tInd = 0;
+//            for ( uint tRow = 0; tRow < tB.n_rows(); tRow++ )
+//            {
+//                for (uint tCol = 0; tCol < tB.n_cols(); tCol++)
+//                {
+//                    tBf( tInd ) = tB( tRow, tCol );
+//                    tInd++;
+//                }
+//            }
 
-            moris::Matrix<moris::DDRMat> tBf2 = reshape( tB, 1, tB.numel() );
-            print(tBf, "tBf");
-            print(tBf2, "tBf2");
+            moris::Matrix<moris::DDRMat> tBf = reshape( trans( tB ), 1, tB.numel() );
             return tBf;
         }
 

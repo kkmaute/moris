@@ -117,9 +117,10 @@ namespace moris
             /**
              * trivial constructor
              */
-            Double_Side_Set(std::string                  aName,
-                            moris::Cell<Cluster const *> aDoubleSideSetClusters,
-							const uint                   aSpatialDim ) : Set(aName,aDoubleSideSetClusters, aSpatialDim)
+            Double_Side_Set(std::string                  const & aName,
+                            moris::Cell<Cluster const *> const & aDoubleSideSetClusters,
+                            Matrix<IndexMat>             const & aColors,
+			    uint                         const & aSpatialDim ) : Set(aName, aDoubleSideSetClusters, aColors,aSpatialDim)
             {
             	mSetType = moris::SetType::DOUBLE_SIDED_SIDESET;
 

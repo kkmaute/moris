@@ -257,6 +257,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
+
         // declare cell enrichment fields in output mesh
         Cell<std::string> tEnrichmentFieldNames;
         if(tOutputEnrichmentFields)

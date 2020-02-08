@@ -49,6 +49,7 @@
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -85,11 +86,11 @@ namespace moris
 {
 
 Matrix< DDRMat >
-exactTempFunc(moris::Cell< Matrix< DDRMat > >         & aCoeff,
-              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-              fem::Geometry_Interpolator             * aGeometryInterpolator )
+exactTempFunc
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    Matrix< DDRMat > tCoord = aGeometryInterpolator->valx();
+    Matrix< DDRMat > tCoord = aFIManager->get_IP_geometry_interpolator()->valx();
     real xcoord = tCoord(0);
     real ycoord = tCoord(1);
 
@@ -112,11 +113,11 @@ moris::real LvlSetCircle_1(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-                                    fem::Geometry_Interpolator             * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction
+( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager *         aFIManager )
 {
-    return aCoeff( 0 );
+    return aParameters( 0 );
 }
 
 moris::real
