@@ -15,6 +15,7 @@ enum class SolverType
     AZTEC_IMPL,            //< Wrapper around Aztec Solver
     AMESOS_IMPL,           //< Wrapper around Amesos Solver
     AMESOS2_IMPL,          //< Wrapper around Amesos2 Solver
+    BELOS_IMPL,          //< Wrapper around Belos Solver
     PETSC             //< Wrapper around Petsc Solver
 };
 

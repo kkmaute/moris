@@ -10,6 +10,7 @@
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Solver_Amesos2.hpp"
+#include "cl_DLA_Linear_Solver_Belos.hpp"
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"
@@ -36,9 +37,12 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
     case ( SolverType::AMESOS_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Amesos >();
         break;
-//    case ( SolverType::AMESOS2_IMPL ):
-//        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aSolverInterface );
-//        break;
+    case ( SolverType::BELOS_IMPL ):
+        tLinSol = std::make_shared< Linear_Solver_Belos >();
+        break;
+    case ( SolverType::AMESOS2_IMPL ):
+        tLinSol = std::make_shared< Linear_Solver_Amesos2 >();
+        break;
     case ( SolverType::PETSC):
         tLinSol = std::make_shared< Linear_Solver_PETSc >(  );
         break;

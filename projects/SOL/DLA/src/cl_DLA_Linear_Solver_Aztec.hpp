@@ -29,6 +29,8 @@ namespace dla
         Teuchos::ParameterList                mlParams;
         ML_Epetra::MultiLevelPreconditioner * mMlPrec;
 
+        Epetra_LinearProblem      mEpetraProblem;
+
     protected:
     public:
         Linear_Solver_Aztec();

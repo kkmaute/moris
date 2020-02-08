@@ -40,7 +40,6 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
     mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), aMyLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 
     mFullOverlappingEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), aOverlappingLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
-//    std::cout<<*mFullOverlappingEpetraMap<<std::endl;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

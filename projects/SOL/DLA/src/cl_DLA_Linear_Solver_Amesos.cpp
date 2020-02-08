@@ -7,6 +7,7 @@
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_Vector.hpp"
+#include "cl_Sparse_Matrix.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -92,7 +93,12 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
 moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter )
 {
     mLinearSystem = aLinearSystem;
-    mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", *mLinearSystem->get_linear_system_epetra() );
+
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
+    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_vector() );
+    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_vector() );
+
+    mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
 
     sint error = 0;
     moris::real startSolTime     = 0.0;

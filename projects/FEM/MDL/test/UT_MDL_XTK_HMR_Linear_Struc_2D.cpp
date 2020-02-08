@@ -410,22 +410,6 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
-        //        // create a list of active block-sets
-        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p0"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p0"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_4_n_p0"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_2_n_p1"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
-        //
-        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
 
         // define set info
         fem::Set_User_Info tSetBulk1;

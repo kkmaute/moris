@@ -56,7 +56,12 @@ Linear_Solver_Aztec::~Linear_Solver_Aztec()
 //----------------------------------------------------------------------------------------
 void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 {
-    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
+    // Set matrix. solution vector and RHS
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
+    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_vector() );
+    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_vector() );
+
+    mAztecSolver.SetProblem( mEpetraProblem );
 }
 
 //----------------------------------------------------------------------------------------
@@ -259,7 +264,14 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
 
 moris::sint Linear_Solver_Aztec::solve_linear_system(  Linear_Problem * aLinearSystem, const moris::sint aIter )
 {
-    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
+    // Set matrix. solution vector and RHS
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
+    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_vector() );
+    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_vector() );
+
+    mAztecSolver.SetProblem( mEpetraProblem );
+
+//    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
 
     moris::sint error = 0;
     // Set all Aztec options
