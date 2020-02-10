@@ -10,7 +10,7 @@
 
 #include "cl_DLA_Solver_Interface.hpp"
 
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
 

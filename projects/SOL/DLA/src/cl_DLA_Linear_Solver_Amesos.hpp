@@ -29,6 +29,8 @@ private:
 
     Linear_Problem   * mLinearSystem =  nullptr;
 
+    Epetra_LinearProblem      mEpetraProblem;
+
     bool              mIsPastFirstSolve;
 
 protected:

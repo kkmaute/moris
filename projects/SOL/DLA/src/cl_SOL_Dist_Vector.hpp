@@ -1,5 +1,5 @@
 /*
- * cl_Vector.hpp
+ * cl_SOL_Dist_Vector.hpp
  *
  *  Created on: Mar 27, 2018
  *      Author: schmidt
@@ -47,6 +47,7 @@ protected:
 
           Vec               mPetscVector;
 
+          moris::sint       mNumVectors;
 public:
      Dist_Vector(): mEpetraVector( NULL ),
                     mImporter( NULL ),
@@ -187,6 +188,8 @@ public:
     Epetra_FEVector* get_vector() const {return mEpetraVector; }
 
     Vec get_petsc_vector()  {return mPetscVector; }
+
+    const Map_Class * get_map() { return mMap; };
 
     /**
      * @brief Returns the Map on which a vector is build.

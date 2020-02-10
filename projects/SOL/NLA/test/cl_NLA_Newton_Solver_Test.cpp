@@ -15,7 +15,7 @@
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #define protected public
 #define private   public

@@ -7,7 +7,7 @@
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MDL_Model.hpp"
 
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {

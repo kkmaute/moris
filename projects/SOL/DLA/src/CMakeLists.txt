@@ -11,6 +11,7 @@ set(HEADERS
     cl_DLA_Linear_Solver_Amesos2.hpp
     cl_DLA_Linear_Solver_Amesos.hpp
     cl_DLA_Linear_Solver_Aztec.hpp
+    cl_DLA_Linear_Solver_Belos.hpp
     cl_DLA_Linear_Solver.hpp
     cl_DLA_Linear_Problem.hpp
     cl_DLA_Linear_System_Trilinos.hpp
@@ -40,6 +41,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver_Amesos2.cpp
     cl_DLA_Linear_Solver_Amesos.cpp
     cl_DLA_Linear_Solver_Aztec.cpp
+    cl_DLA_Linear_Solver_Belos.cpp
     cl_DLA_Linear_Solver_PETSc.cpp
     cl_DLA_Linear_System_Trilinos.cpp
     cl_DLA_Linear_System_PETSc.cpp

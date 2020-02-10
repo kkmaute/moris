@@ -18,7 +18,7 @@
 // Project header files
 #include "cl_Map_PETSc.hpp"
 #include "cl_VectorPETSc.hpp"
-#include "cl_Sparse_Matrix.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
 
 // TPL header files
 #include <petsc.h>

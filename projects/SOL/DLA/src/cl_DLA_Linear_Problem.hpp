@@ -41,15 +41,12 @@ namespace dla
 
         moris::real mCondEstimate;
 
-        Epetra_LinearProblem      mEpetraProblem;
-
     public:
         Linear_Problem( Solver_Interface * aInput ) : mMat(NULL),
                                                       mVectorRHS(NULL),
                                                       mFreeVectorLHS(NULL),
                                                       mMap(NULL),
-                                                      mInput( aInput ),
-                                                      mEpetraProblem()
+                                                      mInput( aInput )
         {};
 
         virtual ~Linear_Problem(){};
@@ -59,8 +56,6 @@ namespace dla
         void assemble_jacobian( Dist_Vector * aFullSolutionVector );
 
         void assemble_residual_and_jacobian(  );
-
-        virtual void build_linear_system() = 0;
 
         virtual moris::sint solve_linear_system() = 0;
 
@@ -76,7 +71,7 @@ namespace dla
 
         Solver_Interface * get_solver_input() const { return mInput; };
 
-        Epetra_LinearProblem * get_linear_system_epetra() { return & mEpetraProblem; };
+//        Epetra_LinearProblem * get_linear_system_epetra() { return & mEpetraProblem; };
 
         //KSP get_linear_system_petsc() { return mPetscProblem; };
 

@@ -61,8 +61,6 @@ namespace dla
 
         ~Linear_System_PETSc();
 
-        void build_linear_system();
-
         moris::sint solve_linear_system();
 
         void get_solution( Matrix< DDRMat > & LHSValues );

@@ -18,7 +18,7 @@
 
 // Project header files
 #include "cl_Map_Epetra.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {

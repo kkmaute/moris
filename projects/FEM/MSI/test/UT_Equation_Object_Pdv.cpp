@@ -67,7 +67,7 @@
 
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_Map_Class.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 
 namespace moris

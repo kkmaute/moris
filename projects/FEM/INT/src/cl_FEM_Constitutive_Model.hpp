@@ -15,6 +15,7 @@
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
+#include <map>
 
 #include "cl_GEN_Dv_Enums.hpp"
 

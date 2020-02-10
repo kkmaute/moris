@@ -180,45 +180,96 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 
 TEST_CASE("Linear Solver Aztec multiple RHS","[Linear Solver multiple RHS],[DistLinAlg]")
 {
-//    if ( par_size() == 1)
-//    {
+    if ( par_size() == 1)
+    {
+        Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( 2 );
+
+
+        Solver_Factory  tSolFactory;
+
+        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::BELOS_IMPL );
+
+//        tLinProblem->assemble_residual_and_jacobian();
+        tLinProblem->assemble_jacobian( nullptr );
+        tLinProblem->assemble_residual( nullptr);
+
+        tLinSolver->solve_linear_system( tLinProblem );
+
+        tLinProblem->get_free_solver_LHS()->print();
+
+        moris::Matrix< DDRMat > tSol;
+        tLinProblem->get_solution( tSol );
+
+        print(tSol,"tSol");
+
+        moris::Matrix< DDRMat > tSol1;
+        tLinProblem->get_free_solver_LHS()->extract_my_values( 2,
+                                                             { {2},{4 }},
+                                                              0,
+															  tSol1);
+
+        print(tSol1,"tSol1");
+
+        // Check if solution corresponds to given solution
+        if ( par_rank() == 0 )
+        {
+            CHECK(equal_to(tSol(5,0),-0.0138889,1.0e+08));
+            CHECK(equal_to(tSol(12,0),-0.00694444,1.0e+08));
+            CHECK(equal_to(tSol(5,1),-0.0138889,1.0e+08));
+            CHECK(equal_to(tSol(12,1),-0.00694444,1.0e+08));
+        }
+
+        //delete tEpetraComm;
+        delete ( tSolverInterface );
+        delete ( tLinProblem );
+    }
+}
+
+TEST_CASE("Linear Solver Amesos2","[Linear Solver Amesos2],[DistLinAlg]")
+{
+    if ( par_size() == 1)
+    {
 //        Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( 2 );
 //
 //
 //        Solver_Factory  tSolFactory;
 //
 //        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AMESOS2_IMPL );
 //
 ////        tLinProblem->assemble_residual_and_jacobian();
 //        tLinProblem->assemble_jacobian( nullptr );
 //        tLinProblem->assemble_residual( nullptr);
 //
-////        tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
-////        tLinSolver->set_param("AZ_max_iter") = 200;
-////        tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-////        tLinSolver->set_param("AZ_output") = AZ_none;
-//
 //        tLinSolver->solve_linear_system( tLinProblem );
 //
-//        tLinProblem->get_free_solver_LHS()->print();
+//        tLinProblem->get_free_solver_LHS()->print();z
 //
 //        moris::Matrix< DDRMat > tSol;
 //        tLinProblem->get_solution( tSol );
 //
 //        print(tSol,"tSol");
 //
-//        // Check if solution corresponds to given solution
-//        if ( par_rank() == 0 )
-//        {
-//            CHECK(equal_to(tSol(5,0),-0.0138889,1.0e+08));
-//            CHECK(equal_to(tSol(12,0),-0.00694444,1.0e+08));
-//        }
+//        moris::Matrix< DDRMat > tSol1;
+//        tLinProblem->get_free_solver_LHS()->extract_my_values( 2,
+//                                                             { {2},{4 }},
+//                                                              0,
+//															  tSol1);
+//
+//        print(tSol1,"tSol1");
+////
+////        // Check if solution corresponds to given solution
+////        if ( par_rank() == 0 )
+////        {
+////            CHECK(equal_to(tSol(5,0),-0.0138889,1.0e+08));
+////            CHECK(equal_to(tSol(12,0),-0.00694444,1.0e+08));
+////        }
 //
 //        //delete tEpetraComm;
-//        delete ( tSolverInterface );
-//        delete ( tLinProblem );
-//    }
+////        delete ( tSolverInterface );
+////        delete ( tLinProblem );
+    }
 }
 
 //TEST_CASE("Linear Solver Amesos","[Linear Solver Amesos],[DistLinAlg]")

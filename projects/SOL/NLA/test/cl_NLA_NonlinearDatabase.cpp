@@ -13,7 +13,7 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #define protected public
 #define private   public

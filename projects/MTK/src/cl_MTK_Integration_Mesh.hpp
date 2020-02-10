@@ -257,6 +257,7 @@ protected:
         mListOfAllSets.clear();
         mSetNameToIndexMap.clear();
 
+
         uint tCounter = 0;
 
         mListOfAllSets.append( mListofBlocks );
@@ -280,6 +281,8 @@ protected:
 
            mSetNameToIndexMap[ mListOfAllSets( Ik )->get_set_name() ] = Ik;
         }
+
+
     }
 
 

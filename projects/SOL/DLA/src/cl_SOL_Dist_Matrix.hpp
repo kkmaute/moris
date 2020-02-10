@@ -1,5 +1,5 @@
 /*
- * cl_Sparse_Matrix.hpp
+ * cl_SOL_Dist_Matrix.hpp
  *
  *  Created on: Mar 27, 2018
  *      Author: schmidt
