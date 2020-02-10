@@ -352,7 +352,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        moris::sint & get_requested_dv_index_for_type( enum MSI::Dv_Type aDvType )
+        moris::sint & get_requested_dv_index_for_type( enum GEN_DV aDvType )
         {
             return mDVTypeMap( static_cast< int >( aDvType ) );
         }
@@ -687,7 +687,7 @@ namespace MSI
 
         moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
 
-        moris::Cell < enum MSI::Dv_Type > get_requested_dv_types();
+        moris::Cell < enum GEN_DV > get_requested_dv_types();
 
 //------------------------------------------------------------------------------
 

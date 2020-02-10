@@ -228,9 +228,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    moris::Cell < enum MSI::Dv_Type > Set::get_requested_dv_types()
+    moris::Cell < enum GEN_DV > Set::get_requested_dv_types()
     {
-        moris::Cell< enum MSI::Dv_Type > tDvTypes;
+        moris::Cell< enum GEN_DV > tDvTypes;
 
         mDesignVariableInterface->get_requested_dv_types( tDvTypes );
 
@@ -1697,7 +1697,7 @@ namespace moris
 
     void Set::create_requested_dv_assembly_map()
     {
-        moris::Cell< enum MSI::Dv_Type > tRequestedDvTypes = this->get_requested_dv_types();
+        moris::Cell< enum GEN_DV > tRequestedDvTypes = this->get_requested_dv_types();
 
         uint tMaxDvIndex = 0;
 

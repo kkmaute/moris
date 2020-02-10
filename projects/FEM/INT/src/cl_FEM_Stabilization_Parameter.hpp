@@ -95,8 +95,8 @@ namespace moris
             std::map< std::string, MSI::Dof_Type > mSlaveDofMap;
 
             // local string to dv enum map
-            std::map< std::string, MSI::Dv_Type > mMasterDvMap;
-            std::map< std::string, MSI::Dv_Type > mSlaveDvMap;
+            std::map< std::string, GEN_DV > mMasterDvMap;
+            std::map< std::string, GEN_DV > mSlaveDvMap;
 
         private:
 

@@ -65,8 +65,8 @@ moris::Matrix< moris::DDRMat > tValFunction3( moris::Cell< moris::Matrix< moris:
     return aParameters( 0 )
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val()
-         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS1 )->val()
-         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS2 )->val();
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->val()
+         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->val();
 }
 moris::Matrix< moris::DDRMat > tDerFunction3_TEMP( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                    moris::fem::Field_Interpolator_Manager*         aFIManager )
@@ -81,12 +81,12 @@ moris::Matrix< moris::DDRMat > tDerFunction3_UX( moris::Cell< moris::Matrix< mor
 moris::Matrix< moris::DDRMat > tDerFunction3_LS1( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                   moris::fem::Field_Interpolator_Manager*         aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS1 )->N();
+    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->N();
 }
 moris::Matrix< moris::DDRMat > tDerFunction3_LS2( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                   moris::fem::Field_Interpolator_Manager*         aFIManager )
 {
-    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS2 )->N();
+    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->N();
 }
 
 
@@ -407,9 +407,9 @@ namespace moris
             tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
             tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
             tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
-            tSet.mMasterDvTypeMap.set_size( static_cast< int >(MSI::Dv_Type::END_ENUM) + 1, 1, -1 );
-            tSet.mMasterDvTypeMap( static_cast< int >( MSI::Dv_Type::LS1 ) ) = 0;
-            tSet.mMasterDvTypeMap( static_cast< int >( MSI::Dv_Type::LS2 ) )   = 1;
+            tSet.mMasterDvTypeMap.set_size( static_cast< int >(GEN_DV::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDvTypeMap( static_cast< int >( GEN_DV::LS1 ) ) = 0;
+            tSet.mMasterDvTypeMap( static_cast< int >( GEN_DV::LS2 ) )   = 1;
             Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
             // populate the field interpolator manager

@@ -43,15 +43,16 @@
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 
-#include "cl_FEM_NodeProxy.hpp"
-#include "cl_FEM_ElementProxy.hpp"
-#include "cl_FEM_Node_Base.hpp"
-#include "cl_FEM_Element_Factory.hpp"
-#include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_Element_Factory.hpp"
+#include "cl_FEM_ElementProxy.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IQI_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_NodeProxy.hpp"
+#include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
-#include "cl_FEM_IQI_Factory.hpp"
 
 #include "cl_MDL_Model.hpp"
 
@@ -105,27 +106,24 @@ namespace ge
                  real gLsbwabs;
 
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                    moris::fem::Field_Interpolator_Manager *         aFIManager )
         {
-                return aCoeff( 0 );
+                return aParameters( 0 );
         }
 
-Matrix< DDRMat > tConstValFunctionBottom( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                          moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                          fem::Geometry_Interpolator              * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunctionBottom( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                          moris::fem::Field_Interpolator_Manager *         aFIManager )
         {
                 Matrix< DDRMat > tOutput(3,1);
                 tOutput(0) = 0.0; tOutput(1) = 0.0; tOutput(2) = 0.0;
 
-                Matrix< DDRMat > tCoords = aGeometryInterpolator->valx();
+                Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
+
 
                 if( tCoords(0) > 0.25 && tCoords(1) > 0.25 )
                 {
-                    return aCoeff( 0 );
+                    return aParameters( 0 );
                 }
                 else
                 {
@@ -134,9 +132,7 @@ Matrix< DDRMat > tConstValFunctionBottom( moris::Cell< Matrix< DDRMat > >       
         }
 
 moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+                                              moris::fem::Field_Interpolator_Manager *         aFIManager )
         {
 //                return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
 //                        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
@@ -144,7 +140,7 @@ moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris:
 
                 Matrix< DDRMat > tIMat(3,3, 0.0);
 
-                Matrix< DDRMat > tCoords = aGeometryInterpolator->valx();
+                Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
 
                 if( tCoords(0) < 0.25 && tCoords(1) < 0.25 )
                 {
