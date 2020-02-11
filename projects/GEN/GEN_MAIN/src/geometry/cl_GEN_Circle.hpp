@@ -13,8 +13,8 @@
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
 
-#include "../additional/cl_GEN_Enums.hpp"
-#include "../geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Enums.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 namespace moris
 {

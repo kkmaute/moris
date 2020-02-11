@@ -11,7 +11,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_HMR_Field.hpp"
 
-#include "../geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 namespace moris
 {

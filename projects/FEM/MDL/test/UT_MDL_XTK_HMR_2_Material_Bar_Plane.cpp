@@ -73,8 +73,8 @@
 
 #include "fn_norm.hpp"
 
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 moris::real
 Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )

@@ -176,6 +176,7 @@ namespace moris
                     += trans( tFI->N() ) * tM * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) * aWStar;
                 }
             }
+
         }
 
 //------------------------------------------------------------------------------
