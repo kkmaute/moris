@@ -86,11 +86,11 @@ public :
         mMap( 7 ) = 7;
 
         // create map object
-        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
-
-        mVectorMap = tMatFactory.create_map( this->get_my_local_global_map() );
-
-        mVector = tMatFactory.create_vector( nullptr, mVectorMap, VectorType::FREE );
+//        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
+//
+//        mVectorMap = tMatFactory.create_map( this->get_my_local_global_map() );
+//
+//        mVector = tMatFactory.create_vector( nullptr, mVectorMap, VectorType::FREE );
     }
 
     // ----------------------------------------------------------------------------------------------

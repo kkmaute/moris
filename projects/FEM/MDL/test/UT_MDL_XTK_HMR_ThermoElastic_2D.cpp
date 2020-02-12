@@ -673,8 +673,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	                                             {  "Displacement",                          "Temperature" } );
     	         tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
     	         tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
-    	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
-    	         tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
+    	         tCMStrucLinIso2->set_property( tCTE, "CTE" );
+    	         tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
     	         tCMStrucLinIso2->set_space_dim( 2 );
     	         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
 
@@ -936,6 +936,9 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         // close file
         close_hdf5_file( tFileID );
+
+//        print(tFullSolution, "tFullSolution");
+//        print(tGoldSolution, "tGoldSolution");
 
         // verify solution
         CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);

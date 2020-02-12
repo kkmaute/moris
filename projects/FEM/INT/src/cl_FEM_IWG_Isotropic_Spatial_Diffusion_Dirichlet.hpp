@@ -99,7 +99,9 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // FIXME check that property type makes sense?
+//                // check that property type makes sense?
+//                MORIS_ERROR( mPropertyMap.find( aPropertyString ),
+//                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_property - Unknown string." );
 
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,

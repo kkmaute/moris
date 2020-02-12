@@ -88,6 +88,8 @@ namespace moris
             // stabilization parameters
             moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
+            std::string mName;
+
 //------------------------------------------------------------------------------
         public :
 
@@ -102,6 +104,78 @@ namespace moris
              * virtual destructor
              */
             virtual ~IWG(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for CM name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for CM name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * print name
+             */
+            void print_names()
+            {
+                std::cout<<"----------"<<std::endl;
+                std::cout<<"IWG: "<<mName<<std::endl;
+
+                // properties
+                for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+                {
+                    if( mMasterProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+                {
+                    if( mSlaveProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+
+                // CM
+                for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+                {
+                    if( mMasterCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Master CM:       "<<mMasterCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+                {
+                    if( mSlaveCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Slave CM:        "<<mSlaveCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+
+                // SP
+                for( uint iSP = 0; iSP < mStabilizationParam.size(); iSP++ )
+                {
+                    if( mStabilizationParam( iSP ) != nullptr )
+                    {
+                        std::cout<<"SP:              "<<mStabilizationParam( iSP )->get_name()<<std::endl;
+                    }
+                }
+                std::cout<<"----------"<<std::endl;
+            }
 
 //------------------------------------------------------------------------------
             /*

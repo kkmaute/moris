@@ -20,7 +20,7 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
-            mPropertyMap[ "Select" ] = IWG_Property_Type::SELECT;
+            mPropertyMap[ "Select" ]    = IWG_Property_Type::SELECT;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -85,6 +85,7 @@ namespace moris
             += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
                  + mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * aWStar;
+
         }
 
 //------------------------------------------------------------------------------

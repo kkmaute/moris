@@ -123,6 +123,7 @@ set(HEADERS
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
+    cl_FEM_Parameters.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -194,6 +195,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_H1_Semi_Error.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
+    cl_FEM_Parameters.cpp
     )
 
 # List library dependencies

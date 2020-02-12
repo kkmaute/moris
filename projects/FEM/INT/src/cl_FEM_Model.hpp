@@ -14,6 +14,11 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "fn_Parsing_Tools.hpp"
+
+#include "cl_FEM_Parameters.hpp" //FEM/INT/src
+#include "cl_MSI_Dof_Type_Enums.hpp"
+
 
 namespace moris
 {
@@ -32,6 +37,11 @@ namespace moris
         class Set;
         class Field_Interpolator;
         class Set_User_Info;
+        class Property;
+        class Constitutive_Model;
+        class Stabilization_Parameter;
+        class IWG;
+        class IQI;
     }
 
     namespace MSI
@@ -70,6 +80,12 @@ namespace moris
 
             moris::Cell< moris::real >       mQi;
 
+            // parameter list to build the fem model
+            moris::Cell< moris::Cell< ParameterList > > mParameterList;
+
+            //
+            std::string mFilePath;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -83,11 +99,24 @@ namespace moris
                        const moris_index                       & aMeshPairIndex,
                              moris::Cell< fem::Set_User_Info > & aSetInfo );
 
+            FEM_Model(){};
+
+            void initialize( moris::Cell< moris::Cell< ParameterList > > & aParameterList );
+
 //------------------------------------------------------------------------------
             /**
              * destructor
              */
             ~FEM_Model();
+
+//------------------------------------------------------------------------------
+            /**
+             * set file path
+             */
+            void set_file_path( std::string aFilePath )
+            {
+                mFilePath = aFilePath;
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -111,10 +140,110 @@ namespace moris
             /**
              * MTK set to fem set index map
              */
-            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map()
             {
                 return mMeshSetToFemSetMap;
             };
+
+//------------------------------------------------------------------------------
+            /**
+             * create a list of property pointers
+             * param[ in ] aProperties    a list of property pointers to fill
+             * param[ in ] aParameterList a list of parameter lists for properties
+             * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+             */
+            void create_properties
+            ( moris::Cell< std::shared_ptr< fem::Property > > & aProperties,
+              moris::map< std::string, uint >                 & aPropertyMap,
+              moris::Cell< ParameterList >                    & aParameterList,
+              moris::map< std::string, MSI::Dof_Type >        & aMSIDofTypeMap,
+              moris::map< std::string, MSI::Dv_Type >         & aMSIDvTypeMap );
+
+//------------------------------------------------------------------------------
+            /**
+             * create a list of constitutive model pointers
+             * param[ in ] aCMs           a list of CM pointers to fill
+             * param[ in ] aParameterList a list of parameter lists for CMs
+             * param[ in ] aProperties    a list of property pointers
+             *                            to assign to CMs
+             */
+            void create_constitutive_models
+            ( moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & aCMs,
+              moris::map< std::string, uint >                           & aCMMap,
+              moris::Cell< ParameterList >                              & aParameterList,
+              moris::Cell< std::shared_ptr< fem::Property > >           & aProperties,
+              moris::map< std::string, uint >                           & aPropertyMap,
+              moris::map< std::string, MSI::Dof_Type >                  & aMSIDofTypeMap,
+              moris::map< std::string, MSI::Dv_Type >                   & aMSIDvTypeMap );
+
+//------------------------------------------------------------------------------
+            /**
+             * create a list of stabilization parameter pointers
+             * param[ in ] aSPs           a list of SP pointers to fill
+             * param[ in ] aParameterList a list of parameter lists for SPs
+             * param[ in ] aProperties    a list of property pointers
+             *                            to assign to SPs
+             * param[ in ] aCMs           a list of CM pointers
+             *                            to assign to SPs
+             */
+            void create_stabilization_parameters
+            ( moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
+              moris::map< std::string, uint >                                & aSPMap,
+              moris::Cell< ParameterList >                                   & aParameterList,
+              moris::Cell< std::shared_ptr< fem::Property > >                & aProperties,
+              moris::map< std::string, uint >                                & aPropertyMap,
+              moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      & aCMs,
+              moris::map< std::string, uint >                                & aCMMap,
+              moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
+              moris::map< std::string, MSI::Dv_Type >                        & aMSIDvTypeMap );
+
+//------------------------------------------------------------------------------
+            /**
+             * create a list of IWG pointers
+             * param[ in ] aIWGs          a list of IWG pointers to fill
+             * param[ in ] aParameterList a list of parameter lists
+             * param[ in ] aProperties    a list of property pointers
+             *                            to assign to SPs
+             * param[ in ] aCMs           a list of CM pointers
+             *                            to assign to SPs
+             * param[ in ] aSPs           a list of SP pointers
+             *                            to assign to SPs
+             */
+            void create_IWGs
+            ( moris::Cell< std::shared_ptr< fem::IWG > >                     & aIWGs,
+              moris::Cell< ParameterList >                                   & aParameterList,
+              moris::Cell< std::shared_ptr< fem::Property > >                & aProperties,
+              moris::map< std::string, uint >                                & aPropertyMap,
+              moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      & aCMs,
+              moris::map< std::string, uint >                                & aCMMap,
+              moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
+              moris::map< std::string, uint >                                & aSPMap,
+              moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
+              moris::map< std::string, MSI::Dv_Type >                        & aMSIDvTypeMap );
+
+//------------------------------------------------------------------------------
+            /**
+             * create an IQI
+             * param[ in ] aIQIs          a list of IQI pointers to fill
+             * param[ in ] aParameterList a list of parameter lists
+             * param[ in ] aProperties    a list of property pointers
+             *                            to assign to SPs
+             * param[ in ] aCMs           a list of CM pointers
+             *                            to assign to SPs
+             * param[ in ] aSPs           a list of SP pointers
+             *                            to assign to SPs
+             */
+            void create_IQIs
+	        ( moris::Cell< std::shared_ptr< fem::IQI > >                     & aIQIs,
+	          moris::Cell< ParameterList >                                   & aParameterList,
+	          moris::Cell< std::shared_ptr< fem::Property > >                & aProperties,
+	          moris::map< std::string, uint >                                & aPropertyMap,
+	          moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      & aCMs,
+	          moris::map< std::string, uint >                                & aCMMap,
+	          moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
+	          moris::map< std::string, uint >                                & aSPMap,
+              moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
+              moris::map< std::string, MSI::Dv_Type >                        & aMSIDvTypeMap );
 
 //------------------------------------------------------------------------------
         };
@@ -123,4 +252,4 @@ namespace moris
 } /* namespace moris */
 
 
-#endif /* PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_ */
+#endif /* PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_ */

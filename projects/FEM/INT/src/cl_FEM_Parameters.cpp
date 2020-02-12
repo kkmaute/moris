@@ -6,6 +6,7 @@
  */
 
 #include "cl_FEM_Parameters.hpp" //FEM/INT/src
+#include "cl_FEM_Enums.hpp" //FEM/INT/src
 
 #include "assert.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -16,45 +17,67 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        // creates a property parameter list with default inputs
+//    // creates a FEM parameter list with default inputs
+//    moris::Cell< moris::Cell< ParameterList > > create_fem_parameter_list()
+//    {
+//        uint tNumProperties              = 0;
+//        uint tNumConstitutiveModels      = 0;
+//        uint tNumStabilizationParameters = 0;
+//        uint tNumIWGs                    = 0;
+//        uint tNumIQIs                    = 0;
+//
+//        moris::Cell< moris::Cell< ParameterList > > tFEMParameterList;
+//        tFEMParameterList( 0 ).resize( tNumProperties );              // Properties
+//        tFEMParameterList( 1 ).resize( tNumConstitutiveModels );      // Constitutive models
+//        tFEMParameterList( 2 ).resize( tNumStabilizationParameters ); // Stabilization parameters
+//        tFEMParameterList( 3 ).resize( tNumIWGs );                    // IWGs
+//        tFEMParameterList( 4 ).resize( tNumIQIs );                    // IQIs
+//
+//        // create property parameter list
+//        for( uint iProp = 0; iProp < tNumProperties; iProp++ )
+//        {
+//            tFEMParameterList( 0 )( iProp ) = create_property_parameter_list();
+//        }
+//
+//        // create constitutive model parameter list
+//        for( uint iCM = 0; iCM < tNumConstitutiveModels; iCM++ )
+//        {
+//            tFEMParameterList( 1 )( iCM ) = create_constitutive_model_parameter_list();
+//        }
+//
+//        // create stabilization parameter parameter list
+//        for( uint iSP = 0; iSP < tNumStabilizationParameters; iSP++ )
+//        {
+//            tFEMParameterList( 2 )( iSP ) = create_stabilization_parameter_parameter_list();
+//        }
+//
+//        // create IWG parameter list
+//        for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+//        {
+//            tFEMParameterList( 3 )( iIWG ) = create_IWG_parameter_list();
+//        }
+//
+//        // create IQI parameter list
+//        for( uint iIQI = 0; iIQI < tNumIWGs; iIQI++ )
+//        {
+//            tFEMParameterList( 4 )( iIQI ) = create_IQI_parameter_list();
+//        }
+//
+//        return tFEMParameterList;
+//    }
+
+//------------------------------------------------------------------------------
         ParameterList create_property_parameter_list()
         {
             ParameterList tParameterList;
 
-//            tParameterList.insert( "number_of_elements_per_dimension", std::string( "2, 2" ) );
-//            tParameterList.insert( "domain_dimensions", std::string( "1, 1" ) );
-//            tParameterList.insert( "domain_offset", std::string( "0, 0 ") );
-//            tParameterList.insert( "domain_sidesets", std::string( "" ) );
-//            tParameterList.insert( "lagrange_output_meshes", std::string( "" ) );
-//
-//            tParameterList.insert( "lagrange_input_meshes", std::string( "" ) );
-//
-//            tParameterList.insert( "refinement_buffer", 0 );
-//            tParameterList.insert( "staircase_buffer", 0 );
-//
-//            tParameterList.insert( "lagrange_orders", std::string( "1" ) );
-//            tParameterList.insert( "lagrange_pattern", std::string( "0" ) );
-//
-//            tParameterList.insert( "bspline_orders", std::string( "1" ) );
-//            tParameterList.insert( "bspline_pattern", std::string( "0" ) );
-//
-//            tParameterList.insert( "union_pattern", 6 );
-//            tParameterList.insert( "working_pattern", 7 );
-//
-//            tParameterList.insert( "lagrange_to_bspline", std::string( "0" ) );
-//
-//            tParameterList.insert( "severity_level", 1 );
-//            tParameterList.insert( "truncate_bsplines", 1 );
-//
-//            tParameterList.insert( "use_multigrid", 0 );
-//            tParameterList.insert( "use_refinement_interrelation", 0 );
-//            tParameterList.insert( "renumber_lagrange_nodes", 0 );
-//            tParameterList.insert( "use_number_aura", 0 );
-//
-//            tParameterList.insert( "initial_refinement", 0 );
-//            tParameterList.insert( "additional_lagrange_refinement", 0 );
-//
-//            tParameterList.insert( "max_refinement_level", -1 );
+            tParameterList.insert( "property_name",            std::string( "undefined" ) );
+            tParameterList.insert( "function_parameters",      std::string( "" ) );
+            tParameterList.insert( "value_function",           std::string( "" ) );
+            tParameterList.insert( "dof_derivative_functions", std::string( "" ) );
+            tParameterList.insert( "dv_derivative_functions",  std::string( "" ) );
+            tParameterList.insert( "dof_dependencies",         std::string( "" ) );
+            tParameterList.insert( "dv_dependencies",          std::string( "" ) );
 
             return tParameterList;
         }
@@ -65,6 +88,12 @@ namespace moris
         {
             ParameterList tParameterList;
 
+            tParameterList.insert( "constitutive_name", std::string( "undefined" ) );
+            tParameterList.insert( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::UNDEFINED ) );
+            tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "properties",        std::string( "" ) );
+
             return tParameterList;
         }
 
@@ -73,6 +102,18 @@ namespace moris
         ParameterList create_stabilization_parameter_parameter_list()
         {
             ParameterList tParameterList;
+
+            tParameterList.insert( "stabilization_name",         std::string( "undefined" ) );
+            tParameterList.insert( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::UNDEFINED ) );
+            tParameterList.insert( "function_parameters",        std::string( "" ) );
+            tParameterList.insert( "master_dof_dependencies",    std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "slave_dof_dependencies",     std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "master_dv_dependencies",     std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "slave_dv_dependencies",      std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "master_properties",          std::string( "" ) );
+            tParameterList.insert( "slave_properties",           std::string( "" ) );
+            tParameterList.insert( "master_constitutive_models", std::string( "" ) );
+            tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
 
             return tParameterList;
         }
@@ -83,6 +124,19 @@ namespace moris
         {
             ParameterList tParameterList;
 
+            tParameterList.insert( "IWG_name",                   std::string( "undefined" ) );
+            tParameterList.insert( "IWG_type",                   static_cast< uint >( fem::IWG_Type::UNDEFINED ) );
+            tParameterList.insert( "dof_residual",               std::string( "" ) );
+            tParameterList.insert( "master_dof_dependencies",    std::string( "" ) );
+            tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
+            tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
+            tParameterList.insert( "slave_dv_dependencies",      std::string( "" ) );
+            tParameterList.insert( "master_properties",          std::string( "" ) );
+            tParameterList.insert( "slave_properties",           std::string( "" ) );
+            tParameterList.insert( "master_constitutive_models", std::string( "" ) );
+            tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
+            tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
+
             return tParameterList;
         }
 
@@ -92,11 +146,23 @@ namespace moris
         {
             ParameterList tParameterList;
 
+            tParameterList.insert( "IQI_name",                   std::string( "undefined" ) );
+            tParameterList.insert( "IQI_type",                   static_cast< uint >( fem::IQI_Type::UNDEFINED ) );
+            tParameterList.insert( "master_dof_dependencies",    std::string( "" ) );
+            tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
+            tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
+            tParameterList.insert( "slave_dv_dependencies",      std::string( "" ) );
+            tParameterList.insert( "master_properties",          std::string( "" ) );
+            tParameterList.insert( "slave_properties",           std::string( "" ) );
+            tParameterList.insert( "master_constitutive_models", std::string( "" ) );
+            tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
+            tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
+
             return tParameterList;
         }
 
 //------------------------------------------------------------------------------
-    }
-}
+    }/* end_namespace_fem */
+}/* end_namespace_moris */
 
 

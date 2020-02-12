@@ -96,6 +96,8 @@ namespace moris
             std::map< std::string, MSI::Dv_Type > mMasterDvMap;
             std::map< std::string, MSI::Dv_Type > mSlaveDvMap;
 
+            std::string mName;
+
         private:
 
             // bool for global dof type list and map
@@ -122,6 +124,69 @@ namespace moris
              * virtual destructor
              */
             virtual ~Stabilization_Parameter(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for CM name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for CM name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * print names
+             */
+            void print_names()
+            {
+                std::cout<<"----------"<<std::endl;
+                std::cout<<"SP: "<<mName<<std::endl;
+
+                // properties
+                for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+                {
+                    if( mMasterProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+                {
+                    if( mSlaveProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+
+                // CM
+                for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+                {
+                    if( mMasterCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Master CM: "<<mMasterCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+                {
+                    if( mSlaveCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Slave CM:  "<<mSlaveCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+                std::cout<<"----------"<<std::endl;
+            }
 
 //------------------------------------------------------------------------------
             /*
@@ -233,7 +298,50 @@ namespace moris
                     }
                     default :
                     {
-                        MORIS_ERROR( false, "Penalty_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set dof types
+             * @param[ in ] aDofTypes a cell of cell of dof types
+             * @param[ in ] aIsMaster enum for master or slave
+             */
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                                    moris::Cell< std::string >                  & aDofStrings,
+                                    mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterDofTypes = aDofTypes;
+
+                        // set the dof map
+                        for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
+                        {
+                            mMasterDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
+                        }
+
+                        break;
+                    }
+                    case( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlaveDofTypes = aDofTypes;
+
+                        // set the dof map
+                        for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
+                        {
+                            mSlaveDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
+                        }
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
                         break;
                     }
                 }
@@ -267,7 +375,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "Penalty_Parameter::get_dof_type_list - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_dof_type_list - can only be master or slave." );
                         return mMasterDofTypes;
                         break;
                     }
@@ -297,7 +405,49 @@ namespace moris
                     }
                     default :
                     {
-                        MORIS_ERROR( false, "Penalty_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set dv types
+             * @param[ in ] aDvTypes a cell of cell of dv types
+             */
+            void set_dv_type_list( moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes,
+                                    moris::Cell< std::string >                 & aDvStrings,
+                                    mtk::Master_Slave                            aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterDvTypes = aDvTypes;
+
+                        // set the dv map
+                        for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
+                        {
+                            mMasterDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
+                        }
+
+                        break;
+                    }
+                    case( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlaveDvTypes = aDvTypes;
+
+                        // set the dv map
+                        for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
+                        {
+                            mSlaveDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
+                        }
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
                         break;
                     }
                 }
@@ -331,7 +481,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "Penalty_Parameter::get_dv_type_list - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_dv_type_list - can only be master or slave." );
                         return mMasterDvTypes;
                         break;
                     }
@@ -541,7 +691,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_constitutive_models - can only be master or slave." );
                         return mMasterCM;
                     }
                 }
@@ -578,7 +728,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_properties - can only be master or slave." );
                         return mMasterProp;
                     }
                 }
