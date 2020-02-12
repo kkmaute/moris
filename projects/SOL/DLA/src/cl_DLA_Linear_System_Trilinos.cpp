@@ -25,20 +25,21 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
         // create map object
-        mMap = tMatFactory.create_map( aInput->get_max_num_global_dofs(),
-                                       aInput->get_my_local_global_map(),
-                                       aInput->get_constr_dof(),
-                                       aInput->get_my_local_global_overlapping_map());      //FIXME
+        mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
+                                           aInput->get_constr_dof() );      //FIXME
+
+        mMap = tMatFactory.create_map( aInput->get_my_local_global_overlapping_map(),
+                                       aInput->get_constr_dof() );      //FIXME
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMap );
+        mMat = tMatFactory.create_matrix( aInput, mMapFree );
 
         uint tNumRHS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE, tNumRHS );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE, tNumRHS );
+        mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING, tNumRHS );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap,  tNumRHS );
 
         mInput->build_graph( mMat );
     }
@@ -79,8 +80,8 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
 //----------------------------------------------------------------------------------------
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
-                                                Map_Class *        aFreeMap,
-                                                Map_Class *        aFullMap ) : moris::dla::Linear_Problem( aInput )
+                                                Dist_Map *        aFreeMap,
+                                                Dist_Map *        aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
@@ -89,9 +90,9 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
 
         // Build RHS/LHS vector
         mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, 1 );
 
         mInput->build_graph( mMat );
 }
@@ -118,8 +119,8 @@ moris::sint Linear_System_Trilinos::solve_linear_system()
 
     Epetra_LinearProblem      tEpetraProblem;
     tEpetraProblem.SetOperator( mMat->get_matrix() );
-    tEpetraProblem.SetRHS( mVectorRHS->get_vector() );
-    tEpetraProblem.SetLHS( mFreeVectorLHS->get_vector() );
+    tEpetraProblem.SetRHS( mVectorRHS->get_epetra_vector() );
+    tEpetraProblem.SetLHS( mFreeVectorLHS->get_epetra_vector() );
 
     AztecOO Solver( tEpetraProblem );
 

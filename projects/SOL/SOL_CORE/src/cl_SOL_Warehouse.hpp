@@ -17,7 +17,7 @@
 
 //#include "cl_MSI_Dof_Type_Enums.hpp"
 //#include "cl_NLA_Nonlinear_Solver.hpp"
-//#include "cl_Map_Class.hpp"
+//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -37,9 +37,9 @@ namespace NLA
         //moris::Cell< moris::Matrix< DDSMat > > mListSolverManagerDepenencies;
 
         //! List of maps for every nonliner solver manager. The entry corresponds to the nonliner solver manager index. The last map is the pull map
-        //moris::Cell< Map_Class * > mListOfFreeMaps;
+        //moris::Cell< Dist_Map * > mListOfFreeMaps;
 
-        //Map_Class * mMap = nullptr;
+        //Dist_Map * mMap = nullptr;
 
         //! Full Vector
         //Dist_Vector * mFullVector = nullptr;
@@ -130,14 +130,14 @@ namespace NLA
           *
           * @param[in] aSolverManagerIndex The index of the asking nonlinear solver manager
           */
-        //Map_Class * get_list_of_maps( const moris::sint aSolverManagerIndex );
+        //Dist_Map * get_list_of_maps( const moris::sint aSolverManagerIndex );
 
 //--------------------------------------------------------------------------------------------------------
         /**
           * @brief Returns the full map for the asking nonlinear solver manager
           *
           */
-        //Map_Class * get_full_maps(  );
+        //Dist_Map * get_full_maps(  );
 
 //--------------------------------------------------------------------------------------------------------
         /**

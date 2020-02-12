@@ -60,10 +60,11 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         // Build matrix vector factory
         Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
-        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_overlapping_map() );
+        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_overlapping_map(),
+        		                                   tSolverInput->get_constr_dof() );
 
         // Create Full Vector
-        Dist_Vector * tFullVector = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tFullVector = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Initilaze full vector with zeros
         tFullVector->vec_put_scalar( 0.0 );

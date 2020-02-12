@@ -41,8 +41,8 @@ namespace moris
                                                const bool                      aNotCreatedByNonLinSolver = false);
 
         Linear_Problem * create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                     Map_Class               * aMap,
-                                                     Map_Class               * aFullMap,
+        		Dist_Map               * aMap,
+				Dist_Map               * aFullMap,
                                                const enum MapType              aLinSysType = MapType::Epetra,
                                                const bool                      aNotCreatedByNonLinSolver = false);
     };

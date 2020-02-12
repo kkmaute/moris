@@ -34,33 +34,23 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector
 {
 private:
 protected:
-          Epetra_FEVector * mEpetraVector;
-          //Epetra_MultiVector * mEpetraVector;
-          Epetra_Import   * mImporter;
-    const Map_Class       * mMap;
-    const Epetra_Map      * mEpetraMap;
 
-          Vec               mPetscVector;
+          Epetra_Import   * mImporter;
+          Dist_Map       * mMap;
 
           moris::sint       mNumVectors;
 public:
-     Dist_Vector(): mEpetraVector( NULL ),
-                    mImporter( NULL ),
-                    mMap( NULL ),
-                    mEpetraMap( NULL ),
-                    mPetscVector( NULL )
+     Dist_Vector(): mImporter( NULL ),
+                    mMap( NULL )
           {};
 
-    Dist_Vector( const Map_Class * aMapClass ): mEpetraVector( NULL ),
-                                                mImporter( NULL ),
-                                                mMap( aMapClass ),
-                                                mEpetraMap( NULL ),
-                                                mPetscVector( NULL )
+    Dist_Vector( Dist_Map * aMapClass ): mImporter( NULL ),
+                                          mMap( aMapClass )
     {
     };
 
@@ -183,20 +173,33 @@ public:
      *
      * @return  Vector of type Epetra_Vector or Vec
      */
-    Epetra_FEVector* get_vector() {return mEpetraVector; }
+    virtual Epetra_MultiVector * get_epetra_vector()
+    {
+    	MORIS_ERROR( false, "get_epetra_vector() function has no child implementation" );
+    	return nullptr;
+    };
 
-    Epetra_FEVector* get_vector() const {return mEpetraVector; }
+    virtual Epetra_MultiVector * get_epetra_vector() const
+    {
+    	MORIS_ERROR( false, "get_epetra_vector() function has no child implementation" );
+    	return nullptr;
+    };
 
-    Vec get_petsc_vector()  {return mPetscVector; }
+    virtual Vec get_petsc_vector()
+    {
+    	MORIS_ERROR( false, "get_petsc_vector() function has no child implementation" );
+    	return nullptr;
+    };
 
-    const Map_Class * get_map() { return mMap; };
+    virtual Vec get_petsc_vector() const
+    {
+    	MORIS_ERROR( false, "get_petsc_vector() function has no child implementation" );
+    	return nullptr;
+    };
 
-    /**
-     * @brief Returns the Map on which a vector is build.
-     *
-     * @return  Map of type Epetra_Map or AO
-     */
-    const Epetra_Map * get_vector_map() const { return mEpetraMap; };
+
+    const Dist_Map * get_map() { return mMap; };
+
 
 
 };

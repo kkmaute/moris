@@ -21,15 +21,15 @@ set(HEADERS
     cl_DLA_Solver_Interface.hpp
     cl_DLA_Linear_Solver_Algorithm.hpp
     cl_DLA_Geometric_Multigrid.hpp
-    cl_Map_Class.hpp
+    cl_SOL_Dist_Class.hpp
     cl_Map_Epetra.hpp
     cl_Map_PETSc.hpp
     cl_MatrixPETSc.hpp
     cl_Matrix_Vector_Factory.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
-    cl_Sparse_Matrix.hpp
+    cl_SOL_Dist_Matrix.hpp
     cl_Vector_Epetra.hpp
-    cl_Vector.hpp
+    cl_SOL_Dist_Vector.hpp
     cl_VectorPETSc.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

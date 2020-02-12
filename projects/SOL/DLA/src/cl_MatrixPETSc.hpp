@@ -26,7 +26,7 @@
 
 namespace moris
 {
-class Matrix_PETSc : public Sparse_Matrix
+class Matrix_PETSc : public Dist_Matrix
 {
 private:
     moris::Matrix< DDUMat >   mDirichletBCVec;
@@ -39,7 +39,7 @@ protected:
 public:
     /** Default contructor */
     Matrix_PETSc(       moris::Solver_Interface * aInput,
-                  const moris::Map_Class        * aMap );
+                  const moris::Dist_Map        * aMap );
 
     Matrix_PETSc( const moris::uint aRows,
                   const moris::uint aCols );

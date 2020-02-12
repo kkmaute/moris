@@ -18,7 +18,7 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 namespace NLA
 {
     class SOL_Warehouse;
@@ -50,7 +50,7 @@ namespace tsa
 
         Dist_Vector * mFullVector = nullptr;
 
-        Map_Class * mFullMap = nullptr;
+        Dist_Map * mFullMap = nullptr;
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;

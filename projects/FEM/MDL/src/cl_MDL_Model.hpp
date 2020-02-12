@@ -37,7 +37,6 @@ namespace moris
         class Set;
         class Field_Interpolator;
         class Set_User_Info;
-        class FEM_Model;
     }
 
     namespace dla
@@ -60,6 +59,7 @@ namespace moris
         class MSI_Solver_Interface;
         class Equation_Set;
         class Equation_Object;
+        class Equation_Model;
         class Design_Variable_Interface;
         enum class Dof_Type;
     }
@@ -78,7 +78,7 @@ namespace moris
             mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
 
-            std::shared_ptr< fem::FEM_Model >    mFemModel = nullptr;
+            std::shared_ptr< MSI::Equation_Model >    mEquationModel = nullptr;
 
             // list of FEM sets
             moris::Cell< MSI::Equation_Set * > mEquationSets;

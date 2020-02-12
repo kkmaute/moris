@@ -21,7 +21,7 @@
 namespace moris
 {
     class Dist_Vector;
-    class Sparse_Matrix;
+    class Dist_Matrix;
 
     namespace mtk
     {
@@ -246,18 +246,18 @@ public:
     };
 
 //---------------------------------------------------------------------------------------------------------
-    void build_graph( moris::Sparse_Matrix * aMat );
+    void build_graph( moris::Dist_Matrix * aMat );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+    void fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+    void fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS,
                               moris::Dist_Vector   * aFullSolutionVector );
 
-    void assemble_jacobian( moris::Sparse_Matrix * aMat,
+    void assemble_jacobian( moris::Dist_Matrix * aMat,
                             moris::Dist_Vector   * aFullSolutionVector );
 
     void assemble_RHS( moris::Dist_Vector * aVectorRHS,

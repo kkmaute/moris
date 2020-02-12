@@ -13,8 +13,8 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
-                            const moris::Map_Class        * aMap,
-                            const enum moris::VectorType    aVectorType ) : moris::Dist_Vector( aMap )
+                                  moris::Dist_Map        * aMap,
+                            const sint                      aNumVectors ) : moris::Dist_Vector( aMap )
 {
     //PetscScalar    tZero = 0;
     //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
@@ -163,10 +163,7 @@ moris::real Vector_PETSc::vec_norm2()
 
 void Vector_PETSc::check_vector( )
 {
-    if ( mEpetraVector != NULL )
-    {
         MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
-    }
 }
 
 //-----------------------------------------------------------------------------

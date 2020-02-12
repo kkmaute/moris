@@ -10,7 +10,7 @@
 #include "cl_SOL_Warehouse.hpp"
 
 //#include "cl_SOL_Dist_Vector.hpp"
-//#include "cl_Map_Class.hpp"
+//#include "cl_SOL_Dist_Map.hpp"
 //#include "cl_Matrix_Vector_Factory.hpp"
 
 using namespace moris;
@@ -102,7 +102,7 @@ using namespace NLA;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-//Map_Class * SOL_Warehouse::get_list_of_maps( const moris::sint aSolverManagerIndex )
+//Dist_Map * SOL_Warehouse::get_list_of_maps( const moris::sint aSolverManagerIndex )
 //{
 //    // return map for this nonlinear solver manager index
 //    return mListOfFreeMaps( aSolverManagerIndex );
@@ -110,7 +110,7 @@ using namespace NLA;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-//Map_Class * SOL_Warehouse::get_full_maps( )
+//Dist_Map * SOL_Warehouse::get_full_maps( )
 //{
 //    // return map for this nonlinear solver manager index
 //    moris::uint tMapListSize = mListOfFreeMaps.size();

@@ -601,7 +601,7 @@ namespace moris
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
         /*!
@@ -614,13 +614,13 @@ namespace moris
          * tLinSolver1->set_param("AZ_keep_info") = 1;
          * \endcode
          */
-        tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
-        tLinSolver1->set_param("AZ_output") = AZ_none;
-        tLinSolver1->set_param("AZ_keep_info") = 1;
-        //tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
-        tLinSolver1->set_param("AZ_graph_fill") = 5;
-
-        tLinSolver1->set_param("Use_ML_Prec") = true;
+//        tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
+//        tLinSolver1->set_param("AZ_output") = AZ_none;
+//        tLinSolver1->set_param("AZ_keep_info") = 1;
+//        //tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
+//        tLinSolver1->set_param("AZ_graph_fill") = 5;
+//
+//        tLinSolver1->set_param("Use_ML_Prec") = true;
         //tLinSolver1->set_param("ML_reuse") = true;
 
         /*!

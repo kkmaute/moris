@@ -34,25 +34,25 @@
 namespace moris
 {
 
-class Sparse_Matrix
+class Dist_Matrix
 {
 private:
 protected:
           Epetra_FECrsMatrix   * mEpetraMat;
-    const moris::Map_Class     * mMap;
+    const moris::Dist_Map     * mMap;
           Mat                    mPETScMat;
 
 public:
-    Sparse_Matrix( ) : mEpetraMat( NULL ),
+          Dist_Matrix( ) : mEpetraMat( NULL ),
                        mPETScMat( NULL )
     {};
 
-    Sparse_Matrix( const moris::Map_Class  * aMap ) : mEpetraMat( NULL ),
+          Dist_Matrix( const moris::Dist_Map  * aMap ) : mEpetraMat( NULL ),
                                                       mMap( aMap ),
                                                       mPETScMat( NULL )
     {};
 
-    virtual ~Sparse_Matrix(){};
+    virtual ~Dist_Matrix(){};
 
     virtual void fill_matrix(const moris::uint             & anumDofs,
                              const moris::Matrix< DDRMat > & aA_val,

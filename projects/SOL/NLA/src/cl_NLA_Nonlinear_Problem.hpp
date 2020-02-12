@@ -18,7 +18,7 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
 namespace dla
@@ -35,7 +35,7 @@ namespace NLA
         void  delete_pointers();
 
         //--------------------Arc Length-------------------
-        Sparse_Matrix * mJacobian    = nullptr;
+        Dist_Matrix * mJacobian    = nullptr;
 
         Dist_Vector * mJacVals       = nullptr;
         Dist_Vector * mJacVals0      = nullptr;
@@ -67,8 +67,8 @@ namespace NLA
         Dist_Vector * mFullVector = nullptr;
         Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
 
-        Map_Class   * mMap = nullptr;
-        Map_Class   * mMapFull = nullptr;               //FIXME replace with marketplace
+        Dist_Map   * mMap = nullptr;
+        Dist_Map   * mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 
@@ -156,7 +156,7 @@ namespace NLA
         //--------------------------------------------------------------------------------------------------
         //--------------------------------arc-length 'get' functions----------------------------------------
         //--------------------------------------------------------------------------------------------------
-        Sparse_Matrix * get_full_for_jacobian()
+        Dist_Matrix * get_full_for_jacobian()
         {
             return mJacobian;
         }

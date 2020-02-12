@@ -50,13 +50,13 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
-    // create map object FIXME ask liner problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
-                                   aSolverInterface->get_my_local_global_map( tRequesedDofTypes ),
-                                   aSolverInterface->get_constr_dof());
+    // create map object FIXME ask linear problem for map
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ),
+                                   aSolverInterface->get_constr_dof() );
 
-    // create map object FIXME ask liner problem for map
-    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
+    // create map object FIXME ask linear problem for map
+    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map(),
+    		                           aSolverInterface->get_constr_dof( ));
 
 
     // create solver object
@@ -70,27 +70,27 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
 
     //---------------------------arc-length vectors---------------------------------
     //FIXME wrong map used. please fix
-    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
     //---------------------------arc-length matrices--------------------------------
     mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
 
@@ -100,9 +100,9 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
 Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                                       const moris::sint        aNonlinearSolverManagerIndex,
                                       const bool               aBuildLinerSystemFlag,
-                                      const enum MapType       aMapType) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-                                                                               mMapType( aMapType ),
-                                                                               mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+                                      const enum MapType       aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                                                                mMapType( aMapType ),
+                                                                                mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
@@ -116,41 +116,45 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     Matrix_Vector_Factory tMatFactory( mMapType );
 
     // create map object FIXME ask liner problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
-                                   aSolverInterface->get_my_local_global_map(),
-                                   aSolverInterface->get_constr_dof(),
-                                   aSolverInterface->get_my_local_global_overlapping_map());
+//    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
+//                                   aSolverInterface->get_my_local_global_map(),
+//                                   aSolverInterface->get_constr_dof(),
+//                                   aSolverInterface->get_my_local_global_overlapping_map());
+//    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map(),
+//                                   aSolverInterface->get_constr_dof() );
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map(),
+                                   aSolverInterface->get_constr_dof() );
 
     // full vector
-    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );       // FIXME delete
+    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, 1 );       // FIXME delete
     mDummyFullVector->vec_put_scalar( 0.0 );
     aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
 
     //---------------------------arc-length vectors---------------------------------
     //FIXME wrong map used. please fix
-    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
 
-    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
     //---------------------------arc-length matrices--------------------------------
     mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
 

@@ -20,7 +20,7 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
 
@@ -57,7 +57,7 @@ namespace tsa
         //!  flag indicating if this is the master time solver
         bool mIsMasterTimeSolver = false;
 
-        Map_Class * mFullMap = nullptr;
+        Dist_Map * mFullMap = nullptr;
 
         //! Parameterlist for this nonlinear solver
         Param_List< boost::variant< bool, sint, real, const char* > > mParameterListTimeSolver;

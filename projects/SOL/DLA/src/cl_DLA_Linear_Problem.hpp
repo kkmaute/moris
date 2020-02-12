@@ -20,9 +20,9 @@
 
 namespace moris
 {
-class Sparse_Matrix;
+class Dist_Matrix;
 class Dist_Vector;
-class Map_Class;
+class Dist_Map;
 class Solver_Interface;
 namespace dla
 {
@@ -31,11 +31,12 @@ namespace dla
     private:
 
     protected:
-        Sparse_Matrix * mMat;
+    	Dist_Matrix * mMat;
         Dist_Vector   * mVectorRHS;
         Dist_Vector   * mFreeVectorLHS;
         Dist_Vector   * mFullVectorLHS;
-        Map_Class     * mMap;
+        Dist_Map     * mMap;
+        Dist_Map     * mMapFree;
 
         Solver_Interface * mInput;
 
@@ -44,7 +45,7 @@ namespace dla
     public:
         Linear_Problem( Solver_Interface * aInput ) : mMat(NULL),
                                                       mVectorRHS(NULL),
-                                                      mFreeVectorLHS(NULL),
+                                                      mFreeVectorLHS(nullptr),
                                                       mMap(NULL),
                                                       mInput( aInput )
         {};
@@ -67,7 +68,7 @@ namespace dla
 
         Dist_Vector * get_solver_RHS() { return mVectorRHS; };
 
-        Sparse_Matrix * get_matrix() { return mMat; };
+        Dist_Matrix * get_matrix() { return mMat; };
 
         Solver_Interface * get_solver_input() const { return mInput; };
 

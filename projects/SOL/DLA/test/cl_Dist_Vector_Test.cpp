@@ -14,7 +14,7 @@
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_SOL_Dist_Vector.hpp" // DLA/src
-#include "cl_Map_Class.hpp" // DLA/src
+#include "cl_SOL_Dist_Map.hpp" // DLA/src
 
 namespace moris
 {
@@ -33,13 +33,11 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Map_Class  * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                                    tSolverInput->get_my_local_global_map(),
-                                                    tSolverInput->get_constr_dof(),
-                                                    tSolverInput->get_my_local_global_map() );
+        Dist_Map  * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                                    tSolverInput->get_constr_dof() );
 
         // build distributed vector
-        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
@@ -66,7 +64,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_vector()->ExtractCopy( tSol.data(), tMyLDA );
+        tVectorA->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -100,14 +98,12 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         Matrix_Vector_Factory     tMatFactory;
 
         // Build map
-        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                                   tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof(),
-                                                   tSolverInput->get_my_local_global_map() );
+        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                                   tSolverInput->get_constr_dof() );
 
         // build distributed vector
-        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
-        Dist_Vector * tVectorB = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
+        Dist_Vector * tVectorB = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
@@ -139,7 +135,7 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_vector()->ExtractCopy( tSol.data(), tMyLDA );
+        tVectorA->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -173,13 +169,11 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                                   tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof(),
-                                                   tSolverInput->get_my_local_global_map() );
+        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                                   tSolverInput->get_constr_dof() );
 
         // build distributed vector
-        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
@@ -206,7 +200,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_vector()->ExtractCopy( tSol.data(), tMyLDA );
+        tVectorA->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -239,13 +233,11 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                                   tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof(),
-                                                   tSolverInput->get_my_local_global_map() );
+        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                                   tSolverInput->get_constr_dof());
 
         // build distributed vector
-        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
@@ -303,15 +295,15 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
         Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                                   tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof(),
-                                                   tSolverInput->get_my_local_global_map() );
+        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map()  );
+
+        Dist_Map * tMapFree = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                                       tSolverInput->get_constr_dof() );
 
         // build local distributed free vector
-        Dist_Vector * tVectorFree = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tVectorFree = tMatFactory.create_vector( tSolverInput, tMapFree, 1 );
         // build local distributed full vector
-        Dist_Vector * tVectorFull = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FULL );
+        Dist_Vector * tVectorFull = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
@@ -337,7 +329,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorFull->get_vector()->ExtractCopy(  tSol.data(), tMyLDA );
+        tVectorFull->get_epetra_vector()->ExtractCopy(  tSol.data(), tMyLDA );
 
         // Get local vector lengt
         moris::uint tLocLength = tVectorFull->vec_local_length();

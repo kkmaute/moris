@@ -95,8 +95,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
     mLinearSystem = aLinearSystem;
 
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
-    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_vector() );
-    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_vector() );
+    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
+    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
 
     mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
 

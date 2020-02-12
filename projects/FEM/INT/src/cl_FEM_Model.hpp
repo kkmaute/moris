@@ -15,6 +15,8 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 
+#include "cl_MSI_Equation_Model.hpp"
+
 namespace moris
 {
 
@@ -48,7 +50,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class FEM_Model
+        class FEM_Model : public  MSI::Equation_Model
         {
             // pointer to reference mesh
             mtk::Mesh_Manager* mMeshManager = nullptr;
@@ -59,14 +61,6 @@ namespace moris
 
             // list of IP cell pointers
             moris::Cell< fem::Cell* > mIPCells;
-
-            // list of FEM sets
-            moris::Cell< MSI::Equation_Set * > mFemSets;
-
-            // list of FEM clusters
-            moris::Cell< MSI::Equation_Object* > mFemClusters;
-
-            map< moris_index, moris_index >   mMeshSetToFemSetMap;
 
             moris::Cell< moris::real >       mQi;
 
@@ -88,33 +82,6 @@ namespace moris
              * destructor
              */
             ~FEM_Model();
-
-//------------------------------------------------------------------------------
-            /**
-             * get equation sets for test
-             */
-            moris::Cell< MSI::Equation_Set * > & get_equation_sets( )
-            {
-                return mFemSets;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * get equation objects
-             */
-            moris::Cell< MSI::Equation_Object * > & get_equation_objects( )
-            {
-                return mFemClusters;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * MTK set to fem set index map
-             */
-            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
-            {
-                return mMeshSetToFemSetMap;
-            };
 
 //------------------------------------------------------------------------------
         };
