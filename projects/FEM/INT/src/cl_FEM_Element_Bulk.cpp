@@ -129,7 +129,7 @@ namespace moris
         	tPdvValueList( 0 ) = tPdvValues.get_column( 0 );
         	tPdvValueList( 1 ) = tPdvValues.get_column( 1 );
         	mSet->mDesignVariableInterface->get_pdv_value( mMasterCell->get_vertex_inds(),
-                                                           { MSI::Dv_Type::XCOORD, MSI::Dv_Type::YCOORD },
+                                                           { GEN_DV::XCOORD, GEN_DV::YCOORD },
                                                            tPdvValueList, aIsActiveDv );//FIXME
 
         	tPdvValues.get_column( 0 ) =  tPdvValueList( 0 ).matrix_data();

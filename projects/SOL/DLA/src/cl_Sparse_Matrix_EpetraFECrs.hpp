@@ -12,7 +12,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_Map_Epetra.hpp"
-#include "cl_Sparse_Matrix.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
 #include "cl_Vector_Epetra.hpp"
 
 // C system files

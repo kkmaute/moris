@@ -13,8 +13,8 @@
 //#include "cl_Sphere.hpp"
 #include "cl_XTK_Model.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

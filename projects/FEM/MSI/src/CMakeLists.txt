@@ -41,6 +41,7 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
     ${COM}-lib
     ${CON}-lib
+    ${GEN_CORE}-lib
     ${INT}-lib
     ${DLA}-lib
     ${HMR}-lib

@@ -24,27 +24,27 @@ namespace MSI
 class Design_Variable_Interface_Proxy : public Design_Variable_Interface
 {
 private:
-    Cell< Cell< enum MSI::Dv_Type >>      mDvTypes;
-    Cell< enum MSI::Dv_Type >    mDvTypesUnique;
+    Cell< Cell< enum GEN_DV >>      mDvTypes;
+    Cell< enum GEN_DV >    mDvTypesUnique;
     moris::Matrix< DDRMat >        mDvValues;
     moris::Matrix< DDSMat >        mIsActiveDv;
     Cell< moris::Matrix< IdMat > > mDvIds;
     moris::Matrix< DDSMat >        mMap;
 
-    moris::map< MSI::Dv_Type, sint > mDvToIndexMap;
+    moris::map< GEN_DV, sint > mDvToIndexMap;
 
 public :
     Design_Variable_Interface_Proxy()
     {
         mDvTypes.resize( 2 );
-        mDvTypes( 0 ).resize( 2 );     mDvTypes(0)(0)= MSI::Dv_Type::XCOORD;     mDvTypes(0)( 1 ) = MSI::Dv_Type::YCOORD;
-        mDvTypes( 1 ).resize( 1 );      mDvTypes( 1 )(0) = MSI::Dv_Type::DENSITY;
+        mDvTypes( 0 ).resize( 2 );     mDvTypes(0)(0)   = GEN_DV::XCOORD;     mDvTypes(0)( 1 ) = GEN_DV::YCOORD;
+        mDvTypes( 1 ).resize( 1 );     mDvTypes( 1 )(0) = GEN_DV::DENSITY0;
 
-        mDvTypesUnique.resize( 3 );     mDvTypesUnique( 0 ) = MSI::Dv_Type::XCOORD;     mDvTypesUnique( 1 ) = MSI::Dv_Type::YCOORD;      mDvTypesUnique( 2 ) = MSI::Dv_Type::DENSITY;
+        mDvTypesUnique.resize( 3 );     mDvTypesUnique( 0 ) = GEN_DV::XCOORD;     mDvTypesUnique( 1 ) = GEN_DV::YCOORD;      mDvTypesUnique( 2 ) = GEN_DV::DENSITY0;
 
-        mDvToIndexMap[ MSI::Dv_Type::XCOORD ] = 0;
-        mDvToIndexMap[ MSI::Dv_Type::YCOORD ] = 1;
-        mDvToIndexMap[ MSI::Dv_Type::DENSITY ] = 2;
+        mDvToIndexMap[ GEN_DV::XCOORD ] = 0;
+        mDvToIndexMap[ GEN_DV::YCOORD ] = 1;
+        mDvToIndexMap[ GEN_DV::DENSITY0 ] = 2;
 
         mDvValues.set_size( 6, 3 );
         mDvValues( 0, 0 ) = 0;      mDvValues( 0, 1 ) = 0;             mDvValues( 0, 2 ) = 2;
@@ -98,14 +98,14 @@ public :
 
     //------------------------------------------------------------------------------
 
-    void get_unique_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                            Cell< enum MSI::Dv_Type > & aDvTypes )
+    void get_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                            Cell< enum GEN_DV > & aDvTypes )
     {
         aDvTypes = mDvTypesUnique;
     };
 
     void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                     Cell< Cell< enum MSI::Dv_Type >> & aDvTypes )
+                                     Cell< Cell< enum GEN_DV >> & aDvTypes )
     {
         aDvTypes = mDvTypes;
     };
@@ -113,7 +113,7 @@ public :
     //------------------------------------------------------------------------------
 
     void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                        const Cell< enum MSI::Dv_Type >      & aDvTypes,
+                        const Cell< enum GEN_DV >            & aDvTypes,
                               Cell<moris::Matrix< DDRMat > > & aDvValues,
                               Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
     {
@@ -137,7 +137,7 @@ public :
     }
 
     void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                        const Cell< enum MSI::Dv_Type >      & aDvTypes,
+                        const Cell< enum GEN_DV >            & aDvTypes,
                               Cell<moris::Matrix< DDRMat > > & aDvValues )
     {
     	aDvValues.resize( aDvTypes.size() );
@@ -168,7 +168,7 @@ public :
     //------------------------------------------------------------------------------
 
     void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                      const Cell< enum MSI::Dv_Type >         & aDvTypes,
+                                      const Cell< enum GEN_DV >               & aDvTypes,
                                             Cell<moris::Matrix< IdMat > >     & aDvIds )
     {
         aDvIds.resize( aDvTypes.size() );

@@ -14,6 +14,9 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
 #include "fn_equal_to.hpp"
+
+#include "cl_GEN_Dv_Enums.hpp"
+
 #include <functional>
 
 namespace moris
@@ -47,7 +50,7 @@ namespace moris
             Matrix< DDSMat > mDofTypeMap;
 
             // active dv types
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
 
             // active dv type map
             Matrix< DDSMat > mDvTypeMap;
@@ -315,7 +318,7 @@ namespace moris
              * set a list of dv types
              * @param[ in ] aDvTypes list of dv type
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes )
+            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes )
             {
                 // set dv type list
                 mDvTypes = aDvTypes;
@@ -341,7 +344,7 @@ namespace moris
              * return a list of dv types
              * @param[ out ] mDvTypes list of dv type
              */
-            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list() const
+            const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list() const
             {
                 return mDvTypes;
             };
@@ -368,7 +371,7 @@ namespace moris
              * @param[ in ]  aDvType cell of dv type
              * @param[ out ] aBool   boolean, true if dependency on the dv type
              */
-            bool check_dv_dependency( const moris::Cell< MSI::Dv_Type > aDvType );
+            bool check_dv_dependency( const moris::Cell< GEN_DV > aDvType );
 
 //------------------------------------------------------------------------------
             /**
@@ -420,14 +423,14 @@ namespace moris
              * @param[ in ]  aDvType   cell of dv type
              * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
              */
-            const Matrix< DDRMat > & dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+            const Matrix< DDRMat > & dPropdDV( const moris::Cell< GEN_DV > aDvType );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate property derivatives wrt a design variable
              * @param[ in ] aDvType cell of dv type
              */
-            void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+            void eval_dPropdDV( const moris::Cell< GEN_DV > aDvType );
 
 //------------------------------------------------------------------------------
             /**
@@ -463,7 +466,7 @@ namespace moris
              * @param[ in ] aDofType cell of dof type
              */
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes )
+                                                  moris::Cell< GEN_DV >  & aDvTypes )
             {
                 // init counter
                 uint tDofCounter = 0;

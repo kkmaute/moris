@@ -33,7 +33,7 @@
 #include "cl_MTK_Scalar_Field_Info.hpp"
 
 
-#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "cl_GEN_Discrete_Level_Set.hpp"
 
 using namespace moris;
 

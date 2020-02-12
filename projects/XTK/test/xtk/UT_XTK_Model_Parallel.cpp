@@ -19,7 +19,7 @@
 #include "op_equal_equal.hpp"
 
 
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

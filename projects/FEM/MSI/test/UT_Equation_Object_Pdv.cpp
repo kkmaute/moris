@@ -67,7 +67,7 @@
 
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_Map_Class.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 
 namespace moris
@@ -85,14 +85,14 @@ namespace moris
     ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
       moris::fem::Field_Interpolator_Manager *         aFIManager )
     {
-        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::DENSITY )->val();
+        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
     }
 
     moris::Matrix< moris::DDRMat > tFIDerDvFunction_FDTest
    ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
      moris::fem::Field_Interpolator_Manager *         aFIManager )
     {
-        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::DENSITY )->N();
+        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
     }
 
     TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
@@ -250,7 +250,7 @@ namespace moris
         // create the properties
         std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
         tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-        tPropMasterConductivity->set_dv_type_list( {{ MSI::Dv_Type::DENSITY }} );
+        tPropMasterConductivity->set_dv_type_list( {{ GEN_DV::DENSITY0 }} );
         tPropMasterConductivity->set_val_function( tFIValDvFunction_FDTest );
         tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 

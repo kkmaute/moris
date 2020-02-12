@@ -40,8 +40,8 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 #include "fn_norm.hpp"
 
@@ -148,11 +148,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        std::cout<<"Number of Cells = "<<tInterpMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-
-
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
-
 
         for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
         {

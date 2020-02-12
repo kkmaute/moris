@@ -263,7 +263,7 @@ namespace MSI
          * get dv type list
          * @param[ in ] aIsMaster enum for master or slave
          */
-        moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             switch ( aIsMaster )
             {
@@ -352,7 +352,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        moris::sint & get_requested_dv_index_for_type( enum MSI::Dv_Type aDvType )
+        moris::sint & get_requested_dv_index_for_type( enum GEN_DV aDvType )
         {
             return mDVTypeMap( static_cast< int >( aDvType ) );
         }
@@ -664,7 +664,7 @@ namespace MSI
          *@param[ in ] aDvType a dv type enum
          * FIXME should this info be stored in the set?
          */
-        moris::sint get_dv_index_for_type_1( enum MSI::Dv_Type aDvType );
+        moris::sint get_dv_index_for_type_1( enum GEN_DV aDvType );
 
 //------------------------------------------------------------------------------
         /**
@@ -687,7 +687,7 @@ namespace MSI
 
         moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
 
-        moris::Cell < enum MSI::Dv_Type > get_requested_dv_types();
+        moris::Cell < enum GEN_DV > get_requested_dv_types();
 
 //------------------------------------------------------------------------------
 
@@ -726,7 +726,7 @@ namespace MSI
 
             // Dv types
             // Create temporary dv type list
-            moris::Cell< enum MSI::Dv_Type > tDvType = get_unique_dv_type_list();
+            moris::Cell< enum GEN_DV > tDvType = get_unique_dv_type_list();
 
             //Get number of unique dvs of this equation object
             moris::uint tNumUniqueDvTypes = tDvType.size();
@@ -781,10 +781,10 @@ namespace MSI
        {
            mDesignVariableInterface = aDesignVariableInterface;
 
-           moris::Cell<MSI::Dv_Type > tTypesUnique;
+           moris::Cell< GEN_DV > tTypesUnique;
            mDesignVariableInterface->get_unique_dv_types_for_set( 0, tTypesUnique);     //FIXME use fem::SEt to MTK::set map
 
-           mDvTypeMap.set_size( static_cast<int>(MSI::Dv_Type::END_ENUM), 1, -1 );
+           mDvTypeMap.set_size( static_cast<int>(GEN_DV::END_ENUM), 1, -1 );
            for( uint Ik = 0; Ik <tTypesUnique.size(); Ik++)
            {
                mDvTypeMap( static_cast<int>(tTypesUnique( Ik )) )= Ik;

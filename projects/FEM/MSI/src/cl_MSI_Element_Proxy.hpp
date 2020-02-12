@@ -13,7 +13,7 @@
 #include "cl_FEM_Node.hpp"         //FEM/INT/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {

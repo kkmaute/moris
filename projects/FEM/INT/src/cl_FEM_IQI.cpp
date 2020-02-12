@@ -307,7 +307,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void IQI::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                   moris::Cell< MSI::Dv_Type >  & aDvTypes )
+                                                   moris::Cell< GEN_DV >        & aDvTypes )
         {
             // init counters for dof and dv types
             uint tDofCounter = 0;
@@ -344,7 +344,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type > tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -362,7 +362,7 @@ namespace moris
                     // get property non unique dof and dv type lists
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type > tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -379,7 +379,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -397,7 +397,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -414,7 +414,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     moris::Cell< MSI::Dof_Type >  tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >         tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -463,7 +463,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -480,7 +480,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -497,7 +497,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -514,7 +514,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -531,7 +531,7 @@ namespace moris
                 {
                     // get SP non unique master dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -764,7 +764,7 @@ namespace moris
         }
 
 // //------------------------------------------------------------------------------
-//        void IQI::get_non_unique_global_dv_type_list( moris::Cell< MSI::Dv_Type > & aDvTypes )
+//        void IQI::get_non_unique_global_dv_type_list( moris::Cell< GEN_DV > & aDvTypes )
 //        {
 //            // init counter for dv types
 //            uint tCounter = 0;
@@ -789,7 +789,7 @@ namespace moris
 //                if ( tProperty != nullptr )
 //                {
 //                    // get property non unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tProperty->get_non_unique_dv_types( tActiveDvType );
 //
 //                    //update counter
@@ -803,7 +803,7 @@ namespace moris
 //                if ( tProperty != nullptr )
 //                {
 //                    // get property nn unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tProperty->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // update counter
@@ -817,7 +817,7 @@ namespace moris
 //                if ( tCM != nullptr )
 //                {
 //                    // get CM non unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tCM->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // update counter
@@ -831,7 +831,7 @@ namespace moris
 //                if( tCM != nullptr )
 //                {
 //                    // get CM non unique dv type list
-//                    moris::Cell< MSI::Dv_Type >  tActiveDvType;
+//                    moris::Cell< GEN_DV >  tActiveDvType;
 //                    tCM->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // update counter
@@ -845,8 +845,8 @@ namespace moris
 //                if ( tSP != nullptr )
 //                {
 //                    // FIXME get SP non unique dv type list
-//                    moris::Cell< moris::Cell< MSI::Dv_Type > > tMasterActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
-//                    moris::Cell< moris::Cell< MSI::Dv_Type > > tSlaveActiveDvType  = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+//                    moris::Cell< moris::Cell< GEN_DV > > tMasterActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
+//                    moris::Cell< moris::Cell< GEN_DV > > tSlaveActiveDvType  = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 //
 //                    // update counter
 //                    tCounter += tMasterActiveDvType.size() + tSlaveActiveDvType.size();
@@ -876,7 +876,7 @@ namespace moris
 //                if ( tProperty != nullptr )
 //                {
 //                    // get property non unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tProperty->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // populate the dv list
@@ -890,7 +890,7 @@ namespace moris
 //                if ( tProperty != nullptr )
 //                {
 //                    // get property non unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tProperty->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // populate the dv list
@@ -904,7 +904,7 @@ namespace moris
 //                if ( tCM != nullptr )
 //                {
 //                    // get CM non unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tCM->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // populate the dv list
@@ -918,7 +918,7 @@ namespace moris
 //                if( tCM != nullptr )
 //                {
 //                    // get CM non unique dv type list
-//                    moris::Cell< MSI::Dv_Type > tActiveDvType;
+//                    moris::Cell< GEN_DV > tActiveDvType;
 //                    tCM->get_non_unique_dv_types( tActiveDvType );
 //
 //                    // populate the dv list
@@ -932,7 +932,7 @@ namespace moris
 //                if ( tSP != nullptr )
 //                {
 //                    // FIXME get SP non unique master dv type list
-//                    moris::Cell< moris::Cell< MSI::Dv_Type > > tMasterActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
+//                    moris::Cell< moris::Cell< GEN_DV > > tMasterActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
 //
 //                    // loop over dv type groups
 //                    for ( uint iDv = 0; iDv < tMasterActiveDvType.size(); iDv++ )
@@ -942,7 +942,7 @@ namespace moris
 //                    }
 //
 //                    // FIXME get SP non unique dv type list
-//                    moris::Cell< moris::Cell< MSI::Dv_Type > > tSlaveActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
+//                    moris::Cell< moris::Cell< GEN_DV > > tSlaveActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
 //
 //                    // loop over dv type groups
 //                    for ( uint iDv = 0; iDv < tSlaveActiveDvType.size(); iDv++ )

@@ -46,9 +46,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 #include "cl_VIS_Factory.hpp"
 

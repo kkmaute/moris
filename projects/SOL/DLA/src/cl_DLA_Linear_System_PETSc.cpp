@@ -56,8 +56,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
         mInput->build_graph( mMat );
 
-        this->build_linear_system();
-
 //        mFreeVectorLHS->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
 //        mFreeVectorLHS->print();
 //        std::cout<<" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "<<std::endl;
@@ -96,7 +94,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
    mInput->build_graph( mMat );
 
-    this->build_linear_system();
 }
 //----------------------------------------------------------------------------------------
 
@@ -118,16 +115,6 @@ Linear_System_PETSc::~Linear_System_PETSc()
         PetscFinalize();
     }
 }
-
-//----------------------------------------------------------------------------------------
-void Linear_System_PETSc::build_linear_system()
- {
-     // Set matrix. solution vector and RHS
-     //KSPSetOperators( tPetscKSPProblem, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
-
-//     mMat->print();
-//     std::cout<<*mVectorRHS->get_vector()<<std::endl;
- }
 
 //------------------------------------------------------------------------------------------
 moris::sint Linear_System_PETSc::solve_linear_system()

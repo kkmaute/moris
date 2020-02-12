@@ -49,6 +49,19 @@ foreach(XTK_INCLUDE ${XTK_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
 endforeach()   
 
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
+endforeach()
+
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
@@ -59,6 +72,7 @@ set(TEST_DEPENDENCIES
     ${SDF}-lib
     ${MAP}-lib
     ${XTK}-lib
+    ${GEN_MAIN}-lib
     ${MORIS_BASE_LIBS}
     )
 

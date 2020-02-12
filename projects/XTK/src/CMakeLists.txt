@@ -122,6 +122,18 @@ endforeach()
 
 include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
      
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
+endforeach()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Library
 
@@ -151,11 +163,11 @@ xtk/cl_XTK_Interpolation_Cell.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
+	${GEN_MAIN}-lib
 	${LINALG}-lib
 	${MTK}-lib
 	${ALG}-lib
 	${CHR}-lib
-	${GEN}-lib
     )
 
 # Set the output path for library
@@ -220,6 +232,7 @@ set(XTK_EXE_SOURCES
 set(XTK_EXE_DEPENDENCIES
     ${XTK}-lib
     ${MTK}-lib
+    ${GEN_MAIN}-lib
     ${COM}-lib
     ${IOS}-lib
     ${ALG}-lib
@@ -262,7 +275,7 @@ if(BUILD_HMR)
 	    ${MDL}-lib # for L2
 	    ${MSI}-lib # for L2
 	    ${NLA}-lib # for L2
-	    ${GEN}-lib
+	    ${GEN_MAIN}-lib
 	    ${ALG}-lib
 	    ${MORIS_BASE_LIBS}
 	    )    

@@ -21,8 +21,8 @@
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Discrete_Level_Set.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 namespace xtk
 {

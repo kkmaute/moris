@@ -77,8 +77,8 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field.hpp"
 
 #include "fn_norm.hpp"
 

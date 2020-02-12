@@ -13,8 +13,8 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
 //
 //#include "cl_Plane.hpp"
@@ -38,9 +38,6 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     std::string tMeshFileName = "generated:1x1x8|sideset:z";
     moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
 
-    std::string tPrefix = std::getenv("MORISOUTPUT");
-    std::string tBackgroundFile = tPrefix + "/xtk_test_ghost_background.e";
-    tMeshData->create_output_mesh(tBackgroundFile);
 
     // create model
     size_t tModelDimension = 3;
@@ -55,13 +52,10 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 
     tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-
-    Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
-    moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
-    tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::HEX8);
+    tXTKModel.get_ghost_stabilization().visualize_ghost_on_mesh(0);
 
     // Write mesh
-    Writer_Exodus writer(&tEnrIgMesh);
+    Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh());
     writer.write_mesh("", "./xtk_exo/xtk_test_ghost.exo");
 
     // Write the fields

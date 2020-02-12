@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "../../GEN/src/cl_GE_Core.hpp"
+#include "cl_GE_Core.hpp"   //FIXME: needs to be replaced with current geometry engine implementation
 
 //------------------------------------------------------------------------------
 

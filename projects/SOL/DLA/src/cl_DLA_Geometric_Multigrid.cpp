@@ -5,8 +5,8 @@
  *      Author: schmidt */
 
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_Sparse_Matrix.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"

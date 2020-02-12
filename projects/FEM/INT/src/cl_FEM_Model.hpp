@@ -18,6 +18,7 @@
 
 #include "cl_FEM_Parameters.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_GEN_Dv_Enums.hpp"
 
 
 namespace moris
@@ -157,7 +158,7 @@ namespace moris
               moris::map< std::string, uint >                 & aPropertyMap,
               moris::Cell< ParameterList >                    & aParameterList,
               moris::map< std::string, MSI::Dof_Type >        & aMSIDofTypeMap,
-              moris::map< std::string, MSI::Dv_Type >         & aMSIDvTypeMap );
+              moris::map< std::string, GEN_DV >               & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -174,7 +175,7 @@ namespace moris
               moris::Cell< std::shared_ptr< fem::Property > >           & aProperties,
               moris::map< std::string, uint >                           & aPropertyMap,
               moris::map< std::string, MSI::Dof_Type >                  & aMSIDofTypeMap,
-              moris::map< std::string, MSI::Dv_Type >                   & aMSIDvTypeMap );
+              moris::map< std::string, GEN_DV >                         & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -195,7 +196,7 @@ namespace moris
               moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      & aCMs,
               moris::map< std::string, uint >                                & aCMMap,
               moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-              moris::map< std::string, MSI::Dv_Type >                        & aMSIDvTypeMap );
+              moris::map< std::string, GEN_DV >                              & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -219,7 +220,7 @@ namespace moris
               moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
               moris::map< std::string, uint >                                & aSPMap,
               moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-              moris::map< std::string, MSI::Dv_Type >                        & aMSIDvTypeMap );
+              moris::map< std::string, GEN_DV >                              & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -243,7 +244,7 @@ namespace moris
 	          moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
 	          moris::map< std::string, uint >                                & aSPMap,
               moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-              moris::map< std::string, MSI::Dv_Type >                        & aMSIDvTypeMap );
+              moris::map< std::string, GEN_DV >                              & aDvTypeMap );
 
 //------------------------------------------------------------------------------
         };

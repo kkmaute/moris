@@ -35,6 +35,7 @@ namespace vis
         H1_ERROR_ANALYTIC, // H1 error for dof
         H1_SEMI_ERROR, // H1-semi error for dof
         PROPERTY, //Property
+        J_INTEGRAL,  // J-Integral
         END_ENUM//
     };
 

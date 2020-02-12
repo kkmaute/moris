@@ -61,7 +61,7 @@ namespace moris
         Field_Interpolator::Field_Interpolator( const uint                         & aNumberOfFields,
                                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                                const moris::Cell< MSI::Dv_Type >    aDvType )
+                                                const moris::Cell< GEN_DV >          aDvType )
                                               : mNumberOfFields( aNumberOfFields ),
                                                 mGeometryInterpolator( aGeometryInterpolator ),
                                                 mDvType( aDvType )

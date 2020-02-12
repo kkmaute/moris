@@ -180,19 +180,19 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dFluxdDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dFluxdDV - This function is not implemented.");
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dStraindDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dStraindDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented.");
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dConstdDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dConstdDV - This function is not implemented.");
         }

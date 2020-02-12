@@ -32,7 +32,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Constitutive_Model::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes )
+                                                                  moris::Cell< GEN_DV >        & aDvTypes )
         {
             // init dof counter
             uint tDofCounter = 0;
@@ -59,7 +59,7 @@ namespace moris
                 {
                     // get property dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -94,7 +94,7 @@ namespace moris
                 {
                     // get property dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -264,9 +264,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-            void Constitutive_Model::eval_dFluxdDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                                             Matrix< DDRMat >            & adFluxdDV_FD,
-                                                             real                          aPerturbation )
+            void Constitutive_Model::eval_dFluxdDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                                             Matrix< DDRMat >      & adFluxdDV_FD,
+                                                             real                    aPerturbation )
             {
                 // get the field interpolator for type
                 Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDvTypes( 0 ) );
@@ -343,9 +343,9 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-            void Constitutive_Model::eval_dStraindDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                                               Matrix< DDRMat >            & adStraindDV_FD,
-                                                               real                          aPerturbation )
+            void Constitutive_Model::eval_dStraindDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                                               Matrix< DDRMat >      & adStraindDV_FD,
+                                                               real                    aPerturbation )
             {
                 // get the field interpolator for type
                 Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDvTypes( 0 ) );

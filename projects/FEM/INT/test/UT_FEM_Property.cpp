@@ -65,8 +65,8 @@ moris::Matrix< moris::DDRMat > tValFunction3( moris::Cell< moris::Matrix< moris:
     return aParameters( 0 )
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val()
-         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS1 )->val()
-         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS2 )->val();
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->val()
+         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->val();
 }
 moris::Matrix< moris::DDRMat > tDerFunction3_TEMP( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                    moris::fem::Field_Interpolator_Manager*         aFIManager )
@@ -81,12 +81,12 @@ moris::Matrix< moris::DDRMat > tDerFunction3_UX( moris::Cell< moris::Matrix< mor
 moris::Matrix< moris::DDRMat > tDerFunction3_LS1( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                   moris::fem::Field_Interpolator_Manager*         aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS1 )->N();
+    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->N();
 }
 moris::Matrix< moris::DDRMat > tDerFunction3_LS2( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                   moris::fem::Field_Interpolator_Manager*         aFIManager )
 {
-    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dv_Type::LS2 )->N();
+    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->N();
 }
 
 
@@ -118,7 +118,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             //set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            Cell< Cell< GEN_DV > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameter
@@ -213,7 +213,7 @@ namespace moris
              tProperty.set_dof_type_list( tDofTypes );
 
              // set dv types
-             Cell< Cell< MSI::Dv_Type > > tDvTypes;
+             Cell< Cell< GEN_DV > > tDvTypes;
              tProperty.set_dv_type_list( tDvTypes );
 
              // set parameters
@@ -339,7 +339,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             // set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes = {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }};
+            Cell< Cell< GEN_DV > > tDvTypes = {{ GEN_DV::LS1 }, { GEN_DV::LS2 }};
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameters
@@ -379,11 +379,11 @@ namespace moris
             tDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                   tInterpolationRule,
                                                   &tGeomInterpolator,
-                                                  { MSI::Dv_Type::LS1 } );
+                                                  { GEN_DV::LS1 } );
             tDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields,
                                                   tInterpolationRule,
                                                   &tGeomInterpolator,
-                                                  { MSI::Dv_Type::LS2 } );
+                                                  { GEN_DV::LS2 } );
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0( 8, 1, 2.0 );
@@ -407,9 +407,9 @@ namespace moris
             tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
             tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
             tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
-            tSet.mMasterDvTypeMap.set_size( static_cast< int >(MSI::Dv_Type::END_ENUM) + 1, 1, -1 );
-            tSet.mMasterDvTypeMap( static_cast< int >( MSI::Dv_Type::LS1 ) ) = 0;
-            tSet.mMasterDvTypeMap( static_cast< int >( MSI::Dv_Type::LS2 ) )   = 1;
+            tSet.mMasterDvTypeMap.set_size( static_cast< int >(GEN_DV::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDvTypeMap( static_cast< int >( GEN_DV::LS1 ) ) = 0;
+            tSet.mMasterDvTypeMap( static_cast< int >( GEN_DV::LS2 ) )   = 1;
             Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
             // populate the field interpolator manager
@@ -440,20 +440,20 @@ namespace moris
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // check that property depends on dv LS1
-            REQUIRE( tProperty.check_dv_dependency( { MSI::Dv_Type::LS1 } ) );
+            REQUIRE( tProperty.check_dv_dependency( { GEN_DV::LS1 } ) );
 
             // check that property depends on dv LS2
-            REQUIRE( tProperty.check_dv_dependency( { MSI::Dv_Type::LS2 } ) );
+            REQUIRE( tProperty.check_dv_dependency( { GEN_DV::LS2 } ) );
 
             // check that property does not depend on dv UNDEFINED
-            REQUIRE( !tProperty.check_dv_dependency( { MSI::Dv_Type::UNDEFINED } ) );
+            REQUIRE( !tProperty.check_dv_dependency( { GEN_DV::UNDEFINED } ) );
 
             // evaluate the property derivative wrt to LS1 (in dependencies)
-            tPropertyDerivative = tProperty.dPropdDV( {MSI::Dv_Type::LS1} );
+            tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS1} );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.25 ) );
 
             // evaluate the property derivative wrt to LS2 (in dependencies)
-            tPropertyDerivative = tProperty.dPropdDV( {MSI::Dv_Type::LS2 } );
+            tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS2 } );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // clean up
@@ -506,7 +506,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             // set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            Cell< Cell< GEN_DV > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameters
