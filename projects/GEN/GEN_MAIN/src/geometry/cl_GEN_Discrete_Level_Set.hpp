@@ -19,10 +19,10 @@
 #include "cl_Mesh_Enums.hpp"
 
 //XTKL: Topology
-#include "../additional/cl_GEN_Basis_Function.hpp"
-#include "../additional/cl_GEN_Topology.hpp"
-#include "../geometry/cl_GEN_Geometry.hpp"
-#include "../additional/cl_GEN_Matrix_Base_Utilities.hpp" // For print
+#include "cl_GEN_Basis_Function.hpp"
+#include "cl_GEN_Topology.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Matrix_Base_Utilities.hpp" // For print
 
 namespace moris
 {

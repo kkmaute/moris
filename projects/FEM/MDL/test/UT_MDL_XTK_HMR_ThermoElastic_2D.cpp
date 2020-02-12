@@ -522,7 +522,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver.get_full_solution(tFullSolution);
 
-        //    print(tFullSol,"tFullSol");
+//            print(tFullSolution,"tFullSolution");
 
         std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_thermoelastic_2D.e";
 
@@ -562,9 +562,22 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         // close file
         close_hdf5_file( tFileID );
-
+print(tFullSolution,"tFullSolution");
+print(tGoldSolution,"tGoldSolution");
+std::cout<<"norm of difference in solutions:  "<<norm(tFullSolution - tGoldSolution)<<std::endl;
         // verify solution
-        CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);
+        moris::real tEpsilon = 1E-06;
+        bool tCheck = true;
+        for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)
+        {
+std::cout<<"diff:  "<<tFullSolution(Ik) - tGoldSolution(Ik)<<std::endl;
+            if (!((tFullSolution(Ik) - tGoldSolution(Ik)) <= tEpsilon))
+            {
+                tCheck = false;
+            }
+        }
+        CHECK(tCheck);
+//        CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);
 
         delete tIntegMesh1;
 
@@ -716,8 +729,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
                                              { "Displacement", "Temperature" } );
          tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
          tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
-         tCMStrucLinIso1->set_property( tCTE, "CTE" );
-         tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
+         tCMStrucLinIso2->set_property( tCTE, "CTE" );
+         tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
          tCMStrucLinIso2->set_space_dim( 2 );
          tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
 
@@ -987,7 +1000,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         // close file
         close_hdf5_file( tFileID );
-
+print(tFullSolution,"tFullSolution");
         // verify solutio
         moris::real tEpsilon = 1E-06;
         bool tCheck = true;

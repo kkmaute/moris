@@ -9,8 +9,8 @@
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_CYLINDER_WITH_END_CAPS_HPP_
 
 
-#include "../geometry/cl_GEN_Geometry.hpp"
-#include "../geometry/fn_bounding_box.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "fn_bounding_box.hpp"
 #include "HDF5_Tools.hpp"
 
 #include "fn_norm.hpp"

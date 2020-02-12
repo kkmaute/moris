@@ -112,6 +112,7 @@ set(HEADERS
     cl_FEM_IQI_L2_Error_Analytic.hpp
     cl_FEM_IQI_H1_Error_Analytic.hpp
     cl_FEM_IQI_H1_Semi_Error.hpp
+    cl_FEM_IQI_J_Integral.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -192,6 +193,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_L2_Error_Analytic.cpp
     cl_FEM_IQI_H1_Error_Analytic.cpp
     cl_FEM_IQI_H1_Semi_Error.cpp
+    cl_FEM_IQI_J_Integral.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )
