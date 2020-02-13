@@ -462,7 +462,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -497,7 +497,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -864,7 +864,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
         tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -899,7 +899,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -1221,7 +1221,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1256,7 +1256,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -1513,7 +1513,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1548,7 +1548,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -1964,7 +1964,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //                                                                    tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
 //
 //      dla::Solver_Factory  tSolFactory;
-//      std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//      std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 //
 //      tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //      tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1999,7 +1999,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 //
 //      // Create solver database
-//      NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//      sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 //
 //      tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 //

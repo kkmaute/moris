@@ -10,7 +10,7 @@
 #include "cl_Communicator_Epetra.hpp"
 #include "cl_BoostBitset.hpp" // CON/src
 
-#include "cl_Map_Class.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 #include "Epetra_ConfigDefs.h"
 #include "Epetra_Directory.h"
@@ -19,14 +19,15 @@
 
 namespace moris
 {
-class Map_Epetra : public Map_Class
+class Map_Epetra : public Dist_Map
 {
 private:
     Communicator_Epetra      mEpetraComm;
 
+    Epetra_Map * mEpetraMap = nullptr;
+
     void translator( const moris::uint      & aNumMaxDofs,
                      const moris::uint      & aNumMyDofs,
-                     const moris::uint      & aNumGlobalDofs,
                      const Matrix< DDSMat > & aMyLocaltoGlobalMap,
                            Matrix< DDSMat > & aMyGlobalConstraintDofs,
                      const Matrix< DDUMat > & aMyConstraintDofs );
@@ -34,20 +35,24 @@ private:
 protected:
 
 public:
-    Map_Epetra( const moris::uint      & aNumMaxDofs,
-                const Matrix< DDSMat > & aMyLocaltoGlobalMap,
-                const Matrix< DDUMat > & aMyConstraintDofs,
-                const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
 
-    Map_Epetra( const moris::uint      & aNumMaxDofs,
-                const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+//-------------------------------------------------------------------------------------------------------------
+
+    Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
                 const Matrix< DDUMat > & aMyConstraintDofs );
 
-    Map_Epetra( const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+//-------------------------------------------------------------------------------------------------------------
+
+    Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds );
 
 //-------------------------------------------------------------------------------------------------------------
     /** Destructor */
     ~Map_Epetra();
+
+//-------------------------------------------------------------------------------------------------------------
+
+    Epetra_Map * get_epetra_map()      { return mEpetraMap; };
+	Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
 
 //-------------------------------------------------------------------------------------------------------------
     moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;

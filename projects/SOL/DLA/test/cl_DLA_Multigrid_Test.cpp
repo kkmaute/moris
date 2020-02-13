@@ -239,7 +239,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, MapType::Petsc );
+        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, sol::MapType::Petsc );
 
         // create factory for nonlinear solver
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -251,7 +251,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         dla::Solver_Factory  tSolFactory;
 
         // create linear solver
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
 
         tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
         tLinearSolver->set_param("PCType")  = std::string( PCMG );
@@ -425,7 +425,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 
          Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
+         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
 
          // create factory for nonlinear solver
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -437,7 +437,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          //tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -626,7 +626,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 //
 //         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 //
-//         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
+//         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
 //
 //         // create factory for nonlinear solver
 //         NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -638,7 +638,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 //         dla::Solver_Factory  tSolFactory;
 //
 //         // create linear solver
-//         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+//         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 //         tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
 //         tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -828,7 +828,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
          Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
+         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
 
          // create factory for nonlinear solver
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -840,7 +840,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          tLinearSolver->set_param("PCType")  = std::string(PCMG);

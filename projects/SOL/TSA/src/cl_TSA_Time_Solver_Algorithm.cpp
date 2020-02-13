@@ -15,7 +15,7 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
-#include "cl_Map_Class.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -24,7 +24,7 @@ using namespace tsa;
 
 //-------------------------------------------------------------------------------
 
-Time_Solver_Algorithm::Time_Solver_Algorithm( const enum MapType aMapType )
+Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
 {
     this->set_time_solver_parameters();
 }
@@ -75,34 +75,30 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 void Time_Solver_Algorithm::finalize()
 {
     // create map object
-    Matrix_Vector_Factory tMatFactory( MapType::Epetra );
+    Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 
     if ( mIsMasterTimeSolver )
     {
         mSolverInterface = mSolverWarehouse->get_solver_interface();
-	
-	std::cout<<"Number of DOFs:  "<<mSolverInterface->get_my_local_global_overlapping_map().numel()<<std::endl;
 
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
+        MORIS_LOG_INFO( "Creating main time solver system with %-5i dofs.\n", mSolverInterface->get_my_local_global_overlapping_map().numel() );
+
+        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
         // full vector and prev full vector
-        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
-        //mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
+        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, 1 );
 
         mFullVector->vec_put_scalar( 0.0 );
-        //mPrevFullVector->vec_put_scalar( 0.0 );
     }
     else
     {
         mSolverInterface = mMyTimeSolver->get_solver_interface();
 //        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
 
-	std::cout<<"Number of DOFs:  "<<mSolverInterface->get_my_local_global_overlapping_map().numel()<<std::endl;
-
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
+        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
     }
 
-    mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
+    mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, 1 );
 
     mPrevFullVector->vec_put_scalar( 0.0 );
 }

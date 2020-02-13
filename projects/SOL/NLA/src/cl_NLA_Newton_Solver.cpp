@@ -14,7 +14,7 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -125,7 +125,7 @@ using namespace dla;
                 //PreconTime
                 //SolveTime
 
-                ( mNonlinearProblem->get_full_vector())
+                ( mNonlinearProblem->get_full_vector() )
                                    ->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()
                                                                                    ->get_full_solver_LHS(), 1.0 );
 

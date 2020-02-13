@@ -198,7 +198,7 @@ namespace moris
 
             // create linear solver
             std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-                = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+                = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
             // set default parameters for linear solver
             tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;

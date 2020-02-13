@@ -141,17 +141,17 @@ namespace tsa
         uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements=1; };
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_matrix(const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator(const uint             & aMyElementInd,
+                                                Matrix< DDRMat > & aElementMatrix)
         {
                 mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
                 aElementMatrix.resize(1, 1);
                 aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
         };
 
-        void get_element_matrix(const uint             & aMyBlockInd,
-                                const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator( const uint             & aMyBlockInd,
+                                           const uint             & aMyElementInd,
+                                                 Matrix< DDRMat > & aElementMatrix)
         {
                 mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
                 aElementMatrix.resize(1, 1);
@@ -175,7 +175,7 @@ namespace tsa
         };
 
         // ----------------------------------------------------------------------------------------------
-        Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
+        Matrix< DDUMat > get_constrained_Ids(){ return mMyConstraintDofs; };
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_rhs( const uint                     & aMyElementInd,

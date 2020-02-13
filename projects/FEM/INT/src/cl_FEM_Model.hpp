@@ -16,9 +16,12 @@
 #include "cl_MTK_Enums.hpp"
 #include "fn_Parsing_Tools.hpp"
 
-#include "cl_FEM_Parameters.hpp" //FEM/INT/src
+#include "cl_PRM_FEM_Parameters.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_GEN_Dv_Enums.hpp"
+
+#include "cl_MSI_Equation_Model.hpp"
+#include "cl_FEM_Set_User_Info.hpp"
 
 
 namespace moris
@@ -37,7 +40,6 @@ namespace moris
         class Cell;
         class Set;
         class Field_Interpolator;
-        class Set_User_Info;
         class Property;
         class Constitutive_Model;
         class Stabilization_Parameter;
@@ -59,7 +61,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class FEM_Model
+        class FEM_Model : public  MSI::Equation_Model
         {
             // pointer to reference mesh
             mtk::Mesh_Manager* mMeshManager = nullptr;
@@ -68,23 +70,16 @@ namespace moris
             // list of IP node pointers
             moris::Cell< fem::Node_Base* > mIPNodes;
 
-            // list of IP cell pointers
-            moris::Cell< fem::Cell* > mIPCells;
-
-            // list of FEM sets
-            moris::Cell< MSI::Equation_Set * > mFemSets;
-
-            // list of FEM clusters
-            moris::Cell< MSI::Equation_Object* > mFemClusters;
-
-            map< moris_index, moris_index >   mMeshSetToFemSetMap;
-
+            // list of QI values
             moris::Cell< moris::real >       mQi;
 
             // parameter list to build the fem model
             moris::Cell< moris::Cell< ParameterList > > mParameterList;
 
-            //
+            // unpacked fem inputs
+            moris::Cell< fem::Set_User_Info > mSetInfo;
+
+            // file path for property functions input
             std::string mFilePath;
 
 //------------------------------------------------------------------------------
@@ -96,9 +91,26 @@ namespace moris
              * @param[ in ] aMeshPairIndex mesh pair index
              * @param[ in ] aSetInfo       cell of set user info
              */
-            FEM_Model(       mtk::Mesh_Manager                 * aMeshManager,
-                       const moris_index                       & aMeshPairIndex,
-                             moris::Cell< fem::Set_User_Info > & aSetInfo );
+            FEM_Model
+            (       mtk::Mesh_Manager                 * aMeshManager,
+              const moris_index                       & aMeshPairIndex,
+                    moris::Cell< fem::Set_User_Info > & aSetInfo );
+
+//------------------------------------------------------------------------------
+            /**
+             * constructor with fem input
+             * @param[ in ] aMesh          mesh for this problem
+             * @param[ in ] aMeshPairIndex mesh pair index
+             * @param[ in ] aParameterList a list of list of parameter lists
+             * @param[ in ] aInputFilePath a file path for property functions
+             */
+            FEM_Model
+            (       mtk::Mesh_Manager                           * aMeshManager,
+              const moris_index                                 & aMeshPairIndex,
+                    moris::Cell< moris::Cell< ParameterList > > & aParameterList,
+                    std::string                                   aInputFilePath );
+
+//------------------------------------------------------------------------------
             /**
              * trivial constructor
              */
@@ -114,8 +126,11 @@ namespace moris
             /**
              * initialize the FEM model from parameter lists
              * @param[ in ] aParameterList a list of list of parameter lists
+             * @param[ in ] aInputFilePath a file path for property functions
              */
-            void initialize( moris::Cell< moris::Cell< ParameterList > > & aParameterList );
+            void initialize
+            ( moris::Cell< moris::Cell< ParameterList > > & aParameterList,
+              std::string                                   aInputFilePath );
 
 //------------------------------------------------------------------------------
             /**
@@ -269,16 +284,32 @@ namespace moris
              * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_IQIs
-	        ( moris::Cell< std::shared_ptr< fem::IQI > >                     & aIQIs,
-	          moris::Cell< ParameterList >                                   & aParameterList,
-	          moris::Cell< std::shared_ptr< fem::Property > >                & aProperties,
-	          moris::map< std::string, uint >                                & aPropertyMap,
-	          moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      & aCMs,
-	          moris::map< std::string, uint >                                & aCMMap,
-	          moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
-	          moris::map< std::string, uint >                                & aSPMap,
+            ( moris::Cell< std::shared_ptr< fem::IQI > >                     & aIQIs,
+              moris::Cell< ParameterList >                                   & aParameterList,
+              moris::Cell< std::shared_ptr< fem::Property > >                & aProperties,
+              moris::map< std::string, uint >                                & aPropertyMap,
+              moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      & aCMs,
+              moris::map< std::string, uint >                                & aCMMap,
+              moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
+              moris::map< std::string, uint >                                & aSPMap,
               moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
               moris::map< std::string, GEN_DV >                              & aDvTypeMap );
+
+//------------------------------------------------------------------------------
+            /**
+             * create fem set info
+             * param[ in ] aSetInfo          a list of set user info to fill
+             * param[ in ] aIWGParameterList a list of IWG parameter lists
+             * param[ in ] aIWGs             a list of IWG pointers
+             * param[ in ] aIQIParameterList a list of IQI parameter lists
+             * param[ in ] aIQIs             a list of IQI pointers
+            */
+            void create_fem_set_info
+            ( moris::Cell< Set_User_Info >               & aSetInfo,
+              moris::Cell< ParameterList >               & aIWGParameterList,
+              moris::Cell< std::shared_ptr< fem::IWG > > & aIWGs,
+              moris::Cell< ParameterList >               & aIQIParameterList,
+              moris::Cell< std::shared_ptr< fem::IQI > > & aIQIs );
 
 //------------------------------------------------------------------------------
         };

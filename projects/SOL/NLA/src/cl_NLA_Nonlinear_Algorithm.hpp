@@ -19,7 +19,7 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
 namespace tsa

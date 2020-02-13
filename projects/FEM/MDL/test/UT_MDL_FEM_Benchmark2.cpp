@@ -423,9 +423,9 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-        = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-//        = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//        = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -460,7 +460,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
 
         // create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
         tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 
         // create time Solver and algorithm
@@ -791,7 +791,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
 //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
 //        = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-        = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -831,7 +831,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
 
         // create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
         tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 
         // create time Solver and algorithm
@@ -1205,9 +1205,9 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         dla::Solver_Factory  tSolFactory;
 
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-        = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-//        = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//        = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1239,7 +1239,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tNonlinearSolverMain.set_dof_type_list( tSolveDofTypes );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
         tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 
         // create time Solver and algorithm
@@ -1613,9 +1613,9 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         dla::Solver_Factory  tSolFactory;
 
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-        = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-//        = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//        = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1647,7 +1647,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tNonlinearSolverMain.set_dof_type_list( tSolveDofTypes );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
         tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 
         // create time Solver and algorithm

@@ -18,7 +18,7 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 //#include "cl_Matrix_Vector_Factory.hpp"
-//#include "cl_Map_Class.hpp"
+//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -42,7 +42,7 @@ namespace mdl
                 mdl::Model * mModel = nullptr;
 
         protected:
-//                Map_Class * mVectorMap = nullptr;
+//                Dist_Map * mVectorMap = nullptr;
 //
 //                //! Full Vector
 //                Dist_Vector * mVector = nullptr;

@@ -59,7 +59,7 @@ namespace moris
                                                                               mMeshPairIndex( aMeshPairIndex ),
                                                                               mUseMultigrid( aUseMultigrid )
     {
-        mFemModel =  std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, aSetInfo );
+        mEquationModel =  std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, aSetInfo );
 
         // FIXME comment???
         mBSplineIndex = aBSplineIndex;
@@ -102,7 +102,7 @@ namespace moris
         }
         //--------------------------END FIXME--------------------------------
 
-        mEquationSets = mFemModel->get_equation_sets();
+        mEquationSets = mEquationModel->get_equation_sets();
 
         moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
 
@@ -113,7 +113,7 @@ namespace moris
         }
 
         mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
-                                                                        mEquationSets,
+                                                                        mEquationModel,
                                                                         tCommTable,
                                                                         tIdToIndMap,
                                                                         tMaxNumAdofs,
@@ -163,7 +163,7 @@ namespace moris
                                                                               mMeshPairIndex( aMeshPairIndex ),
                                                                               mUseMultigrid( aUseMultigrid )
         {
-            mFemModel =  std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, aSetInfo );
+            mEquationModel =  std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, aSetInfo );
 
             // start timer
             tic tTimer1;
@@ -206,7 +206,7 @@ namespace moris
             }
             //--------------------------END FIXME--------------------------------
 
-            mEquationSets = mFemModel->get_equation_sets();
+            mEquationSets = mEquationModel->get_equation_sets();
 
             moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
 
@@ -283,16 +283,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map( )
+        map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map()
         {
-            return mFemModel->get_mesh_set_to_fem_set_index_map();
+            return mEquationModel->get_mesh_set_to_fem_set_index_map();
         }
 
 //------------------------------------------------------------------------------
 
         void Model::set_weak_bcs( const Matrix<DDRMat> & aWeakBCs )
         {
-        	moris::Cell< MSI::Equation_Object * > tFemClusters = mFemModel->get_equation_objects();
+        	moris::Cell< MSI::Equation_Object * > tFemClusters = mEquationModel->get_equation_objects();
             // set weak BCs
             for( auto tElement : tFemClusters )
             {
@@ -312,7 +312,7 @@ namespace moris
 
         void Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
         {
-        	moris::Cell< MSI::Equation_Object * > tFemClusters = mFemModel->get_equation_objects();
+        	moris::Cell< MSI::Equation_Object * > tFemClusters = mEquationModel->get_equation_objects();
 
             for( auto tElement : tFemClusters )
             {

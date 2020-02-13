@@ -57,32 +57,6 @@ namespace MSI
         return tMSIDofTypeMap;
     }
 
-
-    enum class Dv_Type
-    {
-        XCOORD,
-        YCOORD,
-        ZCOORD,
-        LS1,        //< Level set 1
-        LS2,        //< Level set 2
-        DENSITY,    //< Density
-        UNDEFINED, //< Undefined
-        END_ENUM//
-    };
-
-    map< std::string, enum MSI::Dv_Type > get_msi_dv_type_map()
-    {
-        map< std::string, enum MSI::Dv_Type > tMSIDvTypeMap;
-
-        tMSIDvTypeMap["XCOORD"]  = MSI::Dv_Type::XCOORD;
-        tMSIDvTypeMap["YCOORD"]  = MSI::Dv_Type::YCOORD;
-        tMSIDvTypeMap["ZCOORD"]  = MSI::Dv_Type::ZCOORD;
-        tMSIDvTypeMap["LS1"]     = MSI::Dv_Type::LS1;
-        tMSIDvTypeMap["LS2"]     = MSI::Dv_Type::LS2;
-        tMSIDvTypeMap["DENSITY"] = MSI::Dv_Type::DENSITY;
-
-        return tMSIDvTypeMap;
-    }
 }
 }
 

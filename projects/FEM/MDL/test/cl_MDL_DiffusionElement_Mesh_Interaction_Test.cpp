@@ -193,7 +193,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -232,7 +232,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -404,7 +404,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -444,7 +444,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -641,7 +641,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -680,7 +680,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -905,7 +905,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -944,7 +944,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -1177,7 +1177,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1216,7 +1216,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

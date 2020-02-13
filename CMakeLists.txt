@@ -72,6 +72,7 @@ set(MSI "MSI")
 set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
+set(PRM "PRM")
 set(SDF "SDF")
 set(SOL "SOL")
 set(SOL_CORE "SOL_CORE")
@@ -239,6 +240,8 @@ option(BUILD_MTK "Build the MTK executable." OFF)
 option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 
 option(BUILD_OPT "Build the optimization executable." OFF)
+
+option(BUILD_PRM "Build the PRM executable." OFF)
 
 option(BUILD_SDF "Build the SDF executable." OFF)
 
@@ -654,6 +657,10 @@ endif()
 
 if(BUILD_OPT)
     include(${MORIS_DEPENDS_DIR}/OPT_Depends.cmake)
+endif()
+
+if(BUILD_PRM)
+    include(${MORIS_DEPENDS_DIR}/PRM_Depends.cmake)
 endif()
 
 if(BUILD_STK)

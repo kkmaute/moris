@@ -8,11 +8,33 @@
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
+#include "cl_MSI_Equation_Model.hpp"
 
 namespace moris
 {
     namespace MSI
     {
+
+//------------------------------------------------------------------------------
+
+    Model_Solver_Interface::Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
+                                                         std::shared_ptr< MSI::Equation_Model >            & aEquationModel,
+                                                   const Matrix< IdMat >                                   & aCommTable,
+                                                   const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                                                   const moris::uint                                         aNumMaxAdofs,
+                                                         mtk::Mesh                                         * aMesh ) : mMSIParameterList( aMSIParameterList ),
+                                                                                                                       mEquationBlocks( aEquationModel->get_equation_sets() ),
+                                                                                                                       mDofMgn( aCommTable, this ),
+                                                                                                                       mMesh( aMesh )
+    {
+        this->create_equation_object_list();
+
+        mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
+
+        mDofMgn.set_max_num_adofs( aNumMaxAdofs );
+
+        mDofMgn.initialize_pdof_type_list( mEquationBlocks );
+    }
 
 //------------------------------------------------------------------------------
 

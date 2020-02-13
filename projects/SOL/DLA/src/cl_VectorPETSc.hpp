@@ -20,6 +20,8 @@ class Vector_PETSc : public moris::Dist_Vector
 {
 private:
 
+    Vec               mPetscVector =nullptr;
+
     moris::Matrix< DDUMat >   mDirichletBCVec;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
@@ -30,8 +32,8 @@ protected:
 public:
     /** Default contructor */
     Vector_PETSc(       moris::Solver_Interface * aInput,
-                  const moris::Map_Class        * aMap,
-                  const enum moris::VectorType    aVectorType );
+                        moris::Dist_Map        * aMap,
+                  const sint                      aNumVectores );
 
     /** Destructor */
     ~Vector_PETSc();
@@ -78,6 +80,16 @@ public:
     void read_vector_from_HDF5( const char* aFilename );
 
 //-----------------------------------------------------------------------------
+
+    virtual Vec get_petsc_vector()
+    {
+        return mPetscVector;
+    };
+
+    virtual Vec get_petsc_vector() const
+    {
+        return mPetscVector;
+    };
 
     void check_vector();
 };

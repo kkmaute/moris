@@ -129,7 +129,7 @@ void Linear_Solver_PETSc::build_multigrid_preconditioner( Linear_Problem * aLine
     aLinearSystem->get_solver_input()->build_multigrid_operators();
 
     // get multigrid operators
-    moris::Cell< Sparse_Matrix * > tProlongationList = aLinearSystem->get_solver_input()->get_multigrid_operator_pointer()->get_prolongation_list();
+    moris::Cell< Dist_Matrix * > tProlongationList = aLinearSystem->get_solver_input()->get_multigrid_operator_pointer()->get_prolongation_list();
 
     PetscInt tLevels = mParameterList.get< moris::sint >( "MultigridLevels" );
 
