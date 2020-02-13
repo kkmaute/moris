@@ -78,11 +78,13 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - Unknown aPropertyString." );
+
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed" );
-
-                // FIXME check that property type makes sense?
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -99,30 +101,17 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // check that aConstitutiveString makes sense
+                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
+
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed" );
-
-                // FIXME check that constitutive string makes sense?
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_constitutive_model - No slave allowed." );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
             }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * set stabilization parameter
-//             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-//             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-//             */
-//            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-//                                              std::string                                aStabilizationString )
-//            {
-//                // FIXME check that stabilization string makes sense?
-//
-//                // set the stabilization parameter in the stabilization parameter cell
-//                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-//            }
 
 //------------------------------------------------------------------------------
             /**

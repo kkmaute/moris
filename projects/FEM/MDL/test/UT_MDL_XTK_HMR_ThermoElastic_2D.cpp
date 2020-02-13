@@ -562,15 +562,15 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         // close file
         close_hdf5_file( tFileID );
-print(tFullSolution,"tFullSolution");
-print(tGoldSolution,"tGoldSolution");
-std::cout<<"norm of difference in solutions:  "<<norm(tFullSolution - tGoldSolution)<<std::endl;
+
+//        print(tFullSolution, "tFullSolution");
+//        print(tGoldSolution, "tGoldSolution");
+
         // verify solution
         moris::real tEpsilon = 1E-06;
         bool tCheck = true;
         for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)
         {
-std::cout<<"diff:  "<<tFullSolution(Ik) - tGoldSolution(Ik)<<std::endl;
             if (!((tFullSolution(Ik) - tGoldSolution(Ik)) <= tEpsilon))
             {
                 tCheck = false;

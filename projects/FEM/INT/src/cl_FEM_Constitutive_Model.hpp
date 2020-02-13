@@ -58,6 +58,9 @@ namespace moris
             // dv type list
             moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
 
+            // local string to dv enum map
+            std::map< std::string, GEN_DV > mDvMap;
+
             // global dv type list
             moris::Cell< moris::Cell< GEN_DV > > mGlobalDvTypes;
 
@@ -95,6 +98,8 @@ namespace moris
             Matrix< DDRMat > mConst;
             moris::Cell< Matrix< DDRMat > > mdConstdDof;
             moris::Cell< Matrix< DDRMat > > mdConstdDv;
+
+            std::string mName;
 
         private:
 
@@ -141,6 +146,46 @@ namespace moris
              * virtual destructor
              */
             virtual ~Constitutive_Model(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for CM name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for CM name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * print names
+             */
+            void print_names()
+            {
+            	std::cout<<"----------"<<std::endl;
+                std::cout<<"CM: "<<mName<<std::endl;
+
+                // properties
+                for( uint iProp = 0; iProp < mProperties.size(); iProp++ )
+                {
+                    if( mProperties( iProp ) != nullptr )
+                    {
+                        std::cout<<"Property: "<<mProperties( iProp )->get_name()<<std::endl;
+                    }
+                }
+            std::cout<<"----------"<<std::endl;
+            }
 
 //------------------------------------------------------------------------------
             /*
@@ -302,6 +347,27 @@ namespace moris
                 // build a map for the dv types
                 this->build_dv_type_map();
 
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set constitutive model dv types
+             * @param[ in ] aDvTypes a cell of cell of dv types
+             */
+            void set_dv_type_list( moris::Cell< moris::Cell< GEN_DV > > aDvTypes,
+                                   moris::Cell< std::string >           aDvStrings )
+            {
+                // set the dv types
+                mDvTypes = aDvTypes;
+
+                // build a map for the dv types
+                this->build_dv_type_map();
+
+                // set the dv map
+                for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
+                {
+                    mDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
+                }
             }
 
 //------------------------------------------------------------------------------

@@ -32,6 +32,9 @@ namespace moris
 
         typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::ParameterList & aParamterList );
 
+        typedef moris::Matrix< moris::DDRMat > ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+                                                                              moris::fem::Field_Interpolator_Manager*         aFIManager );
+
 // -----------------------------------------------------------------------------
 
         /**
@@ -116,6 +119,26 @@ namespace moris
                 // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                         + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_FEM_FREE_FUNCTION
+            load_fem_free_functions( const std::string & aFunctionName )
+            {
+                MORIS_FEM_FREE_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_FEM_FREE_FUNCTION>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
 
                 // make sure that loading succeeded
                 MORIS_ERROR( aUserFunction, tError.c_str() );

@@ -47,7 +47,7 @@ namespace xtk
         enum CellTopology tFacetTopo = CellTopology::QUAD4;
         if(mXTKModel->get_spatial_dim() == 2)
         {
-            tFacetTopo = CellTopology::LINE2;
+            tFacetTopo = CellTopology::QUAD4;
         }
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));

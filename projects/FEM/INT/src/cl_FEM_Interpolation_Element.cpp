@@ -218,7 +218,8 @@ namespace moris
 
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
-//print(mSet->get_jacobian(),"jacobian");
+
+//             print(mSet->get_jacobian(),"jacobian");
          }
 
 //------------------------------------------------------------------------------
@@ -244,7 +245,9 @@ namespace moris
 
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
-//print(mSet->get_residual(),"residual");
+
+//            print(mSet->get_residual(),"jacobian");
+
         }
 
 //------------------------------------------------------------------------------
