@@ -71,6 +71,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * reset the cluster measures required for this SP
+             */
+            void reset_cluster_measures()
+            {
+                // evaluate element size from the cluster
+                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                              mtk::Master_Slave::MASTER );
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * set property
              * @param[ in ] aProperty       a property pointer
              * @param[ in ] aPropertyString a string defining the property
@@ -80,21 +91,12 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // FIXME check that property type makes sense?
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "SP_Dirichlet_Nitsche::set_property - Unknown aPropertyString." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures()
-            {
-                // evaluate element size from the cluster
-                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                              mtk::Master_Slave::MASTER );
             }
 
 //------------------------------------------------------------------------------

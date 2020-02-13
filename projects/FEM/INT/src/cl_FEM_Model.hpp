@@ -99,10 +99,10 @@ namespace moris
             FEM_Model(       mtk::Mesh_Manager                 * aMeshManager,
                        const moris_index                       & aMeshPairIndex,
                              moris::Cell< fem::Set_User_Info > & aSetInfo );
-
+            /**
+             * trivial constructor
+             */
             FEM_Model(){};
-
-            void initialize( moris::Cell< moris::Cell< ParameterList > > & aParameterList );
 
 //------------------------------------------------------------------------------
             /**
@@ -112,7 +112,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * initialize the FEM model from parameter lists
+             * @param[ in ] aParameterList a list of list of parameter lists
+             */
+            void initialize( moris::Cell< moris::Cell< ParameterList > > & aParameterList );
+
+//------------------------------------------------------------------------------
+            /**
              * set file path
+             * @param[ in ] aFilePath string for file path
              */
             void set_file_path( std::string aFilePath )
             {
@@ -152,6 +160,7 @@ namespace moris
              * param[ in ] aProperties    a list of property pointers to fill
              * param[ in ] aParameterList a list of parameter lists for properties
              * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+             * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_properties
             ( moris::Cell< std::shared_ptr< fem::Property > > & aProperties,
@@ -167,6 +176,9 @@ namespace moris
              * param[ in ] aParameterList a list of parameter lists for CMs
              * param[ in ] aProperties    a list of property pointers
              *                            to assign to CMs
+             * param[ in ] aPropertyMap   a map from property name to property index
+             * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+             * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_constitutive_models
             ( moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & aCMs,
@@ -184,8 +196,14 @@ namespace moris
              * param[ in ] aParameterList a list of parameter lists for SPs
              * param[ in ] aProperties    a list of property pointers
              *                            to assign to SPs
+             * param[ in ] aPropertyMap   a map from property name to property
+             *                            index in aProperties
              * param[ in ] aCMs           a list of CM pointers
              *                            to assign to SPs
+             * param[ in ] aCMMap         a map from CM name to CM index
+             *                            in aCMs
+             * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+             * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_stabilization_parameters
             ( moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & aSPs,
@@ -204,11 +222,19 @@ namespace moris
              * param[ in ] aIWGs          a list of IWG pointers to fill
              * param[ in ] aParameterList a list of parameter lists
              * param[ in ] aProperties    a list of property pointers
-             *                            to assign to SPs
+             *                            to assign to IWGs
+             * param[ in ] aPropertyMap   a map from property name to property
+             *                            index in aProperties
              * param[ in ] aCMs           a list of CM pointers
-             *                            to assign to SPs
+             *                            to assign to IWGs
+             * param[ in ] aCMMap         a map from CM name to CM index
+             *                            in aCMs
              * param[ in ] aSPs           a list of SP pointers
-             *                            to assign to SPs
+             *                            to assign to IWGs
+             * param[ in ] aSPMap         a map from SP name to SP index
+             *                            in aSPs
+             * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+             * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_IWGs
             ( moris::Cell< std::shared_ptr< fem::IWG > >                     & aIWGs,
@@ -228,11 +254,19 @@ namespace moris
              * param[ in ] aIQIs          a list of IQI pointers to fill
              * param[ in ] aParameterList a list of parameter lists
              * param[ in ] aProperties    a list of property pointers
-             *                            to assign to SPs
+             *                            to assign to IQIs
+             * param[ in ] aPropertyMap   a map from property name to property
+             *                            index in aProperties
              * param[ in ] aCMs           a list of CM pointers
-             *                            to assign to SPs
+             *                            to assign to IQIs
+             * param[ in ] aCMMap         a map from CM name to CM index
+             *                            in aCMs
              * param[ in ] aSPs           a list of SP pointers
-             *                            to assign to SPs
+             *                            to assign to IQIs
+             * param[ in ] aSPMap         a map from SP name to SP index
+             *                            in aSPs
+             * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+             * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_IQIs
 	        ( moris::Cell< std::shared_ptr< fem::IQI > >                     & aIQIs,

@@ -26,23 +26,38 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        // creates a property parameter list with default inputs
+        /*
+         * creates a property parameter list with default inputs
+         * @param [ out ] ParameterList a property parameter list
+         */
         ParameterList create_property_parameter_list();
 
 //------------------------------------------------------------------------------
-        // creates a constitutive model parameter list with default inputs
+        /*
+         * creates a constitutive model parameter list with default inputs
+         * @param [ out ] ParameterList a CM parameter list
+         */
         ParameterList create_constitutive_model_parameter_list();
 
 //------------------------------------------------------------------------------
-        // creates a stabilization parameter parameter list with default inputs
+        /*
+         * creates a stabilization parameter parameter list with default inputs
+         * @param [ out ] ParameterList a SP parameter list
+         */
         ParameterList create_stabilization_parameter_parameter_list();
 
 //------------------------------------------------------------------------------
-        // creates an IWG parameter list with default inputs
+        /*
+         * creates an IWG parameter list with default inputs
+         * @param [ out ] ParameterList a IWG parameter list
+         */
         ParameterList create_IWG_parameter_list();
 
 //------------------------------------------------------------------------------
-        // creates an IQI parameter list with default inputs
+        /*
+         * creates an IQI parameter list with default inputs
+         * @param [ out ] ParameterList a IQI parameter list
+         */
         ParameterList create_IQI_parameter_list();
 
 //------------------------------------------------------------------------------

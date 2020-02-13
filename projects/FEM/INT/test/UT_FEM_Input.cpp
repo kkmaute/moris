@@ -89,6 +89,7 @@ namespace moris
             tParameterList( 3 )( 0 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
             tParameterList( 3 )( 0 ).set( "dof_residual", "TEMP" );
             tParameterList( 3 )( 0 ).set( "master_dof_dependencies", "TEMP" );
+            tParameterList( 3 )( 0 ).set( "master_properties", "Property1,Load" );
             tParameterList( 3 )( 0 ).set( "master_constitutive_models", "CM1,DiffLinIso" );
 
             // create parameter list for IWG 2
@@ -108,7 +109,7 @@ namespace moris
             tParameterList( 3 )( 2 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET ) );
             tParameterList( 3 )( 2 ).set( "dof_residual", "UX,UY,UZ" );
             tParameterList( 3 )( 2 ).set( "master_dof_dependencies", "UX,UY,UZ" );
-            tParameterList( 3 )( 2 ).set( "master_constitutive_models", "CM1,DiffLinIso" );
+            tParameterList( 3 )( 2 ).set( "master_constitutive_models", "CM1,ElastLinIso" );
             tParameterList( 3 )( 2 ).set( "master_properties", "Property2,Dirichlet;Property1,Select" );
 
 
@@ -139,13 +140,6 @@ namespace moris
             tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
             tFEMModel.set_file_path( tMeshFilePath );
             tFEMModel.initialize( tParameterList );
-
-//            // Local string to property enum map
-//            std::map< std::string, uint > mPropertyMap;
-//            std::pair< std::string, uint > tPair( "Dirichlet", 1 );
-//            mPropertyMap.insert( tPair );
-//
-//            mPropertyMap.find( "Test" );
 
 //            // parsing tool debug
 //            std::string tString = " 1.0, 2.0, 3.0; 4.0, 5.0, 6.0; 7.0, 8.0, 9.0";

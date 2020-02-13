@@ -158,7 +158,7 @@ namespace moris
             moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap
             = moris::MSI::get_msi_dof_type_map();
 
-            // get msi string to dv type map
+            // get string to dv type map
             moris::map< std::string, GEN_DV > tMSIDvTypeMap
             = get_dv_type_map();
 
@@ -187,7 +187,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         FEM_Model::~FEM_Model()
         {
             // delete fem nodes
