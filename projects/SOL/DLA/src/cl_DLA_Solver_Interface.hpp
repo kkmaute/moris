@@ -101,26 +101,14 @@ public:
     // local dimension of the problem
     virtual moris::uint get_num_my_dofs()         =0;
 
-    virtual moris::uint get_num_rhs()
-    {
-    	return 1;
-//        MORIS_ERROR( false, "Solver_Interface::get_num_rhs: not set.");
-    };
+    virtual moris::uint get_num_rhs(){ return 1; };
 
     virtual uint get_max_num_global_dofs() = 0;
 
     // number local elements blocks
-    virtual moris::uint get_num_my_blocks()
-    {
-        MORIS_ERROR( false, "Solver_Interface::get_num_my_blocks: not set.");
-        return 0;
-    };
+    virtual moris::uint get_num_my_blocks() = 0;
 
-    virtual moris::uint get_num_my_elements_on_block( uint aBlockInd )
-    {
-        MORIS_ERROR( false, "Solver_Interface::get_num_my_blocks: not set.");
-        return 0;
-    };
+    virtual moris::uint get_num_my_elements_on_block( uint aBlockInd ) = 0;
 
 
     // number local elements
@@ -142,14 +130,14 @@ public:
         return aMat;
     };
 
-    virtual moris::Matrix< DDUMat > get_constr_dof()          =0;
+    virtual moris::Matrix< DDUMat > get_constrained_Ids() =0;
 
-    virtual void get_element_matrix(const moris::uint             & aMyElementInd,
-                                          moris::Matrix< DDRMat > & aElementMatrix) =0;
+    virtual void get_equation_object_operator( const moris::uint             & aMyElementInd,
+                                                     moris::Matrix< DDRMat > & aElementMatrix) =0;
 
-    virtual void get_element_matrix(const moris::uint             & aMyBlockInd,
-                                    const moris::uint             & aMyElementInd,
-                                          moris::Matrix< DDRMat > & aElementMatrix) =0;
+    virtual void get_equation_object_operator( const moris::uint             & aMyBlockInd,
+                                               const moris::uint             & aMyElementInd,
+                                                     moris::Matrix< DDRMat > & aElementMatrix) =0;
 
     virtual void get_element_topology(const moris::uint             & aMyElementInd,
                                             moris::Matrix< DDSMat > & aElementTopology) =0;

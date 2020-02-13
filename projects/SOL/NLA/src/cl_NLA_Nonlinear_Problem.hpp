@@ -25,9 +25,12 @@ namespace dla
 {
     class Linear_Problem;
 }
-namespace NLA
+namespace sol
 {
     class SOL_Warehouse;
+}
+namespace NLA
+{
     class Nonlinear_Problem
     {
     private:
@@ -77,7 +80,7 @@ namespace NLA
         bool mBuildLinerSystemFlag = true;
 
         //! Map type. for special Petsc functionalities
-        enum MapType mMapType = MapType::Epetra;
+        enum sol::MapType mMapType = sol::MapType::Epetra;
 
         //! Nonlinear solver manager index. only for output purposes
         moris::sint mNonlinearSolverManagerIndex = -1;
@@ -97,7 +100,7 @@ namespace NLA
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra );
+                           const enum sol::MapType       aMapType = sol::MapType::Epetra );
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief Constructor. Creates nonlinear system
@@ -108,12 +111,12 @@ namespace NLA
          * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
          * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
          */
-        Nonlinear_Problem(       SOL_Warehouse    * aNonlinDatabase,
+        Nonlinear_Problem(       sol::SOL_Warehouse    * aNonlinDatabase,
                                  Solver_Interface * aSolverInterface,
                                  Dist_Vector      * aFullVector,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra);
+                           const enum sol::MapType       aMapType = sol::MapType::Epetra);
 
         //--------------------------------------------------------------------------------------------------
         ~Nonlinear_Problem();

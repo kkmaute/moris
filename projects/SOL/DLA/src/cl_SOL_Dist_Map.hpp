@@ -18,7 +18,7 @@
 
 #include <petscao.h>
 
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 namespace moris
 {

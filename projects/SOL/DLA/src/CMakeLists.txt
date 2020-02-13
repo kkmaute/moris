@@ -7,7 +7,6 @@ set(${DLA}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_Communicator_Epetra.hpp
-    cl_DLA_Enums.hpp
     cl_DLA_Linear_Solver_Amesos2.hpp
     cl_DLA_Linear_Solver_Amesos.hpp
     cl_DLA_Linear_Solver_Aztec.hpp

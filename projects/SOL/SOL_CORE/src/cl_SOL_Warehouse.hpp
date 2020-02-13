@@ -22,7 +22,7 @@
 namespace moris
 {
 class Solver_Interface;
-namespace NLA
+namespace sol
 {
     class SOL_Warehouse
     {

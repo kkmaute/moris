@@ -19,6 +19,10 @@
 
 namespace moris
 {
+namespace sol
+{
+class SOL_Warehouse;
+}
 namespace tsa
 {
 class Time_Solver_Algorithm;
@@ -27,7 +31,6 @@ namespace NLA
 {
     class Nonlinear_Problem;
     class Nonlinear_Algorithm;
-    class SOL_Warehouse;
     class Nonlinear_Solver
     {
     private:
@@ -44,7 +47,7 @@ namespace NLA
         moris::Cell< Nonlinear_Solver * > mNonLinearSubSolverList;
 
         //! Pointer to solver database
-        SOL_Warehouse * mSolverWarehouse = nullptr;
+        sol::SOL_Warehouse * mSolverWarehouse = nullptr;
 
         //! Pointer to nonlinear problem
         Nonlinear_Problem * mNonlinearProblem = nullptr;
@@ -218,7 +221,7 @@ namespace NLA
          *
          * @param[out] rSolverDatabase Returns the pointer to the solver database
          */
-        SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
+        sol::SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
 
         //--------------------------------------------------------------------------------------------------
 
@@ -227,7 +230,7 @@ namespace NLA
          *
          * @param[in] rSolverDatabase Poiner to the solver database
          */
-        void set_solver_warehouse( SOL_Warehouse * aSolverWarehouse );
+        void set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse );
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief sets the time iteration

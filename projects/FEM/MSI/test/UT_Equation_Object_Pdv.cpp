@@ -292,7 +292,7 @@ namespace moris
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
-        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
         Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
         Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 

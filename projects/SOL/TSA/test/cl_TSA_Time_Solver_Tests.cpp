@@ -35,7 +35,7 @@ namespace tsa
         Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tSolverInput );
+        sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
 
         NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
 

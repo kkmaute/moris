@@ -51,7 +51,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
         this->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        this->get_element_matrix( Ii, tElementMatrix );
+        this->get_equation_object_operator( Ii, tElementMatrix );
 
         Cell< Matrix< DDRMat > > tElementRHS;
         this->get_equation_object_rhs( Ii, tElementRHS );
@@ -152,7 +152,7 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
 //            print(tElementTopology,"tElementTopology");
 
             Matrix< DDRMat > tElementMatrix;
-            this->get_element_matrix( Ii, Ik, tElementMatrix );
+            this->get_equation_object_operator( Ii, Ik, tElementMatrix );
 
 //            print(tElementMatrix,"tElementMatrix");
 
@@ -190,7 +190,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
         this->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        this->get_element_matrix( Ii, tElementMatrix );
+        this->get_equation_object_operator( Ii, tElementMatrix );
 
         Cell< Matrix< DDRMat > >tElementRHS;
         this->get_equation_object_rhs( Ii, tElementRHS );

@@ -12,7 +12,7 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Factory.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -21,19 +21,19 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase,
+Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse      * aNonlinDatabase,
                                             Solver_Interface   * aSolverInterface,
                                             Dist_Vector        * aFullVector,
                                       const moris::sint          aNonlinearSolverManagerIndex,
                                       const bool                 aBuildLinerSystemFlag,
-                                      const enum MapType         aMapType) :     mFullVector( aFullVector ),
+                                      const enum sol::MapType         aMapType) :     mFullVector( aFullVector ),
                                                                                  mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
                                                                                  mMapType( aMapType ),
                                                                                  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-    if( mMapType == MapType::Petsc )
+    if( mMapType == sol::MapType::Petsc )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
@@ -51,12 +51,10 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
     Matrix_Vector_Factory tMatFactory( mMapType );
 
     // create map object FIXME ask linear problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ),
-                                   aSolverInterface->get_constr_dof() );
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
 
     // create map object FIXME ask linear problem for map
-    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map(),
-    		                           aSolverInterface->get_constr_dof( ));
+    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
 
 
     // create solver object
@@ -100,13 +98,13 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
 Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                                       const moris::sint        aNonlinearSolverManagerIndex,
                                       const bool               aBuildLinerSystemFlag,
-                                      const enum MapType       aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                      const enum sol::MapType       aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
                                                                                 mMapType( aMapType ),
                                                                                 mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-    if( mMapType == MapType::Petsc )
+    if( mMapType == sol::MapType::Petsc )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
@@ -118,12 +116,11 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // create map object FIXME ask liner problem for map
 //    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
 //                                   aSolverInterface->get_my_local_global_map(),
-//                                   aSolverInterface->get_constr_dof(),
+//                                   aSolverInterface->get_constrained_Ids(),
 //                                   aSolverInterface->get_my_local_global_overlapping_map());
 //    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map(),
-//                                   aSolverInterface->get_constr_dof() );
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map(),
-                                   aSolverInterface->get_constr_dof() );
+//                                   aSolverInterface->get_constrained_Ids() );
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map());
 
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
@@ -159,8 +156,6 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
 
     //------------------------------------------------------------------------------
-
-//    mFullForDiag = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
     mFullVector->vec_put_scalar( 0.0 );
 
@@ -224,7 +219,7 @@ Nonlinear_Problem::~Nonlinear_Problem()
         delete( mJacobian );
     }
 
-    if ( mMapType == MapType::Petsc)
+    if ( mMapType == sol::MapType::Petsc)
     {
         PetscFinalize();
     }

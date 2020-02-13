@@ -14,7 +14,7 @@
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 // MORIS header files.
 
@@ -33,7 +33,7 @@ namespace tsa
 
     protected:
         //! Pointer to database
-        NLA::SOL_Warehouse * mSolverWarehouse = nullptr;
+        sol::SOL_Warehouse * mSolverWarehouse = nullptr;
 
         //! Pointer to solver interface
         Solver_Interface * mSolverInterface = nullptr;
@@ -70,7 +70,7 @@ namespace tsa
     public:
         //-------------------------------------------------------------------------------
 
-        Time_Solver_Algorithm( const enum MapType aMapType = MapType::Epetra );
+        Time_Solver_Algorithm( const enum sol::MapType aMapType = sol::MapType::Epetra );
 
         //-------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ namespace tsa
 
         //-------------------------------------------------------------------------------
 
-        void set_solver_warehouse( NLA::SOL_Warehouse * aSolverWarehouse )
+        void set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
         {
             mSolverWarehouse = aSolverWarehouse;
         };

@@ -34,7 +34,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
 
     // Build map
     Dist_Map * tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                                    tSolverInput->get_constr_dof());
+                                                    tSolverInput->get_constrained_Ids());
 
     // Create pointer to sparse matrix
     Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tLocalMap );
@@ -58,7 +58,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        tSolverInput->get_element_matrix( Ii, tElementMatrix );
+        tSolverInput->get_equation_object_operator( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.n_rows(), tElementMatrix, tElementTopology );
     }
@@ -105,7 +105,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
 
     // Build map
     Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                               tSolverInput->get_constr_dof() );
+                                               tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
     Dist_Vector * tVectorScale = tMatFactory.create_vector( tSolverInput, tMap, 1 );
@@ -132,7 +132,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        tSolverInput->get_element_matrix( Ii, tElementMatrix );
+        tSolverInput->get_equation_object_operator( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.n_rows(), tElementMatrix, tElementTopology );
     }
@@ -184,7 +184,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
 
     // Build map
     Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                               tSolverInput->get_constr_dof() );
+                                               tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
     Dist_Vector * tVectorDiagonal = tMatFactory.create_vector( tSolverInput, tMap, 1 );
@@ -211,7 +211,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        tSolverInput->get_element_matrix( Ii, tElementMatrix );
+        tSolverInput->get_equation_object_operator( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.n_rows() , tElementMatrix, tElementTopology );
     }

@@ -16,7 +16,7 @@
 
 using namespace moris;
 
-moris::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum MapType aMapType )
+moris::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum sol::MapType aMapType )
 {
     mMapType = aMapType;
 }
@@ -28,10 +28,10 @@ Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_I
 
     switch( mMapType )
     {
-    case (MapType::Epetra):
+    case (sol::MapType::Epetra):
         tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap );
         break;
-    case (MapType::Petsc):
+    case (sol::MapType::Petsc):
         tSparseMatrix = new Matrix_PETSc( aInput, aMap );
         break;
     default:
@@ -48,10 +48,10 @@ Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRo
 
     switch( mMapType )
     {
-    case (MapType::Epetra):
+    case (sol::MapType::Epetra):
         tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
         break;
-    case (MapType::Petsc):
+    case (sol::MapType::Petsc):
         tSparseMatrix = new Matrix_PETSc( aRows, aCols );
         break;
     default:
@@ -70,10 +70,10 @@ moris::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
-    case (MapType::Epetra):
+    case (sol::MapType::Epetra):
         tDistVector = new moris::Vector_Epetra( aMap, aNumVectors );
         break;
-    case (MapType::Petsc):
+    case (sol::MapType::Petsc):
         MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
         tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
         break;
@@ -91,10 +91,10 @@ moris::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
-    case (MapType::Epetra):
+    case (sol::MapType::Epetra):
         tDistVector = new moris::Vector_Epetra();
         break;
-//    case (MapType::Petsc):
+//    case (sol::MapType::Petsc):
 //        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
 //        break;
     default:
@@ -112,10 +112,10 @@ moris::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix<
 
     switch( mMapType )
     {
-        case (MapType::Epetra):
+        case (sol::MapType::Epetra):
             tMap = new moris::Map_Epetra ( aMyGlobalIds, aMyConstraintIds );
             break;
-        case (MapType::Petsc):
+        case (sol::MapType::Petsc):
             tMap = new Map_PETSc ( aMyGlobalIds, aMyConstraintIds );
             break;
         default:
@@ -132,10 +132,10 @@ moris::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix<
 
     switch( mMapType )
         {
-        case (MapType::Epetra):
+        case (sol::MapType::Epetra):
             tMap = new moris::Map_Epetra ( aMyGlobalIds );
             break;
-        case (MapType::Petsc):
+        case (sol::MapType::Petsc):
             tMap = new Map_PETSc ( aMyGlobalIds );
             break;
         default:

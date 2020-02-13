@@ -292,13 +292,13 @@ namespace moris
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver options
@@ -389,8 +389,8 @@ namespace moris
         tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
         tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
         tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
@@ -422,7 +422,7 @@ namespace moris
         dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
         Nonlinear_Solver  tNonLinSolManager;
 
-        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, 0,true, MapType::Petsc );
+        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, 0,true, sol::MapType::Petsc );
 
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
@@ -437,8 +437,8 @@ namespace moris
         tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::PETSC );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::PETSC );
 
         tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
         tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
@@ -596,13 +596,13 @@ namespace moris
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver options

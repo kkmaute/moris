@@ -12,7 +12,7 @@
 //#include "linalg_typedefs.hpp"
 #include "typedefs.hpp"                       //MRS/COR/src
 
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 //#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
@@ -24,11 +24,11 @@ namespace moris
     class Matrix_Vector_Factory
     {
     private:
-        enum MapType mMapType = MapType::Epetra;
+        enum sol::MapType mMapType = sol::MapType::Epetra;
     protected:
 
     public:
-        Matrix_Vector_Factory( const enum MapType aMapType = MapType::Epetra );
+        Matrix_Vector_Factory( const enum sol::MapType aMapType = sol::MapType::Epetra );
 
         Dist_Matrix * create_matrix(       Solver_Interface * aInput,
                                        const Dist_Map        * aMap );

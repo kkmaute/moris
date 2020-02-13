@@ -29,7 +29,7 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * a
     mDirichletBCVec.set_size  ( aInput->get_max_num_global_dofs(), 1, 0 );
 
     // build BC vector
-    this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constr_dof() );
+    this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constrained_Ids() );
 
     // create matrix class
     mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_map(), nonzerosRow );

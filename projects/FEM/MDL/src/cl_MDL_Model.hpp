@@ -45,14 +45,6 @@ namespace moris
         class Linear_Solver_Algorithm;
     }
 
-    namespace NLA
-    {
-        class Nonlinear_Algorithm;
-        class Nonlinear_Problem;
-        class Nonlinear_Solver;
-        class SOL_Warehouse;
-    }
-
     namespace MSI
     {
         class Model_Solver_Interface;

@@ -136,15 +136,15 @@ namespace NLA
         uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements; };
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_matrix(const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator(const uint             & aMyElementInd,
+                                                Matrix< DDRMat > & aElementMatrix)
         {
             aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
         };
 
-        void get_element_matrix(const uint             & aMyBlockInd,
-                                const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator( const uint             & aMyBlockInd,
+                                           const uint             & aMyElementInd,
+                                                 Matrix< DDRMat > & aElementMatrix)
         {
             aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
         };
@@ -164,7 +164,7 @@ namespace NLA
         };
 
         // ----------------------------------------------------------------------------------------------
-        Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
+        Matrix< DDUMat > get_constrained_Ids(){ return mMyConstraintDofs; };
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_rhs( const uint                     & aMyElementInd,

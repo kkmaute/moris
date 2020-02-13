@@ -13,7 +13,7 @@
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -22,14 +22,14 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 {
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+        Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 
         // create map object
         mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
-                                           aInput->get_constr_dof() );      //FIXME
+                                           aInput->get_constrained_Ids() );      //FIXME
 
-        mMap = tMatFactory.create_map( aInput->get_my_local_global_overlapping_map(),
-                                       aInput->get_constr_dof() );      //FIXME
+        mMap = tMatFactory.create_map( aInput->get_my_local_global_overlapping_map() );      //FIXME
+
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMapFree );
 
@@ -83,7 +83,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
                                                 Dist_Map *        aFreeMap,
                                                 Dist_Map *        aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
-        Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+        Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, aFreeMap );

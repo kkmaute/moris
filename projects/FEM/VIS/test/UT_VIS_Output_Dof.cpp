@@ -357,7 +357,7 @@ namespace moris
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
                 dla::Solver_Factory  tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
                 tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
                 tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -386,7 +386,7 @@ namespace moris
                 tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
                 // Create solver database
-                NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+                sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
                 tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 

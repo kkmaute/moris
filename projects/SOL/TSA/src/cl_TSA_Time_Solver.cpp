@@ -179,7 +179,7 @@ using namespace tsa;
 
     //--------------------------------------------------------------------------------------------------
 
-    void Time_Solver::set_solver_warehouse( NLA::SOL_Warehouse * aSolverWarehouse )
+    void Time_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
     {
         mSolverWarehouse = aSolverWarehouse;
 
@@ -250,9 +250,8 @@ using namespace tsa;
         mSolverInterface = mSolverWarehouse->get_solver_interface();
 
         // create map object
-        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map(),
-        		                           mSolverInterface->get_constr_dof( ) );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
         // full vector and prev full vector
         mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, 1 );

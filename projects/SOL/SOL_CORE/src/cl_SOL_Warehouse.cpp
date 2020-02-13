@@ -14,7 +14,7 @@
 //#include "cl_Matrix_Vector_Factory.hpp"
 
 using namespace moris;
-using namespace NLA;
+using namespace sol;
 
 //void SOL_Warehouse::create_solver_manager_dependencies()
 //{

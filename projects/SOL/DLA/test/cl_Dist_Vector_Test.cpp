@@ -34,7 +34,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
 
         // Build map
         Dist_Map  * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                                    tSolverInput->get_constr_dof() );
+                                                    tSolverInput->get_constrained_Ids() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
@@ -99,7 +99,7 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
 
         // Build map
         Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof() );
+                                                   tSolverInput->get_constrained_Ids() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
@@ -170,7 +170,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
 
         // Build map
         Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof() );
+                                                   tSolverInput->get_constrained_Ids() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
@@ -234,7 +234,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 
         // Build map
         Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof());
+                                                   tSolverInput->get_constrained_Ids());
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, 1 );
@@ -298,7 +298,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
         Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map()  );
 
         Dist_Map * tMapFree = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
-                                                       tSolverInput->get_constr_dof() );
+                                                       tSolverInput->get_constrained_Ids() );
 
         // build local distributed free vector
         Dist_Vector * tVectorFree = tMatFactory.create_vector( tSolverInput, tMapFree, 1 );

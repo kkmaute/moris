@@ -13,7 +13,7 @@
 
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include <petsc.h>
 #include <petscis.h>
@@ -37,14 +37,14 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // create map object
         mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
-                                       aInput->get_constr_dof() );      //FIXME
+                                       aInput->get_constrained_Ids() );      //FIXME
 
         mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
-                                       aInput->get_constr_dof() );      //FIXME
+                                       aInput->get_constrained_Ids() );      //FIXME
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMap );
@@ -82,7 +82,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         PetscInitializeNoArguments();
     }
 
-    Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+    Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );
