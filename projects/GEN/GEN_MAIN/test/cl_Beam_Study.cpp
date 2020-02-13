@@ -347,8 +347,8 @@ TEST_CASE("beamStudy","[beamStudy_3D]")
         tDofTypesU( 0 ) = MSI::Dof_Type::UX;    tDofTypesU( 1 ) = MSI::Dof_Type::UY;    tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
 
         dla::Solver_Factory  tSolFactory;
-//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -383,7 +383,7 @@ TEST_CASE("beamStudy","[beamStudy_3D]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 

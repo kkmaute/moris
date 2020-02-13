@@ -196,7 +196,7 @@ using namespace NLA;
 
     //--------------------------------------------------------------------------------------------------
 
-    void Nonlinear_Solver::set_solver_warehouse( SOL_Warehouse * aSolverWarehouse )
+    void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
     {
         mSolverWarehouse = aSolverWarehouse;
     }

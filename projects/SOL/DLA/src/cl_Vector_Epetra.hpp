@@ -25,6 +25,8 @@ namespace moris
 class Vector_Epetra : public Dist_Vector
 {
 private:
+    Epetra_MultiVector * mEpetraVector;
+
     // Pointer to MultiVector values
     moris::real * mValuesPtr;
 
@@ -33,12 +35,14 @@ protected:
 public:
     Vector_Epetra(){};
 
-    Vector_Epetra( const Map_Class       * aMapClass,
-                   const enum VectorType   aVectorType,
-				   const sint              aNumVectors );
+    Vector_Epetra(       Dist_Map       * aMapClass,
+                   const sint              aNumVectors );
 
     /** Destructor */
     ~Vector_Epetra();
+
+    Epetra_MultiVector * get_epetra_vector()       { return mEpetraVector; }
+    Epetra_MultiVector * get_epetra_vector() const { return mEpetraVector; }
 
     void replace_global_values();
 

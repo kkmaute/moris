@@ -19,7 +19,7 @@
 #include "cl_BoostBitset.hpp" // CON/src
 #include "cl_Communication_Tools.hpp" // COM/src
 
-#include "cl_Map_Class.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include <petscao.h>
@@ -28,12 +28,14 @@
 namespace moris
 {
 
-class Map_PETSc : public moris::Map_Class
+class Map_PETSc : public moris::Dist_Map
 {
 private:
-    void translator( const moris::uint      & aNumMaxDofs,
+
+    AO          mPETScMap = nullptr;
+
+    void translator( const moris::uint             & aNumMaxDofs,
                      const moris::uint             & aNumMyDofs,
-                     const moris::uint             & aNumGlobalDofs,
                      const moris::Matrix< DDSMat > & aMyLocaltoGlobalMap,
                            moris::Matrix< DDSMat > & aMyGlobalConstraintDofs,
                      const moris::Matrix< DDUMat > & aMyConstraintDofs );
@@ -41,9 +43,10 @@ private:
 protected:
 
 public:
-    Map_PETSc( const moris::uint      & aNumMaxDofs,
-               const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+    Map_PETSc( const Matrix< DDSMat > & aMyGlobalIds,
                const Matrix< DDUMat > & aMyConstraintDofs );
+
+    Map_PETSc( const Matrix< DDSMat > & aMyGlobalIds );
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -56,6 +59,9 @@ public:
 
         return -1;
     };
+
+    AO get_petsc_map()       { return mPETScMap; }
+    AO get_petsc_map() const { return mPETScMap; }
 };
 
 }

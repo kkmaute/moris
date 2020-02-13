@@ -10,7 +10,7 @@
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_HMR_Database.hpp"
@@ -48,7 +48,7 @@ namespace dla
         mMultigridMap               = mSolverInterface->get_multigrid_map();
 
         // Build matrix vector factory to build prolongation operators
-        Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // Set size of List containing prolongation operators
         mProlongationList.resize( mListAdofExtIndMap.size() - 1 );

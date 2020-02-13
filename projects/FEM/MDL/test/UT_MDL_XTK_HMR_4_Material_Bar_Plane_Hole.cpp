@@ -599,7 +599,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -645,7 +645,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -1089,7 +1089,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1122,7 +1122,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

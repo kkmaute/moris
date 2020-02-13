@@ -13,7 +13,7 @@
 
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include <petsc.h>
 #include <petscis.h>
@@ -37,22 +37,23 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // create map object
-        mMap = tMatFactory.create_map( aInput->get_max_num_global_dofs(),
-                                       aInput->get_my_local_global_map(),
-                                       aInput->get_constr_dof(),
-                                       aInput->get_my_local_global_overlapping_map());      //FIXME
+        mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
+                                       aInput->get_constrained_Ids() );      //FIXME
+
+        mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
+                                       aInput->get_constrained_Ids() );      //FIXME
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMap );
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
+        mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
         mInput->build_graph( mMat );
 
@@ -70,8 +71,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                                Map_Class        * aFreeMap,
-                                                Map_Class        * aFullMap,
+                                                Dist_Map        * aFreeMap,
+                                                Dist_Map        * aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
@@ -81,7 +82,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         PetscInitializeNoArguments();
     }
 
-    Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+    Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );

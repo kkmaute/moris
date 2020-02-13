@@ -66,7 +66,7 @@
 #include "cl_FEM_Property.hpp"                   //FEM//INT//src
 
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_Map_Class.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
 
@@ -292,9 +292,9 @@ namespace moris
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
-        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
-        Map_Class * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}} );
-        Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, VectorType::FREE );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+        Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
+        Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
         mVector->sum_into_global_values( 4, {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});
 

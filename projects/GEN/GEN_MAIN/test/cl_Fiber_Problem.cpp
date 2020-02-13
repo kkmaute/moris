@@ -698,11 +698,11 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         bool tDirectSolve = true;
         if(tDirectSolve)
         {
-            tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+            tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
         }
         else
         {
-            tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+            tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
             tLinearSolverAlgorithm->set_param("rel_residual")   = 6e-02;
             tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
@@ -768,7 +768,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
         tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

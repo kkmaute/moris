@@ -51,13 +51,13 @@ namespace tsa
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm_2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver algorithm parameter settings
@@ -232,10 +232,10 @@ namespace tsa
          * Create solver warehouse
          *
          * \code{.cpp}
-         * NLA::SOL_Warehouse tSolverWarehouse( tSolverInput );
+         * sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
          * \endcode
          */
-        NLA::SOL_Warehouse tSolverWarehouse( tSolverInput );
+        sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
 
         /*!
          * Create solver warehouse

@@ -56,7 +56,7 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     Solver_Factory tSolFactory;
 
     // create solver object
-    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
 
     tLinProblem->assemble_residual_and_jacobian();
 
@@ -110,12 +110,12 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
      * Create linear problem and linear solver
      *
      * \code{.cpp}
-     * Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-     * std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+     * Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+     * std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
      * \endcode
      */
-    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
     /*!
      * Assemble linear problem.
@@ -187,8 +187,8 @@ TEST_CASE("Linear Solver Aztec multiple RHS","[Linear Solver multiple RHS],[Dist
 
         Solver_Factory  tSolFactory;
 
-        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::BELOS_IMPL );
+        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::BELOS_IMPL );
 
 //        tLinProblem->assemble_residual_and_jacobian();
         tLinProblem->assemble_jacobian( nullptr );
@@ -235,8 +235,8 @@ TEST_CASE("Linear Solver Amesos2","[Linear Solver Amesos2],[DistLinAlg]")
 //
 //        Solver_Factory  tSolFactory;
 //
-//        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AMESOS2_IMPL );
+//        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS2_IMPL );
 //
 ////        tLinProblem->assemble_residual_and_jacobian();
 //        tLinProblem->assemble_jacobian( nullptr );
@@ -280,8 +280,8 @@ TEST_CASE("Linear Solver Amesos2","[Linear Solver Amesos2],[DistLinAlg]")
 //
 //        Solver_Factory  tSolFactory;
 //
-//        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+//        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 //
 //        tLinProblem->assemble_residual_and_jacobian();
 //
@@ -315,7 +315,7 @@ TEST_CASE("Linear System PETSc","[Linear Solver],[DistLinAlg][Linear_System_Pets
         Solver_Factory tSolFactory;
 
         // create solver object
-        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc, true );
+        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
 
         tLinProblem->assemble_residual_and_jacobian();
 
@@ -353,8 +353,8 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
 
         Solver_Factory  tSolFactory;
 
-        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc, true );
-        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::PETSC );
+        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
+        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
 
         tLinProblem->assemble_residual_and_jacobian();
 
@@ -404,7 +404,7 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
 //    Solver_Factory  tSolFactory;
 //
 //    // create solver object
-//    std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS_IMPL );
+//    std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInterface, sol::SolverType::AMESOS_IMPL );
 //
 ////    tLin->set_param("AZ_precond") = AZ_dom_decomp;
 ////    tLin->set_param("AZ_max_iter") = 200;
@@ -447,7 +447,7 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
 //    Solver_Factory  tSolFactory;
 //
 //    // create solver object
-//    std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS2_IMPL );
+//    std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInterface, sol::SolverType::AMESOS2_IMPL );
 //
 ////    tLin->set_param("AZ_precond") = AZ_dom_decomp;
 ////    tLin->set_param("AZ_max_iter") = 200;

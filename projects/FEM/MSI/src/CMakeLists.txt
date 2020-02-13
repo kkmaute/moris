@@ -10,6 +10,7 @@ set(HEADERS
     cl_MSI_Dof_Manager.hpp
     cl_MSI_Dof_Type_Enums.hpp
     cl_MSI_Model_Solver_Interface.hpp
+    cl_MSI_Equation_Model.hpp
     cl_MSI_Equation_Object.hpp
     cl_MSI_Equation_Set.hpp
     cl_MSI_Pdof_Host.hpp

@@ -20,6 +20,7 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_GEN_Dv_Enums.hpp"
 
+#include "cl_MSI_Equation_Model.hpp"
 
 namespace moris
 {
@@ -59,7 +60,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class FEM_Model
+        class FEM_Model : public  MSI::Equation_Model
         {
             // pointer to reference mesh
             mtk::Mesh_Manager* mMeshManager = nullptr;
@@ -70,14 +71,6 @@ namespace moris
 
             // list of IP cell pointers
             moris::Cell< fem::Cell* > mIPCells;
-
-            // list of FEM sets
-            moris::Cell< MSI::Equation_Set * > mFemSets;
-
-            // list of FEM clusters
-            moris::Cell< MSI::Equation_Object* > mFemClusters;
-
-            map< moris_index, moris_index >   mMeshSetToFemSetMap;
 
             moris::Cell< moris::real >       mQi;
 

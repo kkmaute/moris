@@ -82,8 +82,8 @@ moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLi
 
     RCP<Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> > problem
                    = rcp (new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> (rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() ), false ),
-                                                                                               rcp( aLinearSystem->get_free_solver_LHS()->get_vector(), false ),
-                                                                                               rcp( aLinearSystem->get_solver_RHS()->get_vector(), false ) ) );
+                                                                                               rcp( aLinearSystem->get_free_solver_LHS()->get_epetra_vector(), false ),
+                                                                                               rcp( aLinearSystem->get_solver_RHS()->get_epetra_vector(), false ) ) );
 
     bool set = problem->setProblem();
     if (set == false)

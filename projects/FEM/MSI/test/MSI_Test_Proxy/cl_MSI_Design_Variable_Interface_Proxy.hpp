@@ -31,6 +31,8 @@ private:
     Cell< moris::Matrix< IdMat > > mDvIds;
     moris::Matrix< DDSMat >        mMap;
 
+    moris::Matrix< DDUMat >        mConstraintDofs;
+
     moris::map< GEN_DV, sint > mDvToIndexMap;
 
 public :
@@ -85,10 +87,10 @@ public :
         mMap( 6 ) = 6;
         mMap( 7 ) = 7;
 
-        // create map object
+//        // create map object
 //        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 //
-//        mVectorMap = tMatFactory.create_map( this->get_my_local_global_map() );
+//        mVectorMap = tMatFactory.create_map( this->get_my_local_global_map(), mConstraintDofs );
 //
 //        mVector = tMatFactory.create_vector( nullptr, mVectorMap, VectorType::FREE );
     }
