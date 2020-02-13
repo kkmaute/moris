@@ -14,6 +14,9 @@
 #include <memory>
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
+
+#include "cl_Param_List.hpp"       //CON/src
 
 //#include "cl_MSI_Dof_Type_Enums.hpp"
 //#include "cl_NLA_Nonlinear_Solver.hpp"
@@ -22,6 +25,24 @@
 namespace moris
 {
 class Solver_Interface;
+
+namespace dla
+{
+    class Linear_Solver_Algorithm;
+    class Linear_Solver;
+
+}
+namespace NLA
+{
+    class Nonlinear_Algorithm;
+    class Nonlinear_Solver;
+}
+namespace tsa
+{
+    class Time_Solver_Algorithm;
+    class Time_Solver;
+
+}
 namespace sol
 {
     class SOL_Warehouse
@@ -30,22 +51,18 @@ namespace sol
         //! Pointer to the solver interface
         Solver_Interface * mSolverInterface;
 
-        //! List containing all nonlinear solver managers
-        //moris::Cell< Nonlinear_Solver * > mListNonlinerSolverManagers;
+        Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
+        Cell< dla::Linear_Solver * >                            mLinearSolvers;
 
-        //! List containing the downward dependencies of every nonlinear solver manager
-        //moris::Cell< moris::Matrix< DDSMat > > mListSolverManagerDepenencies;
+        Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > >     mNonlinearSolverAlgoriths;
+        Cell< NLA::Nonlinear_Solver * >                         mNonlinearSolvers;
 
-        //! List of maps for every nonliner solver manager. The entry corresponds to the nonliner solver manager index. The last map is the pull map
-        //moris::Cell< Dist_Map * > mListOfFreeMaps;
+        Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > >   mTimeSolverAlgorithms;
+        Cell< tsa::Time_Solver * >                              mTimeSolvers;
 
-        //Dist_Map * mMap = nullptr;
+        // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver
+        moris::Cell< moris::Cell< Parameterlist > >             mParameterlist;
 
-        //! Full Vector
-        //Dist_Vector * mFullVector = nullptr;
-
-        //!  Counter to count the number of nonlinear solver managers
-        //moris::uint mCallCounter = 0;
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -102,6 +119,36 @@ namespace sol
 
 //--------------------------------------------------------------------------------------------------------
 
+        void initialize()
+        {
+            this->create_linear_solver_algorithms();
+
+            this->create_linear_solvers();
+
+            this->create_nonlinear_solver_algorithms();
+
+            this->create_nonlinear_solvers();
+
+            this->create_time_solver_algorithms();
+
+            this->create_time_solvers();
+        };
+//--------------------------------------------------------------------------------------------------------
+
+        void create_linear_solver_algorithms();
+
+        void create_linear_solvers();
+
+        void create_nonlinear_solver_algorithms();
+
+        void create_nonlinear_solvers();
+
+        void create_time_solver_algorithms();
+
+        void create_time_solvers();
+
+//--------------------------------------------------------------------------------------------------------
+
         /**
          * @brief Finalize call. Calculates dependencies, maps and ships pointers after all information is received.
          */
@@ -152,7 +199,227 @@ namespace sol
         //Dist_Vector * get_full_vector(){ return mFullVector; };
 
     };
+
+    // creates a parameter list with default inputs
+    ParameterList create_linear_algorithm_parameter_list()
+    {
+        ParameterList tLinAlgorithmParameterList;
+
+        enum moris::sol::SolverType tType = moris::sol::SolverType::AZTEC_IMPL;
+
+        tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
+
+        // ASSIGN DEFAULT PARAMETER VALUES
+        // AztecOO User Guide, SAND REPORT, SAND2004-3796, https://trilinos.org/oldsite/packages/aztecoo/AztecOOUserGuide.pdf
+
+        // Determine which solver is used
+        //options are: AZ_gmres, AZ_gmres_condnum, AZ_cg, AZ_cg_condnum, AZ_cgs, AZ_tfqmr, AZ_bicgstab
+        tLinAlgorithmParameterList.insert( "AZ_solver" ,  INT_MAX );
+
+        // Allowable Aztec solver iterations
+        tLinAlgorithmParameterList.insert( "AZ_max_iter", INT_MAX   );
+
+        // Allowable Aztec irelative residual
+        tLinAlgorithmParameterList.insert( "rel_residual" , 1e-08 );
+
+        // set Az_conv -convergence criteria
+        // options are AZ_r0, AZ_rhs, AZ_Anorm, AZ_noscaled, AZ_sol
+        tLinAlgorithmParameterList.insert( "AZ_conv" ,  INT_MAX );
+
+        // set Az_diagnostic parameters
+        // Set whether or not diagnostics for every linear iteration are printed or not. options are AZ_all, AZ_none
+        tLinAlgorithmParameterList.insert( "AZ_diagnostics" ,  INT_MAX );
+
+        // set AZ_output options
+        // options are AZ_all, AZ_none, AZ_warnings, AZ_last, AZ_summary
+        tLinAlgorithmParameterList.insert( "AZ_output" ,  INT_MAX );
+
+        // Determines the submatrices factored with the domain decomposition algorithms
+        // Option to specify with how many rows from other processors each processor’s local submatrix is augmented.
+        tLinAlgorithmParameterList.insert( "AZ_overlap" , INT_MAX );
+
+        // Determines how overlapping subdomain results are combined when different processors have computed different values for the same unknown.
+        // Options are AZ_standard, AZ_symmetric
+        tLinAlgorithmParameterList.insert( "AZ_type_overlap" , INT_MAX );
+
+        // Determines whether RCM reordering will be done in conjunction with domain decomposition incomplete factorizations.
+        // Option to enable (=1) or disable (=0) the Reverse Cuthill–McKee (RCM) algorithm to reorder system equations for smaller bandwidth
+        tLinAlgorithmParameterList.insert( "AZ_reorder" , INT_MAX );
+
+        // Use preconditioner from a previous Iterate() call
+        // Option are AZ_calc, AZ_recalc, AZ_reuse
+        tLinAlgorithmParameterList.insert( "AZ_pre_calc" , INT_MAX );
+
+        // Determines  whether  matrix  factorization  information will be kept after this solve
+        // for example for preconditioner_recalculation
+        tLinAlgorithmParameterList.insert( "AZ_keep_info" , INT_MAX );
+
+        //--------------------------GMRES specific solver parameters--------------------------------------------------------------------------
+        // Set AZ_kspace
+        // Krylov subspace size for restarted GMRES
+        // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption. For very difficult problems, set it equal to the maximum number of iterations.
+        tLinAlgorithmParameterList.insert( "AZ_kspace" ,INT_MAX );
+
+        // Set AZ_orthog
+        //AZ_classic or AZ_modified
+        tLinAlgorithmParameterList.insert( "AZ_orthog" , INT_MAX );
+
+        // Set AZ_rthresh
+        // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
+        tLinAlgorithmParameterList.insert( "AZ_rthresh" , -1.0 );
+
+        // Set AZ_athresh
+        //Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
+        tLinAlgorithmParameterList.insert( "AZ_athresh" , -1.0 );
+
+        //--------------------------Preconsitioner specific parameters--------------------------------------------------------------------------
+        // Determine which preconditioner is used
+        // Options are AZ_none, AZ_Jacobi, AZ_sym_GS, AZ_Neumann, AZ_ls, AZ_dom_decomp,
+        tLinAlgorithmParameterList.insert( "AZ_precond" ,  INT_MAX );
+
+        // Set preconditioner subdomain solve - direct solve or incomplete
+        // Options are AZ_lu, AZ_ilut, , AZ_rilu, AZ_bilu, AZ_icc
+        tLinAlgorithmParameterList.insert( "AZ_subdomain_solve" ,  INT_MAX );
+
+        // Set preconditioner polynomial order - polynomial preconditioning, Gauss-Seidel, Jacobi
+        tLinAlgorithmParameterList.insert( "AZ_poly_ord" ,  INT_MAX );
+
+        // Set drop tolerance - for LU, ILUT
+        tLinAlgorithmParameterList.insert( "AZ_drop" ,  -1.0 );
+
+        // Set level of graph fill in - for ilu(k), icc(k), bilu(k)
+        tLinAlgorithmParameterList.insert( "AZ_graph_fill" ,  INT_MAX );
+
+        // Set ilut fill
+        tLinAlgorithmParameterList.insert( "AZ_ilut_fill" ,  -1.0 );
+
+        // Set Damping or relaxation parameter used for RILU
+        tLinAlgorithmParameterList.insert( "AZ_omega" ,  -1.0 );
+
+        return tLinAlgorithmParameterList;
+    }
 }
+
+ParameterList create_linear_solver_parameter_list()
+{
+    ParameterList tLinSolverParameterList;
+
+
+    tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms" , "0" );
+
+    // Maximal number of linear solver restarts on fail
+    tLinSolverParameterList.insert( "DLA_max_lin_solver_restarts" , 0 );
+
+    // Maximal number of linear solver restarts on fail
+    tLinSolverParameterList.insert( "DLA_hard_break" , true );
+
+    // Determines if lin solve should restart on fail
+    tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail" , false );
+
+    return tLinSolverParameterList;
+}
+
+ParameterList create_nonlinear_algorithm_parameter_list()
+{
+    ParameterList tNonLinAlgorithmParameterList;
+
+    enum moris::NLA::SolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
+
+    tLinSolverParameterList.insert( "NLA_Solver_Implementation" , static_cast< uint >( NonlinearSolverType ) );
+
+    tLinSolverParameterList.insert( "NLA_Linear_solver" , "0" );
+
+    // Allowable Newton solver iterations
+    tNonLinAlgorithmParameterList.insert( "NLA_max_iter", 10 );
+
+    // Allowable Newton solver iterations
+    tNonLinAlgorithmParameterList.insert( "NLA_restart", 0 );
+
+    // Allowable Newton irelative residual
+//    mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-02 );
+    tNonLinAlgorithmParameterList.insert( "NLA_rel_residual" , 1e-08 );
+
+    // Desired total residual norm drop
+//    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm_drop" , 1e-02 );
+    tNonLinAlgorithmParameterList.insert( "NLA_tot_res_norm_drop" , 1e-08 );
+
+    // Desired total residual norm
+//    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-2 );
+    tNonLinAlgorithmParameterList.insert( "NLA_tot_res_norm" , 1e-9 );
+
+    // Maximal residual norm drop
+//    mParameterListNonlinearSolver.insert( "NLA_max_res_norm_drop" , 1e-2 );
+    tNonLinAlgorithmParameterList.insert( "NLA_max_res_norm_drop" , 1e-6 );
+
+    // Maximal number of linear solver restarts on fail
+    tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts" , 0 );
+
+    // Maximal number of linear solver restarts on fail
+    tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter" , 1.0 );
+
+    // Maximal number of linear solver restarts on fail
+    tNonLinAlgorithmParameterList.insert( "NLA_hard_break" , false );
+
+    // Determines if lin solve should restart on fail
+    tNonLinAlgorithmParameterList.insert( "NLA_rebuild_lin_solv_on_fail" , false );
+
+    // Determines if lin solve should restart on fail
+    tNonLinAlgorithmParameterList.insert( "NLA_rebuild_jacobian" , true );
+
+    // Determines if newton should restart on fail
+    tNonLinAlgorithmParameterList.insert( "NLA_rebuild_nonlin_solv_on_fail" , false );
+
+    // Specifying the number of newton retries
+    tNonLinAlgorithmParameterList.insert( "NLA_num_nonlin_rebuild_iterations" , 1 );
+
+    // Determines relaxation multiplier
+    tNonLinAlgorithmParameterList.insert( "NLA_relaxation_multiplier_on_fail" , 0.5 );
+
+    // Determines newton maxits multiplier
+    tNonLinAlgorithmParameterList.insert( "NLA_maxits_multiplier_on_fail" , 2 );
+
+    return tNonLinAlgorithmParameterList;
+}
+
+ParameterList create_nonlinear_solver_parameter_list()
+{
+    ParameterList tNonLinSolverParameterList;
+
+    tLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , "0" );
+
+    // Maximal number of linear solver restarts on fail
+    tNonLinSolverParameterList.insert( "NLA_max_non_lin_solver_restarts" , 0 );
+
+    return tNonLinSolverParameterList;
+}
+
+ParameterList create_time_solver_algorithm_parameter_list()
+{
+    ParameterList tTimeAlgorithmParameterList;
+
+    enum moris::tsa::TimeSolverType tType = tsa::TimeSolverType::MONOLITHIC;
+
+    tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation" , tatic_cast< uint >( tType ) );
+
+    // Number of time steps
+    tTimeAlgorithmParameterList.insert( "TSA_Num_Time_Steps", 1 );
+
+    // Time Frame
+    tTimeAlgorithmParameterList.insert( "TSA_Time_Frame", 1.0 );
+
+    return tTimeAlgorithmParameterList;
+}
+
+ParameterList create_time_solver_parameter_list()
+{
+    ParameterList tTimeParameterList;
+
+    tTimeParameterList.insert( "TSA_Solver_algorithms" , "0" );
+
+    // Maximal number of linear solver restarts on fail
+    tTimeParameterList.insert( "TSA_max_time_solver_restarts" , 0 );
+
+    return tTimeParameterList;
 }
 #endif /* MORIS_DISTLINALG_CL_SOL_WAREHOUSE_HPP_ */
 

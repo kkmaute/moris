@@ -53,6 +53,35 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
     return tLinSol;
 }
 
+std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const enum sol::SolverType aSolverType,
+                                                                          const Parameterlist        aParameterlist )
+{
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
+
+    switch( aSolverType )
+    {
+    case ( sol::SolverType::AZTEC_IMPL ):
+        tLinSol = std::make_shared< Linear_Solver_Aztec >( aParameterlist );
+        break;
+//    case ( sol::SolverType::AMESOS_IMPL ):
+//        tLinSol = std::make_shared< Linear_Solver_Amesos >( aParameterlist );
+//        break;
+//    case ( sol::SolverType::BELOS_IMPL ):
+//        tLinSol = std::make_shared< Linear_Solver_Belos >( aParameterlist );
+//        break;
+//    case ( sol::SolverType::AMESOS2_IMPL ):
+//        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aParameterlist );
+//        break;
+//    case ( sol::SolverType::PETSC):
+//        tLinSol = std::make_shared< Linear_Solver_PETSc >( aParameterlist );
+//        break;
+    default:
+        MORIS_ERROR( false, "No solver type specified" );
+        break;
+    }
+    return tLinSol;
+}
+
 //-------------------------------------------------------------------------------------------------------------
 
 Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,

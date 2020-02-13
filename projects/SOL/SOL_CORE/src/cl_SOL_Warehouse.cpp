@@ -9,12 +9,117 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
+#include "cl_DLA_Solver_Factory.hpp"
+
 //#include "cl_SOL_Dist_Vector.hpp"
 //#include "cl_SOL_Dist_Map.hpp"
 //#include "cl_Matrix_Vector_Factory.hpp"
 
 using namespace moris;
 using namespace sol;
+
+void SOL_Warehouse::create_linear_solver_algorithms()
+{
+    uint tNumLinAlgorithms = aParameterlist( 0 ).size();
+
+     mLinearSolverAlgorithms.resize( tNumLinAlgorithms );
+
+    moris::dla::Solver_Factory  tSolFactory;
+
+    for( uint Ik = 0; Ik< tNumLinAlgorithms; Ik++ )
+    {
+        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver( aParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ),
+                                                                   aParameterlist( 0 )( Ik ) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::create_linear_solvers()
+{
+    uint tNumLinSolvers = aParameterlist( 1 ).size();
+
+     mLinearSolvers.resize( tNumLinSolvers );
+
+    for( uint Ik = 0; Ik< tNumLinSolvers; Ik++ )
+    {
+    	mLinearSolvers( Ik ) = new dla::Linear_Solver( aParameterlist( 1 )( Ik ) );
+
+    	mLinearSolvers( Ik )->set_linear_algorithm( Ik, mLinearSolverAlgorithms( string_to_mat( aParameterlist( 1 )( Ik ).get< moris::uint >( "" ) ) )  );
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::create_nonlinear_solver_algorithms()
+{
+    uint tNumNonLinAlgorithms = aParameterlist( 2 ).size();
+
+    mNonlinearSolverAlgoriths.resize( tNumNonLinAlgorithms );
+
+    NLA::Nonlinear_Solver_Factory tNonlinFactory;
+
+    for( uint Ik = 0; Ik< tNumNonLinAlgorithms; Ik++ )
+    {
+    	mNonlinearSolverAlgoriths( Ik ) = tNonlinFactory.create_nonlinear_solver( aParameterlist( 2 )( Ik ).get< moris::uint >( "Solver_Implementation" ),
+                                                                                 aParameterlist( 2 )( Ik ) );
+
+    	mNonlinearSolverAlgoriths( Ik )->set_linear_solver();
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::create_nonlinear_solvers()
+{
+    uint tNumNonLinSolvers = aParameterlist( 3 ).size();
+
+     mNonlinearSolvers.resize( tNumNonLinSolvers );
+
+    for( uint Ik = 0; Ik< tNumNonLinSolvers; Ik++ )
+    {
+    	mNonlinearSolvers( Ik ) = new NLA::Nonlinear_Solver( aParameterlist( 3 )( Ik ) );
+
+    	mNonlinearSolvers( Ik )->set_nonlinear_algorithm( Ik, mNonlinearSolverAlgoriths( string_to_mat( aParameterlist( 3 )( Ik ).get< moris::uint >( "" ) ) )  );
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::create_time_solver_algorithms()
+{
+    uint tNumTimeAlgorithms = aParameterlist( 4 ).size();
+
+    mTimeSolverAlgorithms.resize( tNumTimeAlgorithms );
+
+    tsa::Time_Solver_Factory tTimeSolverFactory;
+
+    for( uint Ik = 0; Ik< tNumTimeAlgorithms; Ik++ )
+    {
+    	mTimeSolverAlgorithms( Ik ) = tTimeSolverFactory.create_time_solver( aParameterlist( 4 )( Ik ).get< moris::uint >( "Solver_Implementation" ),
+                                                                             aParameterlist( 4 )( Ik ) );
+
+    	mTimeSolverAlgorithms( Ik )->set_nonlinear_solver();
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::create_time_solvers()
+{
+    uint tNumTimeSolvers = aParameterlist( 5 ).size();
+
+     mTimeSolvers.resize( tNumTimeSolvers );
+
+    for( uint Ik = 0; Ik< tNumTimeSolvers; Ik++ )
+    {
+    	mTimeSolvers( Ik ) = new NLA::Nonlinear_Solver( aParameterlist( 5 )( Ik ) );
+
+    	mTimeSolvers( Ik )->set_nonlinear_algorithm( Ik, mTimeSolverAlgorithms( string_to_mat( aParameterlist( 5 )( Ik ).get< moris::uint >( "" ) ) )  );
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
 
 //void SOL_Warehouse::create_solver_manager_dependencies()
 //{

@@ -35,6 +35,8 @@ namespace dla
     public:
         Linear_Solver_Aztec();
 
+        Linear_Solver_Aztec( const Parameterlist aParameterlist );
+
         Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
 
         ~Linear_Solver_Aztec();

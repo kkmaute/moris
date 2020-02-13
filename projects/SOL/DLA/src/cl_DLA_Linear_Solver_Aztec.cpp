@@ -40,6 +40,11 @@ Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
     this->set_solver_parameters();
 }
 
+Linear_Solver_Aztec::Linear_Solver_Aztec( const Parameterlist aParameterlist ) : mMlPrec ( NULL )
+{
+    mParameterList = aParameterlist;
+}
+
 //----------------------------------------------------------------------------------------
 Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mMlPrec ( NULL )
 {
