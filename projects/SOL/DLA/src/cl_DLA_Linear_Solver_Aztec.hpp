@@ -17,6 +17,8 @@
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 
+#include "cl_Param_List.hpp"       //CON/src
+
 namespace moris
 {
 namespace dla
@@ -35,7 +37,7 @@ namespace dla
     public:
         Linear_Solver_Aztec();
 
-        Linear_Solver_Aztec( const Parameterlist aParameterlist );
+        Linear_Solver_Aztec( const moris::ParameterList aParameterlist );
 
         Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
 

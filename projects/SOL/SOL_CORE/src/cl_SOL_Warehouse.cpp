@@ -7,9 +7,20 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "fn_Parsing_Tools.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
+
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
+#include "cl_TSA_Time_Solver_Factory.hpp"
+#include "cl_TSA_Time_Solver_Algorithm.hpp"
+#include "cl_TSA_Time_Solver.hpp"
+
+#include "cl_MSI_Dof_Type_Enums.hpp"
 
 //#include "cl_SOL_Dist_Vector.hpp"
 //#include "cl_SOL_Dist_Map.hpp"
@@ -20,7 +31,7 @@ using namespace sol;
 
 void SOL_Warehouse::create_linear_solver_algorithms()
 {
-    uint tNumLinAlgorithms = aParameterlist( 0 ).size();
+    uint tNumLinAlgorithms = mParameterlist( 0 ).size();
 
      mLinearSolverAlgorithms.resize( tNumLinAlgorithms );
 
@@ -28,8 +39,8 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
     for( uint Ik = 0; Ik< tNumLinAlgorithms; Ik++ )
     {
-        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver( aParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ),
-                                                                   aParameterlist( 0 )( Ik ) );
+        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver( static_cast< moris::sol::SolverType >( mParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ) ),
+                                                                   mParameterlist( 0 )( Ik ) );
     }
 }
 
@@ -37,15 +48,22 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
 void SOL_Warehouse::create_linear_solvers()
 {
-    uint tNumLinSolvers = aParameterlist( 1 ).size();
+    uint tNumLinSolvers = mParameterlist( 1 ).size();
 
      mLinearSolvers.resize( tNumLinSolvers );
 
     for( uint Ik = 0; Ik< tNumLinSolvers; Ik++ )
     {
-    	mLinearSolvers( Ik ) = new dla::Linear_Solver( aParameterlist( 1 )( Ik ) );
+        mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
 
-    	mLinearSolvers( Ik )->set_linear_algorithm( Ik, mLinearSolverAlgorithms( string_to_mat( aParameterlist( 1 )( Ik ).get< moris::uint >( "" ) ) )  );
+        moris::Matrix< DDSMat > tMat;
+        string_to_mat( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
+                       tMat );
+
+        for( uint Ii = 0; Ii< tMat.numel(); Ii++ )
+        {
+            mLinearSolvers( Ik )->set_linear_algorithm( Ii, mLinearSolverAlgorithms( tMat( Ii ) )  );
+        }
     }
 }
 
@@ -53,7 +71,7 @@ void SOL_Warehouse::create_linear_solvers()
 
 void SOL_Warehouse::create_nonlinear_solver_algorithms()
 {
-    uint tNumNonLinAlgorithms = aParameterlist( 2 ).size();
+    uint tNumNonLinAlgorithms = mParameterlist( 2 ).size();
 
     mNonlinearSolverAlgoriths.resize( tNumNonLinAlgorithms );
 
@@ -61,10 +79,11 @@ void SOL_Warehouse::create_nonlinear_solver_algorithms()
 
     for( uint Ik = 0; Ik< tNumNonLinAlgorithms; Ik++ )
     {
-    	mNonlinearSolverAlgoriths( Ik ) = tNonlinFactory.create_nonlinear_solver( aParameterlist( 2 )( Ik ).get< moris::uint >( "Solver_Implementation" ),
-                                                                                 aParameterlist( 2 )( Ik ) );
+        mNonlinearSolverAlgoriths( Ik ) = tNonlinFactory.create_nonlinear_solver( static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 2 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
+                                                                                  mParameterlist( 2 )( Ik ) );
 
-    	mNonlinearSolverAlgoriths( Ik )->set_linear_solver();
+        mNonlinearSolverAlgoriths( Ik )->set_linear_solver( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
+
     }
 }
 
@@ -72,15 +91,36 @@ void SOL_Warehouse::create_nonlinear_solver_algorithms()
 
 void SOL_Warehouse::create_nonlinear_solvers()
 {
-    uint tNumNonLinSolvers = aParameterlist( 3 ).size();
+    uint tNumNonLinSolvers = mParameterlist( 3 ).size();
 
      mNonlinearSolvers.resize( tNumNonLinSolvers );
 
     for( uint Ik = 0; Ik< tNumNonLinSolvers; Ik++ )
     {
-    	mNonlinearSolvers( Ik ) = new NLA::Nonlinear_Solver( aParameterlist( 3 )( Ik ) );
+        mNonlinearSolvers( Ik ) = new NLA::Nonlinear_Solver( static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 3 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
+                                                             mParameterlist( 3 )( Ik ) );
 
-    	mNonlinearSolvers( Ik )->set_nonlinear_algorithm( Ik, mNonlinearSolverAlgoriths( string_to_mat( aParameterlist( 3 )( Ik ).get< moris::uint >( "" ) ) )  );
+        moris::Matrix< DDSMat > tMat;
+        string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Nonlinear_solver_algorithms" ),
+                       tMat );
+
+        for( uint Ii = 0; Ii< tMat.numel(); Ii++ )
+        {
+        	mNonlinearSolvers( Ik )->set_nonlinear_algorithm( mNonlinearSolverAlgoriths( tMat( Ii ) ), Ii  );
+        }
+
+        Cell< Cell< MSI::Dof_Type >> tCellOfCells;
+        map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
+        string_to_cell_of_cell( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_DofTypes" ),
+                                tCellOfCells,
+								tMap );
+
+        for( uint Ii = 0; Ii< tCellOfCells.size(); Ii++ )
+        {
+            mNonlinearSolvers( Ik )->set_dof_type_list( tCellOfCells( Ii ));
+        }
+
+        mNonlinearSolvers( Ik )->set_solver_warehouse( this );
     }
 }
 
@@ -88,7 +128,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
 void SOL_Warehouse::create_time_solver_algorithms()
 {
-    uint tNumTimeAlgorithms = aParameterlist( 4 ).size();
+    uint tNumTimeAlgorithms = mParameterlist( 4 ).size();
 
     mTimeSolverAlgorithms.resize( tNumTimeAlgorithms );
 
@@ -96,10 +136,10 @@ void SOL_Warehouse::create_time_solver_algorithms()
 
     for( uint Ik = 0; Ik< tNumTimeAlgorithms; Ik++ )
     {
-    	mTimeSolverAlgorithms( Ik ) = tTimeSolverFactory.create_time_solver( aParameterlist( 4 )( Ik ).get< moris::uint >( "Solver_Implementation" ),
-                                                                             aParameterlist( 4 )( Ik ) );
+        mTimeSolverAlgorithms( Ik ) = tTimeSolverFactory.create_time_solver( static_cast< moris::tsa::TimeSolverType >( mParameterlist( 4 )( Ik ).get< moris::uint >( "TSA_Solver_Implementation" ) ),
+                                                                             mParameterlist( 4 )( Ik ) );
 
-    	mTimeSolverAlgorithms( Ik )->set_nonlinear_solver();
+        mTimeSolverAlgorithms( Ik )->set_nonlinear_solver( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_solver" ) ) );
     }
 }
 
@@ -107,15 +147,35 @@ void SOL_Warehouse::create_time_solver_algorithms()
 
 void SOL_Warehouse::create_time_solvers()
 {
-    uint tNumTimeSolvers = aParameterlist( 5 ).size();
+    uint tNumTimeSolvers = mParameterlist( 5 ).size();
 
      mTimeSolvers.resize( tNumTimeSolvers );
 
     for( uint Ik = 0; Ik< tNumTimeSolvers; Ik++ )
     {
-    	mTimeSolvers( Ik ) = new NLA::Nonlinear_Solver( aParameterlist( 5 )( Ik ) );
+        mTimeSolvers( Ik ) = new tsa::Time_Solver( mParameterlist( 5 )( Ik ) );
 
-    	mTimeSolvers( Ik )->set_nonlinear_algorithm( Ik, mTimeSolverAlgorithms( string_to_mat( aParameterlist( 5 )( Ik ).get< moris::uint >( "" ) ) )  );
+        moris::Matrix< DDSMat > tMat;
+        string_to_mat( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Solver_algorithms" ),
+                       tMat );
+
+        for( uint Ii = 0; Ii< tMat.numel(); Ii++ )
+        {
+        	mTimeSolvers( Ik )->set_time_solver_algorithm( mTimeSolverAlgorithms( tMat( Ii ) ), Ii  );
+        }
+
+        Cell< Cell< MSI::Dof_Type >> tCellOfCells;
+        map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
+        string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
+                                tCellOfCells,
+								tMap );
+
+        for( uint Ii = 0; Ii< tCellOfCells.size(); Ii++ )
+        {
+        	mTimeSolvers( Ik )->set_dof_type_list( tCellOfCells( Ii ) );
+        }
+
+        mTimeSolvers( Ik )->set_solver_warehouse( this );
     }
 }
 

@@ -35,6 +35,14 @@ using namespace dla;
 
 //--------------------------------------------------------------------------------------------------------------------------
 
+    Newton_Solver::Newton_Solver( const ParameterList aParameterlist ) : Nonlinear_Algorithm( aParameterlist )
+    {
+        mLinSolverManager = new dla::Linear_Solver();
+    }
+
+
+//--------------------------------------------------------------------------------------------------------------------------
+
     Newton_Solver::Newton_Solver( dla::Linear_Solver * aLinSolver ) : Nonlinear_Algorithm()
     {
         mLinSolverManager = aLinSolver;

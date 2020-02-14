@@ -54,7 +54,7 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
 }
 
 std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const enum sol::SolverType aSolverType,
-                                                                          const Parameterlist        aParameterlist )
+                                                                          const ParameterList        aParameterlist )
 {
     std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
 

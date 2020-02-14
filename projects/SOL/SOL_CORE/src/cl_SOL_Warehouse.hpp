@@ -16,6 +16,9 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_SOL_Enums.hpp"
 
+#include "cl_NLA_Nonlinear_Solver_Enums.hpp"       //CON/src
+#include "cl_TSA_Time_Solver_Enums.hpp"       //CON/src
+
 #include "cl_Param_List.hpp"       //CON/src
 
 //#include "cl_MSI_Dof_Type_Enums.hpp"
@@ -61,7 +64,7 @@ namespace sol
         Cell< tsa::Time_Solver * >                              mTimeSolvers;
 
         // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver
-        moris::Cell< moris::Cell< Parameterlist > >             mParameterlist;
+        moris::Cell< moris::Cell< moris::ParameterList > >             mParameterlist;
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -98,6 +101,11 @@ namespace sol
          */
         ~SOL_Warehouse(){};
 
+        void set_parameterlist( moris::Cell< moris::Cell< moris::ParameterList > > aParameterlist )
+        {
+            mParameterlist = aParameterlist;
+        };
+
 //--------------------------------------------------------------------------------------------------------
 
         /**
@@ -132,6 +140,11 @@ namespace sol
             this->create_time_solver_algorithms();
 
             this->create_time_solvers();
+        };
+
+        tsa::Time_Solver *  get_main_time_solver()
+        {
+             return mTimeSolvers( 0 );
         };
 //--------------------------------------------------------------------------------------------------------
 
@@ -296,38 +309,44 @@ namespace sol
         // Set Damping or relaxation parameter used for RILU
         tLinAlgorithmParameterList.insert( "AZ_omega" ,  -1.0 );
 
+        // Set Damping or relaxation parameter used for RILU
+        tLinAlgorithmParameterList.insert( "Use_ML_Prec" ,  false );
+
+        // Set Damping or relaxation parameter used for RILU
+        tLinAlgorithmParameterList.insert( "ML_reuse" ,  false );
+
         return tLinAlgorithmParameterList;
     }
-}
-
-ParameterList create_linear_solver_parameter_list()
-{
-    ParameterList tLinSolverParameterList;
 
 
-    tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms" , "0" );
+    ParameterList create_linear_solver_parameter_list()
+    {
+        ParameterList tLinSolverParameterList;
 
-    // Maximal number of linear solver restarts on fail
-    tLinSolverParameterList.insert( "DLA_max_lin_solver_restarts" , 0 );
 
-    // Maximal number of linear solver restarts on fail
-    tLinSolverParameterList.insert( "DLA_hard_break" , true );
+        tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms" , std::string("0") );
 
-    // Determines if lin solve should restart on fail
-    tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail" , false );
+        // Maximal number of linear solver restarts on fail
+        tLinSolverParameterList.insert( "DLA_max_lin_solver_restarts" , 0 );
 
-    return tLinSolverParameterList;
-}
+        // Maximal number of linear solver restarts on fail
+        tLinSolverParameterList.insert( "DLA_hard_break" , true );
+
+        // Determines if lin solve should restart on fail
+        tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail" , false );
+
+        return tLinSolverParameterList;
+    }
 
 ParameterList create_nonlinear_algorithm_parameter_list()
 {
     ParameterList tNonLinAlgorithmParameterList;
 
-    enum moris::NLA::SolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
+    enum moris::NLA::NonlinearSolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
 
-    tLinSolverParameterList.insert( "NLA_Solver_Implementation" , static_cast< uint >( NonlinearSolverType ) );
+    tNonLinAlgorithmParameterList.insert( "NLA_Solver_Implementation" , static_cast< uint >( NonlinearSolverType ) );
 
-    tLinSolverParameterList.insert( "NLA_Linear_solver" , "0" );
+    tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver" , 0 );
 
     // Allowable Newton solver iterations
     tNonLinAlgorithmParameterList.insert( "NLA_max_iter", 10 );
@@ -385,7 +404,13 @@ ParameterList create_nonlinear_solver_parameter_list()
 {
     ParameterList tNonLinSolverParameterList;
 
-    tLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , "0" );
+    enum moris::NLA::NonlinearSolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
+
+    tNonLinSolverParameterList.insert( "NLA_Solver_Implementation" , static_cast< uint >( NonlinearSolverType ) );
+
+    tNonLinSolverParameterList.insert( "NLA_DofTypes" , std::string("UX,UY;TEMP") );
+
+    tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , std::string("0") );
 
     // Maximal number of linear solver restarts on fail
     tNonLinSolverParameterList.insert( "NLA_max_non_lin_solver_restarts" , 0 );
@@ -399,7 +424,10 @@ ParameterList create_time_solver_algorithm_parameter_list()
 
     enum moris::tsa::TimeSolverType tType = tsa::TimeSolverType::MONOLITHIC;
 
-    tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation" , tatic_cast< uint >( tType ) );
+    tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation" , static_cast< uint >( tType ) );
+
+
+    tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_solver" , 0 );
 
     // Number of time steps
     tTimeAlgorithmParameterList.insert( "TSA_Num_Time_Steps", 1 );
@@ -414,12 +442,15 @@ ParameterList create_time_solver_parameter_list()
 {
     ParameterList tTimeParameterList;
 
-    tTimeParameterList.insert( "TSA_Solver_algorithms" , "0" );
+    tTimeParameterList.insert( "TSA_Solver_algorithms" , std::string("0") );
+
+    tTimeParameterList.insert( "TSA_DofTypes" , std::string("UX,UY;TEMP") );
 
     // Maximal number of linear solver restarts on fail
     tTimeParameterList.insert( "TSA_max_time_solver_restarts" , 0 );
 
     return tTimeParameterList;
 }
+}}
 #endif /* MORIS_DISTLINALG_CL_SOL_WAREHOUSE_HPP_ */
 

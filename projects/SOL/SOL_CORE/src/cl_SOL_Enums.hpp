@@ -4,8 +4,8 @@
  *  Created on: Jul 2, 2018
  *      Author: schmidt
  */
-#ifndef SRC_DISTLINALG_CL_DISTLINALG_ENUMS_HPP_
-#define SRC_DISTLINALG_CL_DISTLINALG_ENUMS_HPP_
+#ifndef SRC_DISTLINALG_CL_DLA_ENUMS_HPP_
+#define SRC_DISTLINALG_CL_DLA_ENUMS_HPP_
 
 namespace moris
 {
@@ -29,4 +29,4 @@ namespace moris
     }
 }
 
-#endif /* SRC_DISTLINALG_CL_DISTLINALG_ENUMS_HPP_ */
+#endif /* SRC_DISTLINALG_CL_DLA_ENUMS_HPP_ */
