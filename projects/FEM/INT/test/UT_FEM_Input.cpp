@@ -129,7 +129,6 @@ namespace moris
             tParameterList( 4 )( 0 ).set( "master_constitutive_models", std::string("CM1,ElastLinIso") );
             tParameterList( 4 )( 0 ).set( "mesh_set_names",             std::string("MeshSet5,MeshSet2") );
 
-
             // create parameter list for IQI 2
             tParameterList( 4 )( 1 ) = prm::create_IQI_parameter_list();
             tParameterList( 4 )( 1 ).set( "IQI_name",                   std::string("IQI2") );
