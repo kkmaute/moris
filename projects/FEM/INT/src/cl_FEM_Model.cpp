@@ -50,9 +50,9 @@ namespace moris
         {
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 0: initialize
+            // STEP 0: unpack mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // get pointers to interpolation and integration mesh
+            // get pointers to interpolation and integration meshes
             mtk::Interpolation_Mesh* tIPMesh = nullptr;
             mtk::Integration_Mesh*   tIGMesh = nullptr;
             mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
@@ -106,10 +106,6 @@ namespace moris
             // reserve size for list of equation objects
             mFemClusters.reserve( tNumIPCells );
 
-            //------------------------------------------------------------------------------
-            // init the fem set counter
-            moris::uint tFemSetCounter = 0;
-
             // loop over the used fem set
             for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
             {
@@ -126,21 +122,19 @@ namespace moris
                 if ( tMeshSet->get_num_clusters_on_set() !=0 )
                 {
                     // create a fem set
-                    mFemSets( tFemSetCounter ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
+                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
                 }
                 // if empty mesh set
                 else
                 {
                     // create an empty fem set
-                    mFemSets( tFemSetCounter ) = new fem::Set();
+                    mFemSets( iSet ) = new fem::Set();
                 }
 
                 // collect equation objects associated with the set
-                mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
-
-                // update fem set counter
-                tFemSetCounter++;
+                mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
             }
+            // shrink list to fit size
             mFemClusters.shrink_to_fit();
 
             if( par_rank() == 0)
@@ -149,7 +143,6 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-
                 MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.\n\n",
                         ( unsigned int ) mFemClusters.size(),
                         ( double ) tElapsedTime / 1000 );
@@ -281,7 +274,6 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-
                 MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.\n\n",
                                 ( unsigned int ) mFemClusters.size(),
                                 ( double ) tElapsedTime / 1000 );

@@ -164,18 +164,18 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
     	        ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-    	        tParameters.set( "number_of_elements_per_dimension", "2, 1");
-    	        tParameters.set( "domain_dimensions", "2, 2" );
-    	        tParameters.set( "domain_offset", "-1.0, -1.0" );
-    	        tParameters.set( "domain_sidesets", "1,2,3,4" );
-    	        tParameters.set( "lagrange_output_meshes", "0" );
+    	        tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
+    	        tParameters.set( "domain_dimensions", std::string("2, 2") );
+    	        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+    	        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+    	        tParameters.set( "lagrange_output_meshes",std::string( "0") );
 
-    	        tParameters.set( "lagrange_orders", "1" );
-    	        tParameters.set( "lagrange_pattern", "0" );
-    	        tParameters.set( "bspline_orders", "1" );
-    	        tParameters.set( "bspline_pattern", "0" );
+    	        tParameters.set( "lagrange_orders", std::string("1" ));
+    	        tParameters.set( "lagrange_pattern", std::string("0" ));
+    	        tParameters.set( "bspline_orders", std::string("1" ));
+    	        tParameters.set( "bspline_pattern", std::string("0" ));
 
-    	        tParameters.set( "lagrange_to_bspline", "0" );
+    	        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
     	        tParameters.set( "truncate_bsplines", 1 );
     	        tParameters.set( "refinement_buffer", 3 );
@@ -386,26 +386,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	         moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
     	         tSetInfo( 0 ) = tSetBulk1;
     	         tSetInfo( 1 ) = tSetDirichlet;
-    	//         tSetInfo( 2 ) = tSetBulk3;
-    	//         tSetInfo( 3 ) = tSetBulk4;
-    	//         tSetInfo( 4 ) = tSetDirichlet;
-    	//         tSetInfo( 5 ) = tSetNeumann;
-    	//         tSetInfo( 6 ) = tSetInterface;
 
-
-    	//        // create a list of active block-sets
-    	//        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
-    	//
-    	//        // create a list of active block-sets
-    	//        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
-    	//                                                 tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
-    	//                                                 tEnrIntegMesh.get_set_index_by_name ("SideSet_4_n_p1"),
-    	//                                                 tEnrIntegMesh.get_set_index_by_name ("SideSet_2_n_p1")};
-    	//
-    	//        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-    	//                                                          fem::Element_Type::BULK,
-    	//                                                          fem::Element_Type::SIDESET,
-    	//                                                          fem::Element_Type::SIDESET};
 
     	        uint tBSplineMeshIndex = 0;
     	        // create model
@@ -414,67 +395,38 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     	                                               tSetInfo,
     	                                               0, false );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypesT( 1 );            tDofTypesT( 0 ) = MSI::Dof_Type::TEMP;
-        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;
-
-        dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
-
-        dla::Linear_Solver tLinSolver;
-        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 2: create nonlinear solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        NLA::Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
-
-        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
-//        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
-
-        NLA::Nonlinear_Solver tNonlinearSolverMain;
-        tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
-
-        tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
-        tNonlinearSolverMain       .set_dof_type_list( tDofTypesT );
-
-        // Create solver database
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 6 );
+        for( uint Ik = 0; Ik < 6; Ik ++)
+        {
+        	tParameterlist( Ik ).resize(1);
+        }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 3: create time Solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        tsa::Time_Solver_Factory tTimeSolverFactory;
-        std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+        tParameterlist( 0 )(0) = moris::sol::create_linear_algorithm_parameter_list();
 
-        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolverMain );
+        tParameterlist( 0 )(0)("AZ_diagnostics") = AZ_none;
+        tParameterlist( 0 )(0)("AZ_output") = AZ_none;
+        tParameterlist( 0 )(0)("AZ_max_iter") = 10000;
+        tParameterlist( 0 )(0)("AZ_solver") = AZ_gmres;
+        tParameterlist( 0 )(0)("AZ_subdomain_solve") = AZ_ilu;
+        tParameterlist( 0 )(0)("AZ_graph_fill") = 10;
+        tParameterlist( 0 )(0)("Use_ML_Prec") = true;
 
-        tsa::Time_Solver tTimeSolver;
-        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
-        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+        tParameterlist( 1 )(0) = moris::sol::create_linear_solver_parameter_list();
+        tParameterlist( 2 )(0) = moris::sol::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 3 )(0) = moris::sol::create_nonlinear_solver_parameter_list();
+        tParameterlist( 4 )(0) = moris::sol::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )(0) = moris::sol::create_time_solver_parameter_list();
 
-        tTimeSolver.set_dof_type_list( tDofTypesU );
-        tTimeSolver.set_dof_type_list( tDofTypesT );
+        tSolverWarehouse.set_parameterlist( tParameterlist );
 
-        //------------------------------------------------------------------------------
-        tTimeSolver.solve();
+        tSolverWarehouse.initialize();
+
+
+        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+
+        tTimeSolver->solve();
 
         //        Matrix<DDRMat> tFullSol;
 //        tNonlinearProblem->get_full_vector()->print();
@@ -520,7 +472,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
-        tTimeSolver.get_full_solution(tFullSolution);
+        tTimeSolver->get_full_solution(tFullSolution);
 
 //            print(tFullSolution,"tFullSolution");
 
@@ -594,18 +546,18 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 1");
-        tParameters.set( "domain_dimensions", "2, 2" );
-        tParameters.set( "domain_offset", "-1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("2, 1"));
+        tParameters.set( "domain_dimensions", std::string("2, 2") );
+        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );

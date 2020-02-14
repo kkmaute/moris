@@ -57,6 +57,29 @@ std::shared_ptr< Nonlinear_Algorithm > Nonlinear_Solver_Factory::create_nonlinea
         MORIS_ERROR( false, "No solver type specified" );
         break;
     }
+    return tNonLinSys;
+}
+
+    std::shared_ptr< Nonlinear_Algorithm > Nonlinear_Solver_Factory::create_nonlinear_solver( const enum NonlinearSolverType aNonLinSolverType,
+                                                                                              const ParameterList            aParameterlist )
+    {
+        std::shared_ptr< Nonlinear_Algorithm > tNonLinSys = nullptr;
+
+        switch( aNonLinSolverType )
+        {
+        case ( NonlinearSolverType::NEWTON_SOLVER ):
+            tNonLinSys = std::make_shared< Newton_Solver >( aParameterlist );
+            break;
+//        case ( NonlinearSolverType::NLBGS_SOLVER ):
+//            tNonLinSys = std::make_shared< NonLinBlockGaussSeidel >();
+//            break;
+//        case ( NonlinearSolverType::ARC_LENGTH_SOLVER ):
+//            tNonLinSys = std::make_shared< Arc_Length_Solver >();
+//            break;
+        default:
+            MORIS_ERROR( false, "No solver type specified" );
+            break;
+        }
 
 //    tNonLinSys->get_my_nonlin_solver()->set_nonlin_solver_type( aNonLinSolverType );
 

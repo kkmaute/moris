@@ -175,22 +175,22 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
         //  HMR Parameters setup
         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
-        tParameters.set( "domain_dimensions",                "10, 10, 10" );
-        tParameters.set( "domain_offset",                    "-5, -5, -5" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("10, 10, 10") );
+        tParameters.set( "domain_dimensions",                std::string("10, 10, 10") );
+        tParameters.set( "domain_offset",                    std::string("-5, -5, -5") );
 
 //        tParameters.set( "domain_sidesets",      "1, 2, 3, 4, 5, 6" );
 
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_output_meshes", "0" );
-        tParameters.set( "lagrange_input_meshes", "0" );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "lagrange_input_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "use_multigrid", 0 );
 

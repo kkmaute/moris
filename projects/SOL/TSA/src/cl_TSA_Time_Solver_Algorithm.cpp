@@ -29,6 +29,12 @@ Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
     this->set_time_solver_parameters();
 }
 
+Time_Solver_Algorithm::Time_Solver_Algorithm( const ParameterList aParameterlist,
+                                              const enum sol::MapType aMapType ) : mParameterListTimeSolver( aParameterlist )
+{
+}
+
+
 //-------------------------------------------------------------------------------
 
 Time_Solver_Algorithm::~Time_Solver_Algorithm()

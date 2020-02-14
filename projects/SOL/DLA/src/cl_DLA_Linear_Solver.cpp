@@ -35,6 +35,28 @@ Linear_Solver::Linear_Solver()
     this->set_linear_solver_manager_parameters();
 }
 
+//--------------------------------------------------------------------------------------------------
+
+Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist ) : mParameterListLinearSolver( aParameterlist )
+{
+    // create solver factory
+    Solver_Factory  tSolFactory;
+
+    // create solver object
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+
+//    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+//    tLinSolver->set_param("AZ_output") = AZ_none;
+
+    mLinearSolverList.clear();
+
+    mLinearSolverList.resize( 1,nullptr );
+
+    mLinearSolverList( 0 ) = tLinSolver;
+
+    this->set_linear_solver_manager_parameters();
+}
+
 //Linear_Solver::~Linear_Solver()
 //{}
 

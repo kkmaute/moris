@@ -39,6 +39,8 @@ namespace NLA
          */
         Newton_Solver();
 
+        Newton_Solver( const ParameterList aParameterlist );
+
         Newton_Solver( dla::Linear_Solver * aLinSolver );
 
         ~Newton_Solver();
@@ -58,17 +60,6 @@ namespace NLA
                                 const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                 const moris::uint             & aBlockRowOffsets,
                                       moris::Matrix< DDRMat > & LHSValues );
-
-        /**
-         * @brief Accessor to set a value in the parameter list of the Newton solver
-         *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed
-         */
-        boost::variant< bool, sint, real, const char* > &  set_param( char const* aKey )
-        {
-            return mParameterListNonlinearSolver( aKey );
-        }
 
     };
 }
