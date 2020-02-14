@@ -45,6 +45,8 @@ namespace NLA
 
         NonLinBlockGaussSeidel();
 
+        NonLinBlockGaussSeidel(const ParameterList            aParameterlist );
+
         ~NonLinBlockGaussSeidel();
 
         /**

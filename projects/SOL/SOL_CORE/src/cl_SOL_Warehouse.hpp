@@ -214,31 +214,10 @@ namespace sol
     };
 
 
-    // creates a parameter list with default inputs
-    ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::SolverType aType,
-                                                          const uint                        aIndex )
-    {
-        ParameterList tLinAlgorithmParameterList;
 
-//        switch( aSolverType )
-//        {
-//        case ( sol::SolverType::AZTEC_IMPL ):
-//            tLinSol = std::make_shared< Linear_Solver_Aztec >();
-//            break;
-//        case ( sol::SolverType::AMESOS_IMPL ):
-//            tLinSol = std::make_shared< Linear_Solver_Amesos >();
-//            break;
-//
-//        default:
-//            MORIS_ERROR( false, "No solver type specified" );
-//            break;
-//        }
-
-        return tLinAlgorithmParameterList;
-    }
 
     // creates a parameter list with default inputs
-    ParameterList create_linear_algorithm_parameter_list( )
+    ParameterList create_linear_algorithm_parameter_list_aztec( )
     {
         ParameterList tLinAlgorithmParameterList;
 
@@ -347,7 +326,6 @@ namespace sol
     {
         ParameterList tLinSolverParameterList;
 
-
         tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms" , std::string("0") );
 
         // Maximal number of linear solver restarts on fail
@@ -432,7 +410,9 @@ ParameterList create_nonlinear_solver_parameter_list()
 
     tNonLinSolverParameterList.insert( "NLA_Solver_Implementation" , static_cast< uint >( NonlinearSolverType ) );
 
-    tNonLinSolverParameterList.insert( "NLA_DofTypes" , std::string("UX,UY;TEMP") );
+    tNonLinSolverParameterList.insert( "NLA_DofTypes" , std::string("UNDEFINED") );
+
+    tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver" , std::string("") );
 
     tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , std::string("0") );
 
@@ -468,13 +448,58 @@ ParameterList create_time_solver_parameter_list()
 
     tTimeParameterList.insert( "TSA_Solver_algorithms" , std::string("0") );
 
-    tTimeParameterList.insert( "TSA_DofTypes" , std::string("UX,UY;TEMP") );
+    tTimeParameterList.insert( "TSA_DofTypes" , std::string("UNDEFINED") );
 
     // Maximal number of linear solver restarts on fail
     tTimeParameterList.insert( "TSA_max_time_solver_restarts" , 0 );
 
     return tTimeParameterList;
 }
+
+// creates a parameter list with default inputs
+ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::SolverType aSolverType,
+                                                      const uint                        aIndex = 0 )
+{
+    ParameterList tParameterList;
+
+    switch( aSolverType )
+    {
+    case ( sol::SolverType::AZTEC_IMPL ):
+        return create_linear_algorithm_parameter_list_aztec( );
+        break;
+    case ( sol::SolverType::AMESOS_IMPL ):
+		MORIS_ERROR( false, "No implemented yet" );
+        break;
+
+    default:
+        MORIS_ERROR( false, "Parameterlist for this solver not implemented yet" );
+        break;
+    }
+    return tParameterList;
+}
+
+//    // creates a parameter list with default inputs
+//    ParameterList create_nonlinear_algorithm_parameter_list( const enum moris::NLA::NonlinearSolverType aSolverType,
+//                                                             const uint                        aIndex = 0 )
+//    {
+//        ParameterList tParameterList;
+//
+//        switch( aSolverType )
+//        {
+//        case ( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ):
+//            return create_linear_algorithm_parameter_list_aztec( );
+//            break;
+//        case ( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ):
+//    		MORIS_ERROR( false, "No implemented yet" );
+//            break;
+//
+//        default:
+//            MORIS_ERROR( false, "Parameterlist for this solver not implemented yet" );
+//            break;
+//        }
+//
+//    return tParameterList;
+//}
 }}
 #endif /* MORIS_DISTLINALG_CL_SOL_WAREHOUSE_HPP_ */
 
