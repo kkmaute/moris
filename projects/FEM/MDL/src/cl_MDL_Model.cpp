@@ -283,7 +283,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map( )
+        map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map()
         {
             return mEquationModel->get_mesh_set_to_fem_set_index_map();
         }

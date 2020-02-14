@@ -53,6 +53,7 @@ set(TEST_DEPENDENCIES
     ${INT}-lib
     ${ALG}-lib
     ${MORIS_BASE_LIBS}
+    ${PRM}-lib
     )
 
 # Set the output path for test
