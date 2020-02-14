@@ -379,7 +379,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ////
 ////        dla::Solver_Factory  tSolFactory;
-////        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+////        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 ////
 ////        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 ////        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -418,7 +418,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////        NLA::SOL_Warehouse tSolverWarehouse;
+////        sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -685,7 +685,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ////
 ////    dla::Solver_Factory  tSolFactory;
-////    std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+////    std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 ////
 ////    tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 ////    tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -725,7 +725,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -979,7 +979,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ////
 ////    dla::Solver_Factory  tSolFactory;
-////            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+////            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 ////
 //////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPPREONLY );
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPRICHARDSON );
@@ -1027,7 +1027,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //////
 //////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 //////
-//////    NLA::SOL_Warehouse tSolverWarehouse;
+//////    sol::SOL_Warehouse tSolverWarehouse;
 //////
 //////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 //////
@@ -1332,7 +1332,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPPREONLY );
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPRICHARDSON );
@@ -1380,7 +1380,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -1622,7 +1622,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPPREONLY );
 //            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPRICHARDSON );
@@ -1670,7 +1670,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -1932,7 +1932,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 //            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPPREONLY );
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPRICHARDSON );
@@ -1980,7 +1980,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -2224,7 +2224,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPPREONLY );
 ////            tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPRICHARDSON );
@@ -2272,7 +2272,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -2573,8 +2573,8 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-////            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+////            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 //    tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //    tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -2634,7 +2634,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////
@@ -2930,8 +2930,8 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    dla::Solver_Factory  tSolFactory;
-////            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+////            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
 //
 ////    tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 ////    tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -2994,7 +2994,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 ////
 ////    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 ////
-////    NLA::SOL_Warehouse tSolverWarehouse;
+////    sol::SOL_Warehouse tSolverWarehouse;
 ////
 ////    tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 ////

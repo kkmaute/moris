@@ -19,7 +19,7 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
+//        typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
 
         ParameterList
         create_sdf_parameter_list();

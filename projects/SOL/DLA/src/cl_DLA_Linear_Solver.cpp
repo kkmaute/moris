@@ -3,7 +3,7 @@
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -21,10 +21,10 @@ Linear_Solver::Linear_Solver()
     Solver_Factory  tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
-    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-    tLinSolver->set_param("AZ_output") = AZ_none;
+//    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+//    tLinSolver->set_param("AZ_output") = AZ_none;
 
     mLinearSolverList.clear();
 
@@ -76,7 +76,8 @@ void Linear_Solver::set_linear_algorithm( const moris::uint                     
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver::solver_linear_system( dla::Linear_Problem * aLinearProblem, const moris::sint aIter )
+void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearProblem,
+                                          const moris::sint           aIter )
 {
     tic tTimer;
 

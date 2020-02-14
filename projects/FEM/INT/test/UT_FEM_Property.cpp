@@ -274,7 +274,6 @@ namespace moris
 
             //evaluate the property
             Matrix< DDRMat > tPropertyValue = tProperty.val();
-            print(tPropertyValue,"Prop");
             CHECK( equal_to( tPropertyValue( 0, 0 ), 17.0 ) );
 
             // check that property depends on TEMP

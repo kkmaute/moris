@@ -9,45 +9,19 @@
 
 using namespace moris;
 
-Vector_Epetra::Vector_Epetra( const Map_Class       * aMapClass,
-                              const enum VectorType   aVectorType,
+//----------------------------------------------------------------------------------------------
+
+Vector_Epetra::Vector_Epetra(       Dist_Map       * aMapClass,
                               const sint              aNumVectors ) : Dist_Vector( aMapClass )
 {
 	mNumVectors = aNumVectors;
+
     // Build Epetra Vector
-    if ( aVectorType == VectorType::FREE )
-    {
-        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), aNumVectors );
-
-        // Get pointer to epetra free map
-        mEpetraMap = aMapClass->get_epetra_free_map();
-    }
-    else if ( aVectorType == VectorType::FULL )
-    {
-        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_map(), aNumVectors );
-
-        // Get pointer to epetra free map
-        mEpetraMap = aMapClass->get_epetra_full_map();
-    }
-    else if ( aVectorType == VectorType::FULL_OVERLAPPING )
-    {
-        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_overlapping_map(), aNumVectors );
-
-        // Get pointer to epetra free map
-        mEpetraMap = aMapClass->get_epetra_full_overlapping_map();
-    }
-    else
-    {
-        MORIS_ERROR( false, "Dist_Vector type not implemented. Use VectorType::FREE or VectorType::FULL" );
-    }
-
-//    // Get pointer to epetra free map
-//    mEpetraMap = aMapClass->get_epetra_free_map();
+    mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_map(), aNumVectors );
 
     // Get pointer to MultiVector values
     mValuesPtr = mEpetraVector->Values();
 }
-
 //----------------------------------------------------------------------------------------------
 
 Vector_Epetra::~Vector_Epetra()
@@ -70,7 +44,7 @@ void Vector_Epetra::sum_into_global_values( const moris::uint             & aNum
                                             const uint                    & aVectorIndex )
 {
     // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-    mEpetraVector->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data(), aVectorIndex );
+    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data(), aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------
@@ -78,7 +52,7 @@ void Vector_Epetra::sum_into_global_values( const moris::uint             & aNum
 void Vector_Epetra::vector_global_asembly()
 {
     // Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
-    mEpetraVector->GlobalAssemble();
+    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->GlobalAssemble();
 }
 
 //----------------------------------------------------------------------------------------------
@@ -88,12 +62,12 @@ void Vector_Epetra::vec_plus_vec( const moris::real & aScaleA,
                                   const moris::real & aScaleThis )
 {
     // check if both vectors are build with the same map
-    const Epetra_Map* tMap = aVecA.get_vector_map();
+    const Epetra_Map* tMap = aVecA.get_map()->get_epetra_map();
 
-    if ( mEpetraMap->PointSameAs( *tMap ) )
+    if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
         //currently guessing Epetra update is smart enough to switch to replace if aScaleThis is 0.0
-        mEpetraVector->Update( aScaleA, *aVecA.get_vector(), aScaleThis );
+        mEpetraVector->Update( aScaleA, *aVecA.get_epetra_vector(), aScaleThis );
         return;
     }
     else
@@ -133,11 +107,11 @@ void Vector_Epetra::scale_vector( const moris::real & aValue,
 void Vector_Epetra::import_local_to_global( Dist_Vector & aSourceVec )
 {
     // check if both vectores have the same map
-    const Epetra_Map* tMap = aSourceVec.get_vector_map();
+    const Epetra_Map* tMap = aSourceVec.get_map()->get_epetra_map();
 
-    if ( mEpetraMap->PointSameAs( *tMap ) )
+    if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
-        mEpetraVector->Update( 1.0, *aSourceVec.get_vector(), 0.0 );
+        mEpetraVector->Update( 1.0, *aSourceVec.get_epetra_vector(), 0.0 );
         //MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
     }
     else
@@ -145,10 +119,10 @@ void Vector_Epetra::import_local_to_global( Dist_Vector & aSourceVec )
         // Build importer oject
         if ( !mImporter )
         {
-            mImporter = new Epetra_Import( *mEpetraMap, *aSourceVec.get_vector_map() );
+            mImporter = new Epetra_Import( *mMap->get_epetra_map(), *aSourceVec.get_map()->get_epetra_map() );
         }
 
-        int status = mEpetraVector->Import( *aSourceVec.get_vector(), *mImporter, Insert );
+        int status = mEpetraVector->Import( *aSourceVec.get_epetra_vector(), *mImporter, Insert );
 
         if ( status!=0 )
         {
@@ -263,10 +237,10 @@ void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 
 void Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
 {
-    EpetraExt::HDF5 HDF5( mEpetraMap->Comm() );
+    EpetraExt::HDF5 HDF5( mMap->get_epetra_map()->Comm() );
     HDF5.Create( aFilename );
 
-    HDF5.Write("map-" + std::to_string( mEpetraMap->Comm().NumProc() ), *mEpetraMap);
+    HDF5.Write("map-" + std::to_string( mMap->get_epetra_map()->Comm().NumProc() ), *mMap->get_epetra_map());
     HDF5.Write( "LHS", *mEpetraVector );
 
     HDF5.Close( );
@@ -289,8 +263,9 @@ void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
     HDF5.Read( "LHS", *NewMap ,NewVector );
     HDF5.Close( );
 
-    mEpetraVector = ( Epetra_FEVector* )NewVector;
-    mEpetraMap = NewMap;
+    mEpetraVector = NewVector;
+    //FIXME
+//    mMap->get_epetra_map() = NewMap;
     //mMap->get_epetra_full_overlapping_map() = NewMap;
 }
 
@@ -298,8 +273,5 @@ void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
 
 void Vector_Epetra::check_vector( )
 {
-    if ( mPetscVector != NULL )
-    {
-        MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
-    }
+
 }

@@ -499,7 +499,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tModel->set_output_manager( &tOutputData );
 
        dla::Solver_Factory  tSolFactory;
-       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -535,7 +535,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

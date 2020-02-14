@@ -17,8 +17,8 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_Map_Class.hpp"
+//#include "cl_Matrix_Vector_Factory.hpp"
+//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -42,10 +42,10 @@ namespace mdl
                 mdl::Model * mModel = nullptr;
 
         protected:
-                Map_Class * mVectorMap = nullptr;
-
-                //! Full Vector
-                Dist_Vector * mVector = nullptr;
+//                Dist_Map * mVectorMap = nullptr;
+//
+//                //! Full Vector
+//                Dist_Vector * mVector = nullptr;
 
         public:
             Design_Variable_Interface( )
@@ -86,10 +86,10 @@ namespace mdl
              * @brief retunr dRdp pointer
              *
              */
-            Dist_Vector * get_dRdp()
-            {
-                return mVector;
-            };
+//            Dist_Vector * get_dRdp()
+//            {
+//                return mVector;
+//            };
 
             virtual void get_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                             Cell< enum GEN_DV > & aDvTypes ) = 0;

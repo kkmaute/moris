@@ -70,6 +70,9 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mPropDofDer;
             moris::Cell< Matrix< DDRMat > > mPropDvDer;
 
+            // property name
+            std::string mName;
+
         private:
 
             // flag for evaluation
@@ -96,6 +99,26 @@ namespace moris
              * virtual destructor
              */
             virtual ~Property(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for property name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for property name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
 
 //------------------------------------------------------------------------------
             /**

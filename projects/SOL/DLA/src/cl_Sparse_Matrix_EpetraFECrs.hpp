@@ -22,7 +22,7 @@
 namespace moris
 {
 // Project header files
-class Sparse_Matrix_EpetraFECrs : public Sparse_Matrix
+class Sparse_Matrix_EpetraFECrs : public Dist_Matrix
 {
 private:
     moris::Matrix< DDUMat > mDirichletBCVec;
@@ -34,7 +34,7 @@ protected:
 
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
-                               const moris::Map_Class        * aMap );
+                               const moris::Dist_Map        * aMap );
 
     Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
                                const moris::uint aCols )
@@ -75,11 +75,6 @@ public:
 
     void save_matrix_map_to_matrix_market_file( const char* aFilename );
 
-    //const MapClass* GetMap() const { return ( Map_Class * ) mEpetraMap; }
-    //MapClass* GetMap()       { return ( Map_Class * ) mEpetraMap; }
-    //
-    //const MapEpetra* GetFreeMap() const { return mEpetraMap; }
-    //MapEpetra* get_epetra_free_map()       { return mEpetraMap; }
 };
 }
 

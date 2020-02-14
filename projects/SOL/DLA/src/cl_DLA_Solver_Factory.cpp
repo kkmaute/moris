@@ -25,25 +25,25 @@ Solver_Factory::Solver_Factory()
 Solver_Factory::~Solver_Factory()
 {}
 
-std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const enum SolverType aSolverType )
+std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
 {
     std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
 
     switch( aSolverType )
     {
-    case ( SolverType::AZTEC_IMPL ):
+    case ( sol::SolverType::AZTEC_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Aztec >();
         break;
-    case ( SolverType::AMESOS_IMPL ):
+    case ( sol::SolverType::AMESOS_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Amesos >();
         break;
-    case ( SolverType::BELOS_IMPL ):
+    case ( sol::SolverType::BELOS_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Belos >();
         break;
-    case ( SolverType::AMESOS2_IMPL ):
+    case ( sol::SolverType::AMESOS2_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Amesos2 >();
         break;
-    case ( SolverType::PETSC):
+    case ( sol::SolverType::PETSC):
         tLinSol = std::make_shared< Linear_Solver_PETSc >(  );
         break;
     default:
@@ -56,19 +56,19 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
 //-------------------------------------------------------------------------------------------------------------
 
 Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                             Map_Class               * aMap,
-                                                             Map_Class               * aFullMap,
-                                                       const enum MapType              aLinSysType,
+		Dist_Map               * aMap,
+		Dist_Map               * aFullMap,
+                                                       const enum sol::MapType              aLinSysType,
                                                        const bool                      aNotCreatedByNonLinSolver )
 {
     Linear_Problem * tLinSys;
 
     switch( aLinSysType )
     {
-    case ( MapType::Epetra ):
+    case ( sol::MapType::Epetra ):
         tLinSys = new Linear_System_Trilinos( aSolverInterface, aMap, aFullMap );
         break;
-    case ( MapType::Petsc):
+    case ( sol::MapType::Petsc):
         tLinSys = new Linear_System_PETSc( aSolverInterface, aMap, aFullMap, aNotCreatedByNonLinSolver );
         break;
     default:
@@ -82,17 +82,17 @@ return tLinSys;
 //--------------------------------------------------------------------------------------------------------------
 
 Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                       const enum MapType              aLinSysType,
+                                                       const enum sol::MapType              aLinSysType,
                                                        const bool                      aNotCreatedByNonLinSolver )
 {
     Linear_Problem * tLinSys = nullptr;
 
     switch( aLinSysType )
     {
-    case ( MapType::Epetra ):
+    case ( sol::MapType::Epetra ):
         tLinSys = new Linear_System_Trilinos( aSolverInterface );
         break;
-    case ( MapType::Petsc):
+    case ( sol::MapType::Petsc):
         tLinSys = new Linear_System_PETSc( aSolverInterface, aNotCreatedByNonLinSolver );
         break;
     default:

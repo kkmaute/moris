@@ -81,13 +81,13 @@ public :
     uint get_num_my_elements_on_block( uint aBlockInd ){ return mNumElements; };
 
     // ----------------------------------------------------------------------------------------------
-    void get_element_matrix(const uint             & aMyElementInd,
-                                  Matrix< DDRMat > & aElementMatrix)
+    void get_equation_object_operator(const uint             & aMyElementInd,
+                                            Matrix< DDRMat > & aElementMatrix)
     { aElementMatrix = mElementMatrixValues; };
 
-    void get_element_matrix(const uint             & aMyBlockInd,
-                            const uint             & aMyElementInd,
-                                  Matrix< DDRMat > & aElementMatrix)
+    void get_equation_object_operator( const uint             & aMyBlockInd,
+                                       const uint             & aMyElementInd,
+                                             Matrix< DDRMat > & aElementMatrix)
     { aElementMatrix = mElementMatrixValues; };
 
     // ----------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ public :
     	aElementTopology = mEleDofConectivity.get_column( aMyElementInd ); };
 
     // ----------------------------------------------------------------------------------------------
-    Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
+    Matrix< DDUMat > get_constrained_Ids(){ return mMyConstraintDofs; };
 
     // ----------------------------------------------------------------------------------------------
     void get_equation_object_rhs(const uint               & aMyElementInd,

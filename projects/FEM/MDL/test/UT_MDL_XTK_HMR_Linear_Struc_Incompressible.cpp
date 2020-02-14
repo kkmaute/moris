@@ -364,7 +364,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tDofTypesP( 0 ) = MSI::Dof_Type::P;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -394,7 +394,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypes );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -716,7 +716,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tDofTypesP(0) = MSI::Dof_Type::P;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -744,7 +744,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tNonlinearSolverMain.set_dof_type_list( tDofTypes );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -782,7 +782,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
 //
 //        // Create solver database
-//        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 //
 //        tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 //        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );
@@ -1110,7 +1110,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        tDofTypesP(0) = MSI::Dof_Type::P;
 //
 //        dla::Solver_Factory  tSolFactory;
-//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 //
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1138,7 +1138,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 ////        tNonlinearSolverMain.set_dof_type_list( tDofTypes );
 ////
 ////        // Create solver database
-////        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+////        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 ////
 ////        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 //
@@ -1176,7 +1176,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
 //
 //        // Create solver database
-//        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 //
 //        tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 //        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );

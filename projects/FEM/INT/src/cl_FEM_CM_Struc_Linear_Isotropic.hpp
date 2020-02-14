@@ -78,7 +78,9 @@ namespace moris
              void set_property( std::shared_ptr< fem::Property > aProperty,
                                 std::string                      aPropertyString )
              {
-                 // FIXME check that property type make sense?
+                 // check that aPropertyString makes sense
+                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                              "CM_Struc_Linear_Isotropic::set_property - Unknown aPropertyString." );
 
                  // set the property in the property cell
                  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -90,68 +92,66 @@ namespace moris
              */
             void eval_flux();
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test flux
              */
             void eval_testFlux();
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model traction
              * @param[ in ] aNormal normal
              */
             void eval_traction( const Matrix< DDRMat > & aNormal );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test traction
              * @param[ in ] aNormal   normal
              */
             void eval_testTraction( const Matrix< DDRMat > & aNormal );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain
              */
             void eval_strain();
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test strain
              */
             void eval_testStrain();
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix
              */
             void eval_const();
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the inverse of the bulk modulus, K
              * @return 1/K
              */
             moris::real eval_inv_bulk_modulus();
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the B matrix from the field interpolator and make it flattened to a 1 x ?
              * @return "flattened" B (not voigt notation B)
              */
             moris::Matrix<moris::DDRMat> eval_B_flat();
 
-            //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
              */
             void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model traction derivative wrt to a dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -160,7 +160,7 @@ namespace moris
             void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                      const Matrix< DDRMat >             & aNormal );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test traction derivative wrt to a dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -170,7 +170,7 @@ namespace moris
                                          const Matrix< DDRMat >             & aNormal,
                                          const Matrix< DDRMat >             & aJump );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dof type
              * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
@@ -178,7 +178,7 @@ namespace moris
              */
             void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix derivative wrt to a dof type
              * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
@@ -186,25 +186,23 @@ namespace moris
              */
             void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
         
             void flatten_normal( const Matrix< DDRMat > & aNormal,
                                        Matrix< DDRMat > & aFlattenedNormal );
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
 
             void get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector );
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * set spatial dimensions. Modified from base to set function pointers to the appropriate eval_const()
              * @param[ in ] aSpaceDim a spatial dimension
              */
             void set_space_dim( uint aSpaceDim );
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Sets the option to use a modified elasticity model (e.g. plane stress, plane stress, etc.)
              *
@@ -214,7 +212,7 @@ namespace moris
              */
             void set_model_type( Model_Type aModelType);
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
         private:
 
             /**
@@ -223,8 +221,7 @@ namespace moris
              */
             void set_function_pointers();
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Full plane stress tensor
              *              
@@ -233,8 +230,7 @@ namespace moris
              */
             void full_plane_stress(moris::real aEmod, moris::real aNu);
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Deviatoric plane stress tensor
              *
@@ -243,8 +239,7 @@ namespace moris
              */
             void deviatoric_plane_stress(moris::real aEmod, moris::real aNu);
 
-            //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Full plane strain tensor
              *               
@@ -253,8 +248,7 @@ namespace moris
              */
             void full_plane_strain(moris::real aEmod, moris::real aNu);
 
-        //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Deviatoric plane strain tensor
              *
@@ -263,8 +257,7 @@ namespace moris
              */
             void deviatoric_plane_strain(moris::real aEmod, moris::real aNu);
 
-            //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Full 3d linear isotropic tensor
              * 
@@ -273,8 +266,7 @@ namespace moris
              */
             void full_3d(moris::real aEmod, moris::real aNu);
 
-            //--------------------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------
             /**
              * Deviatoric 3d tensor
              *
@@ -283,10 +275,10 @@ namespace moris
              */
             void deviatoric_3d(moris::real aEmod, moris::real aNu);
 
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
 
         };
-        //--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

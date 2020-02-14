@@ -18,8 +18,8 @@
 
 namespace moris
 {
-class Map_Class;
-namespace NLA
+class Dist_Map;
+namespace sol
 {
     class SOL_Warehouse;
 }
@@ -43,14 +43,14 @@ namespace tsa
         moris::Cell< Time_Solver * > mTimeSubSolverList;
 
         //! Pointer to solver database
-        NLA::SOL_Warehouse * mSolverWarehouse;
+        sol::SOL_Warehouse * mSolverWarehouse;
 
         //! Pointer to solver interface
         Solver_Interface * mSolverInterface = nullptr;
 
         Dist_Vector * mFullVector = nullptr;
 
-        Map_Class * mFullMap = nullptr;
+        Dist_Map * mFullMap = nullptr;
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;
@@ -200,7 +200,7 @@ namespace tsa
          *
          * @param[out] rSolverDatabase Returns the pointer to the solver database
          */
-        NLA::SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
+        sol::SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
 
         //--------------------------------------------------------------------------------------------------
 
@@ -209,7 +209,7 @@ namespace tsa
          *
          * @param[in] rSolverDatabase Poiner to the solver database
          */
-        void set_solver_warehouse( NLA::SOL_Warehouse * aSolverWarehouse );
+        void set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse );
 
         //--------------------------------------------------------------------------------------------------
 

@@ -11,7 +11,7 @@
 using namespace moris;
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
+void Solver_Interface::build_graph( moris::Dist_Matrix * aMat )
 {
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
@@ -35,7 +35,7 @@ void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                                             moris::Dist_Vector   * aVectorRHS,
                                             moris::Dist_Vector   * aFullSolutionVector )
 {
@@ -51,7 +51,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
         this->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        this->get_element_matrix( Ii, tElementMatrix );
+        this->get_equation_object_operator( Ii, tElementMatrix );
 
         Cell< Matrix< DDRMat > > tElementRHS;
         this->get_equation_object_rhs( Ii, tElementRHS );
@@ -120,11 +120,11 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
     aVectorRHS->vector_global_asembly();
 
 //    std::cout<<"Assembled Residual Vector"<<std::endl;
-    aVectorRHS->print();
+//    aVectorRHS->print();
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
+void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
                                           moris::Dist_Vector   * aFullSolutionVector )
 {
     this->set_solution_vector( aFullSolutionVector );
@@ -152,7 +152,7 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
 //            print(tElementTopology,"tElementTopology");
 
             Matrix< DDRMat > tElementMatrix;
-            this->get_element_matrix( Ii, Ik, tElementMatrix );
+            this->get_equation_object_operator( Ii, Ik, tElementMatrix );
 
 //            print(tElementMatrix,"tElementMatrix");
 
@@ -167,7 +167,7 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_assembly();
 
-    aMat->save_matrix_to_matlab_file( "Matrix.dat");
+//    aMat->save_matrix_to_matlab_file( "Matrix.dat");
 
 //#ifdef WITHGPERFTOOLS
 //    ProfilerStop();
@@ -177,7 +177,7 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                                             moris::Dist_Vector   * aVectorRHS )
 {
     // Get local number of elements
@@ -190,7 +190,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
         this->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        this->get_element_matrix( Ii, tElementMatrix );
+        this->get_equation_object_operator( Ii, tElementMatrix );
 
         Cell< Matrix< DDRMat > >tElementRHS;
         this->get_equation_object_rhs( Ii, tElementRHS );

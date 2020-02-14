@@ -285,8 +285,8 @@ namespace NLA
 //
 //            // build linear solver factory and linear solvers
 //            dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 //
 //            // set linear solver options
 //            tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
@@ -349,8 +349,8 @@ namespace NLA
 
             // build linear solver factory and linear solvers
             dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
             // set linear solver options
             tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
@@ -377,7 +377,7 @@ namespace NLA
 
             tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-            NLA::SOL_Warehouse tSolverWarehouse;
+            sol::SOL_Warehouse tSolverWarehouse;
 
             tSolverWarehouse.set_solver_interface(tSolverInput);
 

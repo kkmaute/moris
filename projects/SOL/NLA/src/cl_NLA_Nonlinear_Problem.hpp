@@ -18,16 +18,19 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
 namespace dla
 {
     class Linear_Problem;
 }
-namespace NLA
+namespace sol
 {
     class SOL_Warehouse;
+}
+namespace NLA
+{
     class Nonlinear_Problem
     {
     private:
@@ -35,7 +38,7 @@ namespace NLA
         void  delete_pointers();
 
         //--------------------Arc Length-------------------
-        Sparse_Matrix * mJacobian    = nullptr;
+        Dist_Matrix * mJacobian    = nullptr;
 
         Dist_Vector * mJacVals       = nullptr;
         Dist_Vector * mJacVals0      = nullptr;
@@ -67,8 +70,8 @@ namespace NLA
         Dist_Vector * mFullVector = nullptr;
         Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
 
-        Map_Class   * mMap = nullptr;
-        Map_Class   * mMapFull = nullptr;               //FIXME replace with marketplace
+        Dist_Map   * mMap = nullptr;
+        Dist_Map   * mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 
@@ -77,7 +80,7 @@ namespace NLA
         bool mBuildLinerSystemFlag = true;
 
         //! Map type. for special Petsc functionalities
-        enum MapType mMapType = MapType::Epetra;
+        enum sol::MapType mMapType = sol::MapType::Epetra;
 
         //! Nonlinear solver manager index. only for output purposes
         moris::sint mNonlinearSolverManagerIndex = -1;
@@ -97,7 +100,7 @@ namespace NLA
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra );
+                           const enum sol::MapType       aMapType = sol::MapType::Epetra );
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief Constructor. Creates nonlinear system
@@ -108,12 +111,12 @@ namespace NLA
          * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
          * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
          */
-        Nonlinear_Problem(       SOL_Warehouse    * aNonlinDatabase,
+        Nonlinear_Problem(       sol::SOL_Warehouse    * aNonlinDatabase,
                                  Solver_Interface * aSolverInterface,
                                  Dist_Vector      * aFullVector,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra);
+                           const enum sol::MapType       aMapType = sol::MapType::Epetra);
 
         //--------------------------------------------------------------------------------------------------
         ~Nonlinear_Problem();
@@ -156,7 +159,7 @@ namespace NLA
         //--------------------------------------------------------------------------------------------------
         //--------------------------------arc-length 'get' functions----------------------------------------
         //--------------------------------------------------------------------------------------------------
-        Sparse_Matrix * get_full_for_jacobian()
+        Dist_Matrix * get_full_for_jacobian()
         {
             return mJacobian;
         }

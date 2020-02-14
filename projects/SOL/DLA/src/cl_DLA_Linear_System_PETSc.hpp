@@ -30,7 +30,7 @@
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
-#include "cl_Map_Class.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 #include "cl_Param_List.hpp" // CON/src
 
@@ -51,8 +51,8 @@ namespace dla
                              const bool               aNotCreatedByNonLinSolver = false);
 
         Linear_System_PETSc(       Solver_Interface * aInput,
-                                   Map_Class        * aFreeMap,
-                                   Map_Class        * aFullMap,
+                                   Dist_Map        * aFreeMap,
+                                   Dist_Map        * aFullMap,
                              const bool               aNotCreatedByNonLinSolver = false);
 
         Linear_System_PETSc( const char* aString );

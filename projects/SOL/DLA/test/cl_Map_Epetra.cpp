@@ -64,10 +64,8 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Map_Class * tMap = tMatFactory.create_map( 18,
-                                               tMyGlobalElements,
-                                               tMyConstraintDofs,
-                                               tMyGlobalElements );
+    Dist_Map * tMap = tMatFactory.create_map( tMyGlobalElements,
+                                               tMyConstraintDofs );
 
     //std::cout<<*tEpetraMap.get_epetra_free_map()<<std::endl;
 
@@ -82,7 +80,7 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     Matrix< DDSMat > tPIndList (tNumInd, 1);
     Matrix< DDSMat > tLIndList (tNumInd, 1);
     // Get tNumInd process and local indices
-    sint err = tMap->get_epetra_free_map()->RemoteIDList( tNumInd, tGIndList.data(), tPIndList.data(), tLIndList.data() );
+    sint err = tMap->get_epetra_map()->RemoteIDList( tNumInd, tGIndList.data(), tPIndList.data(), tLIndList.data() );
     // Compare to true values.
     if (rank == 0)
     {
@@ -150,7 +148,7 @@ TEST_CASE("PETSc Map","[Petsc Map],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Map_Class * tMap = tMatFactory.create_map( tNumMyDofs,
+    Dist_Map * tMap = tMatFactory.create_map( tNumMyDofs,
                                                tMyGlobalElements,
                                                tMyConstraintDofs );
 
