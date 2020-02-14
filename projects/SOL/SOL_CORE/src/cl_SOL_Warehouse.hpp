@@ -213,8 +213,32 @@ namespace sol
 
     };
 
+
     // creates a parameter list with default inputs
-    ParameterList create_linear_algorithm_parameter_list()
+    ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::SolverType aType,
+                                                          const uint                        aIndex )
+    {
+        ParameterList tLinAlgorithmParameterList;
+
+//        switch( aSolverType )
+//        {
+//        case ( sol::SolverType::AZTEC_IMPL ):
+//            tLinSol = std::make_shared< Linear_Solver_Aztec >();
+//            break;
+//        case ( sol::SolverType::AMESOS_IMPL ):
+//            tLinSol = std::make_shared< Linear_Solver_Amesos >();
+//            break;
+//
+//        default:
+//            MORIS_ERROR( false, "No solver type specified" );
+//            break;
+//        }
+
+        return tLinAlgorithmParameterList;
+    }
+
+    // creates a parameter list with default inputs
+    ParameterList create_linear_algorithm_parameter_list( )
     {
         ParameterList tLinAlgorithmParameterList;
 
