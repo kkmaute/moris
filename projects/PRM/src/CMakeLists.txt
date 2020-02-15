@@ -6,7 +6,9 @@ set(${PRM}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_PRM_FEM_Parameters.hpp )
+    cl_PRM_FEM_Parameters.hpp
+    cl_PRM_MSI_Parameters.hpp
+    cl_PRM_SOL_Parameters.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Parameters Library
@@ -18,7 +20,11 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
-    ${INT}-lib )
+    ${INT}-lib 
+    #${SOL_CORE}-lib
+    #${NLA}-lib
+    #${TLA}-lib
+     )
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

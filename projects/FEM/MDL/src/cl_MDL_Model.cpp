@@ -32,7 +32,6 @@
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_MSI_Parameters.hpp"
 //#include "cl_DLA_Linear_Solver_Aztec.hpp"
 //#include "cl_DLA_Linear_Solver.hpp"
 
@@ -45,6 +44,8 @@
 #include "op_equal_equal.hpp"
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
+
+#include "cl_PRM_MSI_Parameters.hpp"
 
 namespace moris
 {
@@ -104,7 +105,7 @@ namespace moris
 
         mEquationSets = mEquationModel->get_equation_sets();
 
-        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
         if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
         {
@@ -208,7 +209,7 @@ namespace moris
 
             mEquationSets = mEquationModel->get_equation_sets();
 
-            moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
