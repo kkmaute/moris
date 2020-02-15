@@ -42,6 +42,7 @@ namespace moris
             tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "model_type",        static_cast< uint >( fem::Model_Type::UNDEFINED ) );
 
             return tParameterList;
         }

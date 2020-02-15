@@ -131,6 +131,7 @@ namespace moris
 //------------------------------------------------------------------------------
         enum class Model_Type
         {
+            UNDEFINED,
             PLANE_STRESS,
             PLANE_STRAIN,
             FULL,

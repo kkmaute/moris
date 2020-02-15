@@ -56,7 +56,7 @@ namespace moris
             tParameterList( 1 )( 1 ) = prm::create_constitutive_model_parameter_list();
             tParameterList( 1 )( 1 ).set( "constitutive_name", std::string("CM2") );
             tParameterList( 1 )( 1 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-            tParameterList( 1 )( 0 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+            tParameterList( 1 )( 1 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
             tParameterList( 1 )( 1 ).set( "properties",        std::string("Property2,Conductivity") );
 
             //------------------------------------------------------------------------------

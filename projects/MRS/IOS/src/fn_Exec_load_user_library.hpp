@@ -28,9 +28,9 @@ namespace moris
         /**
          * Interface for user defined function
          */
-        typedef void ( *MORIS_USER_FUNCTION ) ( Cell<moris::real > & aParameter );
+        typedef void ( *MORIS_USER_FUNCTION ) ( Cell< moris::real > & aParameter );
 
-        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::ParameterList & aParamterList );
+        typedef moris::Cell< moris::Cell< moris::ParameterList > > & ( *MORIS_PARAMETER_FUNCTION ) ();
 
         typedef moris::Matrix< moris::DDRMat > ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                                               moris::fem::Field_Interpolator_Manager*         aFIManager );

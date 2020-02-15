@@ -469,8 +469,15 @@ namespace moris
                 // set CM name
                 aCMs( iCM )->set_name( aParameterList( iCM ).get< std::string >( "constitutive_name" ) );
 
-                // fill property map
+                // fill CM map
                 aCMMap[ aParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
+
+                // set CM model type
+                fem::Model_Type tCMModelType = static_cast< fem::Model_Type >( aParameterList( iCM ).get< uint >( "model_type" ) );
+                if( tCMModelType != fem::Model_Type::UNDEFINED )
+                {
+                    aCMs( iCM )->set_model_type( tCMModelType );
+                }
 
                 // set CM dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;

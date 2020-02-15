@@ -273,14 +273,14 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             if ( iInterpOrder > 0 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
+                tSP1->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
                 tSP1->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
                 tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
             }
             if ( iInterpOrder > 1 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
+                tSP2->set_parameters( { {{ 1.0 }}, {{ 2.0 }} });
                 tSP2->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
                 tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
             }

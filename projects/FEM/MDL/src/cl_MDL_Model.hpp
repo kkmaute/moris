@@ -119,6 +119,11 @@ namespace moris
 
             Model(       mtk::Mesh_Manager*                  aMeshManager,
                    const uint                                aBSplineIndex,
+                   const moris_index                         aMeshPairIndex = 0,
+                   const bool                                aUseMultigrid  = false );
+
+            Model(       mtk::Mesh_Manager*                  aMeshManager,
+                   const uint                                aBSplineIndex,
                          moris::Cell< fem::Set_User_Info > & aSetInfo,
                          MSI::Design_Variable_Interface    * aDesignVariableInterface,
                    const moris_index                         aMeshPairIndex = 0,
