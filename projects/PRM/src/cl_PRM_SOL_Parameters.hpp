@@ -2,7 +2,7 @@
  * cl_PRM_FEM_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
- *      Author: noel
+ *      Author: schmidt
  */
 
 #ifndef PROJECTS_PRM_SRC_CL_PRM_SOL_PARAMETERS_HPP_

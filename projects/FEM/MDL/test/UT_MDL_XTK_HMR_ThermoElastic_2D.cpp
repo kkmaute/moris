@@ -406,22 +406,22 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         }
 
         tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
-        tParameterlist( 0 )(0)("AZ_diagnostics") = AZ_none;
-        tParameterlist( 0 )(0)("AZ_output") = AZ_none;
-        tParameterlist( 0 )(0)("AZ_max_iter") = 10000;
-        tParameterlist( 0 )(0)("AZ_solver") = AZ_gmres;
-        tParameterlist( 0 )(0)("AZ_subdomain_solve") = AZ_ilu;
-        tParameterlist( 0 )(0)("AZ_graph_fill") = 10;
-        tParameterlist( 0 )(0)("Use_ML_Prec") = true;
+        tParameterlist( 0 )(0).set("AZ_diagnostics"    , AZ_none  );
+        tParameterlist( 0 )(0).set("AZ_output"         , AZ_none  );
+        tParameterlist( 0 )(0).set("AZ_max_iter"       , 10000    );
+        tParameterlist( 0 )(0).set("AZ_solver"         , AZ_gmres );
+        tParameterlist( 0 )(0).set("AZ_subdomain_solve", AZ_ilu   );
+        tParameterlist( 0 )(0).set("AZ_graph_fill"     , 10       );
+        tParameterlist( 0 )(0).set("Use_ML_Prec"       ,  true    );
 
         tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
         tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )(0)("NLA_DofTypes") = std::string("UX,UY;TEMP");
+        tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("UX,UY;TEMP") );
 
         tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )(0)("TSA_DofTypes") = std::string("UX,UY;TEMP");
+        tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("UX,UY;TEMP") );
 
         tSolverWarehouse.set_parameterlist( tParameterlist );
 
