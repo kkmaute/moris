@@ -180,6 +180,12 @@ namespace moris
         moris::Cell< moris::Cell< ParameterList > > tFEMParameterList;
         tFEMParameterListFunc( tFEMParameterList );
 
+        // load the VIS parameter list
+        std::string tVISString = "VISParameterList";
+        MORIS_PARAMETER_FUNCTION tVISParameterListFunc = mLibrary->load_parameter_file( tVISString );
+        moris::Cell< moris::Cell< ParameterList > > tVISParameterList;
+        tVISParameterListFunc( tVISParameterList );
+
         // build the FEM model from FEM parameter list
         mEquationModel = std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, tFEMParameterList, mLibrary );
 
@@ -245,7 +251,10 @@ namespace moris
 
         mSolverWarehouse->initialize();
 
-        mSolverWarehouse->get_main_time_solver()->solve();
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 6: create output manager
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        mOutputManager = new vis::Output_Manager( tVISParameterList(0)(0) );
 
         if( par_rank() == 0)
         {
