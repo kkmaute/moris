@@ -124,20 +124,21 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         //------------------------------------------------------------------------------
 
         moris::ge::GEN_Geometry_Engine  tGeometryEngine;
+        tGeometryEngine.mSpatialDim = 2;
 
         //------------------------------------------------------------------------------
         tGeometryEngine.register_mesh( &tMeshManager );
 
         if( par_rank()==0 )
         {
-            tGeometryEngine.set_pdv_types( tPdvList0 );
+            tGeometryEngine.set_pdv_types( tPdvList0, false );
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
             tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
         }
         else if ( par_rank()==1 )
         {
-            tGeometryEngine.set_pdv_types( tPdvList1 );
+            tGeometryEngine.set_pdv_types( tPdvList1, false );
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
             tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList1(0), tPdvList1(0), tHMRMeshIndex );
@@ -148,7 +149,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
                                                   {GEN_DV::DENSITY1} };
         if( par_rank()==0 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_hosts()->get_pdv_type_list();
+            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_host_manager()->get_pdv_type_list();
 
             REQUIRE( tPdvTypeList0(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList0(1) == tCheckCell(1) );
@@ -156,7 +157,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
         if( par_rank()==1 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_hosts()->get_pdv_type_list();
+            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_host_manager()->get_pdv_type_list();
 
             REQUIRE( tPdvTypeList1(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList1(1) == tCheckCell(1) );
@@ -164,6 +165,18 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
     }   // end par size statement
 }
+//------------------------------------------------------------------------------
+TEST_CASE("unit test for globally consistent pdv type list with geometry","[GE],[global_pdv_type_list_check_parallel_with_geometry]")
+{
+    /*
+     * similar to above test but now we also add the geometry design variables on the integration nodes
+     */
+    if(par_size() == 2)
+    {
+        // TODO: implement test
+    }
+}
+
 
 }   // end ge namespace
 }       // end moris namespace

@@ -27,7 +27,7 @@ public:
     }
     //------------------------------------------------------------------------------
     /*
-     * Stores geometry objects in the geometry object manager associated with nodes
+     * stores geometry objects associated with nodes in the geometry object manager
      */
     void
     store_geometry_objects( moris::Matrix< moris::IndexMat > const & aNodeIndices,

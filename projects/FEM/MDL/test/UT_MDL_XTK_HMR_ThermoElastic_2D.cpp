@@ -996,7 +996,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         // close file
         close_hdf5_file( tFileID );
-print(tFullSolution,"tFullSolution");
+
         // verify solutio
         moris::real tEpsilon = 1E-06;
         bool tCheck = true;

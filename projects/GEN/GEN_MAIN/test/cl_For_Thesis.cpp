@@ -262,6 +262,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         /*
          * 2D mesh, no fibers, testing the computation of the J-integral in area around crack tip
          */
+        size_t tModelDimension  = 2;
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
@@ -323,6 +324,93 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
 
+        uint tNumberOfRefinements = 2;
+        uint tStartingPoint       = 1;
+
+        Cell< Matrix< DDRMat > > tFieldData( 1 );
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        std::cout<<"-------------------------------------"<<std::endl;
+        std::cout<<"number of refinements performed:  "<<tNumberOfRefinements<<std::endl;
+        std::cout<<"-------------------------------------"<<std::endl;
+        for( uint k=0; k<tNumberOfRefinements; k++ )
+        {
+            real tCrackX;
+            real tCrackY;
+
+            switch(tInitialMesh)
+            {
+            case(0) :
+                {
+                    tCrackX = 0.0;
+                    tCrackY = 0.0;
+                    break;
+                }
+            case(1) :   // crack tip begins in middle of mesh (Moes et. al.)
+                {
+                    tCrackX = 3.5001;
+                    tCrackY = 8.0001;
+                    break;
+                }
+            default :
+                {
+                    tCrackX = 0.1502;
+                    tCrackY = 1.0001;
+                    break;
+                }
+            }
+
+            Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
+            Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
+            moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
+
+            Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY+0.02 }};
+            Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
+            moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
+
+            Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY-0.02 }};
+            Matrix< DDRMat > tNormals1 = {{ 0.0, -1.0 }};
+            moris::ge::Plane<2> tPlane1( tCenter1, tNormals1 );
+
+            moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane1, &tPlane2 };
+
+            moris::ge::Multi_Geometry tCrack( tAllPlanes );
+
+            moris::ge::Circle tCircle( 0.12501, tCrackX, tCrackY );
+
+            moris::Cell< moris::ge::GEN_Geometry* > tTempGeometryVector = { &tCrack, &tCircle };
+
+            moris::ge::GEN_Phase_Table     tTempPhaseTable( tTempGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::GEN_Geometry_Engine tTempGeometryEngine( tTempGeometryVector, tTempPhaseTable, tModelDimension );
+
+            moris_index tMeshIndex = tTempGeometryEngine.register_mesh( tMesh );
+
+            uint tNumIPNodes = tMesh->get_num_nodes();
+
+            Matrix<DDRMat> tFieldData ( tNumIPNodes,1 );
+            Matrix<DDRMat> tFieldData0( tNumIPNodes,1 );
+
+            tTempGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
+            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
+            for( uint i = 0; i < tNumIPNodes; i++ )
+            {
+                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
+            }
+
+            tTempGeometryEngine.initialize_geometry_object_phase_values( tCoords );
+
+            for(uint i=0; i<tNumIPNodes; i++)
+            {
+                tFieldData ( i ) = tTempGeometryEngine.get_entity_phase_val( i, 0 );
+                tFieldData0( i ) = tTempGeometryEngine.get_entity_phase_val( i, 1 );
+            }
+
+            tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
+            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
+
+            tHMR.perform_refinement_based_on_working_pattern( 0, false );
+        }
+
         tHMR.finalize();
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
@@ -334,7 +422,6 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         real tCrackX;
         real tCrackY;
 
-        uint tStartingPoint = 1;
         switch(tInitialMesh)
         {
         case(0) :
@@ -379,7 +466,6 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
         moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tCrack, &tCircle };
 
-        size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
@@ -393,7 +479,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
         //=============================== temporary ============================================
         // output problem geometry
-        bool tOutputXTKmesh = false;
+        bool tOutputXTKmesh = true;
         if (tOutputXTKmesh)
         {
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, 0);
@@ -411,7 +497,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             writer.close_file();
         }
         //============================= end temporary ==========================================
-        bool tFullProblem = true;
+        bool tFullProblem = false;
         if(tFullProblem)
         {
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, 0);
@@ -518,12 +604,12 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             fem::Set_User_Info tBulkPlate00;
             tBulkPlate00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
             tBulkPlate00.set_IWGs( { tIWGPlate } );
-            tBulkPlate00.set_IQIs( { tIQIUX, tIQIUY } );
+            tBulkPlate00.set_IQIs( { tIQIUX, tIQIUY, tIQIJInt } );
 
             fem::Set_User_Info tBulkPlate01;
             tBulkPlate01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
             tBulkPlate01.set_IWGs( { tIWGPlate } );
-            tBulkPlate01.set_IQIs( { tIQIUX, tIQIUY } );
+            tBulkPlate01.set_IQIs( { tIQIUX, tIQIUY, tIQIJInt } );
             //===========================================
             // Neumann load on side-set 3
             fem::Set_User_Info tSetNeumann00;
@@ -543,7 +629,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p3") );
             tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedBottom } );
             //===========================================
-            // IQI for J-Integral
+//             IQI for J-Integral
 //            fem::Set_User_Info tJIntegral;
 //            tJIntegral.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("iside_g_1_b0_3_b1_2") );
 //            tJIntegral.set_IQIs( { tIQIJInt } );
@@ -566,15 +652,20 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
                                                    false );
             // --------------------------------------------------------------------------------------
 //            moris_index tSideSetForJ = tEnrIntegMesh.get_set_index_by_name("iside_g_1_b0_3_b1_2");
+//            moris_index tSideSetForJ = tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3");
 //
 //            map< moris_index, moris_index > tTempMap = tModel->get_mesh_set_to_fem_set_index_map();
+//
+//            auto tIter = tTempMap[ tSideSetForJ ];
 //
 //            Matrix< DDRMat > tDummy0(1,1,0.0);
 //            Matrix< DDRMat > tDummy1(1,1,0.0);
 //
 //            real tJVal;
-//
-//            void Set::compute_quantity_of_interest( 0,
+
+//            tModel->get_equation_sets()(tIter)->set_visualization_set( 0, tEnrIntegMesh.get_set_by_index( tSideSetForJ ), true );
+
+//            tModel->get_equation_sets()(tIter)->compute_quantity_of_interest( 0,
 //                                                    &tDummy0,
 //                                                    &tDummy1,
 //                                                    &tJVal,
@@ -590,9 +681,9 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
                                      vis::VIS_Mesh_Type::STANDARD,
                                      "aaaaaaaaaa_outputCheck2D.e",
                                      { "HMR_dummy_n_p3", "HMR_dummy_c_p3" },
-                                     { "UX", "UY", },
-                                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL},
-                                     { vis::Output_Type::UX, vis::Output_Type::UY} );
+                                     { "UX", "UY", "J_INTEGRAL" },
+                                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::GLOBAL},
+                                     { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::J_INTEGRAL} );
 
             tModel->set_output_manager( &tOutputData );
 
