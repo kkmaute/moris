@@ -27,7 +27,7 @@ namespace dla
 
         moris::uint mCallCounter = 0;
 
-        Param_List< boost::variant< bool, sint, real > > mParameterListLinearSolver;
+        ParameterList mParameterListLinearSolver;
 
     protected:
 
@@ -79,7 +79,7 @@ namespace dla
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > &  set_param( char const* aKey )
+        ParameterListTypes& set_param( char const* aKey )
         {
             return mParameterListLinearSolver( aKey );
         }

@@ -65,7 +65,7 @@ namespace tsa
 //        //! Actual residual norm
 //        moris::real mResidualNorm = -1.0;
 
-        Param_List< boost::variant< bool, sint, real > > mParameterListTimeSolver;
+        ParameterList mParameterListTimeSolver;
 
         enum TimeSolverType mTimeSolverType = TimeSolverType::END_ENUM;
 
@@ -261,7 +261,7 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > & set_param( char const* aKey )
+        ParameterListTypes& set_param( char const* aKey )
         {
             return mParameterListTimeSolver( aKey );
         }

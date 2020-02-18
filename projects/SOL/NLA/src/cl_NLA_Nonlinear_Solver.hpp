@@ -67,7 +67,7 @@ namespace NLA
         //! Actual residual norm
         moris::real mResidualNorm = -1.0;
 
-        Param_List< boost::variant< bool, sint, real > > mParameterListNonLinearSolver;
+        ParameterList mParameterListNonLinearSolver;
 
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
@@ -296,7 +296,7 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > & set_param( char const* aKey )
+        ParameterListTypes & set_param( char const* aKey )
         {
 
             return mParameterListNonLinearSolver( aKey );

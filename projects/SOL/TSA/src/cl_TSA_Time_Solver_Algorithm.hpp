@@ -60,7 +60,7 @@ namespace tsa
         Dist_Map * mFullMap = nullptr;
 
         //! Parameterlist for this nonlinear solver
-        Param_List< boost::variant< bool, sint, real, const char* > > mParameterListTimeSolver;
+        ParameterList mParameterListTimeSolver;
 
         /**
          * @brief Member function which keeps track of used time for a particular purpose.
@@ -118,7 +118,7 @@ namespace tsa
 
         void set_time_solver_parameters();
 
-        boost::variant< bool, sint, real, const char* > &  set_param( char const* aKey )
+        ParameterListTypes&  set_param( char const* aKey )
         {
             return mParameterListTimeSolver( aKey );
         }

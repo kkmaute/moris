@@ -48,7 +48,7 @@ namespace NLA
         Nonlinear_Problem * mNonlinearProblem = nullptr;
 
         //! Parameterlist for this nonlinear solver
-        Param_List< boost::variant< bool, sint, real, const char* > > mParameterListNonlinearSolver;
+        ParameterList mParameterListNonlinearSolver;
 
         bool mLinSolverOwned = true;
 
@@ -119,7 +119,7 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
-        virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
+        virtual ParameterListTypes & set_param( char const* aKey ) = 0;
 
         //--------------------------------------------------------------------------------------------------
 
