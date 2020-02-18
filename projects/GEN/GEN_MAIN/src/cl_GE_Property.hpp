@@ -19,18 +19,19 @@ namespace moris{
 namespace ge{
 
 typedef std::function< moris::real ( const Matrix< DDRMat >         & aPoint,
-                                     const moris::Cell< moris::real > aProps ) > PropertyFunction;
+                                     const moris::Cell< moris::real > aProps ) > GENPropertyFunction;
 
 typedef std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
-                                          const moris::Cell< real >   aProps ) > PropertyDerFunc;
+                                          const moris::Cell< real >   aProps ) > GENPropertyDerFunc;
+
 //------------------------------------------------------------------------------
 class Property
 {
 public:
     //------------------------------------------------------------------------------
     //constructor to set both the analytical function and the derivative(s)
-    Property( PropertyFunction aValFunc,
-              PropertyDerFunc  aDerFuncs,
+    Property( GENPropertyFunction aValFunc,
+              GENPropertyDerFunc  aDerFuncs,
               moris::Cell< moris::real > aParams )
     : mValFunction(aValFunc),
       mDerivativeFunction(aDerFuncs),
@@ -39,7 +40,7 @@ public:
     }
 
     // constructor to set only the analytical function
-    Property( PropertyFunction aValFunc,
+    Property( GENPropertyFunction aValFunc,
               moris::Cell< moris::real > aParams )
     : mValFunction(aValFunc),
       mParams(aParams)
@@ -64,7 +65,7 @@ public:
         return tSet;
     }
     //------------------------------------------------------------------------------
-    void set_derivative_functions( PropertyDerFunc aDerFuncs )
+    void set_derivative_functions( GENPropertyDerFunc aDerFuncs )
     {
         mDerivativeFunction = aDerFuncs;
     }
@@ -91,10 +92,10 @@ private:
     // note: all DOF types are ADVs
 
     // value function
-    PropertyFunction mValFunction = nullptr;
+    GENPropertyFunction mValFunction = nullptr;
 
     // derivative functions
-    PropertyDerFunc mDerivativeFunction = nullptr;
+    GENPropertyDerFunc mDerivativeFunction = nullptr;
 
     // field interpolators
     fem::Field_Interpolator* mFieldInterpolators = nullptr;

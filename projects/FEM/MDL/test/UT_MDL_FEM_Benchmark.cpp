@@ -92,19 +92,36 @@
 namespace moris
 {
 
+//// define free function for properties
+//Matrix< DDRMat > tPropValConstFunc_MDLFEMBench
+//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+//  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//Matrix< DDRMat > tPropValFuncL2_MDLFEMBench
+//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+//  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//{
+//    return {{ 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) }};
+//}
+
 // define free function for properties
-Matrix< DDRMat > tPropValConstFunc_MDLFEMBench
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void tPropValConstFunc_MDLFEMBench
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-Matrix< DDRMat > tPropValFuncL2_MDLFEMBench
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void tPropValFuncL2_MDLFEMBench
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) }};
+    aPropMatrix = {{ 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) }};
 }
 
 // define function for cutting plane

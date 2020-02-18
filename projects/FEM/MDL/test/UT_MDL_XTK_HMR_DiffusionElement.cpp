@@ -152,11 +152,19 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
     return tLevelSetVaue;
 }
 
-Matrix< DDRMat > tConstValFunction_MDL_XTK_HMR
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat > tConstValFunction_MDL_XTK_HMR
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+
+void tConstValFunction_MDL_XTK_HMR
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 bool tSolverOutputCriteria( moris::tsa::Time_Solver * )

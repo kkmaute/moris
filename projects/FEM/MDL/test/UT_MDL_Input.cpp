@@ -70,27 +70,30 @@ namespace moris
 {
 
 // define free function for properties
-Matrix< DDRMat > tPropValConstFunc
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void tPropValConstFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
-Matrix< DDRMat > tPropValFunc
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void tPropValFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::fem::Field_Interpolator * tFI
     = aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP );
-    return aParameters( 0 ) + aParameters( 1 ) * tFI->val();
+    aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * tFI->val();
 }
-Matrix< DDRMat > tPropDerFunc
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void tPropDerFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::fem::Field_Interpolator * tFI
     = aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP );
-    return aParameters( 1 ) * tFI->N();
+    aPropMatrix = aParameters( 1 ) * tFI->N();
 }
 
 // define free function for geometry
@@ -469,12 +472,13 @@ TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
         // path for property function reading
         std::string tMeshFilePath = std::getenv("MORISROOT");
         tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
+        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
 
         // create model
         fem::FEM_Model * tFEMModel = new fem::FEM_Model( &tMeshManager,
                                                           tBSplineMeshIndex,
                                                           tParameterList,
-                                                          tMeshFilePath );
+                                                          tLibrary );
 
         //------------------------------------------------------------------------------
         // clean up

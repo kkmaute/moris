@@ -53,8 +53,6 @@ namespace moris
             //! Multigrid object pointer
             Multigrid * mMultigrid = nullptr;
 
-
-
             MSI::MSI_Solver_Interface * mSolverInterface;
 
             friend class MSI_Solver_Interface;

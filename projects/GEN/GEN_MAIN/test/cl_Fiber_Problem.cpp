@@ -95,23 +95,41 @@ namespace ge
                  real gLsbwabs;
 
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-        fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-    return aCoeff( 0 );
-        }
+//Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+//        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+//        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+//        fem::Geometry_Interpolator              * aGeometryInterpolator )
+//        {
+//    return aCoeff( 0 );
+//        }
+//
+//moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+//        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+//        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+//        {
+//    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+//        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
+//        {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
+//        }
 
-moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
+
+void tMValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
         {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
         {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
-        }
+}
 
 moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > & aPoint )
 {

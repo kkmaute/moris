@@ -208,6 +208,9 @@ using namespace NLA;
     void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
     {
         mSolverWarehouse = aSolverWarehouse;
+
+        mSolverInput = mSolverWarehouse->get_solver_interface() ;
+
     }
 
     //-------------------------------------------------------------------------------------------------------

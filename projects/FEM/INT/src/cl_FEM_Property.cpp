@@ -11,7 +11,6 @@ namespace moris
         {
             // set field interpolator manager
             mFIManager = aFieldInterpolatorManager;
-
         }
 
 //------------------------------------------------------------------------------
@@ -125,7 +124,7 @@ namespace moris
             MORIS_ASSERT( mFIManager != nullptr, "Property::eval_Prop - mFIManager not assigned. " );
 
             // use mValFunction to evaluate the property
-            mProp = mValFunction( mParameters, mFIManager );
+            mValFunction( mProp, mParameters, mFIManager );
         }
 
 //------------------------------------------------------------------------------
@@ -165,7 +164,8 @@ namespace moris
             MORIS_ASSERT( mFIManager != nullptr, "Property::eval_Prop - mFIManager not assigned. " );
 
             // if so use mDerivativeFunction to compute the derivative
-            mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters, mFIManager );
+            mDofDerFunctions( tDofIndex )( mPropDofDer( tDofIndex ), mParameters, mFIManager );
+
         }
 
 //------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ namespace moris
             MORIS_ASSERT( mFIManager != nullptr, "Property::eval_Prop - mFIManager not assigned. " );
 
             // if so use mDerivativeFunction to compute the derivative
-            mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters, mFIManager );
+            mDvDerFunctions( tDvIndex )( mPropDvDer( tDvIndex ), mParameters, mFIManager );
         }
 
 //------------------------------------------------------------------------------

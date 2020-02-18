@@ -1,12 +1,12 @@
 /*
- * cl_PRM_FEM_Parameters.hpp
+ * cl_PRM_VIS_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: schmidt
  */
 
-#ifndef PROJECTS_PRM_SRC_CL_PRM_MSI_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_CL_PRM_MSI_PARAMETERS_HPP_
+#ifndef PROJECTS_PRM_SRC_CL_PRM_VIS_PARAMETERS_HPP_
+#define PROJECTS_PRM_SRC_CL_PRM_VIS_PARAMETERS_HPP_
 
 #include <string>
 #include <cstdio>
@@ -21,7 +21,6 @@
 #include "cl_Param_List.hpp"
 
 #include "cl_VIS_Output_Enums.hpp"
-
 
 namespace moris
 {
@@ -50,4 +49,4 @@ namespace moris
     }/* end_namespace_prm */
 }/* end_namespace_moris */
 
-#endif /* PROJECTS_PRM_SRC_CL_PRM_MSI_PARAMETERS_HPP_ */
+#endif /* PROJECTS_PRM_SRC_CL_PRM_VIS_PARAMETERS_HPP_ */
