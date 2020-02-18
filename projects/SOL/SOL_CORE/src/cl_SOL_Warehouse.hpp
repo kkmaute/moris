@@ -14,6 +14,12 @@
 #include <memory>
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
+
+#include "cl_NLA_Nonlinear_Solver_Enums.hpp"       //CON/src
+#include "cl_TSA_Time_Solver_Enums.hpp"       //CON/src
+
+#include "cl_Param_List.hpp"       //CON/src
 
 //#include "cl_MSI_Dof_Type_Enums.hpp"
 //#include "cl_NLA_Nonlinear_Solver.hpp"
@@ -22,6 +28,24 @@
 namespace moris
 {
 class Solver_Interface;
+
+namespace dla
+{
+    class Linear_Solver_Algorithm;
+    class Linear_Solver;
+
+}
+namespace NLA
+{
+    class Nonlinear_Algorithm;
+    class Nonlinear_Solver;
+}
+namespace tsa
+{
+    class Time_Solver_Algorithm;
+    class Time_Solver;
+
+}
 namespace sol
 {
     class SOL_Warehouse
@@ -30,22 +54,18 @@ namespace sol
         //! Pointer to the solver interface
         Solver_Interface * mSolverInterface;
 
-        //! List containing all nonlinear solver managers
-        //moris::Cell< Nonlinear_Solver * > mListNonlinerSolverManagers;
+        Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
+        Cell< dla::Linear_Solver * >                            mLinearSolvers;
 
-        //! List containing the downward dependencies of every nonlinear solver manager
-        //moris::Cell< moris::Matrix< DDSMat > > mListSolverManagerDepenencies;
+        Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > >     mNonlinearSolverAlgoriths;
+        Cell< NLA::Nonlinear_Solver * >                         mNonlinearSolvers;
 
-        //! List of maps for every nonliner solver manager. The entry corresponds to the nonliner solver manager index. The last map is the pull map
-        //moris::Cell< Dist_Map * > mListOfFreeMaps;
+        Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > >   mTimeSolverAlgorithms;
+        Cell< tsa::Time_Solver * >                              mTimeSolvers;
 
-        //Dist_Map * mMap = nullptr;
+        // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver
+        moris::Cell< moris::Cell< moris::ParameterList > >             mParameterlist;
 
-        //! Full Vector
-        //Dist_Vector * mFullVector = nullptr;
-
-        //!  Counter to count the number of nonlinear solver managers
-        //moris::uint mCallCounter = 0;
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -81,6 +101,11 @@ namespace sol
          */
         ~SOL_Warehouse(){};
 
+        void set_parameterlist( moris::Cell< moris::Cell< moris::ParameterList > > aParameterlist )
+        {
+            mParameterlist = aParameterlist;
+        };
+
 //--------------------------------------------------------------------------------------------------------
 
         /**
@@ -99,6 +124,41 @@ namespace sol
         {
             mSolverInterface = aSolverInterface;
         };
+
+//--------------------------------------------------------------------------------------------------------
+
+        void initialize()
+        {
+            this->create_linear_solver_algorithms();
+
+            this->create_linear_solvers();
+
+            this->create_nonlinear_solver_algorithms();
+
+            this->create_nonlinear_solvers();
+
+            this->create_time_solver_algorithms();
+
+            this->create_time_solvers();
+        };
+
+        tsa::Time_Solver *  get_main_time_solver()
+        {
+             return mTimeSolvers( 0 );
+        };
+//--------------------------------------------------------------------------------------------------------
+
+        void create_linear_solver_algorithms();
+
+        void create_linear_solvers();
+
+        void create_nonlinear_solver_algorithms();
+
+        void create_nonlinear_solvers();
+
+        void create_time_solver_algorithms();
+
+        void create_time_solvers();
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -152,7 +212,11 @@ namespace sol
         //Dist_Vector * get_full_vector(){ return mFullVector; };
 
     };
-}
-}
+
+
+
+
+
+}}
 #endif /* MORIS_DISTLINALG_CL_SOL_WAREHOUSE_HPP_ */
 

@@ -28,6 +28,9 @@ class Solver_Interface;
             ~Nonlinear_Solver_Factory();
 
             std::shared_ptr< Nonlinear_Algorithm > create_nonlinear_solver( const enum NonlinearSolverType   aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+
+            std::shared_ptr< Nonlinear_Algorithm > create_nonlinear_solver( const enum NonlinearSolverType   aNonLinSolverType,
+                                                                            const ParameterList              aParameterlist );
         };
     }
 }

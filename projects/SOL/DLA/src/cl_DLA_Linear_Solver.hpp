@@ -27,7 +27,7 @@ namespace dla
 
         moris::uint mCallCounter = 0;
 
-        Param_List< boost::variant< bool, sint, real > > mParameterListLinearSolver;
+        moris::ParameterList mParameterListLinearSolver;
 
     protected:
 
@@ -37,6 +37,9 @@ namespace dla
          * @brief Constructor. Creates a default linear solver.
          */
         Linear_Solver();
+
+        Linear_Solver( const moris::ParameterList aParameterlist );
+
 
         //--------------------------------------------------------------------------------------------------
 
@@ -79,7 +82,7 @@ namespace dla
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > &  set_param( char const* aKey )
+        boost::variant< sint, real, std::string, uint, std::pair< std::string, std::string >, bool > &  set_param( char const* aKey )
         {
             return mParameterListLinearSolver( aKey );
         }

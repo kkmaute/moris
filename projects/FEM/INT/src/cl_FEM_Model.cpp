@@ -23,7 +23,6 @@
 
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_FEM_Set_User_Info.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
@@ -42,38 +41,39 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        FEM_Model::FEM_Model(       mtk::Mesh_Manager *                 aMeshManager,
-                              const moris_index                       & aMeshPairIndex,
-                                    moris::Cell< fem::Set_User_Info > & aSetInfo ) : mMeshManager( aMeshManager ),
-                                                                                     mMeshPairIndex( aMeshPairIndex )
+        FEM_Model::FEM_Model
+        (       mtk::Mesh_Manager *                 aMeshManager,
+          const moris_index                       & aMeshPairIndex,
+                moris::Cell< fem::Set_User_Info > & aSetInfo )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex )
         {
-            // get the number of sets
-            uint tNumFemSets = aSetInfo.size();
-
-            // start timer
-            tic tTimer1;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 0: initialize
+            // STEP 0: unpack mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            // get pointers to interpolation and integration meshes
+            mtk::Interpolation_Mesh* tIPMesh = nullptr;
+            mtk::Integration_Mesh*   tIGMesh = nullptr;
+            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create nodes
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // start timer
+            tic tTimer1;
 
-            // ask mesh about number of IP nodes on proc
-            luint tNumOfIPNodes = tInterpolationMesh->get_num_nodes();
+            // ask IP mesh about number of IP vertices on proc
+            luint tNumIPNodes = tIPMesh->get_num_nodes();
 
-            // create IP node objects
-            mIPNodes.resize( tNumOfIPNodes, nullptr );
+            // set size for list IP nodes
+            mIPNodes.resize( tNumIPNodes, nullptr );
 
-            for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
+            // loop over IP mesh vertices
+            for( uint iNode = 0; iNode < tNumIPNodes; iNode++ )
             {
-                mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
+                // create a new IP Node
+                mIPNodes( iNode ) = new fem::Node( &tIPMesh->get_mtk_vertex( iNode ) );
             }
 
             if( par_rank() == 0)
@@ -83,56 +83,58 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
-                                ( unsigned int ) tNumOfIPNodes,
+                                ( unsigned int ) tNumIPNodes,
                                 ( double ) tElapsedTime / 1000 );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create elements
+            // STEP 2: create sets
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // start timer
             tic tTimer2;
 
-            // create equation objects
-            mFemSets.resize( tNumFemSets, nullptr );     // FIXME try to create them as equation sets
+            // get the number of sets
+            uint tNumFemSets = aSetInfo.size();
 
-            // get the number of element to create
-            mFemClusters.reserve( 100000 ); //FIXME
+            // create equation sets
+            mFemSets.resize( tNumFemSets, nullptr );
 
-            //------------------------------------------------------------------------------
-            // init the fem set counter
-            moris::uint tFemSetCounter = 0;
+            // get number of IP cells
+            uint tNumIPCells = tIPMesh->get_num_elems();
+
+            // reserve size for list of equation objects
+            mFemClusters.reserve( tNumIPCells );
 
             // loop over the used fem set
             for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
             {
-                mMeshSetToFemSetMap[ aSetInfo( iSet ).get_mesh_index() ] = tFemSetCounter;
+                // get the mesh set index from aSetInfo
+                moris_index tMeshSetIndex = aSetInfo( iSet ).get_mesh_index();
 
-                // create a list of clusters
-                moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( aSetInfo( iSet ).get_mesh_index() );
+                // fill the mesh set index to fem set index map
+                mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
 
-//                std::cout<<tMeshSet->get_num_clusters_on_set()<<std::endl;
+                // get the mesh set pointer
+                moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
+
+                // if non-empty mesh set
                 if ( tMeshSet->get_num_clusters_on_set() !=0 )
                 {
-                    // create new fem set
-                    mFemSets( tFemSetCounter ) = new fem::Set( this,
-                                                               tMeshSet,
-                                                               aSetInfo( iSet ),
-                                                               mIPNodes );
+                    // create a fem set
+                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
                 }
+                // if empty mesh set
                 else
                 {
-                    // FIXME why do we build empty set?
-                    mFemSets( tFemSetCounter ) = new fem::Set();
+                    // create an empty fem set
+                    mFemSets( iSet ) = new fem::Set();
                 }
 
-                // collect equation objects associated with the block-set
-                mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
-
-                // update fem set counter
-                tFemSetCounter++;
+                // collect equation objects associated with the set
+                mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
             }
+            // shrink list to fit size
             mFemClusters.shrink_to_fit();
 
             if( par_rank() == 0)
@@ -141,18 +143,151 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-
-                MORIS_LOG_INFO( "Model: created %u FEM elements in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.\n\n",
                         ( unsigned int ) mFemClusters.size(),
                         ( double ) tElapsedTime / 1000 );
             }
         }
 
 //------------------------------------------------------------------------------
-        void FEM_Model::initialize( moris::Cell< moris::Cell< ParameterList > > & aParameterList )
+        FEM_Model::FEM_Model
+        (       mtk::Mesh_Manager                           * aMeshManager,
+          const moris_index                                 & aMeshPairIndex,
+                moris::Cell< moris::Cell< ParameterList > > & aParameterList,
+                std::string                                   aInputFilePath )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex )
+        {
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 0: unpack fem input
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // start timer
+            tic tTimer0;
+
+            // unpack the FEM inputs
+            this->initialize( aParameterList, aInputFilePath );
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "FEM_Model: unpack FEM input in %5.3f seconds.\n\n",
+                                ( double ) tElapsedTime / 1000 );
+            }
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: unpack mesh
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // Get pointers to interpolation and integration mesh
+            mtk::Interpolation_Mesh* tIPMesh = nullptr;
+            mtk::Integration_Mesh*   tIGMesh = nullptr;
+            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create IP nodes
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            // start timer
+            tic tTimer1;
+
+            // ask mesh about number of IP nodes on proc
+            luint tNumIPNodes = tIPMesh->get_num_nodes();
+
+            // create IP node objects
+            mIPNodes.resize( tNumIPNodes, nullptr );
+
+            for( uint iNode = 0; iNode < tNumIPNodes; iNode++ )
+            {
+                mIPNodes( iNode ) = new fem::Node( &tIPMesh->get_mtk_vertex( iNode ) );
+            }
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
+                                ( unsigned int ) tNumIPNodes,
+                                ( double ) tElapsedTime / 1000 );
+            }
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create fem sets
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            // start timer
+            tic tTimer2;
+
+            // get number of fem sets
+            uint tNumFemSets = mSetInfo.size();
+
+            // set size for list of equation sets
+            mFemSets.resize( tNumFemSets, nullptr );
+
+            // get number of IP cells
+            uint tNumIPCells = tIPMesh->get_num_elems();
+
+            // reserve size for list of equation objects
+            mFemClusters.reserve( tNumIPCells );
+
+            // loop over the used fem set
+            for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
+            {
+                // get the mesh set name
+                std::string tMeshSetName = mSetInfo( iSet).get_mesh_set_name();
+
+                // get the mesh set index from its name
+                moris_index tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
+
+                // fill the mesh set index to fem set index map
+                mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
+
+                // get the mesh set pointer
+                moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
+
+                // if non-empty mesh set
+                if ( tMeshSet->get_num_clusters_on_set() != 0 )
+                {
+                    // create new fem set
+                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, mSetInfo( iSet ), mIPNodes );
+                }
+                // if empty mesh set
+                else
+                {
+                    // create an empty fem set
+                    mFemSets( iSet ) = new fem::Set();
+                }
+
+                // collect equation objects associated with the set
+                mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
+            }
+
+            // shrink to fit
+            mFemClusters.shrink_to_fit();
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.\n\n",
+                                ( unsigned int ) mFemClusters.size(),
+                                ( double ) tElapsedTime / 1000 );
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void FEM_Model::initialize
+        ( moris::Cell< moris::Cell< ParameterList > > & aParameterList,
+          std::string                                   aInputFilePath )
         {
             // save parameter list as a member data
             mParameterList = aParameterList;
+            mFilePath      = aInputFilePath;
 
             // get msi string to dof type map
             moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap
@@ -184,6 +319,9 @@ namespace moris
             // create IQIs
             moris::Cell< std::shared_ptr< fem::IQI > > tIQIs;
             this->create_IQIs( tIQIs, mParameterList( 4 ), tProperties, tPropertyMap, tCMs, tCMMap, tSPs, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
+
+            // create fem set info
+            this->create_fem_set_info( mSetInfo, mParameterList( 3 ), tIWGs, mParameterList( 4 ), tIQIs );
         }
 
 //------------------------------------------------------------------------------
@@ -747,6 +885,99 @@ namespace moris
                 }
 //                // debug
 //                aIQIs( iIQI )->print_names();
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void FEM_Model::create_fem_set_info
+        ( moris::Cell< Set_User_Info >               & aSetInfo,
+          moris::Cell< ParameterList >               & aIWGParameterList,
+          moris::Cell< std::shared_ptr< fem::IWG > > & aIWGs,
+          moris::Cell< ParameterList >               & aIQIParameterList,
+          moris::Cell< std::shared_ptr< fem::IQI > > & aIQIs )
+        {
+            // init number of fem sets to be created
+            uint tNumFEMSets = 0;
+
+            // create a map of the set
+            std::map< std::string, uint > tMeshtoFemSet;
+
+            // loop over the IWGs
+            for( uint iIWG = 0; iIWG < aIWGParameterList.size(); iIWG++ )
+            {
+                // get the mesh set names from the IWG parameter list
+                moris::Cell< std::string > tMeshSetNames;
+                string_to_cell( aIWGParameterList( iIWG ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
+
+                // loop over the mesh set names
+                for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
+                {
+                    // check if the mesh set name already in map
+                    if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
+                    {
+                        // add the mesh set name map
+                        tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
+
+                        // create a fem set info for the mesh set
+                        Set_User_Info aSetUserInfo;
+
+                        // set its mesh set name
+                        aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+
+                        // set the IWG
+                        aSetUserInfo.set_IWG( aIWGs( iIWG ) );
+
+                        // add it to the list of fem set info
+                        aSetInfo.push_back( aSetUserInfo );
+                    }
+                    else
+                    {
+                        // set the IWG
+                        aSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IWG( aIWGs( iIWG ) );
+                    }
+                }
+            }
+
+            // loop over the IQIs
+            for( uint iIQI = 0; iIQI < aIQIParameterList.size(); iIQI++ )
+            {
+                // get the mesh set names from the IWG parameter list
+                moris::Cell< std::string > tMeshSetNames;
+                string_to_cell( aIQIParameterList( iIQI ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
+
+                // loop over the mesh set names
+                for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
+                {
+                    // if the mesh set name not in map
+                    if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
+                    {
+                        // add the mesh set name map
+                        tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
+
+                        // create a fem set info for the mesh set
+                        Set_User_Info aSetUserInfo;
+
+                        // set its mesh set name
+                        aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+
+                        // set the IQI
+                        aSetUserInfo.set_IQI( aIQIs( iIQI ) );
+
+                        // add it to the list of fem set info
+                        aSetInfo.push_back( aSetUserInfo );
+                    }
+                    else
+                    {
+                        // set the IQI
+                        aSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IQI( aIQIs( iIQI ) );
+                    }
+                }
+            }
+
+            // debug print
+            for( uint iSet = 0; iSet < aSetInfo.size(); iSet++ )
+            {
+                aSetInfo( iSet ).print_names();
             }
         }
 

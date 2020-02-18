@@ -18,6 +18,8 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Reader_Exodus.hpp"
 
+#include "cl_Param_List.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -39,6 +41,9 @@ namespace moris
 
             //! Mesh Type
             enum VIS_Mesh_Type              mMeshType;
+
+            //! Output Path
+            std::string                     mOutputPath;
 
             //! Mesh Name
             std::string                     mMeshName;
@@ -67,8 +72,6 @@ namespace moris
 
             Cell< mtk::Mesh * > mVisMesh;
 
-            Matrix< IndexMat > mListOfRequestedBlocks;
-
             bool mOnlyPrimary = false;
 
             moris::Cell< Writer_Exodus * >  mWriter;
@@ -79,11 +82,13 @@ namespace moris
         protected:
 
         public:
-            Output_Manager()
-            {
-                mListOfRequestedBlocks = { { 0, 1, 2, 3 } };
-                mOnlyPrimary = false ;
+            Output_Manager(){};
 
+//-----------------------------------------------------------------------------------------------------------
+
+            Output_Manager( moris::ParameterList aParamterelist )
+            {
+                this->set_outputs( aParamterelist );
             };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -124,6 +129,10 @@ namespace moris
                               const moris::Cell< std::string >      & aFieldNames,
                               const moris::Cell< enum Field_Type >  & aFieldType,
                               const moris::Cell< enum Output_Type > & aEnum );
+
+//---------------------------------------------------------------------------------------------------------------------------
+
+            void set_outputs( moris::ParameterList aParamterelist );
 
 //---------------------------------------------------------------------------------------------------------------------------
 

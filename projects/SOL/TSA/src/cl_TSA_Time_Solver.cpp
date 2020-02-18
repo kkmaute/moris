@@ -45,6 +45,13 @@ using namespace tsa;
         this->set_time_solver_parameters();
     }
 
+    Time_Solver::Time_Solver( const ParameterList aParameterlist,
+                              const enum TimeSolverType aTimeSolverType ) : mParameterListTimeSolver( aParameterlist ),
+                                                                            mTimeSolverType( aTimeSolverType )
+    {
+        mDofTypeList.resize( 0 );
+    }
+
     //--------------------------------------------------------------------------------------------------
     Time_Solver::Time_Solver(       moris::Cell< std::shared_ptr< Time_Solver_Algorithm > > & aTimeSolverList,
                               const enum TimeSolverType                                       aTimeSolverType ) : mTimeSolverType( aTimeSolverType )

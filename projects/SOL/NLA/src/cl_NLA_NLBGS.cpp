@@ -29,6 +29,11 @@ using namespace dla;
         this->set_nonlinear_solver_parameters();
     }
 
+    NonLinBlockGaussSeidel::NonLinBlockGaussSeidel( const ParameterList aParameterlist ) : Nonlinear_Algorithm( aParameterlist )
+    {
+
+    }
+
 //    NonLinBlockGaussSeidel::NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface ) : Nonlinear_Solver( aSolverInterface )
 //    {
 //        // Set default parameters in parameter list for nonlinear solver

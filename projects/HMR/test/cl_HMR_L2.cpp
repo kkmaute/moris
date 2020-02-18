@@ -337,17 +337,17 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // The parameter object controls the behavior of HMR.
         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2") );
 
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", "1, 1" );
-        tParameters.set( "lagrange_pattern", "0, 1" );
-        tParameters.set( "bspline_orders", "1, 1, 1, 2" );
-        tParameters.set( "bspline_pattern", "0, 0, 1, 1" );
+        tParameters.set( "lagrange_orders", std::string("1, 1") );
+        tParameters.set( "lagrange_pattern", std::string("0, 1") );
+        tParameters.set( "bspline_orders", std::string("1, 1, 1, 2") );
+        tParameters.set( "bspline_pattern", std::string("0, 0, 1, 1") );
 
         tParameters.set( "union_pattern", 2 );
 
-        tParameters.set( "lagrange_to_bspline", "0, 1; 2, 3" );
+        tParameters.set( "lagrange_to_bspline", std::string("0, 1; 2, 3") );
 
         tParameters.set( "use_multigrid", 0 );
 

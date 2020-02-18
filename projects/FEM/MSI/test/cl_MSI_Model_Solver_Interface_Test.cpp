@@ -32,7 +32,6 @@
 #undef protected
 #undef private
 
-#include "cl_MSI_Parameters.hpp"
 #include "cl_MSI_Element_Proxy.hpp"
 #include "cl_FEM_Set.hpp"
 
