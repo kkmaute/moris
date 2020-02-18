@@ -33,7 +33,6 @@
 
 #include "cl_GEN_Dv_Enums.hpp"
 
-
 namespace moris
 {
     namespace fem
