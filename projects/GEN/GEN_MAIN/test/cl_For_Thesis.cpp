@@ -342,7 +342,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             tParameters.set( "number_of_elements_per_dimension", std::string("40, 40, 20") );
             tParameters.set( "domain_dimensions",                std::string("2, 2, 1") );
             tParameters.set( "domain_offset",                    std::string("-0, -0, -0") );
-            tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4, 5, 6") );
+            tParameters.set( "domain_sidesets",            std::string("1, 2, 3, 4, 5, 6") );
             break;
         }
     case(1) :
@@ -872,34 +872,34 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         {
         case(0) :
             {
-            tParameters.set( "number_of_elements_per_dimension", "40, 40, 20" );
+            tParameters.set( "number_of_elements_per_dimension", std::string("40, 40, 20") );
             break;
             }
         case(1) :
             {
-            tParameters.set( "number_of_elements_per_dimension", "20, 20, 10" );
+            tParameters.set( "number_of_elements_per_dimension", std::string("20, 20, 10") );
             }
         default :
         {
-            tParameters.set( "number_of_elements_per_dimension", "10, 10, 5" );
+            tParameters.set( "number_of_elements_per_dimension", std::string("10, 10, 5") );
         }
         }
 
-        tParameters.set( "domain_dimensions",                "2, 2, 1" );
-        tParameters.set( "domain_offset",                    "-0, -0, -0" );
+        tParameters.set( "domain_dimensions",                std::string("2, 2, 1") );
+        tParameters.set( "domain_offset",                    std::string("-0, -0, -0") );
 
-        tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
+        tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4, 5, 6") );
 
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_output_meshes", "0" );
-        tParameters.set( "lagrange_input_meshes", "0" );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "lagrange_input_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "use_multigrid", 0 );
 

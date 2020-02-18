@@ -6,7 +6,6 @@
 set(TEST_SOURCES
     test_main.cpp
     
-  #  cl_Beam_Study.cpp
   #  cl_Fiber_Problem.cpp
     cl_For_Thesis.cpp
     
