@@ -23,6 +23,8 @@
 #include "Ifpack_ILU.h"
 #include "Ifpack_LocalFilter.h"
 
+#include "cl_DLA_Linear_Problem.hpp"
+
 // ML
 //#include "ml_include.h"
 //#include "ml_epetra_utils.h"

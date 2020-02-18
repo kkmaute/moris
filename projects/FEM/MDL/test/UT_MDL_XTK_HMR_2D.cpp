@@ -85,10 +85,25 @@
 namespace moris
 {
 
-Matrix< DDRMat >
-exactTempFunc
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat >
+//exactTempFunc
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    Matrix< DDRMat > tCoord = aFIManager->get_IP_geometry_interpolator()->valx();
+//    real xcoord = tCoord(0);
+//    real ycoord = tCoord(1);
+//
+//    real rad = std::pow (  std::pow( xcoord - 0, 2.0)
+//                         + std::pow( ycoord - 0, 2.0), 0.5);
+//
+//    return {{(1.0/3.0)*(1.0/rad-0.501)}};
+//}
+
+void exactTempFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     Matrix< DDRMat > tCoord = aFIManager->get_IP_geometry_interpolator()->valx();
     real xcoord = tCoord(0);
@@ -97,7 +112,7 @@ exactTempFunc
     real rad = std::pow (  std::pow( xcoord - 0, 2.0)
                          + std::pow( ycoord - 0, 2.0), 0.5);
 
-    return {{(1.0/3.0)*(1.0/rad-0.501)}};
+    aPropMatrix = {{(1.0/3.0)*(1.0/rad-0.501)}};
 }
 
 moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -113,11 +128,12 @@ moris::real LvlSetCircle_1(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 
-Matrix< DDRMat > tConstValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 moris::real

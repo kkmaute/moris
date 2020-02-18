@@ -90,21 +90,6 @@
 
 namespace moris
 {
-Matrix< DDRMat >
-exactTempFunc(moris::Cell< Matrix< DDRMat > >         & aCoeff,
-              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-              fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-    Matrix< DDRMat > tCoord = aGeometryInterpolator->valx();
-    real xcoord = tCoord(0);
-    real ycoord = tCoord(1);
-
-    real rad = std::pow (  std::pow( xcoord - 0, 2.0)
-    + std::pow( ycoord - 0, 2.0), 0.5);
-
-    return {{(1.0/3.0)*(1.0/rad-0.501)}};
-        }
-
 moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tOffset = 200;
@@ -123,26 +108,54 @@ moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > &
     return    norm( aPoint - tCenter ) - 0.001;
 }
 
-Matrix< DDRMat > tConstValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat > tConstValFunction
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//moris::Matrix< moris::DDRMat > tMValFunction
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return {{ aParameters( 0 )( 0 ),                   0.0 },
+//            { 0.0,                   aParameters( 0 )( 1 ) }};
+//}
+//
+//moris::Matrix< moris::DDRMat > tMValFunction_3D
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+//            { 0.0, aParameters( 0 )( 1 ), 0.0 },
+//            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
+//
+//}
+
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ),                   0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction_3D
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunction_3D
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
             { 0.0, aParameters( 0 )( 1 ), 0.0 },
             { 0.0, 0.0, aParameters( 0 )( 2 ) }};
 

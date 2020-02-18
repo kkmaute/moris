@@ -31,8 +31,6 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
 
-#include "cl_MSI_Parameters.hpp"
-
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"
@@ -41,6 +39,8 @@
 #include "cl_FEM_IWG_L2.hpp"
 
 #include "fn_r2.hpp"
+
+#include "cl_PRM_MSI_Parameters.hpp"
 
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -203,7 +203,7 @@ namespace moris
                  // update fem set counter
                  tFemSetCounter++;
              }
-             moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
              tMSIParameters.set( "L2", 0 );
 
              MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,

@@ -48,9 +48,9 @@ std::shared_ptr< Time_Solver_Algorithm > Time_Solver_Factory::create_time_solver
     case ( TimeSolverType::MONOLITHIC ):
         tTimeSolver = std::make_shared< Monolithic_Time_Solver >( aParameterlist );
         break;
-//    case ( TimeSolverType::STAGGERED ):
-//        tTimeSolver = std::make_shared<  Staggered_Time_Solver >();
-//        break;
+    case ( TimeSolverType::STAGGERED ):
+        tTimeSolver = std::make_shared<  Staggered_Time_Solver >( aParameterlist );
+        break;
     default:
         MORIS_ERROR( false, "No solver type specified" );
         break;

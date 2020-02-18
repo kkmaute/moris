@@ -138,12 +138,15 @@ namespace moris
             tParameterList( 4 )( 1 ).set( "mesh_set_names",             std::string("MeshSet5") );
 
             //------------------------------------------------------------------------------
-            // create a FEM model
-            FEM_Model tFEMModel;
+            // open input file
             std::string tMeshFilePath = std::getenv("MORISROOT");
             tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
-            tFEMModel.set_file_path( tMeshFilePath );
-            tFEMModel.initialize( tParameterList, tMeshFilePath );
+            std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
+
+            // create a FEM model
+            FEM_Model tFEMModel;
+            tFEMModel.set_parameter_list( tParameterList );
+            tFEMModel.initialize( tLibrary );
 
 //            // parsing tool debug
 //            std::string tString = " 1.0, 2.0, 3.0; 4.0, 5.0, 6.0; 7.0, 8.0, 9.0";

@@ -15,7 +15,7 @@
 #include "ml_epetra_preconditioner.h"
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
-#include "cl_DLA_Linear_Problem.hpp"
+
 
 #include "cl_Param_List.hpp"       //CON/src
 
@@ -23,6 +23,7 @@ namespace moris
 {
 namespace dla
 {
+    class Linear_Problem;
     class Linear_Solver_Aztec : public Linear_Solver_Algorithm
     {
     private:

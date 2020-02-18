@@ -73,8 +73,8 @@ namespace moris
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
 
-            // spatial dimensions
-            uint mSpaceDim;
+            // spatial dimensions       //FIXME
+            uint mSpaceDim = 2;
 
             // storage for evaluation
             Matrix< DDRMat > mFlux;

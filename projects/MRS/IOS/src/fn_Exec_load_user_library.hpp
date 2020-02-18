@@ -22,7 +22,10 @@
 
 namespace moris
 {
-
+namespace fem
+{
+    class Field_Interpolator_Manager;
+}
 // -----------------------------------------------------------------------------
 
         /**
@@ -30,11 +33,11 @@ namespace moris
          */
         typedef void ( *MORIS_USER_FUNCTION ) ( Cell< moris::real > & aParameter );
 
-        typedef moris::Cell< moris::Cell< moris::ParameterList > > & ( *MORIS_PARAMETER_FUNCTION ) ();
+        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
-        typedef moris::Matrix< moris::DDRMat > ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                                                              moris::fem::Field_Interpolator_Manager*         aFIManager );
-
+        typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
+                                                    moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+                                                    moris::fem::Field_Interpolator_Manager        * aFIManager );
 // -----------------------------------------------------------------------------
 
         /**
@@ -116,7 +119,7 @@ namespace moris
                     = reinterpret_cast<MORIS_PARAMETER_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
-                // create error message
+//                // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                         + "  within file " + mPath;
 

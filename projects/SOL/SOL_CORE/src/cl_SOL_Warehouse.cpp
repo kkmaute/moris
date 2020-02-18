@@ -117,7 +117,17 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         for( uint Ii = 0; Ii< tCellOfCells.size(); Ii++ )
         {
-            mNonlinearSolvers( Ik )->set_dof_type_list( tCellOfCells( Ii ));
+        	MORIS_ERROR( tCellOfCells( Ii )( 0 ) != MSI::Dof_Type::UNDEFINED, "Dof types for nonlinear solver %-5i not specified", Ik );
+            mNonlinearSolvers( Ik )->set_dof_type_list( tCellOfCells( Ii ) );
+        }
+
+        moris::Matrix< DDSMat > tNonlinearSubSolvers;
+        string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
+                       tNonlinearSubSolvers );
+
+        for( uint Ii = 0; Ii< tNonlinearSubSolvers.numel(); Ii++ )
+        {
+        	mNonlinearSolvers( Ik )->set_sub_nonlinear_solver( mNonlinearSolvers( tNonlinearSubSolvers( Ii ) ) );
         }
 
         mNonlinearSolvers( Ik )->set_solver_warehouse( this );
@@ -172,6 +182,7 @@ void SOL_Warehouse::create_time_solvers()
 
         for( uint Ii = 0; Ii< tCellOfCells.size(); Ii++ )
         {
+        	MORIS_ERROR( tCellOfCells( Ii )( 0 ) != MSI::Dof_Type::UNDEFINED, "Dof types for time solver %-5i not specified", Ik );
         	mTimeSolvers( Ik )->set_dof_type_list( tCellOfCells( Ii ) );
         }
 

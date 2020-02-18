@@ -29,6 +29,12 @@ namespace tsa
 
         Staggered_Time_Solver(){};
 
+        Staggered_Time_Solver( const ParameterList aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
+        {};
+
+
+
+
         //-------------------------------------------------------------------------------
 
         ~Staggered_Time_Solver(){};
