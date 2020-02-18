@@ -29,11 +29,6 @@ using namespace tsa;
         // create solver object
         std::shared_ptr< Time_Solver_Algorithm > tTimeSolver = tTimeSolFactory.create_time_solver( aTimeSolverType );
 
-//        for( auto tTimeSolverAlgorithmList : mTimeSolverAlgorithmList )
-//        {
-////            delete tTimeSolverAlgorithmList;
-//            tTimeSolverAlgorithmList = nullptr;
-//        }
         mTimeSolverAlgorithmList.clear();
 
         mTimeSolverAlgorithmList.resize( 1, nullptr );
@@ -45,6 +40,8 @@ using namespace tsa;
         this->set_time_solver_parameters();
     }
 
+//--------------------------------------------------------------------------------------------------
+
     Time_Solver::Time_Solver( const ParameterList aParameterlist,
                               const enum TimeSolverType aTimeSolverType ) : mParameterListTimeSolver( aParameterlist ),
                                                                             mTimeSolverType( aTimeSolverType )
@@ -52,7 +49,8 @@ using namespace tsa;
         mDofTypeList.resize( 0 );
     }
 
-    //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
     Time_Solver::Time_Solver(       moris::Cell< std::shared_ptr< Time_Solver_Algorithm > > & aTimeSolverList,
                               const enum TimeSolverType                                       aTimeSolverType ) : mTimeSolverType( aTimeSolverType )
     {
@@ -61,7 +59,8 @@ using namespace tsa;
         this->set_time_solver_parameters();
     }
 
-    //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
     Time_Solver::~Time_Solver()
     {
         if( mIsMasterTimeSolver )
@@ -71,14 +70,15 @@ using namespace tsa;
         }
     }
 
-    //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
     void Time_Solver::set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aDofTypeList,
                                          const moris::sint                       aLevel )
     {
         mDofTypeList.push_back( aDofTypeList );
     }
 
-    //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
     void Time_Solver::set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algorithm > aTimeSolver )
     {
@@ -102,7 +102,7 @@ using namespace tsa;
         mCallCounter = mCallCounter + 1;
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
     void Time_Solver::set_time_solver_algorithm(       std::shared_ptr< Time_Solver_Algorithm > aTimeSolver,
                                                  const moris::uint                              aListEntry )
@@ -117,7 +117,7 @@ using namespace tsa;
         mTimeSolverAlgorithmList( aListEntry ) = aTimeSolver;
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
     void Time_Solver::set_sub_time_solver( Time_Solver * aTimeSolver )
     {
@@ -141,7 +141,7 @@ using namespace tsa;
         mCallCounterTimeSolver = mCallCounterTimeSolver + 1;
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
     void Time_Solver::set_sub_time_solver(       Time_Solver * aTimeSolver,
                                            const moris::uint   aListEntry )
@@ -156,7 +156,7 @@ using namespace tsa;
         mTimeSubSolverList( aListEntry ) = aTimeSolver;
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
     moris::Cell< enum MSI::Dof_Type > Time_Solver::get_dof_type_union()
     {
@@ -184,7 +184,7 @@ using namespace tsa;
         return tUnionEnumList;
     }
 
-    //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
     void Time_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
     {
@@ -193,21 +193,22 @@ using namespace tsa;
         mSolverInterface = mSolverWarehouse->get_solver_interface() ;
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
-    void Time_Solver::set_output( const uint aOutputIndex,
+    void Time_Solver::set_output( const uint            aOutputIndex,
                                         Output_Criteria aOutputCriteria)
     {
         mOutputIndices.push_back( aOutputIndex );
         mOutputCriteriaPointer.push_back( aOutputCriteria );
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
     void Time_Solver::check_for_outputs()
     {
          uint tCounter = 0;
 
+         // loop over all outputs and check if it is triggered
         for( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
         {
             bool tIsOutput = false;
@@ -223,6 +224,8 @@ using namespace tsa;
 
             if( tIsOutput )
             {
+                MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
+
                 mSolverInterface->initiate_output( mOutputIndices( tCounter ), 0.0 );
             }
 
@@ -230,7 +233,7 @@ using namespace tsa;
         }
     }
 
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 
     void Time_Solver::solve( Dist_Vector * aFullVector )
     {
@@ -244,7 +247,6 @@ using namespace tsa;
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
 
-        std::cout<<"check for outputs"<<std::endl;
         this->check_for_outputs();
     }
 
@@ -271,8 +273,6 @@ using namespace tsa;
         mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
-
-        std::cout<<"check for outputs"<<std::endl;
 
         this->check_for_outputs();
     }

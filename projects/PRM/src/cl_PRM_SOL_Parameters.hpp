@@ -271,7 +271,11 @@ ParameterList create_time_solver_parameter_list()
     tTimeParameterList.insert( "TSA_DofTypes" , std::string("UNDEFINED") );
 
     // Maximal number of linear solver restarts on fail
-    tTimeParameterList.insert( "TSA_max_time_solver_restarts" , 0 );
+    tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts" , 0 );
+
+    tTimeParameterList.insert( "TSA_Output_Indices" , std::string("") );
+
+    tTimeParameterList.insert( "TSA_Output_Crteria" , std::string("") );
 
     return tTimeParameterList;
 }

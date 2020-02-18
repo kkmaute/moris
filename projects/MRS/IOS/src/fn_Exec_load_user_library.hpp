@@ -22,6 +22,11 @@
 
 namespace moris
 {
+    namespace tsa
+    {
+        class TimeSolver;
+    }
+
 
 // -----------------------------------------------------------------------------
 
@@ -31,6 +36,8 @@ namespace moris
         typedef void ( *MORIS_USER_FUNCTION ) ( Cell<moris::real > & aParameter );
 
         typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::ParameterList & aParamterList );
+
+        typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::TimeSolver * aTimeSolver );
 
         typedef moris::Matrix< moris::DDRMat > ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                                               moris::fem::Field_Interpolator_Manager*         aFIManager );
@@ -134,6 +141,26 @@ namespace moris
             {
                 MORIS_FEM_FREE_FUNCTION aUserFunction
                     = reinterpret_cast<MORIS_FEM_FREE_FUNCTION>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_SOL_CRITERIA_FUNC
+            load_sol_criteria_functions( const std::string & aFunctionName )
+            {
+                MORIS_SOL_CRITERIA_FUNC aUserFunction
+                    = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

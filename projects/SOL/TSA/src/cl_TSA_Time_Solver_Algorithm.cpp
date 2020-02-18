@@ -31,9 +31,7 @@ Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
 
 Time_Solver_Algorithm::Time_Solver_Algorithm( const ParameterList aParameterlist,
                                               const enum sol::MapType aMapType ) : mParameterListTimeSolver( aParameterlist )
-{
-}
-
+{}
 
 //-------------------------------------------------------------------------------
 
@@ -46,7 +44,6 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
     }
     delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
     delete( mFullMap );
-
 }
 //-------------------------------------------------------------------------------
 
@@ -108,6 +105,8 @@ void Time_Solver_Algorithm::finalize()
 
     mPrevFullVector->vec_put_scalar( 0.0 );
 }
+
+//-------------------------------------------------------------------------------
 
 void Time_Solver_Algorithm::set_time_solver_parameters()
 {

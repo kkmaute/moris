@@ -167,9 +167,6 @@ namespace moris
         // specify file path
         std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mOutputPath;
 
-        std::cout<<tMeshFilePath<<std::endl;
-
-
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
         std::cout<<tMeshFileName<<std::endl;

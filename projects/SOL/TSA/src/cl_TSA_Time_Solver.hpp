@@ -76,17 +76,29 @@ namespace tsa
 
         bool mIsMasterTimeSolver = false;
 
+        //--------------------------------------------------------------------------------------------------
+
+        void check_for_outputs();
+
     protected:
 
     public:
         /**
          * @brief Constructor. Creates a default time solver
          *
-         * @param[in] aTimeSolverType    Time solver type. Default is Newton
+         * @param[in] aTimeSolverType    Time solver type. Default is MONOLITHIC
          */
         Time_Solver( const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
-        Time_Solver( const ParameterList aParameterlist,
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Constructor using a given parameterlist
+         *
+         * @param[in] aParameterlist     User defined parameter list
+         * @param[in] aTimeSolverType    Time solver type. Default is Newton
+         */
+        Time_Solver( const ParameterList       aParameterlist,
                      const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
         //--------------------------------------------------------------------------------------------------
@@ -146,6 +158,10 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
+        /**
+         * @brief Gets solver interface
+         *
+         */
         Solver_Interface * get_solver_interface(){ return mSolverInterface; };
 
         //--------------------------------------------------------------------------------------------------
@@ -216,18 +232,24 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        void set_output( const uint aOutputIndex,
+        /**
+         * @brief Set output index and criteria
+         *
+         * @param[in] aOutputIndex       Index connected to this output criteria
+         * @param[in] aOutputCriteria    Pointer to the output criteria
+         */
+        void set_output( const uint            aOutputIndex,
                                Output_Criteria aOutputCriteria );
-
-        //--------------------------------------------------------------------------------------------------
-
-        void check_for_outputs();
 
         //--------------------------------------------------------------------------------------------------
 
         void solve();
 
+        //--------------------------------------------------------------------------------------------------
+
         void solve( Dist_Vector * aFullVector);
+
+        //--------------------------------------------------------------------------------------------------
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
 
