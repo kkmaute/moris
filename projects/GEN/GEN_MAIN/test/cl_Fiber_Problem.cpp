@@ -95,23 +95,41 @@ namespace ge
                  real gLsbwabs;
 
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-        fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-    return aCoeff( 0 );
-        }
+//Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+//        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+//        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+//        fem::Geometry_Interpolator              * aGeometryInterpolator )
+//        {
+//    return aCoeff( 0 );
+//        }
+//
+//moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+//        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+//        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+//        {
+//    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+//        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
+//        {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
+//        }
 
-moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
+
+void tMValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
         {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
         {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
-        }
+}
 
 moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > & aPoint )
 {
@@ -210,30 +228,30 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     {
     case(1) :
         {
-            tParameters.set( "number_of_elements_per_dimension", "80, 40, 10" );
+            tParameters.set( "number_of_elements_per_dimension", std::string("80, 40, 10") );
             break;
         }
     default :
         {
-            tParameters.set( "number_of_elements_per_dimension", "40, 20, 5" );
+            tParameters.set( "number_of_elements_per_dimension", std::string("40, 20, 5") );
         }
     }
 
-    tParameters.set( "domain_dimensions",                "40, 20, 5" );
-    tParameters.set( "domain_offset",                    "-0, -0, -0" );
+    tParameters.set( "domain_dimensions",                std::string("40, 20, 5") );
+    tParameters.set( "domain_offset",                    std::string("-0, -0, -0") );
 
-    tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
+    tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4, 5, 6") );
 
     tParameters.set( "truncate_bsplines", 1 );
-    tParameters.set( "lagrange_orders", "1" );
-    tParameters.set( "lagrange_pattern", "0" );
-    tParameters.set( "bspline_orders", "1" );
-    tParameters.set( "bspline_pattern", "0" );
+    tParameters.set( "lagrange_orders", std::string("1") );
+    tParameters.set( "lagrange_pattern", std::string("0") );
+    tParameters.set( "bspline_orders", std::string("1") );
+    tParameters.set( "bspline_pattern", std::string("0") );
 
-    tParameters.set( "lagrange_output_meshes", "0" );
-    tParameters.set( "lagrange_input_meshes", "0" );
+    tParameters.set( "lagrange_output_meshes", std::string("0") );
+    tParameters.set( "lagrange_input_meshes", std::string("0") );
 
-    tParameters.set( "lagrange_to_bspline", "0" );
+    tParameters.set( "lagrange_to_bspline", std::string("0") );
 
     tParameters.set( "use_multigrid", 0 );
 

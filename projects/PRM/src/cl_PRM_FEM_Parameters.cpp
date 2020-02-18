@@ -1,20 +1,19 @@
 /*
- * cl_FEM_Parameters.cpp
+ * cl_PRM_FEM_Parameters.cpp
  *
  *  Created on: Feb 6, 2020
  *      Author: noel
  */
 
-#include "cl_FEM_Parameters.hpp" //FEM/INT/src
+#include "cl_PRM_FEM_Parameters.hpp" //FEM/INT/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
 #include "assert.hpp"
 #include "fn_Parsing_Tools.hpp"
-#include "fn_unique.hpp"
 
 namespace moris
 {
-    namespace fem
+    namespace prm
     {
 
 //------------------------------------------------------------------------------
@@ -43,6 +42,7 @@ namespace moris
             tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "model_type",        static_cast< uint >( fem::Model_Type::UNDEFINED ) );
 
             return tParameterList;
         }
@@ -85,6 +85,8 @@ namespace moris
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
 
+            tParameterList.insert( "mesh_set_names",             std::string( "" ) );
+
             return tParameterList;
         }
 
@@ -105,11 +107,13 @@ namespace moris
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
 
+            tParameterList.insert( "mesh_set_names",             std::string( "" ) );
+
             return tParameterList;
         }
 
 //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
+    }/* end_namespace_prm */
 }/* end_namespace_moris */
 
 

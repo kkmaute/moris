@@ -90,21 +90,6 @@
 
 namespace moris
 {
-Matrix< DDRMat >
-exactTempFunc(moris::Cell< Matrix< DDRMat > >         & aCoeff,
-              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-              fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-    Matrix< DDRMat > tCoord = aGeometryInterpolator->valx();
-    real xcoord = tCoord(0);
-    real ycoord = tCoord(1);
-
-    real rad = std::pow (  std::pow( xcoord - 0, 2.0)
-    + std::pow( ycoord - 0, 2.0), 0.5);
-
-    return {{(1.0/3.0)*(1.0/rad-0.501)}};
-        }
-
 moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tOffset = 200;
@@ -123,26 +108,54 @@ moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > &
     return    norm( aPoint - tCenter ) - 0.001;
 }
 
-Matrix< DDRMat > tConstValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat > tConstValFunction
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//moris::Matrix< moris::DDRMat > tMValFunction
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return {{ aParameters( 0 )( 0 ),                   0.0 },
+//            { 0.0,                   aParameters( 0 )( 1 ) }};
+//}
+//
+//moris::Matrix< moris::DDRMat > tMValFunction_3D
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+//            { 0.0, aParameters( 0 )( 1 ), 0.0 },
+//            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
+//
+//}
+
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ),                   0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction_3D
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunction_3D
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
             { 0.0, aParameters( 0 )( 1 ), 0.0 },
             { 0.0, 0.0, aParameters( 0 )( 2 ) }};
 
@@ -189,18 +202,18 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 
          moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-         tParameters.set( "number_of_elements_per_dimension", "20, 20");
-         tParameters.set( "domain_dimensions", "2, 2" );
-         tParameters.set( "domain_offset", "-1.0, -1.0" );
-         tParameters.set( "domain_sidesets", "1,2,3,4" );
-         tParameters.set( "lagrange_output_meshes", "0" );
+         tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
+         tParameters.set( "domain_dimensions", std::string("2, 2") );
+         tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+         tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+         tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-         tParameters.set( "lagrange_orders", "1" );
-         tParameters.set( "lagrange_pattern", "0" );
-         tParameters.set( "bspline_orders", "1" );
-         tParameters.set( "bspline_pattern", "0" );
+         tParameters.set( "lagrange_orders", std::string("1") );
+         tParameters.set( "lagrange_pattern", std::string("0") );
+         tParameters.set( "bspline_orders", std::string("1") );
+         tParameters.set( "bspline_pattern", std::string("0") );
 
-         tParameters.set( "lagrange_to_bspline", "0" );
+         tParameters.set( "lagrange_to_bspline", std::string("0") );
 
          tParameters.set( "truncate_bsplines", 1 );
          tParameters.set( "refinement_buffer", 3 );
@@ -576,18 +589,18 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 
         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-         tParameters.set( "number_of_elements_per_dimension", "2, 2, 2");
-         tParameters.set( "domain_dimensions", "2, 2, 2" );
-         tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-         tParameters.set( "domain_sidesets", "1,2,3,4,5, 6" );
-         tParameters.set( "lagrange_output_meshes", "0" );
+         tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2"));
+         tParameters.set( "domain_dimensions", std::string("2, 2, 2") );
+         tParameters.set( "domain_offset", std::string("-1.0, -1.0, -1.0") );
+         tParameters.set( "domain_sidesets", std::string("1,2,3,4,5, 6") );
+         tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-         tParameters.set( "lagrange_orders", "1" );
-         tParameters.set( "lagrange_pattern", "0" );
-         tParameters.set( "bspline_orders", "1" );
-         tParameters.set( "bspline_pattern", "0" );
+         tParameters.set( "lagrange_orders", std::string("1") );
+         tParameters.set( "lagrange_pattern",std::string( "0") );
+         tParameters.set( "bspline_orders", std::string("1") );
+         tParameters.set( "bspline_pattern", std::string("0") );
 
-         tParameters.set( "lagrange_to_bspline", "0" );
+         tParameters.set( "lagrange_to_bspline", std::string("0") );
 
          tParameters.set( "truncate_bsplines", 1 );
          tParameters.set( "refinement_buffer", 3 );
@@ -983,18 +996,18 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "20, 20");
-        tParameters.set( "domain_dimensions", "2, 2" );
-        tParameters.set( "domain_offset", "-1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
+        tParameters.set( "domain_dimensions", std::string("2, 2") );
+        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders",std::string( "1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -1334,18 +1347,18 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 
         moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "20, 20");
-        tParameters.set( "domain_dimensions", "2, 2" );
-        tParameters.set( "domain_offset", "-1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
+        tParameters.set( "domain_dimensions", std::string("2, 2") );
+        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );

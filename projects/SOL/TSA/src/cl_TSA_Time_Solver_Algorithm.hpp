@@ -60,7 +60,7 @@ namespace tsa
         Dist_Map * mFullMap = nullptr;
 
         //! Parameterlist for this nonlinear solver
-        ParameterList mParameterListTimeSolver;
+        moris::ParameterList mParameterListTimeSolver;
 
         /**
          * @brief Member function which keeps track of used time for a particular purpose.
@@ -71,6 +71,9 @@ namespace tsa
         //-------------------------------------------------------------------------------
 
         Time_Solver_Algorithm( const enum sol::MapType aMapType = sol::MapType::Epetra );
+
+        Time_Solver_Algorithm( const ParameterList aParameterlist,
+                               const enum sol::MapType aMapType = sol::MapType::Epetra );
 
         //-------------------------------------------------------------------------------
 

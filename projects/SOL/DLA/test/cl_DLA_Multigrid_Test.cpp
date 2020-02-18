@@ -23,7 +23,8 @@
 #include "cl_MSI_Multigrid.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
-#include "cl_MSI_Parameters.hpp"
+
+#include "cl_PRM_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
@@ -217,7 +218,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 //
 //        tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
-        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
         tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
 
         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,

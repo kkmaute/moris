@@ -22,46 +22,94 @@
 #include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTIWGDIFFBULK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//moris::Matrix< moris::DDRMat > tConstValFunction_UTIWGDIFFBULK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//moris::Matrix< moris::DDRMat > tGeoValFunction_UTIWGDIFFBULK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+//}
+//
+//moris::Matrix< moris::DDRMat > tFIValFunction_UTIWGDIFFBULK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+//}
+//
+//moris::Matrix< moris::DDRMat > tFIDerFunction_UTIWGDIFFBULK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+//}
+//
+//moris::Matrix< moris::DDRMat > tFIValDvFunction_UTIWGDIFFBULK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
+//}
+//
+//moris::Matrix< moris::DDRMat > tFIDerDvFunction_UTIWGDIFFBULK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
+//}
+
+void tConstValFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction_UTIWGDIFFBULK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tGeoValFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTIWGDIFFBULK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tFIValFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTIWGDIFFBULK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tFIDerFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-moris::Matrix< moris::DDRMat > tFIValDvFunction_UTIWGDIFFBULK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tFIValDvFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerDvFunction_UTIWGDIFFBULK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tFIDerDvFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
 }
 
 using namespace moris;

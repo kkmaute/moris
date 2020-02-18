@@ -34,6 +34,9 @@ namespace tsa
         Monolithic_Time_Solver( )
         {};
 
+        Monolithic_Time_Solver( const ParameterList aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
+        {};
+
         //-------------------------------------------------------------------------------
 
 //        ~Monolithic_Time_Solver(){};

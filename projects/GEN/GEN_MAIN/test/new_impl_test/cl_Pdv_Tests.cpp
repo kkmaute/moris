@@ -38,6 +38,9 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
+
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+
 //------------------------------------------------------------------------------
 
 namespace moris
@@ -60,22 +63,22 @@ namespace moris
             //  HMR Parameters setup
             moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
-            tParameters.set( "domain_dimensions",                "2, 2, 2" );
-            tParameters.set( "domain_offset",                    "-1, -1, -1" );
+            tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2") );
+            tParameters.set( "domain_dimensions",                std::string("2, 2, 2") );
+            tParameters.set( "domain_offset",                    std::string("-1, -1, -1") );
 
-            tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
+            tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4, 5, 6") );
 
             tParameters.set( "truncate_bsplines", 1 );
-            tParameters.set( "lagrange_orders", "1" );
-            tParameters.set( "lagrange_pattern", "0" );
-            tParameters.set( "bspline_orders", "1" );
-            tParameters.set( "bspline_pattern", "0" );
+            tParameters.set( "lagrange_orders", std::string("1") );
+            tParameters.set( "lagrange_pattern", std::string("0") );
+            tParameters.set( "bspline_orders", std::string("1") );
+            tParameters.set( "bspline_pattern", std::string("0") );
 
-            tParameters.set( "lagrange_output_meshes", "0" );
-            tParameters.set( "lagrange_input_meshes", "0" );
+            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "lagrange_input_meshes", std::string("0") );
 
-            tParameters.set( "lagrange_to_bspline", "0" );
+            tParameters.set( "lagrange_to_bspline", std::string("0") );
 
             tParameters.set( "use_multigrid", 0 );
 

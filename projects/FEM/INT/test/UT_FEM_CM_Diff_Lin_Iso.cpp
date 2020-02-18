@@ -14,19 +14,36 @@
 #undef protected
 #undef private
 
-moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 )
+//         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+//}
+//
+//moris::Matrix< moris::DDRMat > tDerFunctionCM_Diff_Lin_Iso
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+//}
+
+void tValFunctionCM_Diff_Lin_Iso
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 )
+    aPropMatrix = aParameters( 0 )
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunctionCM_Diff_Lin_Iso
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tDerFunctionCM_Diff_Lin_Iso
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris

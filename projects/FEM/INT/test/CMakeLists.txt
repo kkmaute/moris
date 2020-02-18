@@ -52,6 +52,7 @@ set(TEST_DEPENDENCIES
 	test-libs
     ${INT}-lib
     ${ALG}-lib
+    ${PRM}-lib
     ${MORIS_BASE_LIBS}
     )
 

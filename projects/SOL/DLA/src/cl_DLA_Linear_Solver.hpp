@@ -27,7 +27,7 @@ namespace dla
 
         moris::uint mCallCounter = 0;
 
-        ParameterList mParameterListLinearSolver;
+        moris::ParameterList mParameterListLinearSolver;
 
     protected:
 
@@ -37,6 +37,9 @@ namespace dla
          * @brief Constructor. Creates a default linear solver.
          */
         Linear_Solver();
+
+        Linear_Solver( const moris::ParameterList aParameterlist );
+
 
         //--------------------------------------------------------------------------------------------------
 

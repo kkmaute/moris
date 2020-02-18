@@ -67,7 +67,7 @@ namespace NLA
         //! Actual residual norm
         moris::real mResidualNorm = -1.0;
 
-        ParameterList mParameterListNonLinearSolver;
+        moris::ParameterList mParameterListNonLinearSolver;
 
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
@@ -90,6 +90,8 @@ namespace NLA
          * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
          */
         Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+
+        Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType, const ParameterList aParameterlist );
 
         //--------------------------------------------------------------------------------------------------
 

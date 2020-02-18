@@ -74,18 +74,35 @@ namespace moris
 
 //-------------------------------------------------------------------------------------
 // Functions for Parameters in FEM
-Matrix< DDRMat > ConstFunctionVal
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat > ConstFunctionVal
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//moris::Matrix< moris::DDRMat > tMValFunctionContact
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return {{ aParameters( 0 )( 0 ),                   0.0 },
+//            { 0.0,                   aParameters( 0 )( 1 ) }};
+//}
+
+void ConstFunctionVal
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunctionContact
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunctionContact
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ),                   0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
@@ -206,15 +223,15 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );

@@ -23,6 +23,8 @@
 #include "Ifpack_ILU.h"
 #include "Ifpack_LocalFilter.h"
 
+#include "cl_DLA_Linear_Problem.hpp"
+
 // ML
 //#include "ml_include.h"
 //#include "ml_epetra_utils.h"
@@ -38,6 +40,12 @@ using namespace dla;
 Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 {
     this->set_solver_parameters();
+}
+
+Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist ),
+                                                                                        mMlPrec ( NULL )
+{
+//    mParameterList = aParameterlist;
 }
 
 //----------------------------------------------------------------------------------------

@@ -76,11 +76,19 @@
 namespace moris
 {
 
-Matrix< DDRMat > tConstValFunction_MDL_XTK
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat > tConstValFunction_MDL_XTK
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+
+void tConstValFunction_MDL_XTK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")

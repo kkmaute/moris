@@ -38,6 +38,15 @@ using namespace NLA;
         this->set_nonlinear_solver_manager_parameters();
     }
 
+
+    Nonlinear_Solver::Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType,
+                                        const ParameterList            aParameterlist ) : mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+                                                                                          mParameterListNonLinearSolver( aParameterlist ),
+                                                                                          mNonLinSolverType( aNonLinSolverType )
+    {
+        mStaggeredDofTypeList.resize( 0 );
+    }
+
     //--------------------------------------------------------------------------------------------------
     Nonlinear_Solver::Nonlinear_Solver(       moris::Cell< std::shared_ptr<Nonlinear_Algorithm > > & aNonlinerSolverList,
                                         const enum NonlinearSolverType                            aNonLinSolverType ) : mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
@@ -199,6 +208,9 @@ using namespace NLA;
     void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
     {
         mSolverWarehouse = aSolverWarehouse;
+
+        mSolverInput = mSolverWarehouse->get_solver_interface() ;
+
     }
 
     //-------------------------------------------------------------------------------------------------------

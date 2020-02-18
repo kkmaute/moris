@@ -597,6 +597,8 @@ void string_to_cell( const std::string & aString,
         // reset position
         size_t tPos = 0;
 
+        uint tCount = 0;
+
         bool tBool = true;
 
         while( tBool )
@@ -609,22 +611,20 @@ void string_to_cell( const std::string & aString,
                 tBool = false;
             }
 
-            uint tCount1 = 0;
-
             if( tBool )
             {
                 std::string tStringMat = tString.substr( 0, tPos );
 
                 // copy value into output matrix
                 T tComponent = aMap.find( tStringMat );
-                aCell( tCount1++ ) = tComponent;
+                aCell( tCount++ ) = tComponent;
                 tString =  tString.substr( tPos+1, tString.size() );
             }
             else
             {
                 // copy value into output matrix
                 T tComponent = aMap.find( tString );
-                aCell( tCount1++ ) = tComponent;
+                aCell( tCount++ ) = tComponent;
             }
         }
     }
@@ -649,6 +649,8 @@ void string_to_cell( const std::string & aString,
         // reset position
         size_t tPos = 0;
 
+        uint tCount = 0;
+
         bool tBool = true;
 
         while( tBool )
@@ -661,26 +663,24 @@ void string_to_cell( const std::string & aString,
                 tBool = false;
             }
 
-            uint tCount1 = 0;
-
             if( tBool )
             {
                 std::string tStringMat = tString.substr( 0, tPos );
                 // copy value into output matrix
-                aCell( tCount1++ ) = tStringMat;
+                aCell( tCount++ ) = tStringMat;
                 tString =  tString.substr( tPos+1, tString.size() );
             }
             else
             {
                 // copy value into output matrix
-                aCell( tCount1++ ) = tString;
+                aCell( tCount++ ) = tString;
             }
         }
     }
-    else
-    {
-        aCell.resize( 0 );
-    }
+//    else
+//    {
+//        aCell.resize( 0 );
+//    }
 }
 
 

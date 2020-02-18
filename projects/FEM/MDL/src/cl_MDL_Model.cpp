@@ -12,39 +12,32 @@
 #include "fn_sum.hpp" // for check
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
+#include "op_equal_equal.hpp"
 
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"              //MTK/src
 #include "cl_MTK_Mesh_Manager.hpp"       //MTK/src
 
-#include "cl_FEM_Enums.hpp"              //FEM/INT/src
-
 #include "cl_MDL_Model.hpp"
+
+#include "cl_FEM_Enums.hpp"              //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Model.hpp"
 
-//#include "cl_DLA_Solver_Factory.hpp"
-//#include "cl_DLA_Solver_Interface.hpp"
-
-//#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-//#include "cl_NLA_Nonlinear_Solver.hpp"
-//#include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_MSI_Parameters.hpp"
-//#include "cl_DLA_Linear_Solver_Aztec.hpp"
-//#include "cl_DLA_Linear_Solver.hpp"
 
-//#include "cl_TSA_Time_Solver_Factory.hpp"
-//#include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_VIS_Output_Manager.hpp"
 
-#include "op_equal_equal.hpp"
-
 #include "cl_MSI_Design_Variable_Interface.hpp"
+
+#include "cl_PRM_MSI_Parameters.hpp"
+
+#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -55,9 +48,10 @@ namespace moris
                   const uint                                aBSplineIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo,
                   const moris_index                         aMeshPairIndex,
-                  const bool                                aUseMultigrid ) : mMeshManager( aMeshManager ),
-                                                                              mMeshPairIndex( aMeshPairIndex ),
-                                                                              mUseMultigrid( aUseMultigrid )
+                  const bool                                aUseMultigrid )
+    : mMeshManager( aMeshManager ),
+      mMeshPairIndex( aMeshPairIndex ),
+      mUseMultigrid( aUseMultigrid )
     {
         mEquationModel =  std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, aSetInfo );
 
@@ -104,7 +98,7 @@ namespace moris
 
         mEquationSets = mEquationModel->get_equation_sets();
 
-        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
         if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
         {
@@ -153,13 +147,134 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+    Model::Model
+    (       mtk::Mesh_Manager * aMeshManager,
+      const uint                aBSplineIndex,
+      const moris_index         aMeshPairIndex )
+    : mMeshManager( aMeshManager ),
+      mMeshPairIndex( aMeshPairIndex )
+    {
+        // input file path
+        // FIXME should be provided as an input to the constuctor
+        std::string tInputFilePath = std::getenv("MORISROOT");
+        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
 
-    Model::Model(       mtk::Mesh_Manager*                  aMeshManager,
-                  const uint                                aBSplineIndex,
-                        moris::Cell< fem::Set_User_Info > & aSetInfo,
-                        MSI::Design_Variable_Interface * aDesignVariableInterface,
-                  const moris_index                         aMeshPairIndex,
-                  const bool                                aUseMultigrid ) : mMeshManager( aMeshManager ),
+        //
+        mLibrary = std::make_shared< Library_IO >( tInputFilePath );
+
+        // load the MSI parameter list
+        std::string tMSIString = "MSIParameterList";
+        MORIS_PARAMETER_FUNCTION tMSIParameterListFunc = mLibrary->load_parameter_file( tMSIString );
+        moris::Cell< moris::Cell< ParameterList > > tMSIParameterList;
+        tMSIParameterListFunc( tMSIParameterList );
+
+        // load the SOL parameter list
+        std::string tSOLString = "SOLParameterList";
+        MORIS_PARAMETER_FUNCTION tSOLParameterListFunc = mLibrary->load_parameter_file( tSOLString );
+        moris::Cell< moris::Cell< ParameterList > > tSOLParameterList;
+        tSOLParameterListFunc( tSOLParameterList );
+
+        // load the FEM parameter list
+        std::string tFEMString = "FEMParameterList";
+        MORIS_PARAMETER_FUNCTION tFEMParameterListFunc = mLibrary->load_parameter_file( tFEMString );
+        moris::Cell< moris::Cell< ParameterList > > tFEMParameterList;
+        tFEMParameterListFunc( tFEMParameterList );
+
+        // load the VIS parameter list
+        std::string tVISString = "VISParameterList";
+        MORIS_PARAMETER_FUNCTION tVISParameterListFunc = mLibrary->load_parameter_file( tVISString );
+        moris::Cell< moris::Cell< ParameterList > > tVISParameterList;
+        tVISParameterListFunc( tVISParameterList );
+
+        // build the FEM model from FEM parameter list
+        mEquationModel = std::make_shared< fem::FEM_Model >( aMeshManager, aMeshPairIndex, tFEMParameterList, mLibrary );
+
+        // FIXME comment???
+        mBSplineIndex = aBSplineIndex;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 0: initialize
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Get pointers to interpolation and integration mesh
+        moris::moris_index       tMeshPairIndex     = aMeshPairIndex;
+        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
+        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+        mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Create Model Solver Interface
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // start timer
+        tic tTimer1;
+
+        // Does not work with STK
+        MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
+
+        // get map from mesh
+        tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
+        moris::map< moris::moris_id, moris::moris_index > tIdToIndMap  = mCoefficientsMap;
+
+        // build the model solver interface
+        mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameterList( 0 )( 0 ),
+                                                                        mEquationModel,
+                                                                        tInterpolationMesh->get_communication_table(),
+                                                                        tIdToIndMap,
+                                                                        tInterpolationMesh->get_num_coeffs( mBSplineIndex ),
+                                                                        tInterpolationMesh );
+
+        // finalize the fem sets
+        uint tNumEqSets = mEquationModel->get_equation_sets().size();
+        for( luint Ik = 0; Ik < tNumEqSets; ++Ik )
+        {
+            // finalize the fem sets
+            mEquationModel->get_equation_sets()( Ik )->finalize( mModelSolverInterface );
+        }
+
+        mModelSolverInterface->finalize( false );
+
+        // calculate AdofMap
+        mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 4: create Solver Interface
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+
+        mSolverInterface->set_model( this );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 5: create Solver
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface );
+
+        mSolverWarehouse->set_parameterlist( tSOLParameterList );
+
+        mSolverWarehouse->initialize();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 6: create output manager
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        mOutputManager = new vis::Output_Manager( tVISParameterList(0)(0) );
+
+        if( par_rank() == 0)
+        {
+            // stop timer
+            real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+
+            // print output
+            MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+                            ( double ) tElapsedTime / 1000 );
+        }
+    }
+
+//------------------------------------------------------------------------------
+    Model::Model
+    (       mtk::Mesh_Manager*                  aMeshManager,
+      const uint                                aBSplineIndex,
+            moris::Cell< fem::Set_User_Info > & aSetInfo,
+            MSI::Design_Variable_Interface    * aDesignVariableInterface,
+      const moris_index                         aMeshPairIndex,
+      const bool                                aUseMultigrid ) : mMeshManager( aMeshManager ),
                                                                               mMeshPairIndex( aMeshPairIndex ),
                                                                               mUseMultigrid( aUseMultigrid )
         {
@@ -208,7 +323,7 @@ namespace moris
 
             mEquationSets = mEquationModel->get_equation_sets();
 
-            moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
@@ -281,9 +396,14 @@ namespace moris
             mEquationObjects.clear();
         }
 
+        void Model::solve()
+        {
+            mSolverWarehouse->get_main_time_solver()->solve();
+        }
+
 //------------------------------------------------------------------------------
 
-        map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map( )
+        map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map()
         {
             return mEquationModel->get_mesh_set_to_fem_set_index_map();
         }

@@ -69,12 +69,20 @@ namespace moris
 {
     namespace mdl
     {
-        Matrix< DDRMat > tConstValFunction_MDLCUT
-        ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-          moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
-            return aParameters( 0 );
-        }
+//        Matrix< DDRMat > tConstValFunction_MDLCUT
+//        ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//          moris::fem::Field_Interpolator_Manager *         aFIManager )
+//        {
+//            return aParameters( 0 );
+//        }
+
+void tConstValFunction_MDLCUT
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
 
         TEST_CASE( "Diffusion_Cut", "[moris],[mdl],[Diffusion_Cut]" )
         {

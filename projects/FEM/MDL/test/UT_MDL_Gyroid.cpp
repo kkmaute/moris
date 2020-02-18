@@ -93,24 +93,46 @@ namespace moris
 {
 
 // define free function for properties
- Matrix< DDRMat > tPropValConstFunc
- ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-   moris::fem::Field_Interpolator_Manager *         aFIManager )
- {
-     return aParameters( 0 );
- }
- Matrix< DDRMat > tPropValFunc
- ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-   moris::fem::Field_Interpolator_Manager *         aFIManager )
- {
-     return aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
- }
- Matrix< DDRMat > tPropDerFunc
- ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-   moris::fem::Field_Interpolator_Manager *         aFIManager )
- {
-     return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
- }
+// Matrix< DDRMat > tPropValConstFunc
+// ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//   moris::fem::Field_Interpolator_Manager *         aFIManager )
+// {
+//     return aParameters( 0 );
+// }
+// Matrix< DDRMat > tPropValFunc
+// ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//   moris::fem::Field_Interpolator_Manager *         aFIManager )
+// {
+//     return aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+// }
+// Matrix< DDRMat > tPropDerFunc
+// ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//   moris::fem::Field_Interpolator_Manager *         aFIManager )
+// {
+//     return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+// }
+
+void tPropValConstFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
+void tPropValFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+}
+void tPropDerFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+}
 
 bool tSolverOutputCriteria_UTGyroid( moris::tsa::Time_Solver * )
 {

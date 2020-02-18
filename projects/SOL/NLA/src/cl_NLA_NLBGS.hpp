@@ -45,6 +45,8 @@ namespace NLA
 
         NonLinBlockGaussSeidel();
 
+        NonLinBlockGaussSeidel(const ParameterList            aParameterlist );
+
         ~NonLinBlockGaussSeidel();
 
         /**
@@ -62,17 +64,6 @@ namespace NLA
                                 const moris::uint             & aBlockRowOffsets,
                                       moris::Matrix< DDRMat > & LHSValues )
         {};
-
-        /**
-         * @brief Accessor to set a value in the parameter list of the Newton solver
-         *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed
-         */
-        ParameterListTypes &  set_param( char const* aKey )
-        {
-            return mParameterListNonlinearSolver( aKey );
-        }
 
     };
 }

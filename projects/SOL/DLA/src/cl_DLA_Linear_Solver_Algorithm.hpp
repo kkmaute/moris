@@ -37,10 +37,13 @@ namespace dla
         moris::real mNumFactTime;
         moris::real mPreCondTime;
 
-        ParameterList mParameterList; // The Algorithm specific parameter list
+        moris::ParameterList mParameterList; // The Algorithm specific parameter list
 
     public:
         Linear_Solver_Algorithm( ){};
+
+        Linear_Solver_Algorithm( const moris::ParameterList aParameterlist ) : mParameterList( aParameterlist )
+        {};
 
         virtual ~Linear_Solver_Algorithm(){};
 

@@ -7,6 +7,8 @@
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_FEM_Set.hpp"
 
+#include "fn_Parsing_Tools.hpp"
+
 extern moris::Comm_Manager gMorisComm;
 
 namespace moris
@@ -30,6 +32,7 @@ namespace moris
         // fill output data object
         tOutputData.mMeshIndex  = aOutputIndex;
         tOutputData.mMeshType   = aMeshType;
+        tOutputData.mOutputPath = std::getenv("MORISOUTPUT");
         tOutputData.mMeshName   = aMeshName;
         tOutputData.mSetNames   = aBlockNames;
         tOutputData.mFieldNames = aFieldNames;
@@ -44,6 +47,54 @@ namespace moris
 
         // assign output data object to list
         mOutputData( aOutputIndex ) = tOutputData;
+
+        // resize mesh list
+        mVisMesh.resize( mOutputData.size(), nullptr );
+    }
+
+//-----------------------------------------------------------------------------------------------------------
+
+    void Output_Manager::set_outputs( moris::ParameterList aParamterelist )
+    {
+        // create output data object
+        vis::Output_Data tOutputData;
+
+        // fill output data object
+        tOutputData.mMeshIndex  = aParamterelist.get< moris::sint >( "Output_Index" );
+        tOutputData.mMeshType   = static_cast< moris::vis::VIS_Mesh_Type >( aParamterelist.get< moris::uint >( "Mesh_Type" ) );
+        tOutputData.mOutputPath = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
+        tOutputData.mMeshName   = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
+
+        moris::Cell< std::string > tSetNames;
+        string_to_cell( aParamterelist.get< std::string >( "Set_Names" ), tSetNames );
+        tOutputData.mSetNames   = tSetNames;
+
+        moris::Cell< std::string > tFieldNames;
+        string_to_cell( aParamterelist.get< std::string >( "Field_Names" ), tFieldNames );
+        tOutputData.mFieldNames = tFieldNames;
+
+        moris::Cell< enum vis::Field_Type > tFieldTypes;
+        moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
+        string_to_cell( aParamterelist.get< std::string >( "Field_Type" ) ,
+                        tFieldTypes,
+                        tFieldTypeMap );
+        tOutputData.mFieldType  = tFieldTypes;
+
+        moris::Cell< enum vis::Output_Type > tOutputTypes;
+        moris::map< std::string, enum vis::Output_Type > tOutputTypeMap = get_vis_output_type_map();
+        string_to_cell( aParamterelist.get< std::string >( "Output_Type" ) ,
+                        tOutputTypes,
+                        tOutputTypeMap );
+        tOutputData.mOutputType = tOutputTypes;
+
+        // resize list of output data objects
+        sint tSize = mOutputData.size();
+        sint OutputDataSize = std::max( tSize, tOutputData.mMeshIndex + 1 );
+
+        mOutputData.resize( OutputDataSize );
+
+        // assign output data object to list
+        mOutputData( tOutputData.mMeshIndex ) = tOutputData;
 
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
@@ -114,10 +165,14 @@ namespace moris
                                      const real tTime )
     {
         // specify file path
-        std::string tMeshFilePath = std::getenv("MORISOUTPUT");
+        std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mOutputPath;
+
+        std::cout<<tMeshFilePath<<std::endl;
+
 
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
+        std::cout<<tMeshFileName<<std::endl;
 
         // write mesh to file
         mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );

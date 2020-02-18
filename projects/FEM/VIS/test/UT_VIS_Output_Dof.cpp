@@ -91,11 +91,12 @@ moris::real PlaneVisTest(const moris::Matrix< moris::DDRMat > & aPoint )
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-Matrix< DDRMat > tConstValFunc_OUTDOF
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tConstValFunc_OUTDOF
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 bool tSolverOutputCriteria( moris::tsa::Time_Solver * )

@@ -65,16 +65,6 @@ namespace NLA
 
         void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
 
-        /**
-         * @brief Accessor to set a value in the parameter list of the Arc Length solver
-         *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed
-         */
-        ParameterListTypes&  set_param( char const* aKey )
-        {
-            return mParameterListNonlinearSolver( aKey );
-        }
 
     private:
         /**

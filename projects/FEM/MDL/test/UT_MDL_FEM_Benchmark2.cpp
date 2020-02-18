@@ -79,16 +79,83 @@ namespace moris
 
 //-------------------------------------------------------------------------------------
 // Functions for Parameters in FEM
-Matrix< DDRMat > ConstFunctionVal_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//Matrix< DDRMat > ConstFunctionVal_MDLFEMBench2
+//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+//  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
+//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+//  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//{
+//    // get parameters
+//    real RInner  = aParameters( 0 )( 0 ); // inner radius
+//    real ROuter  = aParameters( 1 )( 0 ); // outer radius
+//    real xCenter = aParameters( 2 )( 0 ); // x coord of center
+//    real yCenter = aParameters( 2 )( 1 ); // y coord of center
+//    real TInner  = aParameters( 3 )( 0 ); // imposed temperature at inner radius
+//    real Q       = aParameters( 4 )( 0 ) * 2 * M_PI * ROuter; // heat load (W)
+//    real kappa   = aParameters( 5 )( 0 ); // conductivity (W/m^2)
+//
+//    // get x and y coords
+//    real xCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+//    real yCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
+//
+//    // compute radius
+//    real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
+//
+//    return { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
+//}
+//
+//Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    // get parameters
+//    real RInner  = aParameters( 0 )( 0 ); // inner radius
+//    real RMiddle = aParameters( 1 )( 0 ); // middle radius
+//    real ROuter  = aParameters( 2 )( 0 ); // outer radius
+//    real xCenter = aParameters( 3 )( 0 ); // x coord of center
+//    real yCenter = aParameters( 3 )( 1 ); // y coord of center
+//    real TInner  = aParameters( 4 )( 0 ); // imposed temperature at inner radius
+//    real Q       = aParameters( 5 )( 0 ) * 2 * M_PI * ROuter; // heat load (W)
+//    real kappaA  = aParameters( 6 )( 0 ); // conductivity for phase A (W/m^2)
+//    real kappaB  = aParameters( 7 )( 0 ); // conductivity for pahse B (W/m^2)
+//
+//    // get x and y coords
+//    real xCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+//    real yCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
+//
+//    // compute radius
+//    real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
+//
+//    Matrix< DDRMat > tT;
+//    if( R < RMiddle )
+//    {
+//        tT = { { TInner + ( Q * ( std::log( R/RInner ) * ( 1/kappaB ) ) ) / ( 2 * M_PI ) } };
+//    }
+//    else
+//    {
+//        tT = { { TInner + ( Q * ( std::log( RMiddle/RInner ) * ( 1/kappaB ) + std::log( R/RMiddle ) * ( 1/kappaA ) ) ) / ( 2 * M_PI ) } };
+//    }
+//
+//    return tT;
+//}
+
+void ConstFunctionVal_MDLFEMBench2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void AnalyticalTempFunc_MDLFEMBench2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     // get parameters
     real RInner  = aParameters( 0 )( 0 ); // inner radius
@@ -106,12 +173,13 @@ Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
     // compute radius
     real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
 
-    return { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
+    aPropMatrix = { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
 }
 
-Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void AnalyticalTemp2MatFunc_MDLFEMBench2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     // get parameters
     real RInner  = aParameters( 0 )( 0 ); // inner radius
@@ -141,7 +209,7 @@ Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
         tT = { { TInner + ( Q * ( std::log( RMiddle/RInner ) * ( 1/kappaB ) + std::log( R/RMiddle ) * ( 1/kappaA ) ) ) / ( 2 * M_PI ) } };
     }
 
-    return tT;
+    aPropMatrix = tT;
 }
 
 bool tSolverOutputCriteria_MDLFEMBench2( moris::tsa::Time_Solver * )
@@ -184,15 +252,15 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -528,15 +596,15 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -905,15 +973,15 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -1313,15 +1381,15 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );

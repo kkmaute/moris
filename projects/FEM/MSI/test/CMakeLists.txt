@@ -27,6 +27,7 @@ set(TEST_DEPENDENCIES
     ${NLA}-lib
     ${MSI}-lib
     #${MDL}-lib
+    ${PRM}-lib
     ${MORIS_BASE_LIBS}
     )
     

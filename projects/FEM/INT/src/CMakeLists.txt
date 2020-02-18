@@ -124,7 +124,6 @@ set(HEADERS
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
-    cl_FEM_Parameters.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -197,7 +196,6 @@ set(LIB_SOURCES
     cl_FEM_IQI_J_Integral.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
-    cl_FEM_Parameters.cpp
     )
 
 # List library dependencies
@@ -207,6 +205,7 @@ set(LIB_DEPENDENCIES
     ${MTK}-lib
     ${MSI}-lib
     ${VIS}-lib
+    ${PRM}-lib
     )
 
 # Set the output path for library

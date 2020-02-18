@@ -1,26 +1,34 @@
 /*
- * cl_MSI_Parameters.cpp
+ * cl_PRM_FEM_Parameters.hpp
  *
- *  Created on: Jan 20, 2020
+ *  Created on: Feb 6, 2020
  *      Author: schmidt
  */
 
-#include "cl_MSI_Parameters.hpp" //HMR/src
+#ifndef PROJECTS_PRM_SRC_CL_PRM_MSI_PARAMETERS_HPP_
+#define PROJECTS_PRM_SRC_CL_PRM_MSI_PARAMETERS_HPP_
+
+#include <string>
+#include <cstdio>
 
 #include "assert.hpp"
-#include "fn_Parsing_Tools.hpp"
+//#include "cl_Communication_Tools.hpp"
+#include "typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+#include "cl_XML_Parser.hpp"
 
-#include "fn_unique.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
-    namespace MSI
+    namespace prm
     {
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
-    ParameterList create_hmr_parameter_list()
+    moris::ParameterList create_msi_parameter_list()
     {
         ParameterList mMSIParameterList;
 
@@ -42,17 +50,9 @@ namespace moris
 
         return mMSIParameterList;
     }
+//------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------
+    }/* end_namespace_prm */
+}/* end_namespace_moris */
 
-    // creates a parameter list with default inputs
-    void load_hmr_parameter_list_from_xml( const std::string   & aFilePath,
-                                                 ParameterList & aParameterList )
-    {
-        MORIS_ERROR( false, "not implemented");
-    }
-
-//--------------------------------------------------------------------------------
-
-    } /* namespace hmr */
-} /* namespace moris */
+#endif /* PROJECTS_PRM_SRC_CL_PRM_MSI_PARAMETERS_HPP_ */

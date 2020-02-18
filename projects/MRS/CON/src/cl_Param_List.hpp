@@ -226,7 +226,6 @@ namespace moris
     typedef boost::variant< bool, sint, real, const char*, std::string, uint, std::pair< std::string, std::string > > ParameterListTypes;
     typedef Param_List< ParameterListTypes > ParameterList;
 
-
 }
 
 #endif /* MORIS_CONTAINERS_CL_PARAM_LIST_HPP_ */

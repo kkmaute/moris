@@ -48,7 +48,7 @@ namespace NLA
         Nonlinear_Problem * mNonlinearProblem = nullptr;
 
         //! Parameterlist for this nonlinear solver
-        ParameterList mParameterListNonlinearSolver;
+        moris::ParameterList mParameterListNonlinearSolver;
 
         bool mLinSolverOwned = true;
 
@@ -79,6 +79,11 @@ namespace NLA
             // Set default parameters in parameter list for nonlinear solver
             this->set_nonlinear_solver_parameters();
         };
+
+//--------------------------------------------------------------------------------------------------
+
+        Nonlinear_Algorithm( const ParameterList aParameterlist ) : mParameterListNonlinearSolver( aParameterlist )
+        {    };
 
         //--------------------------------------------------------------------------------------------------
 
@@ -119,7 +124,10 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
-        virtual ParameterListTypes & set_param( char const* aKey ) = 0;
+        ParameterListTypes & set_param( char const* aKey )
+        {
+            return mParameterListNonlinearSolver( aKey );
+        }
 
         //--------------------------------------------------------------------------------------------------
 

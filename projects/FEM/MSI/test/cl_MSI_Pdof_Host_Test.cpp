@@ -23,7 +23,7 @@
 #undef protected
 #undef private
 
-#include "cl_MSI_Parameters.hpp"
+#include "cl_PRM_MSI_Parameters.hpp"
 
 namespace moris
 {
@@ -152,7 +152,7 @@ namespace moris
 
         Matrix< DDUMat > tTimeLevelOffsets( 1, 1, 0);
 
-        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
         moris::Cell < Equation_Object* >tListEqnObj;
         Model_Solver_Interface  tMSI( tMSIParameters, tListEqnObj );

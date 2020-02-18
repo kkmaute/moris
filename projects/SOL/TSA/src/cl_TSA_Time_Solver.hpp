@@ -65,7 +65,7 @@ namespace tsa
 //        //! Actual residual norm
 //        moris::real mResidualNorm = -1.0;
 
-        ParameterList mParameterListTimeSolver;
+        moris::ParameterList mParameterListTimeSolver;
 
         enum TimeSolverType mTimeSolverType = TimeSolverType::END_ENUM;
 
@@ -85,6 +85,9 @@ namespace tsa
          * @param[in] aTimeSolverType    Time solver type. Default is Newton
          */
         Time_Solver( const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
+
+        Time_Solver( const ParameterList aParameterlist,
+                     const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
         //--------------------------------------------------------------------------------------------------
 
