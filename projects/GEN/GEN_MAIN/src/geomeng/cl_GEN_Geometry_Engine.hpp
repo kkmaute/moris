@@ -151,14 +151,6 @@ public:
             // create a geometry pointer
             mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
         }
-
-        real tReal;
-        Matrix<DDRMat> tMat = {{ 0},{0}};
-        moris::Cell<real>tCell(0);
-        mGeometry( 0 )->eval( tReal, tMat, tCell);
-
-        std::cout<<tReal<<" return value"<<std::endl;
-
     }
 
     //------------------------------------------------------------------------------
@@ -380,11 +372,34 @@ public:
     /*
      * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
-    void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+    void get_max_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                                      moris_index                aWhichMesh = 0 )
     {
-        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
+//        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
         // TODO: implement this function and make it work for the case of a mesh manager...
+
+        aAllFieldVals.resize( 1 );
+
+        uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
+
+        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+        {
+            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+
+            moris::real tVal = - MORIS_REAL_MAX;
+            for ( auto tGeometry : mGeometry )
+            {
+                Cell< moris::real > tTempConstCell = {{0}};
+                moris::real tTempVal = 0.0;
+
+                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+
+                tVal = std::max( tVal, tTempVal );
+            }
+
+            // FIXME will not work in parallel. Ind are not consistent because of aura
+            aAllFieldVals( 0 )( iVert ) = tVal;
+        }
     }
 
 
@@ -640,13 +655,6 @@ public:
         }
     }
     //------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 
