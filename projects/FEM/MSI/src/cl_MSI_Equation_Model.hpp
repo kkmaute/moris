@@ -32,12 +32,14 @@ namespace moris
         class Equation_Model
         {
         protected:
+
             // list of FEM sets
             moris::Cell< MSI::Equation_Set * > mFemSets;
 
             // list of FEM clusters
             moris::Cell< MSI::Equation_Object* > mFemClusters;
 
+            // map from mesh set indices to fem set indices
             map< moris_index, moris_index >   mMeshSetToFemSetMap;
 
 //------------------------------------------------------------------------------
@@ -80,6 +82,16 @@ namespace moris
             {
                 return mMeshSetToFemSetMap;
             };
+
+//------------------------------------------------------------------------------
+            /**
+             * finalize the equation sets
+             * @param[ in ] aModelSolverInterface pointer to a model solver interface
+             */
+            virtual void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface )
+            {
+                MORIS_ERROR( false, "Equation_Model::finalize_equation_sets - not implemented for base class." );
+            }
 
 //------------------------------------------------------------------------------
         };

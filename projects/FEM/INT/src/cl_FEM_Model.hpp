@@ -24,7 +24,6 @@
 #include "cl_FEM_Set_User_Info.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
-
 namespace moris
 {
 
@@ -71,16 +70,13 @@ namespace moris
             moris::Cell< fem::Node_Base* > mIPNodes;
 
             // list of QI values
-            moris::Cell< moris::real >       mQi;
+            moris::Cell< moris::real > mQi;
 
             // parameter list to build the fem model
             moris::Cell< moris::Cell< ParameterList > > mParameterList;
 
             // unpacked fem inputs
             moris::Cell< fem::Set_User_Info > mSetInfo;
-
-//            // file path for property functions input
-//            std::string mFilePath;
 
             // fixme remove ?
             moris::Cell< std::shared_ptr< fem::Property > > mProperties;
@@ -117,7 +113,6 @@ namespace moris
                     moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                     std::shared_ptr< Library_IO >                 aLibrary );
 
-
 //------------------------------------------------------------------------------
             /**
              * trivial constructor
@@ -140,7 +135,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * set parameter list
-             * @param[ in ] aParameterList a list of parameetr for the FEM model
+             * @param[ in ] aParameterList a list of parameter for the FEM model
              */
             void set_parameter_list( moris::Cell< moris::Cell< ParameterList > > aParameterList )
             {
@@ -151,7 +146,7 @@ namespace moris
             /**
              * get equation sets for test
              */
-            moris::Cell< MSI::Equation_Set * > & get_equation_sets( )
+            moris::Cell< MSI::Equation_Set * > & get_equation_sets()
             {
                 return mFemSets;
             };
@@ -160,7 +155,7 @@ namespace moris
             /**
              * get equation objects
              */
-            moris::Cell< MSI::Equation_Object * > & get_equation_objects( )
+            moris::Cell< MSI::Equation_Object * > & get_equation_objects()
             {
                 return mFemClusters;
             };
@@ -176,6 +171,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * finalize the fem sets
+             */
+            void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+//------------------------------------------------------------------------------
+            /**
              * create a list of property pointers
              * param[ in ] aProperties    a list of property pointers to fill
              * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
@@ -183,26 +184,25 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             void create_properties
-            ( moris::map< std::string, uint >                 & aPropertyMap,
-              moris::map< std::string, MSI::Dof_Type >        & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >               & aDvTypeMap,
-              std::shared_ptr< Library_IO >                     aLibrary );
+            ( moris::map< std::string, uint >          & aPropertyMap,
+              moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+              moris::map< std::string, GEN_DV >        & aDvTypeMap,
+              std::shared_ptr< Library_IO >              aLibrary );
 
 //------------------------------------------------------------------------------
             /**
              * create a list of constitutive model pointers
-             * param[ in ] aCMs           a list of CM pointers to fill
-             * param[ in ] aProperties    a list of property pointers
-             *                            to assign to CMs
+             * param[ in ] aCMMap         a map from CM name to CM index
+             *                            in aCMs
              * param[ in ] aPropertyMap   a map from property name to property index
              * param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_constitutive_models
-            ( moris::map< std::string, uint >                           & aCMMap,
-              moris::map< std::string, uint >                           & aPropertyMap,
-              moris::map< std::string, MSI::Dof_Type >                  & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >                         & aDvTypeMap );
+            ( moris::map< std::string, uint >          & aCMMap,
+              moris::map< std::string, uint >          & aPropertyMap,
+              moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+              moris::map< std::string, GEN_DV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -215,11 +215,11 @@ namespace moris
              * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_stabilization_parameters
-            ( moris::map< std::string, uint >                                & aSPMap,
-              moris::map< std::string, uint >                                & aPropertyMap,
-              moris::map< std::string, uint >                                & aCMMap,
-              moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >                              & aDvTypeMap );
+            ( moris::map< std::string, uint >          & aSPMap,
+              moris::map< std::string, uint >          & aPropertyMap,
+              moris::map< std::string, uint >          & aCMMap,
+              moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+              moris::map< std::string, GEN_DV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -234,11 +234,11 @@ namespace moris
              * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_IWGs
-            ( moris::map< std::string, uint >                                & aPropertyMap,
-              moris::map< std::string, uint >                                & aCMMap,
-              moris::map< std::string, uint >                                & aSPMap,
-              moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >                              & aDvTypeMap );
+            ( moris::map< std::string, uint >          & aPropertyMap,
+              moris::map< std::string, uint >          & aCMMap,
+              moris::map< std::string, uint >          & aSPMap,
+              moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+              moris::map< std::string, GEN_DV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -253,11 +253,11 @@ namespace moris
              * param[ in ] aDvTypeMap     a map from std::string to GEN_DV
              */
             void create_IQIs
-            ( moris::map< std::string, uint >                                & aPropertyMap,
-              moris::map< std::string, uint >                                & aCMMap,
-              moris::map< std::string, uint >                                & aSPMap,
-              moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >                              & aDvTypeMap );
+            ( moris::map< std::string, uint >          & aPropertyMap,
+              moris::map< std::string, uint >          & aCMMap,
+              moris::map< std::string, uint >          & aSPMap,
+              moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+              moris::map< std::string, GEN_DV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**

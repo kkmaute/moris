@@ -94,14 +94,6 @@
 namespace moris
 {
 
-// define free function for properties
-//Matrix< DDRMat > tPropValConstFunc_MDLFEM_DQ_DP
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-
 void tPropValConstFunc_MDLFEM_DQ_DP
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -334,35 +326,35 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //       // define set info
 //       fem::Set_User_Info tSetBulk1;
-//       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+//       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
 //       tSetBulk1.set_IWGs( { tIWGBulk1 } );
 //       tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetBulk2;
-//       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+//       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
 //       tSetBulk2.set_IWGs( { tIWGBulk1 } );
 //       tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetBulk3;
-//       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+//       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
 //       tSetBulk3.set_IWGs( { tIWGBulk2 } );
 //       tSetBulk3.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetBulk4;
-//       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+//       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
 //       tSetBulk4.set_IWGs( { tIWGBulk2 } );
 //       tSetBulk4.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetDirichlet;
-//       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+//       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
 //       tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 //
 //       fem::Set_User_Info tSetNeumann;
-//       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+//       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
 //       tSetNeumann.set_IWGs( { tIWGNeumann } );
 //
 //       fem::Set_User_Info tSetInterface;
-//       tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) ) );
+//       tSetInterface.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) );
 //       tSetInterface.set_IWGs( { tIWGInterface } );
 //
 //       // create a cell of set info

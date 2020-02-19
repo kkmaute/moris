@@ -92,26 +92,6 @@
 namespace moris
 {
 
-// define free function for properties
-// Matrix< DDRMat > tPropValConstFunc
-// ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//   moris::fem::Field_Interpolator_Manager *         aFIManager )
-// {
-//     return aParameters( 0 );
-// }
-// Matrix< DDRMat > tPropValFunc
-// ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//   moris::fem::Field_Interpolator_Manager *         aFIManager )
-// {
-//     return aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
-// }
-// Matrix< DDRMat > tPropDerFunc
-// ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//   moris::fem::Field_Interpolator_Manager *         aFIManager )
-// {
-//     return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
-// }
-
 void tPropValConstFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -458,37 +438,37 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk2 } );
        tSetBulk1.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk2 } );
        tSetBulk2.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk1 } );
        tSetBulk3.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk1 } );
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
        fem::Set_User_Info tSetInterface1;
-       tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
+       tSetInterface1.set_mesh_set_name( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info

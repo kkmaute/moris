@@ -74,9 +74,11 @@
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
+
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 
@@ -116,7 +118,6 @@ LevelSetSphereFunction( const moris::Matrix< moris::DDRMat > & aPoint )
             + (aPoint( 1) - mYc) * (aPoint( 1) - mYc)
             + (aPoint( 2) - mZc) * (aPoint( 2) - mZc)
             - (mR * mR);
-
 }
 
 moris::real
@@ -151,13 +152,6 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 
     return tLevelSetVaue;
 }
-
-//Matrix< DDRMat > tConstValFunction_MDL_XTK_HMR
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
 
 void tConstValFunction_MDL_XTK_HMR
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -319,19 +313,19 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tIntegMesh1->get_set_index_by_name("child_0") );
+        tSetBulk1.set_mesh_set_name( "child_0" );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index(  tIntegMesh1->get_set_index_by_name("parent_0") );
+        tSetBulk2.set_mesh_set_name( "parent_0" );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tIntegMesh1->get_set_index_by_name("iside_g_0_p0_0_p1_1") );
+        tSetDirichlet.set_mesh_set_name( "iside_g_0_p0_0_p1_1" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tIntegMesh1->get_set_index_by_name("SideSet_1") );
+        tSetNeumann.set_mesh_set_name( "SideSet_1" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -408,25 +402,10 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         tTimeSolver.solve();
 
-
         // TODO: add gold solution data for this problem
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
-
-
+        // verify solution
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
-//
-        // verify solution
-//        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
-        tModel->output_solution( "Circle" );
-        tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
-        tHMR.save_to_exodus( 0, "./mdl_exo/xtk_hmr_stk_bar_plane_interp_l2_b2.e" );
 
 
         // output solution and meshes
@@ -444,7 +423,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
     if(par_size() == 1)
     {
         std::string tFieldName = "Cylinder";
-
 
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
@@ -597,22 +575,22 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
          // define set info
          fem::Set_User_Info tSetBulk1;
-         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+         tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
          tSetBulk1.set_IWGs( { tIWGBulk } );
          tSetBulk1.set_IQIs( { tIQITEMP } );
 
          fem::Set_User_Info tSetBulk2;
-         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+         tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
          tSetBulk2.set_IWGs( { tIWGBulk } );
          tSetBulk2.set_IQIs( { tIQITEMP } );
 
          fem::Set_User_Info tSetDirichlet;
          std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
-         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName) );
+         tSetDirichlet.set_mesh_set_name( tInterfaceSideSetName );
          tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
          fem::Set_User_Info tSetNeumann;
-         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p0") );
+         tSetNeumann.set_mesh_set_name( "SideSet_1_n_p0" );
          tSetNeumann.set_IWGs( { tIWGNeumann } );
 
          // create a cell of set info
@@ -633,8 +611,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          vis::Output_Manager tOutputData;
 
          tOutputData.set_outputs( 0,
-//                                         VIS_Mesh_Type::STANDARD,
-        		 vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+//                                  VIS_Mesh_Type::STANDARD,
+                                  vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                   "XTK_HMR_DIFF.exo",
                                   { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
                                   { "Temp" },
@@ -709,58 +687,13 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         tTimeSolver.solve();
 
-
         // TODO: add gold solution data for this problem
-//        Matrix<DDRMat> tFullSol;
-//        tTimeSolver.get_full_solution(tFullSol);
-//        print(tFullSol,"Full Solution");
-
         // verify solution
-//        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 
-        // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-
-        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSol(i) = tIntegSol(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-        }
-
-        // crate field in integration mesh
-        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-
-
-//        Matrix<DDRMat> tFullSol;
-//        tTimeSolver.get_full_solution(tFullSol);
-
-        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
+        // clean up
         delete tModel;
-        delete tIntegMesh1;
     }
 }
-
-
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
 {
@@ -926,23 +859,23 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //
 //         // define set info
 //         fem::Set_User_Info tSetBulk1;
-//         tSetBulk1.set_mesh_index( 4 );
+//         tSetBulk1.set_mesh_set_name( 4 );
 //         tSetBulk1.set_IWGs( { tIWGBulk } );
 //
 //         fem::Set_User_Info tSetBulk2;
-//         tSetBulk2.set_mesh_index( 5 );
+//         tSetBulk2.set_mesh_set_name( 5 );
 //         tSetBulk2.set_IWGs( { tIWGBulk } );
 //
 //         fem::Set_User_Info tSetDirichlet1;
-//         tSetDirichlet1.set_mesh_index( 1 );
+//         tSetDirichlet1.set_mesh_set_name( 1 );
 //         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 //
 //         fem::Set_User_Info tSetDirichlet2;
-//         tSetDirichlet2.set_mesh_index( 3 );
+//         tSetDirichlet2.set_mesh_set_name( 3 );
 //         tSetDirichlet2.set_IWGs( { tIWGDirichlet } );
 //
 //         fem::Set_User_Info tSetNeumann;
-//         tSetNeumann.set_mesh_index( 0 );
+//         tSetNeumann.set_mesh_set_name( 0 );
 //         tSetNeumann.set_IWGs( { tIWGNeumann } );
 //
 //         // create a cell of set info

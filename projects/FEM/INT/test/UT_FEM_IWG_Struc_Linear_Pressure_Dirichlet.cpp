@@ -22,30 +22,6 @@
 
 #include "op_equal_equal.hpp"
 
-//moris::Matrix< moris::DDRMat > tConstValFunction_STRUCDIRICHLETPRESSURE
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-//
-//moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return {{ aParameters( 0 )( 0 ), 0.0 },
-//            { 0.0, aParameters( 0 )( 1 ) }};
-//}
-//
-//moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET_3D
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
-//            { 0.0, aParameters( 0 )( 1 ), 0.0 },
-//            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
-//}
-
 void tConstValFunction_STRUCDIRICHLETPRESSURE
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -60,7 +36,7 @@ void tMValFunction_STRUCDIRICHLET
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0 },
-            { 0.0, aParameters( 0 )( 1 ) }};
+                   { 0.0, aParameters( 0 )( 1 ) }};
 }
 
 void tMValFunction_STRUCDIRICHLET_3D
@@ -69,8 +45,8 @@ void tMValFunction_STRUCDIRICHLET_3D
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
-            { 0.0, aParameters( 0 )( 1 ), 0.0 },
-            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
+                   { 0.0, aParameters( 0 )( 1 ), 0.0 },
+                   { 0.0, 0.0, aParameters( 0 )( 2 ) }};
 }
 
 using namespace moris;

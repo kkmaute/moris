@@ -17,13 +17,6 @@ namespace moris
     namespace fem
     {
 
-//        Matrix< DDRMat > tConstValFunction_UTFEMSET( moris::Cell< Matrix< DDRMat > >    & aParameters,
-//                                                     moris::Cell< Field_Interpolator* > & aDofFI,
-//                                                     moris::Cell< Field_Interpolator* > & aDvFI,
-//                                                     Geometry_Interpolator              * aGeometryInterpolator )
-//        {
-//            return aParameters( 0 );
-//        }
 void tConstValFunction_UTFEMSET
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,

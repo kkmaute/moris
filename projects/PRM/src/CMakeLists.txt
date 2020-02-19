@@ -16,8 +16,7 @@ set(HEADERS
 # Parameters Library
 
 # List library source files
-set(LIB_SOURCES
-    )
+set(LIB_SOURCES )
 
 # List library dependencies
 set(LIB_DEPENDENCIES

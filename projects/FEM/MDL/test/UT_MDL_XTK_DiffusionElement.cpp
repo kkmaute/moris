@@ -52,6 +52,10 @@
 
 #include "cl_MDL_Model.hpp"
 
+#include "cl_VIS_Factory.hpp"
+#include "cl_VIS_Visualization_Mesh.hpp"
+#include "cl_VIS_Output_Manager.hpp"
+
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
@@ -76,13 +80,6 @@
 namespace moris
 {
 
-//Matrix< DDRMat > tConstValFunction_MDL_XTK
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-
 void tConstValFunction_MDL_XTK
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -92,7 +89,7 @@ void tConstValFunction_MDL_XTK
 }
 
 TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
-                {
+{
     if(par_size() == 1)
     {
         moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
@@ -102,18 +99,8 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
-        // declare solution field on mesh
-        // Declare scalar node field
-        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-        std::string tFieldName1 = "temp";
-        tNodeField1.set_field_name(tFieldName1);
-        tNodeField1.set_field_entity_rank(EntityRank::NODE);
-
         // Initialize field information container
         mtk::MtkFieldsInfo tFieldsInfo;
-
-        // Place the node field into the field info container
-        mtk::add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
 
         // Declare some supplementary fields
         mtk::MtkMeshData tMeshData;
@@ -201,19 +188,19 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tBulkBlockNamesNoChild) );
+        tSetBulk1.set_mesh_set_name( tBulkBlockNamesNoChild );
         tSetBulk1.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tBulkBlockNamesChild) );
+        tSetBulk2.set_mesh_set_name( tBulkBlockNamesChild );
         tSetBulk2.set_IWGs( { tIWGBulk } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDirchletSideName) );
+        tSetDirichlet.set_mesh_set_name( tDirchletSideName );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tNeumannSideName) );
+        tSetNeumann.set_mesh_set_name( tNeumannSideName );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -227,6 +214,18 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                                1,
                                                tSetInfo );
+
+        // define outputs
+        // --------------------------------------------------------------------------------------
+        vis::Output_Manager tOutputData;
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "UT_Output_xtk_mdl_enr_integ.exo",
+                                 { "block_1_c_p0", "block_1_n_p0" },
+                                 { "TEMP" },
+                                 { vis::Field_Type::NODAL },
+                                 { vis::Output_Type::TEMP } );
+        tModel->set_output_manager( &tOutputData );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -314,10 +313,23 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                                         {+5.00e+00},
                                         {+5.00e+00},
                                         {+5.00e+00}};
-//        print(tSolution11,"tSolution11");
-//        print(tGoldSolution,"tGoldSolution");
+
         // verify solution
-        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
+        // define a bool for solution check
+        bool tCheckNodalSolution = true;
+
+        // number of mesh nodes
+        uint tNumOfNodes = tInterpMesh1->get_num_nodes();
+
+        // loop over the node and check solution
+        for ( uint i = 0; i < tNumOfNodes; i++ )
+        {
+            // check solution
+            tCheckNodalSolution = tCheckNodalSolution
+                    && ( std::abs( tSolution11( i ) - tGoldSolution( i ) ) < 1e-08 );
+        }
+        // check bool is true
+        REQUIRE( tCheckNodalSolution );
 
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -338,31 +350,15 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
         tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh1);
 
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-
-
-        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-
-            tSTKIntegSol(i) = tIntegSol(tMyIndex);
-        }
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-
         std::string tOutputInteg = "./mdl_exo/xtk_mdl_enr_integ.exo";
         tIntegMesh1->create_output_mesh(tOutputInteg);
 
-        //delete tInterpMesh1;
+        // clean up
+        delete tInterpMesh1;
         delete tModel;
         delete tIntegMesh1;
     }
-                }
+}
 
 TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
 {
@@ -375,18 +371,8 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
-        // declare solution field on mesh
-        // Declare scalar node field
-        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-        std::string tFieldName1 = "temp";
-        tNodeField1.set_field_name(tFieldName1);
-        tNodeField1.set_field_entity_rank(EntityRank::NODE);
-
         // Initialize field information container
         mtk::MtkFieldsInfo tFieldsInfo;
-
-        // Place the node field into the field info container
-        mtk::add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
 
         // Declare some supplementary fields
         mtk::MtkMeshData tMeshData;
@@ -413,7 +399,6 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         tOutputOptions.mAddParallelFields = true;
 
         moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -588,18 +573,24 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
                                          {+5.00e+00},
                                          {+5.00e+00}};
 
-        //moris::print(tSolution11,"tSolution11");
-
         // verify solution
-        CHECK(norm(tSolution11 - tGoldSolution) < 1e-08);
+        // define a bool for solution check
+        bool tCheckNodalSolution = true;
 
-        // output solution and meshes
+        // number of mesh nodes
+        uint tNumOfNodes = tInterpMesh1->get_num_nodes();
 
-        tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName1,EntityRank::NODE,tSolution11);
+        // loop over the node and check solution
+        for ( uint i = 0; i < tNumOfNodes; i++ )
+        {
+            // check solution
+            tCheckNodalSolution = tCheckNodalSolution
+                    && ( std::abs( tSolution11( i ) - tGoldSolution( i ) ) < 1e-08 );
+        }
+        // check bool is true
+        REQUIRE( tCheckNodalSolution );
 
-        std::string tOutputInterp = "./mdl_exo/xtk_mdl_interp.exo";
-        tInterpMesh1->create_output_mesh(tOutputInterp);
-
+         //output solution and meshes
         std::string tMeshOutputFile = "./mdl_exo/xtk_bar_mesh.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
