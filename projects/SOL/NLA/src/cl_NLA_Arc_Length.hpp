@@ -65,6 +65,7 @@ namespace NLA
 
         void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
 
+
     private:
         /**
          * @brief Call for solve of linear system
