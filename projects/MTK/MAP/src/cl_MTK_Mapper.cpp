@@ -202,9 +202,6 @@ namespace moris
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
-            // set order to mBSplineOrder
-            // mModel->set_dof_order( mBSplineOrder );
-
             // set weak bcs from field
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
 

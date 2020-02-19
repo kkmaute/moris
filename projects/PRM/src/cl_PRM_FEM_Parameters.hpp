@@ -19,6 +19,7 @@
 #include "cl_XML_Parser.hpp"
 
 #include "cl_Param_List.hpp"
+#include "cl_FEM_Enums.hpp" //FEM/INT/src
 
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 

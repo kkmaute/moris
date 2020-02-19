@@ -22,16 +22,24 @@
 
 namespace moris
 {
-namespace fem
-{
-    class Field_Interpolator_Manager;
-}
+    namespace tsa
+    {
+        class Time_Solver;
+    }
+
+    namespace fem
+    {
+        class Field_Interpolator_Manager;
+    }
+
 // -----------------------------------------------------------------------------
 
         /**
          * Interface for user defined function
          */
         typedef void ( *MORIS_USER_FUNCTION ) ( Cell< moris::real > & aParameter );
+
+        typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
 
         typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
@@ -42,6 +50,7 @@ namespace fem
         typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
                                                     moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                     moris::fem::Field_Interpolator_Manager        * aFIManager );
+
 // -----------------------------------------------------------------------------
 
         /**
@@ -159,6 +168,26 @@ namespace fem
             {
                 MORIS_GEN_FUNCTION aUserFunction
                     = reinterpret_cast<MORIS_GEN_FUNCTION>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_SOL_CRITERIA_FUNC
+            load_sol_criteria_functions( const std::string & aFunctionName )
+            {
+                MORIS_SOL_CRITERIA_FUNC aUserFunction
+                    = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

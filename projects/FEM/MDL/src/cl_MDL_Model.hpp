@@ -164,12 +164,9 @@ class Library_IO;
 
 //------------------------------------------------------------------------------
             /**
-             * get equation sets for test
+             * get equation sets
              */
-            moris::Cell< MSI::Equation_Set * > & get_equation_sets( )
-            {
-                return mEquationSets;
-            };
+            moris::Cell< MSI::Equation_Set * > & get_equation_sets( );
 
 //------------------------------------------------------------------------------
 

@@ -93,6 +93,8 @@ void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
     mLambdaInc = aLambdaInc;
 }
 
+//-------------------------------------------------------------------------------
+
 moris::real Monolithic_Time_Solver::get_new_lambda()
 {
     return mLambdaInc;

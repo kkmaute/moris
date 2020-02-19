@@ -30,28 +30,48 @@ namespace tsa
 
     public:
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief default constructor
+         *
+         * @param[in] rSolverDatabase Poiner to the solver database
+         */
         Monolithic_Time_Solver( )
         {};
 
+        //-------------------------------------------------------------------------------
+        /**
+         * @brief Constructor using a given parameter list
+         *
+         * @param[in] aParameterlist     User defined parameter list
+         */
         Monolithic_Time_Solver( const ParameterList aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
         {};
 
         //-------------------------------------------------------------------------------
 
-//        ~Monolithic_Time_Solver(){};
+        ~Monolithic_Time_Solver(){};
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Solve call using a given soltion vector
+         *
+         * @param[in] aFullVector     Solution Vector
+         */
         void solve( Dist_Vector * aFullVector );
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Solve call
+         *
+         * @param[in] aFullVector
+         */
         void solve();
 
         //-------------------------------------------------------------------------------
 
         void set_lambda_increment( moris::real aLambdaInc );
+
+        //-------------------------------------------------------------------------------
 
         moris::real get_new_lambda();
     };

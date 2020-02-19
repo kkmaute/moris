@@ -245,7 +245,7 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 5: create Solver
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface );
+        mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
 
         mSolverWarehouse->set_parameterlist( tSOLParameterList );
 
@@ -406,6 +406,13 @@ namespace moris
         map< moris_index, moris_index > & Model::get_mesh_set_to_fem_set_index_map()
         {
             return mEquationModel->get_mesh_set_to_fem_set_index_map();
+        }
+
+//------------------------------------------------------------------------------
+
+        moris::Cell< MSI::Equation_Set * > & Model::get_equation_sets( )
+        {
+            return mEquationModel->get_equation_sets();
         }
 
 //------------------------------------------------------------------------------
