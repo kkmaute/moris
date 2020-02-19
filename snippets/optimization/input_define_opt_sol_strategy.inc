@@ -1,9 +1,9 @@
-Cell< opt::OptAlgAPI > define_opt_sol_strategy( )
+Cell< opt::Algorithm_API > define_opt_sol_strategy( )
 {
     // create the optimization algorithms
-    opt::OptAlgAPI algGCMMA( "GCMMA" );
-    opt::OptAlgAPI algSQP  ( "SQP"   );
-    opt::OptAlgAPI algSWEEP( "SWEEP" );
+    opt::Algorithm_API algGCMMA( "GCMMA" );
+    opt::Algorithm_API algSQP  ( "SQP"   );
+    opt::Algorithm_API algSWEEP( "SWEEP" );
 
     // set the optimization vector of algorithms based on the problem to
     // be solved

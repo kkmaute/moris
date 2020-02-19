@@ -264,7 +264,7 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< sint, real, std::string, uint, std::pair< std::string, std::string >, bool > & set_param( char const* aKey )
+        ParameterListTypes& set_param( char const* aKey )
         {
             return mParameterListTimeSolver( aKey );
         }
