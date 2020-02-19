@@ -9,16 +9,17 @@ set(TEST_SOURCES
   #  cl_Fiber_Problem.cpp
     cl_For_Thesis.cpp
     
-    cl_GeSDFCore.cpp
-    cl_GeSDFGen.cpp
-    cl_GeTriangle.cpp
-    cl_GE_test.cpp
+  # cl_GeSDFCore.cpp
+  # cl_GeSDFGen.cpp
+  # cl_GeTriangle.cpp
+  # cl_GE_test.cpp
     
     UT_Bounding_Box.cpp
   #  UT_Finite_Difference_Checks.cpp
     UT_GE_HMR_Interaction.cpp
     UT_Pdv_Checks.cpp
-    UT_GE_Properties.cpp
+    UT_Parameter_List.cpp
+    
     
    # geometry_classes/cl_GE_test_analytic.cpp
    # geometry_classes/cl_GE_test_discrete.cpp

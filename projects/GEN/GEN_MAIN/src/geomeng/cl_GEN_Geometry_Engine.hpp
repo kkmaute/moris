@@ -23,6 +23,7 @@
 #include "linalg_typedefs.hpp"
 
 // GE
+#include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
@@ -34,7 +35,6 @@
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 
-#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Cylinder_With_End_Caps.hpp"
 #include "cl_GEN_Geometry.hpp"
 
@@ -49,12 +49,15 @@
 // HMR
 #include "cl_HMR_Mesh.hpp"
 
+// Parsing tools for parameter list
+#include "fn_Exec_load_user_library.hpp"
+#include "fn_Parsing_Tools.hpp"
+
+
 namespace moris
 {
 namespace ge
 {
-
-
 /*
  *
  * $\frac{\partial{\phi_A}}{\partial{p}}$ (change in phi with respect to a design variable
@@ -115,10 +118,48 @@ public:
     // Options which the user can change (all are given defaults)
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
-    bool        mComputeDxDp; // Should be turned off if a sensitivity has not been implemented
+    bool        mComputeDxDp;           // Should be turned off if a sensitivity has not been implemented
     moris::uint mSpatialDim;
 
 
+    // TODO: create the destructor to delete the analytic geometry pointer created via "new"
+    // TODO: move this to the .cpp file
+    GEN_Geometry_Engine( ParameterList aParameterList ) : mParameterList(aParameterList)
+    {
+    }
+    //------------------------------------------------------------------------------
+    // TODO: move this to the .cpp file
+    void initialize( std::shared_ptr< Library_IO > aLibrary )
+    {
+        // create geometry vector
+        moris::Cell< std::string > tGeomFuncNames;
+        string_to_cell( mParameterList.get< std::string >( "geometries" ),
+                        tGeomFuncNames );
+
+        // get number of geometry function names
+        uint tNumGeometry = tGeomFuncNames.size();
+
+        // set size for the list of geometry pointers
+        mGeometry.resize( tNumGeometry, nullptr );
+
+        // loop over the geoemetry function names
+        for( uint iFunc = 0; iFunc < tNumGeometry; iFunc++ )
+        {
+            // read a geometry function from input
+            MORIS_GEN_FUNCTION tGeometry = aLibrary->load_gen_free_functions( tGeomFuncNames( iFunc ) );
+
+            // create a geometry pointer
+            mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
+        }
+
+        real tReal;
+        Matrix<DDRMat> tMat = {{ 0},{0}};
+        moris::Cell<real>tCell(0);
+        mGeometry( 0 )->eval( tReal, tMat, tCell);
+
+        std::cout<<tReal<<" return value"<<std::endl;
+
+    }
 
     //------------------------------------------------------------------------------
     /*
@@ -668,6 +709,8 @@ private:    // ----------- member data ----------
 
     moris::Cell< moris::moris_index > mIntegNodeIndices;
 
+    ParameterList mParameterList;
+    //------------------------------------------------------------------------------
 };
 }
 }

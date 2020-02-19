@@ -19,7 +19,7 @@ namespace moris{
 namespace ge{
 
 typedef std::function< moris::real ( const Matrix< DDRMat >         & aPoint,
-                                     const moris::Cell< moris::real > aProps ) > GENPropertyFunction;
+                                     const moris::Cell< moris::real > aProps ) > GENPropertyFunc2;
 
 typedef std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
                                           const moris::Cell< real >   aProps ) > GENPropertyDerFunc;
@@ -30,7 +30,7 @@ class Property
 public:
     //------------------------------------------------------------------------------
     //constructor to set both the analytical function and the derivative(s)
-    Property( GENPropertyFunction aValFunc,
+    Property( GENPropertyFunc2 aValFunc,
               GENPropertyDerFunc  aDerFuncs,
               moris::Cell< moris::real > aParams )
     : mValFunction(aValFunc),
@@ -40,7 +40,7 @@ public:
     }
 
     // constructor to set only the analytical function
-    Property( GENPropertyFunction aValFunc,
+    Property( GENPropertyFunc2 aValFunc,
               moris::Cell< moris::real > aParams )
     : mValFunction(aValFunc),
       mParams(aParams)
@@ -92,7 +92,7 @@ private:
     // note: all DOF types are ADVs
 
     // value function
-    GENPropertyFunction mValFunction = nullptr;
+    GENPropertyFunc2 mValFunction = nullptr;
 
     // derivative functions
     GENPropertyDerFunc mDerivativeFunction = nullptr;
