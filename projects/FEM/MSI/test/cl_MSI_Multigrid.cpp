@@ -151,7 +151,8 @@ namespace moris
 
              // define set info
               moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
-              tSetInfo( 0 ).set_mesh_index( 0 );
+//              tSetInfo( 0 ).set_mesh_index( 0 );
+              tSetInfo( 0 ).set_mesh_set_name( "HMR_dummy_c_p0" );
               tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
              map< moris_id, moris_index >   tCoefficientsMap;

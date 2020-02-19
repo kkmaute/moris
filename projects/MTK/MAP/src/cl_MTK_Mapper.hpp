@@ -127,11 +127,11 @@ namespace moris
                  const moris_index        aTargetIndex,
                  const enum EntityRank    aBSplineRank );
 
-//------------------------------------------------------------------------------
-
-         void map_node_to_element_same_mesh(
-                          const moris_index   aSourceIndex,
-                          const moris_index   aTargetIndex );
+////------------------------------------------------------------------------------
+//
+//         void map_node_to_element_same_mesh(
+//                          const moris_index   aSourceIndex,
+//                          const moris_index   aTargetIndex );
 
 //------------------------------------------------------------------------------
 

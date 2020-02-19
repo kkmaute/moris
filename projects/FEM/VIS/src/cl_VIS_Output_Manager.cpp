@@ -5,6 +5,8 @@
 
 #include "cl_MDL_Model.hpp"
 #include "cl_MSI_Equation_Set.hpp"
+#include "cl_MSI_Equation_Model.hpp"
+
 #include "cl_FEM_Set.hpp"
 
 #include "fn_Parsing_Tools.hpp"
@@ -126,17 +128,19 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Output_Manager::set_visualization_sets( const uint         aVisMeshIndex,
-                                                       mdl::Model * aModel )
+    void Output_Manager::set_visualization_sets( const uint                                   aVisMeshIndex,
+                                                       std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
         // get number of requested sets
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
         // get mtk set index to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
+        map< moris_index, moris_index > & tMeshSetToFemSetMap
+        = aEquationModel->get_mesh_set_to_fem_set_index_map();
 
-        // copy fem::Set to base class MSI::Equation_Set. can this be done with a reinterpret_cast?
-        moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
+        // get equation sets
+        moris::Cell< MSI::Equation_Set * > tEquationSets
+        = aEquationModel->get_equation_sets();
 
         // get integration mesh
         mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
@@ -166,9 +170,7 @@ namespace moris
     {
         // specify file path
         std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mOutputPath;
-
         std::cout<<tMeshFilePath<<std::endl;
-
 
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
@@ -366,14 +368,15 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-
-    void Output_Manager::write_field( const uint         aVisMeshIndex,
-                                            mdl::Model * aModel )
+    void Output_Manager::write_field( const uint                                   aVisMeshIndex,
+                                            std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
+        // get mesh set to fem set index map
+        map< moris_index, moris_index > & tMeshSetToFemSetMap
+        = aEquationModel->get_mesh_set_to_fem_set_index_map( );
 
         // get equation sets
-        moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
+        moris::Cell< MSI::Equation_Set * > tEquationSets = aEquationModel->get_equation_sets();
 
         // get integration mesh
         mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;

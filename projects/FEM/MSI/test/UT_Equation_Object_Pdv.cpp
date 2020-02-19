@@ -15,6 +15,7 @@
 #define protected public
 #define private   public
 #include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Node_Proxy.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
@@ -74,26 +75,7 @@ namespace moris
 {
     namespace MSI
     {
-//    moris::Matrix< moris::DDRMat > tConstValFunction_FDTest
-//    ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//      moris::fem::Field_Interpolator_Manager *         aFIManager )
-//    {
-//        return aParameters( 0 );
-//    }
-//
-//    moris::Matrix< moris::DDRMat > tFIValDvFunction_FDTest
-//    ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//      moris::fem::Field_Interpolator_Manager *         aFIManager )
-//    {
-//        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
-//    }
-//
-//    moris::Matrix< moris::DDRMat > tFIDerDvFunction_FDTest
-//   ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//     moris::fem::Field_Interpolator_Manager *         aFIManager )
-//    {
-//        return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
-//    }
+
 void tConstValFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -168,7 +150,6 @@ void tFIDerDvFunction_FDTest
 
         moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshDataInputInterpolation );
 
-
         //--------------------------------------------------------------------------------------------------------
 
         // setup the integration mesh
@@ -184,7 +165,6 @@ void tFIDerDvFunction_FDTest
 //        CellTopology     tPhase0ChildTopo  = CellTopology::TRI3;
 //        Matrix<IndexMat> tCellIdsPhase1    = {{2, 3, 4}};
 //        Matrix<IndexMat> tCellToNodePhase1 = {{1,2,4},{2,5,4},{5,2,3}};
-
 
         moris::mtk::MtkSetsInfo tMtkMeshSets;
 
@@ -300,7 +280,7 @@ void tFIDerDvFunction_FDTest
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tIntegMesh1->get_set_index_by_name("Omega_0_tets") );
+        tSetBulk1.set_mesh_set_name( "Omega_0_tets" );
         tSetBulk1.set_IWGs( { tIWG } );
 
         // create a cell of set info
@@ -311,7 +291,7 @@ void tFIDerDvFunction_FDTest
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                                0,
                                                tSetInfo,
-                                               tDesignVariableInterface);
+                                               tDesignVariableInterface );
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
@@ -323,7 +303,7 @@ void tFIDerDvFunction_FDTest
 
 //        tSolverInterface->set_solution_vector( mVector );
 
-        moris::Cell< MSI::Equation_Set * > tSets =  tModel->get_equation_sets( );
+        moris::Cell< MSI::Equation_Set * > tSets = tModel->get_fem_model()->get_equation_sets();
 
 //        tSets( 0 )->set_Dv_interface( tDesignVariableInterface );
 
@@ -378,7 +358,8 @@ void tFIDerDvFunction_FDTest
             tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
 
-        tEquationObject( 0 )->compute_dRdp();
+            // FIXME to be put back in with new version
+//        tEquationObject( 0 )->compute_dRdp();
 
 
 

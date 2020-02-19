@@ -287,38 +287,38 @@ namespace moris
 
                 // define set info
                 fem::Set_User_Info tSetBulk1;
-                tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+                tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
                 tSetBulk1.set_IWGs( { tIWGBulk } );
                 tSetBulk1.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk2;
-                tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+                tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
                 tSetBulk2.set_IWGs( { tIWGBulk } );
                 tSetBulk2.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk3;
-                tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+                tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
                 tSetBulk3.set_IWGs( { tIWGBulk } );
                 tSetBulk3.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk4;
-                tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+                tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
                 tSetBulk4.set_IWGs( { tIWGBulk } );
                 tSetBulk4.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetDirichlet;
-                tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+                tSetDirichlet.set_mesh_set_name( "SideSet_2_n_p1" );
                 tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
                 fem::Set_User_Info tSetNeumann;
-                tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+                tSetNeumann.set_mesh_set_name( "SideSet_4_n_p0" );
                 tSetNeumann.set_IWGs( { tIWGNeumann } );
 
                 // create a list of active block-sets
                 std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 );
 
                 fem::Set_User_Info tSetInterface;
-                tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
+                tSetInterface.set_mesh_set_name( tDblInterfaceSideSetName );
                 tSetInterface.set_IWGs( { tIWGInterface } );
 
                 // create a cell of set info

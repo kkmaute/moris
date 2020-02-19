@@ -27,6 +27,11 @@ namespace moris
         class Mesh_Manager;
     }
 
+    namespace MSI
+    {
+        class Equation_Model;
+    }
+
     namespace mdl
     {
         class Model;
@@ -66,9 +71,8 @@ namespace moris
         class Output_Manager
         {
         private:
-            moris::Cell< vis::Output_Data > mOutputData;
 
-            moris::Cell< MSI::Equation_Set * > mEquationSets;
+            moris::Cell< vis::Output_Data > mOutputData;
 
             Cell< mtk::Mesh * > mVisMesh;
 
@@ -77,6 +81,7 @@ namespace moris
             moris::Cell< Writer_Exodus * >  mWriter;
 
             mtk::Mesh_Manager *             mMTKMesh = nullptr;
+
             moris::uint                     mMTKMeshPairIndex;
 
         protected:
@@ -142,8 +147,8 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            void set_visualization_sets( const uint         aVisMeshIndex,
-                                               mdl::Model * aModel );
+            void set_visualization_sets( const uint                                   aVisMeshIndex,
+                                               std::shared_ptr< MSI::Equation_Model > aEquationModel );
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -168,8 +173,8 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            void write_field( const uint         aVisMeshIndex,
-                                    mdl::Model * aModel );
+            void write_field( const uint                                   aVisMeshIndex,
+                                    std::shared_ptr< MSI::Equation_Model > aEquationModel );
 
 //-----------------------------------------------------------------------------------------------------------
 

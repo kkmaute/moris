@@ -92,21 +92,6 @@
 namespace moris
 {
 
-//// define free function for properties
-//Matrix< DDRMat > tPropValConstFunc_MDLFEMBench
-//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-//  moris::fem::Field_Interpolator_Manager *        aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-//
-//Matrix< DDRMat > tPropValFuncL2_MDLFEMBench
-//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-//  moris::fem::Field_Interpolator_Manager *        aFIManager )
-//{
-//    return {{ 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) }};
-//}
-
 // define free function for properties
 void tPropValConstFunc_MDLFEMBench
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -557,37 +542,37 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk2 } );
        tSetBulk1.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk2 } );
        tSetBulk2.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk1 } );
        tSetBulk3.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk1 } );
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
        fem::Set_User_Info tSetInterface1;
-       tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
+       tSetInterface1.set_mesh_set_name( tDblInterfaceSideSetName );
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
@@ -894,41 +879,41 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk2 } );
        tSetBulk1.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk2 } );
        tSetBulk2.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk1 } );
        tSetBulk3.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk1 } );
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
        fem::Set_User_Info tSetInterface1;
-       tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
+       tSetInterface1.set_mesh_set_name( tDblInterfaceSideSetName );
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        fem::Set_User_Info tSetGhost;
-       tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+       tSetGhost.set_mesh_set_name( "ghost_p0" );
        tSetGhost.set_IWGs( { tIWGGhost } );
 
        // create a cell of set info
@@ -1464,35 +1449,35 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk1 } );
        tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk1 } );
        tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk2 } );
        tSetBulk3.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk2 } );
        tSetBulk4.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        fem::Set_User_Info tSetInterface;
-       tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) ) );
+       tSetInterface.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) );
        tSetInterface.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
@@ -1813,39 +1798,39 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk1 } );
        tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk1 } );
        tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk2 } );
        tSetBulk3.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk2 } );
        tSetBulk4.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        fem::Set_User_Info tSetInterface;
-       tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) ) );
+       tSetInterface.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) );
        tSetInterface.set_IWGs( { tIWGInterface } );
 
        fem::Set_User_Info tSetGhost;
-       tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+       tSetGhost.set_mesh_set_name( "ghost_p0" );
        tSetGhost.set_IWGs( { tIWGGhost } );
 
        // create a cell of set info

@@ -27,12 +27,6 @@ namespace moris
 
         class IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost : public IWG
         {
-//            // Ghost penalty parameter
-//            real mGammaGhost;
-//
-//            // mesh parameter describing length of elements
-//            real mMeshParameter;
-
             // order of Shape functions
             uint mOrder;
 
@@ -115,22 +109,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual(  real tWStar );
+            void compute_residual( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 

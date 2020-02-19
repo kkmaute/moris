@@ -23,28 +23,6 @@
 #include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
 
-
-//moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-//
-//moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
-//}
-//
-//moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
-//}
-
 void tConstValFunction_UTInterface
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
