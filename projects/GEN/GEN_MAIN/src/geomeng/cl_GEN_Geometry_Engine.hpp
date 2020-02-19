@@ -151,6 +151,9 @@ public:
             // create a geometry pointer
             mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
         }
+
+        // Create phase table for geometry engine
+        mPhaseTable =  moris::ge::GEN_Phase_Table( tNumGeometry, Phase_Table_Structure::EXP_BASE_2);
     }
 
     //------------------------------------------------------------------------------
@@ -372,33 +375,62 @@ public:
     /*
      * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
-    void get_max_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                     moris_index                aWhichMesh = 0 )
+    void get_max_field_values_for_all_geometries( Matrix< DDRMat > & aAllFieldVals,
+                                                  moris_index        aWhichMesh = 0 )
+    {
+////        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
+//        // TODO: implement this function and make it work for the case of a mesh manager...
+//        uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
+//
+//        aAllFieldVals.set_size( tNumVertices, 1, - MORIS_REAL_MAX );
+//
+//        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+//        {
+//            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+//
+//            moris::real tVal = - MORIS_REAL_MAX;
+//            for ( auto tGeometry : mGeometry )
+//            {
+//                Cell< moris::real > tTempConstCell = {{0}};
+//                moris::real tTempVal = 0.0;
+//
+//                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+//
+//                tVal = std::max( tVal, tTempVal );
+//            }
+//
+//            // FIXME will not work in parallel. Ind are not consistent because of aura
+//            aAllFieldVals( 0 )( iVert ) = tVal;
+//        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+                                              const moris_index                 aWhichMesh = 0 )
     {
 //        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
-        // TODO: implement this function and make it work for the case of a mesh manager...
-
-        aAllFieldVals.resize( 1 );
-
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
-        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+        aAllFieldVals.resize( mGeometry.size() );
+
+        for ( uint Ik = 0; Ik< mGeometry.size(); Ik++ )
         {
-            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+            aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
 
-            moris::real tVal = - MORIS_REAL_MAX;
-            for ( auto tGeometry : mGeometry )
+            for( uint iVert = 0; iVert <tNumVertices; iVert++)
             {
+                Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+
+                moris::real tVal = - MORIS_REAL_MAX;
+
                 Cell< moris::real > tTempConstCell = {{0}};
-                moris::real tTempVal = 0.0;
 
-                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+                mGeometry( Ik )->eval( tVal, tCoord, tTempConstCell );
 
-                tVal = std::max( tVal, tTempVal );
+                // FIXME will not work in parallel. Ind are not consistent because of aura
+                aAllFieldVals( Ik )( iVert ) = tVal;
             }
-
-            // FIXME will not work in parallel. Ind are not consistent because of aura
-            aAllFieldVals( 0 )( iVert ) = tVal;
         }
     }
 
