@@ -48,8 +48,6 @@ namespace tsa
         //! Full Vector
         Dist_Vector * mPrevFullVector = nullptr;
 
-        //moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMyDofTypeList;
-
         moris::uint mCallCounter = 0;
 
         NLA::Nonlinear_Solver * mNonlinearSolver = nullptr;
@@ -69,59 +67,98 @@ namespace tsa
 
     public:
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief default constructor
+         *
+         * @param[in] rSolverDatabase Poiner to the solver database
+         */
         Time_Solver_Algorithm( const enum sol::MapType aMapType = sol::MapType::Epetra );
 
+        //-------------------------------------------------------------------------------
+        /**
+         * @brief Constructor using a given parameter list
+         *
+         * @param[in] aParameterlist     User defined parameter list
+         */
         Time_Solver_Algorithm( const ParameterList aParameterlist,
                                const enum sol::MapType aMapType = sol::MapType::Epetra );
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Destructor
+         *
+         */
         ~Time_Solver_Algorithm();
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Solve call
+         *
+         * @param[in] aFullVector
+         */
         virtual void solve(){};
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Solve call using a given soltion vector
+         *
+         * @param[in] aFullVector     Solution Vector
+         */
         virtual void solve( Dist_Vector * aFullVector ){};
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief finalize call for algorithm
+         *
+         */
         void finalize();
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief set warehouse to algorithm
+         *
+         * @param[in] aFullVector     Solution Vector
+         */
         void set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
         {
             mSolverWarehouse = aSolverWarehouse;
         };
 
-        void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
-
+        //-------------------------------------------------------------------------------
         /**
-         * @brief Sets one of the lists this nonlinear solver manager is operating on. Should be called multiple times for black solvers
+         * @brief Get solution vector from algorithm
          *
-         * @param[in] aStaggeredDofTypeList List of dof types.
-         * @param[in] aLevel                Solver level in the block structure. Default is 0
+         * @param[in] aLHSValues     Solution Vector
          */
-//        void set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
-//                                const moris::sint                       aLevel =  0);
+        void get_full_solution( moris::Matrix< DDRMat > & aLHSValues );
 
+        //-------------------------------------------------------------------------------
+        /**
+          * @brief set nonlinear solver
+          *
+          * @param[in] aNonlinearSolver     Nonlinear solver
+          */
         void set_nonlinear_solver( NLA::Nonlinear_Solver * aNonlinearSolver )
         {
             mNonlinearSolver = aNonlinearSolver;
         };
 
+        //-------------------------------------------------------------------------------
+        /**
+          * @brief set time solver pointer
+          *
+          * @param[in] aTimeSolver     Time solver
+          */
         void set_time_solver( Time_Solver * aTimeSolver )
         {
             mMyTimeSolver = aTimeSolver;
         };
 
+        //-------------------------------------------------------------------------------
+
         void set_time_solver_parameters();
 
-        boost::variant< sint, real, std::string, uint, std::pair< std::string, std::string >, bool > &  set_param( char const* aKey )
+        ParameterListTypes&  set_param( char const* aKey )
         {
             return mParameterListTimeSolver( aKey );
         }
@@ -132,6 +169,8 @@ namespace tsa
         {
             MORIS_ASSERT(false, "Time_Solver_Algorithm:set_lambda_increment(): arc-length uses the monolithic time solver");
         };
+
+        //-------------------------------------------------------------------------------
 
         virtual moris::real get_new_lambda()
         {

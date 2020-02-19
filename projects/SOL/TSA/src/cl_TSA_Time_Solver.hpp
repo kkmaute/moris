@@ -16,6 +16,8 @@
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
+#include <functional>
+
 namespace moris
 {
 class Dist_Map;
@@ -23,11 +25,18 @@ namespace sol
 {
     class SOL_Warehouse;
 }
+
+    class Solver_Interface;
+
 namespace tsa
 {
     class Time_Solver;
 
-    typedef std::function< bool ( moris::tsa::Time_Solver * ) > Output_Criteria;
+    typedef std::function< bool ( moris::tsa::Time_Solver * aTimeSolver ) > Output_Criteria;
+
+//    typedef std::function< bool ( moris::tsa::Time_Solver * aTimeSolver ) > Output_Criteria;
+//    typedef std::function< void ( moris::tsa::Time_Solver * aTimeSolver,
+//                                  bool &                    aIsActive ) > Output_Criteria_1;
 
     class Time_Solver_Algorithm;
     class Time_Solver
@@ -54,6 +63,7 @@ namespace tsa
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;
+//        moris::Cell< Output_Criteria_1 > mOutputCriteriaPointer_1;
 
 
 //        //! Reference norm
@@ -76,17 +86,29 @@ namespace tsa
 
         bool mIsMasterTimeSolver = false;
 
+        //--------------------------------------------------------------------------------------------------
+
+        void check_for_outputs();
+
     protected:
 
     public:
         /**
          * @brief Constructor. Creates a default time solver
          *
-         * @param[in] aTimeSolverType    Time solver type. Default is Newton
+         * @param[in] aTimeSolverType    Time solver type. Default is MONOLITHIC
          */
         Time_Solver( const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
-        Time_Solver( const ParameterList aParameterlist,
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Constructor using a given parameterlist
+         *
+         * @param[in] aParameterlist     User defined parameter list
+         * @param[in] aTimeSolverType    Time solver type. Default is Newton
+         */
+        Time_Solver( const ParameterList       aParameterlist,
                      const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
         //--------------------------------------------------------------------------------------------------
@@ -146,6 +168,10 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
+        /**
+         * @brief Gets solver interface
+         *
+         */
         Solver_Interface * get_solver_interface(){ return mSolverInterface; };
 
         //--------------------------------------------------------------------------------------------------
@@ -216,18 +242,24 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        void set_output( const uint aOutputIndex,
+        /**
+         * @brief Set output index and criteria
+         *
+         * @param[in] aOutputIndex       Index connected to this output criteria
+         * @param[in] aOutputCriteria    Pointer to the output criteria
+         */
+        void set_output( const uint            aOutputIndex,
                                Output_Criteria aOutputCriteria );
-
-        //--------------------------------------------------------------------------------------------------
-
-        void check_for_outputs();
 
         //--------------------------------------------------------------------------------------------------
 
         void solve();
 
+        //--------------------------------------------------------------------------------------------------
+
         void solve( Dist_Vector * aFullVector);
+
+        //--------------------------------------------------------------------------------------------------
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
 
@@ -264,7 +296,7 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< sint, real, std::string, uint, std::pair< std::string, std::string >, bool > & set_param( char const* aKey )
+        ParameterListTypes& set_param( char const* aKey )
         {
             return mParameterListTimeSolver( aKey );
         }

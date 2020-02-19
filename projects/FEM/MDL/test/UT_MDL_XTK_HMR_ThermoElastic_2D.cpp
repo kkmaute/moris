@@ -503,9 +503,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         // close file
         close_hdf5_file( tFileID );
 
-//        print(tFullSolution, "tFullSolution");
-//        print(tGoldSolution, "tGoldSolution");
-
         // verify solution
         moris::real tEpsilon = 1E-06;
         bool tCheck = true;
@@ -1059,8 +1056,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         // close file
         close_hdf5_file( tFileID );
-;
-        // verify solutio
+
+        // verify solution
         moris::real tEpsilon = 1E-06;
         bool tCheck = true;
         for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)

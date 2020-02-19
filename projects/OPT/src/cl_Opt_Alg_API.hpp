@@ -59,7 +59,7 @@ namespace moris
                  * @param[in] aKey Key corresponding to the mapped value that
                  *            needs to be accessed
                  */
-                boost::variant< bool, sint, real, const char* >&
+                ParameterListTypes&
                 set_param( const char* aKey )
                 {
                     return mOptAlg->set_param( aKey );

@@ -26,25 +26,39 @@ namespace tsa
 
     public:
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief default constructor
+         *
+         */
         Staggered_Time_Solver(){};
 
+        //-------------------------------------------------------------------------------
+        /**
+         * @brief Constructor using a given parameter list
+         *
+         * @param[in] rSolverDatabase Poiner to the solver database
+         */
         Staggered_Time_Solver( const ParameterList aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
         {};
-
-
-
 
         //-------------------------------------------------------------------------------
 
         ~Staggered_Time_Solver(){};
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Solve call using a given soltion vector
+         *
+         * @param[in] aFullVector     Solution Vector
+         */
         void solve( Dist_Vector * aFullVector );
 
         //-------------------------------------------------------------------------------
-
+        /**
+         * @brief Solve call
+         *
+         * @param[in] aFullVector
+         */
         void solve();
 
         //-------------------------------------------------------------------------------

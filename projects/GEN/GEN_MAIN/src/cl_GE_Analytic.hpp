@@ -20,25 +20,27 @@
 
 namespace moris{
     namespace ge{
-    typedef std::function< moris::real ( const Matrix< DDRMat >    & aPoint,
-                                         const moris::Cell< real >   aConstant ) > AnalyticFunction;
 
-//    typedef std::function< moris::real ( const Matrix< DDRMat >         & aCoordinates,
-//                                               Cell<Cell<moris::real>>  & aCenter,
-//                                               Cell<moris::real>        & aRadius,
-//                                               Cell<moris::real>        & aLength,
-//                                               Cell<Cell<moris::real>>  & aAxis ) > AnalyticFunction;       // special case of the analytic function
-
-    typedef std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
-                                              const moris::Cell< real >   aConstant ) > AnalyticFunctionDphiDp;
-
+//    //------------------------------------------------------------------------------
+//    typedef std::function< moris::real ( const Matrix< DDRMat >    & aPoint,
+//                                         const moris::Cell< real >   aConstant ) > AnalyticFunction;
+//    //------------------------------------------------------------------------------
+////    typedef std::function< moris::real ( const Matrix< DDRMat >         & aCoordinates,
+////                                               Cell<Cell<moris::real>>  & aCenter,
+////                                               Cell<moris::real>        & aRadius,
+////                                               Cell<moris::real>        & aLength,
+////                                               Cell<Cell<moris::real>>  & aAxis ) > AnalyticFunction;       // special case of the analytic function
+//    //------------------------------------------------------------------------------
+//    typedef std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
+//                                              const moris::Cell< real >   aConstant ) > AnalyticFunctionDphiDp;
+    //------------------------------------------------------------------------------
 		class Analytic : public Geometry
 		{
 		public:
-		    /*
-		     * function needs to be set with set_analytical_function because class is constructed through the factory
-		     */
-			Analytic()
+            /*
+             * function needs to be set with set_analytical_function because class is constructed through the factory
+             */
+            Analytic()
 		    {
 	            mMySpaceInterpType  = fem::Interpolation_Type::LAGRANGE;
 	            mMySpaceInterpOrder = mtk::Interpolation_Order::LINEAR;
@@ -198,7 +200,9 @@ namespace moris{
 			 *
 			 */
             moris_index
-            set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ), moris::Cell< real > aConstants = { { 0 } } )
+            set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat > &  aCoordinate,
+                                                                  Cell< real >        aConst ),
+                                                                  moris::Cell< real > aConstants = { { 0 } } )
             {
                 ge::Property tNewProperty( funcPointer,
                                            aConstants );
@@ -206,7 +210,6 @@ namespace moris{
 
                 return mPropertyList.size()-1;
             };
-
             //------------------------------------------------------------------------------
             /*
              * @brief sets the analytic function \phi for the analytic geometry class

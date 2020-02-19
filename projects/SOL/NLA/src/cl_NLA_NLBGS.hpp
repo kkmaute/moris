@@ -65,7 +65,6 @@ namespace NLA
                                       moris::Matrix< DDRMat > & LHSValues )
         {};
 
-
     };
 }
 }

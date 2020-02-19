@@ -19,17 +19,9 @@ namespace moris
 {
 namespace ge
 {
-//typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-//                                          moris::Cell< fem::Field_Interpolator* > & aDofFI,
-//                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
-//                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
-
-//typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-//                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
-//                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
 
 typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aDvFI ) > PropertyFunc;
+                                          moris::Cell< fem::Field_Interpolator* > & aDvFI ) > GENPropertyFunc;
 //------------------------------------------------------------------------------
 class GEN_Property
 {
@@ -59,11 +51,11 @@ protected:
     moris::Cell< Matrix< DDRMat> > mParameters;
 
     // value function
-    PropertyFunc mValFunction = nullptr;
+    GENPropertyFunc mValFunction = nullptr;
 
     // dof and dv derivative functions
 //    moris::Cell< PropertyFunc > mDofDerFunctions;
-    moris::Cell< PropertyFunc > mDvDerFunctions;
+    moris::Cell< GENPropertyFunc > mDvDerFunctions;
 
     // geometry interpolator
     moris::fem::Geometry_Interpolator* mGeometryInterpolator = nullptr;
@@ -129,7 +121,7 @@ public:
      * set val function
      * @param[ in ] aValFunction function for property evaluation
      */
-    void set_val_function( PropertyFunc aValFunction )
+    void set_val_function( GENPropertyFunc aValFunction )
     {
         mValFunction = aValFunction;
     };
@@ -139,7 +131,7 @@ public:
      * get val function
      * @param[ out ] mValFunction function for property evaluation
      */
-    const PropertyFunc & get_val_function( ) const
+    const GENPropertyFunc & get_val_function( ) const
     {
         return mValFunction;
     };
@@ -168,7 +160,7 @@ public:
      * set dv derivative functions
      * @param[ in ] aDvDerFunctions list function for property derivatives wrt dv
      */
-    void set_dv_derivative_functions( moris::Cell< PropertyFunc > aDvDerFunctions )
+    void set_dv_derivative_functions( moris::Cell< GENPropertyFunc > aDvDerFunctions )
     {
         mDvDerFunctions = aDvDerFunctions;
     };
@@ -178,7 +170,7 @@ public:
      * get dv derivative functions
      * @param[ out ] aDvDerFunctions list function for property derivatives wrt dv
      */
-    const moris::Cell< PropertyFunc > & get_dv_derivative_functions( ) const
+    const moris::Cell< GENPropertyFunc > & get_dv_derivative_functions( ) const
     {
         return mDvDerFunctions;
     };

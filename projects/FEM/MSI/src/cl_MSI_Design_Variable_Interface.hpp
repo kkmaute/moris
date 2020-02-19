@@ -123,16 +123,11 @@ namespace mdl
                                         const moris::Cell< enum GEN_DV >        & aDvTypes,
                                         moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
                                         moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv ) = 0;
-//            {
-//                //FIXME: these functions [get_pdv_values()] need to be pure virtual
-//            }
 
-            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // temporary, once the interface is finalized, need to make FEM play nice with this
+            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // TODO: temporary, once the interface is finalized, need FEM to play nice with this
                                         const moris::Cell< enum GEN_DV >        & aDvTypes,
                                         moris::Cell< moris::Matrix< DDRMat > >  & aDvValues ) = 0;
-//            {
-//                MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - not implementd on GE side");
-//            }
+
 //------------------------------------------------------------------------------
             /**
              * @brief Retunr local to global dv type map

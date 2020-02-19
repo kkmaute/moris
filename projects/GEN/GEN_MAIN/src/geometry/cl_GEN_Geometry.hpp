@@ -5,12 +5,14 @@
  *      Author: ktdoble
  */
 
-#ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
-#define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
+#ifndef PROJECTS_GEN_GEN_MAIN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
+#define PROJECTS_GEN_GEN_MAIN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
 
 
 #include "cl_Matrix.hpp"
 #include "cl_Mesh_Enums.hpp"
+
+#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -30,7 +32,12 @@ public:
     ~GEN_Geometry()
     {
     }
-
+    virtual void eval( moris::real                      & aReturnValue,
+                       const moris::Matrix< DDRMat >    & aPoint,
+                       const moris::Cell< moris::real > & aConst )
+    {
+        MORIS_ERROR( false, "this is a temporary implementation" );
+    }
 
     /*
      * **************************************************************************************
@@ -132,4 +139,4 @@ public:
 
 
 
-#endif /* PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_ */
+#endif /* PROJECTS_GEN_GEN_MAIN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_ */

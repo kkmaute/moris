@@ -28,7 +28,7 @@
 namespace moris
 {
 class Solver_Interface;
-
+class Library_IO;
 namespace dla
 {
     class Linear_Solver_Algorithm;
@@ -44,7 +44,6 @@ namespace tsa
 {
     class Time_Solver_Algorithm;
     class Time_Solver;
-
 }
 namespace sol
 {
@@ -64,7 +63,9 @@ namespace sol
         Cell< tsa::Time_Solver * >                              mTimeSolvers;
 
         // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver
-        moris::Cell< moris::Cell< moris::ParameterList > >             mParameterlist;
+        moris::Cell< moris::Cell< moris::ParameterList > >      mParameterlist;
+
+        std::shared_ptr< Library_IO >                           mLibrary = nullptr;
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -91,6 +92,11 @@ namespace sol
          * @param[in] aSolverInterface Pointer to the solver interface
          */
         SOL_Warehouse( Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface ){};
+
+        SOL_Warehouse( Solver_Interface              * aSolverInterface,
+                       std::shared_ptr< Library_IO >   aLibrary) : mSolverInterface( aSolverInterface ),
+                                                                   mLibrary( aLibrary )
+        {};
 
         SOL_Warehouse(){};
 

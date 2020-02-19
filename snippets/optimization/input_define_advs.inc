@@ -1,5 +1,5 @@
 void
-moris::input::define_advs(
+moris::input::initialize(
         moris::Mat< moris::real > &  aAbsDesVarVec,
         moris::Mat< moris::real > &  aAbsDesVarVecUp,
         moris::Mat< moris::real > &  aAbsDesVarVecLow )

@@ -287,7 +287,7 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 4: create the solver
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface );
+        mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
 
         mSolverWarehouse->set_parameterlist( tSOLParameterList );
 

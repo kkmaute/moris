@@ -33,7 +33,7 @@ namespace moris
             Matrix< DDRMat >  mDCon;   // derivative of constraints w.r.t advs
             Matrix< DDSMat >  mActive; // flag for active/inactive constraints
 
-            Param_List< boost::variant< bool, sint, real, const char* > > mParameterList; // The Algorithm specific parameter list
+            ParameterList mParameterList; // The Algorithm specific parameter list
 
         public:
 
@@ -125,7 +125,7 @@ namespace moris
             /**
              * @brief Accessor for the parameter list of OptAlg
              */
-            template< typename Variant = boost::variant< bool, sint, real, const char* > >
+            template< typename Variant = ParameterListTypes >
             Param_List< Variant > &
             params()
             {
@@ -138,7 +138,7 @@ namespace moris
              * @param[in] aKey Key corresponding to the mapped value that
              *            needs to be accessed
              */
-            boost::variant< bool, sint, real, const char* >&
+            ParameterListTypes&
             set_param( char const* aKey)
             {
                 return mParameterList(aKey);
