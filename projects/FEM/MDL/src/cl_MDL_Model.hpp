@@ -17,7 +17,7 @@
 
 namespace moris
 {
-
+class Library_IO;
 //------------------------------------------------------------------------------
     namespace mtk
     {
@@ -60,6 +60,10 @@ namespace moris
         class Time_Solver;
         class Time_Solver_Algorithm;
     }
+    namespace sol
+    {
+        class SOL_Warehouse;
+    }
     namespace mdl
     {
 //------------------------------------------------------------------------------
@@ -94,11 +98,14 @@ namespace moris
 
             Matrix< DDRMat> mSolHMR;
 
-            tsa::Time_Solver * mTimeSolver = nullptr;
+            std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
+
 
             vis::Output_Manager * mOutputManager = nullptr;
 
             bool mUseMultigrid = false;
+
+            std::shared_ptr< Library_IO > mLibrary;
 
 //------------------------------------------------------------------------------
         public:
@@ -117,10 +124,14 @@ namespace moris
                    const moris_index                         aMeshPairIndex = 0,
                    const bool                                aUseMultigrid  = false );
 
+            Model(       mtk::Mesh_Manager * aMeshManager,
+                   const uint                aBSplineIndex,
+                   const moris_index         aMeshPairIndex = 0 );
+
             Model(       mtk::Mesh_Manager*                  aMeshManager,
                    const uint                                aBSplineIndex,
                          moris::Cell< fem::Set_User_Info > & aSetInfo,
-                         MSI::Design_Variable_Interface * aDesignVariableInterface,
+                         MSI::Design_Variable_Interface    * aDesignVariableInterface,
                    const moris_index                         aMeshPairIndex = 0,
                    const bool                                aUseMultigrid  = false );
 
@@ -129,6 +140,10 @@ namespace moris
              * destructor
              */
             ~Model();
+
+//------------------------------------------------------------------------------
+
+            void solve();
 
 //------------------------------------------------------------------------------
             /**
@@ -149,12 +164,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * get equation sets for test
+             * get equation sets
              */
-            moris::Cell< MSI::Equation_Set * > & get_equation_sets( )
-            {
-                return mEquationSets;
-            };
+            moris::Cell< MSI::Equation_Set * > & get_equation_sets( );
 
 //------------------------------------------------------------------------------
 

@@ -106,66 +106,133 @@ namespace ge
                  real gLsbwabs;
 
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                    moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
-                return aParameters( 0 );
-        }
-
-Matrix< DDRMat > tConstValFunctionBottom( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                          moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
-                Matrix< DDRMat > tOutput(3,1);
-                tOutput(0) = 0.0; tOutput(1) = 0.0; tOutput(2) = 0.0;
-
-                Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
-
-
-                if( tCoords(0) > 0.25 && tCoords(1) > 0.25 )
-                {
-                    return aParameters( 0 );
-                }
-                else
-                {
-                    return tOutput;
-                }
-        }
-
-moris::Matrix< moris::DDRMat > tMValFunctionUnique( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                    moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
+//Matrix< DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//                                    moris::fem::Field_Interpolator_Manager *         aFIManager )
+//        {
+//                return aParameters( 0 );
+//        }
+//
+//Matrix< DDRMat > tConstValFunctionBottom( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//                                          moris::fem::Field_Interpolator_Manager *         aFIManager )
+//        {
+//                Matrix< DDRMat > tOutput(3,1);
+//                tOutput(0) = 0.0; tOutput(1) = 0.0; tOutput(2) = 0.0;
+//
+//                Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
+//
+//
+//                if( tCoords(0) > 0.25 && tCoords(1) > 0.25 )
+//                {
+//                    return aParameters( 0 );
+//                }
+//                else
+//                {
+//                    return tOutput;
+//                }
+//        }
+//
+//moris::Matrix< moris::DDRMat > tMValFunctionUnique( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//                                                    moris::fem::Field_Interpolator_Manager *         aFIManager )
+//        {
+////                return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+////                        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
+////                        {                   0.0,                      0.0,    aParameters( 0 )( 2 )} };
+//
+//                Matrix< DDRMat > tIMat(3,3, 0.0);
+//
+//                Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
+//
+//                if( tCoords(0) < 0.25 && tCoords(1) < 0.25 )
+//                {
+//                    tIMat(0,0) = aParameters( 0 )( 0 );
+//                    tIMat(1,1) = aParameters( 0 )( 1 );
+//                    tIMat(2,2) = aParameters( 0 )( 2 );
+//                }
+//
+//                return tIMat;
+//        }
+//
+//moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//                                              moris::fem::Field_Interpolator_Manager *         aFIManager )
+//        {
 //                return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
 //                        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
 //                        {                   0.0,                      0.0,    aParameters( 0 )( 2 )} };
+//        }
+//
+//moris::Matrix< moris::DDRMat > tMValFunction2D( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//                                                moris::fem::Field_Interpolator_Manager *         aFIManager )
+//        {
+//                return {{ aParameters( 0 )( 0 ),                      0.0},
+//                        {                   0.0,    aParameters( 0 )( 1 )}};
+//        }
 
-                Matrix< DDRMat > tIMat(3,3, 0.0);
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
 
-                Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
+void tConstValFunctionBottom
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    Matrix< DDRMat > tOutput(3,1);
+    tOutput(0) = 0.0; tOutput(1) = 0.0; tOutput(2) = 0.0;
 
-                if( tCoords(0) < 0.25 && tCoords(1) < 0.25 )
-                {
-                    tIMat(0,0) = aParameters( 0 )( 0 );
-                    tIMat(1,1) = aParameters( 0 )( 1 );
-                    tIMat(2,2) = aParameters( 0 )( 2 );
-                }
+    Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
 
-                return tIMat;
-        }
 
-moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
-                return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
-                        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
-                        {                   0.0,                      0.0,    aParameters( 0 )( 2 )} };
-        }
+    if( tCoords(0) > 0.25 && tCoords(1) > 0.25 )
+    {
+        aPropMatrix = aParameters( 0 );
+    }
+    else
+    {
+        aPropMatrix = tOutput;
+    }
+}
 
-moris::Matrix< moris::DDRMat > tMValFunction2D( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
-                return {{ aParameters( 0 )( 0 ),                      0.0},
-                        {                   0.0,    aParameters( 0 )( 1 )}};
-        }
+void tMValFunctionUnique
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    Matrix< DDRMat > tIMat(3,3, 0.0);
+
+    Matrix< DDRMat > tCoords = aFIManager->get_IP_geometry_interpolator()->valx();
+
+    if( tCoords(0) < 0.25 && tCoords(1) < 0.25 )
+    {
+        tIMat(0,0) = aParameters( 0 )( 0 );
+        tIMat(1,1) = aParameters( 0 )( 1 );
+        tIMat(2,2) = aParameters( 0 )( 2 );
+    }
+
+    aPropMatrix = tIMat;
+}
+
+void tMValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+                   {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
+                   {                   0.0,                      0.0,    aParameters( 0 )( 2 )} };
+}
+
+void tMValFunction2D
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                      0.0},
+                   {                   0.0,    aParameters( 0 )( 1 )}};
+}
 
 int user_defined_refinement(       hmr::Element             * aElement,
         const Cell< Matrix< DDRMat > > & aElementLocalValues,

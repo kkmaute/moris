@@ -16,6 +16,8 @@
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
+#include <functional>
+
 namespace moris
 {
 class Dist_Map;
@@ -23,11 +25,18 @@ namespace sol
 {
     class SOL_Warehouse;
 }
+
+    class Solver_Interface;
+
 namespace tsa
 {
     class Time_Solver;
 
-    typedef std::function< bool ( moris::tsa::Time_Solver * ) > Output_Criteria;
+    typedef std::function< bool ( moris::tsa::Time_Solver * aTimeSolver ) > Output_Criteria;
+
+//    typedef std::function< bool ( moris::tsa::Time_Solver * aTimeSolver ) > Output_Criteria;
+//    typedef std::function< void ( moris::tsa::Time_Solver * aTimeSolver,
+//                                  bool &                    aIsActive ) > Output_Criteria_1;
 
     class Time_Solver_Algorithm;
     class Time_Solver
@@ -54,6 +63,7 @@ namespace tsa
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;
+//        moris::Cell< Output_Criteria_1 > mOutputCriteriaPointer_1;
 
 
 //        //! Reference norm

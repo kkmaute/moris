@@ -95,11 +95,19 @@ namespace moris
 {
 
 // define free function for properties
-Matrix< DDRMat > tPropValConstFunc_MDLFEM_DQ_DP
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//Matrix< DDRMat > tPropValConstFunc_MDLFEM_DQ_DP
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+
+void tPropValConstFunc_MDLFEM_DQ_DP
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 moris::real tPlane_MDLFEM_DQ_DP( const moris::Matrix< moris::DDRMat > & aPoint )

@@ -24,23 +24,28 @@ namespace moris
 {
     namespace tsa
     {
-        class TimeSolver;
+        class Time_Solver;
     }
 
+    namespace fem
+    {
+        class Field_Interpolator_Manager;
+    }
 
 // -----------------------------------------------------------------------------
 
         /**
          * Interface for user defined function
          */
-        typedef void ( *MORIS_USER_FUNCTION ) ( Cell<moris::real > & aParameter );
+        typedef void ( *MORIS_USER_FUNCTION ) ( Cell< moris::real > & aParameter );
 
-        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::ParameterList & aParamterList );
+        typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
 
-        typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::TimeSolver * aTimeSolver );
+        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
-        typedef moris::Matrix< moris::DDRMat > ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                                                              moris::fem::Field_Interpolator_Manager*         aFIManager );
+        typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
+                                                    moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+                                                    moris::fem::Field_Interpolator_Manager        * aFIManager );
 
 // -----------------------------------------------------------------------------
 
@@ -123,7 +128,7 @@ namespace moris
                     = reinterpret_cast<MORIS_PARAMETER_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
-                // create error message
+//                // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                         + "  within file " + mPath;
 

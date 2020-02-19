@@ -28,7 +28,7 @@
 namespace moris
 {
 class Solver_Interface;
-
+class Library_IO;
 namespace dla
 {
     class Linear_Solver_Algorithm;
@@ -44,7 +44,6 @@ namespace tsa
 {
     class Time_Solver_Algorithm;
     class Time_Solver;
-
 }
 namespace sol
 {
@@ -64,7 +63,9 @@ namespace sol
         Cell< tsa::Time_Solver * >                              mTimeSolvers;
 
         // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver
-        moris::Cell< moris::Cell< moris::ParameterList > >             mParameterlist;
+        moris::Cell< moris::Cell< moris::ParameterList > >      mParameterlist;
+
+        std::shared_ptr< Library_IO >                           mLibrary = nullptr;
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -92,6 +93,11 @@ namespace sol
          */
         SOL_Warehouse( Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface ){};
 
+        SOL_Warehouse( Solver_Interface              * aSolverInterface,
+                       std::shared_ptr< Library_IO >   aLibrary) : mSolverInterface( aSolverInterface ),
+                                                                   mLibrary( aLibrary )
+        {};
+
         SOL_Warehouse(){};
 
 //--------------------------------------------------------------------------------------------------------
@@ -109,20 +115,20 @@ namespace sol
 //--------------------------------------------------------------------------------------------------------
 
         /**
-         * @brief Memeber function to set the nonliner solver managers. The highest level nonliner solver manager has to be on entry 0
+         * @brief Returns a pointer to the solver interface.
          */
         //void set_nonliner_solver_managers( Nonlinear_Solver * aNonlinerSolverManager );
 
 //--------------------------------------------------------------------------------------------------------
 
-        /**
-         * @brief Returns a pointer to the solver interface.
-         */
-        Solver_Interface * get_solver_interface(){ return mSolverInterface; };
-
         void set_solver_interface( Solver_Interface * aSolverInterface  )
         {
             mSolverInterface = aSolverInterface;
+        };
+
+        Solver_Interface * get_solver_interface()
+        {
+            return mSolverInterface;
         };
 
 //--------------------------------------------------------------------------------------------------------
@@ -142,7 +148,9 @@ namespace sol
             this->create_time_solvers();
         };
 
-        tsa::Time_Solver *  get_main_time_solver()
+//--------------------------------------------------------------------------------------------------------
+
+        tsa::Time_Solver *  get_main_time_solver() //FIXME
         {
              return mTimeSolvers( 0 );
         };

@@ -106,14 +106,6 @@ moris::real LvlSetPlane(const moris::Matrix< moris::DDRMat > & aPoint )
     return   aPoint( 0 )  + 500;
 }
 
-
-Matrix< DDRMat > tConstValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
-{
-    return aParameters( 0 );
-}
-
 moris::real LevelSetFunction_star1( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
@@ -142,19 +134,13 @@ moris::real Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
                     - (mRadius * mRadius);
 }
-moris::Matrix< moris::DDRMat > tFIVal_STRUCDIRICHLET
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
-{
-    return aParameters( 0 )
-         + aParameters( 1 ) * ( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val() - aParameters( 2 ) );
-}
 
-moris::Matrix< moris::DDRMat > tFIDer_STRUCDIRICHLET
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = aParameters( 0 );
 }
 
 TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
@@ -533,6 +519,151 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //        CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);
 
         delete tIntegMesh1;
+
+        delete tModel;
+    }
+}
+
+TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_Input]")
+{
+    if(par_size()<=1)
+    {
+    	uint tLagrangeMeshIndex = 0;
+    	std::string tFieldName = "Cylinder";
+
+    	ParameterList tParameters = hmr::create_hmr_parameter_list();
+
+    	tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
+    	tParameters.set( "domain_dimensions", std::string("2, 2") );
+    	tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+    	tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+    	tParameters.set( "lagrange_output_meshes",std::string( "0") );
+
+    	tParameters.set( "lagrange_orders", std::string("1" ));
+    	tParameters.set( "lagrange_pattern", std::string("0" ));
+    	tParameters.set( "bspline_orders", std::string("1" ));
+    	tParameters.set( "bspline_pattern", std::string("0" ));
+
+    	tParameters.set( "lagrange_to_bspline", std::string("0") );
+
+    	tParameters.set( "truncate_bsplines", 1 );
+    	tParameters.set( "refinement_buffer", 3 );
+    	tParameters.set( "staircase_buffer", 3 );
+    	tParameters.set( "initial_refinement", 0 );
+
+    	tParameters.set( "use_multigrid", 0 );
+    	tParameters.set( "severity_level", 2 );
+
+    	hmr::HMR tHMR( tParameters );
+
+    	// initial refinement
+    	tHMR.perform_initial_refinement( 0 );
+
+    	std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+    	//// create field
+    	std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+
+    	tField->evaluate_scalar_function( LvlSetPlane );
+    	//
+    	// for( uint k=0; k<2; ++k )
+    	// {
+    	    // tHMR.flag_surface_elements_on_working_pattern( tField );
+    	    // tHMR.perform_refinement_based_on_working_pattern( 0 );
+
+    	    // tField->evaluate_scalar_function( LvlSetCircle_2D );
+    	// }
+
+    	tHMR.finalize();
+
+    	 tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+
+    	std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+
+    	moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tField);
+
+    	moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+
+    	size_t tModelDimension = 2;
+    	moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    	moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+
+    	xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+
+    	tXTKModel.mVerbose = false;
+
+    	//Specify decomposition Method and Cut Mesh ---------------------------------------
+    	Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+    	tXTKModel.decompose(tDecompositionMethods);
+
+    	tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+
+    	// get meshes
+    	xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+    	xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+
+    	// place the pair in mesh manager
+    	mtk::Mesh_Manager tMeshManager;
+    	tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+
+    	// create model
+    	mdl::Model * tModel = new mdl::Model( &tMeshManager,
+    	                                      0 );
+
+    	tModel->solve();
+
+//        std::string tMorisRoot = std::getenv("MORISROOT");
+//        std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
+
+        //------------------------------------------------------------------------------
+        //    write solution ( uncomment this if you want to recreate solution files )
+        //------------------------------------------------------------------------------
+
+//        // create file
+//        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+//
+//        // error handler
+//        herr_t tStatus = 0;
+//
+//        // save data
+//        save_matrix_to_hdf5_file( tFileID, "Gold Solution", tFullSolution, tStatus );
+//
+//        // close file
+//        close_hdf5_file( tFileID );
+
+        //------------------------------------------------------------------------------
+        //    check solution
+        //------------------------------------------------------------------------------
+
+//        // open file
+//        hid_t tFileID = open_hdf5_file( tHdf5FilePath );
+//
+//        // error handler
+//        herr_t tStatus = 0;
+//
+//        // read solution from file
+//        load_matrix_from_hdf5_file( tFileID, "Gold Solution", tGoldSolution, tStatus );
+//
+//        // close file
+//        close_hdf5_file( tFileID );
+
+//        print(tFullSolution, "tFullSolution");
+//        print(tGoldSolution, "tGoldSolution");
+
+//        // verify solution
+//        moris::real tEpsilon = 1E-06;
+//        bool tCheck = true;
+//        for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)
+//        {
+//            if (!((tFullSolution(Ik) - tGoldSolution(Ik)) <= tEpsilon))
+//            {
+//                tCheck = false;
+//            }
+//        }
+//        CHECK(tCheck);
+//        CHECK(norm(tFullSolution - tGoldSolution) < 1e-08);
+
+//        delete tIntegMesh1;
 
         delete tModel;
     }

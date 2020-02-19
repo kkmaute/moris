@@ -26,8 +26,9 @@ namespace moris
     class Set;
     class Field_Interpolator_Manager;
 
-    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >        & aCoeff,
-                                              moris::fem::Field_Interpolator_Manager * aFIManager ) > PropertyFunc;
+    typedef std::function< void ( moris::Matrix< moris::DDRMat >         & aPropMatrix,
+                                  moris::Cell< Matrix< DDRMat > >        & aCoeff,
+                                  moris::fem::Field_Interpolator_Manager * aFIManager ) > PropertyFunc;
 
 //------------------------------------------------------------------------------
         /**

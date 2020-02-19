@@ -4,6 +4,8 @@
  *  Created on: Jan 21, 2019
  *      Author: schmidt
  */
+
+#include <functional>
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -21,6 +23,10 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
+
+#include "fn_Exec_load_user_library.hpp"
+
+
 
 //#include "cl_SOL_Dist_Vector.hpp"
 //#include "cl_SOL_Dist_Map.hpp"
@@ -195,29 +201,29 @@ void SOL_Warehouse::create_time_solvers()
         }
 
         // get strings of output indices and criteria
-//        std::string tStringOutputInd      = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Indices"  );
-//        std::string tStringOutputCriteria = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Crteria" );
-//
-//        if ( tStringOutputInd.size() > 1 )
-//        {
-//            moris::Matrix< DDSMat >    tOutputIndices;
-//            moris::Cell< std::string > tOutputCriteria;
-//
-//            string_to_mat( tStringOutputInd,
-//                           tOutputIndices );
-//
-//            moris::Cell< std::string > tOutputCriterias;
-//            string_to_cell( tStringOutputCriteria, tOutputCriteria );
-//
-//            MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(), "SOL_Warehouse::create_time_solvers(), Number of output indices and criteria must be the same");
-//
-//            for( uint Ii = 0; Ii< tOutputCriterias.size(); Ii++ )
-//            {
-//                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = tLibrary.load_sol_criteria_functions( tOutputCriterias( Ii ) );
-//
-//                mTimeSolvers( Ik )->set_output( tOutputIndices( Ii ), tCriteriaFunc );
-//            }
-//        }
+        std::string tStringOutputInd      = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Indices"  );
+        std::string tStringOutputCriteria = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Crteria" );
+
+        if ( tStringOutputInd.size() > 0 )
+        {
+            moris::Matrix< DDSMat >    tOutputIndices;
+            moris::Cell< std::string > tOutputCriteria;
+
+            string_to_mat( tStringOutputInd,
+                           tOutputIndices );
+
+            moris::Cell< std::string > tOutputCriterias;
+            string_to_cell( tStringOutputCriteria, tOutputCriteria );
+
+            MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(), "SOL_Warehouse::create_time_solvers(), Number of output indices and criteria must be the same");
+
+            for( uint Ia = 0; Ia< tOutputCriteria.size(); Ia++ )
+            {
+                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = mLibrary->load_sol_criteria_functions( tOutputCriteria( Ia ) );
+
+                mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ), tCriteriaFunc );
+            }
+        }
 
         // set warehouse to time solver
         mTimeSolvers( Ik )->set_solver_warehouse( this );

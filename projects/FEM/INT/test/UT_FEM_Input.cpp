@@ -56,7 +56,7 @@ namespace moris
             tParameterList( 1 )( 1 ) = prm::create_constitutive_model_parameter_list();
             tParameterList( 1 )( 1 ).set( "constitutive_name", std::string("CM2") );
             tParameterList( 1 )( 1 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-            tParameterList( 1 )( 0 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+            tParameterList( 1 )( 1 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
             tParameterList( 1 )( 1 ).set( "properties",        std::string("Property2,Conductivity") );
 
             //------------------------------------------------------------------------------
@@ -129,7 +129,6 @@ namespace moris
             tParameterList( 4 )( 0 ).set( "master_constitutive_models", std::string("CM1,ElastLinIso") );
             tParameterList( 4 )( 0 ).set( "mesh_set_names",             std::string("MeshSet5,MeshSet2") );
 
-
             // create parameter list for IQI 2
             tParameterList( 4 )( 1 ) = prm::create_IQI_parameter_list();
             tParameterList( 4 )( 1 ).set( "IQI_name",                   std::string("IQI2") );
@@ -139,12 +138,15 @@ namespace moris
             tParameterList( 4 )( 1 ).set( "mesh_set_names",             std::string("MeshSet5") );
 
             //------------------------------------------------------------------------------
-            // create a FEM model
-            FEM_Model tFEMModel;
+            // open input file
             std::string tMeshFilePath = std::getenv("MORISROOT");
             tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
-            tFEMModel.set_file_path( tMeshFilePath );
-            tFEMModel.initialize( tParameterList, tMeshFilePath );
+            std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
+
+            // create a FEM model
+            FEM_Model tFEMModel;
+            tFEMModel.set_parameter_list( tParameterList );
+            tFEMModel.initialize( tLibrary );
 
 //            // parsing tool debug
 //            std::string tString = " 1.0, 2.0, 3.0; 4.0, 5.0, 6.0; 7.0, 8.0, 9.0";

@@ -239,7 +239,7 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
 
-    this->print_sol_vec( aNonLinearIt );
+//    this->print_sol_vec( aNonLinearIt );
 
     if( aRebuildJacobian )
     {

@@ -133,7 +133,7 @@ namespace moris
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
         // get mtk set index to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
+        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
 
         // copy fem::Set to base class MSI::Equation_Set. can this be done with a reinterpret_cast?
         moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
@@ -169,7 +169,6 @@ namespace moris
 
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
-        std::cout<<tMeshFileName<<std::endl;
 
         // write mesh to file
         mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );

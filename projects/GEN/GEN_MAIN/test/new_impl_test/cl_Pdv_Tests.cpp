@@ -38,6 +38,9 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
+
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+
 //------------------------------------------------------------------------------
 
 namespace moris

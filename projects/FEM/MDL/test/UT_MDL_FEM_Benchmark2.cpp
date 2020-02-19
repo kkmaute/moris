@@ -79,16 +79,83 @@ namespace moris
 
 //-------------------------------------------------------------------------------------
 // Functions for Parameters in FEM
-Matrix< DDRMat > ConstFunctionVal_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//Matrix< DDRMat > ConstFunctionVal_MDLFEMBench2
+//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+//  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//{
+//    return aParameters( 0 );
+//}
+//
+//Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
+//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+//  moris::fem::Field_Interpolator_Manager *        aFIManager )
+//{
+//    // get parameters
+//    real RInner  = aParameters( 0 )( 0 ); // inner radius
+//    real ROuter  = aParameters( 1 )( 0 ); // outer radius
+//    real xCenter = aParameters( 2 )( 0 ); // x coord of center
+//    real yCenter = aParameters( 2 )( 1 ); // y coord of center
+//    real TInner  = aParameters( 3 )( 0 ); // imposed temperature at inner radius
+//    real Q       = aParameters( 4 )( 0 ) * 2 * M_PI * ROuter; // heat load (W)
+//    real kappa   = aParameters( 5 )( 0 ); // conductivity (W/m^2)
+//
+//    // get x and y coords
+//    real xCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+//    real yCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
+//
+//    // compute radius
+//    real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
+//
+//    return { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
+//}
+//
+//Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
+//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+//  moris::fem::Field_Interpolator_Manager *         aFIManager )
+//{
+//    // get parameters
+//    real RInner  = aParameters( 0 )( 0 ); // inner radius
+//    real RMiddle = aParameters( 1 )( 0 ); // middle radius
+//    real ROuter  = aParameters( 2 )( 0 ); // outer radius
+//    real xCenter = aParameters( 3 )( 0 ); // x coord of center
+//    real yCenter = aParameters( 3 )( 1 ); // y coord of center
+//    real TInner  = aParameters( 4 )( 0 ); // imposed temperature at inner radius
+//    real Q       = aParameters( 5 )( 0 ) * 2 * M_PI * ROuter; // heat load (W)
+//    real kappaA  = aParameters( 6 )( 0 ); // conductivity for phase A (W/m^2)
+//    real kappaB  = aParameters( 7 )( 0 ); // conductivity for pahse B (W/m^2)
+//
+//    // get x and y coords
+//    real xCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+//    real yCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
+//
+//    // compute radius
+//    real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
+//
+//    Matrix< DDRMat > tT;
+//    if( R < RMiddle )
+//    {
+//        tT = { { TInner + ( Q * ( std::log( R/RInner ) * ( 1/kappaB ) ) ) / ( 2 * M_PI ) } };
+//    }
+//    else
+//    {
+//        tT = { { TInner + ( Q * ( std::log( RMiddle/RInner ) * ( 1/kappaB ) + std::log( R/RMiddle ) * ( 1/kappaA ) ) ) / ( 2 * M_PI ) } };
+//    }
+//
+//    return tT;
+//}
+
+void ConstFunctionVal_MDLFEMBench2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-  moris::fem::Field_Interpolator_Manager *        aFIManager )
+void AnalyticalTempFunc_MDLFEMBench2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     // get parameters
     real RInner  = aParameters( 0 )( 0 ); // inner radius
@@ -106,12 +173,13 @@ Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
     // compute radius
     real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
 
-    return { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
+    aPropMatrix = { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
 }
 
-Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void AnalyticalTemp2MatFunc_MDLFEMBench2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     // get parameters
     real RInner  = aParameters( 0 )( 0 ); // inner radius
@@ -141,7 +209,7 @@ Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
         tT = { { TInner + ( Q * ( std::log( RMiddle/RInner ) * ( 1/kappaB ) + std::log( R/RMiddle ) * ( 1/kappaA ) ) ) / ( 2 * M_PI ) } };
     }
 
-    return tT;
+    aPropMatrix = tT;
 }
 
 bool tSolverOutputCriteria_MDLFEMBench2( moris::tsa::Time_Solver * )
