@@ -25,6 +25,9 @@
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 //------------------------------------------------------------------------------
 
 using namespace moris;
@@ -35,7 +38,7 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
     if(par_size()<=1)
     {
         uint tLagrangeMeshIndex = 0;
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
         tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
         tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
         tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );

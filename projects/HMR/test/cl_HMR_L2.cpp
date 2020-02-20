@@ -16,6 +16,9 @@
 #include "fn_norm.hpp"
 #include "fn_equal_to.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 using namespace moris;
 
 moris::real
@@ -335,7 +338,7 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("2, 2") );
 

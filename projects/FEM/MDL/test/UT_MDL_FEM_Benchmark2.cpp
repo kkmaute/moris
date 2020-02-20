@@ -72,6 +72,8 @@
 
 #include "cl_Plane.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
 #include <functional>
 
 namespace moris
@@ -182,7 +184,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         uint tLagrangeMeshIndex = 0;
         std::string tOuterFieldName   = "Outercircle";
         std::string tInnerFieldName   = "Innercircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -526,7 +528,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         uint tLagrangeMeshIndex = 0;
         std::string tOuterFieldName   = "Outercircle";
         std::string tInnerFieldName   = "Innercircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -903,7 +905,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         std::string tOuterFieldName  = "OuterCircle";
         std::string tMiddleFieldName = "MiddleCircle";
         std::string tInnerFieldName  = "InnerCircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -1311,7 +1313,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         std::string tOuterFieldName  = "OuterCircle";
         std::string tMiddleFieldName = "MiddleCircle";
         std::string tInnerFieldName  = "InnerCircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );

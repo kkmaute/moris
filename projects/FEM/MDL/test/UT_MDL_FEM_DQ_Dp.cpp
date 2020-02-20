@@ -123,9 +123,6 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        // create settings object
 //        moris::hmr::Parameters tParameters;
 //
-//        // Dummy parameter list
-//        ParameterList tParam = hmr::create_hmr_parameter_list();
-//
 //        tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
 //        tParameters.set_domain_dimensions( 10, 5, 5 );
 //        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );

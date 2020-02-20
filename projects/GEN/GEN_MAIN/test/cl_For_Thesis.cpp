@@ -97,6 +97,9 @@
 #include "cl_VIS_Factory.hpp"
 #include "cl_VIS_Output_Manager.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 
 using namespace moris;
 namespace ge
@@ -332,7 +335,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         size_t tModelDimension  = 2;
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
     uint tInitialMesh = 2;
     switch(tInitialMesh)
@@ -865,7 +868,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
     {
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         uint tInitialMesh = 2;
         switch(tInitialMesh)

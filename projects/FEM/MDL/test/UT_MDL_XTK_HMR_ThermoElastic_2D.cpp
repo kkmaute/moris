@@ -92,6 +92,9 @@
 
 #include "cl_PRM_SOL_Parameters.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 namespace moris
 {
 
@@ -151,7 +154,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -527,7 +530,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -621,7 +624,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("2, 1"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );

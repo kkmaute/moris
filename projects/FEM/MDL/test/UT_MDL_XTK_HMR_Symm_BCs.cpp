@@ -86,6 +86,10 @@
 #include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 namespace moris
 {
 
@@ -119,7 +123,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("600, 6"));
         tParameters.set( "domain_dimensions", std::string("100, 2") );

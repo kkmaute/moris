@@ -23,7 +23,7 @@
 #include "linalg_typedefs.hpp"
 
 // GE
-#include "cl_GEN_Analytic_Geometry.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"

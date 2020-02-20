@@ -134,9 +134,6 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -353,9 +350,6 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         // create settings object
         moris::hmr::Parameters tParameters;
-
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
 
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
@@ -675,9 +669,6 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         // create settings object
         moris::hmr::Parameters tParameters;
-
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
 
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
@@ -1019,9 +1010,6 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1245,9 +1233,6 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         // create settings object
         moris::hmr::Parameters tParameters;
-
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
 
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
@@ -1579,9 +1564,6 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         // create settings object
         moris::hmr::Parameters tParameters;
-
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
 
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );

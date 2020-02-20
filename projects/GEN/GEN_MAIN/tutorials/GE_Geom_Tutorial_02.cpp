@@ -42,6 +42,9 @@
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
 //------------------------------------------------------------------------------
 
 using namespace moris;
@@ -136,7 +139,7 @@ main( int    argc,
      */
     uint tMeshOrder = 2;    // Legrange order = B-spline order = 2
 
-    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = prm::create_hmr_parameter_list();
     tParameters.set( "number_of_elements_per_dimension", "2, 2" );
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );

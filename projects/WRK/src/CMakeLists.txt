@@ -7,6 +7,37 @@ set(${WRK}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
      )
+     
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )    
+    
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()   
+
+set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_INCLUDES ${GEN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Parameters Library
@@ -20,6 +51,11 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
     ${INT}-lib 
+    ${XTK}-lib
+    ${HMR}-lib
+    #${GEN}-lib
+    ${GEN_MAIN}-lib
+    ${MDL}-lib
     #${SOL_CORE}-lib
     #${NLA}-lib
     #${TLA}-lib

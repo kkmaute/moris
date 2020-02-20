@@ -15,55 +15,33 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 
+namespace xtk
+{
+   class Model;
+}
+
 namespace moris
 {
 class Library_IO;
 //------------------------------------------------------------------------------
+    namespace hmr
+    {
+       class HMR;
+    }
     namespace mtk
     {
        class Mesh_Manager;
     }
-
-    namespace vis
+    namespace ge
     {
-       class Output_Manager;
+       class GEN_Geometry_Engine;
     }
 
-    namespace fem
+    namespace mdl
     {
-        class IWG;
-        class Node_Base;
-        class Cell;
-        class Set;
-        class Field_Interpolator;
-        class Set_User_Info;
+       class Model;
     }
 
-    namespace dla
-    {
-        class Linear_Solver;
-        class Linear_Solver_Algorithm;
-    }
-
-    namespace MSI
-    {
-        class Model_Solver_Interface;
-        class MSI_Solver_Interface;
-        class Equation_Set;
-        class Equation_Object;
-        class Equation_Model;
-        class Design_Variable_Interface;
-        enum class Dof_Type;
-    }
-    namespace tsa
-    {
-        class Time_Solver;
-        class Time_Solver_Algorithm;
-    }
-    namespace sol
-    {
-        class SOL_Warehouse;
-    }
     namespace wrk
     {
 //------------------------------------------------------------------------------
@@ -73,6 +51,12 @@ class Library_IO;
             std::string mInputFile;
 
             std::shared_ptr< Library_IO > mLibrary;
+
+            moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
+            moris::Cell< std::shared_ptr< ge::GEN_Geometry_Engine > > mGENPerformer;
+            moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
+            moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
+            moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
 
 //------------------------------------------------------------------------------
         public:
@@ -87,7 +71,7 @@ class Library_IO;
             /**
              * destructor
              */
-            ~Performer_Manager();
+            ~Performer_Manager(){};
 
 //------------------------------------------------------------------------------
         };

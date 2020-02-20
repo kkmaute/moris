@@ -10,8 +10,18 @@
 #include "op_equal_equal.hpp"
 
 #include "MTK_Tools.hpp"
-#include "cl_MTK_Enums.hpp"              //MTK/src
-#include "cl_MTK_Mesh_Manager.hpp"       //MTK/src
+#include "cl_MTK_Enums.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+
+#include "cl_HMR.hpp"
+
+#include "cl_MDL_Model.hpp"
+
+#include "cl_GEN_Geometry_Engine.hpp"
+
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 #include "cl_WRK_Performer_Manager.hpp"
 
@@ -27,6 +37,12 @@ namespace moris
     {
         mLibrary = std::make_shared< Library_IO >( mInputFile );
 
+        mHMRPerformer.resize( 1 );
+        mGENPerformer.resize( 1 );
+        mXTKPerformer.resize( 1 );
+        mMTKPerformer.resize( 1 );
+        mMDLPerformer.resize( 1 );
+
         // load the HMR parameter list
         std::string tHMRString = "HMRParameterList";
         MORIS_PARAMETER_FUNCTION tHMRParameterListFunc = mLibrary->load_parameter_file( tHMRString );
@@ -38,18 +54,18 @@ namespace moris
         moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
         tGENParameterListFunc( tGENParameterList );
 
-        uint tLagrangeMeshIndex = 0;
+        uint tLagrangeMeshIndex = 0;     // Fixme get from parameter list - output mesh
 
-        hmr::HMR tHMR( tParameters( 0 )( 0 ) );
+        mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ) );
 
         // initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        mHMRPerformer( 0 )->perform_initial_refinement( 0 );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = mHMRPerformer( 0 )->create_mesh( tLagrangeMeshIndex );
 
         for( uint k=0; k<2; ++k )
         {
-            GEN_Geometry_Engine tGE( tGENParameterList(0)(0) );
+            ge::GEN_Geometry_Engine tGE( tGENParameterList(0)(0) );
             tGE.register_mesh( tMesh );
 
             tGE.initialize( mLibrary );
@@ -61,20 +77,20 @@ namespace moris
 
             for( uint Ik=0; Ik < tValues.size(); ++Ik )
             {
-                tHMR.based_on_field_put_elements_on_queue( tValues( Ik ), tLagrangeMeshIndex );
+                mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ik ), tLagrangeMeshIndex );
             }
 
-            tHMR.perform_refinement_based_on_working_pattern( 0, false );
+            mHMRPerformer( 0 )->perform_refinement_based_on_working_pattern( 0, false );
         }
 
-        tHMR.finalize();
+        mHMRPerformer( 0 )->finalize();
 
 //        tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
+        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = mHMRPerformer( 0 )->create_interpolation_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = mHMRPerformer( 0 )->create_integration_mesh( 1, 0, *tInterpolationMesh );
 
-        // place the pair in mesh manager
+        // place the pair in mesh manager  FIXME hold this as memeber
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get() );
         size_t tSpatialDimension = tInterpolationMesh->get_spatial_dim();
@@ -82,41 +98,50 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         // Create GE with parameter list
-        GEN_Geometry_Engine tGE( tGENParameterList(0)(0) );
+        mGENPerformer( 0 ) = std::make_shared< ge::GEN_Geometry_Engine >( tGENParameterList(0)(0) );
 
         // Register Mesh to Ge
-        tGE.register_mesh( tMeshManager );
+        mGENPerformer( 0 )->register_mesh( &tMeshManager );
 
         // Initialize call - build Geometries
-        tGE.initialize( mLibrary );
+        mGENPerformer( 0 )->initialize( mLibrary );
 
-        // Create phase table for geometry engine
-        moris::ge::GEN_Phase_Table tPhaseTable ( 1, Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
+        //-------------------------------------------------------------------------------
 
-        xtk::Model tXTKModel(tSpatialDimension, tInterpolationMesh.get(), tGeometryEngine);
+        mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tSpatialDimension, tInterpolationMesh.get(), *(mGENPerformer( 0 ).get()) );
 
-        tXTKModel.mVerbose = false;
+        mXTKPerformer( 0 )->mVerbose = false;
 
-        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
+        Cell<enum Subdivision_Method> tDecompositionMethods;
 
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+        if( tSpatialDimension == 2 )
+        {
+            //Specify decomposition Method and Cut Mesh ---------------------------------------
+            tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        }
+        else if( tSpatialDimension == 3 )
+        {
+            tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+        }
+
+        mXTKPerformer( 0 )->decompose(tDecompositionMethods);
+
+        mXTKPerformer( 0 )->perform_basis_enrichment( EntityRank::BSPLINE,0 );
+        mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
 
         // get meshes
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKPerformer( 0 )->get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = mXTKPerformer( 0 )->get_enriched_integ_mesh();
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+        mMTKPerformer( 0 )->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                              0 );
+        mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( &tMeshManager,
+                                                             0 );
 
-        tModel->solve();
+        mMDLPerformer( 0 )->solve();
     }
 
 
