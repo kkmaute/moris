@@ -51,6 +51,11 @@ namespace ge
             return true;
         }
         //------------------------------------------------------------------------------
+        bool is_func_pointer()
+        {
+        	return true;
+        }
+        //------------------------------------------------------------------------------
         void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
         {
             MORIS_ERROR( false,"Analytic_Geometry::get_dphi_dp_size() - not implemented" );
@@ -63,7 +68,6 @@ namespace ge
             mAnalyticFunction( aReturnValue, aPoint, aConst );
         }
         //------------------------------------------------------------------------------
-
     };
 //------------------------------------------------------------------------------
 }   /* end ge namespace */

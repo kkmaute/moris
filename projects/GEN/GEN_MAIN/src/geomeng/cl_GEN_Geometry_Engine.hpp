@@ -131,6 +131,9 @@ public:
     // TODO: move this to the .cpp file
     void initialize( std::shared_ptr< Library_IO > aLibrary )
     {
+    	// set the active geometry index
+    	mActiveGeometryIndex = 0;
+
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
         string_to_cell( mParameterList.get< std::string >( "geometries" ),

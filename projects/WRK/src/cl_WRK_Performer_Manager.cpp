@@ -85,7 +85,7 @@ namespace moris
 
         mHMRPerformer( 0 )->finalize();
 
-//        tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+        mHMRPerformer( 0 )->save_to_exodus( 0, "./xtk_exo/WRK_test.e" );
 
         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = mHMRPerformer( 0 )->create_interpolation_mesh( tLagrangeMeshIndex );
         std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = mHMRPerformer( 0 )->create_integration_mesh( 1, 0, *tInterpolationMesh );
@@ -138,7 +138,7 @@ namespace moris
         mMTKPerformer( 0 )->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
         // create model
-        mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( &tMeshManager,
+        mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mMTKPerformer( 0 ).get(),
                                                              0 );
 
         mMDLPerformer( 0 )->solve();

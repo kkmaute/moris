@@ -12,5 +12,5 @@ using namespace moris;
 
 TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 {
-//	wrk::Performer_Manager tPerformerManager( "/home/schmidt/codes/moris/projects/FEM/MDL/test/data/Input_test.so" );
+	wrk::Performer_Manager tPerformerManager( "/home/schmidt/codes/moris/projects/FEM/MDL/test/data/Input_test.so" );
 }

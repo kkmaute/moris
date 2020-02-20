@@ -51,6 +51,11 @@ public:
      */
     virtual bool is_analytic() const = 0;
 
+    virtual bool is_func_pointer()
+    {
+    	return false;
+    }
+
     /**
      *
      */
