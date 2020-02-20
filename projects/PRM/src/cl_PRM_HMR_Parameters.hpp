@@ -67,6 +67,8 @@ namespace moris
 
         tParameterList.insert( "max_refinement_level", -1 );
 
+        tParameterList.insert( "adaptive_refinement_level", 0 );
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------

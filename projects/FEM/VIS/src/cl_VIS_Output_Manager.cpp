@@ -174,6 +174,10 @@ namespace moris
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
 
+        std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath;
+
+        MORIS_LOG( tMassage.c_str() );
+
         // write mesh to file
         mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
 

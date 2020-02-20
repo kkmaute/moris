@@ -605,8 +605,15 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
+        std::string tInputFilePath = std::getenv("MORISROOT");
+        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
+
+        // create a pointer to library for input reading
+        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
+
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tLibrary,
+                                              &tMeshManager,
                                               0 );
 
         // solve

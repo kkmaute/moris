@@ -48,12 +48,10 @@ class Library_IO;
 
         class Performer_Manager
         {
-            std::string mInputFile;
-
             std::shared_ptr< Library_IO > mLibrary;
 
             moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
-            moris::Cell< std::shared_ptr< ge::GEN_Geometry_Engine > > mGENPerformer;
+            moris::Cell< std::shared_ptr< ge::GEN_Geometry_Engine > >  mGENPerformer;
             moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
             moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
             moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
@@ -65,13 +63,19 @@ class Library_IO;
              * constructor
              * @param[ in ] aMesh          mesh for this problem
              */
-            Performer_Manager( const std::string & aInputFilePath );
+            Performer_Manager( std::shared_ptr< Library_IO > aLibrary );
 
 //------------------------------------------------------------------------------
             /**
              * destructor
              */
             ~Performer_Manager(){};
+
+            void initialize();
+
+            void perform_refinement();
+
+            void perform();
 
 //------------------------------------------------------------------------------
         };
