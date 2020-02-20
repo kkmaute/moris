@@ -24,7 +24,7 @@ CMakeCache.txt
 *.e
 
 # Used by individual developers
-#mains/
+mains/
 /CMakeFiles/clion-log.txt
 .idea
 *.idea
