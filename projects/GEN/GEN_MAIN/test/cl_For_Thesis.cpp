@@ -272,7 +272,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         //  HMR Parameters setup
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-    uint tInitialMesh = 2;
+    uint tInitialMesh = 1;
     switch(tInitialMesh)
     {
     case(0) :
@@ -285,10 +285,11 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         }
     case(1) :
         {
-            tParameters.set( "number_of_elements_per_dimension", std::string("20, 20, 10") );
-            tParameters.set( "domain_dimensions",                std::string("2, 2, 1") );
-            tParameters.set( "domain_offset",                    std::string("-0, -0, -0") );
-            tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4, 5, 6") );
+        // mesh used in Moes et. al. for the first benchmark problem
+            tParameters.set( "number_of_elements_per_dimension", std::string("24, 48") );
+            tParameters.set( "domain_dimensions",                std::string("7, 16") );
+            tParameters.set( "domain_offset",                    std::string("0, 0") );
+            tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4") );
         break;
         }
     default :
@@ -328,7 +329,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
 
-        uint tNumberOfRefinements = 2;
+        uint tNumberOfRefinements = 1;
         uint tStartingPoint       = 1;
 
         Cell< Matrix< DDRMat > > tFieldData( 1 );
@@ -368,21 +369,34 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
             moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
 
-            Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY+0.02 }};
+//            Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY+0.02 }};
+            Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY }};
             Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
             moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
 
-            Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY-0.02 }};
+//            Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY-0.02 }};
+            Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY }};
             Matrix< DDRMat > tNormals1 = {{ 0.0, -1.0 }};
             moris::ge::Plane<2> tPlane1( tCenter1, tNormals1 );
 
             moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane1, &tPlane2 };
-
+            //------------------------------------------------------------------------------
+//            Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
+//            Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
+//            moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
+//
+//            Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY }};
+//            Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
+//            moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
+//
+//            moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane2 };
+            //------------------------------------------------------------------------------
             moris::ge::Multi_Geometry tCrack( tAllPlanes );
 
-            moris::ge::Circle tCircle( 0.12501, tCrackX, tCrackY );
+//            moris::ge::Circle tCircle( 0.12501, tCrackX, tCrackY );
 
-            moris::Cell< moris::ge::GEN_Geometry* > tTempGeometryVector = { &tCrack, &tCircle };
+//            moris::Cell< moris::ge::GEN_Geometry* > tTempGeometryVector = { &tCrack, &tCircle };
+            moris::Cell< moris::ge::GEN_Geometry* > tTempGeometryVector = { &tCrack };
 
             moris::ge::GEN_Phase_Table     tTempPhaseTable( tTempGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tTempGeometryEngine( tTempGeometryVector, tTempPhaseTable, tModelDimension );
@@ -392,10 +406,10 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             uint tNumIPNodes = tMesh->get_num_nodes();
 
             Matrix<DDRMat> tFieldData ( tNumIPNodes,1 );
-            Matrix<DDRMat> tFieldData0( tNumIPNodes,1 );
+//            Matrix<DDRMat> tFieldData0( tNumIPNodes,1 );
 
             tTempGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
+            Matrix< DDRMat > tCoords( tNumIPNodes, tModelDimension );
             for( uint i = 0; i < tNumIPNodes; i++ )
             {
                 tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
@@ -406,11 +420,11 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             for(uint i=0; i<tNumIPNodes; i++)
             {
                 tFieldData ( i ) = tTempGeometryEngine.get_entity_phase_val( i, 0 );
-                tFieldData0( i ) = tTempGeometryEngine.get_entity_phase_val( i, 1 );
+//                tFieldData0( i ) = tTempGeometryEngine.get_entity_phase_val( i, 1 );
             }
 
             tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
+//            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, false );
         }
@@ -448,27 +462,38 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             }
         }
 
+//        Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
+//        Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
+//        moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
+//
+//        Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY+0.02 }};
+//        Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
+//        moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
+//
+//        Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY-0.02 }};
+//        Matrix< DDRMat > tNormals1 = {{ 0.0, -1.0 }};
+//        moris::ge::Plane<2> tPlane1( tCenter1, tNormals1 );
+//
+//        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane1, &tPlane2 };
+        //------------------------------------------------------------------------------
         Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
         Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
         moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
 
-        Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY+0.02 }};
+        Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY }};
         Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
         moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
 
-        Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY-0.02 }};
-        Matrix< DDRMat > tNormals1 = {{ 0.0, -1.0 }};
-        moris::ge::Plane<2> tPlane1( tCenter1, tNormals1 );
-
-        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane1, &tPlane2 };
+        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane2 };
+        //------------------------------------------------------------------------------
 
         moris::ge::Multi_Geometry tCrack( tAllPlanes );
         //===========================================
-        moris::ge::Circle tCircle( 0.12501, tCrackX, tCrackY );
-
+//        moris::ge::Circle tCircle( 0.12501, tCrackX, tCrackY );
+//        moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tCrack, &tCircle };
         //===========================================
 
-        moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tCrack, &tCircle };
+        moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tCrack };
 
         moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );

@@ -23,7 +23,7 @@
 #include "linalg_typedefs.hpp"
 
 // GE
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Analytic_Geometry.hpp"
+#include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
@@ -131,8 +131,14 @@ public:
     // TODO: move this to the .cpp file
     void initialize( std::shared_ptr< Library_IO > aLibrary )
     {
-    	// set the active geometry index
-    	mActiveGeometryIndex = 0;
+        // initialize member data
+        mThresholdValue = 0.0;      // threshold for level sets
+
+        mComputeDxDp = false;       // flag to compute DxDp (needs to be updated)
+
+        mSpatialDim = 3;            // placeholder (gets overwritten once a mesh is registered)
+
+        mActiveGeometryIndex = 0;   // for XTK's decomposition
 
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
@@ -413,7 +419,6 @@ public:
     void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                               const moris_index                 aWhichMesh = 0 )
     {
-//        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
         aAllFieldVals.resize( mGeometry.size() );
