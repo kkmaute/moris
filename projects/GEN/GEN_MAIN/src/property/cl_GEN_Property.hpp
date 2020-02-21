@@ -12,8 +12,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"
 
 // GE includes
-//#include "cl_GEN_Enums.hpp"
-#include "../projects/GEN/GEN_CORE/src/cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Dv_Enums.hpp"
 
 namespace moris
 {
@@ -25,6 +24,8 @@ typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >       
 //------------------------------------------------------------------------------
 class GEN_Property
 {
+    // TODO: clean up this class, should only be concerned with design variables (DVs) not degrees of freedom (DoFs)
+
 protected:
 //    // active dof types
 //    moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;

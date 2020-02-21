@@ -699,11 +699,15 @@ Geometry_Object_Manager* GEN_Geometry_Engine::get_all_geom_obj()
 void GEN_Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
 {
     mMesh = aMesh;
+
+    mSpatialDim = mMesh->get_interpolation_mesh( 0 )->get_spatial_dim();
 }
 
 moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
 {
     mMesh_HMR.push_back( aMesh );
+
+    mSpatialDim = mMesh_HMR( 0 )->get_spatial_dim();
     return mMesh_HMR.size()-1;
 }
 

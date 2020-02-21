@@ -118,11 +118,11 @@ public:
     // Options which the user can change (all are given defaults)
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
-    bool        mComputeDxDp;           // Should be turned off if a sensitivity has not been implemented
+    bool        mComputeDxDp;           // <- should be turned off if a sensitivity has not been implemented
     moris::uint mSpatialDim;
 
 
-    // TODO: create the destructor to delete the analytic geometry pointer created via "new"
+    // TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
     // TODO: move this to the .cpp file
     GEN_Geometry_Engine( ParameterList aParameterList ) : mParameterList(aParameterList)
     {
@@ -367,16 +367,25 @@ public:
      */
     Matrix< DDRMat > get_cylinder_vals( moris_index aWhichMesh,
                                         GEN_CylinderWithEndCaps* aFiber,
-                                        uint aNumberOfFibers ); //FIXME this is currently only setup to work with an HMR member mesh
+                                        uint aNumberOfFibers );             //FIXME this is currently only setup to work with an HMR member mesh
     //------------------------------------------------------------------------------
     /*
      * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
+    void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+                                                     moris_index                aWhichMesh = 0 )
+    {
+        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
+        // TODO: implement this function and make it work for the case of a mesh manager...
+    }
+    //------------------------------------------------------------------------------
+    /*
+     * @brief gives the maximum level-set values at all nodes in the mesh
+     */
     void get_max_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                                      moris_index                aWhichMesh = 0 )
     {
-//        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
-        // TODO: implement this function and make it work for the case of a mesh manager...
+        // TODO: make this work for the case of a mesh manager...not just an HMR mesh...
 
         aAllFieldVals.resize( 1 );
 
