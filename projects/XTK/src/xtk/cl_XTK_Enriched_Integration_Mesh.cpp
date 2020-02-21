@@ -766,7 +766,7 @@ Enriched_Integration_Mesh::print_block_sets(moris::uint aVerbosityLevel) const
     {
         std::cout<<"\n    Block Name: "     <<std::setw(20)<<mBlockSetNames(iBS)
                 <<" | Block Set Ord: "    <<std::setw(9)<<iBS
-                <<" | Num Cell Clusters: "<<std::setw(9)
+                <<" | Num Cell Clusters: "<<std::setw(9)<<mPrimaryBlockSetClusters(iBS).size()
                 <<" | Bulk Phase: "<<std::setw(9)<<mBlockSetColors(iBS)(0);
 
         if(aVerbosityLevel > 0)
