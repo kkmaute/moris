@@ -106,8 +106,19 @@ namespace moris
             // loop over the used fem set
             for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
             {
-                // get the mesh set index from aSetInfo
-                moris_index tMeshSetIndex = aSetInfo( iSet ).get_mesh_index();
+                // get the mesh set name
+                std::string tMeshSetName = aSetInfo( iSet).get_mesh_set_name();
+
+                moris_index tMeshSetIndex;
+                if( tMeshSetName.size() > 0 )
+                {
+                   // get the mesh set index from its name
+                   tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
+                }
+                else
+                {
+                    tMeshSetIndex = aSetInfo( iSet ).get_mesh_index();
+                }
 
                 // fill the mesh set index to fem set index map
                 mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
@@ -157,13 +168,18 @@ namespace moris
           mParameterList( aParameterList )
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 0: unpack fem input
+            // STEP 0: unpack fem input and mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
             tic tTimer0;
 
             // unpack the FEM inputs
             this->initialize( aLibrary );
+
+            // get pointers to interpolation and integration meshes
+            mtk::Interpolation_Mesh* tIPMesh = nullptr;
+            mtk::Integration_Mesh*   tIGMesh = nullptr;
+            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
             if( par_rank() == 0)
             {
@@ -176,15 +192,7 @@ namespace moris
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 1: unpack mesh
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tIPMesh = nullptr;
-            mtk::Integration_Mesh*   tIGMesh = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create IP nodes
+            // STEP 1: create IP nodes
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // start timer
@@ -213,7 +221,7 @@ namespace moris
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 3: create fem sets
+            // STEP 2: create fem sets
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // start timer
@@ -330,6 +338,18 @@ namespace moris
 
             // delete the fem cluster
             mFemClusters.clear();
+        }
+
+//------------------------------------------------------------------------------
+        void FEM_Model::finalize_equation_sets
+        ( MSI::Model_Solver_Interface * aModelSolverInterface )
+        {
+            // loop over the fem sets
+            for( MSI::Equation_Set * tFemSet : mFemSets )
+            {
+                // finalize the fem set
+                tFemSet->finalize( aModelSolverInterface );
+            }
         }
 
 //------------------------------------------------------------------------------

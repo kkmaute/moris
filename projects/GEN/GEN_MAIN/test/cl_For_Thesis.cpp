@@ -97,6 +97,9 @@
 #include "cl_VIS_Factory.hpp"
 #include "cl_VIS_Output_Manager.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 
 using namespace moris;
 namespace ge
@@ -267,7 +270,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         size_t tModelDimension  = 2;
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
     uint tInitialMesh = 2;
     switch(tInitialMesh)
@@ -603,36 +606,36 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             //===========================================
             // bulk for plate
             fem::Set_User_Info tBulkPlate00;
-            tBulkPlate00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
+            tBulkPlate00.set_mesh_set_name( "HMR_dummy_n_p3" );
             tBulkPlate00.set_IWGs( { tIWGPlate } );
             tBulkPlate00.set_IQIs( { tIQIUX, tIQIUY, tIQIJInt } );
 
             fem::Set_User_Info tBulkPlate01;
-            tBulkPlate01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
+            tBulkPlate01.set_mesh_set_name( "HMR_dummy_c_p3" );
             tBulkPlate01.set_IWGs( { tIWGPlate } );
             tBulkPlate01.set_IQIs( { tIQIUX, tIQIUY, tIQIJInt } );
             //===========================================
             // Neumann load on side-set 3
             fem::Set_User_Info tSetNeumann00;
-            tSetNeumann00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_3_n_p3") );
+            tSetNeumann00.set_mesh_set_name( "SideSet_3_n_p3" );
             tSetNeumann00.set_IWGs( { tIWGNeumannTop } );
 
             fem::Set_User_Info tSetNeumann01;
-            tSetNeumann01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_3_c_p3") );
+            tSetNeumann01.set_mesh_set_name( "SideSet_3_c_p3" );
             tSetNeumann01.set_IWGs( { tIWGNeumannTop } );
             //===========================================
             // boundary conditions on side-set 1
             fem::Set_User_Info tSetDirichletFixed00;
-            tSetDirichletFixed00.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p3") );
+            tSetDirichletFixed00.set_mesh_set_name( "SideSet_1_n_p3" );
             tSetDirichletFixed00.set_IWGs( { tIWGDirichletFixedBottom } );
 
             fem::Set_User_Info tSetDirichletFixed01;
-            tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p3") );
+            tSetDirichletFixed01.set_mesh_set_name( "SideSet_1_c_p3" );
             tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedBottom } );
             //===========================================
 //             IQI for J-Integral
 //            fem::Set_User_Info tJIntegral;
-//            tJIntegral.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("iside_g_1_b0_3_b1_2") );
+//            tJIntegral.set_mesh_set_name( "iside_g_1_b0_3_b1_2" );
 //            tJIntegral.set_IQIs( { tIQIJInt } );
             //------------------------------------------------------------------------------
             // create a cell of set info
@@ -800,7 +803,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
     {
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         uint tInitialMesh = 2;
         switch(tInitialMesh)

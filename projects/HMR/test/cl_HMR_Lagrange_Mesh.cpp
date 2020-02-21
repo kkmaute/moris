@@ -763,9 +763,6 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {40}, {10}, {10} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );

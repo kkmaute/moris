@@ -22,50 +22,6 @@
 
 #include "op_equal_equal.hpp"
 
-//moris::Matrix< moris::DDRMat > tConstValFunction_STRUCDIRICHLET
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-//
-//moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCDIRICHLET
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
-//}
-//
-//moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
-//}
-//
-//moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return -1.0 * aParameters( 1 )( 0, 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
-//}
-//moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return {{ aParameters( 0 )( 0 ), 0.0 },
-//            { 0.0, aParameters( 0 )( 1 ) }};
-//}
-//
-//moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET_3D
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
-//            { 0.0, aParameters( 0 )( 1 ), 0.0 },
-//            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
-//}
-
 void tConstValFunction_STRUCDIRICHLET
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,

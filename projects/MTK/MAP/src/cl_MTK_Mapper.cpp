@@ -367,35 +367,35 @@ namespace moris
 
         }
 
-//------------------------------------------------------------------------------
-
-        void
-        Mapper::map_node_to_element_same_mesh(
-                         const moris_index   aSourceIndex,
-                         const moris_index   aTargetIndex )
-        {
-            // create the model if it has not been created yet
-            this->create_iwg_and_model();
-
-            // set weak bcs from field
-            mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
-
-            // get number of elements
-            uint tNumberOfElements = mTargetInterpMesh->get_num_elems();
-
-            // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                // get ref to entry in database
-                real & tValue = mTargetInterpMesh->get_value_of_scalar_field(
-                        aTargetIndex,
-                        EntityRank::ELEMENT,
-                        e );
-
-                // calculate value
-                tValue = mModel->compute_element_average( e );
-            }
-        }
+////------------------------------------------------------------------------------
+//
+//        void
+//        Mapper::map_node_to_element_same_mesh(
+//                         const moris_index   aSourceIndex,
+//                         const moris_index   aTargetIndex )
+//        {
+//            // create the model if it has not been created yet
+//            this->create_iwg_and_model();
+//
+//            // set weak bcs from field
+//            mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
+//
+//            // get number of elements
+//            uint tNumberOfElements = mTargetInterpMesh->get_num_elems();
+//
+//            // loop over all elements
+//            for( uint e=0; e<tNumberOfElements; ++e )
+//            {
+//                // get ref to entry in database
+//                real & tValue = mTargetInterpMesh->get_value_of_scalar_field(
+//                        aTargetIndex,
+//                        EntityRank::ELEMENT,
+//                        e );
+//
+//                // calculate value
+//                tValue = mModel->compute_element_average( e );
+//            }
+//        }
 
  //------------------------------------------------------------------------------
 

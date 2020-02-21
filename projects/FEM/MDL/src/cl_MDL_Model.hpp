@@ -74,37 +74,33 @@ class Library_IO;
             mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
 
-            std::shared_ptr< MSI::Equation_Model >    mEquationModel = nullptr;
-
-            // list of FEM sets
-            moris::Cell< MSI::Equation_Set * > mEquationSets;
-
-            // list of FEM clusters
-            moris::Cell< MSI::Equation_Object* > mEquationObjects;
+            // pointer to equation model (->FEM model)
+            std::shared_ptr< MSI::Equation_Model > mEquationModel = nullptr;
 
             // by default, this value is set to the order of the
             // Lagrange modes
-            moris::uint                       mBSplineIndex = 0;
+            moris::uint mBSplineIndex = 0;
 
-            // model solver interface pointer
+            // pointer to model solver interface
             MSI::Model_Solver_Interface * mModelSolverInterface = nullptr;
 
-            // solver interface pointer
+            // pointer to solver interface
             MSI::MSI_Solver_Interface   * mSolverInterface = nullptr;
+
+            // pointer to solver warehouse
+            std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
 
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
-            Matrix< DDRMat> mSolHMR;
-
-            std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
-
-
+            // pointer to output manager
             vis::Output_Manager * mOutputManager = nullptr;
 
+            // bool for multigrid use
             bool mUseMultigrid = false;
 
+            // pointer to library for input reading
             std::shared_ptr< Library_IO > mLibrary;
 
 //------------------------------------------------------------------------------
@@ -112,9 +108,9 @@ class Library_IO;
 //------------------------------------------------------------------------------
             /**
              * constructor
-             * @param[ in ] aMesh          mesh for this problem
-             * @param[ in ] aBSplineOrder  ???
-             * @param[ in ] aSetInfo       cell of set user info
+             * @param[ in ] aMeshManager   pointer to mesh info
+             * @param[ in ] aBSplineIndex  ???
+             * @param[ in ] aSetInfo       list of set user info
              * @param[ in ] aMeshPairIndex ???
              * @param[ in ] aUseMultigrid  bool for multigrid use
              */
@@ -124,10 +120,16 @@ class Library_IO;
                    const moris_index                         aMeshPairIndex = 0,
                    const bool                                aUseMultigrid  = false );
 
-            Model(       mtk::Mesh_Manager * aMeshManager,
-                   const uint                aBSplineIndex,
-                   const moris_index         aMeshPairIndex = 0 );
-
+//------------------------------------------------------------------------------
+            /**
+             * constructor
+             * @param[ in ] aMeshManager   pointer to mesh info
+             * @param[ in ] aBSplineIndex  ???
+             * @param[ in ] aSetInfo       cell of set user info
+             * @param[ in ] aDVInterface   pointer to dv interface
+             * @param[ in ] aMeshPairIndex ???
+             * @param[ in ] aUseMultigrid  bool for multigrid use
+             */
             Model(       mtk::Mesh_Manager*                  aMeshManager,
                    const uint                                aBSplineIndex,
                          moris::Cell< fem::Set_User_Info > & aSetInfo,
@@ -137,44 +139,48 @@ class Library_IO;
 
 //------------------------------------------------------------------------------
             /**
+             * constructor
+             * @param[ in ] aMeshManager   pointer to mesh info
+             * @param[ in ] aBSplineIndex  ???
+             * @param[ in ] aMeshPairIndex ???
+             */
+            Model(       std::shared_ptr< Library_IO > aLibrary,
+                         mtk::Mesh_Manager * aMeshManager,
+                   const uint                aBSplineIndex,
+                   const moris_index         aMeshPairIndex = 0 );
+
+//------------------------------------------------------------------------------
+            /**
              * destructor
              */
             ~Model();
 
 //------------------------------------------------------------------------------
-
+            /**
+             * solve
+             */
             void solve();
 
 //------------------------------------------------------------------------------
             /**
-             * FIXME
-             * gets HMR solution vector
-             */
-            Matrix< DDRMat> & get_mSolHMR( )
-            {
-                return mSolHMR;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * sets dof order
+             * set dof order
              * @param[ in ] aOrder an order
              */
             void set_dof_order( const uint aOrder );
 
 //------------------------------------------------------------------------------
             /**
-             * get equation sets
+
+             * get the model solver interface
              */
-            moris::Cell< MSI::Equation_Set * > & get_equation_sets( );
-
-//------------------------------------------------------------------------------
-
-            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( );
+            MSI::Model_Solver_Interface * get_model_solver_interface()
+            {
+                return mModelSolverInterface;
+            }
 
 //------------------------------------------------------------------------------
             /**
-             * gets the solver interface
+             * get the solver interface
              */
             MSI::MSI_Solver_Interface * get_solver_interface()
             {
@@ -183,18 +189,23 @@ class Library_IO;
 
 //------------------------------------------------------------------------------
             /**
-             * gets the adof map
+             * get the fem model
+             * (used for UT)
+             */
+            std::shared_ptr< MSI::Equation_Model > get_fem_model()
+            {
+                return mEquationModel;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the adof map
+             * @param[ out ] adof map
              */
             Matrix< DDUMat > & get_adof_map()
             {
                 return mAdofMap;
             }
-
-//------------------------------------------------------------------------------
-            /**
-             * gets the lagrange interpolation order from the mesh
-             */
-            uint get_lagrange_order_from_mesh();
 
 //------------------------------------------------------------------------------
             /**
@@ -213,56 +224,23 @@ class Library_IO;
             void set_weak_bcs_from_nodal_field( moris_index aFieldIndex );
 
 //------------------------------------------------------------------------------
-            /**
-             * FIXME
-             * computes the integration error
-             * @param[ in ] aFunction a function pointer to compute the integration error
-             */
-            real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
-
-//------------------------------------------------------------------------------
-            /**
-             * FIXME
-             * computes an element average
-             * @param[ in ] aElementIndex an element index
-             */
-           real compute_element_average( const uint aElementIndex );
-
-//------------------------------------------------------------------------------
-           /**
-            * outputs the solution in a file
-            * @param[ in ] aFilePath a file path
-            */
-           void output_solution( const std::string & aFilePath );
-
-//------------------------------------------------------------------------------
            /*
-            * Returns matrix for integration mesh outputting
-            * @param[ in ] aDofType a dof type for outputting
+            * set output manager
+            * @param[ in ] aOutputManager pointer to output manager
             */
-           Matrix<DDRMat> get_solution_for_integration_mesh_output( enum MSI::Dof_Type aDofType );
-
-//------------------------------------------------------------------------------
-
            void set_output_manager( vis::Output_Manager * aOutputManager )
            {
                mOutputManager = aOutputManager;
            }
 
 //------------------------------------------------------------------------------
-
+           /*
+            * output solution
+            * @param[ in ] aVisMeshIndex mesh index on with solution is displayed
+            * @param[ in ] aTime         a time at which solution is displayed
+            */
            void output_solution( const uint aVisMeshIndex,
                                  const real aTime );
-
-//------------------------------------------------------------------------------
-           /*!
-            * Provided a list of dofs, returns a bool saying whether the desired dof is
-            * contained in the cell of dof types
-            * @param[ in ] aDofTypeToFind a dof type for search for
-            * @param[ in ] aDofList       a list of dof types to serach through
-            */
-           bool dof_type_is_in_list( enum MSI::Dof_Type                  aDofTypeToFind,
-                                     moris::Cell< enum MSI::Dof_Type > & aDofList );
 
 //------------------------------------------------------------------------------
         };

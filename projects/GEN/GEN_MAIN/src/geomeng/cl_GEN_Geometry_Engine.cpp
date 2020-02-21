@@ -76,10 +76,25 @@ void GEN_Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix
         // Analytic
         if(tAnalyticFlag)
         {
-            for(moris::size_t i = 0; i<tNumNodes; i++ )
-            {
-                mNodePhaseVals(i,j) = mGeometry(j)->evaluate_field_value_with_coordinate(i,aNodeCoords);
-            }
+        	bool tAnalyticFuncPointer = mGeometry(j)->is_func_pointer();
+
+        	if(tAnalyticFuncPointer)
+        	{
+        		for(moris::size_t i = 0; i<tNumNodes; i++ )
+        		{
+        			Cell< real > tDummy(0);	// TODO: need to get these constants from the input file?
+        			real tTempLSVal;
+        			mGeometry(j)->eval( tTempLSVal, aNodeCoords, tDummy );
+        			mNodePhaseVals(i,j) = tTempLSVal;
+        		}
+        	}
+        	else
+        	{
+        		for(moris::size_t i = 0; i<tNumNodes; i++ )
+        		{
+        			mNodePhaseVals(i,j) = mGeometry(j)->evaluate_field_value_with_coordinate(i,aNodeCoords);
+        		}
+        	}
         }
 
         // Discrete
@@ -700,14 +715,15 @@ void GEN_Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
 {
     mMesh = aMesh;
 
-    mSpatialDim = mMesh->get_interpolation_mesh( 0 )->get_spatial_dim();
+    mSpatialDim = mMesh->get_interpolation_mesh( 0 )->get_spatial_dim();	// assuming there is only one pair in the manager
 }
 
 moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
 {
     mMesh_HMR.push_back( aMesh );
 
-    mSpatialDim = mMesh_HMR( 0 )->get_spatial_dim();
+    mSpatialDim = mMesh_HMR( 0 )->get_spatial_dim();	// assuming all registered meshes have the same spatial dimensions
+
     return mMesh_HMR.size()-1;
 }
 

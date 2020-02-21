@@ -1020,7 +1020,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // creates a parameter list with default options
-        ParameterList create_hmr_parameter_list();
+//        ParameterList create_hmr_parameter_list();
 
 // -----------------------------------------------------------------------------
 

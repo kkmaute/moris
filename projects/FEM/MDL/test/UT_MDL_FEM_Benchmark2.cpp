@@ -72,77 +72,14 @@
 
 #include "cl_Plane.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
 #include <functional>
 
 namespace moris
 {
 
 //-------------------------------------------------------------------------------------
-// Functions for Parameters in FEM
-//Matrix< DDRMat > ConstFunctionVal_MDLFEMBench2
-//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-//  moris::fem::Field_Interpolator_Manager *        aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-//
-//Matrix< DDRMat > AnalyticalTempFunc_MDLFEMBench2
-//( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-//  moris::fem::Field_Interpolator_Manager *        aFIManager )
-//{
-//    // get parameters
-//    real RInner  = aParameters( 0 )( 0 ); // inner radius
-//    real ROuter  = aParameters( 1 )( 0 ); // outer radius
-//    real xCenter = aParameters( 2 )( 0 ); // x coord of center
-//    real yCenter = aParameters( 2 )( 1 ); // y coord of center
-//    real TInner  = aParameters( 3 )( 0 ); // imposed temperature at inner radius
-//    real Q       = aParameters( 4 )( 0 ) * 2 * M_PI * ROuter; // heat load (W)
-//    real kappa   = aParameters( 5 )( 0 ); // conductivity (W/m^2)
-//
-//    // get x and y coords
-//    real xCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
-//    real yCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
-//
-//    // compute radius
-//    real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
-//
-//    return { { TInner + ( Q * std::log( R/RInner ) )/( kappa * 2 * M_PI ) } };
-//}
-//
-//Matrix< DDRMat > AnalyticalTemp2MatFunc_MDLFEMBench2
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    // get parameters
-//    real RInner  = aParameters( 0 )( 0 ); // inner radius
-//    real RMiddle = aParameters( 1 )( 0 ); // middle radius
-//    real ROuter  = aParameters( 2 )( 0 ); // outer radius
-//    real xCenter = aParameters( 3 )( 0 ); // x coord of center
-//    real yCenter = aParameters( 3 )( 1 ); // y coord of center
-//    real TInner  = aParameters( 4 )( 0 ); // imposed temperature at inner radius
-//    real Q       = aParameters( 5 )( 0 ) * 2 * M_PI * ROuter; // heat load (W)
-//    real kappaA  = aParameters( 6 )( 0 ); // conductivity for phase A (W/m^2)
-//    real kappaB  = aParameters( 7 )( 0 ); // conductivity for pahse B (W/m^2)
-//
-//    // get x and y coords
-//    real xCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
-//    real yCoord = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
-//
-//    // compute radius
-//    real R = std::sqrt( std::pow( xCoord - xCenter, 2 ) + std::pow( yCoord - yCenter, 2 ) );
-//
-//    Matrix< DDRMat > tT;
-//    if( R < RMiddle )
-//    {
-//        tT = { { TInner + ( Q * ( std::log( R/RInner ) * ( 1/kappaB ) ) ) / ( 2 * M_PI ) } };
-//    }
-//    else
-//    {
-//        tT = { { TInner + ( Q * ( std::log( RMiddle/RInner ) * ( 1/kappaB ) + std::log( R/RMiddle ) * ( 1/kappaA ) ) ) / ( 2 * M_PI ) } };
-//    }
-//
-//    return tT;
-//}
 
 void ConstFunctionVal_MDLFEMBench2
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -247,7 +184,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         uint tLagrangeMeshIndex = 0;
         std::string tOuterFieldName   = "Outercircle";
         std::string tInnerFieldName   = "Innercircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -440,21 +377,21 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         // create set info
         // --------------------------------------------------------------------------------------
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk1.set_IWGs( { tIWGBulkA } );
         tSetBulk1.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk2.set_IWGs( { tIWGBulkA } );
         tSetBulk2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("iside_g_1_b0_1_b1_0") );
+        tSetDirichlet1.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( "iside_g_0_b0_1_b1_3" ) );
+        tSetNeumann1.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -591,7 +528,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         uint tLagrangeMeshIndex = 0;
         std::string tOuterFieldName   = "Outercircle";
         std::string tInnerFieldName   = "Innercircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -801,25 +738,25 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         // create set info
         // --------------------------------------------------------------------------------------
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk1.set_IWGs( { tIWGBulkA } );
         tSetBulk1.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk2.set_IWGs( { tIWGBulkA } );
         tSetBulk2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("iside_g_1_b0_1_b1_0") );
+        tSetDirichlet1.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( "iside_g_0_b0_1_b1_3" ) );
+        tSetNeumann1.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetDisplGhost;
-        tSetDisplGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tGhost.get_ghost_dbl_side_set_name(1)) );
+        tSetDisplGhost.set_mesh_set_name( tGhost.get_ghost_dbl_side_set_name(1) );
         tSetDisplGhost.set_IWGs( { tIWGGhost } );
 
         // create a cell of set info
@@ -968,7 +905,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         std::string tOuterFieldName  = "OuterCircle";
         std::string tMiddleFieldName = "MiddleCircle";
         std::string tInnerFieldName  = "InnerCircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -1204,35 +1141,35 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         // create set info
         //------------------------------------------------------------------------------
         fem::Set_User_Info tSetBulkB1;
-        tSetBulkB1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulkB1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulkB1.set_IWGs( { tIWGBulkB } );
         tSetBulkB1.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulkB2;
-        tSetBulkB2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulkB2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulkB2.set_IWGs( { tIWGBulkB } );
         tSetBulkB2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulkA1;
-        tSetBulkA1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
+        tSetBulkA1.set_mesh_set_name( "HMR_dummy_c_p3" );
         tSetBulkA1.set_IWGs( { tIWGBulkA } );
         tSetBulkA1.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulkA2;
-        tSetBulkA2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
+        tSetBulkA2.set_mesh_set_name( "HMR_dummy_n_p3" );
         tSetBulkA2.set_IWGs( { tIWGBulkA } );
         tSetBulkA2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichletB1;
-        tSetDirichletB1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_interface_side_set_name( 2, 1, 0 ) ) );
+        tSetDirichletB1.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name( 2, 1, 0 ) );
         tSetDirichletB1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumannA1;
-        tSetNeumannA1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_interface_side_set_name( 0, 3, 7 ) ) );
+        tSetNeumannA1.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name( 0, 3, 7 ) );
         tSetNeumannA1.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterfaceBA1;
-        tSetInterfaceBA1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 1, 3 ) ) );
+        tSetInterfaceBA1.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 1, 3 ) );
         tSetInterfaceBA1.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
@@ -1376,7 +1313,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         std::string tOuterFieldName  = "OuterCircle";
         std::string tMiddleFieldName = "MiddleCircle";
         std::string tInnerFieldName  = "InnerCircle";
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -1612,35 +1549,35 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         // create set info
         //------------------------------------------------------------------------------
         fem::Set_User_Info tSetBulkB1;
-        tSetBulkB1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulkB1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulkB1.set_IWGs( { tIWGBulkB } );
         tSetBulkB1.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulkB2;
-        tSetBulkB2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulkB2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulkB2.set_IWGs( { tIWGBulkB } );
         tSetBulkB2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulkA1;
-        tSetBulkA1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
+        tSetBulkA1.set_mesh_set_name( "HMR_dummy_c_p3" );
         tSetBulkA1.set_IWGs( { tIWGBulkA } );
         tSetBulkA1.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetBulkA2;
-        tSetBulkA2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
+        tSetBulkA2.set_mesh_set_name( "HMR_dummy_n_p3" );
         tSetBulkA2.set_IWGs( { tIWGBulkA } );
         tSetBulkA2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichletB1;
-        tSetDirichletB1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_interface_side_set_name( 2, 1, 0 ) ) );
+        tSetDirichletB1.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name( 2, 1, 0 ) );
         tSetDirichletB1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumannA1;
-        tSetNeumannA1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_interface_side_set_name( 0, 3, 7 ) ) );
+        tSetNeumannA1.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name( 0, 3, 7 ) );
         tSetNeumannA1.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterfaceBA1;
-        tSetInterfaceBA1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 1, 3 ) ) );
+        tSetInterfaceBA1.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 1, 3 ) );
         tSetInterfaceBA1.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info

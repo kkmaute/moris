@@ -41,6 +41,9 @@
 
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 //------------------------------------------------------------------------------
 
 namespace moris
@@ -66,7 +69,7 @@ namespace moris
         {
             uint tLagrangeMeshIndex = 0;
             //  HMR Parameters setup
-            moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+            moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2") );
             tParameters.set( "domain_dimensions",                std::string("2, 2, 2") );

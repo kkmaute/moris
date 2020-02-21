@@ -32,6 +32,9 @@
 #include "cl_XTK_Edge_Topology.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
 //------------------------------------------------------------------------------
 
 
@@ -173,7 +176,7 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
         size_t tModelDimension = 3;
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("10, 10, 10") );
         tParameters.set( "domain_dimensions",                std::string("10, 10, 10") );

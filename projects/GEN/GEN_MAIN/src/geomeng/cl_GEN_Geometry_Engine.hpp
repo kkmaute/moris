@@ -23,7 +23,7 @@
 #include "linalg_typedefs.hpp"
 
 // GE
-#include "cl_GEN_Analytic_Geometry.hpp"
+#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
@@ -131,6 +131,9 @@ public:
     // TODO: move this to the .cpp file
     void initialize( std::shared_ptr< Library_IO > aLibrary )
     {
+    	// set the active geometry index
+    	mActiveGeometryIndex = 0;
+
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
         string_to_cell( mParameterList.get< std::string >( "geometries" ),
@@ -151,6 +154,9 @@ public:
             // create a geometry pointer
             mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
         }
+
+        // Create phase table for geometry engine
+        mPhaseTable =  moris::ge::GEN_Phase_Table( tNumGeometry, Phase_Table_Structure::EXP_BASE_2);
     }
 
     //------------------------------------------------------------------------------
@@ -370,44 +376,65 @@ public:
                                         uint aNumberOfFibers );             //FIXME this is currently only setup to work with an HMR member mesh
     //------------------------------------------------------------------------------
     /*
-     * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
+     * @brief gives the maximum level-set values at all nodes in the mesh
      */
-    void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                     moris_index                aWhichMesh = 0 )
+    void get_max_field_values_for_all_geometries( Matrix< DDRMat > & aAllFieldVals,
+                                                  moris_index        aWhichMesh = 0 )
     {
-        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
-        // TODO: implement this function and make it work for the case of a mesh manager...
+////        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
+//        // TODO: implement this function and make it work for the case of a mesh manager...
+//        uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
+//
+//        aAllFieldVals.set_size( tNumVertices, 1, - MORIS_REAL_MAX );
+//
+//        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+//        {
+//            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+//
+//            moris::real tVal = - MORIS_REAL_MAX;
+//            for ( auto tGeometry : mGeometry )
+//            {
+//                Cell< moris::real > tTempConstCell = {{0}};
+//                moris::real tTempVal = 0.0;
+//
+//                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+//
+//                tVal = std::max( tVal, tTempVal );
+//            }
+//
+//            // FIXME will not work in parallel. Ind are not consistent because of aura
+//            aAllFieldVals( 0 )( iVert ) = tVal;
+//        }
     }
     //------------------------------------------------------------------------------
     /*
-     * @brief gives the maximum level-set values at all nodes in the mesh
+     * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
-    void get_max_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                     moris_index                aWhichMesh = 0 )
+    void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+                                              const moris_index                 aWhichMesh = 0 )
     {
-        // TODO: make this work for the case of a mesh manager...not just an HMR mesh...
-
-        aAllFieldVals.resize( 1 );
-
+//        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
-        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+        aAllFieldVals.resize( mGeometry.size() );
+
+        for ( uint Ik = 0; Ik< mGeometry.size(); Ik++ )
         {
-            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+            aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
 
-            moris::real tVal = - MORIS_REAL_MAX;
-            for ( auto tGeometry : mGeometry )
+            for( uint iVert = 0; iVert <tNumVertices; iVert++)
             {
+                Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+
+                moris::real tVal = - MORIS_REAL_MAX;
+
                 Cell< moris::real > tTempConstCell = {{0}};
-                moris::real tTempVal = 0.0;
 
-                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+                mGeometry( Ik )->eval( tVal, tCoord, tTempConstCell );
 
-                tVal = std::max( tVal, tTempVal );
+                // FIXME will not work in parallel. Ind are not consistent because of aura
+                aAllFieldVals( Ik )( iVert ) = tVal;
             }
-
-            // FIXME will not work in parallel. Ind are not consistent because of aura
-            aAllFieldVals( 0 )( iVert ) = tVal;
         }
     }
 

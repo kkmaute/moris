@@ -16,34 +16,7 @@
 #include "cl_FEM_CM_Factory.hpp"                            //FEM//INT/src
 #include "cl_FEM_SP_Factory.hpp"                            //FEM//INT/src
 
-
 #include "op_equal_equal.hpp"
-//moris::Matrix< moris::DDRMat > tFIConstValFunction_UTDisplGhost
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-//
-//moris::Matrix< moris::DDRMat > tFIValFunction_UTDisplGhost
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 ) * sum( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
-//}
-//
-//moris::Matrix< moris::DDRMat > tFIDerFunction_UTDisplGhost
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    moris::Matrix< moris::DDRMat > tTemp = trans( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N() );
-//    moris::Matrix< moris::DDRMat > tReturn( tTemp.n_rows(), 1 );
-//    for( uint i = 0; i < tTemp.n_rows(); i++ )
-//    {
-//        tReturn( i ) = sum( tTemp.get_row( i ) );
-//    }
-//    return aParameters( 0 )( 0, 0 ) * trans( tReturn );
-//}
 
 void tFIConstValFunction_UTDisplGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
