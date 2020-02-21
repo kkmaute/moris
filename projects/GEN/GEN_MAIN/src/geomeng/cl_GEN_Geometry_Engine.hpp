@@ -140,6 +140,9 @@ public:
 
         mActiveGeometryIndex = 0;   // for XTK's decomposition
 
+    	// flag for computation of dxdp //TODO: needs to be updated/adjusted
+    	mComputeDxDp = false;
+
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
         string_to_cell( mParameterList.get< std::string >( "geometries" ),
