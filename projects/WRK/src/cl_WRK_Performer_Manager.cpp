@@ -111,6 +111,8 @@ void Performer_Manager::perform()
 
     mHMRPerformer( 0 )->finalize();
 
+    mHMRPerformer( 0 )->save_to_exodus( 0, "./hmr_exo/Box.e" );
+
     std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = mHMRPerformer( 0 )->create_interpolation_mesh( tLagrangeMeshIndex );
     std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = mHMRPerformer( 0 )->create_integration_mesh( 1, 0, *tInterpolationMesh );
 
@@ -126,7 +128,7 @@ void Performer_Manager::perform()
 
     mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tSpatialDimension, tInterpolationMesh.get(), *(mGENPerformer( 0 ).get()) );
 
-    mXTKPerformer( 0 )->mVerbose = false;
+    mXTKPerformer( 0 )->mVerbose = true;
 
     Cell<enum Subdivision_Method> tDecompositionMethods;
 

@@ -84,7 +84,7 @@ void GEN_Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix
         		{
         			Cell< real > tDummy(0);	// TODO: need to get these constants from the input file?
         			real tTempLSVal;
-        			mGeometry(j)->eval( tTempLSVal, aNodeCoords, tDummy );
+        			mGeometry(j)->eval( tTempLSVal, aNodeCoords.get_row( i ), tDummy );
         			mNodePhaseVals(i,j) = tTempLSVal;
         		}
         	}

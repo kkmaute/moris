@@ -74,6 +74,10 @@ int main( int argc, char * argv[] )
 //  Please do not push this file to git.
 //------------------------------------------------------------------------------
 
+    std::string tInputArg = std::string(argv[ 1 ]);
+    std::string tString = "Reading dynamically linked shared object " + tInputArg + ". \n";
+    MORIS_LOG( tString.c_str() );
+
     //dynamically linked file
     std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
 

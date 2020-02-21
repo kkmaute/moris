@@ -134,6 +134,9 @@ public:
     	// set the active geometry index
     	mActiveGeometryIndex = 0;
 
+    	// flag for computation of dxdp //TODO: needs to be updated/adjusted
+    	mComputeDxDp = false;
+
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
         string_to_cell( mParameterList.get< std::string >( "geometries" ),

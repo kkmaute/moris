@@ -262,8 +262,10 @@ using namespace tsa;
         Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
+
         // full vector and prev full vector
-        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, 1 );
+        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
         mFullVector->vec_put_scalar( 0.0 );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();

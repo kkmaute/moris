@@ -130,7 +130,7 @@ namespace mdl
 
 //------------------------------------------------------------------------------
             /**
-             * @brief Retunr local to global dv type map
+             * @brief Return local to global dv type map
              *
              */
             virtual moris::Matrix< DDSMat > get_my_local_global_map() = 0;
