@@ -32,6 +32,7 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #include "cl_GEN_Dv_Enums.hpp"
+#include "cl_VIS_Output_Enums.hpp"
 
 namespace moris
 {
@@ -706,26 +707,26 @@ namespace moris
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "master_dof_dependencies" ),
                                         tDofTypes,
                                         aMSIDofTypeMap );
-                mIWGs( iIWG )->set_dof_type_list( tDofTypes );
+                mIWGs( iIWG )->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
 
                 // set slave dof dependencies
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "slave_dof_dependencies" ),
                                         tDofTypes,
                                         aMSIDofTypeMap );
-                mIWGs( iIWG )->set_dof_type_list( tDofTypes );
+                mIWGs( iIWG )->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
 
                 // set master dv dependencies
                 moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "master_dv_dependencies" ),
                                         tDvTypes,
                                         aDvTypeMap );
-                mIWGs( iIWG )->set_dv_type_list( tDvTypes );
+                mIWGs( iIWG )->set_dv_type_list( tDvTypes, mtk::Master_Slave::MASTER );
 
                 // set slave dv dependencies
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "slave_dv_dependencies" ),
                                         tDvTypes,
                                         aDvTypeMap );
-                mIWGs( iIWG )->set_dv_type_list( tDvTypes );
+                mIWGs( iIWG )->set_dv_type_list( tDvTypes, mtk::Master_Slave::SLAVE );
 
                 // set master properties
                 moris::Cell< moris::Cell< std::string > > tMasterPropertyNamesPair;
@@ -835,6 +836,11 @@ namespace moris
                 // set name
                 mIQIs( iIQI )->set_name( tIQIParameterList( iIQI ).get< std::string >( "IQI_name" ) );
 
+                // set IQI output type
+                vis::Output_Type tIQIOutputType
+                = static_cast< vis::Output_Type >( tIQIParameterList( iIQI ).get< uint >( "IQI_output_type" ) );
+                mIQIs( iIQI )->set_output_type( tIQIOutputType);
+
                 // set master dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell( tIQIParameterList( iIQI ).get< std::string >( "master_dof_dependencies" ),
@@ -842,13 +848,15 @@ namespace moris
                                         aMSIDofTypeMap );
                 mIQIs( iIQI )->set_dof_type_list( tDofTypes );
 
-
                 // set master dv dependencies
                 moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
                 string_to_cell_of_cell( tIQIParameterList( iIQI ).get< std::string >( "master_dv_dependencies" ),
                                         tDvTypes,
                                         aDvTypeMap );
                 mIQIs( iIQI )->set_dv_type_list( tDvTypes );
+
+                // set index for vectorial field
+                mIQIs( iIQI )->set_output_type_index( tIQIParameterList( iIQI ).get< moris::sint >( "vectorial_field_index" ) );
 
                 // set master properties
                 moris::Cell< moris::Cell< std::string > > tMasterPropertyNamesPair;
@@ -891,8 +899,9 @@ namespace moris
                     // set SP for IWG
                     mIQIs( iIQI )->set_stabilization_parameter( mSPs( tSPIndex ), tSPNamesPair( iSP )( 1 ) );
                 }
-//                // debug
+                // debug
 //                mIQIs( iIQI )->print_names();
+
             }
         }
 

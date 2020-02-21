@@ -21,7 +21,7 @@
 
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
-#include "cl_FEM_Enums.hpp"
+#include "cl_VIS_Output_Enums.hpp"
 
 
 namespace moris
@@ -130,6 +130,7 @@ namespace moris
 
             tParameterList.insert( "IQI_name",                   std::string( "undefined" ) );
             tParameterList.insert( "IQI_type",                   static_cast< uint >( fem::IQI_Type::UNDEFINED ) );
+            tParameterList.insert( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UNDEFINED ) );
             tParameterList.insert( "master_dof_dependencies",    std::string( "" ) );
             tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
             tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
@@ -139,6 +140,7 @@ namespace moris
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
+            tParameterList.insert( "vectorial_field_index",      -1 );
 
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
 
