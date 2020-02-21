@@ -13,6 +13,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "cl_HMR.hpp"
 
@@ -147,9 +148,37 @@ void Performer_Manager::perform()
     mXTKPerformer( 0 )->perform_basis_enrichment( EntityRank::BSPLINE,0 );
     mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
 
+//    xtk::Output_Options tOutputOptions;
+//    tOutputOptions.mAddNodeSets = false;
+//    tOutputOptions.mAddSideSets = true;
+//    tOutputOptions.mAddClusters = false;
+//
+//    // output integration mesh
+//    moris::mtk::Integration_Mesh* tIntegMesh1 = mXTKPerformer( 0 )->get_output_mesh(tOutputOptions);
+//    std::string tOutputFile = "./xtk_exo/xtk_box.exo";
+//    tIntegMesh1->create_output_mesh(tOutputFile);
+
     // get meshes
     xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKPerformer( 0 )->get_enriched_interp_mesh();
     xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = mXTKPerformer( 0 )->get_enriched_integ_mesh();
+
+    if(true)
+    {
+        tEnrIntegMesh.deactivate_empty_sets();
+        // Write mesh
+        Writer_Exodus writer(&tEnrIntegMesh);
+        writer.write_mesh("", "./xtk_exo/xtk_box.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
+//            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh();
+//            tIntegMesh1->create_output_mesh(tEnrIgMeshFileName);
+//            delete tIntegMesh1;
+    }
+
+
 
     // place the pair in mesh manager
     mMTKPerformer( 1 ) =std::make_shared< mtk::Mesh_Manager >();
