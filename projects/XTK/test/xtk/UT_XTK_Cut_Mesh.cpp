@@ -168,7 +168,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose  =  false;
 
     // Specify your decomposition methods and start cutting
@@ -226,7 +226,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose  =  false;
 
     // Specify your decomposition methods and start cutting
@@ -288,7 +288,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};

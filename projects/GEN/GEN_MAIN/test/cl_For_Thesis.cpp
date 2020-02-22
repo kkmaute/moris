@@ -462,20 +462,6 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             }
         }
 
-//        Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
-//        Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
-//        moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
-//
-//        Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY+0.02 }};
-//        Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
-//        moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
-//
-//        Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY-0.02 }};
-//        Matrix< DDRMat > tNormals1 = {{ 0.0, -1.0 }};
-//        moris::ge::Plane<2> tPlane1( tCenter1, tNormals1 );
-//
-//        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane1, &tPlane2 };
-        //------------------------------------------------------------------------------
         Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
         Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
         moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
@@ -484,7 +470,21 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
         moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
 
-        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane2 };
+        Matrix< DDRMat > tCenter1  = {{ 0.0, tCrackY }};
+        Matrix< DDRMat > tNormals1 = {{ 0.0, -1.0 }};
+        moris::ge::Plane<2> tPlane1( tCenter1, tNormals1 );
+
+        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane1, &tPlane2 };
+        //------------------------------------------------------------------------------
+//        Matrix< DDRMat > tCenters  = {{ tCrackX,  tCrackY }};
+//        Matrix< DDRMat > tNormals2 = {{ 1.0, 0.0 }};
+//        moris::ge::Plane<2> tPlane2( tCenters, tNormals2 );
+//
+//        Matrix< DDRMat > tCenter0  = {{ 0.0, tCrackY }};
+//        Matrix< DDRMat > tNormals0 = {{ 0.0,  1.0 }};
+//        moris::ge::Plane<2> tPlane0( tCenter0, tNormals0 );
+//
+//        moris::Cell< moris::ge::GEN_Geometry* > tAllPlanes = { &tPlane0, &tPlane2 };
         //------------------------------------------------------------------------------
 
         moris::ge::Multi_Geometry tCrack( tAllPlanes );
@@ -499,15 +499,14 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
 
         tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-        //=============================== temporary ============================================
-        // output problem geometry
+        // ============================ output problem geometry ===================================
         bool tOutputXTKmesh = true;
         if (tOutputXTKmesh)
         {
@@ -525,7 +524,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
             writer.close_file();
         }
-        //============================= end temporary ==========================================
+        // ============================= end geometry output ======================================
         bool tFullProblem = false;
         if(tFullProblem)
         {
@@ -632,8 +631,8 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             // bulk for plate
             fem::Set_User_Info tBulkPlate00;
             tBulkPlate00.set_mesh_set_name( "HMR_dummy_n_p3" );
-            tBulkPlate00.set_IWGs( { tIWGPlate } );
-            tBulkPlate00.set_IQIs( { tIQIUX, tIQIUY, tIQIJInt } );
+                tBulkPlate00.set_IWGs( { tIWGPlate } );
+                tBulkPlate00.set_IQIs( { tIQIUX, tIQIUY, tIQIJInt } );
 
             fem::Set_User_Info tBulkPlate01;
             tBulkPlate01.set_mesh_set_name( "HMR_dummy_c_p3" );
@@ -960,7 +959,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
 
         tXTKModel.mVerbose = false;
 

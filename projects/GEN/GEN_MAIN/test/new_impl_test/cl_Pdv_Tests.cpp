@@ -152,7 +152,7 @@ namespace moris
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
-            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), tGeometryEngine );
+            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
@@ -290,7 +290,7 @@ namespace moris
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
-            xtk::Model tXTKModel( tNumDims, tInterpMesh, tGeometryEngine );
+            xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
@@ -358,7 +358,7 @@ namespace moris
             tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList(0), tPdvList(0), tEnrMeshIndex );
             tGeometryEngine.assign_hosts_by_set_index( 1, tPropertyList(1), tPdvList(1), tEnrMeshIndex );
 
-            tGeometryEngine.set_integ_node_indices( tXTKModel.get_geom_engine().get_integ_node_indices() );
+            tGeometryEngine.set_integ_node_indices( tGeometryEngine.get_integ_node_indices() );
             tGeometryEngine.initialize_integ_pdv_host_list(  );
 
             // -------- check the integration node values ----------

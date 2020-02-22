@@ -237,7 +237,7 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
 
             moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tSphere, tPhaseTable, tModelDimension );
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

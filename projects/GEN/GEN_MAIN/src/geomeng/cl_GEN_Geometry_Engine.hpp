@@ -134,14 +134,11 @@ public:
         // initialize member data
         mThresholdValue = 0.0;      // threshold for level sets
 
-        mComputeDxDp = false;       // flag to compute DxDp (needs to be updated)
+        mComputeDxDp = false;       // flag to compute DxDp ( TODO: needs to be updated/adjusted )
 
         mSpatialDim = 3;            // placeholder (gets overwritten once a mesh is registered)
 
         mActiveGeometryIndex = 0;   // for XTK's decomposition
-
-    	// flag for computation of dxdp //TODO: needs to be updated/adjusted
-    	mComputeDxDp = false;
 
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;

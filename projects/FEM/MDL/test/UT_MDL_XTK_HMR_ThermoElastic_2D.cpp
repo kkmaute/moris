@@ -212,7 +212,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -587,7 +587,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -688,7 +688,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -1157,7 +1157,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //
 //      xtk::Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
 //      xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
-//      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),tGeometryEngine);
+//      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
 //      tXTKModel.mVerbose = false;
 //
 //      Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

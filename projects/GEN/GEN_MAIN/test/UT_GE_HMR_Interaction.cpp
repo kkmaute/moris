@@ -280,7 +280,7 @@ TEST_CASE( "GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]" )
         size_t tModelDimension = 3;
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
-        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

@@ -131,7 +131,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -259,7 +259,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

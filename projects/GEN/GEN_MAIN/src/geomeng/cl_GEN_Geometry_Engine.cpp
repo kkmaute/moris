@@ -200,6 +200,7 @@ void GEN_Geometry_Engine::create_new_node_geometry_objects( Cell< moris_index > 
             // This information is needed to know what to interpolate based on
             moris::Matrix< moris::DDRMat >  tLevelSetValues(1,1);
             this->interpolate_level_set_value_to_child_node_location(*aParentTopo(i), j, aParamCoordRelativeToParent(i),tLevelSetValues);
+
             mNodePhaseVals(i+tNumCurrNodes,j) = tLevelSetValues(0,0);
         }
 
@@ -858,6 +859,7 @@ GEN_Geometry_Engine::compute_intersection_info( moris::moris_index              
         {
             moris::Matrix< moris::DDRMat > tIntersectLocalCoordinate(1,1);
             moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
+
             get_intersection_location(mThresholdValue,
                                       mPerturbationValue,
                                       aNodeCoords,

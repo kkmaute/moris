@@ -271,7 +271,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
         tXTKModel.mVerbose = false;
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
         tXTKModel.decompose( tDecompositionMethods );

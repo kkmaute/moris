@@ -112,7 +112,7 @@ void Performer_Manager::perform()
 
     mHMRPerformer( 0 )->finalize();
 
-    mHMRPerformer( 0 )->save_to_exodus( 0, "./hmr_exo/Box.e" );
+    mHMRPerformer( 0 )->save_to_exodus( 0, "./hmr_exo/benchmark01.e" );
 
     std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = mHMRPerformer( 0 )->create_interpolation_mesh( tLagrangeMeshIndex );
     std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = mHMRPerformer( 0 )->create_integration_mesh( 1, 0, *tInterpolationMesh );
@@ -127,7 +127,7 @@ void Performer_Manager::perform()
     // Initialize call - build Geometries
     mGENPerformer( 0 )->initialize( mLibrary );
 
-    mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tSpatialDimension, tInterpolationMesh.get(), *(mGENPerformer( 0 ).get()) );
+    mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tSpatialDimension, tInterpolationMesh.get(), mGENPerformer( 0 ).get() );
 
     mXTKPerformer( 0 )->mVerbose = true;
 
@@ -146,7 +146,7 @@ void Performer_Manager::perform()
     mXTKPerformer( 0 )->decompose(tDecompositionMethods);
 
     mXTKPerformer( 0 )->perform_basis_enrichment( EntityRank::BSPLINE,0 );
-    mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
+//    mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
 
 //    xtk::Output_Options tOutputOptions;
 //    tOutputOptions.mAddNodeSets = false;
@@ -167,7 +167,7 @@ void Performer_Manager::perform()
         tEnrIntegMesh.deactivate_empty_sets();
         // Write mesh
         Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("", "./xtk_exo/xtk_box.exo");
+        writer.write_mesh("", "./xtk_exo/xtk_benchmark01.exo");
 
         // Write the fields
         writer.set_time(0.0);

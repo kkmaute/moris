@@ -272,7 +272,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
           moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),tGENGeometryEngine0);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
           tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -616,7 +616,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
           moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),tGENGeometryEngine0);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
           tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -999,7 +999,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         // specify decomposition method and cut mesh
@@ -1407,7 +1407,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         // specify decomposition method and cut mesh

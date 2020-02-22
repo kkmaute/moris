@@ -225,7 +225,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -577,7 +577,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere, tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -974,7 +974,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 //        moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere, tPhaseTable, 2);
 //
-//        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+//        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 //
 //        tXTKModel.mVerbose = false;
 //
