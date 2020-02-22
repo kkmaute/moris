@@ -153,13 +153,16 @@ namespace moris
             // get mtk set index
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-            // find set index for this block index
-            moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
+            if ( tMeshSetToFemSetMap.key_exists( tSetIndex ) )
+            {
+                // find set index for this block index
+                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
 
-            // set vis set to fem set. +1 because 0 is reserved for fem
-            tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
-                                                                       mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
-                                                                       mOnlyPrimary );
+                // set vis set to fem set. +1 because 0 is reserved for fem
+                tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
+                                                                           mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
+                                                                           mOnlyPrimary );
+            }
         }
     }
 
@@ -393,30 +396,33 @@ namespace moris
             std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
 
             // nodal and global field vaues
-            Matrix< DDRMat > tNodalValues( mVisMesh( aVisMeshIndex )->get_num_nodes(), 1, 0.0 );
+            Matrix< DDRMat > tNodalValues( mVisMesh( aVisMeshIndex )->get_num_nodes(), 1, 0.0 );   //FIXME replace default with NaN
             moris::real      tGlobalValue;
 
             // loop over all blocks on this output object
             for( uint Ii = 0; Ii < mOutputData( aVisMeshIndex ).mSetNames.size(); Ii++ )
             {
-            	moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
+                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-                // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
-
-                // elemental field values
-                Matrix< DDRMat > tElementValues;
-
-                tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( aVisMeshIndex + 1,
-                                                                                  &tElementValues,
-                                                                                  &tNodalValues,
-                                                                                  &tGlobalValue,
-                                                                                  mOutputData( aVisMeshIndex ).mOutputType( Ik ),
-                                                                                  mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
-
-                if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
+                if ( tMeshSetToFemSetMap.key_exists( tSetIndex ) )
                 {
-                    mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( Ii ), tFieldName, tElementValues );
+                    // find set index for this block index
+                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
+
+                    // elemental field values
+                    Matrix< DDRMat > tElementValues;
+
+                    tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( aVisMeshIndex + 1,
+                                                                                      &tElementValues,
+                                                                                      &tNodalValues,
+                                                                                      &tGlobalValue,
+                                                                                      mOutputData( aVisMeshIndex ).mOutputType( Ik ),
+                                                                                      mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
+
+                    if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
+                    {
+                        mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( Ii ), tFieldName, tElementValues );
+                    }
                 }
             }
 

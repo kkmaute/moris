@@ -74,6 +74,26 @@ namespace moris
         }
 
         /**
+         * Checks if key exists in map
+         *
+         * @param[in] aK Key to be searched for
+         */
+        bool
+        key_exists( const T1 & aK ) const
+        {
+            auto tIterator = mMap.find(aK);
+
+            bool tReturn = true;
+
+            if ( tIterator == mMap.end() )
+            {
+                tReturn = false;
+            }
+
+            return tReturn;
+        }
+
+        /**
          * Searches container for an element with a key equivalent to the input parameter aK. If the key is found,
          * it returns the value of the element. If the key is not found, this function currently throws a logic error.
          * This first entry corresponds to constant maps
