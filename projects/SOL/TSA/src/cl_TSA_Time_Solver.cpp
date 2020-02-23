@@ -256,10 +256,11 @@ using namespace tsa;
     {
         mIsMasterTimeSolver = true;
 
+        // get solver interface
         mSolverInterface = mSolverWarehouse->get_solver_interface();
 
         // create map object
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
         uint tNumRHMS = mSolverInterface->get_num_rhs();
@@ -282,7 +283,9 @@ using namespace tsa;
     void Time_Solver::set_time_solver_parameters()
     {
         // Maximal number of linear solver restarts on fail
-        mParameterListTimeSolver.insert( "NLA_max_non_lin_solver_restarts" , 0 );
+//        mParameterListTimeSolver.insert( "NLA_max_non_lin_solver_restarts" , 0 );
+
+//        tTimeParameterList.mParameterListTimeSolver( "TSA_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

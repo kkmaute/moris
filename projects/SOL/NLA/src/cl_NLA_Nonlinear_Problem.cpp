@@ -21,31 +21,28 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse      * aNonlinDatabase,
+Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase,
                                             Solver_Interface   * aSolverInterface,
                                             Dist_Vector        * aFullVector,
                                       const moris::sint          aNonlinearSolverManagerIndex,
                                       const bool                 aBuildLinerSystemFlag,
-                                      const enum sol::MapType         aMapType) :     mFullVector( aFullVector ),
+                                      const enum sol::MapType    aMapType) :     mFullVector( aFullVector ),
                                                                                  mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
                                                                                  mMapType( aMapType ),
                                                                                  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-    if( mMapType == sol::MapType::Petsc )
-    {
-        // Initialize petsc solvers
-        PetscInitializeNoArguments();
-    }
+//    if( mMapType == sol::MapType::Petsc )
+//    {
+//        // Initialize petsc solvers
+//        PetscInitializeNoArguments();
+//    }
 
     moris::Cell< enum MSI::Dof_Type > tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
 
     // delete pointers if they already exist
     this->delete_pointers();
-
-    // create solver factory
-    Solver_Factory  tSolFactory;
 
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
@@ -56,49 +53,23 @@ Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse      * aNonlinDat
     // create map object FIXME ask linear problem for map
     mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
 
-
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
+        // create solver factory
+        Solver_Factory  tSolFactory;
+
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface,
                                                            mMap,
                                                            mMapFull,
                                                            mMapType );
     }
-
-    //---------------------------arc-length vectors---------------------------------
-    //FIXME wrong map used. please fix
-    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    //---------------------------arc-length matrices--------------------------------
-    mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
-
-    //------------------------------------------------------------------------------
 }
 
 Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                                       const moris::sint        aNonlinearSolverManagerIndex,
                                       const bool               aBuildLinerSystemFlag,
-                                      const enum sol::MapType       aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                      const enum sol::MapType  aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
                                                                                 mMapType( aMapType ),
                                                                                 mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
@@ -113,13 +84,6 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
-    // create map object FIXME ask liner problem for map
-//    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
-//                                   aSolverInterface->get_my_local_global_map(),
-//                                   aSolverInterface->get_constrained_Ids(),
-//                                   aSolverInterface->get_my_local_global_overlapping_map());
-//    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map(),
-//                                   aSolverInterface->get_constrained_Ids() );
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map());
 
     // full vector
@@ -129,46 +93,18 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     mDummyFullVector->vec_put_scalar( 0.0 );
     aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
 
-    //---------------------------arc-length vectors---------------------------------
-    //FIXME wrong map used. please fix
-    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-
-    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
-    //---------------------------arc-length matrices--------------------------------
-    mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
-
-    //------------------------------------------------------------------------------
-
     mFullVector->vec_put_scalar( 0.0 );
 
     // delete pointers if they already exist
     this->delete_pointers();
 
-    // create solver factory
-    Solver_Factory  tSolFactory;
-
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
         MORIS_LOG_INFO( "Build linear problem with index %-5i \n", mNonlinearSolverManagerIndex );
+
+        // create solver factory
+        Solver_Factory  tSolFactory;
 
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
     }
@@ -199,29 +135,14 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         delete( mFullVector );
 //        delete( mDummyFullVector );
-
-        delete( mJacVals );
-        delete( mJacVals0 );
-        delete( mDTildeVec );
-        delete( mDTilde0Vec );
-        delete( mDK );
-        delete( mDSolve );
-        delete( mDSolveNMinus1 );
-        delete( mDSolveNMinus2 );
-        delete( mGlobalRHS );
-        delete( mDFArcDDeltaD );
-        delete( mDelLamNum );
-        delete( mDelLamDen );
-        delete( mDeltaD );
-        delete( mdeltaD );
-        delete( mFext );
-
-        delete( mJacobian );
     }
 
-    if ( mMapType == sol::MapType::Petsc)
+    if(mIsMasterSystem)
     {
-        PetscFinalize();
+        if ( mMapType == sol::MapType::Petsc)
+        {
+            PetscFinalize();
+        }
     }
 }
 

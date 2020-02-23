@@ -72,9 +72,9 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
 //    case ( sol::SolverType::AMESOS2_IMPL ):
 //        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aParameterlist );
 //        break;
-//    case ( sol::SolverType::PETSC):
-//        tLinSol = std::make_shared< Linear_Solver_PETSc >( aParameterlist );
-//        break;
+    case ( sol::SolverType::PETSC):
+        tLinSol = std::make_shared< Linear_Solver_PETSc >( aParameterlist );
+        break;
     default:
         MORIS_ERROR( false, "No solver type specified" );
         break;
@@ -85,9 +85,9 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
 //-------------------------------------------------------------------------------------------------------------
 
 Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
-		Dist_Map               * aMap,
-		Dist_Map               * aFullMap,
-                                                       const enum sol::MapType              aLinSysType,
+                                                             Dist_Map                * aMap,
+                                                             Dist_Map                * aFullMap,
+                                                       const enum sol::MapType         aLinSysType,
                                                        const bool                      aNotCreatedByNonLinSolver )
 {
     Linear_Problem * tLinSys;

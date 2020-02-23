@@ -43,7 +43,7 @@ namespace moris
         Dist_Vector * create_vector( );
 
         moris::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds,
-                                       const moris::Matrix< DDUMat > & aMyConstraintIds );
+                                      const moris::Matrix< DDUMat > & aMyConstraintIds );
 
         moris::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds );
     };
