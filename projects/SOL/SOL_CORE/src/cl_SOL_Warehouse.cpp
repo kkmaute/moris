@@ -24,6 +24,8 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
+#include <petsc.h>
+
 #include "fn_Exec_load_user_library.hpp"
 
 
@@ -34,6 +36,40 @@
 
 using namespace moris;
 using namespace sol;
+
+SOL_Warehouse::~SOL_Warehouse()
+{
+    if( mTPLType == moris::sol::MapType::Petsc)
+    {
+        PetscFinalize();
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::initialize()
+{
+    mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
+
+    if( mTPLType == moris::sol::MapType::Petsc)
+    {
+    	PetscInitializeNoArguments();
+    }
+
+    this->create_linear_solver_algorithms();
+
+    this->create_linear_solvers();
+
+    this->create_nonlinear_solver_algorithms();
+
+    this->create_nonlinear_solvers();
+
+    this->create_time_solver_algorithms();
+
+    this->create_time_solvers();
+}
+
+//---------------------------------------------------------------------------------------------------------------------
 
 void SOL_Warehouse::create_linear_solver_algorithms()
 {

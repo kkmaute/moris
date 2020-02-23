@@ -24,12 +24,22 @@
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"       //CON/src
 #include "cl_TSA_Time_Solver_Enums.hpp"       //CON/src
 
+
 namespace moris
 {
     namespace prm
     {
 
 //------------------------------------------------------------------------------
+
+    ParameterList create_solver_warehouse_parameterlist( )
+    {
+        ParameterList tSolverWarehouseList;
+
+        tSolverWarehouseList.insert( "SOL_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
+
+        return tSolverWarehouseList;
+    }
 
     // creates a parameter list with default inputs
     ParameterList create_linear_algorithm_parameter_list_aztec( )
@@ -132,6 +142,45 @@ namespace moris
 
         // Set Damping or relaxation parameter used for RILU
         tLinAlgorithmParameterList.insert( "ML_reuse" ,  false );
+
+        return tLinAlgorithmParameterList;
+    }
+
+    // creates a parameter list with default inputs
+    ParameterList create_linear_algorithm_parameter_list_petsc( )
+    {
+        ParameterList tLinAlgorithmParameterList;
+
+        enum moris::sol::SolverType tType = moris::sol::SolverType::PETSC;
+
+        tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
+
+        // Set KSP type
+        tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );
+
+        // Set default preconditioner
+        tLinAlgorithmParameterList.insert( "PCType", std::string( "ilu" ) );
+
+        // Sets maximal iters for KSP
+        tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
+
+        // Sets KSP gmres restart
+        tLinAlgorithmParameterList.insert( "KSPMGMRESRestart", 500 );
+
+        // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES
+        tLinAlgorithmParameterList.insert( "KSPGMRESHapTol", 1e-10 );
+
+        // Sets tolerance for KSP
+        tLinAlgorithmParameterList.insert( "KSPTol", 1e-10 );
+
+        // Sets the number of levels of fill to use for ILU
+        tLinAlgorithmParameterList.insert( "ILUFill", 0 );
+
+        // Sets drop tolerance for ilu
+        tLinAlgorithmParameterList.insert( "ILUTol", 1e-6 );
+
+        // Set multigrid levels
+        tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
 
         return tLinAlgorithmParameterList;
     }
@@ -270,6 +319,8 @@ ParameterList create_time_solver_parameter_list()
 {
     ParameterList tTimeParameterList;
 
+    tTimeParameterList.insert( "TSA_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
+
     tTimeParameterList.insert( "TSA_Solver_algorithms" , std::string("0") );
 
     tTimeParameterList.insert( "TSA_DofTypes" , std::string("UNDEFINED") );
@@ -300,7 +351,9 @@ ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::Sol
     case ( sol::SolverType::AMESOS_IMPL ):
 		MORIS_ERROR( false, "No implemented yet" );
         break;
-
+    case ( sol::SolverType::PETSC ):
+        return create_linear_algorithm_parameter_list_petsc( );
+        break;
     default:
         MORIS_ERROR( false, "Parameterlist for this solver not implemented yet" );
         break;

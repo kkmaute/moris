@@ -67,6 +67,8 @@ namespace sol
 
         std::shared_ptr< Library_IO >                           mLibrary = nullptr;
 
+        enum sol::MapType                                       mTPLType = sol::MapType::Epetra;
+
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -105,7 +107,9 @@ namespace sol
         /**
          * @brief Destructor.
          */
-        ~SOL_Warehouse(){};
+        ~SOL_Warehouse();
+
+//--------------------------------------------------------------------------------------------------------
 
         void set_parameterlist( moris::Cell< moris::Cell< moris::ParameterList > > aParameterlist )
         {
@@ -133,20 +137,7 @@ namespace sol
 
 //--------------------------------------------------------------------------------------------------------
 
-        void initialize()
-        {
-            this->create_linear_solver_algorithms();
-
-            this->create_linear_solvers();
-
-            this->create_nonlinear_solver_algorithms();
-
-            this->create_nonlinear_solvers();
-
-            this->create_time_solver_algorithms();
-
-            this->create_time_solvers();
-        };
+        void initialize();
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -167,6 +158,20 @@ namespace sol
         void create_time_solver_algorithms();
 
         void create_time_solvers();
+
+//--------------------------------------------------------------------------------------------------------
+
+        enum sol::MapType get_tpl_type()
+        {
+            return mTPLType;
+        }
+
+//--------------------------------------------------------------------------------------------------------
+
+        void set_tpl_type( enum sol::MapType aTPLType)
+        {
+            mTPLType = aTPLType;
+        }
 
 //--------------------------------------------------------------------------------------------------------
 

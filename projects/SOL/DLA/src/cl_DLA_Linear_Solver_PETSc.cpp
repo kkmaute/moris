@@ -23,6 +23,11 @@ Linear_Solver_PETSc::Linear_Solver_PETSc()
     this->set_solver_parameters();
 }
 
+Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist )
+{
+
+}
+
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem * aLinearSystem )
 {
@@ -125,6 +130,7 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
 
 void Linear_Solver_PETSc::build_multigrid_preconditioner( Linear_Problem * aLinearSystem )
 {
+	std::cout<<"---------build MG preconditioner-------------"<<std::endl;
     // Build multigrid operators
     aLinearSystem->get_solver_input()->build_multigrid_operators();
 

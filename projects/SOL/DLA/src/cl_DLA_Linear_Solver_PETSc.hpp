@@ -37,6 +37,8 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
     public:
     Linear_Solver_PETSc();
 
+    Linear_Solver_PETSc( const moris::ParameterList aParameterlist );
+
     Linear_Solver_PETSc( moris::Solver_Interface * aInput );
 
     Linear_Solver_PETSc( Linear_Problem * aLinearSystem );

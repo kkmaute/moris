@@ -249,11 +249,21 @@ using namespace NLA;
 
         if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
         {
-            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse, mSolverInput, aFullVector, mNonlinearSolverManagerIndex,  false );
+            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
+                                                       mSolverInput,
+                                                       aFullVector,
+                                                       mNonlinearSolverManagerIndex,
+                                                       false,
+                                                       mSolverWarehouse->get_tpl_type() );
         }
         else
         {
-            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse, mSolverInput, aFullVector, mNonlinearSolverManagerIndex );
+            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
+                                                       mSolverInput,
+                                                       aFullVector,
+                                                       mNonlinearSolverManagerIndex,
+                                                       true,
+                                                       mSolverWarehouse->get_tpl_type() );
         }
 
         mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );

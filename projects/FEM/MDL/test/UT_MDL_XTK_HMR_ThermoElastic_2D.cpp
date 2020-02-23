@@ -387,8 +387,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 6 );
-        for( uint Ik = 0; Ik < 6; Ik ++)
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        for( uint Ik = 0; Ik < 7; Ik ++)
         {
         	tParameterlist( Ik ).resize(1);
         }
@@ -411,10 +411,11 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("UX,UY;TEMP") );
 
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+
         tSolverWarehouse.set_parameterlist( tParameterlist );
 
         tSolverWarehouse.initialize();
-
 
         tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
@@ -562,7 +563,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
 
         //// create field
         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
         tField->evaluate_scalar_function( LvlSetPlane );
         //
         // for( uint k=0; k<2; ++k )
@@ -863,7 +863,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 6 );
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
 
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
@@ -904,6 +904,9 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 5 ).resize( 1 );
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 )("TSA_DofTypes") = std::string("UX,UY;TEMP");
+
+        tParameterlist( 6 ).resize( 1 );
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
 
         tSolverWarehouse.set_parameterlist( tParameterlist );
 

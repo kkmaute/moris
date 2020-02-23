@@ -47,7 +47,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
                                        aInput->get_constrained_Ids() );      //FIXME
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMap );
+        mMat = tMatFactory.create_matrix( aInput, mMapFree );
 
         // Build RHS/LHS vector
         mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
@@ -93,7 +93,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
-   mInput->build_graph( mMat );
+    mInput->build_graph( mMat );
 
 }
 //----------------------------------------------------------------------------------------

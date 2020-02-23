@@ -20,7 +20,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
-
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
 
