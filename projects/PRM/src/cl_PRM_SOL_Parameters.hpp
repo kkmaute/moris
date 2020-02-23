@@ -156,10 +156,10 @@ namespace moris
         tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
 
         // Set KSP type
-        tLinAlgorithmParameterList.insert( "KSPType", std::string( KSPGMRES ) );
+        tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );
 
         // Set default preconditioner
-        tLinAlgorithmParameterList.insert( "PCType", std::string( PCILU ) );
+        tLinAlgorithmParameterList.insert( "PCType", std::string( "ilu" ) );
 
         // Sets maximal iters for KSP
         tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
