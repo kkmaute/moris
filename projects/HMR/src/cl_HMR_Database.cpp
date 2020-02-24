@@ -234,12 +234,20 @@ namespace moris
 
             for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
             {
-                Matrix< DDUMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( k );
+                Matrix< DDSMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( k );
 
                 Cell< BSpline_Mesh_Base * > tBsplineMeshes( tBsplineMeshIndices.numel() );
                 for( uint Ik=0; Ik<tBsplineMeshIndices.numel(); ++Ik )
                 {
-                    tBsplineMeshes( Ik ) = mBSplineMeshes( tBsplineMeshIndices( Ik ) );
+                    // assign existing b-spline mesh to list of b-spline meshes
+                    if( tBsplineMeshIndices( Ik ) >= 0 )
+                    {
+                        tBsplineMeshes( Ik ) = mBSplineMeshes( tBsplineMeshIndices( Ik ) );
+                    }
+                    else
+                    {
+                    	tBsplineMeshes( Ik ) = nullptr;
+                    }
                 }
 
                 mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh( mParameters,

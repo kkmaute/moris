@@ -86,7 +86,7 @@ namespace moris
            Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
            //! defines which B-Spline mesh is associated with which lagrange mesh
-           Cell< Matrix< DDUMat > > mLagrangeToBSplineMesh;
+           Cell< Matrix< DDSMat > > mLagrangeToBSplineMesh;
 
            //! maps input orders with B-Splines
 //           Matrix< DDUMat> mBSplineInputMap;
@@ -372,12 +372,12 @@ namespace moris
            /**
             * returns an entry of mBSplineOrders
             */
-           void set_lagrange_to_bspline_mesh( const Cell< Matrix< DDUMat > > aLagrangeToBSplineMesh )
+           void set_lagrange_to_bspline_mesh( const Cell< Matrix< DDSMat > > aLagrangeToBSplineMesh )
            {
                mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
            }
 
-           Matrix< DDUMat > get_lagrange_to_bspline_mesh( const uint & aLagrangeMeshIndex ) const
+           Matrix< DDSMat > get_lagrange_to_bspline_mesh( const uint & aLagrangeMeshIndex ) const
            {
                return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
            }

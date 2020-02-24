@@ -96,7 +96,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2);
 
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -221,7 +221,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2 );
 
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

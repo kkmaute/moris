@@ -3433,10 +3433,16 @@ namespace moris
             {
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
 
-                if( tMesh != NULL )
+                if( tMesh != nullptr )
                 {
                     mTMatrix( Ik ) = new T_Matrix( mParameters,
                                                    tMesh,
+                                                   this );
+                }
+                else
+                {
+                    // trivial case when all t-matix weights are 1
+                    mTMatrix( Ik ) = new T_Matrix( mParameters,
                                                    this );
                 }
             }
@@ -3452,9 +3458,13 @@ namespace moris
             {
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
 
-                if( tMesh != NULL )
+                if( tMesh != nullptr )
                 {
                     mTMatrix( Ik )->evaluate( Ik, aBool );
+                }
+                else
+                {
+                    mTMatrix( Ik )->evaluate_trivial( Ik, aBool );
                 }
             }
 

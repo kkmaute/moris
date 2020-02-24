@@ -62,7 +62,7 @@ namespace sol
         Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > >   mTimeSolverAlgorithms;
         Cell< tsa::Time_Solver * >                              mTimeSolvers;
 
-        // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver
+        // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3) Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
         moris::Cell< moris::Cell< moris::ParameterList > >      mParameterlist;
 
         std::shared_ptr< Library_IO >                           mLibrary = nullptr;

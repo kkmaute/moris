@@ -39,7 +39,7 @@ TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -106,7 +106,7 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -175,7 +175,7 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

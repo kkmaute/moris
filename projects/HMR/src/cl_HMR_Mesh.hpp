@@ -466,7 +466,9 @@ private:
 
 //-------------------------------------------------------------------------------
 
-            void setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index     aIndex = 0);
+            void setup_entity_global_to_local_map( enum  EntityRank     aEntityRank,
+                                                         uint         & aCounter,
+                                                   const moris_index    aIndex = 0);
 
 
 //-------------------------------------------------------------------------------

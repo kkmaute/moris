@@ -97,7 +97,7 @@ TEST_CASE("GE_HMR_Interaction_00","[moris],[GE],[GE_HMR_Interaction]")
 
             tParameters.set_initial_refinement( 2 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -234,7 +234,7 @@ TEST_CASE( "GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]" )
 
         tParameters.set_initial_refinement( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

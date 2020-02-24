@@ -144,7 +144,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -318,7 +318,7 @@ TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

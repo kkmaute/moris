@@ -128,7 +128,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
          tParameters.set_refinement_buffer( 1 );
          tParameters.set_staircase_buffer( 1 );
 
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -253,7 +253,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2 );
 
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

@@ -77,7 +77,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
             tParameters.set_bspline_orders   ( { {1} } );
             tParameters.set_bspline_patterns ( { {0} } );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -215,7 +215,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
           tParameters.set_bspline_orders   ( { {1} } );
           tParameters.set_bspline_patterns ( { {0} } );
 
-          Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+          Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
           tLagrangeToBSplineMesh( 0 ) = { {0} };
 
           tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -360,7 +360,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 
             tParameters.set_number_aura ( true );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -496,7 +496,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
           tParameters.set_bspline_orders   ( { {1} } );
           tParameters.set_bspline_patterns ( { {0} } );
 
-          Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+          Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
           tLagrangeToBSplineMesh( 0 ) = { {0} };
 
           tParameters.set_number_aura ( true );

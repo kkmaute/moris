@@ -552,7 +552,16 @@ namespace moris
                                                    const uint                    aBasisIndex,
                                                          Matrix< IndexMat > & aElementIndices )
             {
-                Basis * tBasis = mBSplineMeshes( aMeshIndex )->get_basis_by_index( aBasisIndex );
+                Basis * tBasis = nullptr;
+
+                if( mBSplineMeshes( aMeshIndex )!= nullptr)
+                {
+                    tBasis = mBSplineMeshes( aMeshIndex )->get_basis_by_index( aBasisIndex );
+                }
+                else
+                {
+                    tBasis = this->get_node_by_index_including_aura( aBasisIndex );
+                }
 
                 uint tNumElements = tBasis->get_num_elements();
 

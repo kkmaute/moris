@@ -161,7 +161,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tParameters.set_initial_refinement( 1 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

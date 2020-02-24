@@ -198,7 +198,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -452,7 +452,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         tParameters.set_number_aura(  true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -736,7 +736,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1063,7 +1063,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        tParameters.set_refinement_buffer( 1 );
 //        tParameters.set_staircase_buffer( 2 );
 //
-//        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+//        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
 //        tLagrangeToBSplineMesh( 0 ) = { {0} };
 //
 //        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
