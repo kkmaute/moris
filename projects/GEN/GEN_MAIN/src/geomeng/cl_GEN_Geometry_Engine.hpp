@@ -23,7 +23,7 @@
 #include "linalg_typedefs.hpp"
 
 // GE
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Analytic_Geometry.hpp"
+#include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
@@ -118,11 +118,11 @@ public:
     // Options which the user can change (all are given defaults)
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
-    bool        mComputeDxDp;           // Should be turned off if a sensitivity has not been implemented
+    bool        mComputeDxDp;           // <- should be turned off if a sensitivity has not been implemented
     moris::uint mSpatialDim;
 
 
-    // TODO: create the destructor to delete the analytic geometry pointer created via "new"
+    // TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
     // TODO: move this to the .cpp file
     GEN_Geometry_Engine( ParameterList aParameterList ) : mParameterList(aParameterList)
     {
@@ -131,11 +131,14 @@ public:
     // TODO: move this to the .cpp file
     void initialize( std::shared_ptr< Library_IO > aLibrary )
     {
-    	// set the active geometry index
-    	mActiveGeometryIndex = 0;
+        // initialize member data
+        mThresholdValue = 0.0;      // threshold for level sets
 
-    	// flag for computation of dxdp //TODO: needs to be updated/adjusted
-    	mComputeDxDp = false;
+        mComputeDxDp = false;       // flag to compute DxDp ( TODO: needs to be updated/adjusted )
+
+        mSpatialDim = 3;            // placeholder (gets overwritten once a mesh is registered)
+
+        mActiveGeometryIndex = 0;   // for XTK's decomposition
 
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
@@ -376,10 +379,10 @@ public:
      */
     Matrix< DDRMat > get_cylinder_vals( moris_index aWhichMesh,
                                         GEN_CylinderWithEndCaps* aFiber,
-                                        uint aNumberOfFibers ); //FIXME this is currently only setup to work with an HMR member mesh
+                                        uint aNumberOfFibers );             //FIXME this is currently only setup to work with an HMR member mesh
     //------------------------------------------------------------------------------
     /*
-     * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
+     * @brief gives the maximum level-set values at all nodes in the mesh
      */
     void get_max_field_values_for_all_geometries( Matrix< DDRMat > & aAllFieldVals,
                                                   moris_index        aWhichMesh = 0 )
@@ -409,13 +412,13 @@ public:
 //            aAllFieldVals( 0 )( iVert ) = tVal;
 //        }
     }
-
     //------------------------------------------------------------------------------
-
+    /*
+     * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
+     */
     void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                               const moris_index                 aWhichMesh = 0 )
     {
-//        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
         aAllFieldVals.resize( mGeometry.size() );

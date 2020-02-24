@@ -130,7 +130,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
                 //Specify decomposition Method and Cut Mesh ---------------------------------------

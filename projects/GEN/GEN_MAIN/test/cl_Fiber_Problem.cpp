@@ -346,7 +346,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
     //------------------------------------------------------------------------------
-    xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+    xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
     tXTKModel.mVerbose = false;
 
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

@@ -175,14 +175,14 @@ collect_child_elements_and_maps(Model & aModel,
 {
     // data structures
     Cut_Mesh & tCutMesh = aModel.get_cut_mesh();
-    moris::ge::GEN_Geometry_Engine & tGeometryEngine = aModel.get_geom_engine();
+    moris::ge::GEN_Geometry_Engine* tGeometryEngine = aModel.get_geom_engine();
     Background_Mesh & tBackgroundMesh = aModel.get_background_mesh();
 
     // Children element nodes connected to elements
-    moris::Cell<Matrix<IdMat>>  tElementToNodeChildrenByPhase = tCutMesh.get_full_element_to_node_by_phase_glob_ids(tGeometryEngine.get_num_bulk_phase(), tBackgroundMesh.get_mesh_data());
+    moris::Cell<Matrix<IdMat>>  tElementToNodeChildrenByPhase = tCutMesh.get_full_element_to_node_by_phase_glob_ids(tGeometryEngine->get_num_bulk_phase(), tBackgroundMesh.get_mesh_data());
 
     // Child element ids
-    moris::Cell<Matrix<IdMat>>  tChildElementsByPhase = tCutMesh.get_child_elements_by_phase(tGeometryEngine.get_num_bulk_phase(),tBackgroundMesh.get_mesh_data());
+    moris::Cell<Matrix<IdMat>>  tChildElementsByPhase = tCutMesh.get_child_elements_by_phase(tGeometryEngine->get_num_bulk_phase(),tBackgroundMesh.get_mesh_data());
 
     moris::uint tNumNodesPerElem = tElementToNodeChildrenByPhase(0).n_cols();
     moris::uint tNumElements   = 0;
@@ -546,7 +546,7 @@ TEST_CASE("Regular Subdivision Method Parallel","[REG_SUB_PARALLEL]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
@@ -581,7 +581,7 @@ TEST_CASE("Regular Subdivision and Node Hierarchy Method Parallel","[CONF_PARALL
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose = false;
 
     //Specify your decomposition methods and start cutting

@@ -237,7 +237,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -493,7 +493,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -699,7 +699,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
 {
 //    //FIXME Timesolver for petsc
-//
+
     if( par_size() == 1 )
     {
         gLogger.set_severity_level( 0 );
@@ -783,7 +783,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -1112,7 +1112,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
 //        size_t tModelDimension = 3;
 //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-//        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+//        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
 //        tXTKModel.mSameMesh = true;
 //        tXTKModel.mVerbose = false;
 //

@@ -15,7 +15,9 @@ TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 {
 	if( par_size() == 1 )
 	{
-    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( "/home/schmidt/codes/moris/projects/FEM/MDL/test/data/Input_test.so" );
+	    std::string tStringMoris = std::getenv( "MORISROOT" );
+	    std::string tString = tStringMoris + "/projects/FEM/MDL/test/data/Input_test.so";
+    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( tString );
 
 	wrk::Performer_Manager tPerformerManager( tLibrary );
 

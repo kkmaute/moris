@@ -177,7 +177,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         moris::ge::GEN_Phase_Table     tPhaseTable(1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-         xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+         xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 

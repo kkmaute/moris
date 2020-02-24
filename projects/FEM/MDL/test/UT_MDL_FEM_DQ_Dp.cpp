@@ -185,7 +185,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
 //        moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 //
-//        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+//        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
 //        tXTKModel.mVerbose = false;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------

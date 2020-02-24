@@ -288,7 +288,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
 //        moris::ge::GEN_Geometry_Engine tGeometryEngine;
 
-        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

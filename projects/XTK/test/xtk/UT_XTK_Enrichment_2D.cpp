@@ -117,7 +117,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
