@@ -61,7 +61,9 @@ public:
     /**
      * @brief Replace global vector entries.
      */
-    virtual void replace_global_values() = 0;
+    virtual void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                        const moris::Matrix< DDRMat > & aValues,
+                                        const uint                    & aVectorIndex = 0 ) = 0;
 
     /**
      * @brief Add global valued to the distributed vector.
@@ -71,9 +73,8 @@ public:
      * @param[in] aRHSVal              Array with values.
      *
      */
-    virtual void sum_into_global_values( const moris::uint             & aNumMyDof,
-                                         const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                         const moris::Matrix< DDRMat > & aRHSVal,
+    virtual void sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                         const moris::Matrix< DDRMat > & aValues,
                                          const uint                    & aVectorIndex = 0 ) = 0;
 
     /**

@@ -31,20 +31,28 @@ Vector_Epetra::~Vector_Epetra()
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::replace_global_values()
+void Vector_Epetra::replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                           const moris::Matrix< DDRMat > & aValues,
+                                           const uint                    & aVectorIndex )
 {
     MORIS_ASSERT( false, "replace_global_values not implemented yet" );
+    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->ReplaceGlobalValues( aGlobalIds.numel(),
+                                                                                aGlobalIds.data(),
+                                                                                aValues.data(),
+                                                                                aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::sum_into_global_values( const moris::uint             & aNumMyDofs,
-                                            const moris::Matrix< DDSMat > & aElementTopology,
-                                            const moris::Matrix< DDRMat > & aRHSVal,
+void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                            const moris::Matrix< DDRMat > & aValues,
                                             const uint                    & aVectorIndex )
 {
     // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data(), aVectorIndex );
+    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
+                                                                                aGlobalIds.data(),
+                                                                                aValues.data(),
+                                                                                aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------

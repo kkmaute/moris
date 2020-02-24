@@ -953,11 +953,12 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
       moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
       for( uint Ik = 0; Ik < 7; Ik ++)
       {
-      	tParameterlist( Ik ).resize(1);
+          tParameterlist( Ik ).resize(1);
       }
 
       tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-//      tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
+      tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
+      tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
       tParameterlist( 0 )(0).set( "ILUFill", 3 );
       tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
 
@@ -991,14 +992,14 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         CHECK( equal_to( tSolution( 1, 0 ), 5.000077082616270, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 2, 0 ), 4.999624291626882, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 3, 0 ), 5.000077079630372, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 4, 0 ), 17.06510485378407, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 5, 0 ), 17.02038615714842, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 6, 0 ), 17.06510471401616, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 7, 0 ), 17.02038619038510, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 8, 0 ), 5.000221545625442, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 382, 0 ), 51.10764688788053, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+06 ) );
-        CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+06 ) );
+        CHECK( equal_to( tSolution( 4, 0 ), 17.06510485378407, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 5, 0 ), 17.02038615714842, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 6, 0 ), 17.06510471401616, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 7, 0 ), 17.02038619038510, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 8, 0 ), 5.000221545625442, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 382, 0 ), 51.10764688788053, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+08 ) );
 
 ////        // start timer
 ////        tic tTimer_XTK1;

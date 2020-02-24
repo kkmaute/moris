@@ -242,7 +242,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
 //---------------------------------------------------------------------------------------------------------------
-//
+
         sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
         moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
@@ -252,12 +252,15 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         }
 
         tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-        tParameterlist( 0 )(0).set( "PCType", std::string( PCMG ) );
+        tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
+        tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
         tParameterlist( 0 )(0).set( "ILUFill", 3 );
         tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
 
         tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
         tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
+
         tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("L2") );
 

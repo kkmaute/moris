@@ -49,8 +49,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
-                                              tElementTopology,
+            tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
@@ -115,12 +114,10 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
-                                              tElementTopology,
+            tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
 
-            tVectorB->sum_into_global_values( tElementTopology.n_rows(),
-                                              tElementTopology,
+            tVectorB->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
@@ -185,8 +182,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
-                                              tElementTopology,
+            tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
@@ -249,8 +245,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
-                                              tElementTopology,
+            tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
         tVectorA->vector_global_asembly();
@@ -315,8 +310,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorFree->sum_into_global_values( tElementTopology.length(),
-                                                 tElementTopology,
+            tVectorFree->sum_into_global_values( tElementTopology,
                                                  tElementRHS(0));
         }
         tVectorFree->vector_global_asembly();

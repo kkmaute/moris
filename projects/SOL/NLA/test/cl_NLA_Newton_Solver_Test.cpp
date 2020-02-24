@@ -536,7 +536,7 @@ namespace moris
 //                    Matrix< DDSMat > tRow( 1, 1, (j*tN)+i );
 //                    Matrix< DDRMat > tVal( 1, 1, 0.0 );
 //
-//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( 1, tRow, tVal );
+//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( tRow, tVal );
 //                }
 //                else
 //                {
@@ -545,7 +545,7 @@ namespace moris
 //                    moris::real Value1 = temp1*std::sqrt(std::min( (real)(std::min( i,tN-i-1 ))*hx, temp) );
 //                    Matrix< DDRMat > tVal( 1, 1, Value1 );
 //
-//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( 1, tRow, tVal );
+//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( tRow, tVal );
 //                }
 //            }
 //        }

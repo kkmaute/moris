@@ -53,29 +53,29 @@ Vector_PETSc::~Vector_PETSc()
 
 //-----------------------------------------------------------------------------
 
-void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMyDof,
-                                          const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                          const moris::Matrix< DDRMat > & aRHSVal,
-                                          const uint                    & aVectorIndex )
+void Vector_PETSc::sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                           const moris::Matrix< DDRMat > & aValues,
+                                           const uint                    & aVectorIndex )
 {
-    moris::Matrix< DDSMat >tTempElemDofs ( aNumMyDof, 1 );
-    tTempElemDofs = aEleDofConectivity;
+	uint tNumMyDofs = aGlobalIds.numel();
+    moris::Matrix< DDSMat >tTempElemDofs ( tNumMyDofs, 1 );
+    tTempElemDofs = aGlobalIds;
 
     //loop over elemental dofs
-    for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
+    for ( moris::uint Ij=0; Ij< tNumMyDofs; Ij++ )
     {
         //set constrDof to neg value
-        if (mDirichletBCVec( aEleDofConectivity( Ij, 0 ), 0 ) == 1 )
+        if (mDirichletBCVec( aGlobalIds( Ij, 0 ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0) = -1;
         }
     }
 
     // Apply PETSc map AO
-    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
+    AOApplicationToPetsc( mMap->get_petsc_map(), tNumMyDofs, tTempElemDofs.data() );
 
     // Insert values into vector
-    VecSetValues( mPetscVector, aNumMyDof, tTempElemDofs.data(), aRHSVal.data(), ADD_VALUES );
+    VecSetValues( mPetscVector, tNumMyDofs, tTempElemDofs.data(), aValues.data(), ADD_VALUES );
 }
 
 //-----------------------------------------------------------------------------
