@@ -181,7 +181,7 @@ void Performer_Manager::perform()
 
 
     // place the pair in mesh manager
-    mMTKPerformer( 1 ) =std::make_shared< mtk::Mesh_Manager >();
+    mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
     mMTKPerformer( 1 )->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
     // create model

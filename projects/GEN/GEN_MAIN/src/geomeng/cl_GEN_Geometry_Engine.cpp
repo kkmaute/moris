@@ -723,7 +723,7 @@ moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mes
 {
     mMesh_HMR.push_back( aMesh );
 
-    mSpatialDim = mMesh_HMR( 0 )->get_spatial_dim();	// assuming all registered meshes have the same spatial dimensions
+    mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
 
     return mMesh_HMR.size()-1;
 }

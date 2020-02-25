@@ -136,8 +136,6 @@ public:
 
         mComputeDxDp = false;       // flag to compute DxDp ( TODO: needs to be updated/adjusted )
 
-        mSpatialDim = 3;            // placeholder (gets overwritten once a mesh is registered)
-
         mActiveGeometryIndex = 0;   // for XTK's decomposition
 
         // create geometry vector
