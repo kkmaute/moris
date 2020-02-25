@@ -152,7 +152,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         tParameters.set_initial_refinement( 0 );
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -373,7 +373,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -692,7 +692,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1028,7 +1028,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         tParameters.set_initial_refinement( 0 );
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1256,7 +1256,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1587,7 +1587,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

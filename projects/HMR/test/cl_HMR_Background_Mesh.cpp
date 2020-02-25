@@ -829,7 +829,7 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
         tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
-        moris::Cell< moris::Matrix< moris::DDUMat > > tLagrangeToBSplineMesh( 1 );
+        moris::Cell< moris::Matrix< moris::DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

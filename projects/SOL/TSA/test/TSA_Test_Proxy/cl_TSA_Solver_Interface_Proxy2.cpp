@@ -102,7 +102,7 @@ void TSA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint         
 
      mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
 
-     mSolutionVectorPrev->sum_into_global_values( 1, tMatRows2, tMat );
+     mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat );
 
      mSolutionVectorPrev->vector_global_asembly();
  }

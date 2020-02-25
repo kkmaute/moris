@@ -236,7 +236,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         tParameters.set_union_pattern( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
         tLagrangeToBSplineMesh( 1 ) = { {1} };
 
@@ -473,7 +473,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         tParameters.set_union_pattern( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
         tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
         tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -600,7 +600,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 
         tParameters.set_staircase_buffer( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
         tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
         tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -735,7 +735,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 
             tParameters.set_staircase_buffer( 2 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -878,7 +878,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -1024,7 +1024,7 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -1171,7 +1171,7 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 

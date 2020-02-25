@@ -44,12 +44,13 @@ public:
     Epetra_MultiVector * get_epetra_vector()       { return mEpetraVector; }
     Epetra_MultiVector * get_epetra_vector() const { return mEpetraVector; }
 
-    void replace_global_values();
+    void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                const moris::Matrix< DDRMat > & aValues,
+                                const uint                    & aVectorIndex = 0);
 
-    void sum_into_global_values(const moris::uint             & aNumMyDofs,
-                                const moris::Matrix< DDSMat > & aElementTopology,
-                                const moris::Matrix< DDRMat > & aRHSVal,
-                                const uint                    & aVectorIndex = 0 );
+    void sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                 const moris::Matrix< DDRMat > & aValues,
+                                 const uint                    & aVectorIndex = 0 );
 
     void vector_global_asembly();
 

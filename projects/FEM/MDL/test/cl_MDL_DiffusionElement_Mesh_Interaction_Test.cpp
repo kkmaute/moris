@@ -533,7 +533,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
 //        tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -789,7 +789,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1058,7 +1058,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

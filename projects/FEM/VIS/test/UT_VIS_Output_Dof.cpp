@@ -137,7 +137,7 @@ namespace moris
                 tParameters.set_refinement_buffer( 1 );
                 tParameters.set_staircase_buffer( 1 );
 
-                Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { {0} };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

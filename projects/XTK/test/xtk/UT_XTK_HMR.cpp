@@ -120,7 +120,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tParameters.set_number_aura(  true );
 
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
