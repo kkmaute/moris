@@ -213,14 +213,15 @@ void Vector_PETSc::import_local_to_global( Dist_Vector & aSourceVec )
 
 //-----------------------------------------------------------------------------
 
-void Vector_PETSc::extract_my_values( const moris::uint             & aNumIndices,
-                                      const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                      const moris::uint             & aBlockRowOffsets,
-                                            moris::Matrix< DDRMat > & LHSValues )
+void Vector_PETSc::extract_my_values( const moris::uint                            & aNumIndices,
+                                      const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                      const moris::uint                            & aBlockRowOffsets,
+                                            moris::Cell< moris::Matrix< DDRMat > > & ExtractedValues )
 {
-    LHSValues.set_size( aNumIndices, 1 );
+    ExtractedValues.resize( 1 );
+    ExtractedValues( 0 ).set_size( aNumIndices, 1 );
 
-    VecGetValues( mPetscVector, aNumIndices, aGlobalBlockRows.data(), LHSValues.data() );
+    VecGetValues( mPetscVector, aNumIndices, aGlobalBlockRows.data(), ExtractedValues( 0 ).data() );
 }
 
 //-----------------------------------------------------------------------------
