@@ -62,7 +62,7 @@ setenv SNOPT_DIR $HOME/tpls/Snopt
 
 # LBFGSB
 # # path to the LBFGSB directory; must also have ARPACK
-setenv LBFGSB_DIR $HOME/tpls/Lbfgsb
+setenv LBFGSB_DIR $HOME/tpls/LBFGS
 
 # ARPACK
 # # path to the ARPACK directory; must also have LBFGSB
