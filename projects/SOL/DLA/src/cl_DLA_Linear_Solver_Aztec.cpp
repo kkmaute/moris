@@ -23,6 +23,8 @@
 #include "Ifpack_ILU.h"
 #include "Ifpack_LocalFilter.h"
 
+#include "cl_DLA_Linear_Problem.hpp"
+
 // ML
 //#include "ml_include.h"
 //#include "ml_epetra_utils.h"
@@ -38,6 +40,12 @@ using namespace dla;
 Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 {
     this->set_solver_parameters();
+}
+
+Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist ),
+                                                                                        mMlPrec ( NULL )
+{
+//    mParameterList = aParameterlist;
 }
 
 //----------------------------------------------------------------------------------------
@@ -60,8 +68,8 @@ void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 {
     // Set matrix. solution vector and RHS
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
-    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_vector() );
-    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_vector() );
+    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
+    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
 
     mAztecSolver.SetProblem( mEpetraProblem );
 }
@@ -264,12 +272,13 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     return error;
 }
 
-moris::sint Linear_Solver_Aztec::solve_linear_system(  Linear_Problem * aLinearSystem, const moris::sint aIter )
+moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLinearSystem,
+                                                      const moris::sint      aIter )
 {
     // Set matrix. solution vector and RHS
-    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
-    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_vector() );
-    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_vector() );
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()         ->get_matrix()        );
+    mEpetraProblem.SetRHS     ( aLinearSystem->get_solver_RHS()     ->get_epetra_vector() );
+    mEpetraProblem.SetLHS     ( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
 
     mAztecSolver.SetProblem( mEpetraProblem );
 

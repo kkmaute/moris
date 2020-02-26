@@ -13,14 +13,14 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
-                            const moris::Map_Class        * aMap,
-                            const enum moris::VectorType    aVectorType ) : moris::Dist_Vector( aMap )
+                                  moris::Dist_Map        * aMap,
+                            const sint                      aNumVectors ) : moris::Dist_Vector( aMap )
 {
     //PetscScalar    tZero = 0;
     //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
     moris::uint aNumMyDofs                      = aInput->get_my_local_global_map().n_rows();
     moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
-    moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
+    moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constrained_Ids();
     // Get PETSc communicator
 //    PetscMPIInt                rank;
 //    MPI_Comm_rank(mComm->GetPETScComm(), &rank);
@@ -53,29 +53,29 @@ Vector_PETSc::~Vector_PETSc()
 
 //-----------------------------------------------------------------------------
 
-void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMyDof,
-                                          const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                          const moris::Matrix< DDRMat > & aRHSVal,
-                                          const uint                    & aVectorIndex )
+void Vector_PETSc::sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                           const moris::Matrix< DDRMat > & aValues,
+                                           const uint                    & aVectorIndex )
 {
-    moris::Matrix< DDSMat >tTempElemDofs ( aNumMyDof, 1 );
-    tTempElemDofs = aEleDofConectivity;
+	uint tNumMyDofs = aGlobalIds.numel();
+    moris::Matrix< DDSMat >tTempElemDofs ( tNumMyDofs, 1 );
+    tTempElemDofs = aGlobalIds;
 
     //loop over elemental dofs
-    for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
+    for ( moris::uint Ij=0; Ij< tNumMyDofs; Ij++ )
     {
         //set constrDof to neg value
-        if (mDirichletBCVec( aEleDofConectivity( Ij, 0 ), 0 ) == 1 )
+        if (mDirichletBCVec( aGlobalIds( Ij, 0 ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0) = -1;
         }
     }
 
     // Apply PETSc map AO
-    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
+    AOApplicationToPetsc( mMap->get_petsc_map(), tNumMyDofs, tTempElemDofs.data() );
 
     // Insert values into vector
-    VecSetValues( mPetscVector, aNumMyDof, tTempElemDofs.data(), aRHSVal.data(), ADD_VALUES );
+    VecSetValues( mPetscVector, tNumMyDofs, tTempElemDofs.data(), aValues.data(), ADD_VALUES );
 }
 
 //-----------------------------------------------------------------------------
@@ -163,10 +163,7 @@ moris::real Vector_PETSc::vec_norm2()
 
 void Vector_PETSc::check_vector( )
 {
-    if ( mEpetraVector != NULL )
-    {
         MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -216,14 +213,15 @@ void Vector_PETSc::import_local_to_global( Dist_Vector & aSourceVec )
 
 //-----------------------------------------------------------------------------
 
-void Vector_PETSc::extract_my_values( const moris::uint             & aNumIndices,
-                                      const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                      const moris::uint             & aBlockRowOffsets,
-                                            moris::Matrix< DDRMat > & LHSValues )
+void Vector_PETSc::extract_my_values( const moris::uint                            & aNumIndices,
+                                      const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                      const moris::uint                            & aBlockRowOffsets,
+                                            moris::Cell< moris::Matrix< DDRMat > > & ExtractedValues )
 {
-    LHSValues.set_size( aNumIndices, 1 );
+    ExtractedValues.resize( 1 );
+    ExtractedValues( 0 ).set_size( aNumIndices, 1 );
 
-    VecGetValues( mPetscVector, aNumIndices, aGlobalBlockRows.data(), LHSValues.data() );
+    VecGetValues( mPetscVector, aNumIndices, aGlobalBlockRows.data(), ExtractedValues( 0 ).data() );
 }
 
 //-----------------------------------------------------------------------------

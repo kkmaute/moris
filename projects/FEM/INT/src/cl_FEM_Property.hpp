@@ -26,8 +26,9 @@ namespace moris
     class Set;
     class Field_Interpolator_Manager;
 
-    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >        & aCoeff,
-                                              moris::fem::Field_Interpolator_Manager * aFIManager ) > PropertyFunc;
+    typedef std::function< void ( moris::Matrix< moris::DDRMat >         & aPropMatrix,
+                                  moris::Cell< Matrix< DDRMat > >        & aCoeff,
+                                  moris::fem::Field_Interpolator_Manager * aFIManager ) > PropertyFunc;
 
 //------------------------------------------------------------------------------
         /**
@@ -70,6 +71,9 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mPropDofDer;
             moris::Cell< Matrix< DDRMat > > mPropDvDer;
 
+            // property name
+            std::string mName;
+
         private:
 
             // flag for evaluation
@@ -96,6 +100,26 @@ namespace moris
              * virtual destructor
              */
             virtual ~Property(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for property name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for property name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
 
 //------------------------------------------------------------------------------
             /**

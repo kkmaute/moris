@@ -1,0 +1,38 @@
+### WRK Library Config File ###
+
+if(@WRK@_CONFIGURED)
+	return()
+endif()
+
+set(@WRK@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+#< TEMP
+set(MORIS "@MORIS@")
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@WRK@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@WRK@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@WRK@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@WRK_COMPILE_DEFINITIONS@")
+set(@WRK@_C_FLAGS "@MORIS_C_FLAGS@" "@WRK_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@WRK_CONFIG_TPL_DEPENDENCIES@
+@WRK_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_WRK_CONFIG_INSTALL_DIR@/@WRK@Targets.cmake")
+
+# Library target list
+set(@WRK@_LIBRARIES @WRK@-lib)

@@ -17,8 +17,8 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_Map_Class.hpp"
+//#include "cl_Matrix_Vector_Factory.hpp"
+//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -42,10 +42,10 @@ namespace mdl
                 mdl::Model * mModel = nullptr;
 
         protected:
-                Map_Class * mVectorMap = nullptr;
-
-                //! Full Vector
-                Dist_Vector * mVector = nullptr;
+//                Dist_Map * mVectorMap = nullptr;
+//
+//                //! Full Vector
+//                Dist_Vector * mVector = nullptr;
 
         public:
             Design_Variable_Interface( )
@@ -86,10 +86,10 @@ namespace mdl
              * @brief retunr dRdp pointer
              *
              */
-            Dist_Vector * get_dRdp()
-            {
-                return mVector;
-            };
+//            Dist_Vector * get_dRdp()
+//            {
+//                return mVector;
+//            };
 
             virtual void get_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                             Cell< enum GEN_DV > & aDvTypes ) = 0;
@@ -123,19 +123,14 @@ namespace mdl
                                         const moris::Cell< enum GEN_DV >        & aDvTypes,
                                         moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
                                         moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv ) = 0;
-//            {
-//                //FIXME: these functions [get_pdv_values()] need to be pure virtual
-//            }
 
-            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // temporary, once the interface is finalized, need to make FEM play nice with this
+            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // TODO: temporary, once the interface is finalized, need FEM to play nice with this
                                         const moris::Cell< enum GEN_DV >        & aDvTypes,
                                         moris::Cell< moris::Matrix< DDRMat > >  & aDvValues ) = 0;
-//            {
-//                MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - not implementd on GE side");
-//            }
+
 //------------------------------------------------------------------------------
             /**
-             * @brief Retunr local to global dv type map
+             * @brief Return local to global dv type map
              *
              */
             virtual moris::Matrix< DDSMat > get_my_local_global_map() = 0;

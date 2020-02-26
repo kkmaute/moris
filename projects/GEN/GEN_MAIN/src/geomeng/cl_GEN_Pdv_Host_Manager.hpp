@@ -48,8 +48,6 @@ public:
     ~Pdv_Host_Manager(){};
     //------------------------------------------------------------------------------
 
-
-
     std::shared_ptr< GEN_Pdv_Host > get_pdv_host( moris_index aVertexIndex )
     {
         return mHostList( aVertexIndex );
@@ -59,6 +57,14 @@ public:
     {
         mHostList.resize( aTotalNumVertices, nullptr );
     }
+    //------------------------------------------------------------------------------
+void initialize_new_hosts( uint aNumNewNodes )    // assuming the indices are consecutive
+{
+    for( uint i=0; i<aNumNewNodes; i++ )
+    {
+        mHostList.push_back(nullptr);
+    }
+}
     //------------------------------------------------------------------------------
     void create_pdv_host( uint        aNumPdvs,
                           moris_index aVertexIndex )
@@ -88,7 +94,6 @@ public:
     //------------------------------------------------------------------------------
     void set_pdv_types( Cell< enum GEN_DV > aPdvTypeList )
     {
-
         this->communicate_dof_types( aPdvTypeList );
 
         uint tNumTypes = mPdvTypeList.size();
@@ -97,7 +102,6 @@ public:
             mGlobalPdvTypeMap( static_cast<sint>(mPdvTypeList(i)) ) = mNumPDVs;
             mNumPDVs++;
         }
-
     }
     //------------------------------------------------------------------------------
     moris::Cell< enum GEN_DV > get_pdv_type_list(  )
@@ -142,14 +146,14 @@ public:
 
         // Assemble list containing all used dof types. Dof types are not unique
         MPI_Gatherv( ((aPdvTypeList.data()).data()),
-                tNumLocalDofTypes,
-                MPI_UNSIGNED,
-                (mPdvTypeList.data()).data(),
-                (tNumLocalDofTypesList.data()).data(),
-                (tDofTypeOffset.data()).data(),
-                MPI_UNSIGNED,
-                0,
-                MPI_COMM_WORLD );
+                       tNumLocalDofTypes,
+                       MPI_UNSIGNED,
+                       (mPdvTypeList.data()).data(),
+                       (tNumLocalDofTypesList.data()).data(),
+                       (tDofTypeOffset.data()).data(),
+                       MPI_UNSIGNED,
+                       0,
+                       MPI_COMM_WORLD );
 
         // Temporary variable for mPdvTypeList size
         moris::uint tPdofTypeListSize;
@@ -205,17 +209,17 @@ public:
     {
         return mGlobalPdvTypeMap;
     }
+    //------------------------------------------------------------------------------
+
+// these are temporary for debugging/testing purposes
+uint get_num_hosts()
+{
+    return mHostList.size();
+}
 
 
 
-
-
-
-
-
-
-
-
+    //------------------------------------------------------------------------------
 };
 }   // end ge namespace
 }       // end ,moris namepspace

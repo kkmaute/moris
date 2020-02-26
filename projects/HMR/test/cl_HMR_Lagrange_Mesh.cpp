@@ -208,7 +208,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
         tParameters.set_initial_refinement( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -318,7 +318,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -432,7 +432,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -763,9 +763,6 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {40}, {10}, {10} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -788,7 +785,7 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -914,6 +911,119 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
             // delete settings object
             delete tParameters;
         }
-}
+    }
+
+
+    // this test checks if t-matrices with weigt sof 1 as a trivial case are created
+    TEST_CASE("Lagrange_Mesh_trivial","[moris],[hmr],[Lagrange_Mesh_trivial],[lagrange_mesh]")
+    {
+    //    if(par_size() == 1)
+        {
+        	std::cout<<"I am proc: "<<par_rank()<<std::endl;
+
+            uint tLagrangeMeshIndex = 0;
+
+            // empty container for B-Spline meshes
+            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+            // create settings object
+            moris::hmr::Parameters tParameters;
+
+            tParameters.set_number_of_elements_per_dimension( { {40}, {10}, {10} } );
+            tParameters.set_domain_dimensions( 10, 5, 5 );
+            tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
+            tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
+
+            tParameters.set_bspline_truncation( true );
+
+            tParameters.set_lagrange_orders  ( { {1} });
+            tParameters.set_lagrange_patterns( { {0} });
+
+            tParameters.set_bspline_orders   ( { {1} } );
+            tParameters.set_bspline_patterns ( { {0} } );
+
+            tParameters.set_output_meshes( { {0} } );
+    //        tParameters.set_lagrange_input_mesh( { { 0 } } );
+
+            tParameters.set_staircase_buffer( 2 );
+
+            tParameters.set_initial_refinement( 0 );
+
+            tParameters.set_number_aura( true );
+
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            tLagrangeToBSplineMesh( 0 ) = { {0, -1} };
+
+            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+            // create the HMR object by passing the settings to the constructor
+            moris::hmr::HMR tHMR( tParameters );
+
+            tHMR.perform_initial_refinement( 0 );
+
+            std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
+            //==============================
+            std::shared_ptr< hmr::Field > tField = tMesh01->create_field( "gyroid", tLagrangeMeshIndex);
+
+            tField->evaluate_scalar_function( tPlane_Bench );
+
+            moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+
+            for( uint k=0; k<2; ++k )
+            {
+                tHMR.flag_surface_elements_on_working_pattern( tField );
+
+                tHMR.perform_refinement_based_on_working_pattern( 0, true );
+                tField->evaluate_scalar_function( tPlane_Bench );
+            }
+            tHMR.finalize();
+
+            std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+
+            uint tNumNodes = tInterpolationMesh->get_num_nodes();
+
+            std::cout<<tNumNodes<<std::endl;
+
+            if( par_size() == 1)
+            {
+                REQUIRE( tNumNodes  == 16241 );
+            }
+            if( par_size() == 2)
+            {
+                if( par_rank() == 0)
+                {
+                    REQUIRE( tNumNodes == 14063 );
+                }
+                else if( par_rank() == 1)
+                {
+                    REQUIRE( tNumNodes == 2783 );
+                }
+
+            }
+            if( par_size() == 4)
+            {
+                if( par_rank() == 0)
+                {
+                    REQUIRE( tNumNodes  == 10038 );
+                }
+                else if( par_rank() == 1)
+                {
+                    REQUIRE( tNumNodes  == 9942 );
+                }
+            }
+
+            for( uint Ik = 0; Ik < tNumNodes; Ik++ )
+            {
+            	if( reinterpret_cast< Basis* >( &( tInterpolationMesh->get_mtk_vertex( Ik ) ) )->is_used() )
+            	{
+                    moris::Matrix< DDRMat > tMat = *(tInterpolationMesh->get_mtk_vertex( Ik ).get_interpolation( 1 )->get_weights());
+                    REQUIRE( tMat( 0, 0 )  == 1.0 );
+            	}
+            }
+
+
+        }
+    }
+
 
 

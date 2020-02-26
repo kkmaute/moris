@@ -536,7 +536,6 @@ namespace moris
 //        print(aEqnObjRHS, "aEqnObjRHS");
     }
 
-
 //-------------------------------------------------------------------------------------------------
 
     void Equation_Object::add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual )
@@ -571,13 +570,13 @@ namespace moris
                         moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mMasterDofTypes( tSeperateSecDofIndex );
 
                         // get the pdof values for the ith dof type group
-                        Cell< Matrix< DDRMat > > tCoeff_Original;
+                        Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                         Matrix< DDRMat > tCoeff;
 
                         this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
                         // reshape tCoeffs into the order the cluster expects them
-                        this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                        this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                         Matrix< DDRMat > tCoeff1( tCoeff.numel(),1, 0.0);
                         //fixme get rid of for loop
@@ -611,13 +610,13 @@ namespace moris
                         moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mSlaveDofTypes( tSeperateSecDofIndex );
 
                         // get the pdof values for the ith dof type group
-                        Cell< Matrix< DDRMat > > tCoeff_Original;
+                        Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                         Matrix< DDRMat > tCoeff;
 
                         this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                         // reshape tCoeffs into the order the cluster expects them
-                        this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                        this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
                                -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
@@ -649,13 +648,13 @@ namespace moris
                         moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mMasterDofTypes( tSeperateSecDofIndex );
 
                         // get the pdof values for the ith dof type group
-                        Cell< Matrix< DDRMat > > tCoeff_Original;
+                        Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                         Matrix< DDRMat > tCoeff;
 
                         this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
                         // reshape tCoeffs into the order the cluster expects them
-                        this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                        this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
                                -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
@@ -678,13 +677,13 @@ namespace moris
                         moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mSlaveDofTypes( tSeperateSecDofIndex );
 
                         // get the pdof values for the ith dof type group
-                        Cell< Matrix< DDRMat > > tCoeff_Original;
+                        Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                         Matrix< DDRMat > tCoeff;
 
                         this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                         // reshape tCoeffs into the order the cluster expects them
-                        this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                        this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                         aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
                                -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
@@ -703,13 +702,18 @@ namespace moris
         // build T-matrix
         this->build_PADofMap( tTMatrix );
 
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         // Extract this equation objects adof values from solution vector
         mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
+        mPdofValues.resize( tMyValues.size() );
+
         // multiply t_matrix with adof values to get pdof values
-        mPdofValues = tTMatrix * tMyValues;
+        for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+        {
+            mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+        }
 
         this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
     }
@@ -784,9 +788,9 @@ namespace moris
 //        }
 //    }
 
-    void Equation_Object::get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
-                                                    Cell< Matrix< DDRMat > >     & aRequestedPdofValues,
-                                                    mtk::Master_Slave              aIsMaster )
+    void Equation_Object::get_my_pdof_values( const moris::Cell< enum Dof_Type >            & aRequestedDofTypes,
+                                                    moris::Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
+                                                    mtk::Master_Slave                         aIsMaster )
     {
         uint tIsMaster = 0;
 
@@ -811,7 +815,15 @@ namespace moris
         // Initialize list which contains the maximal number of time levels per dof type
         Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );
 
-        aRequestedPdofValues.resize( aRequestedDofTypes.size() );
+        uint tNumVectors = mPdofValues.size();
+
+        // set size for number of solution vectors
+        aRequestedPdofValues.resize( tNumVectors );
+
+        for( uint Ik = 0; Ik < tNumVectors; Ik++)
+        {
+            aRequestedPdofValues( Ik ).resize( aRequestedDofTypes.size() );
+        }
 
         moris::sint tCounter = 0;
 
@@ -840,8 +852,12 @@ namespace moris
             }
             MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i", mEqnObjInd );
 
-            // Set size matrix for requested pdof values
-            aRequestedPdofValues( Ii ).resize( tCounter, 1 );
+            // set size for all solution vectors
+            for( uint Ia = 0; Ia < tNumVectors; Ia++)
+            {
+                // Set size matrix for requested pdof values
+                aRequestedPdofValues( Ia )( Ii ).resize( tCounter, 1 );
+            }
         }
 
         moris::sint tCounter_2 = 0;
@@ -860,7 +876,6 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                 {
                     // Get dof type index
-
                     moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
                                                               ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
@@ -873,8 +888,12 @@ namespace moris
                         // get entry number of this pdof in the elemental pdof value vector
                         moris::uint tElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
 
-                        // Put this pdof value into the requested pdof vector
-                        aRequestedPdofValues( Ii )( tCounter_2++, 0 ) = mPdofValues( tElementalSolVecEntry , 0 );
+                        for( uint Ia = 0; Ia < tNumVectors; Ia++)
+                        {
+                            // Put this pdof value into the requested pdof vector
+                            aRequestedPdofValues( Ia )( Ii )( tCounter_2, 0 ) = mPdofValues( Ia )( tElementalSolVecEntry , 0 );
+                        }
+                        tCounter_2++;
                     }
                 }
             }

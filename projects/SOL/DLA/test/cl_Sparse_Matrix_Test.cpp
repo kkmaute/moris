@@ -33,13 +33,11 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Map_Class * tLocalMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                                    tSolverInput->get_my_local_global_map(),
-                                                    tSolverInput->get_constr_dof(),
-                                                    tSolverInput->get_my_local_global_map() );
+    Dist_Map * tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                                    tSolverInput->get_constrained_Ids());
 
     // Create pointer to sparse matrix
-    Sparse_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tLocalMap );
+    Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tLocalMap );
 
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -60,7 +58,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        tSolverInput->get_element_matrix( Ii, tElementMatrix );
+        tSolverInput->get_equation_object_operator( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.n_rows(), tElementMatrix, tElementTopology );
     }
@@ -106,16 +104,14 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                               tSolverInput->get_my_local_global_map(),
-                                               tSolverInput->get_constr_dof(),
-                                               tSolverInput->get_my_local_global_map() );
+    Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                               tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
-    Dist_Vector * tVectorScale = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+    Dist_Vector * tVectorScale = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
     // Create pointer to sparse matrix
-    Sparse_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
+    Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
 
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -136,7 +132,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        tSolverInput->get_element_matrix( Ii, tElementMatrix );
+        tSolverInput->get_equation_object_operator( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.n_rows(), tElementMatrix, tElementTopology );
     }
@@ -187,16 +183,14 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_max_num_global_dofs(),
-                                               tSolverInput->get_my_local_global_map(),
-                                               tSolverInput->get_constr_dof(),
-                                               tSolverInput->get_my_local_global_map() );
+    Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                                               tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
-    Dist_Vector * tVectorDiagonal = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+    Dist_Vector * tVectorDiagonal = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
     // Create pointer to sparse matrix
-    Sparse_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
+    Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
 
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -217,7 +211,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         Matrix< DDRMat > tElementMatrix;
-        tSolverInput->get_element_matrix( Ii, tElementMatrix );
+        tSolverInput->get_equation_object_operator( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.n_rows() , tElementMatrix, tElementTopology );
     }
@@ -236,7 +230,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     sint tMyLDA = 0;
 
     // Get solution and output it in moris::Mat LHSValues
-    tVectorDiagonal->get_vector()->ExtractCopy( tDiagonal.data(), tMyLDA );
+    tVectorDiagonal->get_epetra_vector()->ExtractCopy( tDiagonal.data(), tMyLDA );
 
     // Compare to true values.
     if (rank == 0)

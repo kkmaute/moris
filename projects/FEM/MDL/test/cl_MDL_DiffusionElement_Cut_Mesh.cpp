@@ -67,14 +67,16 @@
 
 namespace moris
 {
-    namespace mdl
-    {
-        Matrix< DDRMat > tConstValFunction_MDLCUT
-        ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-          moris::fem::Field_Interpolator_Manager *         aFIManager )
-        {
-            return aParameters( 0 );
-        }
+namespace mdl
+{
+
+void tConstValFunction_MDLCUT
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
 
         TEST_CASE( "Diffusion_Cut", "[moris],[mdl],[Diffusion_Cut]" )
         {
@@ -352,23 +354,28 @@ namespace moris
 
             // define set info
             fem::Set_User_Info tSetBulk1;
-            tSetBulk1.set_mesh_index( 3 );
+//            tSetBulk1.set_mesh_index( 3 );
+            tSetBulk1.set_mesh_set_name( "Omega_0_hex" );
             tSetBulk1.set_IWGs( { tIWGBulk } );
 
             fem::Set_User_Info tSetBulk2;
-            tSetBulk2.set_mesh_index( 4 );
+//            tSetBulk2.set_mesh_index( 4 );
+            tSetBulk2.set_mesh_set_name( "Omega_0_tets" );
             tSetBulk2.set_IWGs( { tIWGBulk } );
 
             fem::Set_User_Info tSetDirichlet;
-            tSetDirichlet.set_mesh_index( 8 );
+//            tSetDirichlet.set_mesh_index( 8 );
+            tSetDirichlet.set_mesh_set_name( "fixed" );
             tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
             fem::Set_User_Info tSetNeumann;
-            tSetNeumann.set_mesh_index( 7 );
+//            tSetNeumann.set_mesh_index( 7 );
+            tSetNeumann.set_mesh_set_name( "iside" );
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             fem::Set_User_Info tSetGhost;
-            tSetGhost.set_mesh_index( 10 );
+//            tSetGhost.set_mesh_index( 10 );
+            tSetGhost.set_mesh_set_name( tGhost.mSideSetName );
             tSetGhost.set_IWGs( { tIWGGhost } );
 
             // create a cell of set info
@@ -391,7 +398,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
             tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -430,7 +437,7 @@ namespace moris
 
             tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-            NLA::SOL_Warehouse tSolverWarehouse;
+            sol::SOL_Warehouse tSolverWarehouse;
 
             tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

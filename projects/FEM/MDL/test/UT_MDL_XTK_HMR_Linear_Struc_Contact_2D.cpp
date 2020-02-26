@@ -67,6 +67,10 @@
 
 #include "cl_Plane.hpp"
 
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 #include <functional>
 
 namespace moris
@@ -74,24 +78,24 @@ namespace moris
 
 //-------------------------------------------------------------------------------------
 // Functions for Parameters in FEM
-Matrix< DDRMat > ConstFunctionVal
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void ConstFunctionVal
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunctionContact
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunctionContact
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ),                   0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
 //-------------------------------------------------------------------------------------
-
-
 
 TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 {
@@ -201,20 +205,20 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tTopFieldName    = "TopPlane";
         std::string tBottomFieldName = "BottomPlane";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -285,7 +289,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
           size_t tModelDimension = 2;
           moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
           moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),tGeometryEngine);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGeometryEngine);
           tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -322,12 +326,8 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             writer.set_time(0.0);
             writer.close_file();
 
-
-
 //            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh();
-//
 //            tIntegMesh1->create_output_mesh(tEnrIgMeshFileName);
-//
 //            delete tIntegMesh1;
 
         }
@@ -441,88 +441,88 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk1.set_IWGs( { tIWGBulkA } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk2.set_IWGs( { tIWGBulkA } );
 
         fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk3.set_IWGs( { tIWGBulkB } );
 
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk4.set_IWGs( { tIWGBulkB } );
 
         fem::Set_User_Info tSetBulk5;
-        tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p5") );
+        tSetBulk5.set_mesh_set_name( "HMR_dummy_c_p5" );
         tSetBulk5.set_IWGs( { tIWGBulkB } );
 
         fem::Set_User_Info tSetBulk6;
-        tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p5") );
+        tSetBulk6.set_mesh_set_name( "HMR_dummy_n_p5" );
         tSetBulk6.set_IWGs( { tIWGBulkB } );
 
         fem::Set_User_Info tSetBulk7;
-        tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p9") );
+        tSetBulk7.set_mesh_set_name( "HMR_dummy_c_p9" );
         tSetBulk7.set_IWGs( { tIWGBulkB } );
 
         fem::Set_User_Info tSetBulk8;
-        tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p9") );
+        tSetBulk8.set_mesh_set_name( "HMR_dummy_n_p9" );
         tSetBulk8.set_IWGs( { tIWGBulkB } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p9") );
+        tSetDirichlet1.set_mesh_set_name( "SideSet_1_n_p9" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetDirichlet2;
-        tSetDirichlet2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p9") );
+        tSetDirichlet2.set_mesh_set_name( "SideSet_1_c_p9" );
         tSetDirichlet2.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetDirichlet3;
-        tSetDirichlet3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p1") );
+        tSetDirichlet3.set_mesh_set_name( "SideSet_1_c_p1" );
         tSetDirichlet3.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetDirichlet4;
-        tSetDirichlet4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p1") );
+        tSetDirichlet4.set_mesh_set_name( "SideSet_1_n_p1" );
         tSetDirichlet4.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetDirichlet5;
-        tSetDirichlet5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_c_p5") );
+        tSetDirichlet5.set_mesh_set_name( "SideSet_1_c_p5" );
         tSetDirichlet5.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetDirichlet6;
-        tSetDirichlet6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_1_n_p5") );
+        tSetDirichlet6.set_mesh_set_name( "SideSet_1_n_p5" );
         tSetDirichlet6.set_IWGs( { tIWGDirichlet } );
 
         std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,9,8) = "<<tEnrIntegMesh.get_interface_side_set_name(3,9,8)<<" Index = "<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,9,8))<<std::endl;
         std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,5,4) = "<<tEnrIntegMesh.get_interface_side_set_name(3,5,4)<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,5,4))<<std::endl;
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(2,0,2)) );
+        tSetNeumann1.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name(2,0,2) );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetNeumann2;
-        tSetNeumann2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,5,4)) );
+        tSetNeumann2.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name(3,5,4) );
         tSetNeumann2.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetNeumann3;
-        tSetNeumann3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,9,8)) );
+        tSetNeumann3.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name(3,9,8) );
         tSetNeumann3.set_IWGs( { tIWGNeumann } );
 
         /* This is the contact interface*/
         fem::Set_User_Info tSetInterface1;
-        tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_dbl_interface_side_set_name(0,1)) );
+        tSetInterface1.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name(0,1) );
         tSetInterface1.set_IWGs( { tIWGInterface } );
 
 
         fem::Set_User_Info tSetInterface2;
-        tSetInterface2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_dbl_interface_side_set_name(1,9)) );
+        tSetInterface2.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name(1,9) );
         tSetInterface2.set_IWGs( { tIWGInterface } );
 
         fem::Set_User_Info tSetInterface3;
-        tSetInterface3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_dbl_interface_side_set_name(1,5)) );
+        tSetInterface3.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name(1,5) );
         tSetInterface3.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
@@ -564,7 +564,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -599,7 +599,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -621,49 +621,50 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tTimeSolver.solve();
 
         // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
 
-        // add solution field to integration mesh
-        std::string tIntegSolFieldNameUX = "UX";
-        std::string tIntegSolFieldNameUY = "UY";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-
-        //    print(tIntegSolUX,"tIntegSolUX");
-        //    print(tIntegSolUY,"tIntegSolUY");
-
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-        }
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-
-        //    Matrix<DDRMat> tFullSol;
-        //    tNonlinearSolver.get_full_solution(tFullSol);
-        //
-        //    print(tFullSol,"tFullSol");
-
-        std::string tMeshOutputFile = "./mdl_exo/stk_xtk_linear_struc_2D.e";
-
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
-        delete tIntegMesh1;
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldNameUX = "UX";
+//        std::string tIntegSolFieldNameUY = "UY";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
+//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
+//
+//        //    print(tIntegSolUX,"tIntegSolUX");
+//        //    print(tIntegSolUY,"tIntegSolUY");
+//
+//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+//        }
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
+//
+//        //    Matrix<DDRMat> tFullSol;
+//        //    tNonlinearSolver.get_full_solution(tFullSol);
+//        //
+//        //    print(tFullSol,"tFullSol");
+//
+//        std::string tMeshOutputFile = "./mdl_exo/stk_xtk_linear_struc_2D.e";
+//
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//
+//        delete tIntegMesh1;
 
         delete tModel;
     }

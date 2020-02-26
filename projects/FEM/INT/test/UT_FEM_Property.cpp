@@ -14,79 +14,103 @@
 #undef protected
 #undef private
 
-moris::Matrix< moris::DDRMat > tValFunction( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                             moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return { { 1.0 } };
+    aPropMatrix =  { { 1.0 } };
 }
 
-moris::Matrix< moris::DDRMat > tDerFunction( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                             moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::Matrix< moris::DDRMat > tPropertyDer( 1, 1, 2.0);
-    return tPropertyDer;
+    aPropMatrix =  tPropertyDer;
 }
 
-moris::Matrix< moris::DDRMat > tValFunction2( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                              moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tValFunction2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 )
+    aPropMatrix =  aParameters( 0 )
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunction2( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunction3( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                              moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction3
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
 }
 
-moris::Matrix< moris::DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                                  moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix =  aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tGeoValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx();
+    aPropMatrix =  aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx();
 }
 
-moris::Matrix< moris::DDRMat > tValFunction3( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tValFunction3
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 )
+    aPropMatrix =  aParameters( 0 )
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val()
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->val()
          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->val();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_TEMP( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                   moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction3_TEMP
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_UX( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                 moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction3_UX
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_LS1( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                                  moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction3_LS1
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->N();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_LS2( moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
-                                                  moris::fem::Field_Interpolator_Manager*         aFIManager )
+void tDerFunction3_LS2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->N();
 }
 
 
@@ -274,7 +298,6 @@ namespace moris
 
             //evaluate the property
             Matrix< DDRMat > tPropertyValue = tProperty.val();
-            print(tPropertyValue,"Prop");
             CHECK( equal_to( tPropertyValue( 0, 0 ), 17.0 ) );
 
             // check that property depends on TEMP

@@ -18,14 +18,14 @@ moris::input::create_solve_opt_problem(
     Problem = aProblem;
     ADVs.set_size( aNumMasterAdvs, 1, 0.0 );
 
-    // create an object of type OptProb based on the variables defined
+    // create an object of type Problem based on the variables defined
     // above
-    moris::opt::OptProb tOptProb ( aNumMasterAdvs, aNumCriteria, aNumConstraints, aNumEqConstraints );
+    moris::opt::Problem tOptProb ( aNumMasterAdvs, aNumCriteria, aNumConstraints, aNumEqConstraints );
 
     tOptProb.mIsOptAnlyt = true; // set the analytical problem flag to true
 
-    // Create an object of type OptManager
-    opt::OptManager aOptManager( tOptProb );
+    // Create an object of type Manager
+    opt::Manager aOptManager( tOptProb );
 
     // solve the optimization problem
     aOptManager.solve_opt_system( );

@@ -31,7 +31,7 @@ set(HEADERS
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
 	geomeng/fn_GEN_triangle_geometry.hpp
 	
-	geometry/fn_bounding_box.hpp
+	geometry/cl_GEN_Analytic_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
 	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
 	geometry/cl_GEN_Discrete_Level_Set.hpp
@@ -39,6 +39,7 @@ set(HEADERS
 	geometry/cl_GEN_Geom_Data.hpp
 	geometry/cl_GEN_Geom_Field.hpp
 	geometry/cl_GEN_Sphere.hpp
+	geometry/fn_bounding_box.hpp
 	
 	property/cl_GEN_Property.hpp
 	
@@ -55,7 +56,6 @@ set(HEADERS
 	cl_GE_Main.hpp
 	cl_GE_Nodal_Info.hpp
 	cl_GE_Node.hpp
-	cl_GE_Property.hpp
 	cl_GE_SDF.hpp
 	
     )

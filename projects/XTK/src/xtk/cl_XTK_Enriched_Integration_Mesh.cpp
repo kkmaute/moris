@@ -766,7 +766,7 @@ Enriched_Integration_Mesh::print_block_sets(moris::uint aVerbosityLevel) const
     {
         std::cout<<"\n    Block Name: "     <<std::setw(20)<<mBlockSetNames(iBS)
                 <<" | Block Set Ord: "    <<std::setw(9)<<iBS
-                <<" | Num Cell Clusters: "<<std::setw(9)
+                <<" | Num Cell Clusters: "<<std::setw(9)<<mPrimaryBlockSetClusters(iBS).size()
                 <<" | Bulk Phase: "<<std::setw(9)<<mBlockSetColors(iBS)(0);
 
         if(aVerbosityLevel > 0)
@@ -936,9 +936,9 @@ Enriched_Integration_Mesh::get_interface_side_set_name(moris_index aGeomIndex,
                                                        moris_index aBulkPhaseIndex0,
                                                        moris_index aBulkPhaseIndex1)
 {
-    MORIS_ASSERT(aGeomIndex< (moris_index)mModel->get_geom_engine().get_num_geometries(),"Geometry index out of bounds");
-    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
-    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
+    MORIS_ASSERT(aGeomIndex< (moris_index)mModel->get_geom_engine()->get_num_geometries(),"Geometry index out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
 
     return "iside_g_" + std::to_string(aGeomIndex) + "_b0_" + std::to_string(aBulkPhaseIndex0) + "_b1_" + std::to_string(aBulkPhaseIndex1);
 }
@@ -948,8 +948,8 @@ Enriched_Integration_Mesh::get_dbl_interface_side_set_name(moris_index aBulkPhas
                                                            moris_index aBulkPhaseIndex1)
 {
     MORIS_ASSERT(aBulkPhaseIndex0<aBulkPhaseIndex1,"Double side set names are defined from low index to high");
-    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
-    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
 
     return "dbl_iside_p0_" + std::to_string(aBulkPhaseIndex0) + "_p1_" + std::to_string(aBulkPhaseIndex1);
 }
@@ -1447,7 +1447,7 @@ Enriched_Integration_Mesh::setup_double_sided_interface_sides()
 void
 Enriched_Integration_Mesh::declare_interface_double_side_sets()
 {
-    uint tNumBulkPhases = mModel->get_geom_engine().get_num_bulk_phase();
+    uint tNumBulkPhases = mModel->get_geom_engine()->get_num_bulk_phase();
 
     Cell<std::string> tDoubleInterfaceSideNames;
 
@@ -1614,7 +1614,7 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
 moris::Cell<std::string>
 Enriched_Integration_Mesh::split_set_name_by_bulk_phase(std::string aBaseName)
 {
-    moris::uint tNumPhases = mModel->mGeometryEngine.get_num_bulk_phase();
+    moris::uint tNumPhases = mModel->mGeometryEngine->get_num_bulk_phase();
     moris::Cell<std::string> tSetNames(tNumPhases);
     for(moris::uint  i = 0; i<tNumPhases; i++)
     {
@@ -1750,8 +1750,8 @@ Enriched_Integration_Mesh::setup_interface_side_sets()
 void
 Enriched_Integration_Mesh::declare_interface_side_sets()
 {
-    uint tNumGeometries = mModel->get_geom_engine().get_num_geometries();
-    uint tNumBulkPhases = mModel->get_geom_engine().get_num_bulk_phase();
+    uint tNumGeometries = mModel->get_geom_engine()->get_num_geometries();
+    uint tNumBulkPhases = mModel->get_geom_engine()->get_num_bulk_phase();
 
     Cell<std::string>      tInterfaceSideNames;
     Cell<Matrix<IndexMat>> tInterfaceSideColors;
@@ -1785,8 +1785,8 @@ Enriched_Integration_Mesh::declare_interface_side_sets()
 void
 Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
 {
-    uint tNumGeometries  = mModel->get_geom_engine().get_num_geometries();
-    uint tNumBulkPhases  = mModel->get_geom_engine().get_num_bulk_phase();
+    uint tNumGeometries  = mModel->get_geom_engine()->get_num_geometries();
+    uint tNumBulkPhases  = mModel->get_geom_engine()->get_num_bulk_phase();
     uint tNumChildMeshes = mModel->get_cut_mesh().get_num_child_meshes();
 
     Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);

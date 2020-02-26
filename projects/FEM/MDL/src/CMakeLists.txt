@@ -27,6 +27,7 @@ set(LIB_DEPENDENCIES
     ${TSA}-lib
     ${SDF}-lib
     ${DLA}-lib
+    ${PRM}-lib
     )
 
 # Set the output path for library

@@ -67,7 +67,7 @@ namespace moris
         for ( moris::uint Ii=0; Ii < tNumEquationBlocks; Ii++ )
         {
 
-        	// Create temporary dof type list
+            // Create temporary dof type list
             moris::Cell< enum Dof_Type > tDofType;
 
             // Ask equation object for its dof types
@@ -76,7 +76,7 @@ namespace moris
             // Loop over all dof types
             for ( moris::uint Ik=0; Ik < tDofType.size(); Ik++ )
             {
-            	// Set 1 at position of the enum value
+                // Set 1 at position of the enum value
                 tListToCheckIfEnumExist( static_cast< int >(tDofType( Ik )) ,0 ) = 1;
             }
         }
@@ -85,7 +85,7 @@ namespace moris
         for ( moris::uint Ij=0; Ij < tListToCheckIfEnumExist.numel(); Ij++ )
         {
 
-        	if ( tListToCheckIfEnumExist(Ij , 0) == 1)
+            if ( tListToCheckIfEnumExist(Ij , 0) == 1)
             {
                 tTemporaryPdofTypeList.push_back( ( Dof_Type ) Ij );
             }
@@ -412,7 +412,8 @@ namespace moris
     //-----------------------------------------------------------------------------------------------------------
     moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
-    	std::cout<<aNumOwnedAdofs<<" aNumOwnedAdofs"<<std::endl;
+        MORIS_LOG_INFO( " System has a total of %-5i dofs on processor %-5i.", aNumOwnedAdofs, par_rank() );
+
         // Get list containing the number of owned adofs of each processor
         Matrix< DDUMat > tNumOwnedAdofsList;
         comm_gather_and_broadcast( aNumOwnedAdofs, tNumOwnedAdofsList );

@@ -205,6 +205,7 @@ set(LIB_DEPENDENCIES
     ${MTK}-lib
     ${MSI}-lib
     ${VIS}-lib
+    ${PRM}-lib
     )
 
 # Set the output path for library

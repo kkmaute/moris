@@ -16,21 +16,22 @@
 #include "cl_FEM_CM_Factory.hpp"                            //FEM//INT/src
 #include "cl_FEM_SP_Factory.hpp"                            //FEM//INT/src
 
-
 #include "op_equal_equal.hpp"
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTGhost
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tFIValFunction_UTGhost
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTGhost
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tFIDerFunction_UTGhost
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 using namespace moris;
@@ -273,14 +274,14 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             if ( iInterpOrder > 0 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
+                tSP1->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
                 tSP1->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
                 tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
             }
             if ( iInterpOrder > 1 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
+                tSP2->set_parameters( { {{ 1.0 }}, {{ 2.0 }} });
                 tSP2->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
                 tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
             }

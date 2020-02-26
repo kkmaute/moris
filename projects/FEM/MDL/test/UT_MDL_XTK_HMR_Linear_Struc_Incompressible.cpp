@@ -83,46 +83,52 @@
 #include "cl_GEN_Geometry.hpp"
 
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
+
 namespace moris
 {
 moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tOffset = 200;
-
-    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
+    return aPoint(0) - 0.317 * aPoint(1) - tOffset;
 }
 
 moris::real LvlSetCircle2D(const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    return    std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.45;
+    return std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.45;
 }
 
 moris::real LvlSetCircle2D_outsideDomain(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     Matrix< DDRMat > tCenter{ { -10, -10 } };
-    return    norm( aPoint - tCenter ) - 0.001;
+    return norm( aPoint - tCenter ) - 0.001;
 }
 
-Matrix< DDRMat > tConstValFunction
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction2d
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunction2d
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ), 0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0 },
             { 0.0, aParameters( 0 )( 1 ) }};
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction3d
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tMValFunction3d
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
             { 0.0, aParameters( 0 )( 1 ), 0.0 },
             { 0.0, 0.0, aParameters( 0 )( 2 ) }};
 }
@@ -131,9 +137,7 @@ moris::real
 LevelSetFunction_star1( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
-
     moris::real tLevelSetVaue = 0.501 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) );
-
     return -tLevelSetVaue;
 }
 
@@ -166,20 +170,20 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "10, 10");
-        tParameters.set( "domain_dimensions", "2, 2" );
-        tParameters.set( "domain_offset", "-1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("10, 10"));
+        tParameters.set( "domain_dimensions", std::string("2, 2") );
+        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -221,7 +225,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -319,19 +323,19 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk1.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk2.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet, tIWGDirichletP } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -364,7 +368,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tDofTypesP( 0 ) = MSI::Dof_Type::P;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -394,7 +398,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypes );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -417,43 +421,45 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tTimeSolver.solve();
 
         // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
+        // FIXME add with output if needed
 
-        // add solution field to integration mesh
-        std::string tIntegSolFieldNameUX = "UX";
-        std::string tIntegSolFieldNameUY = "UY";
-        std::string tIntegSolFieldNameP = "P";
-        //tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameP};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-        Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
-
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-        }
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldNameUX = "UX";
+//        std::string tIntegSolFieldNameUY = "UY";
+//        std::string tIntegSolFieldNameP = "P";
+//        //tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameP};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
+//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
+//        Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
+//
+//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//        }
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//
         // Start solution comparison
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
@@ -505,7 +511,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         CHECK( tSolutionCheck );
 
         // clean up
-        delete tIntegMesh1;
+//        delete tIntegMesh1;
         delete tModel;
     }
 }
@@ -516,20 +522,20 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2, 2");
-        tParameters.set( "domain_dimensions", "2, 2, 2" );
-        tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2"));
+        tParameters.set( "domain_dimensions", std::string("2, 2, 2") );
+        tParameters.set( "domain_offset", std::string("-1.0, -1.0, -1.0") );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5,6") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders",std::string( "1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -571,7 +577,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere, tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -668,19 +674,19 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk1.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk2.set_IWGs( { tIWGBulk, tIWGBulkP } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet , tIWGDirichletP} );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -716,7 +722,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tDofTypesP(0) = MSI::Dof_Type::P;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -744,7 +750,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tNonlinearSolverMain.set_dof_type_list( tDofTypes );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -782,7 +788,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
 //
 //        // Create solver database
-//        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 //
 //        tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 //        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );
@@ -807,47 +813,49 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tTimeSolver.solve();
 
         // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
+        // FIXME add using ouptput if needed
 
-        // add solution field to integration mesh
-        std::string tIntegSolFieldNameUX = "UX";
-        std::string tIntegSolFieldNameUY = "UY";
-        std::string tIntegSolFieldNameUZ = "UZ";
-        std::string tIntegSolFieldNameP = "P";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameUZ, tIntegSolFieldNameP};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-        Matrix<DDRMat> tIntegSolUZ = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UZ );
-        Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
-
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-        Matrix<DDRMat> tSTKIntegSolUZ(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-            tSTKIntegSolUZ(i) = tIntegSolUZ(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-        }
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUZ, EntityRank::NODE, tSTKIntegSolUZ);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldNameUX = "UX";
+//        std::string tIntegSolFieldNameUY = "UY";
+//        std::string tIntegSolFieldNameUZ = "UZ";
+//        std::string tIntegSolFieldNameP = "P";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameUZ, tIntegSolFieldNameP};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
+//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
+//        Matrix<DDRMat> tIntegSolUZ = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UZ );
+//        Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
+//
+//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//        Matrix<DDRMat> tSTKIntegSolUZ(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//            tSTKIntegSolUZ(i) = tIntegSolUZ(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
+//        }
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUZ, EntityRank::NODE, tSTKIntegSolUZ);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//
         // Start solution comparison
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
@@ -899,7 +907,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         CHECK( tSolutionCheck );
 
         // clean up
-        delete tIntegMesh1;
+//        delete tIntegMesh1;
         delete tModel;
     }
 }
@@ -966,7 +974,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 //        moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere, tPhaseTable, 2);
 //
-//        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+//        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 //
 //        tXTKModel.mVerbose = false;
 //
@@ -1062,19 +1070,19 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //
 //        // define set info
 //        fem::Set_User_Info tSetBulk1;
-//        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+//        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p1" );
 //        tSetBulk1.set_IWGs( { tIWGBulk, tIWGBulkP } );
 //
 //        fem::Set_User_Info tSetBulk2;
-//        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+//        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p1" );
 //        tSetBulk2.set_IWGs( { tIWGBulk, tIWGBulkP } );
 //
 //        fem::Set_User_Info tSetDirichlet;
-//        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+//        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
 //        tSetDirichlet.set_IWGs( { tIWGDirichlet , tIWGDirichletP} );
 //
 //        fem::Set_User_Info tSetNeumann;
-//        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+//        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
 //        tSetNeumann.set_IWGs( { tIWGNeumann } );
 //
 //        // create a cell of set info
@@ -1110,7 +1118,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        tDofTypesP(0) = MSI::Dof_Type::P;
 //
 //        dla::Solver_Factory  tSolFactory;
-//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 //
 //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1138,7 +1146,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 ////        tNonlinearSolverMain.set_dof_type_list( tDofTypes );
 ////
 ////        // Create solver database
-////        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+////        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 ////
 ////        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 //
@@ -1176,7 +1184,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicP );
 //
 //        // Create solver database
-//        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 //
 //        tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 //        tNonlinearSolverMonolythicP.set_solver_warehouse( &tSolverWarehouse );

@@ -86,31 +86,37 @@
 
 #include "cl_GE_Geometry_Library.hpp"
 
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 #include "fn_norm.hpp"
 
 
 namespace moris
 {
 
-// define free function for properties
- Matrix< DDRMat > tPropValConstFunc
- ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-   moris::fem::Field_Interpolator_Manager *         aFIManager )
- {
-     return aParameters( 0 );
- }
- Matrix< DDRMat > tPropValFunc
- ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-   moris::fem::Field_Interpolator_Manager *         aFIManager )
- {
-     return aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
- }
- Matrix< DDRMat > tPropDerFunc
- ( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-   moris::fem::Field_Interpolator_Manager *         aFIManager )
- {
-     return aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
- }
+void tPropValConstFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
+void tPropValFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+}
+void tPropDerFunc
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+}
 
 bool tSolverOutputCriteria_UTGyroid( moris::tsa::Time_Solver * )
 {
@@ -210,7 +216,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         moris::hmr::Parameters tParameters;
 
         // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
+        ParameterList tParam = prm::create_hmr_parameter_list();
 
         tParameters.set_number_of_elements_per_dimension( { {10}, {10}, {10} } );
         tParameters.set_domain_dimensions( 5, 5, 5 );
@@ -234,7 +240,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -282,7 +288,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
 //        moris::ge::GEN_Geometry_Engine tGeometryEngine;
 
-        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -436,37 +442,37 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk2 } );
        tSetBulk1.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk2 } );
        tSetBulk2.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk1 } );
        tSetBulk3.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk1 } );
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
        fem::Set_User_Info tSetInterface1;
-       tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
+       tSetInterface1.set_mesh_set_name( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
@@ -499,7 +505,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tModel->set_output_manager( &tOutputData );
 
        dla::Solver_Factory  tSolFactory;
-       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -535,7 +541,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

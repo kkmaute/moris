@@ -33,6 +33,7 @@ namespace moris
                                                              mIWGs( aSetInfo.get_IWGs() ),
                                                              mIQIs( aSetInfo.get_IQIs() )
     {
+        // get the set type
         this->determine_set_type();
 
         // loop over the IWGs on the set

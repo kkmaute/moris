@@ -115,11 +115,11 @@ namespace moris
             L2_ERROR_ANALYTIC,
             H1_ERROR_ANALYTIC,
             H1_SEMI_ERROR,
+            J_INTEGRAL,
             END_IQI_TYPE
         };
 
 //------------------------------------------------------------------------------
-
         enum class Constitutive_Type
         {
             UNDEFINED,
@@ -130,9 +130,9 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Model_Type
         {
+            UNDEFINED,
             PLANE_STRESS,
             PLANE_STRAIN,
             FULL,
@@ -152,17 +152,6 @@ namespace moris
             MASTER_WEIGHT_INTERFACE,
             SLAVE_WEIGHT_INTERFACE,
             END_STABILIZATION_TYPE
-        };
-
-//------------------------------------------------------------------------------
-        enum class Cluster_Measure
-        {
-            UNDEFINED,
-            MASTER_VOLUME,
-            SLAVE_VOLUME,
-            INTERFACE_SURFACE,
-            ELEMENT_SIZE,
-            END_CLUSTER_MEASURE
         };
 
 //------------------------------------------------------------------------------

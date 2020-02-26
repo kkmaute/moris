@@ -61,6 +61,7 @@ namespace moris
                 mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
                 += - trans( tDisplacementFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
+
         }
 
 //------------------------------------------------------------------------------

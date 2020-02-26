@@ -70,7 +70,7 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
@@ -154,7 +154,7 @@ TEST_CASE("2D Conformal Subdivision","[CM_2D_LIN]")
 
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 2;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -239,7 +239,7 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting
@@ -334,7 +334,7 @@ TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting

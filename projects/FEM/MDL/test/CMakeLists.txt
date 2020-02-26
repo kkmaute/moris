@@ -9,8 +9,6 @@ set(TEST_SOURCES
     #UT_MDL_Mesh_Model_Helper.cpp
     UT_MDL_XTK_DiffusionElement.cpp
     UT_MDL_XTK_HMR_DiffusionElement.cpp
-    UT_MDL_XTK_HMR_2D.cpp
-    UT_MDL_XTK_HMR_Diffusion_Element_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Contact_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Incompressible.cpp
@@ -23,6 +21,7 @@ set(TEST_SOURCES
     UT_MDL_FEM_Benchmark.cpp
     UT_MDL_FEM_Benchmark2.cpp
     UT_MDL_FEM_DQ_Dp.cpp
+    UT_MDL_Input.cpp
 
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
@@ -74,6 +73,7 @@ set(TEST_DEPENDENCIES
     ${XTK}-lib
     ${GEN_MAIN}-lib
     ${MORIS_BASE_LIBS}
+    ${PRM}-lib
     )
 
 # Set the output path for test

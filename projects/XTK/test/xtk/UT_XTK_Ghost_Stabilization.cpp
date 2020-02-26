@@ -41,7 +41,7 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 
     // create model
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose  =  false;
 
     // decompose

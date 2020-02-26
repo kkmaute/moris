@@ -18,48 +18,24 @@
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
 namespace dla
 {
     class Linear_Problem;
 }
-namespace NLA
+namespace sol
 {
     class SOL_Warehouse;
+}
+namespace NLA
+{
     class Nonlinear_Problem
     {
     private:
 
         void  delete_pointers();
-
-        //--------------------Arc Length-------------------
-        Sparse_Matrix * mJacobian    = nullptr;
-
-        Dist_Vector * mJacVals       = nullptr;
-        Dist_Vector * mJacVals0      = nullptr;
-
-        Dist_Vector * mDTildeVec     = nullptr;
-        Dist_Vector * mDTilde0Vec    = nullptr;
-
-        Dist_Vector * mDK            = nullptr;
-        Dist_Vector * mDSolve        = nullptr;
-        Dist_Vector * mDSolveNMinus1 = nullptr;
-        Dist_Vector * mDSolveNMinus2 = nullptr;
-
-        Dist_Vector * mGlobalRHS     = nullptr;
-
-        Dist_Vector * mDFArcDDeltaD  = nullptr;
-
-        Dist_Vector * mDelLamNum     = nullptr;
-        Dist_Vector * mDelLamDen     = nullptr;
-        Dist_Vector * mDeltaD        = nullptr;
-        Dist_Vector * mdeltaD        = nullptr;
-
-        Dist_Vector * mFext          = nullptr;
-        Dist_Vector * mTempExtForce  = nullptr;
-        //-------------------------------------------------
 
     protected:
         Solver_Interface * mSolverInterface;
@@ -67,8 +43,8 @@ namespace NLA
         Dist_Vector * mFullVector = nullptr;
         Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
 
-        Map_Class   * mMap = nullptr;
-        Map_Class   * mMapFull = nullptr;               //FIXME replace with marketplace
+        Dist_Map   * mMap = nullptr;
+        Dist_Map   * mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 
@@ -77,7 +53,7 @@ namespace NLA
         bool mBuildLinerSystemFlag = true;
 
         //! Map type. for special Petsc functionalities
-        enum MapType mMapType = MapType::Epetra;
+        enum sol::MapType mMapType = sol::MapType::Epetra;
 
         //! Nonlinear solver manager index. only for output purposes
         moris::sint mNonlinearSolverManagerIndex = -1;
@@ -97,7 +73,7 @@ namespace NLA
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra );
+                           const enum sol::MapType  aMapType = sol::MapType::Epetra );
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief Constructor. Creates nonlinear system
@@ -108,12 +84,12 @@ namespace NLA
          * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
          * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
          */
-        Nonlinear_Problem(       SOL_Warehouse    * aNonlinDatabase,
+        Nonlinear_Problem(       sol::SOL_Warehouse    * aNonlinDatabase,
                                  Solver_Interface * aSolverInterface,
                                  Dist_Vector      * aFullVector,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra);
+                           const enum sol::MapType   aMapType = sol::MapType::Epetra);
 
         //--------------------------------------------------------------------------------------------------
         ~Nonlinear_Problem();
@@ -144,100 +120,16 @@ namespace NLA
         Dist_Vector * get_full_vector();
 
         //--------------------------------------------------------------------------------------------------
-        void extract_my_values( const moris::uint             & aNumIndices,
-                                const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                const moris::uint             & aBlockRowOffsets,
-                                      moris::Matrix< DDRMat > & LHSValues );
+        void extract_my_values( const moris::uint                            & aNumIndices,
+                                const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                const moris::uint                            & aBlockRowOffsets,
+                                      moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
         //--------------------------------------------------------------------------------------------------
         void set_time_value( const moris::real & aLambda,
                                    moris::uint   aPos = 1 );
 
-        //--------------------------------------------------------------------------------------------------
-        //--------------------------------arc-length 'get' functions----------------------------------------
-        //--------------------------------------------------------------------------------------------------
-        Sparse_Matrix * get_full_for_jacobian()
-        {
-            return mJacobian;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_jacobian_diag()
-        {
-            return mJacVals;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_jacobian_diag_0()
-        {
-            return mJacVals0;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_tilde()
-        {
-            return mDTildeVec;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_tilde0()
-        {
-            return mDTilde0Vec;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_solve()
-        {
-            return mDSolve;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_solve_n_minus_1()
-        {
-            return mDSolveNMinus1;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_solve_n_minus_2()
-        {
-            return mDSolveNMinus2;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_k()
-        {
-            return mDK;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_df_dDeltaD()
-        {
-            return mDFArcDDeltaD;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_lam_num()
-        {
-            return mDelLamNum;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_lam_den()
-        {
-            return mDelLamDen;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_d_upper()
-        {
-            return mDeltaD;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_d()
-        {
-            return mdeltaD;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_global_rhs()
-        {
-            return mGlobalRHS;
-        }
-        //--------------------------------------------------------------------------------------------------
 
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_f_ext()
-        {
-            return mFext;
-        }
-        //--------------------------------------------------------------------------------------------------
     };
 }
 }

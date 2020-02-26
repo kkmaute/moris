@@ -38,6 +38,9 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
 //------------------------------------------------------------------------------
 
 namespace moris
@@ -56,24 +59,24 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
     {
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 1" );
-        tParameters.set( "domain_dimensions",                "2, 1" );
-        tParameters.set( "domain_offset",                    "0, 0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("2, 1") );
+        tParameters.set( "domain_dimensions",                std::string("2, 1") );
+        tParameters.set( "domain_offset",                    std::string("0, 0") );
 
         //        tParameters.set( "domain_sidesets", "1, 2, 3, 4" );
 
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_output_meshes", "0" );
-        tParameters.set( "lagrange_input_meshes", "0" );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "lagrange_input_meshes",std::string( "0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "use_multigrid", 0 );
 
@@ -124,20 +127,21 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         //------------------------------------------------------------------------------
 
         moris::ge::GEN_Geometry_Engine  tGeometryEngine;
+        tGeometryEngine.mSpatialDim = 2;
 
         //------------------------------------------------------------------------------
         tGeometryEngine.register_mesh( &tMeshManager );
 
         if( par_rank()==0 )
         {
-            tGeometryEngine.set_pdv_types( tPdvList0 );
+            tGeometryEngine.set_pdv_types( tPdvList0, false );
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
             tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
         }
         else if ( par_rank()==1 )
         {
-            tGeometryEngine.set_pdv_types( tPdvList1 );
+            tGeometryEngine.set_pdv_types( tPdvList1, false );
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
             tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList1(0), tPdvList1(0), tHMRMeshIndex );
@@ -148,7 +152,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
                                                   {GEN_DV::DENSITY1} };
         if( par_rank()==0 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_hosts()->get_pdv_type_list();
+            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_host_manager()->get_pdv_type_list();
 
             REQUIRE( tPdvTypeList0(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList0(1) == tCheckCell(1) );
@@ -156,7 +160,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
         if( par_rank()==1 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_hosts()->get_pdv_type_list();
+            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_host_manager()->get_pdv_type_list();
 
             REQUIRE( tPdvTypeList1(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList1(1) == tCheckCell(1) );
@@ -164,6 +168,18 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
     }   // end par size statement
 }
+//------------------------------------------------------------------------------
+TEST_CASE("unit test for globally consistent pdv type list with geometry","[GE],[global_pdv_type_list_check_parallel_with_geometry]")
+{
+    /*
+     * similar to above test but now we also add the geometry design variables on the integration nodes
+     */
+    if(par_size() == 2)
+    {
+        // TODO: implement test
+    }
+}
+
 
 }   // end ge namespace
 }       // end moris namespace

@@ -22,16 +22,13 @@ namespace ge
         Pdv_Host_Manager* mManager;
 
     public:
+//------------------------------------------------------------------------------
         GEN_Design_Variable_Interface( Pdv_Host_Manager* aManager ) : mManager(aManager)
         {  };
-
 //------------------------------------------------------------------------------
-
-        ~GEN_Design_Variable_Interface(){};
-
+        ~GEN_Design_Variable_Interface()
+        {};
 //------------------------------------------------------------------------------
-
-
         /**
          * @brief Function providing pdv values for requested vertex indices and Dv types
          *
@@ -51,18 +48,17 @@ namespace ge
         {
             MORIS_ASSERT( false,"GEN_Design_Variable_Interface::get_unique_dv_types_for_set() - not implemented" );
         }
-
 //------------------------------------------------------------------------------
         /**
          * @brief Function providing pdv values for requested vertex indices and Dv types
          *
          * @param[in] aNodeIndices   List of node indices
          * @param[in] aDvType        List of Dv types
-         * @param[in] aDvValues      List of Dv values
-         * @param[in] aIsActive      List of active design variables
+         * @param[in] aDvValues      List of Dv values (DvType)(vertexIndex)
+         * @param[in] aIsActive      List of active design variables (vertexIndex)(DvType)
          */
 
-        void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     //FIXME: [should be a matrix everywhere]
+        void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
                             const moris::Cell< enum GEN_DV >        & aDvTypes,
                             moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
                             moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv )
@@ -90,13 +86,12 @@ namespace ge
             }
         }
 
-        void get_pdv_value( const Matrix< IndexMat >                    & aNodeIndices,
-                                const moris::Cell< enum GEN_DV >        & aDvTypes,
-                                moris::Cell< moris::Matrix< DDRMat > >  & aDvValues )
+        void get_pdv_value( const Matrix< IndexMat >                     & aNodeIndices,
+                            const moris::Cell< enum GEN_DV >             & aDvTypes,
+                                  moris::Cell< moris::Matrix< DDRMat > > & aDvValues )
         {
-            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - not implemented on GE side");
+            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - overload not implemented on GE side");
         }
-
 //------------------------------------------------------------------------------
         /**
          * @brief return local to global dv type map
@@ -106,7 +101,6 @@ namespace ge
         {
             return mManager->get_global_map();
         }
-
 //------------------------------------------------------------------------------
         /**
          * @brief return local to global DV type map
@@ -120,8 +114,10 @@ namespace ge
                                           const Cell< enum GEN_DV >               & aDvTypes,
                                                 Cell< moris::Matrix< IdMat > >    & aDvIds )
         {
-            // each cell is a row vector of global IDs per each type
-            // return the global ids of the dv type on a specified vertex
+            /*
+             * - each cell is a row vector of global IDs per each type
+             * - return the global ids of the dv type on a specified vertex
+             */
 
             uint tNumIndices = aNodeIndices.size();
             uint tNumTypes   = aDvTypes.size();
@@ -154,7 +150,6 @@ namespace ge
                 aDvIds( Ik ).resize( tCounter( Ik ), 1);
             }
         }
-
 //------------------------------------------------------------------------------
 
     };

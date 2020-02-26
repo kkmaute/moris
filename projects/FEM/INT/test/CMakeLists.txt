@@ -44,6 +44,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
     UT_FEM_IQI_Strain_Energy.cpp
+    UT_FEM_Input.cpp
     )
 
 # List test dependencies
@@ -51,6 +52,7 @@ set(TEST_DEPENDENCIES
 	test-libs
     ${INT}-lib
     ${ALG}-lib
+    ${PRM}-lib
     ${MORIS_BASE_LIBS}
     )
 

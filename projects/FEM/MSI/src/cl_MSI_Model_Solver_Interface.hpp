@@ -30,6 +30,7 @@ namespace moris
     namespace MSI
     {
         class MSI_Solver_Interface;
+        class Equation_Model;
         class Model_Solver_Interface
         {
         private:
@@ -51,8 +52,6 @@ namespace moris
 
             //! Multigrid object pointer
             Multigrid * mMultigrid = nullptr;
-
-
 
             MSI::MSI_Solver_Interface * mSolverInterface;
 
@@ -115,10 +114,17 @@ namespace moris
 
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
-
             mDofMgn.initialize_pdof_type_list( mEquationBlocks );
-
         };
+
+//------------------------------------------------------------------------------
+
+        Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
+                                     std::shared_ptr< MSI::Equation_Model >            & aEquationModel,
+                               const Matrix< IdMat >                                   & aCommTable,
+                               const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                               const moris::uint                                         aNumMaxAdofs,
+                                     mtk::Mesh                                         * aMesh );
 
 //------------------------------------------------------------------------------
 

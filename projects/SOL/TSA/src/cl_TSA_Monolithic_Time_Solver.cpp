@@ -20,7 +20,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
-
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
 
@@ -92,6 +91,8 @@ void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
     mNonlinearSolver->get_my_nonlin_problem()->set_time_value( aLambdaInc );
     mLambdaInc = aLambdaInc;
 }
+
+//-------------------------------------------------------------------------------
 
 moris::real Monolithic_Time_Solver::get_new_lambda()
 {

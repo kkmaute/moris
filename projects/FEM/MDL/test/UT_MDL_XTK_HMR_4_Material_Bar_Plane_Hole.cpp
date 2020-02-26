@@ -112,8 +112,6 @@ Plane4MatMDL3(const moris::Matrix< moris::DDRMat > & aPoint )
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-
-
 moris::real
 Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
 {
@@ -127,19 +125,18 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
                     - (mRadius * mRadius);
 }
 
-
-Matrix< DDRMat > tConstValFunction2MatMDL
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tConstValFunction2MatMDL
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 bool tSolverOutputCriteria_4MatMDL( moris::tsa::Time_Solver * )
 {
     return true;
 }
-
 
 void
 run_hmr_for_multi_mat_model_2d(hmr::HMR  &                    aHMR,
@@ -173,7 +170,6 @@ run_hmr_for_multi_mat_model_2d(hmr::HMR  &                    aHMR,
 
 }
 
-
 moris::real
 MultiMat3dPlane( const moris::Matrix< moris::DDRMat > & aPoint )
 {
@@ -187,7 +183,6 @@ MultiMat3dPlane( const moris::Matrix< moris::DDRMat > & aPoint )
 
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
 }
-
 
 moris::real
 MultiMat3dCyl(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -248,9 +243,7 @@ run_hmr_for_multi_mat_model_3d(hmr::HMR  &                    aHMR,
     aFields(1)->evaluate_scalar_function( MultiMat3dPlane );
     aHMR.finalize();
 
-
     std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = aHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
 }
 
 TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE_BAR_HOLE_2D]")
@@ -298,7 +291,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -490,67 +483,67 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
         tSetBulk1.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
         tSetBulk2.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk3.set_IWGs( { tIWGBulk2 } );
         tSetBulk3.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk4.set_IWGs( { tIWGBulk2 } );
         tSetBulk4.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk5;
-        tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
+        tSetBulk5.set_mesh_set_name( "HMR_dummy_c_p2" );
         tSetBulk5.set_IWGs( { tIWGBulk1 } );
         tSetBulk5.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk6;
-        tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
+        tSetBulk6.set_mesh_set_name( "HMR_dummy_n_p2" );
         tSetBulk6.set_IWGs( { tIWGBulk1 } );
         tSetBulk6.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk7;
-        tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
+        tSetBulk7.set_mesh_set_name( "HMR_dummy_c_p3" );
         tSetBulk7.set_IWGs( { tIWGBulk1 } );
         tSetBulk7.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk8;
-        tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
+        tSetBulk8.set_mesh_set_name( "HMR_dummy_n_p3" );
         tSetBulk8.set_IWGs( { tIWGBulk1 } );
         tSetBulk8.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
+        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p2" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
+        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p3" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterface1;
-        tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName01) );
+        tSetInterface1.set_mesh_set_name( tDblInterfaceSideSetName01 );
         tSetInterface1.set_IWGs( { tIWGInterface1 } );
 
         fem::Set_User_Info tSetInterface2;
-        tSetInterface2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName02) );
+        tSetInterface2.set_mesh_set_name( tDblInterfaceSideSetName02 );
         tSetInterface2.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface3;
-        tSetInterface3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13) );
+        tSetInterface3.set_mesh_set_name( tDblInterfaceSideSetName13 );
         tSetInterface3.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface4;
-        tSetInterface4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23) );
+        tSetInterface4.set_mesh_set_name( tDblInterfaceSideSetName23 );
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
@@ -599,7 +592,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -645,7 +638,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -717,7 +710,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         delete tModel;
-//        delete tIntegMesh1;
     }
 }
 
@@ -766,7 +758,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
          size_t tModelDimension = 3;
          moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -981,67 +973,67 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk1.set_IWGs( { tIWGBulk2 } );
         tSetBulk1.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk2.set_IWGs( { tIWGBulk2 } );
         tSetBulk2.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+        tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk3.set_IWGs( { tIWGBulk2 } );
         tSetBulk3.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk4.set_IWGs( { tIWGBulk2 } );
         tSetBulk4.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk5;
-        tSetBulk5.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p2") );
+        tSetBulk5.set_mesh_set_name( "HMR_dummy_c_p2" );
         tSetBulk5.set_IWGs( { tIWGBulk1 } );
         tSetBulk5.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk6;
-        tSetBulk6.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p2") );
+        tSetBulk6.set_mesh_set_name( "HMR_dummy_n_p2" );
         tSetBulk6.set_IWGs( { tIWGBulk1 } );
         tSetBulk6.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk7;
-        tSetBulk7.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p3") );
+        tSetBulk7.set_mesh_set_name( "HMR_dummy_c_p3" );
         tSetBulk7.set_IWGs( { tIWGBulk1 } );
         tSetBulk7.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetBulk8;
-        tSetBulk8.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p3") );
+        tSetBulk8.set_mesh_set_name( "HMR_dummy_n_p3" );
         tSetBulk8.set_IWGs( { tIWGBulk1 } );
         tSetBulk8.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p2") );
+        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p2" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p3") );
+        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p3" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetInterface1;
-        tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName01) );
+        tSetInterface1.set_mesh_set_name( tDblInterfaceSideSetName01 );
         tSetInterface1.set_IWGs( { tIWGInterface1 } );
 
         fem::Set_User_Info tSetInterface2;
-        tSetInterface2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName02) );
+        tSetInterface2.set_mesh_set_name( tDblInterfaceSideSetName02 );
         tSetInterface2.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface3;
-        tSetInterface3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13) );
+        tSetInterface3.set_mesh_set_name( tDblInterfaceSideSetName13 );
         tSetInterface3.set_IWGs( { tIWGInterface2 } );
 
         fem::Set_User_Info tSetInterface4;
-        tSetInterface4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23) );
+        tSetInterface4.set_mesh_set_name( tDblInterfaceSideSetName23 );
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
@@ -1089,7 +1081,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1122,7 +1114,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

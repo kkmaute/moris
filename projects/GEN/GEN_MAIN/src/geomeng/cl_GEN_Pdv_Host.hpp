@@ -5,13 +5,13 @@
  *      Author: sonne
  */
 
-#ifndef PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
-#define PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
+#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
+#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
 
 #include "cl_GEN_Pdv.hpp"
-#include "../property/cl_GEN_Property.hpp"
+#include "cl_GEN_Property.hpp"
 
-#include "../projects/GEN/GEN_CORE/src/cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Dv_Enums.hpp"
 
 // XTK includes
 #include "cl_XTK_Topology.hpp"
@@ -35,21 +35,25 @@ namespace moris
         public:
             //------------------------------------------------------------------------------
 
-            GEN_Pdv_Host( const uint tNumPdvs,
+            GEN_Pdv_Host( const uint aNumPdvs,
                           const moris_index aVertexIndex ) : mIndex( aVertexIndex )
             {
-                mPdvList.resize( tNumPdvs, nullptr );
+                mPdvList.resize( aNumPdvs, nullptr );
 
-                mTypeToIDMap.resize( tNumPdvs, 1 );
+                mTypeToIDMap.resize( aNumPdvs, 1 );
             };
 
             //------------------------------------------------------------------------------
-            ~GEN_Pdv_Host()
+            ~GEN_Pdv_Host(){};
+            //------------------------------------------------------------------------------
+            void update_pdv_list( const uint aNumNewPdvs )
             {
+                uint tNumCurrPdvs = mPdvList.size();
 
-            };
+                mPdvList.resize( tNumCurrPdvs + aNumNewPdvs, nullptr );
 
-
+                mTypeToIDMap.resize( tNumCurrPdvs + aNumNewPdvs, 1 );
+            }
             //------------------------------------------------------------------------------
             moris_index get_index()
             {
@@ -65,6 +69,18 @@ namespace moris
                 if( mPdvList( tPos ) == nullptr )
                 {
                     mPdvList( tPos ) = std::make_shared< GEN_Pdv >( aPropertyPointer );
+                }
+            }
+            //------------------------------------------------------------------------------
+            void create_pdv( moris::real              aPdvVal,
+                             enum GEN_DV              aPdvType,
+                             const Matrix< IndexMat > & aGlobalPdvTypeMap )
+            {
+                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
+
+                if( mPdvList( tPos ) == nullptr )
+                {
+                    mPdvList( tPos ) = std::make_shared< GEN_Pdv >( aPdvVal );
                 }
             }
             //------------------------------------------------------------------------------
@@ -117,4 +133,4 @@ namespace moris
     }   // end ge namepsace
 }       // end moris namespace
 
-#endif /* PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_ */
+#endif /* PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_ */

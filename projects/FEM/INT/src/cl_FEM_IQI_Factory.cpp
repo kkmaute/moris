@@ -15,6 +15,7 @@
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_H1_Semi_Error.hpp"           //FEM/INT/src
+#include "cl_FEM_IQI_J_Integral.hpp"           //FEM/INT/src
 
 namespace moris
 {
@@ -45,6 +46,9 @@ namespace moris
 
                 case ( IQI_Type::H1_SEMI_ERROR ):
                     return std::make_shared< IQI_H1_Semi_Error >();
+
+                case ( IQI_Type::J_INTEGRAL ):
+                    return std::make_shared< IQI_J_Integral >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

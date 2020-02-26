@@ -38,6 +38,15 @@ using namespace NLA;
         this->set_nonlinear_solver_manager_parameters();
     }
 
+
+    Nonlinear_Solver::Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType,
+                                        const ParameterList            aParameterlist ) : mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+                                                                                          mParameterListNonLinearSolver( aParameterlist ),
+                                                                                          mNonLinSolverType( aNonLinSolverType )
+    {
+        mStaggeredDofTypeList.resize( 0 );
+    }
+
     //--------------------------------------------------------------------------------------------------
     Nonlinear_Solver::Nonlinear_Solver(       moris::Cell< std::shared_ptr<Nonlinear_Algorithm > > & aNonlinerSolverList,
                                         const enum NonlinearSolverType                            aNonLinSolverType ) : mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
@@ -196,9 +205,12 @@ using namespace NLA;
 
     //--------------------------------------------------------------------------------------------------
 
-    void Nonlinear_Solver::set_solver_warehouse( SOL_Warehouse * aSolverWarehouse )
+    void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
     {
         mSolverWarehouse = aSolverWarehouse;
+
+        mSolverInput = mSolverWarehouse->get_solver_interface() ;
+
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -237,11 +249,21 @@ using namespace NLA;
 
         if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
         {
-            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse, mSolverInput, aFullVector, mNonlinearSolverManagerIndex,  false );
+            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
+                                                       mSolverInput,
+                                                       aFullVector,
+                                                       mNonlinearSolverManagerIndex,
+                                                       false,
+                                                       mSolverWarehouse->get_tpl_type() );
         }
         else
         {
-            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse, mSolverInput, aFullVector, mNonlinearSolverManagerIndex );
+            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
+                                                       mSolverInput,
+                                                       aFullVector,
+                                                       mNonlinearSolverManagerIndex,
+                                                       true,
+                                                       mSolverWarehouse->get_tpl_type() );
         }
 
         mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );

@@ -31,6 +31,9 @@
 #include "cl_XTK_Edge_Topology.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
 //------------------------------------------------------------------------------
 
 namespace moris
@@ -207,24 +210,24 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         size_t tModelDimension = 2;
         uint tLagrangeMeshIndex = 0;
         //  HMR Parameters setup
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "1, 1" );
-        tParameters.set( "domain_dimensions",                "1, 1" );
-        tParameters.set( "domain_offset",                    "0, 0" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("1, 1") );
+        tParameters.set( "domain_dimensions",                std::string("1, 1") );
+        tParameters.set( "domain_offset",                    std::string("0, 0") );
 
 //        tParameters.set( "domain_sidesets",      "1, 2, 3, 4, 5, 6" );
 
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_output_meshes", "0" );
-        tParameters.set( "lagrange_input_meshes", "0" );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "lagrange_input_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "use_multigrid", 0 );
 
@@ -268,7 +271,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
         tXTKModel.mVerbose = false;
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
         tXTKModel.decompose( tDecompositionMethods );

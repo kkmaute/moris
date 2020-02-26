@@ -74,7 +74,9 @@ namespace moris
             void set_property( std::shared_ptr< fem::Property > aProperty,
                                std::string                      aPropertyString )
             {
-                // FIXME check that property type make sense?
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "CM_Diffusion_Linear_Isotropic::set_property - Unknown aPropertyString." );
 
                 // set the property in the property cell
                 mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;

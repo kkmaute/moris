@@ -5,12 +5,14 @@
  *      Author: ktdoble
  */
 
-#ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
-#define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
+#ifndef PROJECTS_GEN_GEN_MAIN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
+#define PROJECTS_GEN_GEN_MAIN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_
 
 
 #include "cl_Matrix.hpp"
 #include "cl_Mesh_Enums.hpp"
+
+#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -30,19 +32,32 @@ public:
     ~GEN_Geometry()
     {
     }
-
-
     /*
      * **************************************************************************************
      *              REQUIRED INTERFACE FOR BOTH ANALYTIC AND DISCRETE GEOMETRY
      * **************************************************************************************
      */
 
+    /*
+     * @brief evaluates the analytic function defined in the input file
+     */
+    virtual void eval( moris::real                      & aReturnValue,
+                       const moris::Matrix< DDRMat >    & aPoint,
+                       const moris::Cell< moris::real > & aConst )
+    {
+        MORIS_ERROR( false, "GEN_Geometry::eval() - evaluation function not implemented for this geometry type" );
+    }
+
     /**
      * This tells the user whether the given geometry is an analytical expression
      * @param[out] True if analytic geometry (i.e. Sphere from an equation)
      */
     virtual bool is_analytic() const = 0;
+
+    virtual bool is_func_pointer()
+    {
+    	return false;
+    }
 
     /**
      *
@@ -132,4 +147,4 @@ public:
 
 
 
-#endif /* PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_ */
+#endif /* PROJECTS_GEN_GEN_MAIN_SRC_NEW_GEOMETRY_CL_GEN_GEOMETRY_HPP_ */

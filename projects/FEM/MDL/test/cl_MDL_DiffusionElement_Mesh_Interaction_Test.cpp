@@ -25,11 +25,16 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
+
+//#include "cl_VIS_Factory.hpp"
+//#include "cl_VIS_Visualization_Mesh.hpp"
+#include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_HMR.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
@@ -68,36 +73,28 @@ namespace moris
 namespace mdl
 {
 
-Matrix< DDRMat > tConstValFunction_MDLDIFF
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tConstValFunction_MDLDIFF
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
-                {
+{
     if(par_size() == 1 )
     {
         // Create a 3D mesh of HEX8 using MTK ------------------------------------------
         std::string tPrefix = std::getenv("MORISROOT");
         std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets.g";
 
-        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-        std::string tFieldName1 = "Temp_Field";
-        tNodeField1.set_field_name( tFieldName1 );
-        tNodeField1.set_field_entity_rank( EntityRank::NODE );
-
         // Initialize field information container
         moris::mtk::MtkFieldsInfo tFieldsInfo;
-
-        // Place the node field into the field info container
-        add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
 
         // Declare some supplementary fields
         mtk::MtkMeshData tMeshData;
         tMeshData.FieldsInfo = &tFieldsInfo;
-
 
         // construct the mesh data
         mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
@@ -129,12 +126,13 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
+
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
         tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
@@ -160,17 +158,26 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
+        // define the IQIs
+        fem::IQI_Factory tIQIFactory;
+
+        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+        tIQITEMP->set_output_type_index( 0 );
+
         // define set info
         fem::Set_User_Info tSetBulk;
-        tSetBulk.set_mesh_index( 0 );
+        tSetBulk.set_mesh_index( 0 ); // index 0
         tSetBulk.set_IWGs( { tIWGBulk } );
+        tSetBulk.set_IQIs( { tIQITEMP } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( 4 );
+        tSetDirichlet.set_mesh_index( 4 ); // index 4
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( 6 );
+        tSetNeumann.set_mesh_index( 6 ); //index 6
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -184,8 +191,19 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
                                                1,
                                                tSetInfo );
 
-        //------------------------------------------------------------------------------
+        // define outputs
+        // --------------------------------------------------------------------------------------
+        vis::Output_Manager tOutputData;
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "UT_Output_cube_with_side_sets.exo",
+                                 { "block_1" },
+                                 { "TEMP" },
+                                 { vis::Field_Type::NODAL },
+                                 { vis::Output_Type::TEMP } );
+        tModel->set_output_manager( &tOutputData );
 
+        //------------------------------------------------------------------------------
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -193,7 +211,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -232,7 +250,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -271,7 +289,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         // number of mesh nodes
         uint tNumOfNodes = tInterpMesh1->get_num_nodes();
 
-        // loop over the node and chyeck solution
+        // loop over the node and check solution
         for ( uint i = 0; i < tNumOfNodes; i++ )
         {
             // check solution
@@ -281,14 +299,13 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         // check bool is true
         REQUIRE( tCheckNodalSolution );
 
-        tModel->output_solution( tFieldName1 );
-
+        // clean up
         delete tModel;
-        //delete tInterpMesh1;
         delete tIntegMesh1;
+        delete tInterpMesh1;
 
     }/* if( par_size() */
-                }
+}
 
 TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 {
@@ -297,16 +314,8 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         std::string tPrefix = std::getenv("MORISROOT");
         std::string tMeshFileName = tPrefix + "projects/FEM/MDL/test/data/Block_7x8x9.g";
 
-        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-        std::string tFieldName1 = "Temp_Field";
-        tNodeField1.set_field_name(tFieldName1);
-        tNodeField1.set_field_entity_rank(EntityRank::NODE);
-
         // Initialize field information container
         moris::mtk::MtkFieldsInfo tFieldsInfo;
-
-        // Place the node field into the field info container
-        add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
 
         // Declare some supplementary fields
         mtk::MtkMeshData tMeshData;
@@ -404,7 +413,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -444,7 +453,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -462,10 +471,6 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
-
-        tModel->output_solution( tFieldName1 );
-
-        // print( tSolution11, "Solution" );
 
         // Expected solution
         Matrix< DDRMat > tExpectedSolution( 1, 25, 2.5e+01 );
@@ -486,9 +491,9 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         // check bool is true
         REQUIRE( tCheckNodalSolution );
 
-
+        // clean up
         delete tIntegMesh1;
-        //delete tInterpMesh1;
+        delete tInterpMesh1;
         delete tModel;
 
     }/* if( par_size() */
@@ -528,7 +533,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
 //        tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -641,7 +646,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -680,7 +685,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -698,13 +703,6 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
-
-
-        tModel->output_solution( "Circle" );
-
-        tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
-
-        tHMR.save_to_exodus( 0,  "Circle_diff_temp.exo" );
 
         // Expected solution
         Matrix< DDRMat > tExpectedSolution;
@@ -754,7 +752,9 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         // check bool is true
         REQUIRE( tCheckNodalSolution );
 
+        // clean up
         delete tModel;
+
     }/* if( par_size() */
 }
 
@@ -789,7 +789,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -805,8 +805,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements_on_working_pattern( tField );
-
-            //tDatabase->flag_element( 0 );
             tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
@@ -842,7 +840,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
 
@@ -905,7 +903,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -944,7 +942,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -962,11 +960,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
-        tModel->output_solution( "Circle" );
-
-        tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
-
-        tHMR.save_to_exodus( 0,"Circle_diff_temp.exo" );
 
         // Expected solution when running in serial
         Matrix< DDRMat > tExpectedSolution = {{ +1.976384396893782e-09, +9.999999997638666e+00, +2.299478928887239e-09,
@@ -1028,6 +1021,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         }
         // check bool is true
         REQUIRE( tCheckNodalSolution );
+
     }/* if( par_size() */
 }
 
@@ -1064,7 +1058,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1115,7 +1109,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
 
@@ -1177,7 +1171,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -1216,7 +1210,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -1234,10 +1228,6 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
-
-        tModel->output_solution( "Circle" );
-
-        tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
 
         // Expected solution when running in serial
         Matrix< DDRMat > tExpectedSolution = {{ -5.0e+00,    +5.0e+00,    -5.0e+00,
@@ -1266,7 +1256,9 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         // check bool is true
         REQUIRE( tCheckNodalSolution );
 
+        // clean up
         delete tModel;
+
     }/* if( par_size() */
 }
 

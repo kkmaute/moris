@@ -152,6 +152,165 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void
+        Element_Sideset::compute_quantity_of_interest_global
+        ( const uint             aMeshIndex,
+          enum  vis::Output_Type aOutputType )
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // reset the requested IQI
+                mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+
+                // compute quantity of interest at evaluation point
+                Matrix< DDRMat > tQIValue;
+                mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+
+                // FIXME assemble on the set here or inside the compute QI?
+                *( mSet->mSetGlobalValues ) += tQIValue( 0 ) * tWStar;
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void
+        Element_Sideset::compute_quantity_of_interest_nodal
+        ( const uint             aMeshIndex,
+          enum  vis::Output_Type aOutputType )
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+
+            // get the vertices
+            moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
+
+            // loop over the vertices
+            uint tNumNodes = tVertices.size();
+            for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
+            {
+                // get the ith vertex coordinates in the IP param space
+                Matrix< DDRMat > tGlobalIntegPoint = mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ).get_row( iVertex );
+                tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
+                tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = mCluster->mInterpolationElement->get_time()( 0 );
+                tGlobalIntegPoint = trans( tGlobalIntegPoint );
+
+                // set vertex coordinates for field interpolator
+                mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
+
+                // reset the requested IQI
+                mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+
+                // compute quantity of interest at evaluation point
+                Matrix< DDRMat > tQIValue;
+                mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+
+                // FIXME assemble on the set here or inside the compute QI?
+                // FIXME add up on shared node and divide or overwrite
+                (*mSet->mSetNodalValues)( tVertices( iVertex )->get_index(), 0 ) += tQIValue( 0 );
+
+                mSet->mSetNodalCounter( tVertices( iVertex )->get_index(), 0 ) += 1;
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void
+        Element_Sideset::compute_quantity_of_interest_elemental
+        ( const uint             aMeshIndex,
+          enum  vis::Output_Type aOutputType )
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // reset the requested IQI
+                mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+
+                // compute quantity of interest at evaluation point
+                Matrix< DDRMat > tQIValue;
+                mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+
+                // FIXME assemble on the set here or inside the compute QI?
+                ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
+                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+            }
+        }
+
+//------------------------------------------------------------------------------
         real Element_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // set the IG geometry interpolator physical space and time coefficients

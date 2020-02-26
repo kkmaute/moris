@@ -32,7 +32,7 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "cl_GEN_Discrete_Level_Set.hpp"
 
 // select namespaces
 using namespace moris;
@@ -80,7 +80,7 @@ main(
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mSameMesh = true;
     tXTKModel.mVerbose  =  false;
 

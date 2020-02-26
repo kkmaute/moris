@@ -210,7 +210,7 @@ namespace moris
                 return mBackgroundMesh->get_number_of_active_elements_on_proc();
             }
 
-            // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
             /**
              * returns the number of ( active ) elements on this proc

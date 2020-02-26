@@ -94,12 +94,12 @@
 namespace moris
 {
 
-// define free function for properties
-Matrix< DDRMat > tPropValConstFunc_MDLFEM_DQ_DP
-( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager *         aFIManager )
+void tPropValConstFunc_MDLFEM_DQ_DP
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 moris::real tPlane_MDLFEM_DQ_DP( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -123,9 +123,6 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        // create settings object
 //        moris::hmr::Parameters tParameters;
 //
-//        // Dummy parameter list
-//        ParameterList tParam = hmr::create_hmr_parameter_list();
-//
 //        tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
 //        tParameters.set_domain_dimensions( 10, 5, 5 );
 //        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -148,7 +145,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //        tParameters.set_number_aura( true );
 //
-//        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+//        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
 //        tLagrangeToBSplineMesh( 0 ) = { {0} };
 //
 //        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -188,7 +185,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
 //        moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 //
-//        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+//        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
 //        tXTKModel.mVerbose = false;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -326,35 +323,35 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //       // define set info
 //       fem::Set_User_Info tSetBulk1;
-//       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+//       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
 //       tSetBulk1.set_IWGs( { tIWGBulk1 } );
 //       tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetBulk2;
-//       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+//       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
 //       tSetBulk2.set_IWGs( { tIWGBulk1 } );
 //       tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetBulk3;
-//       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+//       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
 //       tSetBulk3.set_IWGs( { tIWGBulk2 } );
 //       tSetBulk3.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetBulk4;
-//       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+//       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
 //       tSetBulk4.set_IWGs( { tIWGBulk2 } );
 //       tSetBulk4.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 //
 //       fem::Set_User_Info tSetDirichlet;
-//       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+//       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
 //       tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 //
 //       fem::Set_User_Info tSetNeumann;
-//       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+//       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
 //       tSetNeumann.set_IWGs( { tIWGNeumann } );
 //
 //       fem::Set_User_Info tSetInterface;
-//       tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) ) );
+//       tSetInterface.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) );
 //       tSetInterface.set_IWGs( { tIWGInterface } );
 //
 //       // create a cell of set info
@@ -392,7 +389,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       // define linear solver and algorithm
 //       dla::Solver_Factory  tSolFactory;
 //       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-//       = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+//       = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 //
 ////       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 ////       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -425,7 +422,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //       tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 //
-//       NLA::SOL_Warehouse tSolverWarehouse;
+//       sol::SOL_Warehouse tSolverWarehouse;
 //
 //       tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 //

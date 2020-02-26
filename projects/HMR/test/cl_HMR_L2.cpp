@@ -16,6 +16,9 @@
 #include "fn_norm.hpp"
 #include "fn_equal_to.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 using namespace moris;
 
 moris::real
@@ -233,7 +236,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         tParameters.set_union_pattern( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
         tLagrangeToBSplineMesh( 1 ) = { {1} };
 
@@ -335,19 +338,19 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2") );
 
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", "1, 1" );
-        tParameters.set( "lagrange_pattern", "0, 1" );
-        tParameters.set( "bspline_orders", "1, 1, 1, 2" );
-        tParameters.set( "bspline_pattern", "0, 0, 1, 1" );
+        tParameters.set( "lagrange_orders", std::string("1, 1") );
+        tParameters.set( "lagrange_pattern", std::string("0, 1") );
+        tParameters.set( "bspline_orders", std::string("1, 1, 1, 2") );
+        tParameters.set( "bspline_pattern", std::string("0, 0, 1, 1") );
 
         tParameters.set( "union_pattern", 2 );
 
-        tParameters.set( "lagrange_to_bspline", "0, 1; 2, 3" );
+        tParameters.set( "lagrange_to_bspline", std::string("0, 1; 2, 3") );
 
         tParameters.set( "use_multigrid", 0 );
 
@@ -470,7 +473,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         tParameters.set_union_pattern( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
         tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
         tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -597,7 +600,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 
         tParameters.set_staircase_buffer( 2 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
         tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
         tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -732,7 +735,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 
             tParameters.set_staircase_buffer( 2 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -875,7 +878,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -1021,7 +1024,7 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
@@ -1168,7 +1171,7 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
             tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
