@@ -424,6 +424,11 @@ namespace moris
         void Model::solve()
         {
             mSolverWarehouse->get_main_time_solver()->solve();
+
+//            Matrix<DDRMat> tMat;
+//            mSolverWarehouse->get_main_time_solver()->get_full_solution( tMat );
+//
+//            print(tMat,"tMat");
         }
 
 //------------------------------------------------------------------------------

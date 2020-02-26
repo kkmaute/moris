@@ -58,18 +58,21 @@ public:
         mHostList.resize( aTotalNumVertices, nullptr );
     }
     //------------------------------------------------------------------------------
-void initialize_new_hosts( uint aNumNewNodes )    // assuming the indices are consecutive
-{
-    for( uint i=0; i<aNumNewNodes; i++ )
-    {
-        mHostList.push_back(nullptr);
-    }
-}
+//void initialize_new_hosts( uint aNumNewNodes )    // assuming the indices are consecutive
+//{
+//    for( uint i=0; i<aNumNewNodes; i++ )
+//    {
+//        mHostList.push_back(nullptr);
+//    }
+//}
     //------------------------------------------------------------------------------
     void create_pdv_host( uint        aNumPdvs,
                           moris_index aVertexIndex )
     {
-        mHostList( aVertexIndex ) = std::make_shared< GEN_Pdv_Host >( aNumPdvs, aVertexIndex );
+        if( mHostList( aVertexIndex ) == nullptr )
+        {
+            mHostList( aVertexIndex ) = std::make_shared< GEN_Pdv_Host >( aNumPdvs, aVertexIndex );
+        }
     }
     //------------------------------------------------------------------------------
     void assign_property_to_pdv_type_by_vertex_index( std::shared_ptr< GEN_Property > aPropertyPointer,
