@@ -169,6 +169,9 @@ option(HAVE_GCMMA
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
     
+option(HAVE_LBFGS
+    "Build MORIS with support for LBFGS." ON )
+    
 # option(HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
