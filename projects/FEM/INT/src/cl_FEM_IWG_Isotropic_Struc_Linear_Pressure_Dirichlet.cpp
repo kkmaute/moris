@@ -180,9 +180,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_drdpdv - Not implemented.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_dRdp - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

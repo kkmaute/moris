@@ -90,7 +90,7 @@ class Dist_Vector;
 
             Equation_Object() {};
 
-            Equation_Object( Equation_Set * aElementBlock) : mEquationSet( aElementBlock )
+            Equation_Object( Equation_Set * aElementBlock ) : mEquationSet( aElementBlock )
             {};
 
 //-------------------------------------------------------------------------------------------------
@@ -294,7 +294,34 @@ class Dist_Vector;
              */
             virtual void compute_dRdp()
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_dRdp - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute dQIdp
+             */
+            virtual void compute_dQIdp()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute dQIdu
+             */
+            virtual void compute_dQIdu()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdu - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute QI
+             */
+            virtual void compute_QI()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_QI - not implemented in msi." );
             };
 
 //-------------------------------------------------------------------------------------------------

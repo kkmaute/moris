@@ -16,103 +16,167 @@ namespace moris
 {
 namespace ge
 {
-    class GEN_Design_Variable_Interface   :   MSI::Design_Variable_Interface
+    class GEN_Design_Variable_Interface : MSI::Design_Variable_Interface
     {
+
     private:
-        Pdv_Host_Manager* mManager;
+
+        // pdv host manager pointer
+        Pdv_Host_Manager* mPdvHostManager;
+
+        // assembly map for QI
+        moris::Cell< moris::Cell< moris_index > > mQIAssemblyMap;
 
     public:
 //------------------------------------------------------------------------------
-        GEN_Design_Variable_Interface( Pdv_Host_Manager* aManager ) : mManager(aManager)
-        {  };
-//------------------------------------------------------------------------------
-        ~GEN_Design_Variable_Interface()
+        /**
+         * constructor
+         * @param[ in ] aPdvHostManager a pdv host manager pointer
+         */
+        GEN_Design_Variable_Interface( Pdv_Host_Manager* aPdvHostManager )
+        : mPdvHostManager( aPdvHostManager )
         {};
+
 //------------------------------------------------------------------------------
         /**
-         * @brief Function providing pdv values for requested vertex indices and Dv types
-         *
-         * @param[in] aIntegrationMeshSetIndex  Integration Mesh index
-         * @param[in] aDvTypes                  List of Dv types
-         *
+         * trivial destructor
          */
-        void get_dv_types_for_set( const moris::moris_index            aIntegrationMeshSetIndex,
-                                         Cell< Cell< enum GEN_DV > > & aDvTypes )
+        ~GEN_Design_Variable_Interface(){};
+
+//------------------------------------------------------------------------------
+        /**
+         * get dv types for set
+         * @param[ in ] aIGMeshSetIndex integration mesh index
+         * @param[ in ] aDvTypes        list of groups of dv types to fill
+         */
+        void get_dv_types_for_set
+        ( const moris::moris_index                          aIGMeshSetIndex,
+                moris::Cell< moris::Cell< enum GEN_DV > > & aDvTypes )
         {
             // this may change, hold off for now...
-            MORIS_ASSERT( false,"GEN_Design_Variable_Interface::get_dv_types_for_set() - not implemented" );
+            MORIS_ASSERT( false, "GEN_Design_Variable_Interface::get_dv_types_for_set - not implemented." );
         }
-//------------------------------------------------------------------------------
-        void get_unique_dv_types_for_set( const moris::moris_index           aIntegrationMeshSetIndex,
-                                                       Cell< enum GEN_DV > & aDvTypes )
-        {
-            MORIS_ASSERT( false,"GEN_Design_Variable_Interface::get_unique_dv_types_for_set() - not implemented" );
-        }
+
 //------------------------------------------------------------------------------
         /**
-         * @brief Function providing pdv values for requested vertex indices and Dv types
-         *
-         * @param[in] aNodeIndices   List of node indices
-         * @param[in] aDvType        List of Dv types
-         * @param[in] aDvValues      List of Dv values (DvType)(vertexIndex)
-         * @param[in] aIsActive      List of active design variables (vertexIndex)(DvType)
+         * get unique dv types for set
+         * @param[ in ] aIGMeshSetIndex integration mesh index
+         * @param[ in ] aDvTypes        list dv types to fill
          */
-
-        void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
-                            const moris::Cell< enum GEN_DV >        & aDvTypes,
-                            moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
-                            moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv )
+        void get_unique_dv_types_for_set
+        ( const moris::moris_index           aIGMeshSetIndex,
+                moris::Cell< enum GEN_DV > & aDvTypes )
         {
+            MORIS_ASSERT( false, "GEN_Design_Variable_Interface::get_unique_dv_types_for_set - not implemented." );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get pdv values for requested vertex indices and dv types
+         * @param[ in ] aNodeIndices list of node indices
+         * @param[ in ] aDvType      list of dv types
+         * @param[ in ] aDvValues    list of dv values (DvType)(vertexIndex)
+         * @param[ in ] aIsActive    list of active design variables (vertexIndex)(DvType)
+         */
+        void get_pdv_value( const Matrix< IndexMat >                     & aNodeIndices,
+                            const moris::Cell< enum GEN_DV >             & aDvTypes,
+                                  moris::Cell< moris::Matrix< DDRMat > > & aDvValues,
+                                  moris::Cell< moris::Matrix< DDSMat > > & aIsActiveDv )
+        {
+            // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
+
+            // get the number of dv types requested
             uint tNumTypes   = aDvTypes.size();
 
+            // set size for list of dv values
             aDvValues.resize( tNumTypes );
+
+            // set size for list of active flags
             aIsActiveDv.resize( tNumIndices );
 
-            for( uint iInd=0; iInd<tNumIndices; iInd++ )
+            // loop over the node indices
+            for( uint iInd =0; iInd < tNumIndices; iInd++ )
             {
+                //
                 aIsActiveDv( iInd ).resize( tNumTypes, 1 );
 
-                for( uint iType=0; iType<tNumTypes; iType++ )
+                // loop over the requested dv types
+                for( uint iType=0; iType < tNumTypes; iType++ )
                 {
                     aDvValues( iType ).resize( tNumIndices, 1 );
 
-                    aIsActiveDv( iInd )( iType ) = mManager->check_for_active_types( aNodeIndices(iInd), aDvTypes(iType) );
+                    aIsActiveDv( iInd )( iType ) = mPdvHostManager->check_for_active_types( aNodeIndices(iInd), aDvTypes(iType) );
+
                     if( aIsActiveDv( iInd )( iType ) == 1 )
                     {
-                        aDvValues( iType )( iInd ) = mManager->get_pdv_by_type_and_index( aNodeIndices(iInd), aDvTypes(iType) )->get_val()(0,0);
+                        aDvValues( iType )( iInd ) = mPdvHostManager->get_pdv_by_type_and_index( aNodeIndices(iInd), aDvTypes(iType) )->get_val()( 0, 0 );
                     }
                 }
             }
         }
 
+//------------------------------------------------------------------------------
+        /**
+         * get pdv values for requested vertex indices and dv types
+         * @param[ in ] aNodeIndices list of node indices
+         * @param[ in ] aDvType      list of dv types
+         * @param[ in ] aDvValues    list of dv values (DvType)(vertexIndex)
+         */
         void get_pdv_value( const Matrix< IndexMat >                     & aNodeIndices,
                             const moris::Cell< enum GEN_DV >             & aDvTypes,
                                   moris::Cell< moris::Matrix< DDRMat > > & aDvValues )
         {
-            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value() - overload not implemented on GE side");
+            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value - overload not implemented on GE side.");
         }
+
+//------------------------------------------------------------------------------
+        /**
+         * reshape pdv values
+         * i.e. reshape a cell of matrix to a matrix
+         * @param[ in ] aPdvValues         a cell of matrices with pdv values
+         * @param[ in ] aReshapedPdvValues a matrix of pdv values
+         */
+        void reshape_pdv_values( const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
+                                       moris::Matrix< DDRMat >                & aReshapedPdvValues )
+        {
+            MORIS_ASSERT( aPdvValues.size() != 0,
+                          "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty.");
+
+            // get the number of rows and columns
+            uint tRows = aPdvValues( 0 ).numel();
+            uint tCols = aPdvValues.size();
+
+            // set size for the reshaped matrix
+            aReshapedPdvValues.set_size( tRows, tCols );
+
+            for( uint iCol = 0; iCol < tCols; iCol++ )
+            {
+                aReshapedPdvValues( { 0, tRows - 1 }, { iCol, iCol } )
+                = aPdvValues( iCol ).matrix_data();
+            }
+        }
+
 //------------------------------------------------------------------------------
         /**
          * @brief return local to global dv type map
-         *
          */
-        Matrix< DDSMat > get_my_local_global_map(  )
+        Matrix< DDSMat > get_my_local_global_map()
         {
-            return mManager->get_global_map();
+            return mPdvHostManager->get_global_map();
         }
+
 //------------------------------------------------------------------------------
         /**
          * @brief return local to global DV type map
-         *
-         * @param[in] aVertexIndex   List of vertex indices
-         * @param[in] aDvType        List of Dv types
-         * @param[in] aDvIds         List of Dv Ids
+         * @param[ in ] aVertexIndex   List of vertex indices
+         * @param[ in ] aDvType        List of Dv types
+         * @param[ in ] aDvIds         List of Dv Ids
          *
          */
-        void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                          const Cell< enum GEN_DV >               & aDvTypes,
-                                                Cell< moris::Matrix< IdMat > >    & aDvIds )
+        void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index >     & aNodeIndices,
+                                          const moris::Cell< enum GEN_DV >            & aDvTypes,
+                                                moris::Cell< moris::Matrix< IdMat > > & aDvIds )
         {
             /*
              * - each cell is a row vector of global IDs per each type
@@ -135,11 +199,11 @@ namespace ge
                 for( uint iInd=0; iInd<tNumIndices; iInd++ )
                 {
 
-                    bool tDvTypeExists = mManager->check_for_active_types( aNodeIndices(iInd), aDvTypes(iType) );   // flag for if the DV type exists on the current host
+                    bool tDvTypeExists = mPdvHostManager->check_for_active_types( aNodeIndices(iInd), aDvTypes(iType) );   // flag for if the DV type exists on the current host
 
                     if( tDvTypeExists )
                     {
-                        aDvIds( iType )( iInd ) = mManager->get_global_index_for_dv_type( aNodeIndices(iInd), aDvTypes(iType) );
+                        aDvIds( iType )( iInd ) = mPdvHostManager->get_global_index_for_dv_type( aNodeIndices(iInd), aDvTypes(iType) );
                         tCounter( iType )++;
                     }
                 }
@@ -150,13 +214,18 @@ namespace ge
                 aDvIds( Ik ).resize( tCounter( Ik ), 1);
             }
         }
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+        /**
+         * get QI assembly map
+         */
+        moris::Cell< moris::Cell< moris_index > > & get_QI_assembly_map()
+        {
+            return mQIAssemblyMap;
+        }
     };
 
 }   // end ge namespace
 }   // end moris namespace
-
-
 
 #endif /* PROJECTS_GEN_SRC_GEOMENG_CL_GEN_DESIGN_VARIABLE_INTERFACE_HPP_ */

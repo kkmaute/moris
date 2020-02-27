@@ -36,9 +36,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IQI_Property::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+        void IQI_Property::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
         {
-            MORIS_ERROR( false, "IQI_Property::compute_dQIdDof - Not implemented." );
+            MORIS_ERROR( false, "IQI_Property::compute_dQIdu - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

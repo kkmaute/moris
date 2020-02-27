@@ -126,7 +126,7 @@ namespace moris
             tParameterList( 4 )( 0 ).set( "IQI_name",                   std::string("IQI1") );
             tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
             tParameterList( 4 )( 0 ).set( "master_dof_dependencies",    std::string("TEMP") );
-            tParameterList( 4 )( 0 ).set( "master_constitutive_models", std::string("CM1,ElastLinIso") );
+            tParameterList( 4 )( 0 ).set( "master_constitutive_models", std::string("CM1,Elast") );
             tParameterList( 4 )( 0 ).set( "mesh_set_names",             std::string("MeshSet5,MeshSet2") );
 
             // create parameter list for IQI 2
@@ -134,7 +134,7 @@ namespace moris
             tParameterList( 4 )( 1 ).set( "IQI_name",                   std::string("IQI2") );
             tParameterList( 4 )( 1 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
             tParameterList( 4 )( 1 ).set( "master_dof_dependencies",    std::string("TEMP") );
-            tParameterList( 4 )( 1 ).set( "master_constitutive_models", std::string("CM2,ElastLinIso") );
+            tParameterList( 4 )( 1 ).set( "master_constitutive_models", std::string("CM2,Elast") );
             tParameterList( 4 )( 1 ).set( "mesh_set_names",             std::string("MeshSet5") );
 
             //------------------------------------------------------------------------------
@@ -146,6 +146,7 @@ namespace moris
             // create a FEM model
             FEM_Model tFEMModel;
             tFEMModel.set_parameter_list( tParameterList );
+            tFEMModel.set_space_dim( 2 );
             tFEMModel.initialize( tLibrary );
 
 //            // parsing tool debug

@@ -45,7 +45,6 @@ namespace moris
         : mMeshManager( aMeshManager ),
           mMeshPairIndex( aMeshPairIndex )
         {
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: unpack mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -173,13 +172,16 @@ namespace moris
             // start timer
             tic tTimer0;
 
-            // unpack the FEM inputs
-            this->initialize( aLibrary );
-
             // get pointers to interpolation and integration meshes
             mtk::Interpolation_Mesh* tIPMesh = nullptr;
             mtk::Integration_Mesh*   tIGMesh = nullptr;
             mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
+
+            // set the space dimension
+            mSpaceDim = tIPMesh->get_spatial_dim();
+
+            // unpack the FEM inputs
+            this->initialize( aLibrary );
 
             if( par_rank() == 0)
             {
@@ -477,6 +479,9 @@ namespace moris
 
                 // fill CM map
                 aCMMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
+
+                // set CM space dimension
+                mCMs( iCM )->set_space_dim( mSpaceDim );
 
                 // set CM model type
                 fem::Model_Type tCMModelType = static_cast< fem::Model_Type >( tCMParameterList( iCM ).get< uint >( "model_type" ) );

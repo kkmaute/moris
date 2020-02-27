@@ -23,18 +23,18 @@
 #include "cl_MTK_Cluster.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Interpolation_Element.hpp"
-#include "cl_FEM_IWG.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Set.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #undef protected
 #undef private
 
-#include "cl_MTK_Vertex.hpp"    //MTK
+//MTK
+#include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
-
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
@@ -51,30 +51,30 @@
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
-
+//FEM/MDL
 #include "cl_MDL_Model.hpp"
-
+//FEM/MSI
+#include "cl_MSI_Solver_Interface.hpp"
 #include "MSI_Test_Proxy/cl_MSI_Design_Variable_Interface_Proxy.hpp"
 #include "MSI_Test_Proxy/cl_MTK_Vertex_Proxy.hpp"
 #include "MSI_Test_Proxy/cl_MTK_Cell_Proxy.hpp"
 #include "MSI_Test_Proxy/cl_MTK_Cluster_Proxy.hpp"
-#include "cl_MSI_Solver_Interface.hpp"
-
+//FEM/INT
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Geometry_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-
+#include "cl_FEM_IQI_Factory.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+//SOL
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
-
 namespace moris
 {
-    namespace MSI
-    {
+namespace MSI
+{
 
 void tConstValFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -100,14 +100,10 @@ void tFIDerDvFunction_FDTest
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
 }
 
-    TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
+TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
+{
+    if(par_size() == 1 )
     {
-        if(par_size() == 1 )
-        {
-    	// setup the interpolation mesh
-//        std::string tInterpString = "generated:1x1";
-//        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tInterpString );
-
         // setup the integration mesh
         // Define the Integration Mesh (from data from xtk)
         Matrix<DDRMat>   tNodeCoordinatesInterpolation ={{0, 0},{1, 0},{1, 1},{0, 1}};
@@ -154,7 +150,7 @@ void tFIDerDvFunction_FDTest
 
         // setup the integration mesh
         // Define the Integration Mesh (from data from xtk)
-        Matrix<DDRMat>   tNodeCoordinates ={{0, 0},{1, 0},{1, 1},{0, 1},{0.5, 0},{0, 0.5}};
+        Matrix<DDRMat>   tNodeCoordinates = {{0, 0},{1, 0},{1, 1},{0, 1},{0.5, 0},{0, 0.5}};
         Matrix<IndexMat> tLocalToGlobalNodeMap = {{1, 2, 3, 4, 5, 6 }};
 
         // Tetrathedral cells in material phase 1
@@ -230,7 +226,7 @@ void tFIDerDvFunction_FDTest
         /*
         MSI::Equation_Set * tSet = new fem::Set();
 
-        tSet->set_Dv_interface( tDesignVariableInterface );
+        tSet->set_dv_interface( tDesignVariableInterface );
 
         // Create generic equation objects
         MSI::Equation_Object * EquObj = new fem::Interpolation_Element();
@@ -249,7 +245,8 @@ void tFIDerDvFunction_FDTest
         reinterpret_cast< fem::Interpolation_Element * >( EquObj )->mFemCluster = {tFemCluster};
         */
 
-
+        // FEM inputs
+        //------------------------------------------------------------------------------
         // create the properties
         std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
         tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
@@ -269,7 +266,7 @@ void tFIDerDvFunction_FDTest
         tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
         tCMMasterDiffLinIso->set_space_dim( 2 );
 
-        // define the IWGs
+        // define an IWG
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
@@ -278,15 +275,25 @@ void tFIDerDvFunction_FDTest
         tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
+        // define an IQI
+        fem::IQI_Factory tIQIFactory;
+        std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+        tIQI->set_IQI_mat_type( Mat_Type::PHASE0 );
+        tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
+
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_set_name( "Omega_0_tets" );
         tSetBulk1.set_IWGs( { tIWG } );
+        tSetBulk1.set_IQIs( { tIQI } );
 
         // create a cell of set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
         tSetInfo( 0 ) = tSetBulk1;
 
+        // FEM model
+        //------------------------------------------------------------------------------
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                                0,
@@ -294,6 +301,7 @@ void tFIDerDvFunction_FDTest
                                                tDesignVariableInterface );
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
+        std::cout<<tSolverInterface->get_requested_dof_types().size()<<std::endl;
 
         Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
         Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
@@ -303,66 +311,98 @@ void tFIDerDvFunction_FDTest
 
 //        tSolverInterface->set_solution_vector( mVector );
 
-        moris::Cell< MSI::Equation_Set * > tSets = tModel->get_fem_model()->get_equation_sets();
+        // FEM set
+        //------------------------------------------------------------------------------
+        // get the equation set from the model
+        moris::Cell< MSI::Equation_Set * > tSets
+        = tModel->get_fem_model()->get_equation_sets();
 
-//        tSets( 0 )->set_Dv_interface( tDesignVariableInterface );
+        // get a working set
+        MSI::Equation_Set* tWorkSet = tSets( 0 );
 
-        reinterpret_cast< fem::Set * >(tSets( 0 ))->mRequestedIWGs = { tIWG };
+        // set the dv interface to the set
+        tWorkSet->set_dv_interface( tDesignVariableInterface );
 
-        Cell< MSI::Equation_Object * > tEquationObject = tSets( 0 )->get_equation_object_list();
+        // set the IWG and IQI to the set
+        reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIWGs = { tIWG };
+        reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIQIs = { tIQI };
 
+        // set size and fill the set residual assembly map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mResDofAssemblyMap.resize( 1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mResDofAssemblyMap( 0 ) = { { 0, 3 } };
+
+        // set size and fill the set jacobian assembly map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mJacDofAssemblyMap.resize( 1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mJacDofAssemblyMap( 0 ) = { { 0, 3 } };
+
+        // set size and fill the set dv assembly map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mDvAssemblyMap.resize( 1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mDvAssemblyMap( 0 ) = { { 0, 3 } };
+
+        // MSI Equation object
+        //------------------------------------------------------------------------------
+        // get list of equation objects from set
+        Cell< MSI::Equation_Object * > tEqObjs = tWorkSet->get_equation_object_list();
+
+        // get a working equation object
+        MSI::Equation_Object * tWorkEqObj = tEqObjs( 0 );
+
+        // set the solution vector
 //        tEquationObject( 0 )->mPdofValues = {{ 0},{0},{0},{0}};
+        tWorkEqObj->mSolVec = mVector;
 
-        tEquationObject( 0 )->mSolVec = mVector;
+        // set the time
+        tWorkEqObj->set_time( { { 0 }, { 1 } } );
 
-        tEquationObject( 0 )->set_time({{ 0},{1}});
+        // Init IWG and IQI for forward analysis
+        //------------------------------------------------------------------------------
+        // set the IWG fem set
+        tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
-        tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tSets( 0 ) ) );
+        // set requested residual dof type flag to true
+        tIWG->mResidualDofTypeRequested = true;
 
-//            // set size for the set EqnObjDofTypeList
-//            tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-//
-//            // set size and populate the set dof type map
-//            tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-//            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
-//
-//            // set size and populate the set master dof type map
-//            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-//            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+        // build global dof type list
+        tIWG->get_global_dof_type_list();
+        tIWG->get_global_dv_type_list();
 
-            // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 3 } };
+        // populate the requested master dof type
+        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
-            // set size and fill the set jacobian assembly map
-            tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-            tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 3 } };
+        // compute residual
+        tWorkSet->mResidual.resize( 1 );
+        tWorkSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
+        tWorkSet->mResidualExist = true;
+        tWorkSet->mJacobian.set_size( 4, 4, 0.0 );
+        tWorkSet->mJacobianExist = true;
+        tWorkEqObj->compute_residual();
+        print( tWorkSet->get_residual()( 0 ), "R" );
 
-            // set size and fill the set jacobian assembly map
-            tIWG->mSet->mDvAssemblyMap.resize( 1 );
-            tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 3 } };
+        // compute jacobian
+        tWorkEqObj->compute_jacobian();
+        print( tWorkSet->get_jacobian(), "dRdu" );
 
-            // set size and init the set residual and jacobian
-            tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( 4, 4, 0.0 );
+        // compute dRdp
+        tWorkEqObj->compute_dRdp();
 
-            // set requested residual dof type flag to true
-            tIWG->mResidualDofTypeRequested = true;
+        // set the IQI fem set
+        tIQI->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
-            // build global dof type list
-            tIWG->get_global_dof_type_list();
-            tIWG->get_global_dv_type_list();
+        // compute QIs
+        tWorkSet->mQI.resize( 1 );
+        tWorkSet->mQI( 0 ).set_size( 1, 1, 0.0 );
+        tWorkSet->mQIExist = true;
+        tWorkEqObj->compute_QI();
+        print( tWorkSet->get_QI()( 0 ), "QI" );
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+        // compute dQIdu
+        reinterpret_cast< fem::Set * >( tWorkSet )->mResidual.resize( 1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mResidual( 0 ).set_size( 4, 1, 0.0 );
+        tWorkEqObj->compute_dQIdu();
+        print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
-
-            // FIXME to be put back in with new version
-//        tEquationObject( 0 )->compute_dRdp();
-
-
-
+//        // compute dQIdp
+//        tWorkEqObj->compute_dQIdp();
 
 //        // Create the pdof hosts of this equation object
 //        moris::Cell < Pdof_Host * > tPdofHostList;
@@ -395,9 +435,10 @@ void tFIDerDvFunction_FDTest
 //        delete tPdofHostList(1);
 //        delete tPdofHostList(2);
     }
-    }
 
-    }
-}
+}/* END_TEST_CASE */
+
+}/* end_namespace_msi */
+}/* end_namespace_moris */
 
 

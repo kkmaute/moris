@@ -10,10 +10,10 @@
 
 enum class GEN_DV
 {
+    UNDEFINED,
     XCOORD,
     YCOORD,
     ZCOORD,
-
     DENSITY0,
     DENSITY1,
     DENSITY2,
@@ -27,9 +27,6 @@ enum class GEN_DV
     MODULUS0,
     MODULUS1,
     MODULUS2,
-
-    UNDEFINED,
-
     END_ENUM
 };
 
@@ -55,5 +52,15 @@ moris::map< std::string, enum GEN_DV > get_dv_type_map()
     tDvTypeMap["MODULUS2"]     = GEN_DV::MODULUS2;
     return tDvTypeMap;
 }
+
+//------------------------------------------------------------------------------
+enum class Mat_Type
+{
+    UNDEFINED,
+    PHASE0,
+    PHASE1,
+    PHASE2,
+    END_MAT_TYPE
+};
 
 #endif /* PROJECTS_GEN_GEN_CORE_SRC_CL_GEN_DV_ENUMS_HPP_ */

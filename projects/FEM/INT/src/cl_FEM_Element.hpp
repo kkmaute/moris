@@ -157,7 +157,34 @@ namespace moris
          */
         virtual void compute_dRdp()
         {
-            MORIS_ERROR( false, "Element::compute_dRdp - This function does nothing.");
+            MORIS_ERROR( false, "Element::compute_dRdp - Not implemented for base class.");
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest
+         */
+        virtual void compute_QI()
+        {
+            MORIS_ERROR( false, "Element::compute_QI - Not implemented for base class." );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * compute dQIdp
+         */
+        virtual void compute_dQIdp()
+        {
+            MORIS_ERROR( false, "Element::compute_dQIdp - Not implemented for base class.");
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * compute dQIdu
+         */
+        virtual void compute_dQIdu()
+        {
+            MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class.");
         }
 
 //------------------------------------------------------------------------------

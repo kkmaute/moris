@@ -152,6 +152,57 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void Element_Sideset::compute_QI()
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IQI
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // compute QI at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->compute_QI( tWStar );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         void
         Element_Sideset::compute_quantity_of_interest_global
         ( const uint             aMeshIndex,

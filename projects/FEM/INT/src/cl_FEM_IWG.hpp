@@ -63,7 +63,7 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
 
-            // master and slave global dof type lists
+            // master and slave requested global dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
@@ -187,6 +187,16 @@ namespace moris
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * get member set pointer
+             * @param[ out ] aSetPointer a FEM set pointer
+             */
+            Set * get_set_pointer()
+            {
+                return mSet;
             }
 
 //------------------------------------------------------------------------------
@@ -526,7 +536,7 @@ namespace moris
               * create a global dof type list including
               * IWG, property, constitutive and stabilization dependencies
               */
-             void build_global_dof_type_list();
+//             void build_global_dof_type_list();
              void build_global_dof_and_dv_type_list();
 
 //------------------------------------------------------------------------------
@@ -535,7 +545,7 @@ namespace moris
               * IWG, property, constitutive and stabilization dependencies
               * for both master and slave
               */
-             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >        & aDofTypes );
+//             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >        & aDofTypes );
              void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                    moris::Cell< GEN_DV >        & aDvTypes );
 
@@ -685,27 +695,36 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the residual wrt the design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * @param[ in ] aWStar weight associated to evaluation point
              */
-            virtual void compute_drdpdv( real aWStar ) = 0;
+            virtual void compute_dRdp( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the derivative of the residual wrt the design variables
-             * by finite difference
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * evaluate the derivative of the residual
+             * wrt the material design variables by finite difference
+             * @param[ in ] aWStar        weight associated to evaluation point
+             * @param[ in ] aPerturbation real for dv perturbation
+             * @param[ in ] aIsActive     cell of vectors for active dv
+             * @param[ in ] adRdpMatFD    cell of matrix for dRdpMat to fill
              */
-            void compute_drdpdv_FD_material( real                              aWStar,
-                                             real                              aPerturbation,
-                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                             moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD );
+            void compute_dRdp_FD_material( moris::real                       aWStar,
+                                           moris::real                       aPerturbation,
+                                           moris::Cell< Matrix< DDRMat > > & adRdpMatFD );
 
 //------------------------------------------------------------------------------
-
-            void compute_drdpdv_FD_geometry( real                              aWStar,
-                                             real                              aPerturbation,
-                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                             moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
+            /**
+             * evaluate the derivative of the residual
+             * wrt the geometry design variables by finite difference
+             * @param[ in ] aWStar weight associated to evaluation point
+             * @param[ in ] aPerturbation real for dv perturbation
+             * @param[ in ] aIsActive     cell of vectors for active dv
+             * @param[ in ] adRdpGeoFD    cell of matrix for dRdpGeo to fill
+             */
+            void compute_dRdp_FD_geometry( moris::real                       aWStar,
+                                           moris::real                       aPerturbation,
+                                           moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                           moris::Cell< Matrix< DDRMat > > & adRdpGeoFD );
 
 //------------------------------------------------------------------------------
             /**
@@ -783,26 +802,6 @@ namespace moris
              * @param[ in ] aItResidual bool true if ???
              */
             void build_requested_dof_type_list( const bool aItResidual );
-
-//------------------------------------------------------------------------------
-//
-//            virtual real compute_integration_error( const Matrix< DDRMat > & aNodalDOF,
-//                                                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
-//                                                    const uint        & aPointIndex )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//                return 0.0;
-//            }
-
-//------------------------------------------------------------------------------
-//
-//            real interpolate_scalar_at_point( const Matrix< DDRMat > & aNodalWeakBC,
-//                                              const uint             & aPointIndex )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//                return 0.0;
-//            }
-
 
         };
 //------------------------------------------------------------------------------

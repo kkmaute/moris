@@ -71,7 +71,8 @@ namespace moris
             moris::Cell< enum Dof_Type > tDofType;
 
             // Ask equation object for its dof types
-            aListEqnBlock( Ii )->get_dof_types( tDofType );
+//            aListEqnBlock( Ii )->get_dof_types( tDofType );
+            tDofType = aListEqnBlock( Ii )->get_unique_dof_type_list();
 
             // Loop over all dof types
             for ( moris::uint Ik=0; Ik < tDofType.size(); Ik++ )
@@ -85,7 +86,7 @@ namespace moris
         for ( moris::uint Ij=0; Ij < tListToCheckIfEnumExist.numel(); Ij++ )
         {
 
-        	if ( tListToCheckIfEnumExist(Ij , 0) == 1)
+            if ( tListToCheckIfEnumExist(Ij , 0) == 1)
             {
                 tTemporaryPdofTypeList.push_back( ( Dof_Type ) Ij );
             }
@@ -98,7 +99,7 @@ namespace moris
         this->communicate_dof_types( tTemporaryPdofTypeList );
 
         // Create a map
-        this->create_dof_type_map();
+        this->create_dof_and_dv_type_maps();
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -180,7 +181,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    void Dof_Manager::create_dof_type_map()
+    void Dof_Manager::create_dof_and_dv_type_maps()
     {
         //Get number of unique adofs of this equation object
         moris::uint tNumUniquePdofTypes = mPdofTypeList.size();

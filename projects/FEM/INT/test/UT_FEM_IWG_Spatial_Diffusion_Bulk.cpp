@@ -175,11 +175,11 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -345,10 +345,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
@@ -506,10 +506,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
@@ -682,17 +682,17 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
     tIWG->mSet->mUniqueDvTypeList.resize( 5, GEN_DV::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
+    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
 
     tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
@@ -731,22 +731,21 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     // check evaluation of drdpdv  by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Matrix< DDRMat > > tdrdpdvMatFD;
-    Cell< Matrix< DDRMat > > tdrdpdvGeoFD;
+    Cell< Matrix< DDRMat > > tdRdpMatFD;
+    Cell< Matrix< DDRMat > > tdRdpGeoFD;
     Cell< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
                                            {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
                                            {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }} };
 
     // check jacobian by FD
-    tIWG->compute_drdpdv_FD_material( 1.0,
-                                      tPerturbation,
-                                      tIsActive,
-                                      tdrdpdvMatFD );
+    tIWG->compute_dRdp_FD_material( 1.0,
+                                    tPerturbation,
+                                    tdRdpMatFD );
 
-    tIWG->compute_drdpdv_FD_geometry( 1.0,
-                                      tPerturbation,
-                                      tIsActive,
-                                      tdrdpdvGeoFD );
+    tIWG->compute_dRdp_FD_geometry( 1.0,
+                                    tPerturbation,
+                                    tIsActive,
+                                    tdRdpGeoFD );
 
     // print for debug
     //print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );

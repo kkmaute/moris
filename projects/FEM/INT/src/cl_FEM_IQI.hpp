@@ -18,6 +18,7 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
 #include "cl_VIS_Output_Enums.hpp"
+#include "cl_GEN_Dv_Enums.hpp"
 
 #include "fn_reshape.hpp"
 
@@ -41,6 +42,12 @@ namespace moris
             // IQI type
             enum vis::Output_Type mIQIType;
 
+            // FEM IQI type
+            enum fem::IQI_Type mFEMIQIType;
+
+            // Mat type
+            enum Mat_Type mIQIMatType;
+
             // IQI type index
             sint mIQITypeIndex = -1;
 
@@ -51,6 +58,10 @@ namespace moris
             // master and slave global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
+
+            // master and slave requested global dof type lists
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
             // flag for building global dof type list
             bool mGlobalDofBuild = true;
@@ -172,11 +183,37 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * get IQI type
+             * get vis IQI type
              */
             enum vis::Output_Type get_IQI_type()
             {
                 return mIQIType;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get fem IQI type
+             */
+            enum fem::IQI_Type get_fem_IQI_type()
+            {
+                return mFEMIQIType;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get IQI mat type
+             */
+            enum Mat_Type get_IQI_mat_type()
+            {
+                return mIQIMatType;
+            }
+
+            /**
+             * set IQI mat type
+             */
+            void set_IQI_mat_type( enum Mat_Type aMatType )
+            {
+                mIQIMatType = aMatType;
             }
 
 //------------------------------------------------------------------------------
@@ -313,7 +350,6 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * for both master and slave
              */
-            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                   moris::Cell< GEN_DV >  & aDvTypes );
 
@@ -329,10 +365,11 @@ namespace moris
                 if( mGlobalDofBuild )
                 {
                     // build global dof type list
-                    this->build_global_dof_type_list();
+                    this->build_global_dof_and_dv_type_lists();
 
                     // update build flag
                     mGlobalDofBuild = false;
+                    mGlobalDvBuild  = false;
                 }
 
                 // switch on master/slave
@@ -361,11 +398,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * build a global dof type list including
+             * build a global dof and dv type lists including
              * IQI, property, constitutive and stabilization dependencies
-             * ( a list for master and a list for slave do types )
+             * ( a list for master and a list for slave dof and dv types )
              */
-            void build_global_dof_type_list();
+            void build_global_dof_and_dv_type_lists();
 
 //------------------------------------------------------------------------------
             /**
@@ -447,10 +484,11 @@ namespace moris
                 if( mGlobalDvBuild )
                 {
                     // build global dv type list
-                    //this->build_global_dv_type_list();
+                    this->build_global_dof_and_dv_type_lists();
 
                     // update build flag
                     mGlobalDvBuild = false;
+                    mGlobalDofBuild = false;
                 }
 
                 // switch on master/slave
@@ -536,6 +574,7 @@ namespace moris
              {
                  MORIS_ERROR( false, "IQI::set_constitutive_model - This function does nothing." );
              }
+
 //------------------------------------------------------------------------------
              /**
               * get master or slave constitutive models
@@ -598,67 +637,108 @@ namespace moris
              */
             virtual void compute_QI( Matrix< DDRMat > & aQIVal )
             {
-                MORIS_ERROR( false, "IQI::compute_QI - This function does nothing. " );
+                MORIS_ERROR( false, "IQI::compute_QI - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
-        /**
-         * get requested dof type
-         * @param[ in ] mRequestedDofType list of requested dof type
-         */
-        moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
-
-//------------------------------------------------------------------------------
             /**
-             * evaluate the derivative of the quantity of interest wrt to dof types
-             * @param[ in ] adQIdDof matrix to fill with derivative of the QoI wrt dof types
+             * compute the quantities of interest
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            virtual void compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+            virtual void compute_QI( real aWStar )
             {
-                MORIS_ERROR( false, "IQI::compute_dIQIdDof - This function does nothing. " );
+                MORIS_ERROR( false, "IQI::compute_QI - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the derivative of the quantity of interest wrt to dof types
-             * by finite difference
-             * @param[ in ] adQIdDof matrix to fill with derivative of the QoI wrt dof types
+             * get requested dof type
+             * @param[ in ] mRequestedDofType list of requested dof type
              */
-            void compute_dQIdDof_FD( Matrix< DDRMat > & adQIdDofFD,
-                                     real               aPerturbation );
+            moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+
+//------------------------------------------------------------------------------
+            /**
+             * get requested dof type
+             * @param[ in ] mRequestedMasterDofTypes list of requested master dof type
+             * @param[ in ] mRequestedSlaveDofTypes list of requested master dof type
+             */
+            void build_requested_dof_type_lists();
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantities of interest
+             * wrt requested dof types
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            virtual void compute_dQIdu( moris::real aWStar )
+            {
+                MORIS_ERROR( false, "IQI::compute_dQIdu - Not implemented for base class. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the quantity of interest
+             * wrt to requested dof types by finite difference
+             * @param[ in ] adQIdDuFD     matrix to fill with derivatives of the QI wrt dof types
+             * @param[ in ] aWStar        weight associated to the evaluation point
+             * @param[ in ] aPerturbation real for relative perturbation of the dof values
+             */
+            void compute_dQIdu_FD( Matrix< DDRMat > & adQIdDuFD,
+                                   real               aWStar,
+                                   real               aPerturbation );
+
 //------------------------------------------------------------------------------
             /**
              * check the derivative of the quantity of interest wrt to dof types
              * with evaluation by finite difference
              * @param[ in ] aPerturbation real for perturbation of the dof values
              * @param[ in ] aEpsilon      real for tolerance
-             * @param[ in ] adQIdDof      matrix to fill with derivative of QI wrt dof types
-             * @param[ in ] adQIdDofFD    matrix to fill with derivative of QI wrt dof types
+             * @param[ in ] adQIdu        matrix to fill with derivative of QI wrt dof types
+             * @param[ in ] adQIduFD      matrix to fill with derivative of QI wrt dof types
              *                            evaluated by finite difference
              */
-            bool check_dQIdDof_FD( real               aPerturbation,
-                                   real               aEpsilon,
-                                   Matrix< DDRMat > & adQIdDof,
-                                   Matrix< DDRMat > & adQIdDofFD );
+            bool check_dQIdu_FD( real               aWStar,
+                                 real               aPerturbation,
+                                 real               aEpsilon,
+                                 Matrix< DDRMat > & adQIdu,
+                                 Matrix< DDRMat > & adQIduFD );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest wrt to dv types
-             * @param[ in ] adQIdDv matrix to fill with derivative of the QI wrt dv types
+             * @param[ in ] adQIdp matrix to fill with derivative of the QI wrt dv
              */
-            virtual void compute_dQIdDv( Matrix< DDRMat > & adQIdDv )
+            virtual void compute_dQIdp( Matrix< DDRMat > & adQIdp )
             {
-                MORIS_ERROR( false, "IQI::compute_dIQIdDv - This function does nothing. " );
+                MORIS_ERROR( false, "IQI::compute_dQIdp - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the derivative of the quantity of interest wrt to dv types
-             * @param[ in ] adQIdDv matrix to fill with derivative of the QI wrt dv types
+             * evaluate the derivative of the quantity of interest
+             * wrt to material dv by finite difference
+             * @param[ in ] aWStar        weight associated to evaluation point
+             * @param[ in ] aPerturbation dv relative perturbation
+             * @param[ in ] adQIdpMatFD   cell of matrix for dQIdpMat to fill
              */
-            void compute_dQIdDv_FD( Matrix< DDRMat > & adQIdpMatFD,
-                                    Matrix< DDRMat > & adQIdpGeoFD,
-                                    real               aPerturbation );
+            void compute_dQIdp_FD_material( moris::real        aWStar,
+                                            moris::real        aPerturbation,
+                                            Matrix< DDRMat > & adQIdpMatFD );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the quantity of interest
+             * wrt to geometry dv by finite difference
+             * @param[ in ] aWStar        weight associated to evaluation point
+             * @param[ in ] aPerturbation dv relative perturbation
+             * @param[ in ] aIsActive     cell of vectors for active dv
+             * @param[ in ] adQIdpGeoFD   cell of matrix for dRdpGeo to fill
+             */
+            void compute_dQIdp_FD_geometry( moris::real                       aWStar,
+                                            moris::real                       aPerturbation,
+                                            moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                            Matrix< DDRMat >                & adQIdpGeoFD );
 
 //------------------------------------------------------------------------------
         };

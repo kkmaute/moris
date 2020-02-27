@@ -17,6 +17,9 @@ namespace moris
         {
             // set IQI type
             mIQIType = vis::Output_Type::H1_SEMI_ERROR;
+
+            // set FEM IQI type
+            mFEMIQIType = fem::IQI_Type::H1_SEMI_ERROR;
         }
 
 //------------------------------------------------------------------------------
@@ -30,9 +33,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IQI_H1_Semi_Error::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+        void IQI_H1_Semi_Error::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
         {
-            MORIS_ERROR( false, "IQI_H1_Semi_Error::compute_dQIdDof - Not implemented." );
+            MORIS_ERROR( false, "IQI_H1_Semi_Error::compute_dQIdu - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

@@ -112,13 +112,13 @@ namespace moris
 
         tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        tIWG->mSet->mEqnObjDofTypeList.resize( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, MSI::Dof_Type::END_ENUM );
+        tIWG->mSet->mUniqueDofTypeList.resize( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, MSI::Dof_Type::END_ENUM );
 
-        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
+        tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
         tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
         tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;

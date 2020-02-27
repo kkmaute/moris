@@ -141,12 +141,12 @@ namespace moris
 
                 // reshape tCoeffs into the order the FI expects them
                 Matrix< DDRMat > tCoeff;
-                this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                mSet->mDesignVariableInterface
+                    ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
-                 // set field interpolator coefficients
-                 mSet->get_field_interpolator_manager()
-                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
-
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager()
+                    ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
              }
 
              // get number of slave dv types
@@ -168,7 +168,8 @@ namespace moris
 
                  // reshape tCoeffs into the order the FI expects them
                  Matrix< DDRMat > tCoeff;
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                 mSet->mDesignVariableInterface
+                     ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                  // set the field coefficients
                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
@@ -176,7 +177,7 @@ namespace moris
              }
 
              // geometry interpolators------------------------------------------
-
+             // FIXME can be dv types
              // set the IP geometry interpolator physical space and time coefficients for the master
              mSet->get_field_interpolator_manager()
                  ->get_IP_geometry_interpolator()
@@ -291,6 +292,63 @@ namespace moris
 
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_dRdp();
+         }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::compute_dQIdp()
+        {
+             //Fixme do this only once
+             this->compute_my_pdof_values();
+
+             // set the field interpolators coefficients
+             this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IQI_field_interpolator_managers();
+
+             // set cluster for stabilization parameter
+             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+             // ask cluster to compute jacobian
+             mFemCluster( 0 )->compute_dQIdp();
+        }
+
+//------------------------------------------------------------------------------
+         void Interpolation_Element::compute_dQIdu()
+         {
+              //Fixme do this only once
+              this->compute_my_pdof_values();
+
+              // set the field interpolators coefficients
+              this->set_field_interpolators_coefficients();
+
+              // FIXME should not be like this
+              mSet->set_IQI_field_interpolator_managers();
+
+              // set cluster for stabilization parameter
+              mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+              // ask cluster to compute jacobian
+              mFemCluster( 0 )->compute_dQIdu();
+         }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::compute_QI()
+        {
+             // FIXME do this only once
+             this->compute_my_pdof_values();
+
+             // set the field interpolators coefficients
+             this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IQI_field_interpolator_managers();
+
+             // set cluster for stabilization parameter
+             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+             // ask cluster to compute quantity of interest
+             mFemCluster( 0 )->compute_QI();
          }
 
 //------------------------------------------------------------------------------

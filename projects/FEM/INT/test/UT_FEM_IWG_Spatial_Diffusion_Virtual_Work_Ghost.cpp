@@ -316,11 +316,11 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
             // set size for the set EqnObjDofTypeList
-            tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+            tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
             // set size and populate the set dof type map
-            tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // set size and populate the set master and slave dof type map
             tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -347,7 +347,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->mResidualDofTypeRequested = true;
 
             // build global property type list
-            tIWG->build_global_dof_type_list();
+            tIWG->build_global_dof_and_dv_type_list();
 
             // populate the requested master dof type
             tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};

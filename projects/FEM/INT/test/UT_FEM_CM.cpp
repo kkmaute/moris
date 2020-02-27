@@ -78,8 +78,8 @@ namespace moris
             MSI::Equation_Set * tSet = new fem::Set();
 
             // set size and populate the set dof type map
-            reinterpret_cast<fem::Set*>(tSet)->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            reinterpret_cast<fem::Set*>(tSet)->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            reinterpret_cast<fem::Set*>(tSet)->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            reinterpret_cast<fem::Set*>(tSet)->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // set size and populate the set master dof type map
             tSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
