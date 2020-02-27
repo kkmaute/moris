@@ -643,7 +643,7 @@ namespace moris
         mTimeLevelOffsets.set_size( mPdofHostTimeLevelList.numel(), 1, 0 );
         for ( moris::uint Ik = 1; Ik < mPdofHostTimeLevelList.numel(); Ik++ )
         {
-            mTimeLevelOffsets( Ik, 0 ) = mTimeLevelOffsets( Ik-1, 0 ) + mPdofHostTimeLevelList( Ik-1, 0 );
+            mTimeLevelOffsets( Ik ) = mTimeLevelOffsets( Ik-1 ) + mPdofHostTimeLevelList( Ik-1 );
         }
 
         // Get number of pdoftypes and size of pdof host list
@@ -682,20 +682,22 @@ namespace moris
 
         moris::Matrix< DDUMat >tNumOwnedAdofsPerTypeTime( tNumTimeLevels , 1, 0 );
 
+        moris::uint tCounterTypeTime = 1;
+
         // Loop over all adofs determine the total number and the number of owned ones
         for ( moris::uint Ik = 0; Ik < tAdofListofTypes.size(); Ik++ )
         {
-             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ik ).size(); Ia++ )
+            for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ik ).size(); Ia++ )
             {
                 // If pointer in temporary adof list exists. Add one to number of owned adofs
                 if ( ( tAdofListofTypes( Ik )( Ia ) != NULL ) )
                 {
-                    tNumAdofs += 1;
+                    tNumAdofs++;
 
                     // If owning processor equals this processor then its an owned adof
                     if ( ( tAdofListofTypes( Ik )( Ia )->get_adof_owning_processor() == par_rank() ) )
                     {
-                        tNumOwnedAdofsPerTypeTime( Ik ) += 1;
+                        tNumOwnedAdofsPerTypeTime( Ik )++;
                     }
 
                     // Add type/time identifier to Adof
@@ -704,7 +706,6 @@ namespace moris
             }
 
             // Multigrid Type time identifier to type map  -> Type for Type time identifier
-            moris::uint tCounterTypeTime = 1;
             if ( tCounterTypeTime < mTimeLevelOffsets.numel() )
             {
                 if ( Ik < mTimeLevelOffsets( tCounterTypeTime, 0 ))
@@ -718,7 +719,7 @@ namespace moris
                 }
                 else
                 {
-//                    MORIS_ASSERT( false, "Dof_Manager::create_adofs(), " );
+                    MORIS_ASSERT( false, "Dof_Manager::create_adofs(), " );
                 }
             }
             else

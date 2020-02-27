@@ -146,7 +146,7 @@ void Performer_Manager::perform()
     mXTKPerformer( 0 )->decompose(tDecompositionMethods);
 
     mXTKPerformer( 0 )->perform_basis_enrichment( EntityRank::BSPLINE,0 );
-//    mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
+    mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
 
 //    xtk::Output_Options tOutputOptions;
 //    tOutputOptions.mAddNodeSets = false;
@@ -161,6 +161,8 @@ void Performer_Manager::perform()
     // get meshes
     xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKPerformer( 0 )->get_enriched_interp_mesh();
     xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = mXTKPerformer( 0 )->get_enriched_integ_mesh();
+
+    tEnrIntegMesh.print();
 
     if(true)
     {

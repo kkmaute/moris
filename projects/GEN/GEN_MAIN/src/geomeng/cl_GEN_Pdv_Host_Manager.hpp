@@ -28,17 +28,22 @@ namespace ge
 class Pdv_Host_Manager
 {
 private:
+    // list of pdv host
     moris::Cell< std::shared_ptr< GEN_Pdv_Host > > mHostList;
 
-    Matrix< IndexMat > mGlobalPdvTypeMap;      // position in map corresponds to the value of the pdv enum
+    // position in map corresponds to the value of the pdv enum
+    Matrix< IndexMat > mGlobalPdvTypeMap;
 
-    moris::Cell< enum GEN_DV > mPdvTypeList;   // list containing all the used unique pdv types
+    // list containing all the used unique pdv types
+    moris::Cell< enum GEN_DV > mPdvTypeList;
 
-    uint mNumPDVs = 0;                         // total number of dv types
+    // total number of dv types
+    uint mNumPDVs = 0;
 
-    uint mGlobalID = 0;                        // global dv ID
+    // global dv ID
+    uint mGlobalID = 0;
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 public:
 
 //------------------------------------------------------------------------------
@@ -57,8 +62,11 @@ public:
      */
     ~Pdv_Host_Manager(){};
 
-    //------------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
+    /**
+     * get pdv host for a vertex
+     * @param[ out ] aPdvHost a pdv host for the vertex index
+     */
     std::shared_ptr< GEN_Pdv_Host > get_pdv_host( moris_index aVertexIndex )
     {
         return mHostList( aVertexIndex );
@@ -93,12 +101,17 @@ public:
     void create_pdv_host( uint        aNumPdvs,
                           moris_index aVertexIndex )
     {
-        // create a pdv host
-        mHostList( aVertexIndex ) = std::make_shared< GEN_Pdv_Host >( aNumPdvs, aVertexIndex );
+        // if pdv host not assigned yet
+        if( mHostList( aVertexIndex ) == nullptr )
+        {
+            // create a pdv host
+            mHostList( aVertexIndex ) = std::make_shared< GEN_Pdv_Host >( aNumPdvs, aVertexIndex );
+        }
     }
 
 //------------------------------------------------------------------------------
     /**
+     * assign a GEN property to pdv type by vertex index
      * @param[ in ] aPropertyPointer a GEN property pointer
      * @param[ in ] aPdvType         a list of dv types
      * @param[ in ] aVertexIndex     a vertex index
@@ -114,13 +127,26 @@ public:
         this->get_pdv_host( aVertexIndex )->create_pdv( aPropertyPointer, aPdvType, mGlobalPdvTypeMap );
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+    /**
+     * FIXME add a phase
+     * get pdv by type and vertex index
+     * @param[ in ] aVertexIndex     a vertex index
+     * @param[ in ] aPdvType         a list of dv types
+     */
     std::shared_ptr< GEN_Pdv > get_pdv_by_type_and_index( moris_index aVertexIndex,
                                                           enum GEN_DV aPdvType )
     {
         return this->get_pdv_host( aVertexIndex )->get_pdv_by_type( aPdvType, mGlobalPdvTypeMap );
     }
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+    /**
+     * FIXME add a phase
+     * check for active pdv by type and vertex index
+     * @param[ in ] aVertexIndex     a vertex index
+     * @param[ in ] aPdvType         a list of dv types
+     */
     sint check_for_active_types( moris_index aVertexIndex,
                                  enum GEN_DV aPdvType )
     {
@@ -151,8 +177,12 @@ public:
         }
     }
 
-    //------------------------------------------------------------------------------
-    moris::Cell< enum GEN_DV > get_pdv_type_list(  )
+//------------------------------------------------------------------------------
+    /**
+     * get pdv type lists
+     * @param[ out ] aPdvTypeList list of dv types
+     */
+    moris::Cell< enum GEN_DV > get_pdv_type_list()
     {
         return mPdvTypeList;
     }
@@ -266,25 +296,38 @@ public:
         }
     }
 
-    //------------------------------------------------------------------------------
-    uint get_global_index_for_dv_type( moris_index aVertexIndex, enum GEN_DV aPdvType )
+//------------------------------------------------------------------------------
+    /**
+     * get global index for dv type
+     * @param[ in ] aVertexIndex a vertex index
+     * @param[ in ] aPdvType     a list of dv types
+     */
+    uint get_global_index_for_dv_type( moris_index aVertexIndex,
+                                       enum GEN_DV aPdvType )
     {
         return this->get_pdv_host( aVertexIndex )->get_global_index_for_dv_type( aPdvType, mGlobalPdvTypeMap );
     }
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+    /**
+     * get global map
+     * @param[ out ] mGlobalPdvTypeMap a map from dv type to index
+     */
     Matrix< IndexMat > get_global_map(  )
     {
         return mGlobalPdvTypeMap;
     }
-    //------------------------------------------------------------------------------
 
-// these are temporary for debugging/testing purposes
-uint get_num_hosts()
-{
-    return mHostList.size();
-}
-
-
+//------------------------------------------------------------------------------
+    // these are temporary for debugging/testing purposes
+    /**
+     * get_num_hosts
+     * @param[ out ] aNumPdvHosts a number of pdv hosts
+     */
+    uint get_num_hosts()
+    {
+        return mHostList.size();
+    }
 
     //------------------------------------------------------------------------------
 };
