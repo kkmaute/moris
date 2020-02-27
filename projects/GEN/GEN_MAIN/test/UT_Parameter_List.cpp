@@ -33,13 +33,13 @@ TEST_CASE("property list test","[GE],[propListTest_00]")
     // load the MSI parameter list
     std::string tGENString = "GENParameterList";
     MORIS_PARAMETER_FUNCTION tGENParameterListFunc = tLibrary->load_parameter_file( tGENString );
+
     moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
     tGENParameterListFunc( tGENParameterList );
 
     GEN_Geometry_Engine tGE( tGENParameterList(0)(0) );
 
     tGE.initialize( tLibrary );
-
 
 }   // end test case
 

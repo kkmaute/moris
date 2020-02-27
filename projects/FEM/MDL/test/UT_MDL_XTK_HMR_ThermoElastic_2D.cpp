@@ -92,6 +92,9 @@
 
 #include "cl_PRM_SOL_Parameters.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 namespace moris
 {
 
@@ -151,7 +154,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -209,7 +212,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -384,8 +387,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 6 );
-        for( uint Ik = 0; Ik < 6; Ik ++)
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        for( uint Ik = 0; Ik < 7; Ik ++)
         {
         	tParameterlist( Ik ).resize(1);
         }
@@ -408,10 +411,11 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("UX,UY;TEMP") );
 
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+
         tSolverWarehouse.set_parameterlist( tParameterlist );
 
         tSolverWarehouse.initialize();
-
 
         tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
@@ -527,7 +531,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -559,7 +563,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
 
         //// create field
         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
         tField->evaluate_scalar_function( LvlSetPlane );
         //
         // for( uint k=0; k<2; ++k )
@@ -584,7 +587,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -602,8 +605,15 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
+        std::string tInputFilePath = std::getenv("MORISROOT");
+        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
+
+        // create a pointer to library for input reading
+        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
+
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tLibrary,
+                                              &tMeshManager,
                                               0 );
 
         // solve
@@ -621,7 +631,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("2, 1"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -678,7 +688,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -853,7 +863,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 6 );
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
 
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
@@ -894,6 +904,9 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 5 ).resize( 1 );
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 )("TSA_DofTypes") = std::string("UX,UY;TEMP");
+
+        tParameterlist( 6 ).resize( 1 );
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
 
         tSolverWarehouse.set_parameterlist( tParameterlist );
 
@@ -1147,7 +1160,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //
 //      xtk::Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
 //      xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
-//      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),tGeometryEngine);
+//      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
 //      tXTKModel.mVerbose = false;
 //
 //      Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

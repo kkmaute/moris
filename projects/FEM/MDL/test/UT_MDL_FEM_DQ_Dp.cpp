@@ -123,9 +123,6 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        // create settings object
 //        moris::hmr::Parameters tParameters;
 //
-//        // Dummy parameter list
-//        ParameterList tParam = hmr::create_hmr_parameter_list();
-//
 //        tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
 //        tParameters.set_domain_dimensions( 10, 5, 5 );
 //        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -148,7 +145,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //        tParameters.set_number_aura( true );
 //
-//        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+//        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
 //        tLagrangeToBSplineMesh( 0 ) = { {0} };
 //
 //        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -188,7 +185,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
 //        moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 //
-//        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+//        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
 //        tXTKModel.mVerbose = false;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------

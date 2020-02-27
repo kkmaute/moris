@@ -80,6 +80,7 @@ set(SOL_CORE "SOL_CORE")
 set(TOL "TOL")
 set(TSA "TSA")
 set(VIS "VIS")
+set(WRK "WRK")
 set(XTK "XTK")
 
 # Common paths
@@ -170,6 +171,9 @@ option(HAVE_GCMMA
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
     
+option(HAVE_LBFGS
+    "Build MORIS with support for LBFGS." ON )
+    
 # option(HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
@@ -256,6 +260,8 @@ option(BUILD_TSA "Build the time solver algebra executable." OFF)
 option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
 option(BUILD_VIS "Build the visualization executable." OFF)
+
+option(BUILD_WRK "Build the workflow executable." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
@@ -685,6 +691,10 @@ endif()
 
 if(BUILD_VIS)
     include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
+endif()
+
+if(BUILD_WRK)
+    include(${MORIS_DEPENDS_DIR}/WRK_Depends.cmake)
 endif()
 
 if(BUILD_XTK)

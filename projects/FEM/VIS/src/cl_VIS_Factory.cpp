@@ -72,6 +72,8 @@ namespace moris
         moris_index tVertexIndexCounter = 0;
         moris_id tVertexIdCounter = 0;
 
+        uint tMaxVertexInd = tIntegrationMesh->get_num_entities( EntityRank::NODE );
+
         // loop over all requested sets
         for( uint Ij = 0; Ij < mNumRequestedSets; Ij++ )
         {
@@ -91,7 +93,7 @@ namespace moris
 
                 // resize list of vertices for this set
                 mVerticesOnSet( Ij ).resize( tNumVerticesOnSet, nullptr );
-                mVertexMapOnSet( Ij ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
+                mVertexMapOnSet( Ij ).set_size( tMaxVertexInd + 1, 1, -1 );
 
                 // Loop over all vertices on this set and create new vis vertices
                 for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )

@@ -77,31 +77,40 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 
 void Time_Solver_Algorithm::finalize()
 {
-    // create map object
-    Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-
     if ( mIsMasterTimeSolver )
     {
+        // create map object
+        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
         mSolverInterface = mSolverWarehouse->get_solver_interface();
+
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
 
         MORIS_LOG_INFO( "Creating main time solver system with %-5i dofs.\n", mSolverInterface->get_my_local_global_overlapping_map().numel() );
 
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
         // full vector and prev full vector
-        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, 1 );
+        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
         mFullVector->vec_put_scalar( 0.0 );
+
+        mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
     }
     else
     {
+        // create map object
+        Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
+
         mSolverInterface = mMyTimeSolver->get_solver_interface();
 //        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
 
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
-    }
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-    mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, 1 );
+        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
+
+        mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+    }
 
     mPrevFullVector->vec_put_scalar( 0.0 );
 }

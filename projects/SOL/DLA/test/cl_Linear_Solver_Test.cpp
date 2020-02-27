@@ -203,11 +203,11 @@ TEST_CASE("Linear Solver Aztec multiple RHS","[Linear Solver multiple RHS],[Dist
 
         print(tSol,"tSol");
 
-        moris::Matrix< DDRMat > tSol1;
+        moris::Cell< moris::Matrix< DDRMat > > tSol1;
         tLinProblem->get_free_solver_LHS()->extract_my_values( 2,
                                                              { {2},{4 }},
                                                               0,
-															  tSol1);
+                                                             tSol1);
 
         print(tSol1,"tSol1");
 

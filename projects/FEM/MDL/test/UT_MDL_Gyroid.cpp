@@ -86,6 +86,10 @@
 
 #include "cl_GE_Geometry_Library.hpp"
 
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 #include "fn_norm.hpp"
 
 
@@ -212,7 +216,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         moris::hmr::Parameters tParameters;
 
         // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
+        ParameterList tParam = prm::create_hmr_parameter_list();
 
         tParameters.set_number_of_elements_per_dimension( { {10}, {10}, {10} } );
         tParameters.set_domain_dimensions( 5, 5, 5 );
@@ -236,7 +240,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -284,7 +288,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
 //        moris::ge::GEN_Geometry_Engine tGeometryEngine;
 
-        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

@@ -144,7 +144,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -183,7 +183,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(), &tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -318,7 +318,7 @@ TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -358,7 +358,7 @@ TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
 
-        xtk::Model tXTKModel(tModelDimension,tIPMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tIPMesh.get(), &tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 

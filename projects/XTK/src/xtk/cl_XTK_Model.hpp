@@ -94,21 +94,13 @@ public:
     //--------------------------------------------------------------------------------
     Model(){};
 
-    /*
-     * using the general geometry engine
-     */
-    Model(uint aModelDimension,
-          moris::mtk::Interpolation_Mesh* aMeshData,
-          moris::ge::GEN_Geometry_Engine & aGeometryEngine,
-          bool aLinkGeometryOnConstruction = true);
-
     /**
      * Primary constructor (this constructor is used for all cases except when testing something)
      */
-//    Model(uint aModelDimension,
-//          moris::mtk::Interpolation_Mesh* aMeshData,
-//          Geometry_Engine & aGeometryEngine,
-//          bool aLinkGeometryOnConstruction = true);
+    Model(uint aModelDimension,
+          moris::mtk::Interpolation_Mesh* aMeshData,
+          moris::ge::GEN_Geometry_Engine* aGeometryEngine,
+          bool aLinkGeometryOnConstruction = true);
 
     // Indicates the background mesh and the geometry are the same thing
     bool mSameMesh;
@@ -204,8 +196,7 @@ public:
     Cut_Mesh const &        get_cut_mesh() const        { return mCutMesh; }
     Background_Mesh &       get_background_mesh()       { return mBackgroundMesh; }
     Background_Mesh const & get_background_mesh() const { return mBackgroundMesh; }
-//    Geometry_Engine &       get_geom_engine()           { return mGeometryEngine; }
-    moris::ge::GEN_Geometry_Engine &       get_geom_engine()           { return mGeometryEngine; }
+    moris::ge::GEN_Geometry_Engine*       get_geom_engine()           { return mGeometryEngine; }
 
     // ----------------------------------------------------------------------------------
     // Outputting functions
@@ -351,9 +342,8 @@ protected:
     uint                               mModelDimension;
     Background_Mesh                    mBackgroundMesh;
     Cut_Mesh                           mCutMesh;
-//    Geometry_Engine                    mGeometryEngine;
 
-    moris::ge::GEN_Geometry_Engine     mGeometryEngine;
+    moris::ge::GEN_Geometry_Engine*     mGeometryEngine;
 
     Enrichment*                        mEnrichment;
     Ghost_Stabilization*               mGhostStabilization;

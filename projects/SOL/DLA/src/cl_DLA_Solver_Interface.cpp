@@ -62,8 +62,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                            tElementTopology );
 
         // Fill elementRHS in distributed RHS
-        aVectorRHS->sum_into_global_values( tElementTopology.length(),
-                                            tElementTopology,
+        aVectorRHS->sum_into_global_values( tElementTopology,
                                             tElementRHS(0) );
     }
     // global assembly to switch entries to the right proceccor
@@ -106,8 +105,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
                 // Fill elementRHS in distributed RHS
-                aVectorRHS->sum_into_global_values( tElementTopology.length(),
-                                                    tElementTopology,
+                aVectorRHS->sum_into_global_values( tElementTopology,
                                                     tElementRHS( Ia ),
                                                     Ia );
             }
@@ -201,8 +199,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                            tElementTopology );
 
         // Fill elementRHS in distributed RHS
-        aVectorRHS->sum_into_global_values( tElementTopology.length(),
-                                            tElementTopology,
+        aVectorRHS->sum_into_global_values( tElementTopology,
                                             tElementRHS(0) );
     }
 

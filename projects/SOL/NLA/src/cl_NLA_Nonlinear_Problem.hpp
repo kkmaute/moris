@@ -37,33 +37,6 @@ namespace NLA
 
         void  delete_pointers();
 
-        //--------------------Arc Length-------------------
-        Dist_Matrix * mJacobian    = nullptr;
-
-        Dist_Vector * mJacVals       = nullptr;
-        Dist_Vector * mJacVals0      = nullptr;
-
-        Dist_Vector * mDTildeVec     = nullptr;
-        Dist_Vector * mDTilde0Vec    = nullptr;
-
-        Dist_Vector * mDK            = nullptr;
-        Dist_Vector * mDSolve        = nullptr;
-        Dist_Vector * mDSolveNMinus1 = nullptr;
-        Dist_Vector * mDSolveNMinus2 = nullptr;
-
-        Dist_Vector * mGlobalRHS     = nullptr;
-
-        Dist_Vector * mDFArcDDeltaD  = nullptr;
-
-        Dist_Vector * mDelLamNum     = nullptr;
-        Dist_Vector * mDelLamDen     = nullptr;
-        Dist_Vector * mDeltaD        = nullptr;
-        Dist_Vector * mdeltaD        = nullptr;
-
-        Dist_Vector * mFext          = nullptr;
-        Dist_Vector * mTempExtForce  = nullptr;
-        //-------------------------------------------------
-
     protected:
         Solver_Interface * mSolverInterface;
 
@@ -100,7 +73,7 @@ namespace NLA
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum sol::MapType       aMapType = sol::MapType::Epetra );
+                           const enum sol::MapType  aMapType = sol::MapType::Epetra );
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief Constructor. Creates nonlinear system
@@ -116,7 +89,7 @@ namespace NLA
                                  Dist_Vector      * aFullVector,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum sol::MapType       aMapType = sol::MapType::Epetra);
+                           const enum sol::MapType   aMapType = sol::MapType::Epetra);
 
         //--------------------------------------------------------------------------------------------------
         ~Nonlinear_Problem();
@@ -147,100 +120,16 @@ namespace NLA
         Dist_Vector * get_full_vector();
 
         //--------------------------------------------------------------------------------------------------
-        void extract_my_values( const moris::uint             & aNumIndices,
-                                const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                const moris::uint             & aBlockRowOffsets,
-                                      moris::Matrix< DDRMat > & LHSValues );
+        void extract_my_values( const moris::uint                            & aNumIndices,
+                                const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                const moris::uint                            & aBlockRowOffsets,
+                                      moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
         //--------------------------------------------------------------------------------------------------
         void set_time_value( const moris::real & aLambda,
                                    moris::uint   aPos = 1 );
 
-        //--------------------------------------------------------------------------------------------------
-        //--------------------------------arc-length 'get' functions----------------------------------------
-        //--------------------------------------------------------------------------------------------------
-        Dist_Matrix * get_full_for_jacobian()
-        {
-            return mJacobian;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_jacobian_diag()
-        {
-            return mJacVals;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_jacobian_diag_0()
-        {
-            return mJacVals0;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_tilde()
-        {
-            return mDTildeVec;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_tilde0()
-        {
-            return mDTilde0Vec;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_solve()
-        {
-            return mDSolve;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_solve_n_minus_1()
-        {
-            return mDSolveNMinus1;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_solve_n_minus_2()
-        {
-            return mDSolveNMinus2;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_d_k()
-        {
-            return mDK;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_df_dDeltaD()
-        {
-            return mDFArcDDeltaD;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_lam_num()
-        {
-            return mDelLamNum;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_lam_den()
-        {
-            return mDelLamDen;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_d_upper()
-        {
-            return mDeltaD;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_del_d()
-        {
-            return mdeltaD;
-        }
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_global_rhs()
-        {
-            return mGlobalRHS;
-        }
-        //--------------------------------------------------------------------------------------------------
 
-        //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_f_ext()
-        {
-            return mFext;
-        }
-        //--------------------------------------------------------------------------------------------------
     };
 }
 }

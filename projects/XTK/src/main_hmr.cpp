@@ -44,6 +44,9 @@
 #include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field.hpp"
 #include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 // select namespaces
 using namespace moris;
 using namespace hmr;
@@ -90,7 +93,7 @@ main(
     moris::uint tLagrangeOrder = 1;
     moris::uint tMyCoeff = 1;
 
-    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
     tParameters.set( "number_of_elements_per_dimension", "1, 1, 4" );
     tParameters.set( "domain_dimensions", "1, 1, 4" );
@@ -144,7 +147,7 @@ main(
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-    Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+    Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
     tXTKModel.mSameMesh = true;
     tXTKModel.mVerbose  =  false;
 

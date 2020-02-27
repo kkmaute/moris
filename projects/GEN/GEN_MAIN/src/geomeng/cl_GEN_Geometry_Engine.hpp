@@ -99,7 +99,14 @@ void compute_dx_dp_with_linear_basis( moris::Matrix< moris::DDRMat >  & aDPhiADp
 
 class GEN_Geometry_Engine
 {
-private:    // ----------- member data ----------
+public:
+    // Options which the user can change (all are given defaults)
+    moris::real mThresholdValue;
+    moris::real mPerturbationValue;
+    bool        mComputeDxDp;           // <- should be turned off if a sensitivity has not been implemented
+    moris::uint mSpatialDim;
+
+private:
     moris::size_t mActiveGeometryIndex;
     Cell< GEN_Geometry* > mGeometry;
 
@@ -114,50 +121,74 @@ private:    // ----------- member data ----------
 
     // Node Entity Phase Vals - only analytic phase values are stored here to prevent duplicate storage of discrete geometries
     moris::Matrix< moris::DDRMat > mNodePhaseVals;
-    //------------------------------------------------------------------------------
+
     mtk::Mesh_Manager* mMesh;
 
     moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
-    //------------------------------------------------------------------------------
+
     bool mTypesSet      = false;
     bool mInterpPDVsSet = false;
 
     moris::Cell< moris::moris_index > mIntegNodeIndices;
 
     ParameterList mParameterList;
-    //------------------------------------------------------------------------------
+
 public:
 
-    // Single geometry constructor
-    GEN_Geometry_Engine( moris::ge::GEN_Geometry  & aGeometry,
+//------------------------------------------------------------------------------
+    /**
+     * single geometry constructor
+     * @param[ in ] aGeometry
+     * @param[ in ] aPhaseTable
+     * @param[ in ] aSpatialDim
+     */
+    GEN_Geometry_Engine( moris::ge::GEN_Geometry          & aGeometry,
                          moris::ge::GEN_Phase_Table const & aPhaseTable,
-                         moris::uint aSpatialDim = 3 );
+                         moris::uint                        aSpatialDim = 3 );
 
-    // geometry vector constructor
-    GEN_Geometry_Engine( Cell< GEN_Geometry* > const  & aGeometry,
+//------------------------------------------------------------------------------
+    /**
+     * multiple geometries constructor
+     * @param[ in ] aGeometry
+     * @param[ in ] aPhaseTable
+     * @param[ in ] aSpatialDim
+     */
+    GEN_Geometry_Engine( Cell< GEN_Geometry* >      const & aGeometry,
                          moris::ge::GEN_Phase_Table const & aPhaseTable,
-                         moris::uint aSpatialDim = 3 );
+                         moris::uint                        aSpatialDim = 3 );
 
-    GEN_Geometry_Engine(  )
-    {
-    }
+//------------------------------------------------------------------------------
+    /**
+     * trivial constructor
+     */
+    GEN_Geometry_Engine(){}
 
-    // Options which the user can change (all are given defaults)
-    moris::real mThresholdValue;
-    moris::real mPerturbationValue;
-    bool        mComputeDxDp;           // Should be turned off if a sensitivity has not been implemented
-    moris::uint mSpatialDim;
-
-
-    // TODO: create the destructor to delete the analytic geometry pointer created via "new"
+//------------------------------------------------------------------------------
+    // TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
     // TODO: move this to the .cpp file
-    GEN_Geometry_Engine( ParameterList aParameterList ) : mParameterList(aParameterList)
-    {
-    }
-    //------------------------------------------------------------------------------
+    /**
+     * input file constructor
+     * @param[ in ] aParameterList a parameter list
+     */
+    GEN_Geometry_Engine( ParameterList aParameterList )
+    : mParameterList(aParameterList)
+    {}
+
+//------------------------------------------------------------------------------
     // TODO: move this to the .cpp file
+    /**
+     * initialize
+     * @param[ in ] aLibrary a pointer to library for reading inputs
+     */
     void initialize( std::shared_ptr< Library_IO > aLibrary )
     {
+        // initialize member data
+        mThresholdValue = 0.0;      // threshold for level sets
+
+        mComputeDxDp = false;       // flag to compute DxDp ( TODO: needs to be updated/adjusted )
+
+        mActiveGeometryIndex = 0;   // for XTK's decomposition
+
         // create geometry vector
         moris::Cell< std::string > tGeomFuncNames;
         string_to_cell( mParameterList.get< std::string >( "geometries" ),
@@ -178,6 +209,9 @@ public:
             // create a geometry pointer
             mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
         }
+
+        // Create phase table for geometry engine
+        mPhaseTable =  moris::ge::GEN_Phase_Table( tNumGeometry, Phase_Table_Structure::EXP_BASE_2);
     }
 
     //------------------------------------------------------------------------------
@@ -394,38 +428,67 @@ public:
      */
     Matrix< DDRMat > get_cylinder_vals( moris_index aWhichMesh,
                                         GEN_CylinderWithEndCaps* aFiber,
-                                        uint aNumberOfFibers ); //FIXME this is currently only setup to work with an HMR member mesh
+                                        uint aNumberOfFibers );             //FIXME this is currently only setup to work with an HMR member mesh
+    //------------------------------------------------------------------------------
+    /*
+     * @brief gives the maximum level-set values at all nodes in the mesh
+     */
+    void get_max_field_values_for_all_geometries( Matrix< DDRMat > & aAllFieldVals,
+                                                  moris_index        aWhichMesh = 0 )
+    {
+////        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
+//        // TODO: implement this function and make it work for the case of a mesh manager...
+//        uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
+//
+//        aAllFieldVals.set_size( tNumVertices, 1, - MORIS_REAL_MAX );
+//
+//        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+//        {
+//            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+//
+//            moris::real tVal = - MORIS_REAL_MAX;
+//            for ( auto tGeometry : mGeometry )
+//            {
+//                Cell< moris::real > tTempConstCell = {{0}};
+//                moris::real tTempVal = 0.0;
+//
+//                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+//
+//                tVal = std::max( tVal, tTempVal );
+//            }
+//
+//            // FIXME will not work in parallel. Ind are not consistent because of aura
+//            aAllFieldVals( 0 )( iVert ) = tVal;
+//        }
+    }
     //------------------------------------------------------------------------------
     /*
      * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
-    void get_max_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                     moris_index                aWhichMesh = 0 )
+    void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+                                              const moris_index                 aWhichMesh = 0 )
     {
-//        MORIS_ERROR( false, "GEN_Geometry_Engine::get_field_values_for_all_geometries() - this function is not implemented yet" );
-        // TODO: implement this function and make it work for the case of a mesh manager...
-
-        aAllFieldVals.resize( 1 );
-
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
-        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+        aAllFieldVals.resize( mGeometry.size() );
+
+        for ( uint Ik = 0; Ik< mGeometry.size(); Ik++ )
         {
-            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+            aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
 
-            moris::real tVal = - MORIS_REAL_MAX;
-            for ( auto tGeometry : mGeometry )
+            for( uint iVert = 0; iVert <tNumVertices; iVert++)
             {
+                Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+
+                moris::real tVal = - MORIS_REAL_MAX;
+
                 Cell< moris::real > tTempConstCell = {{0}};
-                moris::real tTempVal = 0.0;
 
-                tGeometry->eval( tTempVal, tCoord, tTempConstCell );
+                mGeometry( Ik )->eval( tVal, tCoord, tTempConstCell );
 
-                tVal = std::max( tVal, tTempVal );
+                // FIXME will not work in parallel. Ind are not consistent because of aura
+                aAllFieldVals( Ik )( iVert ) = tVal;
             }
-
-            // FIXME will not work in parallel. Ind are not consistent because of aura
-            aAllFieldVals( 0 )( iVert ) = tVal;
         }
     }
 

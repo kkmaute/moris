@@ -48,6 +48,9 @@
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_PRM_SOL_Parameters.hpp"
+#include "cl_SOL_Warehouse.hpp"
+#include "cl_TSA_Time_Solver.hpp"
 
 #include "fn_norm.hpp"
 
@@ -105,7 +108,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -236,41 +239,79 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         tSolverInterface->set_requested_dof_types( { MSI::Dof_Type::L2 } );
 
-//---------------------------------------------------------------------------------------------------------------
-
         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, sol::MapType::Petsc );
+//---------------------------------------------------------------------------------------------------------------
 
-        // create factory for nonlinear solver
-        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+        sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-        // create nonlinear solver
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        for( uint Ik = 0; Ik < 7; Ik ++)
+        {
+        	tParameterlist( Ik ).resize(1);
+        }
 
-        // create factory for linear solver
-        dla::Solver_Factory  tSolFactory;
+        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
+        tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
+        tParameterlist( 0 )(0).set( "ILUFill", 3 );
+        tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
 
-        // create linear solver
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
+        tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
 
-        tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
-        tLinearSolver->set_param("PCType")  = std::string( PCMG );
-        //tLinearSolver->set_param("PCType")  = std::string( PCILU );
+        tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("L2") );
 
-        tLinearSolver->set_param("ILUFill")  = 3;
+        tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("L2") );
 
-        // create solver manager
-        dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
-        Nonlinear_Solver  tNonLinSolManager;
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
 
-        // set manager and settings
-        tNonlinearSolver->set_linear_solver( mLinSolver );
+        tSolverWarehouse.set_parameterlist( tParameterlist );
 
-        // set first solver
-        mLinSolver->set_linear_algorithm( 0, tLinearSolver );
+        tSolverWarehouse.initialize();
 
-        tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
+        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+
+          //-------------------------------------------------------------------------------------//
+//
+//        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, sol::MapType::Petsc );
+//
+//        // create factory for nonlinear solver
+//        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+//
+//        // create nonlinear solver
+//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//
+//        // create factory for linear solver
+//        dla::Solver_Factory  tSolFactory;
+//
+//        // create linear solver
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
+//
+//        tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
+//        tLinearSolver->set_param("PCType")  = std::string( PCMG );
+////        tLinearSolver->set_param("PCType")  = std::string( PCILU );
+//
+//        tLinearSolver->set_param("ILUFill")  = 3;
+//
+//        // create solver manager
+//        dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
+//        Nonlinear_Solver  tNonLinSolManager;
+//
+//        // set manager and settings
+//        tNonlinearSolver->set_linear_solver( mLinSolver );
+//
+//        // set first solver
+//        mLinSolver->set_linear_algorithm( 0, tLinearSolver );
+//
+//        tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
+
+          //-------------------------------------------------------------------------------------
 
          for( auto tElement : tElements )
          {
@@ -287,11 +328,14 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              }
          }
 
-         tNonLinSolManager.solve( tNonlinearProblem );
+//         tNonLinSolManager.solve( tNonlinearProblem );
+//         Matrix< DDRMat > tSolution;
+//         tNonlinearSolver->get_full_solution( tSolution );
 
-         // temporary array for solver
-         Matrix< DDRMat > tSolution;
-         tNonlinearSolver->get_full_solution( tSolution );
+         tTimeSolver->solve();
+         moris::Matrix< DDRMat > tSolution;
+         tTimeSolver->get_full_solution( tSolution );
+
 
          CHECK( equal_to( tSolution( 0, 0 ), -0.9010796, 1.0e+08 ) );
          CHECK( equal_to( tSolution( 1, 0 ), -0.7713064956, 1.0e+08 ) );
@@ -303,16 +347,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tSolution( 7, 0 ), -0.3992520178, 1.0e+08 ) );
          CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
 
-         // dump mesh
-//         tHMR.save_to_exodus ( 0,  // index in database
-//                               "Mesh.exo",  // path
-//                               0.0 );       // timestep
-
          delete ( tMSI );
-//         delete ( tIWGs( 0 ) );
-         delete ( tSolverInterface );
-         delete ( tNonlinearProblem );
-         delete ( mLinSolver );
 
          for( auto k :tNodes)
          {
@@ -541,7 +576,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

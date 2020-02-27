@@ -352,12 +352,12 @@ namespace moris
          */
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
-        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
-        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
         delete( tNonlinearProblem );
         delete( tLinSolManager );
@@ -399,12 +399,12 @@ namespace moris
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
-        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
-        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
         delete( tNonlinearProblem );
         delete( tLinSolManager );
@@ -447,12 +447,12 @@ namespace moris
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
-        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
-        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
         delete( tNonlinearProblem );
         delete( tLinSolManager );
@@ -536,7 +536,7 @@ namespace moris
 //                    Matrix< DDSMat > tRow( 1, 1, (j*tN)+i );
 //                    Matrix< DDRMat > tVal( 1, 1, 0.0 );
 //
-//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( 1, tRow, tVal );
+//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( tRow, tVal );
 //                }
 //                else
 //                {
@@ -545,7 +545,7 @@ namespace moris
 //                    moris::real Value1 = temp1*std::sqrt(std::min( (real)(std::min( i,tN-i-1 ))*hx, temp) );
 //                    Matrix< DDRMat > tVal( 1, 1, Value1 );
 //
-//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( 1, tRow, tVal );
+//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( tRow, tVal );
 //                }
 //            }
 //        }
@@ -647,27 +647,27 @@ namespace moris
         tGlobalIndExtract( 1, 0 ) = 13077;        tGlobalIndExtract( 2, 0 ) = 15089;
         tGlobalIndExtract( 3, 0 ) = 1032;        tGlobalIndExtract( 4, 0 ) = 777;
         tGlobalIndExtract( 5, 0 ) = 9999;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlinearProblem->extract_my_values( 6, tGlobalIndExtract, 0, tMyValues);
 
         if( par_rank() == 0 )
         {
-            CHECK( equal_to( tMyValues( 0, 0 ), 0.00354517, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 1, 0 ), 0.0470188, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 2, 0 ), 0.05089045, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 3, 0 ), 0.00361458, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 4, 0 ), 0.000600491, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 5, 0 ), 0.0, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.00354517, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0470188, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 2, 0 ), 0.05089045, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 3, 0 ), 0.00361458, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 4, 0 ), 0.000600491, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 5, 0 ), 0.0, 1.0e+08 ) );
         }
         if( par_rank() == 2 )
         {
-            CHECK( equal_to( tMyValues( 0, 0 ), 0.00354517, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 1, 0 ), 0.0470188, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 2, 0 ), 0.05089045, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 3, 0 ), 0.00361458, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 4, 0 ), 0.000600491, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 5, 0 ), 0.0, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.00354517, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0470188, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 2, 0 ), 0.05089045, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 3, 0 ), 0.00361458, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 4, 0 ), 0.000600491, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 5, 0 ), 0.0, 1.0e+08 ) );
         }
         }
     }

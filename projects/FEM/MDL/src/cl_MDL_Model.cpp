@@ -155,12 +155,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
     Model::Model
-    (       mtk::Mesh_Manager * aMeshManager,
-      const uint                aBSplineIndex,
-      const moris_index         aMeshPairIndex )
+    (       std::shared_ptr< Library_IO > aLibrary,
+            mtk::Mesh_Manager *           aMeshManager,
+      const uint                          aBSplineIndex,
+      const moris_index                   aMeshPairIndex )
     : mMeshManager( aMeshManager ),
       mMeshPairIndex( aMeshPairIndex ),
-      mBSplineIndex( aBSplineIndex )
+      mBSplineIndex( aBSplineIndex ),
+	  mLibrary( aLibrary )
     {
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 0: unpack the inputs and the mesh
@@ -170,11 +172,11 @@ namespace moris
 
         // input file path
         // FIXME should be provided as an input to the constructor
-        std::string tInputFilePath = std::getenv("MORISROOT");
-        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
-
-        // create a pointer to library for input reading
-        mLibrary = std::make_shared< Library_IO >( tInputFilePath );
+//        std::string tInputFilePath = std::getenv("MORISROOT");
+//        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
+//
+//        // create a pointer to library for input reading
+//        mLibrary = std::make_shared< Library_IO >( tInputFilePath );
 
         // load the MSI parameter list
         std::string tMSIString = "MSIParameterList";

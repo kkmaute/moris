@@ -21,6 +21,7 @@ set(MAINS
 set(MAIN_INCLUDES
     ${COM}
     ${IOS}
+    ${WRK}-lib
     ${LINALG}
         )
 
@@ -35,6 +36,7 @@ include_directories(../STK/src/Hierarchical)
 set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
+    ${WRK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
     ${MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS}

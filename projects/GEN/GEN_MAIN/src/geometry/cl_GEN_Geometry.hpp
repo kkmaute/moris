@@ -32,24 +32,32 @@ public:
     ~GEN_Geometry()
     {
     }
-    virtual void eval( moris::real                      & aReturnValue,
-                       const moris::Matrix< DDRMat >    & aPoint,
-                       const moris::Cell< moris::real > & aConst )
-    {
-        MORIS_ERROR( false, "this is a temporary implementation" );
-    }
-
     /*
      * **************************************************************************************
      *              REQUIRED INTERFACE FOR BOTH ANALYTIC AND DISCRETE GEOMETRY
      * **************************************************************************************
      */
 
+    /*
+     * @brief evaluates the analytic function defined in the input file
+     */
+    virtual void eval( moris::real                      & aReturnValue,
+                       const moris::Matrix< DDRMat >    & aPoint,
+                       const moris::Cell< moris::real > & aConst )
+    {
+        MORIS_ERROR( false, "GEN_Geometry::eval() - evaluation function not implemented for this geometry type" );
+    }
+
     /**
      * This tells the user whether the given geometry is an analytical expression
      * @param[out] True if analytic geometry (i.e. Sphere from an equation)
      */
     virtual bool is_analytic() const = 0;
+
+    virtual bool is_func_pointer()
+    {
+    	return false;
+    }
 
     /**
      *

@@ -307,7 +307,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
         Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
-        mVector->sum_into_global_values( 4, {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});
+        mVector->sum_into_global_values( {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});
 
 //        tSolverInterface->set_solution_vector( mVector );
 

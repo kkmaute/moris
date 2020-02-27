@@ -134,9 +134,6 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -155,7 +152,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         tParameters.set_initial_refinement( 0 );
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -354,9 +351,6 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -379,7 +373,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -419,7 +413,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -676,9 +670,6 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -701,7 +692,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -741,7 +732,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1019,9 +1010,6 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1040,7 +1028,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         tParameters.set_initial_refinement( 0 );
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1246,9 +1234,6 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1271,7 +1256,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1311,7 +1296,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1580,9 +1565,6 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1605,7 +1587,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1645,7 +1627,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

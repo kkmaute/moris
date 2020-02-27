@@ -144,7 +144,8 @@ class Library_IO;
              * @param[ in ] aBSplineIndex  ???
              * @param[ in ] aMeshPairIndex ???
              */
-            Model(       mtk::Mesh_Manager * aMeshManager,
+            Model(       std::shared_ptr< Library_IO > aLibrary,
+                         mtk::Mesh_Manager * aMeshManager,
                    const uint                aBSplineIndex,
                    const moris_index         aMeshPairIndex = 0 );
 

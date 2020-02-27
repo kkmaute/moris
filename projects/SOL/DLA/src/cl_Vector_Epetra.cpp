@@ -31,20 +31,28 @@ Vector_Epetra::~Vector_Epetra()
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::replace_global_values()
+void Vector_Epetra::replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                           const moris::Matrix< DDRMat > & aValues,
+                                           const uint                    & aVectorIndex )
 {
     MORIS_ASSERT( false, "replace_global_values not implemented yet" );
+    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->ReplaceGlobalValues( aGlobalIds.numel(),
+                                                                                aGlobalIds.data(),
+                                                                                aValues.data(),
+                                                                                aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::sum_into_global_values( const moris::uint             & aNumMyDofs,
-                                            const moris::Matrix< DDSMat > & aElementTopology,
-                                            const moris::Matrix< DDRMat > & aRHSVal,
+void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                            const moris::Matrix< DDRMat > & aValues,
                                             const uint                    & aVectorIndex )
 {
     // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data(), aVectorIndex );
+    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
+                                                                                aGlobalIds.data(),
+                                                                                aValues.data(),
+                                                                                aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------
@@ -187,12 +195,17 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::extract_my_values( const moris::uint             & aNumIndices,
-                                       const moris::Matrix< DDSMat > & aGlobalRows,
-                                       const moris::uint             & aRowOffsets,
-                                             moris::Matrix< DDRMat > & LHSValues )
+void Vector_Epetra::extract_my_values( const moris::uint                            & aNumIndices,
+                                       const moris::Matrix< DDSMat >                & aGlobalRows,
+                                       const moris::uint                            & aRowOffsets,
+                                             moris::Cell< moris::Matrix< DDRMat > > & ExtractedValues )
 {
-    LHSValues.set_size( aNumIndices, mNumVectors );
+    ExtractedValues.resize( mNumVectors );
+
+    for ( moris::sint Ik = 0; Ik < mNumVectors; ++Ik )
+    {
+        ExtractedValues( Ik ).set_size( aNumIndices, 1 );
+    }
 
     moris::sint tVecLenght = this->vec_local_length();
 
@@ -214,7 +227,7 @@ void Vector_Epetra::extract_my_values( const moris::uint             & aNumIndic
 
             MORIS_ASSERT( !( aRowOffsets < 0 ), "Vector_Epetra::extract_my_values: offset < 0. this is not allowed");
 
-            LHSValues( Ii, Ik ) = mValuesPtr[ tLocIndex + tOffset ];
+            ExtractedValues( Ik )( Ii ) = mValuesPtr[ tLocIndex + tOffset ];
         }
     }
 }

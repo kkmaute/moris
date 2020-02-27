@@ -87,6 +87,10 @@
 #include "cl_GEN_Geom_Data.hpp"
 #include "cl_GEN_Property.hpp"
 
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 using namespace moris;
 namespace ge
 {
@@ -221,7 +225,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
 {
     uint tLagrangeMeshIndex = 0;
     //  HMR Parameters setup
-    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
     uint tInitialMesh = 1;
     switch(tInitialMesh)
@@ -342,7 +346,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
     //------------------------------------------------------------------------------
-    xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), tGENGeometryEngine );
+    xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
     tXTKModel.mVerbose = false;
 
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

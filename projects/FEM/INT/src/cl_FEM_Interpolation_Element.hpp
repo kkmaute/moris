@@ -192,12 +192,12 @@ namespace moris
             // get a specific dof type pdofs values
             Matrix< DDRMat > tPdofValues;
 
-            moris::Cell< Matrix< DDRMat > > tPdofValues_Original;
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tPdofValues_Original;
 
             this->get_my_pdof_values( aDofType, tPdofValues_Original );
 
             // reshape tCoeffs into the order the cluster expects them
-            this->reshape_pdof_values( tPdofValues_Original, tPdofValues );
+            this->reshape_pdof_values( tPdofValues_Original( 0 ), tPdofValues );
 
             // select the required nodal value
             Matrix< IndexMat > tElemVerticesIndices = mMasterInterpolationCell->get_vertex_inds();

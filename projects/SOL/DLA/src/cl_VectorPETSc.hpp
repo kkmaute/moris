@@ -38,12 +38,14 @@ public:
     /** Destructor */
     ~Vector_PETSc();
 
-    void sum_into_global_values( const moris::uint             & aNumMyDof,
-                                 const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                 const moris::Matrix< DDRMat > & aRHSVal,
+    void sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                 const moris::Matrix< DDRMat > & aValues,
                                  const uint                    & aVectorIndex = 0 );
 
-    void replace_global_values(){};
+    void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                const moris::Matrix< DDRMat > & aValues,
+                                const uint                    & aVectorIndex = 0)
+    {};
 
     void vector_global_asembly();
 
@@ -69,7 +71,7 @@ public:
     void extract_my_values( const moris::uint             & aNumIndices,
                             const moris::Matrix< DDSMat > & aGlobalBlockRows,
                             const moris::uint             & aBlockRowOffsets,
-                                  moris::Matrix< DDRMat > & LHSValues );
+                                  moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
     void print() const;
 

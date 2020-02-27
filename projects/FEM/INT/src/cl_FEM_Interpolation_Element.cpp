@@ -86,12 +86,12 @@ namespace moris
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
 
                  // get the pdof values for the ith dof type group
-                 Cell< Matrix< DDRMat > > tCoeff_Original;
+                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
 
                  // reshape tCoeffs into the order the cluster expects them
                  Matrix< DDRMat > tCoeff;
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                 this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                  // set field interpolator coefficients
                  mSet->get_field_interpolator_manager()
@@ -109,12 +109,12 @@ namespace moris
                  = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
 
                  // get the pdof values for the ith dof type group
-                 Cell< Matrix< DDRMat > > tCoeff_Original;
+                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                  // reshape tCoeffs into the order the cluster expects them
                  Matrix< DDRMat > tCoeff;
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                 this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                  // set the field coefficients
                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )

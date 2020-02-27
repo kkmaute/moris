@@ -67,6 +67,10 @@
 
 #include "cl_Plane.hpp"
 
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 #include <functional>
 
 namespace moris
@@ -201,7 +205,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tTopFieldName    = "TopPlane";
         std::string tBottomFieldName = "BottomPlane";
 
-        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -285,7 +289,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
           size_t tModelDimension = 2;
           moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
           moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),tGeometryEngine);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGeometryEngine);
           tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

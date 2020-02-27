@@ -120,7 +120,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tParameters.set_number_aura(  true );
 
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -192,7 +192,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  =  false;
 

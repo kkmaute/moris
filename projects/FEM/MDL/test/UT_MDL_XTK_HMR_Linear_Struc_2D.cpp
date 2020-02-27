@@ -88,6 +88,10 @@
 #include "cl_GEN_Geometry.hpp"
 
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
+
 namespace moris
 {
 moris::real LvlSetLin
@@ -175,7 +179,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -232,7 +236,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         moris::ge::GEN_Phase_Table     tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-         xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+         xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -475,7 +479,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2"));
         tParameters.set( "domain_dimensions", std::string("2, 2, 2") );
@@ -532,7 +536,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
         moris::ge::GEN_Phase_Table     tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 3);
 
-         xtk::Model tXTKModel(3, tInterpolationMesh.get(), tGeometryEngine);
+         xtk::Model tXTKModel(3, tInterpolationMesh.get(), &tGeometryEngine);
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -790,7 +794,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -844,7 +848,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -1101,7 +1105,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
         tParameters.set( "domain_dimensions", std::string("2, 2") );
@@ -1155,7 +1159,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -1419,7 +1423,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //
 //      moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
 //      moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
-//      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),tGeometryEngine);
+//      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
 //      tXTKModel.mVerbose = false;
 //
 //      Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
