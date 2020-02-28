@@ -24,7 +24,7 @@ typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >       
 //------------------------------------------------------------------------------
 class GEN_Property
 {
-    // TODO: clean up this class, should only be concerned with design variables (DVs) not degrees of freedom (DoFs)
+    // TODO: clean up this class, should only be concerned with design variables (DVs) not degrees of freedom (DoFs), get rid of all the commented-out stuff
 
 protected:
 //    // active dof types
@@ -87,11 +87,11 @@ public:
     virtual ~GEN_Property( ){};
 
     //------------------------------------------------------------------------------
-    void set_pdv_type( enum GEN_DV aPdvType )      //FIXME: use the 'set_dv_type()' function?
+    void set_pdv_type( enum GEN_DV aPdvType )
     {
         mPdvType = aPdvType;
     }
-
+    //------------------------------------------------------------------------------
     enum GEN_DV get_pdv_type( )
     {
         MORIS_ASSERT( mPdvType == GEN_DV::END_ENUM, "cl_GEN_Property::get_pdv_type() - pdv type not set" );

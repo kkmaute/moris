@@ -46,7 +46,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry.hpp"
 
@@ -173,7 +173,7 @@ namespace moris
 
             std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-            moris::ge::GEN_Geom_Field tPlaneFieldAsGeom( tPlaneField );
+            moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
             moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = {&tPlaneFieldAsGeom};
 
@@ -469,7 +469,7 @@ namespace moris
 
             std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-            moris::ge::GEN_Geom_Field tPlaneFieldAsGeom( tPlaneField );
+            moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
             moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = {&tPlaneFieldAsGeom};
 

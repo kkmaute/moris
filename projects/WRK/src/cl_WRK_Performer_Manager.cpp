@@ -167,7 +167,7 @@ void Performer_Manager::perform()
         tEnrIntegMesh.deactivate_empty_sets();
         // Write mesh
         Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("", "./xtk_exo/xtk_benchmark01.exo");
+        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
 
         // Write the fields
         writer.set_time(0.0);

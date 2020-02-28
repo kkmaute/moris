@@ -82,10 +82,8 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "cl_GEN_Geom_Field.hpp"
-
 #include "cl_GE_Geometry_Library.hpp"
-
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
@@ -278,7 +276,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 

@@ -11,6 +11,8 @@ namespace moris
 {
 namespace ge
 {
+// TODO: clean up this class, should only be concerned with design variables (DVs) not degrees of freedom (DoFs), get rid of all the commented-out stuff
+
 //------------------------------------------------------------------------------
 //void GEN_Property::build_dof_type_map()
 //{

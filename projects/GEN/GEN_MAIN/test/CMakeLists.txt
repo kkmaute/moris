@@ -13,6 +13,10 @@ set(TEST_SOURCES
   # cl_GeSDFGen.cpp
   # cl_GeTriangle.cpp
   # cl_GE_test.cpp
+  
+    cl_General_Functionalities.cpp
+   # cl_Parameter_Sweep.cpp
+    cl_Pdv_Tests.cpp
     
     UT_Bounding_Box.cpp
   #  UT_Finite_Difference_Checks.cpp
@@ -24,10 +28,6 @@ set(TEST_SOURCES
    # geometry_classes/cl_GE_test_analytic.cpp
    # geometry_classes/cl_GE_test_discrete.cpp
    # geometry_classes/cl_GE_test_sdf.cpp
-
-	new_impl_test/cl_General_Functionalities.cpp
-   # new_impl_test/cl_Parameter_Sweep.cpp
-    new_impl_test/cl_Pdv_Tests.cpp
     )
 
 #FIXME: Remove this once xtk has removed subdirectories from its package

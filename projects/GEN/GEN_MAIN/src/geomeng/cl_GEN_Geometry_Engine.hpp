@@ -417,6 +417,7 @@ public:
     void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                               const moris_index                 aWhichMesh = 0 )
     {
+        //TODO: implement for the case of discrete geometries and a mesh manager (rather than just an HMR mesh)
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
         aAllFieldVals.resize( mGeometry.size() );

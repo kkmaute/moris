@@ -78,8 +78,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geom_Field.hpp"
-
+#include "cl_GEN_Geom_Field_HMR.hpp"
 #include "fn_norm.hpp"
 
 moris::real
@@ -284,8 +283,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tHMRFields(0));
-         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
+         moris::ge::GEN_Geom_Field_HMR tCircleFieldAsGeom(tHMRFields(0));
+         moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom2(tHMRFields(1));
          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
          size_t tModelDimension = 2;
@@ -751,8 +750,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tHMRFields(0));
-         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
+         moris::ge::GEN_Geom_Field_HMR tCircleFieldAsGeom(tHMRFields(0));
+         moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom2(tHMRFields(1));
          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
          size_t tModelDimension = 3;

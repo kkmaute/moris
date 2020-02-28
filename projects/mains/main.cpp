@@ -67,7 +67,7 @@ int main( int argc, char * argv[] )
 
     // Severity level 0 - all outputs
     gLogger.initialize( 2 );
-//    moris::print_banner( argc, argv );
+    moris::print_banner( argc, argv );
 
 //------------------------------------------------------------------------------
 //  The main executable is just for developing and testing.

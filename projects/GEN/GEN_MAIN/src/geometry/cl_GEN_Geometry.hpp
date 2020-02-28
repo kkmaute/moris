@@ -62,7 +62,10 @@ public:
     /**
      *
      */
-    virtual void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const  = 0;
+    virtual void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
+    {
+        MORIS_ERROR( false, "GEN_Geometry::get_dphi_dp_size() - not implemented for this geometry type " );
+    }
 
 
     /*
@@ -73,7 +76,7 @@ public:
     virtual
     moris::uint get_num_des_vars() const
     {
-        MORIS_ERROR(0,"Number of design variables not implemented");
+        MORIS_ERROR(0,"GEN_Geometry::get_num_des_vars() - not implemented");
         return 0;
     }
 
@@ -83,7 +86,7 @@ public:
     virtual moris::real evaluate_field_value_with_coordinate( moris::size_t const & aRowIndex,
                                                               moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
-        std::cout<<"evaluate_field_value_with_coordinate not implemented. This could be due to a geometry not being based on an analytic expression.";
+        std::cout<<"GEN_Geometry::evaluate_field_value_with_coordinate() - not implemented. This could be due to a geometry not being based on an analytic expression.";
         return 0;
     }
 
@@ -94,7 +97,7 @@ public:
     virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate( moris::size_t const & aRowIndex,
                                                                                          moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
-        MORIS_ASSERT(false,"cl_GEN_Geometry::evaluate_sensitivity_dphi_dp_with_coordinate() - Not implemented. This could be due to a geometry not being based on an analytic expression...");
+        MORIS_ASSERT(false,"cl_GEN_Geometry::evaluate_sensitivity_dphi_dp_with_coordinate() - Not implemented. This could be due to a geometry not being based on an analytic expression.");
         return moris::Matrix< moris::DDRMat >();
     }
 

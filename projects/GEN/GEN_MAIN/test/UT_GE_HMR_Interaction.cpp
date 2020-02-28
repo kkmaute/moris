@@ -1,5 +1,5 @@
 #include <catch.hpp>
-
+#include "../src/geometry/cl_GEN_Geom_Field_HMR.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
@@ -34,9 +34,6 @@
 
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "cl_GEN_Geom_Field.hpp"
-
-// LINALG includes
 #include "cl_Matrix.hpp"
 #include "fn_all_true.hpp"
 #include "fn_equal_to.hpp"

@@ -87,8 +87,8 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "cl_PRM_SOL_Parameters.hpp"
 
@@ -203,7 +203,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 
@@ -579,7 +579,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_In
 
         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 
@@ -680,7 +680,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 

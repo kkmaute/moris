@@ -73,8 +73,8 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 moris::real
 Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -167,7 +167,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
+        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 

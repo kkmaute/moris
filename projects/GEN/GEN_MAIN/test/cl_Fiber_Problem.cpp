@@ -4,7 +4,6 @@
  *  Created on: Oct 22, 2019
  *      Author: sonne
  */
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -82,7 +81,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Enums.hpp"
-#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geom_Data.hpp"
 #include "cl_GEN_Property.hpp"
@@ -97,25 +96,6 @@ namespace ge
 
     static const uint sNumberOfRefinements = 4;
                  real gLsbwabs;
-
-
-//Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-//        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-//        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-//        fem::Geometry_Interpolator              * aGeometryInterpolator )
-//        {
-//    return aCoeff( 0 );
-//        }
-//
-//moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-//        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-//        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-//        {
-//    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
-//        {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
-//        {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
-//        }
 
 void tConstValFunction
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -353,7 +333,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tXTKModel.decompose(tDecompositionMethods);
     //=============================== temporary ============================================
     // output solution and meshes
-    bool tOutputXTKmesh = false;
+    bool tOutputXTKmesh = true;
     if (tOutputXTKmesh)
     {
         xtk::Output_Options tOutputOptions1;
@@ -373,10 +353,10 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         delete tIntegMesh11;
     }
     //============================= end temporary ==========================================
-    bool tFullProblem = true;
+    bool tFullProblem = false;
     if( tFullProblem )
     {
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();

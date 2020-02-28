@@ -4,7 +4,6 @@
  *  Created on: Jan 21, 2020
  *      Author: sonne
  */
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -86,9 +85,9 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Enums.hpp"
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geom_Data.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 #include "cl_GEN_Multi_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Property.hpp"

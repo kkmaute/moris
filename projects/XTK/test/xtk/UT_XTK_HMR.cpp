@@ -40,8 +40,8 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -181,7 +181,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
 
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
