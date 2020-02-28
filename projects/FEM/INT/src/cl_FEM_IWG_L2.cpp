@@ -247,9 +247,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_drdpdv( real aWStar )
+        void IWG_L2::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_L2::compute_drdpdv - not implemented." );
+            MORIS_ERROR( false, "IWG_L2::compute_dRdp - not implemented." );
         }
 
 //------------------------------------------------------------------------------

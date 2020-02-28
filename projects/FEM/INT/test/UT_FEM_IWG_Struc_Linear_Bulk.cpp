@@ -170,11 +170,11 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
     
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
     
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
     
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -357,12 +357,12 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Disp
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -540,11 +540,11 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
     
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
     
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
     
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );

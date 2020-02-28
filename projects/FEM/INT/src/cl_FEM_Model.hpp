@@ -78,6 +78,9 @@ namespace moris
             // unpacked fem inputs
             moris::Cell< fem::Set_User_Info > mSetInfo;
 
+            // space dimension
+            uint mSpaceDim;
+
             // fixme remove ?
             moris::Cell< std::shared_ptr< fem::Property > > mProperties;
             moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mCMs;
@@ -144,6 +147,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * set space dimension ( only for UT)
+             * @param[ in ] aSpaceDim int for space dimension
+             */
+            void set_space_dim( uint aSpaceDim )
+            {
+                mSpaceDim = aSpaceDim;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * get equation sets for test
              */
             moris::Cell< MSI::Equation_Set * > & get_equation_sets()
@@ -174,6 +187,10 @@ namespace moris
              * finalize the fem sets
              */
             void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+            void finalize_equation_sets
+            ( MSI::Model_Solver_Interface    * aModelSolverInterface,
+              MSI::Design_Variable_Interface * aDesignVariableInterface );
 
 //------------------------------------------------------------------------------
             /**

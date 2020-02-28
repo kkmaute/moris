@@ -202,10 +202,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );

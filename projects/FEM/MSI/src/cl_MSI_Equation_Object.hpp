@@ -69,7 +69,7 @@ class Dist_Vector;
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
-            Matrix< DDRMat > mPdofValues;
+            moris::Cell< Matrix< DDRMat > > mPdofValues;
 
             Dist_Vector * mSolVec = nullptr;
 
@@ -90,7 +90,7 @@ class Dist_Vector;
 
             Equation_Object() {};
 
-            Equation_Object( Equation_Set * aElementBlock) : mEquationSet( aElementBlock )
+            Equation_Object( Equation_Set * aElementBlock ) : mEquationSet( aElementBlock )
             {};
 
 //-------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            Matrix< DDRMat > & get_pdof_values( )
+            Cell< Matrix< DDRMat > > & get_pdof_values( )
             {
                 this->compute_my_pdof_values();
 
@@ -217,9 +217,9 @@ class Dist_Vector;
              * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
              * @param[ in ] aIsMaster             enum for master or slave
              */
-            void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
-                                           Cell< Matrix< DDRMat > >     & aRequestedPdofValues,
-                                     const mtk::Master_Slave              aIsMaster = mtk::Master_Slave::MASTER );
+            void get_my_pdof_values( const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
+                                           Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
+                                     const mtk::Master_Slave                  aIsMaster = mtk::Master_Slave::MASTER );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -294,7 +294,34 @@ class Dist_Vector;
              */
             virtual void compute_dRdp()
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_dRdp - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute dQIdp
+             */
+            virtual void compute_dQIdp()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute dQIdu
+             */
+            virtual void compute_dQIdu()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdu - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute QI
+             */
+            virtual void compute_QI()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_QI - not implemented in msi." );
             };
 
 //-------------------------------------------------------------------------------------------------

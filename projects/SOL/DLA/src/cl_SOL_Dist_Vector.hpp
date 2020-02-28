@@ -154,7 +154,7 @@ public:
     virtual void extract_my_values( const moris::uint             & aNumIndices,
                                     const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                     const moris::uint             & aBlockRowOffsets,
-                                          moris::Matrix< DDRMat > & LHSValues ) = 0;
+                                          moris::Cell< moris::Matrix< DDRMat > > & LHSValues ) = 0;
 
     virtual moris::real* get_values_pointer()
     {

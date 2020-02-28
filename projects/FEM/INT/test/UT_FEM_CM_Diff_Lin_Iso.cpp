@@ -102,11 +102,11 @@ namespace moris
             fem::Set tSet;
 
             // set size for the set EqnObjDofTypeList
-            tSet.mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+            tSet.mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
             // set size and populate the set dof type map
-            tSet.mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tSet.mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tSet.mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tSet.mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // set size and populate the set master dof type map
             tSet.mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );

@@ -314,15 +314,6 @@ namespace moris
       mBSplineIndex( aBSplineIndex ),
       mUseMultigrid( aUseMultigrid )
         {
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 0: initialize
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -348,6 +339,11 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
             tic tTimer2;
+
+            // Get pointers to interpolation and integration mesh
+            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
+            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
             //--------------------------FIXME------------------------------------
             // This part should not be needed anymore when MTK has all the functionalities
@@ -383,6 +379,7 @@ namespace moris
                                                                             tInterpolationMesh );
 
             // finalize the fem sets
+            // FIXME pass in the interface
             mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
             // finalize the model solver interface
@@ -424,6 +421,11 @@ namespace moris
         void Model::solve()
         {
             mSolverWarehouse->get_main_time_solver()->solve();
+
+//            Matrix<DDRMat> tMat;
+//            mSolverWarehouse->get_main_time_solver()->get_full_solution( tMat );
+//
+//            print(tMat,"tMat");
         }
 
 //------------------------------------------------------------------------------

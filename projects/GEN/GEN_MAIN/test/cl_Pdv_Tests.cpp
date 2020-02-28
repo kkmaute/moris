@@ -50,12 +50,13 @@ namespace moris
 {
     namespace ge
     {
-    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+
+    Matrix< DDRMat > tConstValFunction
+    ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+      moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
     {
         return aCoeff( 0 );
     }
-
 
     //------------------------------------------------------------------------------
     TEST_CASE("pdv_test_00","[GE],[pdv_check_00]")

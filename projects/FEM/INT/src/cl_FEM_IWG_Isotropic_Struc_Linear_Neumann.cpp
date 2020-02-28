@@ -91,9 +91,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Neumann::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Struc_Linear_Neumann::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_drdpdv - Not implemented.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_dRdp - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

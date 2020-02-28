@@ -175,10 +175,10 @@ using namespace dla;
         mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
     }
 //--------------------------------------------------------------------------------------------------------------------------
-    void Newton_Solver::extract_my_values( const moris::uint             & aNumIndices,
-                                           const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                           const moris::uint             & aBlockRowOffsets,
-                                                 moris::Matrix< DDRMat > & LHSValues )
+    void Newton_Solver::extract_my_values( const moris::uint                            & aNumIndices,
+                                           const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                           const moris::uint                            & aBlockRowOffsets,
+                                                 moris::Cell< moris::Matrix< DDRMat > > & LHSValues )
     {
         mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
     }

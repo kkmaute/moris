@@ -86,10 +86,12 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map());
 
-    // full vector
-    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, 1 );
+    uint tNumRHMS = aSolverInterface->get_num_rhs();
 
-    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, 1 );       // FIXME delete
+    // full vector
+    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );
+
+    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
     mDummyFullVector->vec_put_scalar( 0.0 );
     aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
 
@@ -198,10 +200,10 @@ Dist_Vector * Nonlinear_Problem::get_full_vector()
     return mFullVector;
 }
 
-void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndices,
-                                       const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                       const moris::uint             & aBlockRowOffsets,
-                                             moris::Matrix< DDRMat > & LHSValues )
+void Nonlinear_Problem::extract_my_values( const moris::uint                            & aNumIndices,
+                                           const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                           const moris::uint                            & aBlockRowOffsets,
+                                                 moris::Cell< moris::Matrix< DDRMat > > & LHSValues )
 {
     mFullVector->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }

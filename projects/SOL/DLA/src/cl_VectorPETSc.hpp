@@ -71,7 +71,7 @@ public:
     void extract_my_values( const moris::uint             & aNumIndices,
                             const moris::Matrix< DDSMat > & aGlobalBlockRows,
                             const moris::uint             & aBlockRowOffsets,
-                                  moris::Matrix< DDRMat > & LHSValues );
+                                  moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
     void print() const;
 

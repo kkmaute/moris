@@ -230,7 +230,7 @@ namespace moris
         Equation_Object EquObj_2( tNodeIds_2 );
 
         Equation_Set tEqnBlock;
-        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         EquObj_1.mEquationSet = &tEqnBlock;
         EquObj_2.mEquationSet = &tEqnBlock;
 
@@ -473,7 +473,7 @@ namespace moris
         delete Node2;
     }
 
-    TEST_CASE("Dof_Mgn_create_unique_dof_type_list","[MSI],[Dof_create_dof_type_list][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_unique_dof_type_list","[MSI],[Dof_create_dof_and_dv_type_lists][MSI_parallel]")
      {
          // Create generic equation objects
          Equation_Set EquObj_1;
@@ -489,40 +489,40 @@ namespace moris
          switch( tRank )
              {
              case 0:
-                 EquObj_1.mEqnObjDofTypeList.resize( 1 );
-                 EquObj_2.mEqnObjDofTypeList.resize( 2 );
-                 EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
-                 EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                 EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
+                 EquObj_1.mUniqueDofTypeList.resize( 1 );
+                 EquObj_2.mUniqueDofTypeList.resize( 2 );
+                 EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::TEMP;
+                 EquObj_2.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                 EquObj_2.mUniqueDofTypeList( 1 ) = Dof_Type::UZ;
                  tListEqnObj.resize( 2, nullptr );
                  tListEqnObj( 0 ) = & EquObj_1;
                  tListEqnObj( 1 ) = & EquObj_2;
                break;
              case 1:
-                 EquObj_1.mEqnObjDofTypeList.resize( 2 );
-                 EquObj_2.mEqnObjDofTypeList.resize( 2 );
-                 EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
-                 EquObj_1.mEqnObjDofTypeList( 1 ) = Dof_Type::UX;
-                 EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                 EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
+                 EquObj_1.mUniqueDofTypeList.resize( 2 );
+                 EquObj_2.mUniqueDofTypeList.resize( 2 );
+                 EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::TEMP;
+                 EquObj_1.mUniqueDofTypeList( 1 ) = Dof_Type::UX;
+                 EquObj_2.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                 EquObj_2.mUniqueDofTypeList( 1 ) = Dof_Type::UZ;
                  tListEqnObj.resize( 2, nullptr );
                  tListEqnObj( 0 ) = & EquObj_1;
                  tListEqnObj( 1 ) = & EquObj_2;
                break;
              case 2:
-                 EquObj_1.mEqnObjDofTypeList.resize( 3 );
-                 EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                 EquObj_1.mEqnObjDofTypeList( 1 ) = Dof_Type::TEMP;
-                 EquObj_1.mEqnObjDofTypeList( 2 ) = Dof_Type::UZ;
+                 EquObj_1.mUniqueDofTypeList.resize( 3 );
+                 EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                 EquObj_1.mUniqueDofTypeList( 1 ) = Dof_Type::TEMP;
+                 EquObj_1.mUniqueDofTypeList( 2 ) = Dof_Type::UZ;
                  tListEqnObj.resize( 1, nullptr );
                  tListEqnObj( 0 ) = & EquObj_1;
                break;
              case 3:
-                 EquObj_1.mEqnObjDofTypeList.resize( 1 );
-                 EquObj_2.mEqnObjDofTypeList.resize( 2 );
-                 EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
-                 EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                 EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
+                 EquObj_1.mUniqueDofTypeList.resize( 1 );
+                 EquObj_2.mUniqueDofTypeList.resize( 2 );
+                 EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::TEMP;
+                 EquObj_2.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                 EquObj_2.mUniqueDofTypeList( 1 ) = Dof_Type::UZ;
                  tListEqnObj.resize( 2, nullptr );
                  tListEqnObj( 0 ) = & EquObj_1;
                  tListEqnObj( 1 ) = & EquObj_2;
@@ -542,7 +542,7 @@ namespace moris
 
      }
 
-    TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[Dof_create_dof_type_map][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[Dof_create_dof_and_dv_type_maps][MSI_parallel]")
     {
         // Create generic equation objects
         Equation_Set EquObj_1;
@@ -558,40 +558,40 @@ namespace moris
         switch( tRank )
             {
             case 0:
-                EquObj_1.mEqnObjDofTypeList.resize( 1 );
-                EquObj_2.mEqnObjDofTypeList.resize( 2 );
-                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
-                EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
+                EquObj_1.mUniqueDofTypeList.resize( 1 );
+                EquObj_2.mUniqueDofTypeList.resize( 2 );
+                EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::TEMP;
+                EquObj_2.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_2.mUniqueDofTypeList( 1 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 2, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
                 tListEqnObj( 1 ) = & EquObj_2;
               break;
             case 1:
-                EquObj_1.mEqnObjDofTypeList.resize( 2 );
-                EquObj_2.mEqnObjDofTypeList.resize( 2 );
-                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
-                EquObj_1.mEqnObjDofTypeList( 1 ) = Dof_Type::UX;
-                EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
+                EquObj_1.mUniqueDofTypeList.resize( 2 );
+                EquObj_2.mUniqueDofTypeList.resize( 2 );
+                EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::TEMP;
+                EquObj_1.mUniqueDofTypeList( 1 ) = Dof_Type::UX;
+                EquObj_2.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_2.mUniqueDofTypeList( 1 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 2, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
                 tListEqnObj( 1 ) = & EquObj_2;
               break;
             case 2:
-                EquObj_1.mEqnObjDofTypeList.resize( 3 );
-                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                EquObj_1.mEqnObjDofTypeList( 1 ) = Dof_Type::TEMP;
-                EquObj_1.mEqnObjDofTypeList( 2 ) = Dof_Type::UZ;
+                EquObj_1.mUniqueDofTypeList.resize( 3 );
+                EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_1.mUniqueDofTypeList( 1 ) = Dof_Type::TEMP;
+                EquObj_1.mUniqueDofTypeList( 2 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 1, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
               break;
             case 3:
-                EquObj_1.mEqnObjDofTypeList.resize( 1 );
-                EquObj_2.mEqnObjDofTypeList.resize( 2 );
-                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
-                EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
-                EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
+                EquObj_1.mUniqueDofTypeList.resize( 1 );
+                EquObj_2.mUniqueDofTypeList.resize( 2 );
+                EquObj_1.mUniqueDofTypeList( 0 ) = Dof_Type::TEMP;
+                EquObj_2.mUniqueDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_2.mUniqueDofTypeList( 1 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 2, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
                 tListEqnObj( 1 ) = & EquObj_2;
@@ -605,7 +605,7 @@ namespace moris
         tDofMgn.initialize_pdof_type_list( tListEqnObj );
 
         // Call initialize pdof type list function
-        tDofMgn.create_dof_type_map();
+        tDofMgn.create_dof_and_dv_type_maps();
 
         // Check pdof type list
         CHECK( equal_to( tDofMgn.mPdofTypeMap( 0, 0 ), 0 ) );

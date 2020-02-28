@@ -122,7 +122,6 @@ namespace moris
             mMaxNumDvFI =  3;          //FIXME FIXME FIXME
 
             mDvTypeMap = mEquationSet->get_dv_type_map( aIsMaster );
-
         };
 
 //------------------------------------------------------------------------------

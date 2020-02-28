@@ -73,10 +73,10 @@ public:
 
     void extract_copy( moris::Matrix< DDRMat > & LHSValues );
 
-    void extract_my_values( const moris::uint               & aNumIndices,
-                            const moris::Matrix< DDSMat > & aGlobalRows,
-                            const moris::uint               & aRowOffsets,
-                                  moris::Matrix< DDRMat > & LHSValues );
+    void extract_my_values( const moris::uint                            & aNumIndices,
+                            const moris::Matrix< DDSMat >                & aGlobalRows,
+                            const moris::uint                            & aRowOffsets,
+                                  moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
     void print() const;
 

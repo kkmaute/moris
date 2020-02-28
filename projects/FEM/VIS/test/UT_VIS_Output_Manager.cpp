@@ -255,7 +255,7 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-            tIQI->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -551,7 +551,7 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-            tIQI->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;

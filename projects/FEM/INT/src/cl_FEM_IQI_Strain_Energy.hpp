@@ -38,7 +38,7 @@ namespace moris
 
             enum class IQI_Constitutive_Type
             {
-                ELAST_LIN_ISO,
+                ELAST,
                 MAX_ENUM
             };
 
@@ -68,27 +68,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // can only be master
-                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IQI::set_property - can only be master." );
-
-                // FIXME check that property type makes sense?
-
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * set constitutive model
              * @param[ in ] aConstitutiveModel  a constitutive model pointer
              * @param[ in ] aConstitutiveString a string defining the constitutive model
@@ -98,29 +77,16 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // can only be master
-                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IQI::set_constitutive model - can only be master." );
+                // check that aConstitutiveString makes sense
+                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                             "IQI_Strain_Energy::set_constitutive_model - Unknown aConstitutiveString." );
 
-                // FIXME check that constitutive string makes sense?
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IQI_Strain_Energy::set_constitutive_model - No slave allowed." );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // FIXME check that stabilization string makes sense?
-
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
             }
 
 //------------------------------------------------------------------------------
@@ -132,10 +98,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdDof derivative of quantity of interest matrix to fill
+             * compute the quantity of interest
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_dQIdDof( Matrix< DDRMat > & adQIdDof );
+            void compute_QI( moris::real aWStar );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantity of interest
+             * wrt requested dof types
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_dQIdu( moris::real aWStar );
 
 //------------------------------------------------------------------------------
         };

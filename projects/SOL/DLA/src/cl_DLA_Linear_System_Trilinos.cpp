@@ -88,11 +88,13 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, aFreeMap );
 
+        uint tNumRHMS = aInput->get_num_rhs();
+
         // Build RHS/LHS vector
         mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, 1 );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHMS );
 
         mInput->build_graph( mMat );
 }

@@ -73,8 +73,8 @@ namespace moris
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
 
-            // spatial dimensions       //FIXME
-            uint mSpaceDim = 2;
+            // spatial dimensions
+            uint mSpaceDim;
 
             // storage for evaluation
             Matrix< DDRMat > mFlux;
@@ -99,6 +99,7 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mdConstdDof;
             moris::Cell< Matrix< DDRMat > > mdConstdDv;
 
+            // constitutive model name for input and debug
             std::string mName;
 
         private:
@@ -173,7 +174,7 @@ namespace moris
              */
             void print_names()
             {
-            	std::cout<<"----------"<<std::endl;
+                std::cout<<"----------"<<std::endl;
                 std::cout<<"CM: "<<mName<<std::endl;
 
                 // properties
@@ -184,7 +185,7 @@ namespace moris
                         std::cout<<"Property: "<<mProperties( iProp )->get_name()<<std::endl;
                     }
                 }
-            std::cout<<"----------"<<std::endl;
+                std::cout<<"----------"<<std::endl;
             }
 
 //------------------------------------------------------------------------------

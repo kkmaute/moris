@@ -59,10 +59,10 @@ namespace NLA
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues )
         {};
 
-        void extract_my_values( const moris::uint             & aNumIndices,
-                                const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                const moris::uint             & aBlockRowOffsets,
-                                      moris::Matrix< DDRMat > & LHSValues )
+        void extract_my_values( const moris::uint                            & aNumIndices,
+                                const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                const moris::uint                            & aBlockRowOffsets,
+                                      moris::Cell< moris::Matrix< DDRMat > > & LHSValues )
         {};
 
     };

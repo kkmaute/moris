@@ -11,23 +11,24 @@
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"
 
-#include "cl_MTK_Enums.hpp"            //MTK
-#include "cl_MSI_Equation_Set.hpp"     //FEM/MSI/src
-#include "cl_FEM_Enums.hpp"            //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"        //FEM/INT/src
-#include "cl_FEM_Property.hpp"                       //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"             //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp"                     //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp" //FEM/INT/src
-#include "cl_FEM_IQI.hpp"
-
+//MTK
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
-
-#include "cl_VIS_Output_Enums.hpp"
-
+//FEM/INT/src
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Node_Base.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
+#include "cl_FEM_Stabilization_Parameter.hpp"
+#include "cl_FEM_Set_User_Info.hpp"
+#include "cl_FEM_IQI.hpp"
+//FEM/MSI/src
+#include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
+//FEM/VIS/src
+#include "cl_VIS_Output_Enums.hpp"
 
 namespace moris
 {
@@ -51,7 +52,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
     /**
-     * @brief element block class that communicates with the mesh interface
+     * FEM set
      */
     class Set : public MSI::Equation_Set
     {
@@ -59,14 +60,12 @@ namespace MSI
 
         // FEM model
         fem::FEM_Model * mFemModel = nullptr;
+
         // pointer to the corresponding mesh set
         moris::mtk::Set * mMeshSet = nullptr;
 
         // list of mesh cluster pointers
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
-
-        // space dimension
-        uint mSpaceDim;
 
         // interpolation mesh geometry type
         mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
@@ -99,6 +98,7 @@ namespace MSI
 
         // cell of pointer to IQI objects
         moris::Cell< std::shared_ptr< IQI > > mIQIs;
+        moris::Cell< std::shared_ptr< IQI > > mRequestedIQIs;
 
         // enum for element type
         enum fem::Element_Type mElementType;
@@ -110,18 +110,15 @@ namespace MSI
         Matrix< DDRMat > mIntegWeights;
 
         // map for the dof type
-        Matrix< DDSMat > mDofTypeMap;
-        Matrix< DDSMat > mDvTypeMap;
+        Matrix< DDSMat > mUniqueDofTypeMap;
+        Matrix< DDSMat > mUniqueDvTypeMap;
 
         // map visualization cell id to position in vector
         moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
         moris::Cell< uint >                    mMtkIgCellOnSet;
 
-
         bool mIsResidual = false;
-
         bool mIsForward = true;
-
 
         friend class MSI::Equation_Object;
         friend class Cluster;
@@ -138,15 +135,17 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * constructor
-         * @param[ in ] aMeshSet a set from the mesh
-         * @param[ in ] aSetInfo user defined info for set
-         * @param[ in ] aIPNodes cell of node pointers
+         * @param[ in ] aFemModel a FEM model pointer
+         * @param[ in ] aMeshSet  a set from the mesh
+         * @param[ in ] aSetInfo  user defined info for set
+         * @param[ in ] aIPNodes  cell of node pointers
          */
         Set(       fem::FEM_Model            * aFemModel,
                    moris::mtk::Set           * aMeshSet,
              const fem::Set_User_Info        & aSetInfo,
              const moris::Cell< Node_Base* > & aIPNodes );
 
+//------------------------------------------------------------------------------
         /**
          * trivial constructor
          */
@@ -169,18 +168,20 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
+         * initialize the set
+         * @param[ in ] aIsResidual bool true if ???
+         * @param[ in ] aIsForward  bool true if ???
+         */
+        void initialize_set( const bool aIsResidual,
+                             const bool aIsForward );
+
+//------------------------------------------------------------------------------
+        /**
+         * finalize the fem sets
          * create and set the field interpolators
          * param[ in ] aModelSolverInterface model solver interface pointer
          */
         void finalize( MSI::Model_Solver_Interface * aModelSolverInterface );
-
-//------------------------------------------------------------------------------
-        /**
-         * initialize the set
-         * @param[ in ] aIsResidual bool true if ???
-         */
-        void initialize_set( const bool aIsResidual,
-                             const bool aIsForward);
 
 //------------------------------------------------------------------------------
         /**
@@ -223,7 +224,7 @@ namespace MSI
          * Cell< MSI::Dof_Type >, no group of dof type
          * one for both master and slave
          */
-        void create_unique_dof_type_list();
+        void create_unique_dof_and_dv_type_lists();
 
 //------------------------------------------------------------------------------
         /**
@@ -231,131 +232,14 @@ namespace MSI
          * Cell< Cell< MSI::Dof_Type > >, list of groups of dof type
          * one for the master, one for the slave
          */
-        void create_dof_type_list();
-
-//------------------------------------------------------------------------------
-        /**
-         * get dof type list
-         * @param[ in ] aIsMaster enum for master or slave
-         */
-        moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterDofTypes;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveDofTypes;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Set::get_dof_type_list - can only be MASTER or SLAVE");
-                    return mMasterDofTypes;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get dv type list
-         * @param[ in ] aIsMaster enum for master or slave
-         */
-        moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterDvTypes;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveDvTypes;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Set::get_dv_type_list - can only be MASTER or SLAVE.");
-                    return mMasterDvTypes;
-                }
-            }
-        }
+        void create_dof_and_dv_type_lists();
 
 //------------------------------------------------------------------------------
         /**
          * create a map of the dof type for the set
          * one for the master, one for the slave
          */
-        void create_dof_type_map();
-
-//------------------------------------------------------------------------------
-        /**
-         * get dof type map
-         * @param[ in ] aIsMaster enum for master or slave
-         */
-        Matrix< DDSMat > & get_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterDofTypeMap;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveDofTypeMap;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_dof_type_map - can only be MASTER or SLAVE");
-                    return mMasterDofTypeMap;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get residual dof assembly map
-         */
-        moris::Cell< moris::Matrix< DDSMat > > & get_res_dof_assembly_map()
-        {
-            return mResDofAssemblyMap;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get jacobian dof assembly map
-         */
-        moris::Cell< moris::Matrix< DDSMat > > & get_jac_dof_assembly_map()
-        {
-            return mJacDofAssemblyMap;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get dv assembly map
-         */
-        moris::Cell< moris::Matrix< DDSMat > > & get_dv_assembly_map()
-        {
-            return mDvAssemblyMap;
-        }
-
-
-//------------------------------------------------------------------------------
-
-        moris::Matrix< DDSMat > & get_dv_assembly_map_1()
-        {
-            return mDVTypeMap;
-        }
-
-//------------------------------------------------------------------------------
-
-        moris::sint & get_requested_dv_index_for_type( enum GEN_DV aDvType )
-        {
-            return mDVTypeMap( static_cast< int >( aDvType ) );
-        }
+        void create_dof_and_dv_type_maps();
 
 //------------------------------------------------------------------------------
          /**
@@ -364,49 +248,6 @@ namespace MSI
           * ( only used to set the time levels )
           */
          void create_field_interpolator_managers( MSI::Model_Solver_Interface * aModelSolverInterface );
-
-//------------------------------------------------------------------------------
-        /**
-         * get number of field interpolators
-         * @param[ in ] aIsMaster enum for master or slave
-         */
-        uint get_number_of_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterDofTypes.size();
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveDofTypes.size();
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_number_of_field_interpolators - can only be MASTER or SLAVE.");
-                    return mMasterDofTypes.size();
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get number of IWGs
-         */
-        uint get_number_of_IWGs()
-        {
-            return mIWGs.size();
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get number of requested IWGs
-         */
-        uint get_number_of_requested_IWGs()
-        {
-            return mRequestedIWGs.size();
-        }
 
 //------------------------------------------------------------------------------
         /**
@@ -420,12 +261,30 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * get IWGs
-         * param[ out ] aIWGs cell of IWG pointers
+         * get number of IWGs
+         */
+        uint get_number_of_IWGs()
+        {
+            return mIWGs.size();
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get requested IWGs
+         * param[ out ] mRequestedIWGs cell of requested IWG pointers
          */
         moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
         {
             return mRequestedIWGs;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get number of requested IWGs
+         */
+        uint get_number_of_requested_IWGs()
+        {
+            return mRequestedIWGs.size();
         }
 
 //------------------------------------------------------------------------------
@@ -453,6 +312,31 @@ namespace MSI
 
             // return the selected IQI
             return tIQI;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * create requested IQI list
+         */
+        void create_requested_IQI_list();
+
+//------------------------------------------------------------------------------
+        /**
+         * get requested IQIs
+         * param[ out ] mRequestedIQIs cell of IQIs pointers
+         */
+        moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
+        {
+            return mRequestedIQIs;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get number of requested IQIs
+         */
+        uint get_number_of_requested_IQIs()
+        {
+            return mRequestedIQIs.size();
         }
 
 //------------------------------------------------------------------------------
@@ -617,10 +501,9 @@ namespace MSI
          * @param[ in ]  aInterpolationOrder an interpolation order
          * @param[ out ] aIntegrationOrder   an integration order
          */
-//        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
-
-        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type       aGeometryType,
-                                                           const mtk::Interpolation_Order aInterpolationOrder );
+        fem::Integration_Order get_auto_integration_order
+        ( const mtk::Geometry_Type       aGeometryType,
+          const mtk::Interpolation_Order aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         /**
@@ -652,51 +535,51 @@ namespace MSI
         void initialize_mResidual();
 
 //------------------------------------------------------------------------------
+        /**
+         * set size and reset values for QI
+         */
+        void initialize_mQI();
+
+//------------------------------------------------------------------------------
+        /**
+         * set size and reset values for dRdp
+         */
+        void initialize_mdRdp();
+
+//------------------------------------------------------------------------------
+        /**
+         * set size and reset values for dQIdp
+         */
+        void initialize_mdQIdp();
+
+//------------------------------------------------------------------------------
         /*
-         * get the set index for the specified dof type
+         * get index from unique dof type map
          *@param[ in ] aDofType a dof type enum
          */
-        moris::sint get_dof_index_for_type_1( enum MSI::Dof_Type aDofType );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the set index for the specified dv type
-         *@param[ in ] aDvType a dv type enum
-         * FIXME should this info be stored in the set?
-         */
-        moris::sint get_dv_index_for_type_1( enum GEN_DV aDvType );
-
-//------------------------------------------------------------------------------
-        /**
-         * get number of dof types on the set
-         */
-        moris::uint get_num_dof_types();
-
-        void create_requested_dv_assembly_map();
-
-//------------------------------------------------------------------------------
-        /**
-         * get number of dv types on the set
-         */
-        moris::uint get_num_dv_types()
+        moris::sint get_index_from_unique_dof_type_map( enum MSI::Dof_Type aDofType )
         {
-            return this->get_num_unique_dv_types();
+            return mUniqueDofTypeMap( static_cast< int >( aDofType ), 0 );
         }
 
 //------------------------------------------------------------------------------
-
-        moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
-
-        moris::Cell < enum GEN_DV > get_requested_dv_types();
-
-//------------------------------------------------------------------------------
-
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types();
-
-//------------------------------------------------------------------------------
-
-        void create_dof_type_map_unique()
+        /*
+         * get index from unique dv type map
+         *@param[ in ] aDofType a dof type enum
+         */
+        moris::sint get_index_from_unique_dv_type_map( enum GEN_DV aDvType )
         {
+            return mUniqueDvTypeMap( static_cast< int >( aDvType ), 0 );
+        }
+
+//------------------------------------------------------------------------------
+        void create_requested_dv_assembly_map();
+
+//------------------------------------------------------------------------------
+        void create_unique_dof_and_dv_type_maps()
+        {
+            // dof types
+            //------------------------------------------------------------------------------
             // Create temporary dof type list
             moris::Cell< enum MSI::Dof_Type > tDofType = get_unique_dof_type_list();
 
@@ -716,15 +599,16 @@ namespace MSI
             tMaxDofTypeEnumNumber++;
 
             // Set size of mapping matrix
-            mDofTypeMap       .set_size( tMaxDofTypeEnumNumber, 1, -1 );
+            mUniqueDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
 
             // Loop over all pdof types to create the mapping matrix
             for ( moris::uint Ii = 0; Ii < tNumUniqueDofTypes; Ii++ )
             {
-                mDofTypeMap( static_cast< int >( tDofType( Ii ) ), 0 ) = Ii;
+                mUniqueDofTypeMap( static_cast< int >( tDofType( Ii ) ), 0 ) = Ii;
             }
 
-            // Dv types
+            // dv types
+            //------------------------------------------------------------------------------
             // Create temporary dv type list
             moris::Cell< enum GEN_DV > tDvType = get_unique_dv_type_list();
 
@@ -744,12 +628,12 @@ namespace MSI
             tMaxDvTypeEnumNumber++;
 
             // Set size of mapping matrix
-            mDvTypeMap       .set_size( tMaxDvTypeEnumNumber, 1, -1 );
+            mUniqueDvTypeMap.set_size( tMaxDvTypeEnumNumber, 1, -1 );
 
             // Loop over all dv types to create the mapping matrix
             for ( moris::uint Ii = 0; Ii < tNumUniqueDvTypes; Ii++ )
             {
-                mDvTypeMap( static_cast< int >( tDvType( Ii ) ), 0 ) = Ii;
+                mUniqueDvTypeMap( static_cast< int >( tDvType( Ii ) ), 0 ) = Ii;
             }
         }
 
@@ -776,19 +660,22 @@ namespace MSI
         void determine_set_type();
 
 //------------------------------------------------------------------------------
-
-        void set_Dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+        /**
+         * set dv interface
+         * @param[ in ] aDesignVariableInterface a design varaible pointer
+         */
+        void set_dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
        {
            mDesignVariableInterface = aDesignVariableInterface;
 
-           moris::Cell< GEN_DV > tTypesUnique;
-           mDesignVariableInterface->get_unique_dv_types_for_set( 0, tTypesUnique);     //FIXME use fem::SEt to MTK::set map
-
-           mDvTypeMap.set_size( static_cast<int>(GEN_DV::END_ENUM), 1, -1 );
-           for( uint Ik = 0; Ik <tTypesUnique.size(); Ik++)
-           {
-               mDvTypeMap( static_cast<int>(tTypesUnique( Ik )) )= Ik;
-           }
+//           moris::Cell< GEN_DV > tTypesUnique;
+//           mDesignVariableInterface->get_unique_dv_types_for_set( 0, tTypesUnique );     //FIXME use fem::SEt to MTK::set map
+//
+//           mUniqueDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ), 1, -1 );
+//           for( uint Ik = 0; Ik < tTypesUnique.size(); Ik++)
+//           {
+//               mUniqueDvTypeMap( static_cast< int >( tTypesUnique( Ik ) ) )= Ik;
+//           }
        };
 
     };
