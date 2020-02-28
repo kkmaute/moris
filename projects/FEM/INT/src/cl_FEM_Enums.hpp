@@ -109,6 +109,7 @@ namespace moris
         {
             UNDEFINED,
             VOLUME,         // volume
+            VOLUME_FRACTION,
             STRAIN_ENERGY,
             DOF,
             PROPERTY,
@@ -151,6 +152,7 @@ namespace moris
             NITSCHE_INTERFACE,
             MASTER_WEIGHT_INTERFACE,
             SLAVE_WEIGHT_INTERFACE,
+            RECIPROCAL_TOTAL_VOLUME,
             END_STABILIZATION_TYPE
         };
 

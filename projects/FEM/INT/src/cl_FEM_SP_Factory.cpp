@@ -6,6 +6,7 @@
 #include "cl_FEM_SP_Nitsche_Interface.hpp" //FEM/INT/src
 #include "cl_FEM_SP_Master_Weight_Interface.hpp" //FEM/INT/src
 #include "cl_FEM_SP_Slave_Weight_Interface.hpp" //FEM/INT/src
+#include "cl_FEM_SP_Reciprocal_Total_Volume.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -34,6 +35,9 @@ namespace moris
 
                 case ( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ):
                     return std::make_shared< SP_Slave_Weight_Interface >();
+
+                case ( fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME ):
+                    return std::make_shared< SP_Reciprocal_Total_Volume >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

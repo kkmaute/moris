@@ -16,6 +16,7 @@
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_H1_Semi_Error.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_J_Integral.hpp"           //FEM/INT/src
+#include "cl_FEM_IQI_Volume_Fraction.hpp"           //FEM/INT/src
 
 namespace moris
 {
@@ -34,6 +35,9 @@ namespace moris
 
                 case ( IQI_Type::VOLUME ):
                     return std::make_shared< IQI_Volume >();
+
+                case ( IQI_Type::VOLUME_FRACTION ):
+                    return std::make_shared< IQI_Volume_Fraction >();
 
                 case ( IQI_Type::STRAIN_ENERGY ):
                     return std::make_shared< IQI_Strain_Energy >();
