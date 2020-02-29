@@ -1,5 +1,5 @@
 // Project header files
-#include "cl_Opt_Alg_SQP.hpp" // OPT/src
+#include "cl_OPT_Algorithm_SQP.hpp" // OPT/src
 extern moris::Logger gLogger;
 
 #ifdef FORT_NO_
@@ -81,9 +81,9 @@ namespace moris
 {
     namespace opt
     {
-        OptAlgSQP::OptAlgSQP( ) :
-            OptAlg(),
-            mOptIter(0)
+        Algorithm_SQP::Algorithm_SQP( ) :
+                Algorithm(),
+                mOptIter(0)
         {
             // assign algorithm specific parameters - these values have been
             // carried forward from the old code
@@ -168,13 +168,13 @@ namespace moris
 
         //----------------------------------------------------------------------
 
-        OptAlgSQP::~OptAlgSQP()
+        Algorithm_SQP::~Algorithm_SQP()
         {
         }
 
         //----------------------------------------------------------------------
 
-        void OptAlgSQP::set_params(char* cw, int lencw, int* iw, int leniw, double* rw, int lenrw)
+        void Algorithm_SQP::set_params(char* cw, int lencw, int* iw, int leniw, double* rw, int lenrw)
         {
             int iPrint = 0;
             int iSumm  = 0;
@@ -211,10 +211,10 @@ namespace moris
                     break;
                 }
 
-                case 3: // set char parameters
+                case 4: // set string parameters to char
                 {
                     char* paramname = (char*)it->first.c_str();
-                    char* tParamVal = const_cast< char* >( mParameterList.get< const char* >( paramname ) );
+                    char* tParamVal = (char*)( mParameterList.get< std::string >( paramname ) ).c_str();
                     short paramlen  = strlen( tParamVal ) ;
 
                     snset_( tParamVal, &iPrint, &iSumm, &iExit,
@@ -224,24 +224,24 @@ namespace moris
 
                 default:
                     MORIS_LOG_ERROR ( "No matching function call for underlying type.");
-                    assert::error( "In cl_Opt_Alg_SQP.cpp" );
+                    assert::error( "In cl_Algorithm_SQP.cpp" );
                 }
 
                 if( iExit != 0 )
                 {
                     MORIS_LOG_ERROR ( "When calling SNOPT Fortran subroutine, unable to set parameter :  %-5i", it->first.c_str());
-                    assert::error( "In cl_Opt_Alg_SQP.cpp" );
+                    assert::error( "In cl_Algorithm_SQP.cpp" );
                 }
             }
         }
 
         //----------------------------------------------------------------------
 
-        void OptAlgSQP::solve( OptProb & aOptProb )
+        void Algorithm_SQP::solve(Problem* aOptProb )
         {
-            mOptProb = aOptProb; // set the member variable mOptProb to aOptProb
+            mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
-            OptAlg::initialize(); // initialize the base class member variables
+            Algorithm::initialize(); // initialize the base class member variables
 
             int inform = 0;
             int iPrint = 0;
@@ -259,9 +259,9 @@ namespace moris
             // initialize
             sninit_(&iPrint, &iSumm, cw, &lencw, iw, &leniw, rw, &lenrw);
 
-            const int nvar  = mNumAdv;    // number of abstract variables
-            const int m_con = mNumCon;    // total number of constraints
-            const int m_eq  = mNumEqCon;  // number of equality constraints
+            const int nvar  = mProblem->get_num_advs();    // number of abstract variables
+            const int m_con = mProblem->get_num_constraints();    // total number of constraints
+            const int m_eq  = mProblem->get_num_equality_constraints();  // number of equality constraints
 
             int nF     = m_con + 1;
             int n      = nvar;
@@ -288,11 +288,11 @@ namespace moris
             double A;
 
             // extract design variables including their lower and upper bounds
-            auto x    = mAdvVec.data();
-            auto xlow = mAdvLowVec.data();
-            auto xupp = mAdvUpVec.data();
+            auto x    = mProblem->get_advs().data();
+            auto xlow = mProblem->get_lower_bounds().data();
+            auto xupp = mProblem->get_upper_bounds().data();
 
-            mAdvVec.fill(MAXDOUBLE); // The overall logic needs this
+            mProblem->get_advs().fill(MAXDOUBLE); // The overall logic needs this
 
             char*   Fnames = 0;
             char*   xnames = 0;
@@ -383,7 +383,7 @@ namespace moris
                     cw, &lencw, iw, &leniw, rw, &lenrw,
                     strlen(mProb));
 
-            aOptProb = mOptProb; // update aOptProb
+            aOptProb = mProblem; // update aOptProb
 
             // delete temporary arrays
             free(F);
@@ -402,22 +402,22 @@ namespace moris
 
         //----------------------------------------------------------------------
 
-        void OptAlgSQP::func_grad( int n, double* x, int needG )
+        void Algorithm_SQP::func_grad(int n, double* x, int needG )
         {
-            auto tAdvVec = mAdvVec.data();
+            auto tAdvVec = mProblem->get_advs().data();
 
             if( !std::equal(x, x+n, tAdvVec) )
             {
                 // update the vector of design variables
-                mAdvVec = moris::Matrix< moris::DDRMat >(x, mNumAdv, 1);
+                Matrix<DDRMat> tADVs(x, mProblem->get_num_advs(), 1);
+                mProblem->set_advs(tADVs);
 
-                OptAlg::func( mOptIter ); // compute objectives and constraints
-                OptAlg::order_con();      // reorder the constraints
+                // set update for objectives and constraints
+                mProblem->mUpdateObjectives = true;
 
                 if(needG)
                 {
-                    OptAlg::grad();           // evaluate the gradients
-                    OptAlg::order_grad_con(); // reorder the gradients
+                    mProblem->mUpdateConstraints = true;
                 }
 
                 ++mOptIter;
@@ -434,16 +434,16 @@ void OptAlgSQP_usrfun(
         int* needG, int* lenG, double* G,
         char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru )
 {
-    moris::opt::OptAlgSQP* tOptAlgSQP = reinterpret_cast< moris::opt::OptAlgSQP* >(cu);
+    moris::opt::Algorithm_SQP* tOptAlgSQP = reinterpret_cast< moris::opt::Algorithm_SQP* >(cu);
     tOptAlgSQP->func_grad(*n, x, *needG);
     *Status = 0;
 
     if(*needf)
     {
-        f[0] = tOptAlgSQP->get_obj(); // obtain the objective
+        f[0] = tOptAlgSQP->mProblem->get_objectives()(0); // obtain the objective
 
         // obtain the vector of constraints
-        moris::Matrix< moris::DDRMat > tConVal = tOptAlgSQP->get_con();
+        moris::Matrix< moris::DDRMat > tConVal = tOptAlgSQP->mProblem->get_constraints();
 
         // Convert constraints to a pointer from moris::mat
         for ( moris::uint i=0; i < tConVal.n_rows(); ++i )
@@ -456,16 +456,16 @@ void OptAlgSQP_usrfun(
     if(*needG)
     {
         // get the gradient of objective and constraints
-        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->get_gradobj();
-        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->get_gradcon();
+        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradient();
+        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradient();
 
         for( int i = 0, cur_nz = 0; i < *n; ++i )
         {
-            G[cur_nz++] = tGradObj(i,0);
+            G[cur_nz++] = tGradObj(i);
 
             for( int j = 1; j < *nF; ++j, ++cur_nz )
             {
-                G[cur_nz] = -tGradCon(j-1,i); // Need a negative sign such that the definition of constraints is consistent in the input file
+                G[cur_nz] = -tGradCon(j-1, i); // Need a negative sign such that the definition of constraints is consistent in the input file
             }
         }
     }

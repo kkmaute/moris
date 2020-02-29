@@ -1,5 +1,5 @@
 // Project header files
-#include "cl_Opt_Alg_LBFGS.hpp" // OPT/src
+#include "cl_OPT_Algorithm_LBFGS.hpp" // OPT/src
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -25,9 +25,9 @@ namespace moris
 {
     namespace opt
     {
-        OptAlgLBFGS::OptAlgLBFGS( ) :
-            OptAlg(),
-            mOptIter(0)
+        Algorithm_LBFGS::Algorithm_LBFGS( ) :
+                Algorithm(),
+                mOptIter(0)
         {
             mParameterList.insert( "max_its"  , 100    ); // maximum optimization iterations allowed
             mParameterList.insert( "num_corr" , 5      ); // number of limited memory corrections used in the BFGS update
@@ -37,17 +37,17 @@ namespace moris
 
         // ---------------------------------------------------------------------
 
-        OptAlgLBFGS::~OptAlgLBFGS()
+        Algorithm_LBFGS::~Algorithm_LBFGS()
         {
         }
 
         //----------------------------------------------------------------------
 
-        void OptAlgLBFGS::solve( OptProb & aOptProb )
+        void Algorithm_LBFGS::solve(Problem* aOptProb )
         {
-            mOptProb = aOptProb;  // set the member variable mOptProb to aOptProb
+            mProblem = aOptProb;  // set the member variable mProblem to aOptProb
 
-            OptAlg::initialize(); // initialize the base class member variables
+            Algorithm::initialize(); // initialize the base class member variables
 
             // extract the underlying types of the algorithm parameters and assign
             // to parameters used by the L-BFGS-B algorithm
@@ -56,25 +56,26 @@ namespace moris
             double factr = mParameterList.get< real >( "norm_drop" );
             double pgtol = mParameterList.get< real >( "grad_tol" );
 
-            int n = mNumAdv; // number of design variables
+            int n = mProblem->get_num_advs(); // number of design variables
 
             // Note that these pointers are deleted by the the Arma and Eigen
             // libraries themselves.
-            auto x = mAdvVec.data();
-            auto l = mAdvLowVec.data();
-            auto u = mAdvUpVec.data();
+            auto x = mProblem->get_advs().data();
+            auto l = mProblem->get_lower_bounds().data();
+            auto u = mProblem->get_upper_bounds().data();
 
             // This algorithm parameter is hard-coded to assume that the variables are bounded
-            int* nbd = new int[mNumAdv];
-            std::fill( nbd, nbd+mNumAdv, 2 );
+            int* nbd = new int[n];
+            std::fill( nbd, nbd + n, 2 );
 
             // initialize and allocate memory for algorithm inputs/outputs
             double f       = 0;
-            double* g      = new double[mNumAdv];
+            double* g      = new double[n];
             double* wa     = new double[(2*m + 5)*n + 11*m*m + 8*m];
-            int* iwa       = new int[3*mNumAdv];
+            int* iwa       = new int[3 * n];
             int iprint     = -1;      // Prevents the algorithm from printing anything
             char task[61]  = "START"; // starts the algorithm
+            char fg_start[61] = "FG_START                                                    "; // needed for comparison
             char csave[60];
             bool lsave[4]  = {false};
             int* isave     = new int[44];
@@ -88,9 +89,9 @@ namespace moris
 
             mOptIter = isave[29]; // initiate optimization iteration counter
 
-            while ( (strcmp(task,"FG") == 0) || (strcmp(task,"NEW_X") == 0) )
+            while ( (strcmp(task, fg_start) == 0) || (strcmp(task, "NEW_X") == 0) )
             {
-                if (strcmp(task,"FG") == 0)
+                if (strcmp(task, fg_start) == 0)
                 {
                     // call to compute objective
                     this->func( mOptIter, x, f );
@@ -104,6 +105,8 @@ namespace moris
                          wa, iwa, task, &iprint, csave,
                          lsave, isave, dsave );
 
+                std::cout << task << std::endl;
+
                 if ( strcmp(task,"NEW_X") == 0 ) // one iteration of algorithm has concluded
                 {
                     mOptIter = isave[29]; // update optimization iteration counter
@@ -115,7 +118,7 @@ namespace moris
 
             printresult(); // print the result of the optimization algorithm
 
-            aOptProb = mOptProb; // update aOptProb
+            aOptProb = mProblem; // update aOptProb
 
             delete[] nbd;
             delete[] g;
@@ -127,36 +130,33 @@ namespace moris
 
         //----------------------------------------------------------------------
 
-        void OptAlgLBFGS::func( int aIter, double* aAdv, double& aObjval )
+        void Algorithm_LBFGS::func(int aIter, double* aAdv, double& aObjval )
         {
-            // need to convert to type MORIS to keep coding style consistent
-            uint Iter = aIter;
-
             // Update the ADV matrix
-            mAdvVec = Matrix< DDRMat > (aAdv, mNumAdv, 1 );
+            Matrix<DDRMat> tADVs(aAdv, mProblem->get_num_advs(), 1);
+            mProblem->set_advs(tADVs);
 
-            // Call to compute objectives and constraints
-            OptAlg::func( Iter );
+            // Call to update objectives and constraints
+            mProblem->mUpdateObjectives = true;
 
             // Convert outputs from type MORIS
-            aObjval = mObjVal;
+            aObjval = mProblem->get_objectives()(0);
         }
 
         //----------------------------------------------------------------------
 
-        void OptAlgLBFGS::grad( double* aAdv, double* aD_Obj )
+        void Algorithm_LBFGS::grad(double* aAdv, double* aD_Obj )
         {
-            // Call to compute derivatives of objectives and constraints
-            // w.r.t. advs
-            OptAlg::grad( );
+            // Call to update derivatives of objectives
+            mProblem->mUpdateObjectiveGradient = true;
 
-            auto tD_Obj = mDObj.data();
-            std::copy(tD_Obj, tD_Obj + mNumAdv, aD_Obj);
+            auto tD_Obj = mProblem->get_objective_gradient().data();
+            std::copy(tD_Obj, tD_Obj + mProblem->get_num_advs(), aD_Obj);
         }
 
         //----------------------------------------------------------------------
 
-        void OptAlgLBFGS::printresult( )
+        void Algorithm_LBFGS::printresult( )
         {
             std::fprintf( stdout," \nResult of LBFGS\n" );
 

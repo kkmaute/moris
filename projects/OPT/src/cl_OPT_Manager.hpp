@@ -7,33 +7,32 @@
 // MORIS project header files.
 #include "cl_Cell.hpp" // CON/src
 #include "core.hpp"
-#include "cl_Opt_Alg_API.hpp" // OPT/src
-#include "cl_Opt_Prob.hpp" // OPT/src
+#include "cl_OPT_Algorithm_API.hpp" // OPT/src
+#include "cl_OPT_Problem.hpp" // OPT/src
 
 namespace moris
 {
     namespace opt
     {
-        class OptManager
+        class Manager
         {
+        private:
+            Cell< Algorithm_API > mOptAlgCell; // Cell of pointers of optimization algorithms
+            Problem* mProblem;
+
         public:
-
-            Cell< OptAlgAPI > mOptAlgCell; // Cell of pointers of optimization algorithms
-
-            OptProb mOptProb; // Object of type OptProb
-
             /**
              * Constructor
              *
-             * @param[in] aOptProb Object of type OptProb containing relevant
+             * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            OptManager( OptProb & aOptProb );
+            Manager(Cell< Algorithm_API > aAlgorithms, Problem* aProblem);
 
             /**
              * Destructor
              */
-            ~OptManager( );
+            ~Manager();
 
             /**
              * @brief Solve the Cell of optimization algorithms

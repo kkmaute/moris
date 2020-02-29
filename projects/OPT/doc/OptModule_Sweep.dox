@@ -15,9 +15,9 @@ Option         | Type         | Default Value | Description
 :------------- | :------------| :------------ | -----------
 max_its        | moris::sint  | 100           | Number of optimization iterations allowed
 
-The default values of the above parameters are set in the class constructor OptAlgSweep::OptAlgSweep().
+The default values of the above parameters are set in the class constructor Algorithm_Sweep::Algorithm_Sweep().
 
-The step size of the sweep, as shown below, is computed in OptAlgSweep::solve( OptProb &  aOptProb ). It is based upon the user defined upper and lower bounds of the design variable.
+The step size of the sweep, as shown below, is computed in Algorithm_Sweep::solve( Problem &  aOptProb ). It is based upon the user defined upper and lower bounds of the design variable.
 
 @code{.cpp}
 moris::real tStepSize = ( mAdvUpVec(iv,0) - mAdvLowVec(iv,0) )/tNumSteps;
