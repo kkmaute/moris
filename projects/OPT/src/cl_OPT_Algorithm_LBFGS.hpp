@@ -3,13 +3,13 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Opt_Alg.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
 
 namespace moris
 {
     namespace opt
     {
-        class OptAlgLBFGS : public OptAlg
+        class Algorithm_LBFGS : public Algorithm
         {
         private:
 
@@ -21,30 +21,30 @@ namespace moris
             /**
              * Constructor
              */
-            OptAlgLBFGS();
+            Algorithm_LBFGS();
 
             /**
              * Destructor
              */
-            ~OptAlgLBFGS();
+            ~Algorithm_LBFGS();
 
             /**
              * @brief copy constructor through cloning
              */
-            OptAlg*
+            Algorithm*
             clone() const
             {
-                return new OptAlgLBFGS( *this );
+                return new Algorithm_LBFGS(*this );
             }
 
             /**
              * @brief MORIS interface for solving of optimization problem using
              *        GCMMA
              *
-             * @param[in] aOptProb Object of type OptProb containing relevant
+             * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve( OptProb & aOptProb );
+            void solve(Problem* aOptProb );
 
             /**
              * @brief MORIS-GCMMA interface for evaluation of objectives and

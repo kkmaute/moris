@@ -6,20 +6,18 @@
 
 // MORIS project header files.
 #include "typedefs.hpp" // COR/src
-#include "cl_Opt_Alg.hpp" // OPT/src
-
-// Class forward declarations
-class OptProb;
+#include "cl_OPT_Algorithm.hpp" // OPT/src
+#include "cl_OPT_Problem.hpp" // OPT/src
 
 namespace moris
 {
     namespace opt
     {
-        class OptAlgAPI
+        class Algorithm_API
         {
             private:
 
-                OptAlg* mOptAlg;
+                Algorithm* mAlgorithm;
 
             public:
 
@@ -28,33 +26,24 @@ namespace moris
                  *
                  * @param[in] aAlgId Optimization Algorithm
                  */
-                OptAlgAPI( const std::string aAlgId );
+                Algorithm_API(const std::string aAlgId );
 
                 /**
                  * Copy Constructor through cloning
                  */
-                OptAlgAPI( const OptAlgAPI& aAlgAPI )
-                    : mOptAlg( nullptr )
+                Algorithm_API(const Algorithm_API& aAlgAPI )
+                    : mAlgorithm(nullptr )
                 {
-                    mOptAlg = aAlgAPI.mOptAlg->clone();
+                    mAlgorithm = aAlgAPI.mAlgorithm->clone();
                 }
 
                 /**
                  * Destructor
                  */
-                ~OptAlgAPI();
+                ~Algorithm_API();
 
                 /**
-                 * @brief Accessor for the parameter list of OptAlg
-                 */
-                auto
-                params()->decltype( mOptAlg->params() )
-                {
-                    return mOptAlg->params();
-                }
-
-                /**
-                 * @brief Accessor to set a value in the parameter list of OptAlg
+                 * @brief Accessor to set a value in the parameter list of Algorithm
                  *
                  * @param[in] aKey Key corresponding to the mapped value that
                  *            needs to be accessed
@@ -62,18 +51,18 @@ namespace moris
                 ParameterListTypes&
                 set_param( const char* aKey )
                 {
-                    return mOptAlg->set_param( aKey );
+                    return mAlgorithm->set_param(aKey);
                 }
 
                 /**
-                 * @brief Wrapper around OptAlg::solve
+                 * @brief Wrapper around Algorithm::solve
                  *
-                 * @param[in] aOptProb Object of type OptProb containing relevant
+                 * @param[in] aOptProb Object of type Problem containing relevant
                  *            data regarding ADVs, the objective and constraints
                  */
-                void solve( OptProb & aOptProb )
+                void solve(Problem* aOptProb )
                 {
-                    mOptAlg->solve( aOptProb );
+                    mAlgorithm->solve(aOptProb );
                 }
         };
     }  // namespace opt

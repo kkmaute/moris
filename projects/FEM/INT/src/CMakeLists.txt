@@ -114,10 +114,12 @@ set(HEADERS
     cl_FEM_IQI_H1_Error_Analytic.hpp
     cl_FEM_IQI_H1_Semi_Error.hpp
     cl_FEM_IQI_J_Integral.hpp
+    cl_FEM_IQI_Volume_Fraction.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
     cl_FEM_SP_Nitsche_Interface.hpp
+    cl_FEM_SP_Reciprocal_Total_Volume.hpp
     cl_FEM_SP_Master_Weight_Interface.hpp
     cl_FEM_SP_Slave_Weight_Interface.hpp
     cl_FEM_SP_Ghost_Displacement.hpp
@@ -182,6 +184,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp
     cl_FEM_SP_Nitsche_Interface.cpp
+    cl_FEM_SP_Reciprocal_Total_Volume.cpp
     cl_FEM_SP_Master_Weight_Interface.cpp
     cl_FEM_SP_Slave_Weight_Interface.cpp
     cl_FEM_SP_Ghost_Displacement.cpp
@@ -196,6 +199,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_H1_Error_Analytic.cpp
     cl_FEM_IQI_H1_Semi_Error.cpp
     cl_FEM_IQI_J_Integral.cpp
+    cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )

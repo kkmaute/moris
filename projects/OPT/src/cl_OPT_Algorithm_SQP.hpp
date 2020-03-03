@@ -3,7 +3,7 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Opt_Alg.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
 
 //----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace moris
 {
     namespace opt
     {
-        class OptAlgSQP : public OptAlg
+        class Algorithm_SQP : public Algorithm
         {
         private:
 
@@ -41,20 +41,20 @@ namespace moris
             /**
              * Constructor
              */
-            OptAlgSQP();
+            Algorithm_SQP();
 
             /**
              * Destructor
              */
-            ~OptAlgSQP();
+            ~Algorithm_SQP();
 
             /**
              * @brief copy constructor through cloning
              */
-            OptAlg*
+            Algorithm*
             clone() const
             {
-                return new OptAlgSQP( *this );
+                return new Algorithm_SQP(*this );
             }
 
             /**
@@ -71,10 +71,10 @@ namespace moris
              * @brief MORIS interface for solving of optimization problem using
              *        GCMMA
              *
-             * @param[in] aOptProb Object of type OptProb containing relevant
+             * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve( OptProb & aOptProb );
+            void solve(Problem* aOptProb );
 
             /**
              * @brief MORIS-SQP interface for evaluation of objective,

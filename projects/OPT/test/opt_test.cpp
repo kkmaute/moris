@@ -2,72 +2,119 @@
 #include <catch.hpp>
 
 // MORIS project header files.
-#include "Opt_Input.hpp" // OPT/src
+#include "cl_OPT_Interface_Rosenbrock.hpp"
+#include "cl_OPT_Problem_Rosenbrock.hpp"
+#include "cl_OPT_Manager.hpp"
 
 // ---------------------------------------------------------------------
 using namespace moris;
 
 TEST_CASE( "[optimization]" )
 {
-    moris::real tObjective = 0.0;
-    Matrix< DDRMat >  tADVs;
 
-    SECTION( "GCMMA" )
+    SECTION("GCMMA")
     {
-        // objective  = 3*x - (x^3)
-        // constraint = x - 2
-        // Initial value of x = 1.95
-        // One possible solution to this problem is x = 2
-        // This is a problem with one adv and to change the setup, one
-        // needs to perform changes in opt_input.cpp
+        // Create test interface
+        moris::opt::Interface_Rosenbrock tInterface;
 
-        moris::opt_input::create_solve_opt_problem( 1, tObjective, tADVs );
+        // Create problem, assign interface
+        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
+        tProblem.mConstrained = true;
 
-        REQUIRE( std::abs( tObjective - ( -2.0 ) ) < 1.0e-02 ); // check value of objective
-        REQUIRE( std::abs( tADVs(0,0) - ( +2.0 ) ) < 1.0e-03 ); // check value of design variable, x
+        // Create algorithm and set parameters
+        opt::Algorithm_API tAlgGCMMA("GCMMA");
+        tAlgGCMMA.set_param("step_size") = 0.01;    // set the desired step size
+        tAlgGCMMA.set_param("penalty")   = 1000.0; // set the desired GCMMA penalty
+
+        // Assign algorithm to cell for manager
+        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgGCMMA);
+
+        // Create manager, assign cell of algorithms and problem
+        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+
+        // Solve the optimization problem
+        tManager.solve_opt_system();
+
+        // Check Solution
+        REQUIRE(std::abs(tProblem.get_objectives()(0)) < 1.0e-02); // check value of objective
+        REQUIRE(norm(tProblem.get_advs() - 1.0) < 1.0e-02); // check value of design variable, x
     }
 
-    SECTION( "SQP" )
+    SECTION("SQP")
     {
-        // objective  = 3*x - (x^3)
-        // constraint = x - 2
-        // Initial value of x = 1.95
-        // One possible solution to this problem is x = 2
-        // This is a problem with one adv and to change the setup, one
-        // needs to perform changes in opt_input.cpp
+        // Create test interface
+        moris::opt::Interface_Rosenbrock tInterface;
 
-        moris::opt_input::create_solve_opt_problem( 2, tObjective, tADVs );
+        // Create problem, assign interface
+        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
+        tProblem.mConstrained = true;
 
-        REQUIRE( std::abs( tObjective - ( -2.0 ) ) < 1.0e-08 ); // check value of objective
-        REQUIRE( std::abs( tADVs(0,0) - ( +2.0 ) ) < 1.0e-08 ); // check value of design variable, x
+        // Create algorithm and set parameters TODO set parameters for tighter convergence
+        opt::Algorithm_API tAlgSQP("SQP");
+
+        // Assign algorithm to cell for manager
+        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgSQP);
+
+        // Create manager, assign cell of algorithms and problem
+        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+
+        // Solve optimization problem
+        tManager.solve_opt_system();
+
+        // Check Solution
+        REQUIRE(std::abs(tProblem.get_objectives()(0)) < 1.0e-03); // check value of objective
+        REQUIRE(norm(tProblem.get_advs() - 1.0) < 2.0e-02); // check value of design variable, x
     }
 
-    SECTION( "SQP_GCMMA" )
-    {
-        // objective  = 3*x - (x^3)
-        // constraint = x - 2
-        // Initial value of x = 1.95
-        // One possible solution to this problem is x = 2
-        // This is a problem with one adv and to change the setup, one
-        // needs to perform changes in opt_input.cpp
-
-        moris::opt_input::create_solve_opt_problem( 3, tObjective, tADVs );
-
-        REQUIRE( std::abs( tObjective - ( -2.0 ) ) < 1.0e-08 ); // check value of objective
-        REQUIRE( std::abs( tADVs(0,0) - ( +2.0 ) ) < 1.0e-08 ); // check value of design variable, x
-    }
+//    SECTION("LBFGS")
+//    {
+//
+//        // Create test interface
+//        moris::opt::Interface_Rosenbrock tInterface;
+//
+//        // Create problem, assign interface
+//        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
+//        tProblem.mConstrained = false;
+//
+//        // Create algorithm and set parameters
+//        opt::Algorithm_API tAlgBFGS("LBFGS");
+//
+//        // Assign algorithm to cell for manager
+//        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgBFGS);
+//
+//        // Create manager, assign cell of algorithms and problem
+//        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+//
+//        // Solve optimization problem
+//        tManager.solve_opt_system();
+//
+//        moris::print(tProblem.get_advs(), "advs");
+//        moris::print(tProblem.get_objectives(), "objective");
+//
+//
+//    }
 
     SECTION( "SWEEP" )
     {
-        // objective  = 3*x - (x^3)
-        // This is a problem with one adv. You start with ADV value 1.9, and end
-        // at adv value 2.1. To change the setup, one needs to perform changes
-        // in opt_input.cpp
+        // Create test interface
+        moris::opt::Interface_Rosenbrock tInterface;
 
-        moris::opt_input::create_solve_opt_problem( 5, tObjective, tADVs );
+        // Create problem, assign interface
+        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
+        tProblem.mConstrained = true;
 
-        REQUIRE( std::abs( tObjective - ( -2.961 ) ) < 1.0e-14 ); // check value of objective
-        REQUIRE( std::abs( tADVs(0,0) - ( +2.100 ) ) < 1.0e-14 ); // check value of design variable, x
+        // Create algorithm and set parameters
+        opt::Algorithm_API tAlgSweep("SWEEP");
+        tAlgSweep.set_param("print") = false;
+
+        // Assign algorithm to cell for manager
+        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgSweep);
+
+        // Create manager, assign cell of algorithms and problem
+        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+
+        // Solve optimization problem
+        tManager.solve_opt_system();
     }
 }
 
