@@ -54,12 +54,12 @@ moris::map< std::string, enum GEN_DV > get_dv_type_map()
 }
 
 //------------------------------------------------------------------------------
-enum class Mat_Type
+enum class Phase_Type
 {
-    UNDEFINED,
     PHASE0,
     PHASE1,
     PHASE2,
+    UNDEFINED,
     END_MAT_TYPE
 };
 

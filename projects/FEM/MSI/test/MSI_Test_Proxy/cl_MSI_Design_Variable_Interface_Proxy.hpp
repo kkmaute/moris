@@ -87,9 +87,8 @@ public :
         mMap( 6 ) = 6;
         mMap( 7 ) = 7;
 
-        // for IQI_Type::STRAIN_ENERGY and Mat_Type::PHASE0
-        mQIAssemblyMap = {{ -1, -1, -1, -1, -1},
-                          { -1, -1,  0, -1, -1}};
+        // for IQI_Type::STRAIN_ENERGY and Phase_Type::PHASE0
+        mQIAssemblyMap = {{ -1, -1,  0, -1, -1}};
 
 //        // create map object
 //        Matrix_Vector_Factory tMatFactory( MapType::Epetra );

@@ -92,7 +92,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
     tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
-    tIQI->set_IQI_mat_type( Mat_Type::PHASE0 );
+    tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------

@@ -41,6 +41,8 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * constructor
+             * @param[ in ] aNumPdvs     number of pdv type
+             * @param[ in ] aVertexIndex vertex index
              */
             GEN_Pdv_Host( const uint aNumPdvs,
                           const moris_index aVertexIndex )
@@ -80,7 +82,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * FIXME add phase
              * create pdv
              * @param[ in ] aPropertyPointer  a property pointer for dv type
              * @param[ in ] aPdvType          a dv type
@@ -103,7 +104,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * FIXME add phase
              * create pdv
              * @param[ in ] aPdvVal           a pdv value
              * @param[ in ] aPdvType          a dv type
@@ -143,8 +143,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * FIXME add phase
-             * check if active type
+             * check if active per phase and type
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
@@ -170,8 +169,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * FIXME add phase
-             * assign id to type
+             * assign an id to a pdv with phase and type
              * @param[ in ] aId               an id
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
@@ -199,8 +197,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * FIXME add phase
-             * get global index for dv type
+             * get global index for pdv with phase and type
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */

@@ -126,6 +126,7 @@ namespace moris
             DIFF_LIN_ISO,
             STRUC_LIN_ISO,
             STRUC_LIN_ISO_PRESSURE,
+            FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
 

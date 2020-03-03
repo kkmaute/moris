@@ -102,6 +102,7 @@ set(HEADERS
     cl_FEM_Property.hpp
     cl_FEM_Constitutive_Model.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
+    cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IQI.hpp
     cl_FEM_IQI_Factory.hpp
@@ -176,6 +177,7 @@ set(LIB_SOURCES
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
+    cl_FEM_CM_Fluid_Incompressible.cpp
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp

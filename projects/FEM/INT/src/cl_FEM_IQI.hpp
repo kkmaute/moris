@@ -45,8 +45,8 @@ namespace moris
             // FEM IQI type
             enum fem::IQI_Type mFEMIQIType;
 
-            // Mat type
-            enum Mat_Type mIQIMatType;
+            // Phase type
+            enum Phase_Type mIQIMatType;
 
             // IQI type index
             sint mIQITypeIndex = -1;
@@ -203,7 +203,7 @@ namespace moris
             /**
              * get IQI mat type
              */
-            enum Mat_Type get_IQI_mat_type()
+            enum Phase_Type get_IQI_phase_type()
             {
                 return mIQIMatType;
             }
@@ -211,7 +211,7 @@ namespace moris
             /**
              * set IQI mat type
              */
-            void set_IQI_mat_type( enum Mat_Type aMatType )
+            void set_IQI_phase_type( enum Phase_Type aMatType )
             {
                 mIQIMatType = aMatType;
             }
