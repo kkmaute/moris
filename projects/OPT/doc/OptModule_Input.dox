@@ -17,7 +17,7 @@ moris::Mat< moris::real > & aAdvVec    // current advs, size is ( number of advs
 @endcode
 
 <B> Functionality </B> - This function acts as the interface between the unit test and the source code of MORIS. 
-The Optimization Problem is defined here. After defining the optimization problem, we call the OptManager to 
+The Optimization Problem is defined here. After defining the optimization problem, we call the Manager to
 solve the optimization system. A second Functionality of this function is to intialize the global variable 
 moris::input::Algorithm.
 
@@ -41,7 +41,7 @@ uint aNumEqConstraints = 0;
 do so by choosing an algorithm and setting the relevant algorithm parameters. The user has the flexibility to also create a sequence 
 of algorithms for the optimization system to solve as shown above.
 
-<B> What the user needs to do </B> - Create an optimization algorithm using the OptAlgAPI. The user then needs to set the relvant algorithm 
+<B> What the user needs to do </B> - Create an optimization algorithm using the Algorithm_API. The user then needs to set the relvant algorithm
 parameters as shown above. See @ref GCMMA and @ref Sweep for the available list of parameters and their defalut values. Finally the user returns the created 
 algorithm or Cell of algorithms.
 
@@ -68,8 +68,8 @@ their upper bounds and lower bounds.
 @section input_define_criteria Defining the optimization criteria
 
 This function will be used to define the set of optimization criteria relevant to the user's optimization system.
-This is a placeholder as currently we explicitly compute the criteria in OptProb::compute_criteria(). The derivative
-of this critera w.r.t. design variables is computed explicitly in OptProb::dcriteria_ds().
+This is a placeholder as currently we explicitly compute the criteria in Problem::compute_criteria(). The derivative
+of this critera w.r.t. design variables is computed explicitly in Problem::dcriteria_ds().
 
 ******************************************************************************************************************
 

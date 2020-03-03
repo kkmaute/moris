@@ -4,7 +4,7 @@ namespace moris {
 
 @section FormOpt Formulating an Optimization Problem
 
-The most general form of an optimization problem involves minimizaing an objective
+The most general form of an optimization problem involves minimizing an objective
 function \f$ f \f$ subject to equality constraints \f$ \mathbf h \f$ and inequality constraints \f$ \mathbf g \f$.
 The objective and the constraints, depend on the optimization variables \f$ \mathbf s \f$ which are restricted
 by lower and upper bounds \f$ \underline{\mathbf s} \f$  and \f$ \overline{\mathbf s} \f$  respectively.
@@ -33,36 +33,36 @@ f & = & f \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) \\
 
 @section Sensitivity Sensitivity Anlaysis
 
-The in general nonlinear optimization problem can be solved by diverse iterative methods,
+The general nonlinear optimization problem can be solved by diverse iterative methods,
 like nonlinear programming or genetic and evolutionary algorithms. For some problems it may
 be efficient to apply subsequently different methods. For example, a robust evolutionary 
 strategy determines roughly the position of the optimum. The final approach is done by a 
 mathematical program method with a high convergence rate near the optimum. 
 
 Since our forward analysis involves modeling of problems with sufficiently smooth gradients,
-gradient based optimization methods can be efficiently applied. The gradients of objective
+gradient-based optimization methods can be efficiently applied. The gradients of objective
 and constraints can be written as:
 
 \f{eqnarray*}{
 \frac {df}{ d \mathbf s} & = & \frac {\partial f}{\partial \mathbf s} +
-                               \frac {\partial f}{\partial \mathbf q} \quad
+                               \frac {\partial f}{\partial \mathbf q}
                                \frac {\partial \mathbf q}{\partial \mathbf s} +
-                               \frac {\partial f}{\partial \mathbf q} \quad
-                               \frac {\partial \mathbf q}{\partial \mathbf u} \quad
+                               \frac {\partial f}{\partial \mathbf q}
+                               \frac {\partial \mathbf q}{\partial \mathbf u}
                                \frac {\partial \mathbf u}{\partial \mathbf s} \\
                            
 \frac {d \mathbf h}{ d \mathbf s} & = & \frac {\partial \mathbf h }{\partial \mathbf s} +
-                                        \frac {\partial \mathbf h }{\partial \mathbf q} \quad
+                                        \frac {\partial \mathbf h }{\partial \mathbf q}
                                         \frac {\partial \mathbf q}{\partial \mathbf s} +
-                                        \frac {\partial \mathbf h }{\partial \mathbf q} \quad
-                                        \frac {\partial \mathbf q}{\partial \mathbf u} \quad
+                                        \frac {\partial \mathbf h }{\partial \mathbf q}
+                                        \frac {\partial \mathbf q}{\partial \mathbf u}
                                         \frac {\partial \mathbf u}{\partial \mathbf s} \\
                            
 \frac {d \mathbf g}{ d \mathbf s} & = & \frac {\partial \mathbf g }{\partial \mathbf s} +
-                                        \frac {\partial \mathbf g }{\partial \mathbf q} \quad
+                                        \frac {\partial \mathbf g }{\partial \mathbf q}
                                         \frac {\partial \mathbf q}{\partial \mathbf s} +
-                                        \frac {\partial \mathbf g }{\partial \mathbf q} \quad
-                                        \frac {\partial \mathbf q}{\partial \mathbf u} \quad
+                                        \frac {\partial \mathbf g }{\partial \mathbf q}
+                                        \frac {\partial \mathbf q}{\partial \mathbf u}
                                         \frac {\partial \mathbf u}{\partial \mathbf s} 
 \f}
 
@@ -72,10 +72,9 @@ variables \f$ \mathbf s \f$.
 
 There are various approaches to determine the derivatives of the design criteria with respect
 to the field variables. The most important approaches are:
-- Numerical sensitivity analysis: approximation of the derivatives  
-\f$ d \mathbf u / d \mathbf s \f$ by means of finite differences.
+- Numerical sensitivity analysis: approximation of the derivatives \f$ d \mathbf u / d \mathbf s \f$ by means of finite differences.
 - Analytical sensitivity analysis: analytical derivation of the gradient terms. Depending on 
-the number of optimization variables \f$ n_s \f$ and design criteria \f$ n_q \f$ different 
+the number of optimization variables \f$ n_s \f$ and design criteria \f$ n_q \f$, different
 approaches can prove to be more efficient: 
   -# \f$ n_s \le n_q \f$ - direct method 
   -# \f$ n_s \ge n_q \f$ - adjoint method
