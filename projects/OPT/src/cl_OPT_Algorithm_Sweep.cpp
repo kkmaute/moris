@@ -68,7 +68,6 @@ namespace moris
                 // Set up based on number of evaluations per adv
                 Matrix<DDSMat> tNumEvaluations(1, 1);
                 std::string tStringEvaluations = mParameterList.get<std::string>("num_evaluations_per_adv");
-                std::cout << tStringEvaluations << std::endl;
                 string_to_mat(tStringEvaluations, tNumEvaluations);
                 
                 // Check user input

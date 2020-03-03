@@ -20,6 +20,8 @@ TEST_CASE( "[optimization]" )
         // Create problem, assign interface
         moris::opt::Problem_Rosenbrock tProblem(&tInterface);
         tProblem.mConstrained = true;
+        tProblem.mFiniteDifferenceObjectives = true;
+        tProblem.mFiniteDifferenceConstraints = true;
 
         // Create algorithm and set parameters
         opt::Algorithm_API tAlgGCMMA("GCMMA");

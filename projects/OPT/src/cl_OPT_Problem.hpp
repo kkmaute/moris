@@ -20,8 +20,6 @@ namespace moris
             Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
             Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
             Matrix<DDSMat> mConstraintTypes; // flags for types of constraints
-            Matrix<DDRMat> mObjectives; // objective values (typically just 1, supporting multi-objective for future implementation)
-            Matrix<DDRMat> mConstraints; // constraint values
             Matrix<DDRMat> mObjectiveGradient; // Full gradient of the objectives with respect to the ADVs
             Matrix<DDRMat> mConstraintGradient; // Full gradient of the constraints with respect to the ADVs
 
@@ -30,10 +28,13 @@ namespace moris
             Matrix<DDRMat> mCriteria; // vector of criteria values
 
         public:
+            bool mFiniteDifferenceObjectives = false;
+            bool mFiniteDifferenceConstraints = false;
             bool mUpdateObjectives = true;
             bool mUpdateConstraints = true;
             bool mUpdateObjectiveGradient = true;
             bool mUpdateConstraintGradient = true;
+            real mEpsilon = 1E-8;
 
             /**
              * Constructor
@@ -60,7 +61,7 @@ namespace moris
              */
             uint get_num_objectives()
             {
-                return mObjectives.numel();
+                return this->get_objectives().numel();
             }
 
             /**
@@ -68,7 +69,7 @@ namespace moris
              */
             uint get_num_constraints()
             {
-                return mConstraints.numel();
+                return this->get_constraints().numel();
             }
 
             /**
