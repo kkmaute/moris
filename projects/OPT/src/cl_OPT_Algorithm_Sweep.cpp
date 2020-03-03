@@ -2,7 +2,7 @@
 #include "cl_OPT_Algorithm_Sweep.hpp" // OPT/src
 #include "fn_Parsing_Tools.hpp"
 #include "fn_sum.hpp"
-//#include "HDF5_Tools.hpp"
+#include "HDF5_Tools.hpp"
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -101,10 +101,14 @@ namespace moris
                 }
                 
                 // Set up evaluations
-                tTotalEvaluations = sum(tNumEvaluations);
+                tTotalEvaluations = 1;
+                for (uint ind = 0; ind < tNumEvaluations.numel(); ind++)
+                {
+                    tTotalEvaluations *= tNumEvaluations(ind);
+                }
                 tEvaluationPoints.set_size(tNumADVs, tTotalEvaluations);
                 Matrix<DDRMat> tADVs = tLowerBounds;
-                Matrix<DDSMat> tCurrentEvaluations(tNumADVs, 1, 1);
+                Matrix<DDSMat> tCurrentEvaluations(tNumADVs, 1, 0);
 
                 // Construct evaluation points
                 for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
@@ -118,24 +122,24 @@ namespace moris
                     // Update ADVs
                     tADVs(0) += (tUpperBounds(0) - tLowerBounds(0)) / (tNumEvaluations(0) + 1 - (2 * tIncludeBounds));
                     tCurrentEvaluations(0) += 1;
-                    for (uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++)
+                    for (uint tADVIndex = 0; tADVIndex < tNumADVs - 1; tADVIndex++)
                     {
                         if (tCurrentEvaluations(tADVIndex) == tNumEvaluations(tADVIndex))
                         {
                             // Reset this ADV to the lower bound and incremement next ADV
                             tADVs(tADVIndex) = tLowerBounds(tADVIndex);
-                            tCurrentEvaluations(tADVIndex) = 1;
+                            tCurrentEvaluations(tADVIndex) = 0;
 
                             tADVs(tADVIndex + 1) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (tNumEvaluations(tADVIndex) + 1 - (2 * tIncludeBounds));
                             tCurrentEvaluations(tADVIndex + 1) += 1;
                         }
                     }
                 }
-            }
+            };
 
             // Set up file
-//            hid_t tFileID = create_hdf5_file(mParameterList.get<std::string>("hdf5_path"));
-//            herr_t tStatus = 0;
+            hid_t tFileID = create_hdf5_file(mParameterList.get<std::string>("hdf5_path"));
+            herr_t tStatus = 0;
             
             // Loop through evaluation points
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
@@ -156,29 +160,29 @@ namespace moris
                 tConstraintGradients = mProblem->get_constraint_gradient();
 
                 // Save
-                std::string tEvaluationString = "(" + std::to_string(tEvaluationIndex + 1) + "/" + std::to_string(tTotalEvaluations) + ")";
+                std::string tEvaluationString = " " + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
                 if (tSave)
                 {
-//                    save_matrix_to_hdf5_file(tFileID, "ADVs Point #" + tEvaluationString, tEvaluationPoints.get_column(tEvaluationIndex), tStatus);
-//                    save_matrix_to_hdf5_file(tFileID, "Objectives Point #" + tEvaluationString, tObjectives, tStatus);
-//                    save_matrix_to_hdf5_file(tFileID, "Constraints Point #" + tEvaluationString, tConstraints, tStatus);
-//                    save_matrix_to_hdf5_file(tFileID, "Objective Gradients Point #" + tEvaluationString, tObjectiveGradients, tStatus);
-//                    save_matrix_to_hdf5_file(tFileID, "Constraint Gradients Point #" + tEvaluationString, tConstraintGradients, tStatus);
+                    moris::save_matrix_to_hdf5_file(tFileID, "Objectives" + tEvaluationString, tObjectives, tStatus);
+                    moris::save_matrix_to_hdf5_file(tFileID, "Constraints" + tEvaluationString, tConstraints, tStatus);
+                    moris::save_matrix_to_hdf5_file(tFileID, "Objective Gradients" + tEvaluationString, tObjectiveGradients, tStatus);
+                    moris::save_matrix_to_hdf5_file(tFileID, "Constraint Gradients" + tEvaluationString, tConstraintGradients, tStatus);
                 }
 
                 // Print
                 if (tPrint)
                 {
-                    moris::print(tEvaluationPoints.get_column(tEvaluationIndex), tEvaluationString + " ADVs");
-                    moris::print(tObjectives, tEvaluationString + " Objectives");
-                    moris::print(tConstraints, tEvaluationString + " Constraints");
-                    moris::print(tObjectiveGradients, tEvaluationString + " Objective Gradients");
-                    moris::print(tConstraintGradients, tEvaluationString + " ConstraintGradients");
+                    moris::print(tEvaluationPoints.get_column(tEvaluationIndex), "ADVs" + tEvaluationString);
+                    moris::print(tObjectives, "Objectives" + tEvaluationString);
+                    moris::print(tConstraints, "Constraints" + tEvaluationString);
+                    moris::print(tObjectiveGradients, "Objective Gradients" + tEvaluationString);
+                    moris::print(tConstraintGradients, "Constraint Gradients" + tEvaluationString);
                 }
             }
 
-            // Close file
-//            close_hdf5_file(tFileID);
+            // Write ADVs evaluated and close file
+            moris::save_matrix_to_hdf5_file(tFileID, "ADV Vectors Evaluated", tEvaluationPoints, tStatus);
+            close_hdf5_file(tFileID);
 
             aOptProb = mProblem; // update aOptProb
         }

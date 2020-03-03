@@ -49,15 +49,6 @@ namespace moris
              */
             void initialize();
 
-//            /**
-//             * @brief Accessor for the parameter list of Algorithm
-//             */
-//            Param_List< Variant > &
-//            params()
-//            {
-//                return mParameterList;
-//            }
-
             /**
              * @brief Accessor to set a value in the parameter list of Algorithm
              *

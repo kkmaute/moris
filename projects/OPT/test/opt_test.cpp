@@ -107,7 +107,10 @@ TEST_CASE( "[optimization]" )
 
         // Create algorithm and set parameters
         opt::Algorithm_API tAlgSweep("SWEEP");
-        tAlgSweep.set_param("print") = false;
+        tAlgSweep.set_param("num_evaluations_per_adv") = std::string("5, 5");
+        std::string tMorisRoot = std::getenv("MORISOUTPUT");
+        std::string tHdf5FilePath = tMorisRoot + "sweep.hdf5";
+        tAlgSweep.set_param("hdf5_path") = tHdf5FilePath;
 
         // Assign algorithm to cell for manager
         moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgSweep);
