@@ -100,15 +100,14 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 
@@ -117,7 +116,7 @@ namespace moris
              * compute the derivative of the residual wrt design variables
              * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_drdpdv( real aWStar );
+            void compute_dRdp( real aWStar );
 
 //------------------------------------------------------------------------------
             /**

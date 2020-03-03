@@ -74,6 +74,7 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
+
             // get field interpolator for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
@@ -126,14 +127,14 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv - Not implemented." );
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_dRdp - Not implemented." );
 
 //            // get index for a given dof type
 //            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );

@@ -354,27 +354,22 @@ void tConstValFunction_MDLCUT
 
             // define set info
             fem::Set_User_Info tSetBulk1;
-//            tSetBulk1.set_mesh_index( 3 );
             tSetBulk1.set_mesh_set_name( "Omega_0_hex" );
             tSetBulk1.set_IWGs( { tIWGBulk } );
 
             fem::Set_User_Info tSetBulk2;
-//            tSetBulk2.set_mesh_index( 4 );
             tSetBulk2.set_mesh_set_name( "Omega_0_tets" );
             tSetBulk2.set_IWGs( { tIWGBulk } );
 
             fem::Set_User_Info tSetDirichlet;
-//            tSetDirichlet.set_mesh_index( 8 );
             tSetDirichlet.set_mesh_set_name( "fixed" );
             tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
             fem::Set_User_Info tSetNeumann;
-//            tSetNeumann.set_mesh_index( 7 );
             tSetNeumann.set_mesh_set_name( "iside" );
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             fem::Set_User_Info tSetGhost;
-//            tSetGhost.set_mesh_index( 10 );
             tSetGhost.set_mesh_set_name( tGhost.mSideSetName );
             tSetGhost.set_IWGs( { tIWGGhost } );
 

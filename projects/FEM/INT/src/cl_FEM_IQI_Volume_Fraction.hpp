@@ -48,6 +48,10 @@ namespace moris
              * @param[ in ] aQI quantity of interest matrix to fill
              */
             void compute_QI( Matrix< DDRMat > & aQI );
+			
+//------------------------------------------------------------------------------
+			
+			void compute_QI( moris::real aWStar );
 
 //------------------------------------------------------------------------------
         };

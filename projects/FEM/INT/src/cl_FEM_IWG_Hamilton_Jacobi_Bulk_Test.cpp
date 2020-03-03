@@ -71,9 +71,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Hamilton_Jacobi_Bulk_Test::compute_drdpdv( real aWStar )
+        void IWG_Hamilton_Jacobi_Bulk_Test::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Hamilton_Jacobi_Bulk_Test::compute_drdpdv - Not implemented." );
+            MORIS_ERROR( false, "IWG_Hamilton_Jacobi_Bulk_Test::compute_dRdp - Not implemented." );
         }
 //------------------------------------------------------------------------------
     } /* namespace fem */

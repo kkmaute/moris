@@ -274,9 +274,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Ghost::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Struc_Linear_Ghost::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Ghost::compute_drdpdv - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Ghost::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

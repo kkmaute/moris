@@ -905,7 +905,8 @@ namespace moris
     void Equation_Object::reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
                                                      Matrix< DDRMat >         & aReshapedPdofValues )
     {
-        MORIS_ASSERT( aPdofValues.size() != 0, "Cluster::reshape_pdof_values(), pdof value vector is empty");
+        MORIS_ASSERT( aPdofValues.size() != 0,
+                      "Equation_Object::reshape_pdof_values(), pdof value vector is empty");
 
         uint tCols = aPdofValues.size();
         uint tRows = aPdofValues( 0 ).numel();

@@ -64,6 +64,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * compute quantities of interest
+         */
+        void compute_QI();
+
+//------------------------------------------------------------------------------
+        /**
          * compute quantity of interest in a global way
          * @param[ in ] aOutputType an enum for the output type
          */

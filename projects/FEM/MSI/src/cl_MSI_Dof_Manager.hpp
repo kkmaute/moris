@@ -73,7 +73,7 @@ namespace moris
              * @param[in] aPdofTypeList   List of pdof types
              *
              */
-            void create_dof_type_map();
+            void create_dof_and_dv_type_maps();
 
 //------------------------------------------------------------------------------
             /**

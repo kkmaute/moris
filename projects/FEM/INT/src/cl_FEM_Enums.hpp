@@ -109,8 +109,8 @@ namespace moris
         {
             UNDEFINED,
             VOLUME,         // volume
-            VOLUME_FRACTION,
             STRAIN_ENERGY,
+            VOLUME_FRACTION,
             DOF,
             PROPERTY,
             L2_ERROR_ANALYTIC,

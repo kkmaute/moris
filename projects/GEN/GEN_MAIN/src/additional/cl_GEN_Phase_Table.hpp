@@ -39,10 +39,7 @@ namespace ge
     }
 
 
-        GEN_Phase_Table()
-        {
-
-        }
+        GEN_Phase_Table(){}
 
         GEN_Phase_Table( moris::moris_index aNumPhi,
                          enum Phase_Table_Structure const & aStructure = Phase_Table_Structure::EXP_BASE_2,

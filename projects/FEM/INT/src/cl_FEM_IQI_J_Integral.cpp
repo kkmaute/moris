@@ -47,9 +47,9 @@ namespace moris
 
             }
 //------------------------------------------------------------------------------
-            void IQI_J_Integral::compute_dQIdDof(  Matrix< DDRMat > & adQIdDof  )
+            void IQI_J_Integral::compute_dQIdu(  Matrix< DDRMat > & adQIdDof  )
             {
-                MORIS_ERROR( false, "IQI_J_Integral::compute_dQIdDof() - this function does nothing for the J-Integral" );
+                MORIS_ERROR( false, "IQI_J_Integral::compute_dQIdu() - this function does nothing for the J-Integral" );
             }
     }   // end fem namespace
 }       // end moris namespace

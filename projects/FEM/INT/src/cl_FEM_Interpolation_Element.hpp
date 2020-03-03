@@ -139,6 +139,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * compute dQIdp
+         */
+        void compute_dQIdp();
+
+//------------------------------------------------------------------------------
+        /**
+         * compute dQIdu
+         */
+        void compute_dQIdu();
+
+//------------------------------------------------------------------------------
+        /**
+         * compute the quantities of interest on cluster
+         */
+        void compute_QI();
+
+//------------------------------------------------------------------------------
+        /**
          * compute the quantity of interest on cluster
          * @param[ in ] aMeshIndex  index for vis mesh used
          * @param[ in ] aOutputType an enum for output type

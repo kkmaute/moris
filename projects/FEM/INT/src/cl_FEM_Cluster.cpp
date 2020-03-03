@@ -144,7 +144,7 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
         moris::Cell< moris_index >
         Cluster::get_vertex_indices_in_cluster()
         {
@@ -212,9 +212,11 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::Matrix< moris::DDRMat > Cluster::get_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aCellIndexInCluster,
-                                                                                               moris::moris_index aSideOrdinal,
-                                                                                               mtk::Master_Slave  aIsMaster )
+        moris::Matrix< moris::DDRMat >
+        Cluster::get_cell_local_coords_on_side_wrt_interp_cell
+        ( moris::moris_index aCellIndexInCluster,
+          moris::moris_index aSideOrdinal,
+          mtk::Master_Slave  aIsMaster )
         {
             // check that side cluster
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
@@ -244,7 +246,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::Matrix< moris::DDRMat > Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellIndexInCluster )
+        moris::Matrix< moris::DDRMat >
+        Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell
+        ( moris::moris_index aPrimaryCellIndexInCluster )
         {
             // check that bulk cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
@@ -274,8 +278,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        Matrix< DDRMat > Cluster::get_side_normal( const mtk::Cell          * aCell,
-                                                         moris::moris_index   aSideOrdinal )
+        Matrix< DDRMat > Cluster::get_side_normal
+        ( const mtk::Cell          * aCell,
+                moris::moris_index   aSideOrdinal )
         {
             // init normal
             Matrix < DDRMat > tNormal;
@@ -297,7 +302,8 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::mtk::Vertex const * Cluster::get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex )
+        moris::mtk::Vertex const * Cluster::get_left_vertex_pair
+        ( moris::mtk::Vertex const * aLeftVertex )
         {
             // check that a double sided cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
@@ -312,8 +318,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::moris_index Cluster::get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
-                                                                     moris::mtk::Vertex const * aVertex )
+        moris::moris_index Cluster::get_right_vertex_ordinal_on_facet
+        ( moris_index                aCellIndexInCluster,
+          moris::mtk::Vertex const * aVertex )
         {
             // check that a double sided cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
@@ -369,10 +376,43 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the jacobian for the IG element
+                // compute the dRdp for the IG element
                 mElements( iElem )->compute_dRdp();
             }
         }
+
+//------------------------------------------------------------------------------
+        void Cluster::compute_dQIdp()
+        {
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // compute the dQIdp for the IG element
+                mElements( iElem )->compute_dQIdp();
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Cluster::compute_dQIdu()
+        {
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // compute the dQIdu for the IG element
+                mElements( iElem )->compute_dQIdu();
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Cluster::compute_QI()
+        {
+             // loop over the IG elements
+             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+             {
+                 // compute the quantities of interest for the IG element
+                 mElements( iElem )->compute_QI();
+             }
+         }
 
 //------------------------------------------------------------------------------
         void Cluster::compute_quantity_of_interest( const uint aMeshIndex,

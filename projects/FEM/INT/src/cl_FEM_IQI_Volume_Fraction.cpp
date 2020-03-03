@@ -22,6 +22,19 @@ namespace moris
             aQI( 0 ) = 1 * mStabilizationParam( 0 )->val()( 0 );
         }
 
+        void IQI_Volume_Fraction::compute_QI( moris::real aWStar )
+        {
+            // get indices for properties, CM and SP
+            //uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
+
+            // get index for QI
+            //sint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )( static_cast< uint >( mFEMIQIType ) );
+
+            //print( mSet->get_QI(), "mSet->get_QI()");
+            // evaluate the QI
+            //mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
+        }
+
 //------------------------------------------------------------------------------
     }/* end namespace fem */
 }/* end namespace moris */
