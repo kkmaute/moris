@@ -302,7 +302,7 @@ if (USE_TACC)
     list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt  -lgfortran -lrt -ldl -lssl -lcrypto")
 #     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
+   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto -lz -lsz")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")

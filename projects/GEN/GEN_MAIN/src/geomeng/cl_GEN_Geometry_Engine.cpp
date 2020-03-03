@@ -12,29 +12,31 @@ namespace moris
 namespace ge
 {
 //------------------------------------------------------------------------------
-GEN_Geometry_Engine::GEN_Geometry_Engine( moris::ge::GEN_Geometry  & aGeometry,
-                                          moris::ge::GEN_Phase_Table const & aPhaseTable,
-                                          moris::uint aSpatialDim ) :
-                                                                        mThresholdValue( 0 ),
-                                                                        mComputeDxDp( false ),
-                                                                        mSpatialDim( aSpatialDim ),
-                                                                        mActiveGeometryIndex( 0 ),
-                                                                        mGeometryObjectManager( ),
-                                                                        mPhaseTable( aPhaseTable )
+GEN_Geometry_Engine::GEN_Geometry_Engine
+( moris::ge::GEN_Geometry          & aGeometry,
+  moris::ge::GEN_Phase_Table const & aPhaseTable,
+  moris::uint                        aSpatialDim )
+: mThresholdValue( 0 ),
+  mComputeDxDp( false ),
+  mSpatialDim( aSpatialDim ),
+  mActiveGeometryIndex( 0 ),
+  mGeometryObjectManager(),
+  mPhaseTable( aPhaseTable )
 {
     mPerturbationValue = 0.0000005;
     mGeometry.push_back( &aGeometry );
 }
 
-GEN_Geometry_Engine::GEN_Geometry_Engine( Cell< GEN_Geometry* > const  & aGeometry,
+//------------------------------------------------------------------------------
+GEN_Geometry_Engine::GEN_Geometry_Engine( Cell< GEN_Geometry* >      const & aGeometry,
                                           moris::ge::GEN_Phase_Table const & aPhaseTable,
-                                          moris::uint aSpatialDim ) :
-                                                        mThresholdValue(0),
-                                                        mComputeDxDp(false),
-                                                        mSpatialDim(aSpatialDim),
-                                                        mActiveGeometryIndex(0),
-                                                        mGeometry(aGeometry),
-                                                        mPhaseTable(aPhaseTable)
+                                          moris::uint                        aSpatialDim )
+: mThresholdValue( 0 ),
+  mComputeDxDp( false ),
+  mSpatialDim( aSpatialDim ),
+  mActiveGeometryIndex( 0 ),
+  mGeometry( aGeometry ),
+  mPhaseTable( aPhaseTable )
 {
     mPerturbationValue = 0.0000005;
 }
@@ -57,7 +59,42 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
 
     // Place these in the geometry object manager
     mGeometryObjectManager.store_geometry_objects(tNodeIndex,tGeometryObjects);
+}
 
+//------------------------------------------------------------------------------
+void GEN_Geometry_Engine::initialize( std::shared_ptr< Library_IO > aLibrary )
+{
+    // initialize threshold for level sets
+    mThresholdValue = 0.0;
+
+    // flag to compute DxDp ( TODO: needs to be updated/adjusted )
+    mComputeDxDp = false;
+
+    // initialize for XTK's decomposition
+    mActiveGeometryIndex = 0;
+
+    // create geometry vector
+    moris::Cell< std::string > tGeomFuncNames;
+    string_to_cell( mParameterList.get< std::string >( "geometries" ), tGeomFuncNames );
+
+    // get number of geometry function names
+    uint tNumGeometry = tGeomFuncNames.size();
+
+    // set size for the list of geometry pointers
+    mGeometry.resize( tNumGeometry, nullptr );
+
+    // loop over the geometry function names
+    for( uint iFunc = 0; iFunc < tNumGeometry; iFunc++ )
+    {
+        // read a geometry function from input
+        MORIS_GEN_FUNCTION tGeometry = aLibrary->load_gen_free_functions( tGeomFuncNames( iFunc ) );
+
+        // create a geometry pointer
+        mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
+    }
+
+    // create phase table for geometry engine
+    mPhaseTable =  moris::ge::GEN_Phase_Table( tNumGeometry, Phase_Table_Structure::EXP_BASE_2);
 }
 //------------------------------------------------------------------------------
 

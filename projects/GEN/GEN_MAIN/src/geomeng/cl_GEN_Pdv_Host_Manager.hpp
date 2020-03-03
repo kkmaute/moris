@@ -146,7 +146,6 @@ public:
 
 //------------------------------------------------------------------------------
     /**
-     * FIXME add a phase
      * check for active pdv by type and vertex index
      * @param[ in ] aVertexIndex     a vertex index
      * @param[ in ] aPdvType         a list of dv types
@@ -174,7 +173,7 @@ public:
         for( uint i=0; i<tNumTypes; i++)
         {
             // populate the dv type to index map
-            mGlobalPdvTypeMap( static_cast<sint>(mPdvTypeList(i)) ) = mNumPDVs;
+            mGlobalPdvTypeMap( static_cast< sint >( mPdvTypeList( i ) ) ) = mNumPDVs;
 
             // update dv type counter
             mNumPDVs++;

@@ -3,45 +3,42 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Opt_Alg.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
 
 namespace moris
 {
     namespace opt
     {
-        class OptAlgSweep : public OptAlg
+        class Algorithm_Sweep : public Algorithm
         {
-        private:
-
         public:
 
             /**
              * Constructor
              */
-            OptAlgSweep();
+            Algorithm_Sweep();
 
             /**
              * Destructor
              */
-            ~OptAlgSweep();
+            ~Algorithm_Sweep();
 
             /**
              * @brief copy constructor through cloning
              */
-            OptAlg*
-            clone() const
+            Algorithm* clone() const
             {
-                return new OptAlgSweep( *this );
+                return new Algorithm_Sweep(*this );
             }
 
             /**
              * @brief MORIS interface for solving of optimization problem using
              *        GCMMA
              *
-             * @param[in] aOptProb Object of type OptProb containing relevant
+             * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve( OptProb & aOptProb );
+            void solve(Problem* aOptProb );
 
             /**
              * @brief Call for evaluation of objectives and constraints
@@ -57,9 +54,9 @@ namespace moris
             void grad( );
 
             /**
-             *@brief Prints result of the GCMMA algorithm based on mStopFlag
+             *@brief Prints result of the  algorithm based on mStopFlag
              */
-            void printresult( );
+            void print_results( );
         };
     }  // namespace opt
 }      // namespace moris
