@@ -8,13 +8,13 @@
 #ifndef PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_
 #define PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_
 
-// GEN
+// GEN_MAIN
 #include "cl_GEN_Pdv_Host.hpp"
-#include "cl_Matrix.hpp"
-
+// GEN_CORE
 #include "cl_GEN_Dv_Enums.hpp"
 
 // CORE
+#include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
@@ -71,7 +71,11 @@ public:
     {
         return mHostList( aVertexIndex );
     }
-
+//------------------------------------------------------------------------------
+    uint get_global_id_number() // FIXME: delete this
+    {
+        return mGlobalID;
+    }
 //------------------------------------------------------------------------------
     /**
      * initialize the list of pdv host

@@ -110,6 +110,8 @@ namespace ge
 
                     if( aIsActiveDv( iInd )( iType ) == 1 )
                     {
+                        // TODO: rather than go down the line manager->host->pdv, get the value from a list of pdv values which is stored at the manager level
+
                         aDvValues( iType )( iInd ) = mPdvHostManager->get_pdv_by_type_and_index( aNodeIndices(iInd), aDvTypes(iType) )->get_val()( 0, 0 );
                     }
                 }

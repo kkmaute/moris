@@ -225,8 +225,8 @@ namespace moris
 
             for( uint i=0; i<tAllVertIndices.length(); i++ )
             {
-                REQUIRE( tDvVals(0)(i)   == 1234 );
-                REQUIRE( tIsActive(i)(0) == 1 );
+                REQUIRE( tDvVals(0)(i)   == 1234 );     // tDvVal(DvType)(vertexIndex)
+                REQUIRE( tIsActive(i)(0) == 1 );        // tIsActive(vertexIndex)(DvType)
             }
             // ------------------------ end ------------------------
         }

@@ -60,6 +60,12 @@ namespace moris
             ~GEN_Pdv_Host(){};
 
 //------------------------------------------------------------------------------
+            Matrix< IdMat > get_type_to_id_map(  )
+            {
+                return mTypeToIDMap;
+            }
+
+//------------------------------------------------------------------------------
             void update_pdv_list( const uint aNumNewPdvs )
             {
                 uint tNumCurrPdvs = mPdvList.size();

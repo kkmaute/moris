@@ -99,14 +99,14 @@ void compute_dx_dp_with_linear_basis( moris::Matrix< moris::DDRMat >  & aDPhiADp
 
 class GEN_Geometry_Engine
 {
-public:
+public:     // ----------- member data ----------
     // Options which the user can change (all are given defaults)
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
     bool        mComputeDxDp;           // <- should be turned off if a sensitivity has not been implemented
     moris::uint mSpatialDim;
 
-private:
+private:    // ----------- member data ----------
     moris::size_t mActiveGeometryIndex;
     Cell< GEN_Geometry* > mGeometry;
 
@@ -583,6 +583,8 @@ public:
     }
 
 //------------------------------------------------------------------------------
+    //TODO: overload this function (and set by index function) so that the assignment of pdv value can be from a GEN_Field class
+
     /*
      * @brief assign the pdv type and property for each pdv host in a given set
      */
@@ -836,33 +838,6 @@ private:
                                                              moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                              moris::Matrix< moris::DDRMat >       & aLevelSetValues );
     //------------------------------------------------------------------------------
-//private:    // ----------- member data ----------
-//    moris::size_t mActiveGeometryIndex;
-//    Cell< GEN_Geometry* > mGeometry;
-//
-//    // Contains all the geometry objects
-//    Geometry_Object_Manager mGeometryObjectManager;
-//
-//    // Contains all the pdv hosts
-//    Pdv_Host_Manager mPdvHostManager;
-//
-//    // Phase Table
-//    moris::ge::GEN_Phase_Table mPhaseTable;
-//
-//    // Node Entity Phase Vals - only analytic phase values are stored here to prevent duplicate storage of discrete geometries
-//    moris::Matrix< moris::DDRMat > mNodePhaseVals;
-//    //------------------------------------------------------------------------------
-//    mtk::Mesh_Manager* mMesh;
-//
-//    moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
-//    //------------------------------------------------------------------------------
-//    bool mTypesSet      = false;
-//    bool mInterpPDVsSet = false;
-//
-//    moris::Cell< moris::moris_index > mIntegNodeIndices;
-//
-//    ParameterList mParameterList;
-//    //------------------------------------------------------------------------------
 };
 }
 }

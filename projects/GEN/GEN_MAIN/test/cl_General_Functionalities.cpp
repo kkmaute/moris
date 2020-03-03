@@ -161,6 +161,7 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
     {
         REQUIRE( std::abs(tLSVals(i) - tCorrectVals(i)) <tEpsilon );
     }
+    //================================ end =================================================
 }
 
 //-----------------------------------------------------------------------------
