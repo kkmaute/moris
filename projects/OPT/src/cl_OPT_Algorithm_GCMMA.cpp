@@ -144,11 +144,11 @@ void opt_alg_gcmma_grad_wrap(
     aOptAlgGCMMA->mProblem->mUpdateConstraintGradient = true;
 
     // Get the objective gradient
-    auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradient().data();
+    auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
     std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
 
     // Get the constraint gradient as a MORIS Matrix
-    Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradient();
+    Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradients();
 
     // Assign to array
     for (moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )

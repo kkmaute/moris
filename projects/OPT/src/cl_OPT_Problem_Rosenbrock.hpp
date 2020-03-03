@@ -30,47 +30,49 @@ namespace moris
              */
             Matrix<DDSMat> get_constraint_types();
 
+        protected:
+
             /**
              * Gets the objective values
              *
              * @return vector of objectives
              */
-            Matrix<DDRMat> get_objectives();
+            Matrix<DDRMat> calculate_objectives();
 
             /**
              * Gets the constraint values
              *
              * @return vector of constraints
              */
-            Matrix<DDRMat> get_constraints();
+            Matrix<DDRMat> calculate_constraints();
 
             /**
              * Gets the derivative of the objectives with respect to the advs
              *
              * @return matrix d(objective)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_dobjective_dadv();
+            Matrix<DDRMat> calculate_dobjective_dadv();
 
             /**
              * Gets the derivative of the constraints with respect to the advs
              *
              * @return matrix d(constraints)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_dconstraint_dadv();
+            Matrix<DDRMat> calculate_dconstraint_dadv();
 
             /**
              * Gets the derivative of the objective with respect to the criteria.
              *
              * @return matrix d(objective)_i/d(criteria)_j
              */
-            Matrix<DDRMat> get_dobjective_dcriteria();
+            Matrix<DDRMat> calculate_dobjective_dcriteria();
 
             /**
              * Gets the derivative of the constraints with respect to the criteria.
              *
              * @return matrix d(constraint)_i/d(criteria)_j
              */
-            Matrix<DDRMat> get_dconstraint_dcriteria();
+            Matrix<DDRMat> calculate_dconstraint_dcriteria();
         };
     }
 }

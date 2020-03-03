@@ -40,6 +40,28 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
+        Matrix<DDRMat> Problem::get_objectives()
+        {
+            if (mUpdateObjectives)
+            {
+                mObjectives = this->calculate_objectives();
+            }
+            return mObjectives;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Problem::get_constraints()
+        {
+            if (mUpdateConstraints)
+            {
+                mConstraints = this->calculate_constraints();
+            }
+            return mConstraints;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
         uint Problem::get_num_equality_constraints()
         {
             uint tNumEqualityConstraints = 0;
@@ -72,7 +94,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem::get_objective_gradient()
+        Matrix<DDRMat> Problem::get_objective_gradients()
         {
             if (mUpdateObjectiveGradient)
             {
@@ -85,7 +107,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem::get_constraint_gradient()
+        Matrix<DDRMat> Problem::get_constraint_gradients()
         {
             if (mUpdateConstraintGradient)
             {
@@ -142,8 +164,8 @@ namespace moris
             }
             else // analytical
             {
-                mObjectiveGradient = this->get_dobjective_dadv()
-                                     + this->get_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
+                mObjectiveGradient = this->calculate_dobjective_dadv()
+                                     + this->calculate_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
             }
 
         }
@@ -180,8 +202,8 @@ namespace moris
             }
             else // analytical
             {
-                mConstraintGradient = this->get_dconstraint_dadv()
-                                      + this->get_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
+                mConstraintGradient = this->calculate_dconstraint_dadv()
+                                      + this->calculate_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
             }
         }
 

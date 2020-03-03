@@ -20,7 +20,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem_Rosenbrock::get_objectives()
+        Matrix<DDRMat> Problem_Rosenbrock::calculate_objectives()
         {
             Matrix<DDRMat> tObjectives(1, 1);
             tObjectives(0) = (1 - mADVs(0)) * mCriteria(0, 0) + 100 * (mADVs(1) - pow(mADVs(0), 2)) * mCriteria(1, 0);
@@ -30,7 +30,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem_Rosenbrock::get_constraints()
+        Matrix<DDRMat> Problem_Rosenbrock::calculate_constraints()
         {
             Matrix<DDRMat> tConstraints(2, 1, 0.0);
             if (mConstrained)
@@ -44,7 +44,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem_Rosenbrock::get_dobjective_dadv()
+        Matrix<DDRMat> Problem_Rosenbrock::calculate_dobjective_dadv()
         {
             Matrix<DDRMat> tDObjectiveDADV(1, 2);
             tDObjectiveDADV(0) = -mCriteria(0) - 200 * mADVs(0) * mCriteria(1);
@@ -55,7 +55,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem_Rosenbrock::get_dconstraint_dadv()
+        Matrix<DDRMat> Problem_Rosenbrock::calculate_dconstraint_dadv()
         {
             Matrix<DDRMat> tDConstraintDADV(2, 2, 0.0);
             if (mConstrained)
@@ -71,7 +71,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem_Rosenbrock::get_dobjective_dcriteria()
+        Matrix<DDRMat> Problem_Rosenbrock::calculate_dobjective_dcriteria()
         {
             Matrix<DDRMat> tDObjectiveDCriteria(1, 2);
             tDObjectiveDCriteria(0) = 1 - mADVs(0);
@@ -82,7 +82,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem_Rosenbrock::get_dconstraint_dcriteria()
+        Matrix<DDRMat> Problem_Rosenbrock::calculate_dconstraint_dcriteria()
         {
             Matrix<DDRMat> tDConstraintDCriteria(2, 2, 0.0);
             if (mConstrained)

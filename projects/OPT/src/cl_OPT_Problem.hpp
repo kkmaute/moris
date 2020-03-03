@@ -20,8 +20,10 @@ namespace moris
             Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
             Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
             Matrix<DDSMat> mConstraintTypes; // flags for types of constraints
-            Matrix<DDRMat> mObjectiveGradient; // Full gradient of the objectives with respect to the ADVs
-            Matrix<DDRMat> mConstraintGradient; // Full gradient of the constraints with respect to the ADVs
+            Matrix<DDRMat> mObjectives; // objectives (always 1)
+            Matrix<DDRMat> mConstraints; // constraints
+            Matrix<DDRMat> mObjectiveGradient; // full gradient of the objectives with respect to the ADVs
+            Matrix<DDRMat> mConstraintGradient; // full gradient of the constraints with respect to the ADVs
 
         protected:
             Matrix<DDRMat> mADVs;    // Abstract Design Variable vector
@@ -94,6 +96,8 @@ namespace moris
 
             /**
              * Get the adv upper bounds
+             *
+             * @return vector of upper bounds
              */
             Matrix<DDRMat> get_upper_bounds()
             {
@@ -102,6 +106,8 @@ namespace moris
 
             /**
              * Get the adv lower bounds
+             *
+             * @return vector of lower bounds
              */
             Matrix<DDRMat> get_lower_bounds()
             {
@@ -115,22 +121,38 @@ namespace moris
 
             /**
              * Checks that the constraints are given in the correct order (equality constraints first)
+             *
+             * @return bool, if order is correct
              */
             bool check_constraint_order();
+
+            /**
+             * Gets the objective values
+             *
+             * @return vector of objectives
+             */
+            Matrix<DDRMat> get_objectives();
+
+            /**
+             * Gets the constraint values
+             *
+             * @return vector of constraints
+             */
+            Matrix<DDRMat> get_constraints();
 
             /**
              * Returns the objective gradient, and computes it if not already available.
              *
              * @return full derivative matrix d(objective)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_objective_gradient(); // TODO rename these
+            Matrix<DDRMat> get_objective_gradients(); // TODO rename these
 
             /**
              * Returns the constraint gradient, and computes it if not already available.
              *
              * @return full derivative matrix d(constraint)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_constraint_gradient();
+            Matrix<DDRMat> get_constraint_gradients();
 
             /**
              * Modifies the optimization solution. Not currently implemented.
@@ -143,6 +165,15 @@ namespace moris
             void update_problem();
 
             /**
+             * Gets the constraint types
+             *
+             * @return vector of integers, 0 = equality constraint, 1 = inequality constraint
+             */
+            virtual Matrix<DDSMat> get_constraint_types() = 0;
+
+        private:
+
+            /**
              * Override the ADV values given by the interface. Optional.
              */
             virtual void override_advs()
@@ -151,55 +182,47 @@ namespace moris
             };
 
             /**
-             * Gets the constraint types
-             *
-             * @return vector of integers, 0 = equality constraint, 1 = inequality constraint
-             */
-            virtual Matrix<DDSMat> get_constraint_types() = 0;
-
-            /**
-             * Gets the objective values
+             * Calculates the objective value
              *
              * @return vector of objectives
              */
-            virtual Matrix<DDRMat> get_objectives() = 0;
+             virtual Matrix<DDRMat> calculate_objectives() = 0;
 
             /**
-             * Gets the constraint values
+             * Calculates the constraint values
              *
              * @return vector of constraints
              */
-            virtual Matrix<DDRMat> get_constraints() = 0;
+            virtual Matrix<DDRMat> calculate_constraints() = 0;
 
             /**
-             * Gets the derivative of the objectives with respect to the advs
+             * Calculates the derivative of the objectives with respect to the advs
              *
              * @return matrix d(objective)_i/d(adv)_j
              */
-            virtual Matrix<DDRMat> get_dobjective_dadv() = 0;
+            virtual Matrix<DDRMat> calculate_dobjective_dadv() = 0;
 
             /**
-             * Gets the derivative of the constraints with respect to the advs
+             * Calculates the derivative of the constraints with respect to the advs
              *
              * @return matrix d(constraints)_i/d(adv)_j
              */
-            virtual Matrix<DDRMat> get_dconstraint_dadv() = 0;
+            virtual Matrix<DDRMat> calculate_dconstraint_dadv() = 0;
 
             /**
-             * Gets the derivative of the objective with respect to the criteria.
+             * Calculates the derivative of the objective with respect to the criteria.
              *
              * @return matrix d(objective)_i/d(criteria)_j
              */
-            virtual Matrix<DDRMat> get_dobjective_dcriteria() = 0;
+            virtual Matrix<DDRMat> calculate_dobjective_dcriteria() = 0;
 
             /**
-             * Gets the derivative of the constraints with respect to the criteria.
+             * Calculates the derivative of the constraints with respect to the criteria.
              *
              * @return matrix d(constraint)_i/d(criteria)_j
              */
-            virtual Matrix<DDRMat> get_dconstraint_dcriteria() = 0;
+            virtual Matrix<DDRMat> calculate_dconstraint_dcriteria() = 0;
 
-        private:
             /**
              * Assembles the objective gradient from the explicit and implicit gradient terms.
              */

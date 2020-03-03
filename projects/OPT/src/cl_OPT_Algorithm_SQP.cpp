@@ -456,8 +456,8 @@ void OptAlgSQP_usrfun(
     if(*needG)
     {
         // get the gradient of objective and constraints
-        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradient();
-        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradient();
+        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradients();
+        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradients();
 
         for( int i = 0, cur_nz = 0; i < *n; ++i )
         {

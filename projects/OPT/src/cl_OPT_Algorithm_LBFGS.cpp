@@ -150,7 +150,7 @@ namespace moris
             // Call to update derivatives of objectives
             mProblem->mUpdateObjectiveGradient = true;
 
-            auto tD_Obj = mProblem->get_objective_gradient().data();
+            auto tD_Obj = mProblem->get_objective_gradients().data();
             std::copy(tD_Obj, tD_Obj + mProblem->get_num_advs(), aD_Obj);
         }
 
