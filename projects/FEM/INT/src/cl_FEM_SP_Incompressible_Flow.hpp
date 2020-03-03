@@ -33,8 +33,8 @@ namespace moris
 //------------------------------------------------------------------------------
         private:
 
-            // cluster measures
-            real mElementSize      = 1.0; // element size
+//            // cluster measures
+//            real mElementSize      = 1.0; // element size
 
         public:
 
@@ -49,14 +49,14 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, SP_Property_Type > mPropertyMap;
 
-            // constitutive type for the SP
-            enum class SP_Constitutive_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
+//            // constitutive type for the SP
+//            enum class SP_Constitutive_Type
+//            {
+//                MAX_ENUM
+//            };
+//
+//            // Local string to constitutive enum map
+//            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
 
             /*
             * Rem: mParameters( 0 ) - CI = 36
@@ -78,17 +78,17 @@ namespace moris
              * trivial destructor
              */
             ~SP_Incompressible_Flow(){};
-
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures()
-            {
-                // evaluate element size from the cluster
-                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                              mtk::Master_Slave::MASTER );
-            }
+//
+////------------------------------------------------------------------------------
+//            /**
+//             * reset the cluster measures required for this SP
+//             */
+//            void reset_cluster_measures()
+//            {
+//                // evaluate element size from the cluster
+//                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+//                                                                              mtk::Master_Slave::MASTER );
+//            }
 
 //------------------------------------------------------------------------------
             /**

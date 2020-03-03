@@ -154,6 +154,7 @@ namespace moris
             MASTER_WEIGHT_INTERFACE,
             SLAVE_WEIGHT_INTERFACE,
             RECIPROCAL_TOTAL_VOLUME,
+            INCOMPRESSIBLE_FLOW,
             END_STABILIZATION_TYPE
         };
 
