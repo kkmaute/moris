@@ -108,8 +108,9 @@ namespace moris
         enum class IQI_Type
         {
             UNDEFINED,
-            VOLUME,
+            VOLUME,         // volume
             STRAIN_ENERGY,
+            VOLUME_FRACTION,
             DOF,
             PROPERTY,
             L2_ERROR_ANALYTIC,
@@ -151,6 +152,7 @@ namespace moris
             NITSCHE_INTERFACE,
             MASTER_WEIGHT_INTERFACE,
             SLAVE_WEIGHT_INTERFACE,
+            RECIPROCAL_TOTAL_VOLUME,
             END_STABILIZATION_TYPE
         };
 
