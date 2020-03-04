@@ -17,8 +17,8 @@ namespace moris
             mParameterList.insert("num_evaluations_per_adv", "10");
             mParameterList.insert("custom_adv_evaluations", "");
             mParameterList.insert("include_bounds", true);
-            mParameterList.insert("get_objectives", true);
-            mParameterList.insert("get_constraints", true);
+            mParameterList.insert("calculate_objectives", true);
+            mParameterList.insert("calculate_constraints", true);
             mParameterList.insert("calculate_objective_gradients", true);
             mParameterList.insert("calculate_constraint_gradients", true);
             mParameterList.insert("save", true);
@@ -36,19 +36,23 @@ namespace moris
 
         void Algorithm_Sweep::solve(Problem* aOptProb )
         {
-
-            // Initialize problem/algorithm
+            // Initialize Problem
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
-            Algorithm::initialize(); // initialize the base class member variables
 
             // Extract basic sweep parameters
             bool tIncludeBounds = mParameterList.get<bool>("include_bounds");
-            bool tUpdateObjectives = mParameterList.get<bool>("get_objectives");
-            bool tUpdateConstraints = mParameterList.get<bool>("get_constraints");
+            bool tUpdateObjectives = mParameterList.get<bool>("calculate_objectives");
+            bool tUpdateConstraints = mParameterList.get<bool>("calculate_constraints");
             bool tUpdateObjectiveGradients = mParameterList.get<bool>("calculate_objective_gradients");
             bool tUpdateConstraintGradients = mParameterList.get<bool>("calculate_constraint_gradients");
             bool tSave = mParameterList.get<bool>("save");
             bool tPrint = mParameterList.get<bool>("print");
+
+            // Set compute flags
+            mProblem->mUpdateObjectives = tUpdateObjectives;
+            mProblem->mUpdateConstraints = tUpdateConstraints;
+            mProblem->mUpdateObjectiveGradient = tUpdateObjectiveGradients;
+            mProblem->mUpdateConstraintGradient = tUpdateConstraintGradients;
 
             // Initialize variables obtained from problem
             uint tNumADVs = mProblem->get_num_advs();
