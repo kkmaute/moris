@@ -148,17 +148,17 @@ namespace moris
                 for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
                 {
                     // Perturb forwards
-                    mADVs(tADVIndex) += mEpsilon;
+                    mADVs(tADVIndex) += mFDObjectiveEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tObjectivePlus = this->get_objectives()(0);
 
                     // Perturb backwards
-                    mADVs(tADVIndex) -= 2 * mEpsilon;
+                    mADVs(tADVIndex) -= 2 * mFDObjectiveEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tObjectiveMinus = this->get_objectives()(0);
 
                     // Central difference
-                    mObjectiveGradient(0, tADVIndex) = (tObjectivePlus - tObjectiveMinus) / (2 * mEpsilon);
+                    mObjectiveGradient(0, tADVIndex) = (tObjectivePlus - tObjectiveMinus) / (2 * mFDObjectiveEpsilon);
                 }
                 mADVs = tOriginalADVs;
             }
@@ -186,17 +186,17 @@ namespace moris
                 for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
                 {
                     // Perturb forwards
-                    mADVs(tADVIndex) += mEpsilon;
+                    mADVs(tADVIndex) += mFDConstraintEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tConstraintsPlus = this->get_constraints();
 
                     // Perturb backwards
-                    mADVs(tADVIndex) -= 2 * mEpsilon;
+                    mADVs(tADVIndex) -= 2 * mFDConstraintEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tConstraintsMinus = this->get_constraints();
 
                     // Central difference
-                    mConstraintGradient.set_column(tADVIndex, (tConstraintsPlus - tConstraintsMinus) / (2 * mEpsilon));
+                    mConstraintGradient.set_column(tADVIndex, (tConstraintsPlus - tConstraintsMinus) / (2 * mFDConstraintEpsilon));
                 }
                 mADVs = tOriginalADVs;
             }

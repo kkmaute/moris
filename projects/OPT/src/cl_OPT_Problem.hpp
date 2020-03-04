@@ -36,7 +36,8 @@ namespace moris
             bool mUpdateConstraints = true;
             bool mUpdateObjectiveGradient = true;
             bool mUpdateConstraintGradient = true;
-            real mEpsilon = 1E-8;
+            real mFDObjectiveEpsilon = 1E-8;
+            real mFDConstraintEpsilon = 1E-8;
 
             /**
              * Constructor
