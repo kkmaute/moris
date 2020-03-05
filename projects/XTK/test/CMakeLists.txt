@@ -36,6 +36,7 @@ set(TEST_SOURCES
 if(BUILD_HMR)
 set(XTK_HMR_TEST_SOURCES
 	xtk/UT_XTK_HMR.cpp
+	xtk/UT_XTK_HMR_Multigrid.cpp
 	xtk/UT_XTK_HMR_2D.cpp
 	xtk/UT_XTK_HMR_Enrich.cpp)
 	

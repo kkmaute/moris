@@ -174,7 +174,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tParameters.set( "staircase_buffer", 3 );
         tParameters.set( "initial_refinement", 0 );
 
-        tParameters.set( "use_multigrid", 0 );
+        tParameters.set( "use_multigrid", 1 );
         tParameters.set( "severity_level", 2 );
 
         hmr::HMR tHMR( tParameters );

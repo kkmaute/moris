@@ -66,6 +66,7 @@ class Ghost_Stabilization;
 class Enriched_Interpolation_Mesh;
 class Enriched_Integration_Mesh;
 class Ghost_Stabilization;
+class Multigrid;
 }
 
 
@@ -88,6 +89,7 @@ public:
     friend class Enriched_Interpolation_Mesh;
     friend class Enriched_Integration_Mesh;
     friend class Ghost_Stabilization;
+    friend class Multigrid;
 
     //--------------------------------------------------------------------------------
     // Initialization
@@ -187,6 +189,13 @@ public:
      */
     void
     convert_mesh_tet4_to_tet10();
+
+    // ----------------------------------------------------------------------------------
+
+    /*!
+     * Construct multigrid information
+     */
+    void construct_multigrid();
 
     //--------------------------------------------------------------------------------
     // Member data access functions
@@ -318,6 +327,11 @@ public:
 
     std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
 
+    std::shared_ptr< Multigrid > get_multigrid_ptr()
+    {
+        return mMultigrid;
+    }
+
     //--------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------
@@ -349,6 +363,8 @@ protected:
     Ghost_Stabilization*               mGhostStabilization;
     Cell<Enriched_Interpolation_Mesh*> mEnrichedInterpMesh;
     Cell<Enriched_Integration_Mesh*>   mEnrichedIntegMesh;
+
+    std::shared_ptr< xtk::Multigrid >  mMultigrid;
 
 private:
 

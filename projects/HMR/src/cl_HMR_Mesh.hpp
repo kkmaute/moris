@@ -470,6 +470,80 @@ private:
                                                          uint         & aCounter,
                                                    const moris_index    aIndex = 0);
 
+//------------------------------------------------------------------------------
+            //##############################################
+            // Multigrid acessor functions
+            //##############################################
+//-------------------------------------------------------------------------------
+
+            uint get_num_interpolations()
+            {
+                return mMesh->get_number_of_bspline_meshes();
+            };
+
+//-------------------------------------------------------------------------------
+
+            uint get_max_level( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_max_level();
+            };
+
+//-------------------------------------------------------------------------------
+
+            uint get_num_basis( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_number_of_indexed_basis();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_basis_level( const moris_index aInterpolationIndex,
+                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_level();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
+                                                const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_number_of_parents();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
+                                                  const moris_index aBasisIndex,
+                                                  const moris_index aCoarseParentIndexForBasis )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_parent( aCoarseParentIndexForBasis )
+                            ->get_index();
+            }
+
+//-------------------------------------------------------------------------------
+
+            moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
+                                                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_children_ind_for_basis( aBasisIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
+                                                                     const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_children_weights_for_parent( aBasisIndex );
+            }
 
 //-------------------------------------------------------------------------------
         };

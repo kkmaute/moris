@@ -49,9 +49,6 @@ namespace moris
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
-            // ! checks if finalize was called. Finalize should only be called once at the end of HMR
-            bool mFinalizedCalled = false;
-
             /*
              * @brief determines elements (cells) intersected by the level set
              *

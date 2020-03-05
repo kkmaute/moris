@@ -25,16 +25,13 @@ namespace dla
                                                                                       mMesh( mSolverInterface->get_mesh_pointer_for_multigrid() )
     {
         // Get the maximal mesh level
-        moris::uint tNumBsplineMeshes = mMesh->get_HMR_lagrange_mesh()
-                                             ->get_number_of_bspline_meshes();
+        moris::uint tNumBsplineMeshes = mMesh->get_num_interpolations();
 
         moris::sint tMaxMeshLevel = -1;
 
         for ( moris::uint Ia = 0; Ia < tNumBsplineMeshes; Ia++ )
         {
-            moris::sint tMaxMeshLevelForMeshIndex = mMesh->get_HMR_lagrange_mesh()
-                                                         ->get_bspline_mesh( Ia )
-                                                         ->get_max_level();
+            moris::sint tMaxMeshLevelForMeshIndex = mMesh->get_max_level( Ia );
 
             tMaxMeshLevel = std::max( tMaxMeshLevel, tMaxMeshLevelForMeshIndex );
         }
@@ -77,9 +74,10 @@ namespace dla
                 moris::uint tDofIdentifier = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
 
                 // Ask mesh for the level of this dof index
-                moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
-                                                                      ->get_basis_by_index( tExtDofInd )
-                                                                      ->get_level();
+//                moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
+//                                                                      ->get_basis_by_index( tExtDofInd )
+//                                                                      ->get_level();
+                moris::uint tDofLevel = mMesh->get_basis_level( tMeshIndex, tExtDofInd );
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
                 if( ( tDofLevel <= tMaxMeshLevel - Ik ) && ( Ii < tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )
@@ -101,9 +99,10 @@ namespace dla
                     moris::Matrix< DDSMat > tRowMat( 1, 1, Ii );
 
                     // Get vector with external fine indices
-                    moris::Matrix< DDSMat > tIndices = mMesh->get_HMR_lagrange_mesh()
-                                                            ->get_bspline_mesh( tMeshIndex )
-                                                            ->get_children_ind_for_basis( tExtDofInd );
+//                    moris::Matrix< DDSMat > tIndices = mMesh->get_HMR_lagrange_mesh()
+//                                                            ->get_bspline_mesh( tMeshIndex )
+//                                                            ->get_children_ind_for_basis( tExtDofInd );
+                    moris::Matrix< DDSMat > tIndices = mMesh->get_fine_basis_inds_of_basis( tMeshIndex, tExtDofInd );
 
                     // Initialize vector with col indices
                     moris::Matrix< DDSMat > tColMat( tIndices.numel(), 1, -1 );
@@ -115,9 +114,10 @@ namespace dla
                     }
 
                     // Get weights
-                    moris::Matrix< DDRMat > tWeights = mMesh->get_HMR_lagrange_mesh()
-                                                            ->get_bspline_mesh( tMeshIndex )
-                                                            ->get_children_weights_for_parent( tExtDofInd );
+//                    moris::Matrix< DDRMat > tWeights = mMesh->get_HMR_lagrange_mesh()
+//                                                            ->get_bspline_mesh( tMeshIndex )
+//                                                            ->get_children_weights_for_parent( tExtDofInd );
+                    moris::Matrix< DDRMat > tWeights = mMesh->get_fine_basis_weights_of_basis( tMeshIndex, tExtDofInd  );
 
                     // Fill weights in operator
                     mProlongationList( Ik-1 )->fill_matrix_row( tWeights, tRowMat, tColMat );
