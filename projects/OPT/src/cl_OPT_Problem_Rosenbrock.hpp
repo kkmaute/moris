@@ -7,6 +7,7 @@
 
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Interface.hpp"
+#include "cl_Param_List.hpp" // CON/src
 
 namespace moris
 {
@@ -19,9 +20,13 @@ namespace moris
 
             bool mConstrained = false;
 
-            Problem_Rosenbrock(Interface* aInterface) : Problem(aInterface)
-            {
-            }
+            /**
+             * Constructor
+             *
+             * @param aInterface Interface class written for other module (e.g. GEN)
+             */
+            Problem_Rosenbrock(ParameterList aParameterList) : Problem(aParameterList)
+            {}
 
             /**
              * Gets the constraint types
@@ -37,42 +42,42 @@ namespace moris
              *
              * @return vector of objectives
              */
-            Matrix<DDRMat> calculate_objectives();
+            Matrix<DDRMat> compute_objectives();
 
             /**
              * Gets the constraint values
              *
              * @return vector of constraints
              */
-            Matrix<DDRMat> calculate_constraints();
+            Matrix<DDRMat> compute_constraints();
 
             /**
              * Gets the derivative of the objectives with respect to the advs
              *
              * @return matrix d(objective)_i/d(adv)_j
              */
-            Matrix<DDRMat> calculate_dobjective_dadv();
+            Matrix<DDRMat> compute_dobjective_dadv();
 
             /**
              * Gets the derivative of the constraints with respect to the advs
              *
              * @return matrix d(constraints)_i/d(adv)_j
              */
-            Matrix<DDRMat> calculate_dconstraint_dadv();
+            Matrix<DDRMat> compute_dconstraint_dadv();
 
             /**
              * Gets the derivative of the objective with respect to the criteria.
              *
              * @return matrix d(objective)_i/d(criteria)_j
              */
-            Matrix<DDRMat> calculate_dobjective_dcriteria();
+            Matrix<DDRMat> compute_dobjective_dcriteria();
 
             /**
              * Gets the derivative of the constraints with respect to the criteria.
              *
              * @return matrix d(constraint)_i/d(criteria)_j
              */
-            Matrix<DDRMat> calculate_dconstraint_dcriteria();
+            Matrix<DDRMat> compute_dconstraint_dcriteria();
         };
     }
 }

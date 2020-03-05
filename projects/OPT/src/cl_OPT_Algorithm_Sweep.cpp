@@ -10,20 +10,8 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_Sweep::Algorithm_Sweep() :
-                Algorithm()
+        Algorithm_Sweep::Algorithm_Sweep() : Algorithm()
         {
-            // assign default parameter values
-            mParameterList.insert("num_evaluations_per_adv", "10");
-            mParameterList.insert("custom_adv_evaluations", "");
-            mParameterList.insert("include_bounds", true);
-            mParameterList.insert("calculate_objectives", true);
-            mParameterList.insert("calculate_constraints", true);
-            mParameterList.insert("calculate_objective_gradients", true);
-            mParameterList.insert("calculate_constraint_gradients", true);
-            mParameterList.insert("save", true);
-            mParameterList.insert("print", false);
-            mParameterList.insert("hdf5_path", "");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -34,15 +22,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_Sweep::solve(Problem* aOptProb )
+        void Algorithm_Sweep::solve(std::shared_ptr<Problem> aOptProb )
         {
             // Initialize Problem
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
             // Extract basic sweep parameters
             bool tIncludeBounds = mParameterList.get<bool>("include_bounds");
-            bool tUpdateObjectives = mParameterList.get<bool>("calculate_objectives");
-            bool tUpdateConstraints = mParameterList.get<bool>("calculate_constraints");
+            bool tUpdateObjectives = mParameterList.get<bool>("compute_objectives");
+            bool tUpdateConstraints = mParameterList.get<bool>("compute_constraints");
             bool tUpdateObjectiveGradients = mParameterList.get<bool>("calculate_objective_gradients");
             bool tUpdateConstraintGradients = mParameterList.get<bool>("calculate_constraint_gradients");
             bool tSave = mParameterList.get<bool>("save");

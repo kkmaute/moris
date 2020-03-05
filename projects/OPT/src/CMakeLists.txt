@@ -16,7 +16,9 @@ set(HEADERS
 	cl_OPT_Problem.hpp
 	cl_OPT_Interface.hpp
 	cl_OPT_Problem_Rosenbrock.hpp
-	cl_OPT_Interface_Rosenbrock.hpp)
+	cl_OPT_Interface_Rosenbrock.hpp
+	fn_OPT_create_problem.hpp
+	fn_OPT_create_interface.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Optimization Library
@@ -32,7 +34,9 @@ set(LIB_SOURCES
 	cl_OPT_Manager.cpp
 	cl_OPT_Problem.cpp
 	cl_OPT_Problem_Rosenbrock.cpp
-	cl_OPT_Interface_Rosenbrock.cpp)
+	cl_OPT_Interface_Rosenbrock.cpp
+	fn_OPT_create_problem.cpp
+	fn_OPT_create_interface.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

@@ -9,19 +9,8 @@
 using namespace moris;
 
 
-OptAlgGCMMA::OptAlgGCMMA( ) :
-        Algorithm(),
-        mResFlag(0)
+OptAlgGCMMA::OptAlgGCMMA() : Algorithm(), mResFlag(0)
 {
-    // assign default parameter values
-    mParameterList.insert( "max_its"      , 100  ); // Allowable GCMMA optimization iterations
-    mParameterList.insert( "max_inner_its", 0    ); // Allowable GCMMA inner iterations per every optimization iteration
-    mParameterList.insert( "norm_drop"    , 1e-4 ); // GCMMA convergence criteria
-    mParameterList.insert( "asymp_adapt0" , 0.5  ); // Initial asymptote adaptation factor
-    mParameterList.insert( "asymp_adapt"  , 0.7  ); // Lower asymptote adaptation factor
-    mParameterList.insert( "asymp_adaptc" , 1.2  ); // Upper asymptote adaptation factor
-    mParameterList.insert( "step_size"    , 0.01 ); // GCMMA step size
-    mParameterList.insert( "penalty"      , 100.0); // GCMMA constraint penalty
 }
 
 // -----------------------------------------------------------------------------
@@ -32,7 +21,7 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 // -----------------------------------------------------------------------------
 
-void OptAlgGCMMA::solve(moris::opt::Problem* aOptProb )
+void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     mProblem = aOptProb; // set the member variable mProblem to aOptProb
 

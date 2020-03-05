@@ -2,6 +2,7 @@
 #include "cl_OPT_Problem.hpp" // OPT/src
 #include "op_plus.hpp"
 #include "fn_norm.hpp"
+#include "fn_OPT_create_interface.hpp"
 
 extern moris::Logger gLogger;
 
@@ -9,8 +10,16 @@ namespace moris
 {
     namespace opt
     {
-        Problem::Problem(Interface* aInterface) : mInterface(aInterface)
+        Problem::Problem(ParameterList aParameterList)
         {
+            // Create interface
+            mInterface = create_interface(aParameterList);
+
+            // Set parameters
+            mObjectiveFiniteDifference = aParameterList.get<bool>("objective_finite_difference");
+            mConstraintFiniteDifference = aParameterList.get<bool>("constraint_finite_difference");
+            mObjectiveFiniteDifferenceEpsilon = aParameterList.get<real>("objective_finite_difference_epsilon");
+            mConstraintFiniteDifferenceEpsilon = aParameterList.get<real>("constraint_finite_difference_epsilon");
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -44,7 +53,7 @@ namespace moris
         {
             if (mUpdateObjectives)
             {
-                mObjectives = this->calculate_objectives();
+                mObjectives = this->compute_objectives();
             }
             return mObjectives;
         }
@@ -55,7 +64,7 @@ namespace moris
         {
             if (mUpdateConstraints)
             {
-                mConstraints = this->calculate_constraints();
+                mConstraints = this->compute_constraints();
             }
             return mConstraints;
         }
@@ -136,45 +145,45 @@ namespace moris
 
         void Problem::compute_objective_gradient()
         {
-            if (mFiniteDifferenceObjectives) // finite difference
+            if (mObjectiveFiniteDifference) // finite difference
             {
                 // Set perturbed ADVs and objectives
-                Matrix<DDRMat> tOriginalADVs = mADVs;
+                Matrix <DDRMat> tOriginalADVs = mADVs;
                 mObjectiveGradient.set_size(1, this->get_num_advs());
                 real tObjectivePlus;
                 real tObjectiveMinus;
 
                 // FD each ADV
-                for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
-                {
+                for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++) {
                     // Perturb forwards
-                    mADVs(tADVIndex) += mFDObjectiveEpsilon;
+                    mADVs(tADVIndex) += mObjectiveFiniteDifferenceEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tObjectivePlus = this->get_objectives()(0);
 
                     // Perturb backwards
-                    mADVs(tADVIndex) -= 2 * mFDObjectiveEpsilon;
+                    mADVs(tADVIndex) -= 2 * mObjectiveFiniteDifferenceEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tObjectiveMinus = this->get_objectives()(0);
 
                     // Central difference
-                    mObjectiveGradient(0, tADVIndex) = (tObjectivePlus - tObjectiveMinus) / (2 * mFDObjectiveEpsilon);
+                    mObjectiveGradient(0, tADVIndex) =
+                            (tObjectivePlus - tObjectiveMinus) / (2 * mObjectiveFiniteDifferenceEpsilon);
                 }
                 mADVs = tOriginalADVs;
             }
             else // analytical
             {
-                mObjectiveGradient = this->calculate_dobjective_dadv()
-                                     + this->calculate_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
+                mObjectiveGradient = this->compute_dobjective_dadv()
+                                     + this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
             }
 
         }
 
         // -------------------------------------------------------------------------------------------------------------
-
+        
         void Problem::compute_constraint_gradient()
         {
-            if (mFiniteDifferenceConstraints) // finite difference
+            if (mConstraintFiniteDifference) // finite difference
             {
                 // Set perturbed ADVs and objectives
                 Matrix<DDRMat> tOriginalADVs = mADVs;
@@ -186,24 +195,24 @@ namespace moris
                 for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
                 {
                     // Perturb forwards
-                    mADVs(tADVIndex) += mFDConstraintEpsilon;
+                    mADVs(tADVIndex) += mConstraintFiniteDifferenceEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tConstraintsPlus = this->get_constraints();
 
                     // Perturb backwards
-                    mADVs(tADVIndex) -= 2 * mFDConstraintEpsilon;
+                    mADVs(tADVIndex) -= 2 * mConstraintFiniteDifferenceEpsilon;
                     mInterface->begin_new_analysis(mADVs);
                     tConstraintsMinus = this->get_constraints();
 
                     // Central difference
-                    mConstraintGradient.set_column(tADVIndex, (tConstraintsPlus - tConstraintsMinus) / (2 * mFDConstraintEpsilon));
+                    mConstraintGradient.set_column(tADVIndex, (tConstraintsPlus - tConstraintsMinus) / (2 * mConstraintFiniteDifferenceEpsilon));
                 }
                 mADVs = tOriginalADVs;
             }
             else // analytical
             {
-                mConstraintGradient = this->calculate_dconstraint_dadv()
-                                      + this->calculate_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
+                mConstraintGradient = this->compute_dconstraint_dadv()
+                                      + this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
             }
         }
 

@@ -6,6 +6,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_OPT_Interface.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -15,7 +16,7 @@ namespace moris
         {
 
         private:
-            Interface* mInterface;
+            std::shared_ptr<Interface> mInterface;
 
             Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
             Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
@@ -30,21 +31,26 @@ namespace moris
             Matrix<DDRMat> mCriteria; // vector of criteria values
 
         public:
-            bool mFiniteDifferenceObjectives = false;
-            bool mFiniteDifferenceConstraints = false;
+//            std::string mObjectiveFiniteDifference;
+//            std::string mConstraintFiniteDifference;
+//            uint ofd_type;
+//            uint cfd_type;
+            bool mObjectiveFiniteDifference;
+            bool mConstraintFiniteDifference;
+            real mObjectiveFiniteDifferenceEpsilon;
+            real mConstraintFiniteDifferenceEpsilon;
+
             bool mUpdateObjectives = true;
             bool mUpdateConstraints = true;
             bool mUpdateObjectiveGradient = true;
             bool mUpdateConstraintGradient = true;
-            real mFDObjectiveEpsilon = 1E-8;
-            real mFDConstraintEpsilon = 1E-8;
 
             /**
              * Constructor
              *
              * @param aInterface Interface class written for other module (e.g. GEN)
              */
-            Problem(Interface* aInterface);
+            Problem(ParameterList aParameterList);
 
             /**
              * Destructor
@@ -187,52 +193,60 @@ namespace moris
              *
              * @return vector of objectives
              */
-             virtual Matrix<DDRMat> calculate_objectives() = 0;
+             virtual Matrix<DDRMat> compute_objectives() = 0;
 
             /**
              * Calculates the constraint values
              *
              * @return vector of constraints
              */
-            virtual Matrix<DDRMat> calculate_constraints() = 0;
+            virtual Matrix<DDRMat> compute_constraints() = 0;
 
             /**
              * Calculates the derivative of the objectives with respect to the advs
              *
              * @return matrix d(objective)_i/d(adv)_j
              */
-            virtual Matrix<DDRMat> calculate_dobjective_dadv() = 0;
+            virtual Matrix<DDRMat> compute_dobjective_dadv() = 0;
 
             /**
              * Calculates the derivative of the constraints with respect to the advs
              *
              * @return matrix d(constraints)_i/d(adv)_j
              */
-            virtual Matrix<DDRMat> calculate_dconstraint_dadv() = 0;
+            virtual Matrix<DDRMat> compute_dconstraint_dadv() = 0;
 
             /**
              * Calculates the derivative of the objective with respect to the criteria.
              *
              * @return matrix d(objective)_i/d(criteria)_j
              */
-            virtual Matrix<DDRMat> calculate_dobjective_dcriteria() = 0;
+            virtual Matrix<DDRMat> compute_dobjective_dcriteria() = 0;
 
             /**
              * Calculates the derivative of the constraints with respect to the criteria.
              *
              * @return matrix d(constraint)_i/d(criteria)_j
              */
-            virtual Matrix<DDRMat> calculate_dconstraint_dcriteria() = 0;
+            virtual Matrix<DDRMat> compute_dconstraint_dcriteria() = 0;
 
             /**
              * Assembles the objective gradient from the explicit and implicit gradient terms.
              */
+//            template <const char T>
             void compute_objective_gradient();
+//            {
+//
+//            }
 
             /**
              * Assembles the constraint gradient from the explicit and implicit gradient terms.
              */
+//            template <const char T>
             void compute_constraint_gradient();
+//            {
+//
+//            }
         };
     }
 }

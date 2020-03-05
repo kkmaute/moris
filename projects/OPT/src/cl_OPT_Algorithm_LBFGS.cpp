@@ -25,14 +25,8 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_LBFGS::Algorithm_LBFGS( ) :
-                Algorithm(),
-                mOptIter(0)
+        Algorithm_LBFGS::Algorithm_LBFGS() : Algorithm(), mOptIter(0)
         {
-            mParameterList.insert( "max_its"  , 100    ); // maximum optimization iterations allowed
-            mParameterList.insert( "num_corr" , 5      ); // number of limited memory corrections used in the BFGS update
-            mParameterList.insert( "norm_drop", 1.0e+7 ); // LBFGS convergence criteria (this is internally multiplied with machine precision)
-            mParameterList.insert( "grad_tol" , 0.0    ); // LBFGS convergence criteria based on projected gradients
         }
 
         // ---------------------------------------------------------------------
@@ -43,7 +37,7 @@ namespace moris
 
         //----------------------------------------------------------------------
 
-        void Algorithm_LBFGS::solve(Problem* aOptProb )
+        void Algorithm_LBFGS::solve(std::shared_ptr<Problem> aOptProb )
         {
             mProblem = aOptProb;  // set the member variable mProblem to aOptProb
 

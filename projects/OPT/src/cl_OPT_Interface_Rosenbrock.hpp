@@ -6,6 +6,7 @@
 #define MORIS_CL_OPT_INTERFACE_ROSENBROCK_HPP
 
 #include "cl_OPT_Interface.hpp"
+#include "cl_Param_List.hpp" // CON/src
 
 namespace moris
 {
@@ -17,6 +18,13 @@ namespace moris
             Matrix<DDRMat> mADVs;
 
         public:
+
+            /**
+             * Constructor
+             */
+            Interface_Rosenbrock(ParameterList aParameterList)
+            {
+            }
 
             /**
              * Initializes the vector of ADV values

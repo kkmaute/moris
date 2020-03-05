@@ -4,6 +4,8 @@
 // MORIS project header files.
 #include "core.hpp"
 #include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
+#include "cl_Param_List.hpp" // CON/src
+#include "cl_OPT_Problem.hpp"
 
 class OptAlgGCMMA : public moris::opt::Algorithm
 {
@@ -61,7 +63,7 @@ class OptAlgGCMMA : public moris::opt::Algorithm
          * @param[in] aOptProb Object of type Problem containing relevant
          *            data regarding ADVs, the objective and constraints
          */
-        void solve( moris::opt::Problem* aOptProb );
+        void solve( std::shared_ptr<moris::opt::Problem> aOptProb );
 
         /**
          *@brief Prints result of the GCMMA algorithm based on mStopFlag
