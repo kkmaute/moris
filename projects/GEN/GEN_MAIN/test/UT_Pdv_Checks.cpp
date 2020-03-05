@@ -47,8 +47,7 @@ namespace moris
 {
 namespace ge
 {
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > > & aCoeff )
             {
                 return aCoeff( 0 );
             }

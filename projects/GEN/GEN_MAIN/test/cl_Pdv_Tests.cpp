@@ -52,14 +52,12 @@ namespace moris
     namespace ge
     {
 
-    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff )
     {
         return aCoeff( 0 );
     }
 
-    Matrix< DDRMat > tFieldPropFunc0( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                      moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+    Matrix< DDRMat > tFieldPropFunc0( moris::Cell< Matrix< DDRMat > > & aCoeff )
     {
         // fill all values with a constant: 1234
         uint tSize = aCoeff.size();
@@ -71,8 +69,7 @@ namespace moris
         return tAllVals;
     }
 
-    Matrix< DDRMat > tFieldPropFunc1( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                      moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+    Matrix< DDRMat > tFieldPropFunc1( moris::Cell< Matrix< DDRMat > > & aCoeff )
     {
         // fill all values with a constant: 4321
         uint tSize = aCoeff.size();

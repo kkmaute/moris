@@ -47,8 +47,7 @@ real tTempCircleLS( const Matrix< DDRMat > & aPoint )
     return norm( aPoint ) - 0.6;
 }
 //-----------------------------------------------------------------------------
-Matrix< DDRMat > tSimpleFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                              moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+Matrix< DDRMat > tSimpleFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff )
 {
     // f(x,y) = 2*x + 3*(y*y)
 

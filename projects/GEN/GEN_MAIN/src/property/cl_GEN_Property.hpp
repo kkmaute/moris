@@ -19,26 +19,15 @@ namespace moris
 namespace ge
 {
 
-typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aDvFI ) > GENPropertyFunc;
+//typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+//                                          moris::Cell< fem::Field_Interpolator* > & aDvFI ) > GENPropertyFunc;
+
+typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >  & aCoeff ) > GENPropertyFunc;
 //------------------------------------------------------------------------------
 class GEN_Property
 {
-    // TODO: clean up this class, should only be concerned with design variables (DVs) not degrees of freedom (DoFs), get rid of all the commented-out stuff
 
 protected:
-//    // active dof types
-//    moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
-
-//    // single dof type
-//    MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
-
-//    // active dof type map
-//    Matrix< DDSMat > mDofTypeMap;
-
-//    // dof field interpolators
-//    moris::Cell< moris::fem::Field_Interpolator* > mDofFI;
-
     // active dv types
     moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
 
@@ -55,7 +44,6 @@ protected:
     GENPropertyFunc mValFunction = nullptr;
 
     // dof and dv derivative functions
-//    moris::Cell< PropertyFunc > mDofDerFunctions;
     moris::Cell< GENPropertyFunc > mDvDerFunctions;
 
     // geometry interpolator
@@ -63,7 +51,6 @@ protected:
 
     // flag for evaluation
     bool mPropEval = true;
-//    moris::Cell< bool > mPropDofDerEval;
     moris::Cell< bool > mPropDvDerEval;
 
     // pdv type
@@ -71,7 +58,6 @@ protected:
 
     // storage
     Matrix< DDRMat > mProp;
-//    moris::Cell< Matrix< DDRMat > > mPropDofDer;
     moris::Cell< Matrix< DDRMat > > mPropDvDer;
 
 public:
@@ -106,7 +92,6 @@ public:
     {
         mParameters = aParameters;
     };
-
     //------------------------------------------------------------------------------
     /**
      * get parameters
@@ -116,7 +101,6 @@ public:
     {
         return mParameters;
     };
-
     //------------------------------------------------------------------------------
     /**
      * set val function
@@ -126,7 +110,6 @@ public:
     {
         mValFunction = aValFunction;
     };
-
     //------------------------------------------------------------------------------
     /**
      * get val function
@@ -137,26 +120,6 @@ public:
         return mValFunction;
     };
     //------------------------------------------------------------------------------
-//    /**
-//     * set dof derivative functions
-//     * @param[ in ] aDofDerFunctions list function for property derivatives wrt dof
-//     */
-//    void set_dof_derivative_functions( moris::Cell< PropertyFunc > aDofDerFunctions )
-//    {
-//        mDofDerFunctions = aDofDerFunctions;
-//    };
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * get dof derivative functions
-//     * @param[ out ] mDofDerFunctions list function for property derivatives wrt dof
-//     */
-//    const moris::Cell< PropertyFunc > & get_dof_derivative_functions() const
-//    {
-//        return mDofDerFunctions;
-//    };
-
-    //------------------------------------------------------------------------------
     /**
      * set dv derivative functions
      * @param[ in ] aDvDerFunctions list function for property derivatives wrt dv
@@ -165,7 +128,6 @@ public:
     {
         mDvDerFunctions = aDvDerFunctions;
     };
-
     //------------------------------------------------------------------------------
     /**
      * get dv derivative functions
@@ -175,7 +137,6 @@ public:
     {
         return mDvDerFunctions;
     };
-
     //------------------------------------------------------------------------------
     /**
      * set geometry interpolator
@@ -185,7 +146,6 @@ public:
     {
         mGeometryInterpolator = aGeometryInterpolator;
     };
-
     //------------------------------------------------------------------------------
     /**
      * get geometry interpolator
@@ -195,109 +155,6 @@ public:
     {
         return mGeometryInterpolator;
     };
-    //------------------------------------------------------------------------------
-//    /**
-//     * set a list of active dof types
-//     * @param[ in ] aDofTypes list of dof types
-//     */
-//    void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
-//    {
-//        // set dof type list
-//        mDofTypes = aDofTypes;
-//
-//        // build dof type map
-//        this->build_dof_type_map();
-//
-//        // number of dof types
-//        uint tNumDofTypes = mDofTypes.size();
-//
-//        // set mDofDerFunctions size
-//        mDofDerFunctions.assign( tNumDofTypes, nullptr );
-//
-//        // set mPropDofDerEval size
-//        mPropDofDerEval.assign( tNumDofTypes, true );
-//
-//        // set mPropDofDer size
-//        mPropDofDer.resize( tNumDofTypes );
-//    };
-
-    //------------------------------------------------------------------------------
-//    /*
-//     * set dof type for the single dof type case
-//     * @param[ in ] aDof a dof type
-//     */
-//    void set_dof_type( MSI::Dof_Type aDof )
-//    {
-//        mDof = aDof;
-//    };
-
-    //------------------------------------------------------------------------------
-//    /*
-//     * get dof type for the single dof type case
-//     * @param[ out ] mDof a dof type
-//     */
-//    MSI::Dof_Type get_dof_type(  )
-//    {
-//        return mDof;
-//    };
-
-    //------------------------------------------------------------------------------
-//     /**
-//      * return a list of active dof types
-//      * @param[ out ] mDofTypes list of dof types
-//      */
-//     const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list() const
-//     {
-//         return mDofTypes;
-//     };
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * build a dof type map
-//     */
-//    void build_dof_type_map();
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * get a dof type map
-//     * @param[ out ] mDofTypeMap map of the dof types
-//     */
-//    const moris::Matrix< DDSMat > & get_dof_type_map() const
-//    {
-//        return mDofTypeMap;
-//    }
-
-    //------------------------------------------------------------------------------
-//     /**
-//      * check if the property depends on a particular group of dof type
-//      * @param[ in ]  aDofType cell of dof type
-//      * @param[ out ] aBool    boolean, true if dependency on the dof type
-//      */
-//     bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > aDofType );
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * set dof field interpolators
-//     * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
-//     */
-//    void set_dof_field_interpolators( moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolators );
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * get dof field interpolators
-//     * @param[ out ] mDofFI cell of dof field interpolator pointers
-//     */
-//    const moris::Cell< fem::Field_Interpolator* > & get_dof_field_interpolators() const
-//    {
-//        return mDofFI;
-//    }
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * check that dof field interpolators are assigned
-//     */
-//    void check_dof_field_interpolators();
-
     //------------------------------------------------------------------------------
     /**
      * set a list of dv types
@@ -333,13 +190,11 @@ public:
     {
         return mDvTypes;
     };
-
     //------------------------------------------------------------------------------
     /**
      * build a dv type map
      */
     void build_dv_type_map( );
-
     //------------------------------------------------------------------------------
     /**
      * get a dv type map
@@ -349,7 +204,6 @@ public:
     {
         return mDvTypeMap;
     }
-
     //------------------------------------------------------------------------------
     /**
      * check if the property depends on a particular group of dv types
@@ -357,14 +211,12 @@ public:
      * @param[ out ] aBool   boolean, true if dependency on the dv type
      */
     bool check_dv_dependency( const moris::Cell< GEN_DV > aDvType );
-
     //------------------------------------------------------------------------------
     /**
      * set dv field interpolators
      * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
      */
     void set_dv_field_interpolators( moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolators );
-
     //------------------------------------------------------------------------------
     /**
      * get dv field interpolators
@@ -374,13 +226,11 @@ public:
     {
         return mDvFI;
     }
-
     //------------------------------------------------------------------------------
     /**
      * check that dv field interpolators are assigned
      */
     void check_dv_field_interpolators( );
-
     //------------------------------------------------------------------------------
     /**
      * reset evaluation flags
@@ -390,41 +240,20 @@ public:
         // reset the property value
         mPropEval = true;
 
-//        // reset the property derivatives wrt dof type
-//        mPropDofDerEval.assign( mDofTypes.size(), true );
-
         // reset the property derivatives wrt dv type
         mPropDvDerEval.assign( mDvTypes.size(), true );
     }
-
     //------------------------------------------------------------------------------
     /**
      * get the property value
      * @param[ out ] aVal matrix with property value
      */
     const Matrix< DDRMat > & val( );
-
     //------------------------------------------------------------------------------
     /**
      * evaluate property in terms of coefficients and variables
      */
     void eval_Prop( );
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * get property derivatives wrt a dof type
-//     * @param[ in ]  aDofType   cell of dof type
-//     * @param[ out ] adPropdDOF matrix with derivative wrt to the dof type
-//     */
-//    const Matrix< DDRMat > & dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType );
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * evaluate property derivatives wrt a dof type
-//     * @param[ in ] aDofType cell of dof type
-//     */
-//    void eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType );
-
     //------------------------------------------------------------------------------
     /**
      * get the property derivatives wrt a design variable
@@ -432,41 +261,12 @@ public:
      * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
      */
     const Matrix< DDRMat > & dPropdDV( const moris::Cell< GEN_DV > aDvType );
-
     //------------------------------------------------------------------------------
     /**
      * evaluate property derivatives wrt a design variable
      * @param[ in ] aDvType cell of dv type
      */
     void eval_dPropdDV( const moris::Cell< GEN_DV > aDvType );
-
-    //------------------------------------------------------------------------------
-//    /**
-//     * get non unique dof type list
-//     * @param[ in ] aDofType cell of dof type
-//     */
-//    void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
-//    {
-//        // init counter
-//        uint tCounter = 0;
-//
-//        // loop over dof types
-//        for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
-//        {
-//            // update counter
-//            tCounter += mDofTypes( iDOF ).size();
-//        }
-//
-//        // reserve memory for dof type list
-//        aDofTypes.reserve( tCounter );
-//
-//        // loop over dof types
-//        for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
-//        {
-//            // populate the dof type list
-//            aDofTypes.append( mDofTypes( iDOF ) );
-//        }
-//    }
     //------------------------------------------------------------------------------
 
 };
