@@ -67,101 +67,104 @@ Matrix< DDRMat > tSimpleFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff,
 
 TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
 {
-    size_t tModelDimension  = 2;
-    uint tLagrangeMeshIndex = 0;
-    //  HMR Parameters setup
-    moris::ParameterList tParameters = prm::create_hmr_parameter_list();
-
-    tParameters.set( "number_of_elements_per_dimension", std::string("2, 2") );
-    tParameters.set( "domain_dimensions",                std::string("2, 2") );
-    tParameters.set( "domain_offset",                    std::string("0, 0") );
-    tParameters.set( "domain_sidesets",                  std::string("1, 2, 3, 4") );
-
-    tParameters.set( "truncate_bsplines", 1 );
-    tParameters.set( "lagrange_orders",   std::string("1") );
-    tParameters.set( "lagrange_pattern",  std::string("0") );
-    tParameters.set( "bspline_orders",    std::string("1") );
-    tParameters.set( "bspline_pattern",   std::string("0") );
-
-    tParameters.set( "lagrange_output_meshes", std::string("0") );
-    tParameters.set( "lagrange_input_meshes",  std::string("0") );
-
-    tParameters.set( "lagrange_to_bspline", std::string("0") );
-
-    tParameters.set( "use_multigrid", 0 );
-
-    tParameters.set( "refinement_buffer", 1 );
-    tParameters.set( "staircase_buffer",  1 );
-
-    tParameters.insert( "initial_refinement", 0 );
-
-    //  HMR Initialization
-    moris::hmr::HMR tHMR( tParameters );
-
-    auto tDatabase = tHMR.get_database(); // std::shared_ptr< Database >
-
-    tHMR.perform_initial_refinement( 0 );
-    //------------------------------------------------------------------------------
-    tDatabase->update_bspline_meshes();
-    tDatabase->update_lagrange_meshes();
-    //------------------------------------------------------------------------------
-    tHMR.finalize();
-
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-    std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
-
-    mtk::Mesh_Manager tMesh;
-    moris_index tMeshPairIndex = tMesh.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
-    //------------------------------------------------------------------------------
-    moris::Cell<moris::mtk::Vertex const *> tAllVertices = tMesh.get_interpolation_mesh( tMeshPairIndex )->get_all_vertices();
-
-    uint tNumVertices = tAllVertices.size();
-
-    moris::Matrix< DDRMat > tCoords(tNumVertices,tModelDimension);
-
-    for(uint i=0; i<tNumVertices; i++)  // build a matrix with all node coordinates
+    if(par_size()<=1)
     {
-        tCoords.set_row( i, tAllVertices(i)->get_coords() );
-    }
+        size_t tModelDimension  = 2;
+        uint tLagrangeMeshIndex = 0;
+        //  HMR Parameters setup
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-    std::shared_ptr< GEN_Property > tFieldProperty = std::make_shared< GEN_Property >();
-    tFieldProperty->set_val_function( tSimpleFunc );
+        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2") );
+        tParameters.set( "domain_dimensions",                std::string("2, 2") );
+        tParameters.set( "domain_offset",                    std::string("0, 0") );
+        tParameters.set( "domain_sidesets",                  std::string("1, 2, 3, 4") );
 
-    GEN_Field tField( tFieldProperty );
-    tField.initialize( &tMesh );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "lagrange_orders",   std::string("1") );
+        tParameters.set( "lagrange_pattern",  std::string("0") );
+        tParameters.set( "bspline_orders",    std::string("1") );
+        tParameters.set( "bspline_pattern",   std::string("0") );
 
-    GEN_Geom_Field tGeomField( &tField );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "lagrange_input_meshes",  std::string("0") );
 
-    moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tGeomField };
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
-    moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-    moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
-    //=================== manual calls to GE (w/out XTK model) =============================
-    tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumVertices );
+        tParameters.set( "use_multigrid", 0 );
 
-    Matrix< DDRMat > tLSVals( tNumVertices,1 );
-    for( uint i=0; i<tNumVertices; i++ )
-    {
-        tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
-        tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
-    }
-    //============================= perform checks =========================================
-    real tEpsilon = 1e-8;
-    Matrix< DDRMat > tCorrectVals = { {  0.0 },
-                                      {  2.0 },
-                                      {  5.0 },
-                                      {  3.0 },
-                                      {  4.0 },
-                                      {  7.0 },
-                                      { 14.0 },
-                                      { 12.0 },
-                                      { 16.0 } };
+        tParameters.set( "refinement_buffer", 1 );
+        tParameters.set( "staircase_buffer",  1 );
 
-    for( uint i=0; i<tNumVertices; i++ )
-    {
-        REQUIRE( std::abs(tLSVals(i) - tCorrectVals(i)) <tEpsilon );
-    }
-    //================================ end =================================================
+        tParameters.insert( "initial_refinement", 0 );
+
+        //  HMR Initialization
+        moris::hmr::HMR tHMR( tParameters );
+
+        auto tDatabase = tHMR.get_database(); // std::shared_ptr< Database >
+
+        tHMR.perform_initial_refinement( 0 );
+        //------------------------------------------------------------------------------
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+        //------------------------------------------------------------------------------
+        tHMR.finalize();
+
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+
+        mtk::Mesh_Manager tMesh;
+        moris_index tMeshPairIndex = tMesh.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
+        //------------------------------------------------------------------------------
+        moris::Cell<moris::mtk::Vertex const *> tAllVertices = tMesh.get_interpolation_mesh( tMeshPairIndex )->get_all_vertices();
+
+        uint tNumVertices = tAllVertices.size();
+
+        moris::Matrix< DDRMat > tCoords(tNumVertices,tModelDimension);
+
+        for(uint i=0; i<tNumVertices; i++)  // build a matrix with all node coordinates
+        {
+            tCoords.set_row( i, tAllVertices(i)->get_coords() );
+        }
+
+        std::shared_ptr< GEN_Property > tFieldProperty = std::make_shared< GEN_Property >();
+        tFieldProperty->set_val_function( tSimpleFunc );
+
+        GEN_Field tField( tFieldProperty );
+        tField.initialize( &tMesh );
+
+        GEN_Geom_Field tGeomField( &tField );
+
+        moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tGeomField };
+
+        moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
+        //=================== manual calls to GE (w/out XTK model) =============================
+        tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumVertices );
+
+        Matrix< DDRMat > tLSVals( tNumVertices,1 );
+        for( uint i=0; i<tNumVertices; i++ )
+        {
+            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
+            tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
+        }
+        //============================= perform checks =========================================
+        real tEpsilon = 1e-8;
+        Matrix< DDRMat > tCorrectVals = { {  0.0 },
+                {  2.0 },
+                {  5.0 },
+                {  3.0 },
+                {  4.0 },
+                {  7.0 },
+                { 14.0 },
+                { 12.0 },
+                { 16.0 } };
+
+        for( uint i=0; i<tNumVertices; i++ )
+        {
+            REQUIRE( std::abs(tLSVals(i) - tCorrectVals(i)) <tEpsilon );
+        }
+        //================================ end =================================================
+    }   // end serial statement
 }
 
 //-----------------------------------------------------------------------------
