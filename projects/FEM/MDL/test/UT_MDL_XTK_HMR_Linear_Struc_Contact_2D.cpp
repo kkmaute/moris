@@ -62,7 +62,6 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 
 #include "cl_Plane.hpp"
@@ -72,6 +71,8 @@
 
 
 #include <functional>
+
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 namespace moris
 {
@@ -276,11 +277,11 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
-          moris::ge::GEN_Geom_Field tLeftPlaneForGE(tLeftField);
-          moris::ge::GEN_Geom_Field tRightPlaneForGE(tRightField);
+          moris::ge::GEN_Geom_Field_HMR tLeftPlaneForGE(tLeftField);
+          moris::ge::GEN_Geom_Field_HMR tRightPlaneForGE(tRightField);
 //          moris::ge::GEN_Geom_Field tMidPlaneForGE(tMidField);
-          moris::ge::GEN_Geom_Field tTopPlaneForGE(tTopField);
-          moris::ge::GEN_Geom_Field tBottomPlaneForGE(tBottomField);
+          moris::ge::GEN_Geom_Field_HMR tTopPlaneForGE(tTopField);
+          moris::ge::GEN_Geom_Field_HMR tBottomPlaneForGE(tBottomField);
 
           // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
 //          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tLeftPlaneForGE , & tRightPlaneForGE , &tTopPlaneForGE, &tBottomPlaneForGE, & tMidPlaneForGE};

@@ -36,7 +36,7 @@ namespace moris
         moris::Cell < enum GEN_DV > Equation_Set::get_requested_dv_types()
         {
             moris::Cell< enum GEN_DV > tDvTypes;
-            mDesignVariableInterface->get_requested_dv_types( tDvTypes );
+            mDesignVariableInterface->get_ip_requested_dv_types( tDvTypes );
             return tDvTypes;
         }
 

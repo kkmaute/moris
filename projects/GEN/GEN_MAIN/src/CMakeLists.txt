@@ -6,12 +6,12 @@ set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-	additional/cl_GEN_Interpolation.hpp
 	additional/cl_GEN_Basis_Function.hpp
 	additional/cl_GEN_Edge_Topology.hpp
 	additional/cl_GEN_Enums.hpp
 	additional/cl_GEN_Hexahedron_8_Topology.hpp
-	additional/cl_GEN_Hexahedron_8_Basis_Function.hpp
+	additional/cl_GEN_Hexahedron_8_Basis_Function.hpp	
+	additional/cl_GEN_Interpolation.hpp
 	additional/cl_GEN_Linear_Basis_Functions.hpp
 	additional/cl_GEN_Matrix_Base_Utilities.hpp
 	additional/cl_GEN_Pending_Node.hpp
@@ -22,8 +22,9 @@ set(HEADERS
 	additional/fn_GEN_approximatate.hpp
 	additional/fn_GEN_bubble_sort.hpp
     
-	geomeng/cl_GEN_Geometry_Engine.hpp
 	geomeng/cl_GEN_Design_Variable_Interface.hpp
+	gemoeng/cl_GEN_Field.hpp
+	geomeng/cl_GEN_Geometry_Engine.hpp
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp
 	geomeng/cl_GEN_Pdv.hpp
@@ -37,6 +38,7 @@ set(HEADERS
 	geometry/cl_GEN_Discrete_Level_Set.hpp
 	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Geom_Data.hpp
+	geometry/cl_GEN_Geom_Field_HMR.hpp
 	geometry/cl_GEN_Geom_Field.hpp
 	geometry/cl_GEN_Sphere.hpp
 	geometry/fn_bounding_box.hpp

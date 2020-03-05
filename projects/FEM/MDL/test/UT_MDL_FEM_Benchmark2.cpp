@@ -67,7 +67,6 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 
 #include "cl_Plane.hpp"
@@ -75,6 +74,8 @@
 #include "cl_PRM_HMR_Parameters.hpp"
 
 #include <functional>
+
+#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field_HMR.hpp"
 
 namespace moris
 {

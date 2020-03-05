@@ -40,6 +40,9 @@ GEN_Geometry_Engine::GEN_Geometry_Engine( Cell< GEN_Geometry* >      const & aGe
 {
     mPerturbationValue = 0.0000005;
 }
+
+// TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
+
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
 {
@@ -760,7 +763,7 @@ moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mes
 {
     mMesh_HMR.push_back( aMesh );
 
-    mSpatialDim = mMesh_HMR( 0 )->get_spatial_dim();	// assuming all registered meshes have the same spatial dimensions
+    mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
 
     return mMesh_HMR.size()-1;
 }

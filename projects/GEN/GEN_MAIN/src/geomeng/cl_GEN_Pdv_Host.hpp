@@ -8,9 +8,12 @@
 #ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
 #define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
 
+// GEN_MAIN
+#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Pdv.hpp"
 #include "cl_GEN_Property.hpp"
 
+// GEN_CORE
 #include "cl_GEN_Dv_Enums.hpp"
 
 // XTK includes
@@ -62,6 +65,12 @@ namespace moris
             ~GEN_Pdv_Host(){};
 
 //------------------------------------------------------------------------------
+            Matrix< IdMat > get_type_to_id_map(  )
+            {
+                return mTypeToIDMap;
+            }
+
+//------------------------------------------------------------------------------
             void update_pdv_list( const uint aNumNewPdvs )
             {
                 uint tNumCurrPdvs = mPdvList.size();
@@ -79,7 +88,27 @@ namespace moris
             {
                 return mIndex;
             }
+//------------------------------------------------------------------------------
+            /**
+             * create pdv
+             * @param[ in ] aFieldPointer     a field pointer for dv type
+             * @param[ in ] aPdvType          a dv type
+             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             */
+            void create_pdv( std::shared_ptr< GEN_Field > aFieldPointer,
+                             enum GEN_DV                  aPdvType,
+                             const Matrix< IndexMat >   & aGlobalPdvTypeMap )
+            {
+                // get index for dv type
+                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
 
+                // if pdv not created
+                if( mPdvList( tPos ) == nullptr )
+                {
+                    // create a pdv with field pointer
+                    mPdvList( tPos ) = std::make_shared< GEN_Pdv >( aFieldPointer, mIndex );
+                }
+            }
 //------------------------------------------------------------------------------
             /**
              * create pdv
@@ -109,8 +138,8 @@ namespace moris
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
-            void create_pdv( moris::real              aPdvVal,
-                             enum GEN_DV              aPdvType,
+            void create_pdv( moris::real                aPdvVal,
+                             enum GEN_DV                aPdvType,
                              const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type
