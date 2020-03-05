@@ -22,24 +22,35 @@ namespace ge
 class GEN_Field
 {
 private :
-    moris::Matrix< DDRMat > mFieldData;
+    moris::Matrix< DDRMat >                 mFieldData;
 
-    GEN_Property*           mProperty = nullptr;
+    std::shared_ptr< GEN_Property >         mProperty = nullptr;
 
     moris::Cell<moris::mtk::Vertex const *> mAllVertices;
 
 //------------------------------------------------------------------------------
 public :
-    GEN_Field( GEN_Property * aProperty )   :
+    // condtuctor to set the property and initialize right away
+    GEN_Field( std::shared_ptr< GEN_Property > aProperty,
+               mtk::Mesh_Manager*              aMeshManager )   :
+        mProperty(aProperty)
+    {
+        this->initialize( aMeshManager );
+    }
+//------------------------------------------------------------------------------
+    // constructor to only set the property pointer ( if using this, will need to call initialize() separately )
+    GEN_Field( std::shared_ptr< GEN_Property > aProperty )   :
         mProperty(aProperty)
     {
 
     }
-
+//------------------------------------------------------------------------------
+    // empty constructor ( if using this, will need to call set_filed_data() and initialize() separately )
     GEN_Field(){}
-
+//------------------------------------------------------------------------------
+    // destructor
     ~GEN_Field(){}
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     void initialize( mtk::Mesh_Manager* aMeshManager,
                      const uint         aBSplineMeshIndex = 0,
                      const moris_index  aWhichPair = 0 )
@@ -58,7 +69,10 @@ public :
 
         mProperty->set_parameters( aParameters );
 
-        Matrix< DDRMat > tAllVals = mProperty->val();       // the property returns a matrix with field values at ALL nodes
+        Matrix< DDRMat > tAllVals = mProperty->val();       // the property should return a row vector with field values at ALL nodes
+
+        // check to see that the provided property is returning a row vector with values at all the nodes
+        MORIS_ASSERT( tAllVals.n_rows() == tNumVertices, "GEN_Field::initialize() - the property function provided to the field needs to return a row vector with data at all nodes" );
 
         // set the size of the member data vector accordingly
         mFieldData.set_size( tNumVertices,1, std::numeric_limits<moris::real>::max() );    // fill with REAL_MAX values to use as a check in ASSERT cases
@@ -79,7 +93,7 @@ public :
         return true;
     }
 //------------------------------------------------------------------------------
-    void set_field_property( GEN_Property * aProperty )
+    void set_field_property( std::shared_ptr< GEN_Property > aProperty )
     {
         mProperty = aProperty;
     }

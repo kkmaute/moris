@@ -40,6 +40,9 @@ GEN_Geometry_Engine::GEN_Geometry_Engine( Cell< GEN_Geometry* >      const & aGe
 {
     mPerturbationValue = 0.0000005;
 }
+
+// TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
+
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
 {

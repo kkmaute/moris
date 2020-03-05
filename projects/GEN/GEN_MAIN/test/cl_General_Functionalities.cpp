@@ -75,23 +75,23 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
     tParameters.set( "number_of_elements_per_dimension", std::string("2, 2") );
     tParameters.set( "domain_dimensions",                std::string("2, 2") );
     tParameters.set( "domain_offset",                    std::string("0, 0") );
-    tParameters.set( "domain_sidesets",            std::string("1, 2, 3, 4") );
+    tParameters.set( "domain_sidesets",                  std::string("1, 2, 3, 4") );
 
     tParameters.set( "truncate_bsplines", 1 );
-    tParameters.set( "lagrange_orders", std::string("1") );
-    tParameters.set( "lagrange_pattern", std::string("0") );
-    tParameters.set( "bspline_orders", std::string("1") );
-    tParameters.set( "bspline_pattern", std::string("0") );
+    tParameters.set( "lagrange_orders",   std::string("1") );
+    tParameters.set( "lagrange_pattern",  std::string("0") );
+    tParameters.set( "bspline_orders",    std::string("1") );
+    tParameters.set( "bspline_pattern",   std::string("0") );
 
     tParameters.set( "lagrange_output_meshes", std::string("0") );
-    tParameters.set( "lagrange_input_meshes", std::string("0") );
+    tParameters.set( "lagrange_input_meshes",  std::string("0") );
 
     tParameters.set( "lagrange_to_bspline", std::string("0") );
 
     tParameters.set( "use_multigrid", 0 );
 
     tParameters.set( "refinement_buffer", 1 );
-    tParameters.set( "staircase_buffer", 1 );
+    tParameters.set( "staircase_buffer",  1 );
 
     tParameters.insert( "initial_refinement", 0 );
 
@@ -127,7 +127,7 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
     std::shared_ptr< GEN_Property > tFieldProperty = std::make_shared< GEN_Property >();
     tFieldProperty->set_val_function( tSimpleFunc );
 
-    GEN_Field tField( tFieldProperty.get() );
+    GEN_Field tField( tFieldProperty );
     tField.initialize( &tMesh );
 
     GEN_Geom_Field tGeomField( &tField );
@@ -145,7 +145,7 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
         tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
         tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
     }
-    //============================= perform chekcs =========================================
+    //============================= perform checks =========================================
     real tEpsilon = 1e-8;
     Matrix< DDRMat > tCorrectVals = { {  0.0 },
                                       {  2.0 },

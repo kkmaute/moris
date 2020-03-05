@@ -25,6 +25,7 @@
 // GE
 #include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
+#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -125,7 +126,6 @@ private:    // ----------- member data ----------
     moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
     bool mTypesSet      = false;
-    bool mInterpPDVsSet = false;
 
     moris::Cell< moris::moris_index > mIntegNodeIndices;
 
@@ -169,8 +169,6 @@ public:
     GEN_Geometry_Engine( ParameterList aParameterList )
     : mParameterList(aParameterList)
     {}
-
-    // TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
 
 //------------------------------------------------------------------------------
     /**
@@ -427,13 +425,13 @@ public:
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * returns a pointer to the PDV host manager ( FEM <-> GEN interface needs this manager )
      */
     Pdv_Host_Manager* get_pdv_host_manager();
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * returns a pointer to the geometry object manager
      */
     Geometry_Object_Manager* get_all_geom_obj();
 
@@ -544,47 +542,56 @@ public:
      * @param[ in ] aPdvType          list of dv types (material only)
      * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
      */
-    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
-                        const bool          aUsingGeometryDvs = true )
+//    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
+//                        const bool          aUsingGeometryDvs = true )
+//    {
+//        // copy the input dv type list
+//        moris::Cell< enum GEN_DV > tTempList = aPdvType;
+//
+//        // if geometry dv
+//        if(aUsingGeometryDvs)
+//        {
+//            // switch on space dimension
+//            switch(mSpatialDim)
+//            {
+//                // if 2D
+//                case(2):
+//                {
+//                    // add x, y coords to the dv type list
+//                    tTempList.push_back(GEN_DV::XCOORD);
+//                    tTempList.push_back(GEN_DV::YCOORD);
+//                    break;
+//                }
+//                // if 3D
+//                case(3):
+//                {
+//                    // add x, y, z coords to the dv type list
+//                    tTempList.push_back(GEN_DV::XCOORD);
+//                    tTempList.push_back(GEN_DV::YCOORD);
+//                    tTempList.push_back(GEN_DV::ZCOORD);
+//                    break;
+//                }
+//                default:
+//                {
+//                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
+//                }
+//            }
+//        }
+//
+//        // set the set dv type flag to true
+//        mTypesSet = true;
+//
+//        // set the dv type list for the pdv host manager
+//        mPdvHostManager.set_pdv_types( tTempList );
+//    }
+
+    void set_pdv_types( Cell< enum GEN_DV > aPdvType )
     {
-        // copy the input dv type list
-        moris::Cell< enum GEN_DV > tTempList = aPdvType;
-
-        // if geometry dv
-        if(aUsingGeometryDvs)
-        {
-            // switch on space dimension
-            switch(mSpatialDim)
-            {
-                // if 2D
-                case(2):
-                {
-                    // add x, y coords to the dv type list
-                    tTempList.push_back(GEN_DV::XCOORD);
-                    tTempList.push_back(GEN_DV::YCOORD);
-                    break;
-                }
-                // if 3D
-                case(3):
-                {
-                    // add x, y, z coords to the dv type list
-                    tTempList.push_back(GEN_DV::XCOORD);
-                    tTempList.push_back(GEN_DV::YCOORD);
-                    tTempList.push_back(GEN_DV::ZCOORD);
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-                }
-            }
-        }
-
         // set the set dv type flag to true
         mTypesSet = true;
 
         // set the dv type list for the pdv host manager
-        mPdvHostManager.set_pdv_types( tTempList );
+        mPdvHostManager.set_ip_pdv_types( aPdvType );
     }
 
 //------------------------------------------------------------------------------
@@ -601,22 +608,64 @@ public:
         uint tTotalNumVertices = mMesh->get_interpolation_mesh(aWhichMesh)->get_num_nodes();
 
         // ask pdv host manager to init host
-        mPdvHostManager.initalize_hosts( tTotalNumVertices );
-
-        // set the set IP dv flag to true
-        mInterpPDVsSet = true;
+        mPdvHostManager.initialize_ip_hosts( tTotalNumVertices );
     }
 
 //------------------------------------------------------------------------------
-    //TODO: overload this function (and set by index function) so that the assignment of pdv value can be from a GEN_Field class
+    /*
+     * @brief assign the pdv type and property for each pdv host in a given set via a GEN_Field class
+     */
+    void assign_ip_hosts_by_set_name( std::string                  aSetName,
+                                      std::shared_ptr< GEN_Field > aFieldPointer,
+                                      enum GEN_DV                  aPdvType,
+                                      moris_index                  aWhichMesh = 0 )
+    {
+        // get the mesh set from name
+        moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
 
+        // get the list of cluster on mesh set
+        moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
+
+        // get number of clusters on mesh set
+        uint tNumClusters = tClusterPointers.size();
+
+        // loop over the clusters on mesh set
+        for(uint iClust=0; iClust<tNumClusters; iClust++)
+        {
+            // get the IP cell from cluster
+            moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+
+            // get the vertices from IP cell
+            moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+
+            // get the number of vertices on IP cell
+            uint tNumVerts = tVertices.size();
+
+            // loop over vertices on IP cell
+            for(uint iVert=0; iVert<tNumVerts; iVert++)
+            {
+                // get the vertex index
+                moris_index tVertIndex = tVertices(iVert)->get_index();
+
+                // ask pdv host manager to assign to vertex a pdv type and a property
+                mPdvHostManager.assign_field_to_pdv_type_by_vertex_index( aFieldPointer, aPdvType, tVertIndex );
+            }
+        }
+
+        // ask pdv host manager to update local to global dv type map
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
+
+        // mark this DV type as unchanging
+        mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
+    }
+//------------------------------------------------------------------------------
     /*
      * @brief assign the pdv type and property for each pdv host in a given set
      */
-    void assign_hosts_by_set_name( std::string                     aSetName,
-                                   std::shared_ptr< GEN_Property > aPropertyPointer,
-                                   enum GEN_DV                     aPdvType,
-                                   moris_index                     aWhichMesh = 0 )
+    void assign_ip_hosts_by_set_name( std::string                     aSetName,
+                                      std::shared_ptr< GEN_Property > aPropertyPointer,
+                                      enum GEN_DV                     aPdvType,
+                                      moris_index                     aWhichMesh = 0 )
     {
         // get the mesh set from name
         moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
@@ -651,17 +700,64 @@ public:
         }
 
         // ask pdv host manager to update local to global dv type map
-        mPdvHostManager.update_local_to_global_dv_type_map();
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
     }
 
 //------------------------------------------------------------------------------
     /*
+     * @brief assign the pdv type and property for each pdv host in a given set via a GEN Field
+     */
+    void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
+                                       std::shared_ptr< GEN_Field > aFieldPointer,
+                                       enum GEN_DV                  aPdvType,
+                                       moris_index                  aWhichMesh = 0 )
+    {
+        // get the mesh set from index
+        moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
+
+        // get the list of cluster on mesh set
+        moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
+
+        // get number of clusters on mesh set
+        uint tNumClusters = tClusterPointers.size();
+
+        // loop over the clusters on mesh set
+        for(uint iClust=0; iClust<tNumClusters; iClust++)
+        {
+            // get the IP cell from cluster
+            moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+
+            // get the vertices from IP cell
+            moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+
+            // get the number of vertices on IP cell
+            uint tNumVerts = tVertices.size();
+
+            // loop over vertices on IP cell
+            for(uint iVert=0; iVert<tNumVerts; iVert++)
+            {
+                // get the vertex index
+                moris_index tVertIndex = tVertices(iVert)->get_index();
+
+                // ask pdv host manager to assign to vertex a pdv type and a property
+                mPdvHostManager.assign_field_to_pdv_type_by_vertex_index( aFieldPointer, aPdvType, tVertIndex );
+            }
+        }
+
+        // ask pdv host manager to update local to global dv type map
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
+
+        // mark this DV type as unchanging
+        mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
+    }
+//------------------------------------------------------------------------------
+    /*
      * @brief assign the pdv type and property for each pdv host in a given set
      */
-    void assign_hosts_by_set_index( moris_index                     aSetIndex,
-                                    std::shared_ptr< GEN_Property > aPropertyPointer,
-                                    enum GEN_DV                     aPdvType,
-                                    moris_index                     aWhichMesh = 0 )
+    void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
+                                       std::shared_ptr< GEN_Property > aPropertyPointer,
+                                       enum GEN_DV                     aPdvType,
+                                       moris_index                     aWhichMesh = 0 )
     {
         // get the mesh set from index
         moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
@@ -696,11 +792,9 @@ public:
         }
 
         // ask pdv host manager to update local to global dv type map
-        mPdvHostManager.update_local_to_global_dv_type_map();
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
     }
-
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     /*
      * @brief create pdv objects for the spatial dimensions
      *        - if the hosts have already been initialized via the interpolation mesh, add new PDV objects to them
@@ -708,126 +802,65 @@ public:
      */
     void initialize_integ_pdv_host_list( moris_index aWhichMesh = 0 )
     {
-        MORIS_ASSERT( mIntegNodeIndices.size() != 0, "GEN_Geometry_Engine::initialive_pdv_host_list() - set_integ_node_indices() must be called before this function " );
+        moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
+
+        switch(mSpatialDim)
+        {
+            case(2):
+                {
+                    tDimDvList(0) = GEN_DV::XCOORD;
+                    tDimDvList(1) = GEN_DV::YCOORD;
+                    break;
+                }
+            case(3):
+                {
+                    tDimDvList(0) = GEN_DV::XCOORD;
+                    tDimDvList(1) = GEN_DV::YCOORD;
+                    tDimDvList(2) = GEN_DV::ZCOORD;
+                    break;
+                }
+            default:
+                {
+                    MORIS_ERROR( false,"GEN_Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
+                }
+        }
+
+        mPdvHostManager.set_ig_pdv_types( tDimDvList );
+
+        // get number of vertices on the IG mesh
+        uint tTotalNumVertices = mMesh->get_integration_mesh(aWhichMesh)->get_num_nodes();
+
+        // ask pdv host manager to initialize hosts
+        mPdvHostManager.initialize_ig_hosts( tTotalNumVertices );
+
+        // check to make sure there are IG nodes to put hosts on
+        MORIS_ASSERT( mIntegNodeIndices.size() != 0, "GEN_Geometry_Engine::initialize_integ_pdv_host_list() - no integration node indices stored, has the XTK model performed decomposition already?" );
 
         uint tNumIndices = mIntegNodeIndices.size();
 
-        if(mInterpPDVsSet)
+        mPdvHostManager.update_ig_local_to_global_dv_type_map();
+
+        for( uint iInd=0; iInd<tNumIndices; iInd++ )
         {
-            moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
-            switch(mSpatialDim)
+            mPdvHostManager.create_ig_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
+
+            mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
+
+            Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
+
+            for(uint iDim=0; iDim<mSpatialDim; iDim++)
             {
-                case(2):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        break;
-                    }
-                case(3):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        tDimDvList(2) = GEN_DV::ZCOORD;
-                        break;
-                    }
-                default:
-                    {
-                        MORIS_ERROR( false,"Geometry Engine only works for 2D and 3D models." );
-                    }
+                mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_ig_global_map() );
             }
 
-            mPdvHostManager.update_local_to_global_dv_type_map();
-
-            for( uint iInd=0; iInd<tNumIndices; iInd++ )
-            {
-                mPdvHostManager.create_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
-
-                mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
-
-                Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
-
-                for(uint iDim=0; iDim<mSpatialDim; iDim++)
-                {
-                    mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_global_map() );
-                }
-
-            }
-        }
-        else
-        {
-            Cell< enum GEN_DV > tDummyPdvTypeList;
-
-            this->set_pdv_types( tDummyPdvTypeList, true );
-            this->initialize_interp_pdv_host_list();
-
-            moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
-            switch(mSpatialDim)
-            {
-                case(2):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        break;
-                    }
-                case(3):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        tDimDvList(2) = GEN_DV::ZCOORD;
-                        break;
-                    }
-                default:
-                    {
-                        MORIS_ERROR( false,"Geometry Engine only works for 2D and 3D models." );
-                    }
-            }
-
-            mPdvHostManager.update_local_to_global_dv_type_map();
-
-            for( uint iInd=0; iInd<tNumIndices; iInd++ )
-            {
-                mPdvHostManager.create_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
-
-                mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
-
-                Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
-
-                for(uint iDim=0; iDim<mSpatialDim; iDim++)
-                {
-                    mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_global_map() );
-                }
-
-            }
         }
     }
-
-    //------------------------------------------------------------------------------
-    void print_integ_node_indices()
+//------------------------------------------------------------------------------
+    void mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType )
     {
-        print(mIntegNodeIndices,"mIntegNodeIndices");
+        mPdvHostManager.mark_ig_pdv_as_unchanging( aPdvType );
     }
-    //------------------------------------------------------------------------------
-    moris::Cell< moris::moris_index > get_integ_node_indices()
-    {
-        return mIntegNodeIndices;
-    }
-    //------------------------------------------------------------------------------
-    void set_integ_node_indices( moris::Cell< moris::moris_index > aIntegNodeIndices )
-    {
-        mIntegNodeIndices = aIntegNodeIndices;
-    }
-    //------------------------------------------------------------------------------
-    // FIXME This function is never used
-    void add_integ_node_indices( moris::Cell< moris::moris_index > aIntegNodeIndices )
-    {
-        uint tNumInd = aIntegNodeIndices.size();
-
-        for( uint i=0; i<tNumInd; i++ )
-        {
-            mIntegNodeIndices.push_back( aIntegNodeIndices(i) );
-        }
-    }
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 
 
