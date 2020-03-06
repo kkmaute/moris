@@ -546,6 +546,40 @@ private:
             }
 
 //-------------------------------------------------------------------------------
+
+#ifdef DEBUG
+            Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
+                                               const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_coords();
+            }
+
+//-------------------------------------------------------------------------------
+
+            sint get_basis_status( const moris_index aInterpolationIndex,
+                                   const moris_index aBasisIndex )
+            {
+                sint tStatus = -1;
+
+                if( mMesh->get_bspline_mesh( aInterpolationIndex )
+                         ->get_basis_by_index( aBasisIndex )
+                         ->is_active() )
+                {
+                    tStatus = 1;
+                }
+                else if(mMesh->get_bspline_mesh( aInterpolationIndex )
+                             ->get_basis_by_index( aBasisIndex )
+                             ->is_refined() )
+                {
+                    tStatus = 0;
+                }
+                return tStatus;
+            }
+#endif
+
+//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

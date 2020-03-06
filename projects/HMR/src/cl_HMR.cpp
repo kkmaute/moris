@@ -740,6 +740,15 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        void HMR::calculate_bspline_coordinates( const uint        & aLagrangeMeshIndex,
+                                                 const uint        & aBsplineMeshIndex  )
+        {
+            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
+                     ->get_bspline_mesh( aBsplineMeshIndex )->calculate_basis_coordinates();
+        }
+
+// -----------------------------------------------------------------------------
+
         void HMR::save_faces_to_vtk( const std::string & aFilePath,
                                      const uint        & aLagrangeMeshIndex )
         {

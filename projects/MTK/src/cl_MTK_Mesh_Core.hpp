@@ -1327,6 +1327,24 @@ public:
 
 //-------------------------------------------------------------------------------
 
+#ifdef DEBUG
+            virtual Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
+                                                       const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_basis_coords(), not implemented for this mesh type.");
+                return mDummyMatrix;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual sint get_basis_status( const moris_index aInterpolationIndex,
+                                   const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_basis_status(), not implemented for this mesh type.");
+                return 0;
+            }
+#endif
+
 };
 }
 }

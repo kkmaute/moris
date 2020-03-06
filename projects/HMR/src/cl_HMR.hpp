@@ -403,6 +403,11 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            void calculate_bspline_coordinates( const uint        & aLagrangeMeshIndex,
+                                                const uint        & aBsplineMeshIndex  );
+
+// -----------------------------------------------------------------------------
+
             /**
              * Dumps the faces into a VTK file
              *

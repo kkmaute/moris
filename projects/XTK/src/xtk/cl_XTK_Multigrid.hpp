@@ -43,7 +43,10 @@ private:
 
     xtk::Model * mXTKModelPtr = nullptr;
 
-    moris::Cell< moris::Matrix< DDRMat > > mFineBasisToCoarseBasis;
+    moris::Cell< moris_index > mEnrichedBasisToBackgroundBasis;
+
+    moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
+    moris::Cell< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
 
 public:
     Multigrid(){};
@@ -62,6 +65,29 @@ public:
     void create_fine_to_coarse_relationship();
 
 //------------------------------------------------------------------------------
+
+    void create_coarse_to_fine_relationship();
+
+//------------------------------------------------------------------------------
+
+    void build_enriched_coeff_to_background_coeff_map();
+
+//------------------------------------------------------------------------------
+#ifdef DEBUG
+    void build_basis_exodus_information();
+#endif
+//------------------------------------------------------------------------------
+
+#ifdef DEBUG
+private:
+
+    moris::Cell< moris::Matrix< DDRMat > > mEnrichedBasisCoords;
+
+    moris::Matrix< DDRMat >             mEnrichedBasisLevel;
+    moris::Matrix< DDRMat >             mEnrichedBasisStatus;
+#endif
+
+
 
 
 };

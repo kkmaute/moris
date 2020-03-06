@@ -2775,7 +2775,13 @@ void Model::construct_multigrid()
 {
     mMultigrid = std::make_shared< xtk::Multigrid >( this );
 
+    mMultigrid->build_enriched_coeff_to_background_coeff_map();
+
     mMultigrid->create_fine_to_coarse_relationship();
+
+#ifdef DEBUG
+    mMultigrid->build_basis_exodus_information();
+#endif
 }
 
 // ----------------------------------------------------------------------------------

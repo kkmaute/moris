@@ -327,8 +327,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         template< uint N, uint B >
-        void BSpline_Element< N, B >::create_basis(
-                const uint & aBasisNumber )
+        void BSpline_Element< N, B >::create_basis( const uint & aBasisNumber )
         {
             MORIS_ERROR( false, "Don't know how to create B-Spline.");
         }
