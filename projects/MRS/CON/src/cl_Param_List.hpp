@@ -111,7 +111,13 @@ namespace moris
             }
             else
             {
-                it->second  = aVal;
+                std::string tName(aVal.type().name());
+                if (!tName.compare("PKc"))
+                {
+                    std::string tVal(boost::get<const char*>(aVal));
+                    aVal = tVal;
+                }
+                it->second = aVal;
             }
         }
 
