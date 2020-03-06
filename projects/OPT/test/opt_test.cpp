@@ -19,8 +19,8 @@ TEST_CASE( "[optimization]" )
         tParameterLists(1).resize(1);
         tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
         tParameterLists(1)(0) = moris::prm::create_gcmma_parameter_list();
-        tParameterLists(0)(0).set("objective_finite_difference", true);
-        tParameterLists(0)(0).set("constraint_finite_difference", true);
+        tParameterLists(0)(0).set("objective_finite_difference", "central");
+        tParameterLists(0)(0).set("constraint_finite_difference", "central");
 
         // Create manager, assign cell of algorithms and problem
         moris::opt::Manager tManager(tParameterLists);

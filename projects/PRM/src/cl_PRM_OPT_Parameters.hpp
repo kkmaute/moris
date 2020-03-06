@@ -19,8 +19,8 @@ namespace moris
 
             tParameterList.insert("problem", "user_defined");
             tParameterList.insert("interface", "user_defined");
-            tParameterList.insert("objective_finite_difference", false);
-            tParameterList.insert("constraint_finite_difference", false);
+            tParameterList.insert("objective_finite_difference", "none");
+            tParameterList.insert("constraint_finite_difference", "none");
             tParameterList.insert("objective_finite_difference_epsilon", 1E-8);
             tParameterList.insert("constraint_finite_difference_epsilon", 1E-8);
 

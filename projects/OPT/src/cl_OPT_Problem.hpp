@@ -31,12 +31,8 @@ namespace moris
             Matrix<DDRMat> mCriteria; // vector of criteria values
 
         public:
-//            std::string mObjectiveFiniteDifference;
-//            std::string mConstraintFiniteDifference;
-//            uint ofd_type;
-//            uint cfd_type;
-            bool mObjectiveFiniteDifference;
-            bool mConstraintFiniteDifference;
+            char mObjectiveFiniteDifference;
+            char mConstraintFiniteDifference;
             real mObjectiveFiniteDifferenceEpsilon;
             real mConstraintFiniteDifferenceEpsilon;
 
@@ -231,22 +227,45 @@ namespace moris
             virtual Matrix<DDRMat> compute_dconstraint_dcriteria() = 0;
 
             /**
+             * Function pointer which computes the objective gradient in a user-specified way
+             */
+            void (Problem::*compute_objective_gradient)() = &Problem::compute_objective_gradient_analytical;
+
+            /**
+             * Function pointer which computes the constraint gradients in a user-specified way
+             */
+            void (Problem::*compute_constraint_gradient)() = &Problem::compute_constraint_gradient_analytical;
+
+            /**
              * Assembles the objective gradient from the explicit and implicit gradient terms.
              */
-//            template <const char T>
-            void compute_objective_gradient();
-//            {
-//
-//            }
+            void compute_objective_gradient_analytical();
 
             /**
              * Assembles the constraint gradient from the explicit and implicit gradient terms.
              */
-//            template <const char T>
-            void compute_constraint_gradient();
-//            {
-//
-//            }
+            void compute_constraint_gradient_analytical();
+
+            /**
+             * Computes the objective gradient using forward or backward finite differencing
+             */
+            void compute_objective_gradient_fd_bias();
+
+            /**
+             * Computes the constraint gradient using forward or backward finite differencing
+             */
+            void compute_constraint_gradient_fd_bias();
+
+            /**
+             * Computes the objective gradient using central finite differencing
+             */
+            void compute_objective_gradient_fd_central();
+
+            /**
+             * Computes the constraint gradient using central finite differencing
+             */
+            void compute_constraint_gradient_fd_central();
+
         };
     }
 }
