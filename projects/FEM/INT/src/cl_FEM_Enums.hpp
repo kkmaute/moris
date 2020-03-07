@@ -127,6 +127,7 @@ namespace moris
             DIFF_LIN_ISO,
             STRUC_LIN_ISO,
             STRUC_LIN_ISO_PRESSURE,
+            FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
 
@@ -153,6 +154,7 @@ namespace moris
             MASTER_WEIGHT_INTERFACE,
             SLAVE_WEIGHT_INTERFACE,
             RECIPROCAL_TOTAL_VOLUME,
+            INCOMPRESSIBLE_FLOW,
             END_STABILIZATION_TYPE
         };
 

@@ -45,7 +45,10 @@ namespace moris
 
             MORIS_ERROR(mMesh != nullptr, "Mesh::Mesh(), Mesh not found");
 
-            setup_glb_to_local_maps();
+            if( mDatabase->is_finalized() )
+            {
+//                setup_glb_to_local_maps();
+            }
 
 
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
@@ -66,8 +69,10 @@ namespace moris
             MORIS_ERROR( mMesh != nullptr, "Pointer to Lagrange mesh %-5i is nullptr", aLagrangeMeshIndex );
 
 //            mDatabase->get_background_mesh()->set_activation_pattern( aLagrangeMeshIndex );
-
-            setup_glb_to_local_maps();
+            if( mDatabase->is_finalized() )
+            {
+                setup_glb_to_local_maps();
+            }
         }
 
 //-----------------------------------------------------------------------------
@@ -425,7 +430,7 @@ namespace moris
                         case( EntityRank::ELEMENT ) :
                         {
                             return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( aIndex )
-                                                                                              ->get_active_basis( aEntityIndex ) );
+                                                                                              ->get_basis_by_index( aEntityIndex ) );
                             break;
                         }
                         default :

@@ -754,7 +754,7 @@ namespace moris
         void CM_Struc_Linear_Isotropic::full_plane_strain( moris::real aEmod, moris::real aNu )
         {
             moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
-            mConst.set_size( 4, 4, 0.0 );
+            mConst.set_size( 4, 3, 0.0 );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -769,7 +769,7 @@ namespace moris
         void CM_Struc_Linear_Isotropic::deviatoric_plane_strain( moris::real aEmod, moris::real aNu )
         {
             moris::real tPre = aEmod / (3.0 * (1.0 + aNu ));
-            mConst.set_size( 4, 4, 0.0 );
+            mConst.set_size( 4, 3, 0.0 );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;

@@ -12,6 +12,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
+#include "cl_XTK_Multigrid.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -2768,6 +2769,19 @@ void
 Model::perform_multilevel_enrichment_internal()
 {
     //        mEnrichment->create_multilevel_enrichments();
+}
+
+void Model::construct_multigrid()
+{
+    mMultigrid = std::make_shared< xtk::Multigrid >( this );
+
+    mMultigrid->build_enriched_coeff_to_background_coeff_map();
+
+    mMultigrid->create_fine_to_coarse_relationship();
+
+#ifdef DEBUG
+    mMultigrid->build_basis_exodus_information();
+#endif
 }
 
 // ----------------------------------------------------------------------------------

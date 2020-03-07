@@ -47,8 +47,7 @@ namespace moris
 {
 namespace ge
 {
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator )
+Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > > & aCoeff )
             {
                 return aCoeff( 0 );
             }
@@ -134,17 +133,17 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
         if( par_rank()==0 )
         {
-            tGeometryEngine.set_pdv_types( tPdvList0, false );
+            tGeometryEngine.set_pdv_types( tPdvList0 );
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
-            tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
+            tGeometryEngine.assign_ip_hosts_by_set_index( 0, tPropertyList0(0), tPdvList0(0), tHMRMeshIndex );
         }
         else if ( par_rank()==1 )
         {
-            tGeometryEngine.set_pdv_types( tPdvList1, false );
+            tGeometryEngine.set_pdv_types( tPdvList1 );
             tGeometryEngine.initialize_interp_pdv_host_list(  );
 
-            tGeometryEngine.assign_hosts_by_set_index( 0, tPropertyList1(0), tPdvList1(0), tHMRMeshIndex );
+            tGeometryEngine.assign_ip_hosts_by_set_index( 0, tPropertyList1(0), tPdvList1(0), tHMRMeshIndex );
         }
 
         // ----- check the global consistent lists -----
@@ -152,7 +151,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
                                                   {GEN_DV::DENSITY1} };
         if( par_rank()==0 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_host_manager()->get_pdv_type_list();
+            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_host_manager()->get_ip_pdv_type_list();
 
             REQUIRE( tPdvTypeList0(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList0(1) == tCheckCell(1) );
@@ -160,7 +159,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
         if( par_rank()==1 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_host_manager()->get_pdv_type_list();
+            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_host_manager()->get_ip_pdv_type_list();
 
             REQUIRE( tPdvTypeList1(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList1(1) == tCheckCell(1) );

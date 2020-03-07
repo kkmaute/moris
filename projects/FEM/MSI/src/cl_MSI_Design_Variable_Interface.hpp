@@ -88,18 +88,11 @@ namespace mdl
              * @param[ in ] aIntegrationMeshSetIndex
              * @param[ in ] aDvTypes
              */
-            virtual void get_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                                                            Cell< enum GEN_DV > & aDvTypes ) = 0;
+            virtual void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                                               Cell< enum GEN_DV > & aDvTypes ) = 0;
 
-//------------------------------------------------------------------------------
-            /**
-             * get requested dv types for sensitivity analysis
-             * @param[ in ] aDvTypes list of dv types to fill
-             */
-            virtual void get_requested_dv_types( Cell< enum GEN_DV > & aDvTypes )
-            {
-                MORIS_ERROR( false, "get_requested_dv_types - not implemented in msi base class.");
-            }
+            virtual void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                                               Cell< enum GEN_DV > & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -107,8 +100,11 @@ namespace mdl
              * @param[ in ] aIntegrationMeshSetIndex  integration Mesh index
              * @param[ in ] aDvTypes                  list of group of dv types
              */
-            virtual void get_dv_types_for_set( const moris::moris_index            aIntegrationMeshSetIndex,
-                                                     Cell< Cell< enum GEN_DV > > & aDvTypes ) = 0;
+            virtual void get_ip_dv_types_for_set( const moris::moris_index            aIntegrationMeshSetIndex, //**********
+                                                        Cell< Cell< enum GEN_DV > > & aDvTypes ) = 0;
+
+            virtual void get_ig_dv_types_for_set( const moris::moris_index            aIntegrationMeshSetIndex,
+                                                        Cell< Cell< enum GEN_DV > > & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -118,10 +114,15 @@ namespace mdl
              * @param[ in/out ] aDvValues    list of dv values
              * @param[ in/out ] aIsActiveDv  list of active whether or not dv is active
              */
-            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
-                                        const moris::Cell< enum GEN_DV >        & aDvTypes,
-                                        moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
-                                        moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv ) = 0;
+            virtual void get_ip_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
+                                           const moris::Cell< enum GEN_DV >        & aDvTypes,
+                                           moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
+                                           moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv ) = 0;
+
+            virtual void get_ig_pdv_value( const Matrix< IndexMat >                & aNodeIndices,
+                                           const moris::Cell< enum GEN_DV >        & aDvTypes,
+                                           moris::Cell< moris::Matrix< DDRMat > >  & aDvValues,
+                                           moris::Cell< moris::Matrix< DDSMat > >  & aIsActiveDv ) = 0;
 //------------------------------------------------------------------------------
             /**
              * get pdv values for requested vertex indices and dv types
@@ -129,9 +130,13 @@ namespace mdl
              * @param[ in ]     aDvTypes     list of dv types
              * @param[ in/out ] aDvValues    list of dv values
              */
-            virtual void get_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // TODO: temporary, once the interface is finalized, need FEM to play nice with this
-                                        const moris::Cell< enum GEN_DV >        & aDvTypes,
-                                        moris::Cell< moris::Matrix< DDRMat > >  & aDvValues ) = 0;
+            virtual void get_ip_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // TODO: does this need to be overloaded?
+                                           const moris::Cell< enum GEN_DV >        & aDvTypes,
+                                           moris::Cell< moris::Matrix< DDRMat > >  & aDvValues ) = 0;
+
+            virtual void get_ig_pdv_value( const Matrix< IndexMat >                & aNodeIndices,     // TODO: does this need to be overloaded?
+                                           const moris::Cell< enum GEN_DV >        & aDvTypes,
+                                           moris::Cell< moris::Matrix< DDRMat > >  & aDvValues ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -150,7 +155,9 @@ namespace mdl
             /**
              * return local to global dv type map
              */
-            virtual moris::Matrix< DDSMat > get_my_local_global_map() = 0;
+            virtual moris::Matrix< DDSMat > get_ip_local_global_map() = 0;
+
+            virtual moris::Matrix< DDSMat > get_ig_local_global_map() = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -159,9 +166,25 @@ namespace mdl
              * @param[ in ] aDvType        List of Dv types
              * @param[ in ] aDvIds         List of Dv Ids
              */
-            virtual void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                                      const Cell< enum GEN_DV >               & aDvTypes,
-                                                            Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
+            virtual void get_ip_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+                                                         const Cell< enum GEN_DV >               & aDvTypes,
+                                                               Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
+
+            virtual void get_ig_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+                                                         const Cell< enum GEN_DV >               & aDvTypes,
+                                                               Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
+//------------------------------------------------------------------------------
+            /**
+             * get requested dv types for sensitivity analysis
+             * @param[ in ] aDvTypes list of dv types to fill
+             */
+            virtual void get_ip_requested_dv_types( Cell< enum GEN_DV > & aDvTypes ) = 0;
+//------------------------------------------------------------------------------
+            /**
+             * get requested dv types for sensitivity analysis
+             * @param[ in ] aDvTypes list of dv types to fill
+             */
+            virtual void get_ig_requested_dv_types( Cell< enum GEN_DV > & aDvTypes ) = 0;
 //------------------------------------------------------------------------------
             /**
              * get QI assembly map

@@ -6,6 +6,7 @@
  */
 
 #include <memory>   // Shared ptrs
+
 #include "catch.hpp"
 
 // XTKL: Logging and Assertion Includes
@@ -36,9 +37,9 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 namespace xtk
 {

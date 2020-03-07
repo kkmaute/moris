@@ -87,9 +87,8 @@ public :
         mMap( 6 ) = 6;
         mMap( 7 ) = 7;
 
-        // for IQI_Type::STRAIN_ENERGY and Mat_Type::PHASE0
-        mQIAssemblyMap = {{ -1, -1, -1, -1, -1},
-                          { -1, -1,  0, -1, -1}};
+        // for IQI_Type::STRAIN_ENERGY and Phase_Type::PHASE0
+        mQIAssemblyMap = {{ -1, -1,  0, -1, -1}};
 
 //        // create map object
 //        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
@@ -103,24 +102,34 @@ public :
     ~Design_Variable_Interface_Proxy(){};
 
 //------------------------------------------------------------------------------
-    void get_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                                            Cell< enum GEN_DV > & aDvTypes )
+    void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                               Cell< enum GEN_DV > & aDvTypes )
     {
         aDvTypes = mDvTypesUnique;
     };
-
 //------------------------------------------------------------------------------
-    void get_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                                     Cell< Cell< enum GEN_DV >> & aDvTypes )
+    void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                                               Cell< enum GEN_DV > & aDvTypes )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_unique_dv_types_for_set() - not implemented in the child class" );
+    };
+//------------------------------------------------------------------------------
+    void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                                        Cell< Cell< enum GEN_DV >> & aDvTypes )
     {
         aDvTypes = mDvTypes;
     };
-
 //------------------------------------------------------------------------------
-    void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                        const Cell< enum GEN_DV >            & aDvTypes,
-                              Cell<moris::Matrix< DDRMat > > & aDvValues,
-                              Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
+    void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                                        Cell< Cell< enum GEN_DV >> & aDvTypes )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_types_for_set() - not implemented in the child class" );
+    };
+//------------------------------------------------------------------------------
+    void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                           const Cell< enum GEN_DV >            & aDvTypes,
+                                 Cell<moris::Matrix< DDRMat > > & aDvValues,
+                                 Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
     {
         aIsActiveDv.resize( aDvTypes.size() );
 
@@ -140,11 +149,18 @@ public :
             }
         }
     }
-
 //------------------------------------------------------------------------------
-    void get_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                        const Cell< enum GEN_DV >            & aDvTypes,
-                              Cell<moris::Matrix< DDRMat > > & aDvValues )
+    void get_ig_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                           const Cell< enum GEN_DV >            & aDvTypes,
+                                 Cell<moris::Matrix< DDRMat > > & aDvValues,
+                                 Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
+    }
+//------------------------------------------------------------------------------
+    void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                           const Cell< enum GEN_DV >            & aDvTypes,
+                                 Cell<moris::Matrix< DDRMat > > & aDvValues )
     {
         aDvValues.resize( aDvTypes.size() );
 
@@ -163,7 +179,13 @@ public :
             }
         }
     }
-
+//------------------------------------------------------------------------------
+    void get_ig_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                           const Cell< enum GEN_DV >            & aDvTypes,
+                                 Cell<moris::Matrix< DDRMat > > & aDvValues )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
+    }
 //------------------------------------------------------------------------------
     void reshape_pdv_values( const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
                                    moris::Matrix< DDRMat >                & aReshapedPdvValues )
@@ -186,15 +208,20 @@ public :
     }
 
 //------------------------------------------------------------------------------
-    moris::Matrix< DDSMat > get_my_local_global_map()
+    moris::Matrix< DDSMat > get_ip_local_global_map()
     {
         return mMap;
     }
-
 //------------------------------------------------------------------------------
-    void get_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
-                                      const Cell< enum GEN_DV >               & aDvTypes,
-                                            Cell<moris::Matrix< IdMat > >     & aDvIds )
+    moris::Matrix< DDSMat > get_ig_local_global_map()
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_local_global_map() - not implemented in the child class" );
+        return {{0}};
+    }
+//------------------------------------------------------------------------------
+    void get_ip_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+                                         const Cell< enum GEN_DV >               & aDvTypes,
+                                               Cell<moris::Matrix< IdMat > >     & aDvIds )
     {
         aDvIds.resize( aDvTypes.size() );
 
@@ -208,7 +235,24 @@ public :
             }
         }
     }
+//------------------------------------------------------------------------------
+    void get_ig_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+                                         const Cell< enum GEN_DV >               & aDvTypes,
+                                               Cell< moris::Matrix< IdMat > >    & aDvIds )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_ids_for_type_and_ind() - not implemented in the child class" );
+    }
 
+//------------------------------------------------------------------------------
+    void get_ip_requested_dv_types( Cell< enum GEN_DV > & aDvTypes )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
+    }
+//------------------------------------------------------------------------------
+    void get_ig_requested_dv_types( Cell< enum GEN_DV > & aDvTypes )
+    {
+        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
+    }
 //------------------------------------------------------------------------------
     moris::Cell< moris::Cell< moris_index > > & get_QI_assembly_map()
     {

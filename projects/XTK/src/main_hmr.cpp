@@ -41,8 +41,8 @@
 #include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
@@ -133,7 +133,7 @@ main(
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
 
-    moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+    moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 //    xtk::Geom_Field tFieldAsGeom2(tField2);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};

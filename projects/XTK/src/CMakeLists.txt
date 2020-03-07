@@ -76,6 +76,7 @@ set(HEADERS
     xtk/cl_XTK_Enriched_Integration_Mesh.hpp
     xtk/cl_XTK_Enriched_Interpolation_Mesh.hpp
     xtk/cl_XTK_Mesh.hpp
+    xtk/cl_XTK_Multigrid.hpp
     xtk/cl_XTK_Model.hpp
     xtk/cl_XTK_Node.hpp
     xtk/cl_XTK_Output_Options.hpp
@@ -151,6 +152,7 @@ xtk/cl_XTK_Field.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
 xtk/cl_XTK_Hole_Seeder.cpp
 xtk/cl_XTK_Model.cpp
+xtk/cl_XTK_Multigrid.cpp
 xtk/cl_XTK_Paramfile.cpp
 xtk/cl_XTK_Interpolation_Vertex_Unzipped.cpp
 xtk/cl_XTK_Interpolation_Cell_Unzipped.cpp

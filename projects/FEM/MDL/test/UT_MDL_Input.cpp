@@ -61,7 +61,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -172,7 +172,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
@@ -346,7 +346,7 @@ TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 

@@ -135,9 +135,9 @@ namespace moris
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
-                mSet->mDesignVariableInterface->get_pdv_value( mMasterInterpolationCell->get_vertex_inds(),
-                                                               tDvTypeGroup,
-                                                               tCoeff_Original );
+                mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterInterpolationCell->get_vertex_inds(),
+                                                                  tDvTypeGroup,
+                                                                  tCoeff_Original );
 
                 // reshape tCoeffs into the order the FI expects them
                 Matrix< DDRMat > tCoeff;
@@ -162,9 +162,9 @@ namespace moris
 
                  // get the pdv values for the ith dv type group
                  Cell< Matrix< DDRMat > > tCoeff_Original;
-                 mSet->mDesignVariableInterface->get_pdv_value( mSlaveInterpolationCell->get_vertex_inds(),
-                                                                tDvTypeGroup,
-                                                                tCoeff_Original );
+                 mSet->mDesignVariableInterface->get_ip_pdv_value( mSlaveInterpolationCell->get_vertex_inds(),
+                                                                   tDvTypeGroup,
+                                                                   tCoeff_Original );
 
                  // reshape tCoeffs into the order the FI expects them
                  Matrix< DDRMat > tCoeff;

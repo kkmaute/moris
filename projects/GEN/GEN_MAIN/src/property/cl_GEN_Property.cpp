@@ -12,82 +12,6 @@ namespace moris
 namespace ge
 {
 //------------------------------------------------------------------------------
-//void GEN_Property::build_dof_type_map()
-//{
-//    // determine the max Dof_Type enum
-//    sint tMaxEnum = 0;
-//    for( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
-//    {
-//        tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDofTypes( iDof )( 0 ) ) );
-//    }
-//    tMaxEnum++;
-//
-//    // set the Dof_Type map size
-//    mDofTypeMap.set_size( tMaxEnum, 1, -1 );
-//
-//    // fill the Dof_Type map
-//    for( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
-//    {
-//        // fill the property map
-//        mDofTypeMap( static_cast< int >( mDofTypes( iDof )( 0 ) ), 0 ) = iDof;
-//    }
-//}
-
-//------------------------------------------------------------------------------
-//bool GEN_Property::check_dof_dependency( const moris::Cell< MSI::Dof_Type > aDofType )
-//{
-//    // set bool for dependency
-//    bool tDofDependency = false;
-//
-//    // get the dof type index
-//    uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
-//
-//    // if aDofType is an active dof type for the property
-//    if( tDofIndex < mDofTypeMap.numel() && mDofTypeMap( tDofIndex ) != -1 )
-//    {
-//        // bool is set to true
-//        tDofDependency = true;
-//    }
-//    // return bool for dependency
-//    return tDofDependency;
-//}
-
-//------------------------------------------------------------------------------
-//void GEN_Property::set_dof_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-//{
-//    // check size
-//    MORIS_ASSERT( aFieldInterpolators.size() == mDofTypes.size(),
-//            "Property::set_field_interpolators - wrong input size. " );
-//
-//    // check field interpolator type
-//    bool tCheckFI = true;
-//    for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-//    {
-//        tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == mDofTypes( iFI )( 0 ) );
-//    }
-//    MORIS_ASSERT( tCheckFI, "Property::set_field_interpolators - wrong field interpolator dof type. ");
-//
-//    // set field interpolators
-//    mDofFI = aFieldInterpolators;
-//}
-
-//------------------------------------------------------------------------------
-//void GEN_Property::check_dof_field_interpolators()
-//{
-//    // check field interpolators cell size
-//    MORIS_ASSERT( mDofFI.size() == mDofTypes.size(),
-//            "Property::check_dof_field_interpolators - wrong FI size. " );
-//
-//    // loop over the field interpolator pointers
-//    for( uint iFI = 0; iFI < mDofTypes.size(); iFI++ )
-//    {
-//        // check that the field interpolator was set
-//        MORIS_ASSERT( mDofFI( iFI ) != nullptr,
-//                "Property::check_dof_field_interpolators - FI missing. " );
-//    }
-//}
-
-//------------------------------------------------------------------------------
 void GEN_Property::build_dv_type_map()
 {
     // get number of dv types
@@ -182,73 +106,18 @@ const Matrix< DDRMat > & GEN_Property::val()
     // return the property value
     return mProp;
 }
-
 //------------------------------------------------------------------------------
 void GEN_Property::eval_Prop()
 {
     // check that mValFunc was assigned
     MORIS_ASSERT( mValFunction != nullptr, "Property::eval_Prop - mValFunction not assigned. " );
 
-    // check that mGeometryInterpolator was assigned
-//    MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_Prop - mGeometryInterpolator not assigned. " );
-
-    // check that the field interpolators are set
-//    this->check_dof_field_interpolators();
     this->check_dv_field_interpolators();
 
     // use mValFunction to evaluate the property
-//    mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
-//    mProp = mValFunction( mParameters, mDvFI, mGeometryInterpolator );
-    mProp = mValFunction( mParameters, mDvFI );
+//    mProp = mValFunction( mParameters, mDvFI );
+    mProp = mValFunction( mParameters );
 }
-
-//------------------------------------------------------------------------------
-//const Matrix< DDRMat > & GEN_Property::dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
-//{
-//    // if aDofType is not an active dof type for the property
-//    MORIS_ERROR( this->check_dof_dependency( aDofType ), "Property::dPropdDOF - no dependency in this dof type." );
-//
-//    // get the dof index
-//    uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-//
-//    // if the derivative has not been evaluated yet
-//    if( mPropDofDerEval( tDofIndex ) )
-//    {
-//        // evaluate the derivative
-//        this->eval_dPropdDOF( aDofType );
-//
-//        // set bool for evaluation
-//        mPropDofDerEval( tDofIndex ) = false;
-//    }
-//
-//    // return the derivative
-//    return mPropDofDer( tDofIndex );
-//}
-
-//------------------------------------------------------------------------------
-//void GEN_Property::eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
-//{
-//    // get the dof index
-//    uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-//
-//    // check that mDofDerFunctions was assigned
-//    MORIS_ASSERT( mDofDerFunctions( tDofIndex ) != nullptr, "Property::dPdDOF - mDerFunction not assigned. " );
-//
-//    // check that mGeometryInterpolator was assigned
-//    MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_dPropdDOF - mGeometryInterpolator not assigned. " );
-//
-//    // check that the field interpolators are set
-//    this->check_dof_field_interpolators();
-//    this->check_dv_field_interpolators();
-//
-//    // if so use mDerivativeFunction to compute the derivative
-//
-//    mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters,
-//            mDofFI,
-//            mDvFI,
-//            mGeometryInterpolator );
-//}
-
 //------------------------------------------------------------------------------
 const Matrix< DDRMat > & GEN_Property::dPropdDV( const moris::Cell< GEN_DV > aDvType )
 {
@@ -271,7 +140,6 @@ const Matrix< DDRMat > & GEN_Property::dPropdDV( const moris::Cell< GEN_DV > aDv
     // return the derivative
     return mPropDvDer( tDvIndex );
 }
-
 //------------------------------------------------------------------------------
 void GEN_Property::eval_dPropdDV( const moris::Cell< GEN_DV > aDvType )
 {
@@ -285,20 +153,11 @@ void GEN_Property::eval_dPropdDV( const moris::Cell< GEN_DV > aDvType )
     MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_dPropdDV - mGeometryInterpolator not assigned. " );
 
     // check that the field interpolators are set
-//    this->check_dof_field_interpolators();
     this->check_dv_field_interpolators();
 
     // if so use mDerivativeFunction to compute the derivative
-//    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
-//                                                          mDofFI,
-//                                                          mDvFI,
-//                                                          mGeometryInterpolator );
-
-//    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
-//                                                          mDvFI,
-//                                                          mGeometryInterpolator );
-
-    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters, mDvFI );
+//    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters, mDvFI );
+    mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters );
 }
 
 //------------------------------------------------------------------------------

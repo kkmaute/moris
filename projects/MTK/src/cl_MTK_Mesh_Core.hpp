@@ -40,6 +40,7 @@ protected:
     mtk::Cell*       mDummyCells;
     real             mDummyReal = 0.0;
     Matrix<DDRMat>   mDummyMatrix;
+    Matrix<DDSMat>   mDummyMatrix2;
 
     //------------------------------------------------------------------------------
     //! ref to hmr object for multigrid
@@ -1250,6 +1251,99 @@ public:
 //         MORIS_ERROR(false, "get_nodes_indices_in_bounding_box(), not implemented for this mesh");
 //    }
 
+//------------------------------------------------------------------------------
+            //##############################################
+            // Multigrid acessor functions
+            //##############################################
+//-------------------------------------------------------------------------------
+
+            virtual uint get_num_interpolations()
+            {
+                 MORIS_ERROR( false, "get_num_interpolations(), not implemented for this mesh type.");
+                 return 0;
+            };
+
+//-------------------------------------------------------------------------------
+
+            virtual uint get_max_level( const moris_index aInterpolationIndex )
+            {
+                MORIS_ERROR( false, "get_max_level(), not implemented for this mesh type.");
+                return 0;
+            };
+
+//-------------------------------------------------------------------------------
+
+            virtual uint get_num_basis( const moris_index aInterpolationIndex )
+            {
+                MORIS_ERROR( false, "get_num_basis(), not implemented for this mesh type.");
+                return 0;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual uint get_basis_level( const moris_index aInterpolationIndex,
+                                          const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_basis_level(), not implemented for this mesh type.");
+                return 0;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual uint get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
+                                                        const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_num_coarse_basis_of_basis(), not implemented for this mesh type.");
+                return 0;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual uint get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
+                                                          const moris_index aBasisIndex,
+                                                          const moris_index aCoarseParentIndex )
+            {
+                MORIS_ERROR( false, "get_coarse_basis_index_of_basis(), not implemented for this mesh type.");
+                return 0;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
+                                                                          const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_fine_basis_inds_of_basis(), not implemented for this mesh type.");
+                return mDummyMatrix2;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
+                                                                             const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_fine_basis_weights_of_basis(), not implemented for this mesh type.");
+                return mDummyMatrix;
+            }
+
+//-------------------------------------------------------------------------------
+
+#ifdef DEBUG
+            virtual Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
+                                                       const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_basis_coords(), not implemented for this mesh type.");
+                return mDummyMatrix;
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual sint get_basis_status( const moris_index aInterpolationIndex,
+                                   const moris_index aBasisIndex )
+            {
+                MORIS_ERROR( false, "get_basis_status(), not implemented for this mesh type.");
+                return 0;
+            }
+#endif
 
 };
 }

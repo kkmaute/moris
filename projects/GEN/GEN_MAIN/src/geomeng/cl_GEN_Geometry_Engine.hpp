@@ -25,6 +25,7 @@
 // GE
 #include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
+#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -59,10 +60,8 @@ namespace moris
 namespace ge
 {
 /*
- *
  * $\frac{\partial{\phi_A}}{\partial{p}}$ (change in phi with respect to a design variable
  * See for more detailed description of this function:
- *
  */
 inline
 void compute_dx_dp_with_linear_basis( moris::Matrix< moris::DDRMat >  & aDPhiADp,
@@ -99,14 +98,14 @@ void compute_dx_dp_with_linear_basis( moris::Matrix< moris::DDRMat >  & aDPhiADp
 
 class GEN_Geometry_Engine
 {
-public:
+public:     // ----------- member data ----------
     // Options which the user can change (all are given defaults)
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
     bool        mComputeDxDp;           // <- should be turned off if a sensitivity has not been implemented
     moris::uint mSpatialDim;
 
-private:
+private:    // ----------- member data ----------
     moris::size_t mActiveGeometryIndex;
     Cell< GEN_Geometry* > mGeometry;
 
@@ -127,7 +126,6 @@ private:
     moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
     bool mTypesSet      = false;
-    bool mInterpPDVsSet = false;
 
     moris::Cell< moris::moris_index > mIntegNodeIndices;
 
@@ -164,8 +162,6 @@ public:
     GEN_Geometry_Engine(){}
 
 //------------------------------------------------------------------------------
-    // TODO: create the destructor to delete the analytic geometry pointer created via "new" in the initialization function
-    // TODO: move this to the .cpp file
     /**
      * input file constructor
      * @param[ in ] aParameterList a parameter list
@@ -175,77 +171,58 @@ public:
     {}
 
 //------------------------------------------------------------------------------
-    // TODO: move this to the .cpp file
     /**
      * initialize
      * @param[ in ] aLibrary a pointer to library for reading inputs
      */
-    void initialize( std::shared_ptr< Library_IO > aLibrary )
-    {
-        // initialize member data
-        mThresholdValue = 0.0;      // threshold for level sets
+    void initialize( std::shared_ptr< Library_IO > aLibrary );
 
-        mComputeDxDp = false;       // flag to compute DxDp ( TODO: needs to be updated/adjusted )
-
-        mActiveGeometryIndex = 0;   // for XTK's decomposition
-
-        // create geometry vector
-        moris::Cell< std::string > tGeomFuncNames;
-        string_to_cell( mParameterList.get< std::string >( "geometries" ),
-                        tGeomFuncNames );
-
-        // get number of geometry function names
-        uint tNumGeometry = tGeomFuncNames.size();
-
-        // set size for the list of geometry pointers
-        mGeometry.resize( tNumGeometry, nullptr );
-
-        // loop over the geoemetry function names
-        for( uint iFunc = 0; iFunc < tNumGeometry; iFunc++ )
-        {
-            // read a geometry function from input
-            MORIS_GEN_FUNCTION tGeometry = aLibrary->load_gen_free_functions( tGeomFuncNames( iFunc ) );
-
-            // create a geometry pointer
-            mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
-        }
-
-        // Create phase table for geometry engine
-        mPhaseTable =  moris::ge::GEN_Phase_Table( tNumGeometry, Phase_Table_Structure::EXP_BASE_2);
-    }
-
-    //------------------------------------------------------------------------------
-    /*
-     * @brief Initial allocation of geometry objects, this creates a geometry object for each node coordinate.
+//------------------------------------------------------------------------------
+    /**
+     * @brief Initial allocation of geometry objects,
+     * this creates a geometry object for each node coordinate.
      * In this case, aNodeCoords needs to be ordered by proc indices.
+     * @param[ in ] aNumNodes number of nodes
      */
-    void initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes);
-    //------------------------------------------------------------------------------
-    void initialize_geometry_object_phase_values(moris::Matrix< moris::DDRMat > const & aNodeCoords);
-    //------------------------------------------------------------------------------
-    /*
+    void initialize_geometry_objects_for_background_mesh_nodes( moris::size_t const & aNumNodes );
+
+//------------------------------------------------------------------------------
+    /**
+     * ???
+     * @param[ in ] aNodeCoords node coordinates
+     */
+    void initialize_geometry_object_phase_values( moris::Matrix< moris::DDRMat > const & aNodeCoords );
+
+//------------------------------------------------------------------------------
+    /**
      * @brief Creates a geometry object association for pending nodes
      * These nodes have node indices and parent information
      */
-    void associate_new_nodes_with_geometry_object( Cell<Pending_Node> & aNewNodes,
-                                                   bool                 aInterfaceNodes );
-    //------------------------------------------------------------------------------
+    void associate_new_nodes_with_geometry_object( moris::Cell< Pending_Node > & aNewNodes,
+                                                   bool                          aInterfaceNodes );
+
+//------------------------------------------------------------------------------
+    /**
+     * create new node geometry objects
+     * @param[ in ] aNodeCoords node coordinates
+     */
     void create_new_node_geometry_objects(Cell< moris_index >  const & aNewNodeIndices,
                                           bool                         aStoreParentTopo,
                                           Cell<xtk::Topology*> const & aParentTopo,
                                           Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
                                           Cell<Matrix<DDRMat>> const & aGlobalNodeCoord);
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /**
      * @brief Links new nodes with an existing geometry object. This is used for unzipped interfaces
      * where more than one node is at the same location
      * @param[in] aNodesIndicesWithGeomObj - Node indices which already have a geometry object
      * @param[in] aNodesIndicesToLink - Node indices to link to the corresponding nodes in aNodesIndicesWithGeomObj
      */
-
     void link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
                                                       Matrix< IndexMat > const & aNodesIndicesToLink );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /**
      * @brief is_intersected checks to see if an entity provided to it intersects a geometry field. Intersects in this context
      * means a geometry crosses a certain threshold (typically 0). For levelset fields, this can be thought of as a phase change
@@ -260,7 +237,8 @@ public:
                          moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
                          moris::size_t                            aCheckType,
                          Cell<GEN_Geometry_Object> &              aGeometryObjects );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*!
      * @brief Computes the interface sensitivity of the provided node indices. After this call,
      * the sensitivity information of these interface nodes can be accessed through the interface
@@ -274,7 +252,8 @@ public:
                                         Matrix< DDRMat >   const & aNodeCoords,
                                         moris_index                aGeomIndex,
                                         bool               const   aGlbCoord = false );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
      * and the global coordinate if needed
@@ -288,7 +267,8 @@ public:
                                     moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
                                     bool                                     aCheckLocalCoordinate = true,
                                     bool                                     aComputeGlobalCoordinate = false );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     void compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
                                           moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
                                           moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
@@ -296,69 +276,81 @@ public:
                                           moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
                                           moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
                                           moris::Matrix< moris::DDRMat >         & aDxDp );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     void compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
                                             moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
                                             moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
                                             moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
                                             moris::Matrix< moris::DDRMat >         & aDxDp,
                                             moris::Matrix< moris::IndexMat >       & aADVIndices );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /**
      * @brief Returns a reference to the geometry object at the provided index
+     * @param[ in ] aNodeIndex a node index
      */
     GEN_Geometry_Object &
-    get_geometry_object(moris::size_t const & aNodeIndex);
-    //------------------------------------------------------------------------------
+    get_geometry_object( moris::size_t const & aNodeIndex );
+
+//------------------------------------------------------------------------------
     /**
      * @brief Returns a reference to the geometry object at the provided index
      */
     GEN_Geometry_Object const &
     get_geometry_object(moris::size_t const & aNodeIndex) const;
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Get the total number of phases in the phase table
      */
     moris::size_t get_num_phases();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Get the 0 or 1 value associated with a given phase and geometry index
      */
     moris::moris_index
     get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
                                                 moris::moris_index aGeometryIndex );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Get phase value for a given node and geometry index
      */
     moris::real
     get_entity_phase_val( moris::size_t const & aNodeIndex,
                           moris::size_t const & aGeomIndex );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Get dxdp for a node
      */
     moris::Matrix< moris::DDRMat > const &
     get_node_dx_dp(moris::size_t const & aNodeIndex) const;
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief get adv indices for a node
      */
     moris::Matrix< moris::IndexMat > const &
     get_node_adv_indices( moris::size_t const & aNodeIndex ) const;
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
      */
     void get_phase_index( moris::Matrix< moris::DDSTMat > const & aNodeIndex,
                           moris::Matrix< moris::DDSTMat > & aNodePhaseIndex );
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
       * @brief For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
       */
      void get_phase_index( moris::moris_index const & aNodeIndex,
                            moris::size_t & aNodePhaseIndex );
-     //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Provided the inside and out phase values for an entity, return the phase index
      */
@@ -367,69 +359,99 @@ public:
     {
         return mPhaseTable.get_phase_index(aElemOnOff);
     }
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Returns whether a node is inside or outside wrt to a given geometry index
      */
     moris::size_t
     get_node_phase_index_wrt_a_geometry(moris::size_t aNodeIndex,
                                         moris::size_t aGeometryIndex);
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Returns whether the active geometry is analytic
      */
     bool is_geometry_analytic();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Returns the number of geometries
      */
     moris::size_t get_num_geometries();
+
     //------------------------------------------------------------------------------
     /*
      * @brief Returns the number of phases
      */
     moris::size_t get_num_bulk_phase();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Returns the active geometry index
      */
     moris::size_t get_active_geometry_index();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Advance the active geometry index
      */
     void advance_geometry_index();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+    /*
+     * ???
+     */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+    /*
+     * ???
+     */
     moris::uint get_num_design_variables() const;
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief Returns the ADV indices of the provided nodes
      */
-    moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete(moris::Matrix< moris::IndexMat > const & aEntityNodes);
-    //------------------------------------------------------------------------------
+    moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
+    ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
+
+//------------------------------------------------------------------------------
+    /**
+     * ???
+     */
     moris::size_t get_num_design_vars_analytic();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+    /*
+     * returns a pointer to the PDV host manager ( FEM <-> GEN interface needs this manager )
+     */
     Pdv_Host_Manager* get_pdv_host_manager();
 
+//------------------------------------------------------------------------------
+    /*
+     * returns a pointer to the geometry object manager
+     */
     Geometry_Object_Manager* get_all_geom_obj();
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief register a mesh to be used for later computation(s)
      */
     void register_mesh( mtk::Mesh_Manager* aMesh );
 
     moris_index register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh ); //FIXME: this needs to be deleted and the GE should only be able to register an mtk mesh pair
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief function specific to fiber problem
      */
     Matrix< DDRMat > get_cylinder_vals( moris_index aWhichMesh,
                                         GEN_CylinderWithEndCaps* aFiber,
                                         uint aNumberOfFibers );             //FIXME this is currently only setup to work with an HMR member mesh
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief gives the maximum level-set values at all nodes in the mesh
      */
@@ -461,13 +483,15 @@ public:
 //            aAllFieldVals( 0 )( iVert ) = tVal;
 //        }
     }
-    //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
     /*
      * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
     void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                               const moris_index                 aWhichMesh = 0 )
     {
+        //TODO: implement for the case of discrete geometries and a mesh manager (rather than just an HMR mesh)
         uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
 
         aAllFieldVals.resize( mGeometry.size() );
@@ -518,47 +542,56 @@ public:
      * @param[ in ] aPdvType          list of dv types (material only)
      * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
      */
-    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
-                        const bool          aUsingGeometryDvs = true )
+//    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
+//                        const bool          aUsingGeometryDvs = true )
+//    {
+//        // copy the input dv type list
+//        moris::Cell< enum GEN_DV > tTempList = aPdvType;
+//
+//        // if geometry dv
+//        if(aUsingGeometryDvs)
+//        {
+//            // switch on space dimension
+//            switch(mSpatialDim)
+//            {
+//                // if 2D
+//                case(2):
+//                {
+//                    // add x, y coords to the dv type list
+//                    tTempList.push_back(GEN_DV::XCOORD);
+//                    tTempList.push_back(GEN_DV::YCOORD);
+//                    break;
+//                }
+//                // if 3D
+//                case(3):
+//                {
+//                    // add x, y, z coords to the dv type list
+//                    tTempList.push_back(GEN_DV::XCOORD);
+//                    tTempList.push_back(GEN_DV::YCOORD);
+//                    tTempList.push_back(GEN_DV::ZCOORD);
+//                    break;
+//                }
+//                default:
+//                {
+//                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
+//                }
+//            }
+//        }
+//
+//        // set the set dv type flag to true
+//        mTypesSet = true;
+//
+//        // set the dv type list for the pdv host manager
+//        mPdvHostManager.set_pdv_types( tTempList );
+//    }
+
+    void set_pdv_types( Cell< enum GEN_DV > aPdvType )
     {
-        // copy the input dv type list
-        moris::Cell< enum GEN_DV > tTempList = aPdvType;
-
-        // if geometry dv
-        if(aUsingGeometryDvs)
-        {
-            // switch on space dimension
-            switch(mSpatialDim)
-            {
-                // if 2D
-                case(2):
-                {
-                    // add x, y coords to the dv type list
-                    tTempList.push_back(GEN_DV::XCOORD);
-                    tTempList.push_back(GEN_DV::YCOORD);
-                    break;
-                }
-                // if 3D
-                case(3):
-                {
-                    // add x, y, z coords to the dv type list
-                    tTempList.push_back(GEN_DV::XCOORD);
-                    tTempList.push_back(GEN_DV::YCOORD);
-                    tTempList.push_back(GEN_DV::ZCOORD);
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-                }
-            }
-        }
-
         // set the set dv type flag to true
         mTypesSet = true;
 
         // set the dv type list for the pdv host manager
-        mPdvHostManager.set_pdv_types( tTempList );
+        mPdvHostManager.set_ip_pdv_types( aPdvType );
     }
 
 //------------------------------------------------------------------------------
@@ -575,20 +608,64 @@ public:
         uint tTotalNumVertices = mMesh->get_interpolation_mesh(aWhichMesh)->get_num_nodes();
 
         // ask pdv host manager to init host
-        mPdvHostManager.initalize_hosts( tTotalNumVertices );
-
-        // set the set IP dv flag to true
-        mInterpPDVsSet = true;
+        mPdvHostManager.initialize_ip_hosts( tTotalNumVertices );
     }
 
 //------------------------------------------------------------------------------
     /*
+     * @brief assign the pdv type and property for each pdv host in a given set via a GEN_Field class
+     */
+    void assign_ip_hosts_by_set_name( std::string                  aSetName,
+                                      std::shared_ptr< GEN_Field > aFieldPointer,
+                                      enum GEN_DV                  aPdvType,
+                                      moris_index                  aWhichMesh = 0 )
+    {
+        // get the mesh set from name
+        moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
+
+        // get the list of cluster on mesh set
+        moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
+
+        // get number of clusters on mesh set
+        uint tNumClusters = tClusterPointers.size();
+
+        // loop over the clusters on mesh set
+        for(uint iClust=0; iClust<tNumClusters; iClust++)
+        {
+            // get the IP cell from cluster
+            moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+
+            // get the vertices from IP cell
+            moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+
+            // get the number of vertices on IP cell
+            uint tNumVerts = tVertices.size();
+
+            // loop over vertices on IP cell
+            for(uint iVert=0; iVert<tNumVerts; iVert++)
+            {
+                // get the vertex index
+                moris_index tVertIndex = tVertices(iVert)->get_index();
+
+                // ask pdv host manager to assign to vertex a pdv type and a property
+                mPdvHostManager.assign_field_to_pdv_type_by_vertex_index( aFieldPointer, aPdvType, tVertIndex );
+            }
+        }
+
+        // ask pdv host manager to update local to global dv type map
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
+
+        // mark this DV type as unchanging
+        mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
+    }
+//------------------------------------------------------------------------------
+    /*
      * @brief assign the pdv type and property for each pdv host in a given set
      */
-    void assign_hosts_by_set_name( std::string                     aSetName,
-                                   std::shared_ptr< GEN_Property > aPropertyPointer,
-                                   enum GEN_DV                     aPdvType,
-                                   moris_index                     aWhichMesh = 0 )
+    void assign_ip_hosts_by_set_name( std::string                     aSetName,
+                                      std::shared_ptr< GEN_Property > aPropertyPointer,
+                                      enum GEN_DV                     aPdvType,
+                                      moris_index                     aWhichMesh = 0 )
     {
         // get the mesh set from name
         moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
@@ -623,17 +700,64 @@ public:
         }
 
         // ask pdv host manager to update local to global dv type map
-        mPdvHostManager.update_local_to_global_dv_type_map();
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
     }
 
 //------------------------------------------------------------------------------
     /*
+     * @brief assign the pdv type and property for each pdv host in a given set via a GEN Field
+     */
+    void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
+                                       std::shared_ptr< GEN_Field > aFieldPointer,
+                                       enum GEN_DV                  aPdvType,
+                                       moris_index                  aWhichMesh = 0 )
+    {
+        // get the mesh set from index
+        moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
+
+        // get the list of cluster on mesh set
+        moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
+
+        // get number of clusters on mesh set
+        uint tNumClusters = tClusterPointers.size();
+
+        // loop over the clusters on mesh set
+        for(uint iClust=0; iClust<tNumClusters; iClust++)
+        {
+            // get the IP cell from cluster
+            moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+
+            // get the vertices from IP cell
+            moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+
+            // get the number of vertices on IP cell
+            uint tNumVerts = tVertices.size();
+
+            // loop over vertices on IP cell
+            for(uint iVert=0; iVert<tNumVerts; iVert++)
+            {
+                // get the vertex index
+                moris_index tVertIndex = tVertices(iVert)->get_index();
+
+                // ask pdv host manager to assign to vertex a pdv type and a property
+                mPdvHostManager.assign_field_to_pdv_type_by_vertex_index( aFieldPointer, aPdvType, tVertIndex );
+            }
+        }
+
+        // ask pdv host manager to update local to global dv type map
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
+
+        // mark this DV type as unchanging
+        mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
+    }
+//------------------------------------------------------------------------------
+    /*
      * @brief assign the pdv type and property for each pdv host in a given set
      */
-    void assign_hosts_by_set_index( moris_index                     aSetIndex,
-                                    std::shared_ptr< GEN_Property > aPropertyPointer,
-                                    enum GEN_DV                     aPdvType,
-                                    moris_index                     aWhichMesh = 0 )
+    void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
+                                       std::shared_ptr< GEN_Property > aPropertyPointer,
+                                       enum GEN_DV                     aPdvType,
+                                       moris_index                     aWhichMesh = 0 )
     {
         // get the mesh set from index
         moris::mtk::Set* tSetPointer = mMesh->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
@@ -668,11 +792,9 @@ public:
         }
 
         // ask pdv host manager to update local to global dv type map
-        mPdvHostManager.update_local_to_global_dv_type_map();
+        mPdvHostManager.update_ip_local_to_global_dv_type_map();
     }
-
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     /*
      * @brief create pdv objects for the spatial dimensions
      *        - if the hosts have already been initialized via the interpolation mesh, add new PDV objects to them
@@ -680,124 +802,65 @@ public:
      */
     void initialize_integ_pdv_host_list( moris_index aWhichMesh = 0 )
     {
-        MORIS_ASSERT( mIntegNodeIndices.size() != 0, "GEN_Geometry_Engine::initialive_pdv_host_list() - set_integ_node_indices() must be called before this function " );
+        moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
+
+        switch(mSpatialDim)
+        {
+            case(2):
+                {
+                    tDimDvList(0) = GEN_DV::XCOORD;
+                    tDimDvList(1) = GEN_DV::YCOORD;
+                    break;
+                }
+            case(3):
+                {
+                    tDimDvList(0) = GEN_DV::XCOORD;
+                    tDimDvList(1) = GEN_DV::YCOORD;
+                    tDimDvList(2) = GEN_DV::ZCOORD;
+                    break;
+                }
+            default:
+                {
+                    MORIS_ERROR( false,"GEN_Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
+                }
+        }
+
+        mPdvHostManager.set_ig_pdv_types( tDimDvList );
+
+        // get number of vertices on the IG mesh
+        uint tTotalNumVertices = mMesh->get_integration_mesh(aWhichMesh)->get_num_nodes();
+
+        // ask pdv host manager to initialize hosts
+        mPdvHostManager.initialize_ig_hosts( tTotalNumVertices );
+
+        // check to make sure there are IG nodes to put hosts on
+        MORIS_ASSERT( mIntegNodeIndices.size() != 0, "GEN_Geometry_Engine::initialize_integ_pdv_host_list() - no integration node indices stored, has the XTK model performed decomposition already?" );
 
         uint tNumIndices = mIntegNodeIndices.size();
 
-        if(mInterpPDVsSet)
+        mPdvHostManager.update_ig_local_to_global_dv_type_map();
+
+        for( uint iInd=0; iInd<tNumIndices; iInd++ )
         {
-            moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
-            switch(mSpatialDim)
+            mPdvHostManager.create_ig_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
+
+            mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
+
+            Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
+
+            for(uint iDim=0; iDim<mSpatialDim; iDim++)
             {
-                case(2):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        break;
-                    }
-                case(3):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        tDimDvList(2) = GEN_DV::ZCOORD;
-                        break;
-                    }
-                default:
-                    {
-                        MORIS_ERROR( false,"Geometry Engine only works for 2D and 3D models." );
-                    }
+                mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_ig_global_map() );
             }
 
-            mPdvHostManager.update_local_to_global_dv_type_map();
-
-            for( uint iInd=0; iInd<tNumIndices; iInd++ )
-            {
-                mPdvHostManager.create_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
-
-                mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
-
-                Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
-
-                for(uint iDim=0; iDim<mSpatialDim; iDim++)
-                {
-                    mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_global_map() );
-                }
-
-            }
-        }
-        else
-        {
-            Cell< enum GEN_DV > tDummyPdvTypeList;
-
-            this->set_pdv_types( tDummyPdvTypeList, true );
-            this->initialize_interp_pdv_host_list();
-
-            moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
-            switch(mSpatialDim)
-            {
-                case(2):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        break;
-                    }
-                case(3):
-                    {
-                        tDimDvList(0) = GEN_DV::XCOORD;
-                        tDimDvList(1) = GEN_DV::YCOORD;
-                        tDimDvList(2) = GEN_DV::ZCOORD;
-                        break;
-                    }
-                default:
-                    {
-                        MORIS_ERROR( false,"Geometry Engine only works for 2D and 3D models." );
-                    }
-            }
-
-            mPdvHostManager.update_local_to_global_dv_type_map();
-
-            for( uint iInd=0; iInd<tNumIndices; iInd++ )
-            {
-                mPdvHostManager.create_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
-
-                mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
-
-                Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
-
-                for(uint iDim=0; iDim<mSpatialDim; iDim++)
-                {
-                    mPdvHostManager.get_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_global_map() );
-                }
-
-            }
         }
     }
-    //------------------------------------------------------------------------------
-    void print_integ_node_indices()
+//------------------------------------------------------------------------------
+    void mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType )
     {
-        print(mIntegNodeIndices,"mIntegNodeIndices");
+        mPdvHostManager.mark_ig_pdv_as_unchanging( aPdvType );
     }
-    //------------------------------------------------------------------------------
-    moris::Cell< moris::moris_index > get_integ_node_indices()
-    {
-        return mIntegNodeIndices;
-    }
-    //------------------------------------------------------------------------------
-    void set_integ_node_indices( moris::Cell< moris::moris_index > aIntegNodeIndices )
-    {
-        mIntegNodeIndices = aIntegNodeIndices;
-    }
-    //------------------------------------------------------------------------------
-    void add_integ_node_indices( moris::Cell< moris::moris_index > aIntegNodeIndices )
-    {
-        uint tNumInd = aIntegNodeIndices.size();
-
-        for( uint i=0; i<tNumInd; i++ )
-        {
-            mIntegNodeIndices.push_back( aIntegNodeIndices(i) );
-        }
-    }
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 
 
@@ -835,33 +898,6 @@ private:
                                                              moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                              moris::Matrix< moris::DDRMat >       & aLevelSetValues );
     //------------------------------------------------------------------------------
-//private:    // ----------- member data ----------
-//    moris::size_t mActiveGeometryIndex;
-//    Cell< GEN_Geometry* > mGeometry;
-//
-//    // Contains all the geometry objects
-//    Geometry_Object_Manager mGeometryObjectManager;
-//
-//    // Contains all the pdv hosts
-//    Pdv_Host_Manager mPdvHostManager;
-//
-//    // Phase Table
-//    moris::ge::GEN_Phase_Table mPhaseTable;
-//
-//    // Node Entity Phase Vals - only analytic phase values are stored here to prevent duplicate storage of discrete geometries
-//    moris::Matrix< moris::DDRMat > mNodePhaseVals;
-//    //------------------------------------------------------------------------------
-//    mtk::Mesh_Manager* mMesh;
-//
-//    moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
-//    //------------------------------------------------------------------------------
-//    bool mTypesSet      = false;
-//    bool mInterpPDVsSet = false;
-//
-//    moris::Cell< moris::moris_index > mIntegNodeIndices;
-//
-//    ParameterList mParameterList;
-//    //------------------------------------------------------------------------------
 };
 }
 }

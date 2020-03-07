@@ -81,7 +81,7 @@ namespace moris
 
             // determine indices of active and flagged basis
             // fixme: try Lagrange to B-Spline distance > 1 works if this is uncommented
-//            this->calculate_basis_indices();
+            //this->calculate_basis_indices();
 
             // update element indices ( not needed so far )
             // this->update_element_indices();
@@ -1376,6 +1376,8 @@ namespace moris
                 // reset counter
                 tCount = 0;
 
+                std::cout<<mActiveBasisOnProc.size()<<" active basis"<<std::endl;
+
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
                     if( tBasis->is_flagged() )
@@ -1392,11 +1394,13 @@ namespace moris
                     {
                         if( tBasis->is_flagged() )
                         {
+                        	std::cout<<" indexing refined basis"<<std::endl;
                             // set index of basis
                             tBasis->set_domain_index( tCount++ );
                         }
                     }
                 }
+                std::cout<<tCount<<" indexed basis"<<std::endl;
             } // end serial
             else
             {

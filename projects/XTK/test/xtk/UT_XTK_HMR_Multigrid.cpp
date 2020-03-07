@@ -43,9 +43,9 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
+#include "cl_GEN_Geom_Field_HMR.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -64,8 +64,15 @@ CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
             - (mRadius * mRadius);
 }
 
-TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
+moris::real
+PlaneFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
 {
+    return    aPoint(0) -0.511;
+}
+
+TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
+{
+
     if(par_size()<=1)
     {
         std::string tFieldName = "Cylinder";
@@ -75,9 +82,9 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
          moris::hmr::Parameters tParameters;
 
-         tParameters.set_number_of_elements_per_dimension( { {2}, {2}} );
-         tParameters.set_domain_dimensions({ {2}, {2} });
-         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
+         tParameters.set_number_of_elements_per_dimension( { {2}, {1}} );
+         tParameters.set_domain_dimensions({ {2}, {1} });
+         tParameters.set_domain_offset({ {-1.0}, {-0.5} });
          tParameters.set_bspline_truncation( true );
 
          tParameters.set_output_meshes( { {0} } );
@@ -96,6 +103,8 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2);
 
+         tParameters.set_multigrid( false );
+
          Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
@@ -108,19 +117,23 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          // create field
          std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-         tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
+         tField->evaluate_scalar_function( PlaneFuncXTKHMR2D );
 
-         for( uint k=0; k<3; ++k )
+         for( uint k=0; k<1; ++k )
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-             tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
+             tField->evaluate_scalar_function( PlaneFuncXTKHMR2D );
          }
 
          tHMR.finalize();
 
+         tHMR.calculate_bspline_coordinates( tLagrangeMeshIndex, 0 );
+
          tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_ip.e" );
+
+         tHMR.save_bsplines_to_vtk( "./xtk_exo/Bspline.vtk", 0, 0 );
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
@@ -142,18 +155,26 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
 //        tXTKModel.print_subphase_neighborhood();
 
+        tXTKModel.construct_multigrid();
+
+
 
         xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
 
-        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
+
+
+
+
+
+
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//
         // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
-
-
 
          // Declare the fields related to enrichment strategy in output options
          Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
@@ -178,120 +199,12 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
         // Write mesh
         Writer_Exodus writer(&tEnrIgMesh);
-        writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig.exo");
+        writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig_multigrid.exo");
 
         // Write the fields
         writer.set_time(0.0);
         writer.close_file();
 
-
-        delete tIntegMesh1;
-    }
-}
-
-TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
-{
-    if(par_size()<=1)
-    {
-        std::string tFieldName = "Cylinder";
-
-         moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
-
-         moris::hmr::Parameters tParameters;
-
-         tParameters.set_number_of_elements_per_dimension( { {2}, {2}} );
-         tParameters.set_domain_dimensions({ {2}, {2} });
-         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
-         tParameters.set_bspline_truncation( true );
-
-         tParameters.set_output_meshes( { {0} } );
-
-         tParameters.set_lagrange_orders  ( { {1} });
-         tParameters.set_lagrange_patterns({ {0} });
-
-         tParameters.set_bspline_orders   ( { {1} } );
-         tParameters.set_bspline_patterns ( { {0} } );
-
-         tParameters.set_side_sets({{1},{2},{3},{4} });
-
-         tParameters.set_union_pattern( 2 );
-         tParameters.set_working_pattern( 3 );
-
-         tParameters.set_refinement_buffer( 2 );
-         tParameters.set_staircase_buffer( 2 );
-
-         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-         tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-         hmr::HMR tHMR( tParameters );
-
-         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-         // create field
-         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
-         tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
-
-         for( uint k=0; k<2; ++k )
-         {
-             tHMR.flag_surface_elements_on_working_pattern( tField );
-             tHMR.perform_refinement_based_on_working_pattern( 0 );
-
-             tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
-         }
-
-         tHMR.finalize();
-
-         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_wi_2d_ip.e" );
-
-         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
-         // create a plane which intentionally intersects from fine to coarse
-         moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
-         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-         moris::ge::Plane<2> tPlane(tCenters,tNormals);
-
-         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlane};
-
-         size_t tModelDimension = 2;
-         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
-         tXTKModel.mVerbose  =  false;
-
-        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
-
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
-
-        // output to exodus file ----------------------------------------------------------
-        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-
-         // Declare the fields related to enrichment strategy in output options
-         Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-
-        // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh1);
-
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_wi_ig.e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         delete tIntegMesh1;
     }

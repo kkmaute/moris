@@ -278,7 +278,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // define an IQI
         fem::IQI_Factory tIQIFactory;
         std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI->set_IQI_mat_type( Mat_Type::PHASE0 );
+        tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
         tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
 
