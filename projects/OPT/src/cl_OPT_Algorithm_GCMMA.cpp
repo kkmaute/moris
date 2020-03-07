@@ -129,8 +129,8 @@ void opt_alg_gcmma_grad_wrap(
     aOptAlgGCMMA->mProblem->set_advs(tADVs);
 
     // Set an update for the gradients
-    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradient = true;
-    aOptAlgGCMMA->mProblem->mUpdateConstraintGradient = true;
+    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients = true;
+    aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
 
     // Get the objective gradient
     auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();

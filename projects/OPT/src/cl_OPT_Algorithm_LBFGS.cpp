@@ -142,7 +142,7 @@ namespace moris
         void Algorithm_LBFGS::grad(double* aAdv, double* aD_Obj )
         {
             // Call to update derivatives of objectives
-            mProblem->mUpdateObjectiveGradient = true;
+            mProblem->mUpdateObjectiveGradients = true;
 
             auto tD_Obj = mProblem->get_objective_gradients().data();
             std::copy(tD_Obj, tD_Obj + mProblem->get_num_advs(), aD_Obj);

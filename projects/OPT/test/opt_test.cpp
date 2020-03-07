@@ -19,10 +19,10 @@ TEST_CASE( "[optimization]" )
         tParameterLists(1).resize(1);
         tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
         tParameterLists(1)(0) = moris::prm::create_gcmma_parameter_list();
-        tParameterLists(0)(0).set("objective_finite_difference", "central");
-        tParameterLists(0)(0).set("constraint_finite_difference", "central");
+        tParameterLists(0)(0).set("objective_finite_difference_type", "central");
+        tParameterLists(0)(0).set("constraint_finite_difference_type", "central");
 
-        // Create manager, assign cell of algorithms and problem
+        // Create manager
         moris::opt::Manager tManager(tParameterLists);
 
         // Solve optimization problem
@@ -42,7 +42,7 @@ TEST_CASE( "[optimization]" )
         tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
         tParameterLists(1)(0) = moris::prm::create_sqp_parameter_list();
 
-        // Create manager, assign cell of algorithms and problem
+        // Create manager
         moris::opt::Manager tManager(tParameterLists);
 
         // Solve optimization problem
@@ -94,8 +94,14 @@ TEST_CASE( "[optimization]" )
         std::string tMorisRoot = std::getenv("MORISOUTPUT");
         std::string tHdf5FilePath = tMorisRoot + "sweep.hdf5";
         tParameterLists(1)(0).set("hdf5_path", tHdf5FilePath);
+        tParameterLists(1)(0).set("print", true);
+        tParameterLists(1)(0).set("num_evaluations_per_adv", "3, 2");
+        tParameterLists(1)(0).set("objective_finite_difference_type", "all");
+        tParameterLists(1)(0).set("constraint_finite_difference_type", "all");
+        tParameterLists(1)(0).set("objective_finite_difference_epsilons", "0.01, 0.0001");
+        tParameterLists(1)(0).set("constraint_finite_difference_epsilons", "0.01, 0.0001");
 
-        // Create manager, assign cell of algorithms and problem
+        // Create manager
         moris::opt::Manager tManager(tParameterLists);
 
         // Solve optimization problem

@@ -23,7 +23,7 @@ namespace moris
         Matrix<DDRMat> Problem_Rosenbrock::compute_objectives()
         {
             Matrix<DDRMat> tObjectives(1, 1);
-            tObjectives(0) = (1 - mADVs(0)) * mCriteria(0, 0) + 100 * (mADVs(1) - pow(mADVs(0), 2)) * mCriteria(1, 0);
+            tObjectives(0) = (1 - mADVs(0)) * mCriteria(0) + 100 * (mADVs(1) - pow(mADVs(0), 2)) * mCriteria(1);
 
             return tObjectives;
         }

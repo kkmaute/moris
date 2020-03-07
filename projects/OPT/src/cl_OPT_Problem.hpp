@@ -26,20 +26,19 @@ namespace moris
             Matrix<DDRMat> mObjectiveGradient; // full gradient of the objectives with respect to the ADVs
             Matrix<DDRMat> mConstraintGradient; // full gradient of the constraints with respect to the ADVs
 
+            real mObjectiveFiniteDifferenceEpsilon; // Epsilon for finite differencing the objective
+            real mConstraintFiniteDifferenceEpsilon; // Epsilon for finite differencing the constraints
+            real mADVNormTolerance = 0.0;
+
         protected:
             Matrix<DDRMat> mADVs;    // Abstract Design Variable vector
             Matrix<DDRMat> mCriteria; // vector of criteria values
 
         public:
-            char mObjectiveFiniteDifference;
-            char mConstraintFiniteDifference;
-            real mObjectiveFiniteDifferenceEpsilon;
-            real mConstraintFiniteDifferenceEpsilon;
-
-            bool mUpdateObjectives = true;
-            bool mUpdateConstraints = true;
-            bool mUpdateObjectiveGradient = true;
-            bool mUpdateConstraintGradient = true;
+            bool mUpdateObjectives = true; // whether or not to compute new objectives when requested
+            bool mUpdateConstraints = true; // whether or not to compute new constraints when requested
+            bool mUpdateObjectiveGradients = true; // "                 " objective gradients
+            bool mUpdateConstraintGradients = true; // "                 " constraint gradients
 
             /**
              * Constructor
@@ -148,7 +147,7 @@ namespace moris
              *
              * @return full derivative matrix d(objective)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_objective_gradients(); // TODO rename these
+            Matrix<DDRMat> get_objective_gradients();
 
             /**
              * Returns the constraint gradient, and computes it if not already available.
@@ -156,6 +155,22 @@ namespace moris
              * @return full derivative matrix d(constraint)_i/d(adv)_j
              */
             Matrix<DDRMat> get_constraint_gradients();
+
+            /**
+             * Sets the type of finite differencing used for the objectives and an epsilon
+             *
+             * @param aType std::string defining type; forward, backward, central, or none
+             * @param (optional) aEpsilon real value for perturbing the ADVs
+             */
+            void set_objective_finite_differencing(std::string aType, real aEpsilon);
+
+            /**
+             * Sets the type of finite differencing used for the constraints and an epsilon
+             *
+             * @param aType std::string defining type; forward, backward, central, or none
+             * @param (optional) aEpsilon real value for perturbing the ADVs
+             */
+            void set_constraint_finite_differencing(std::string aType, real aEpsilon);
 
             /**
              * Modifies the optimization solution. Not currently implemented.

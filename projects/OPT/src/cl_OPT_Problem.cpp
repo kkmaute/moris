@@ -10,58 +10,22 @@ namespace moris
 {
     namespace opt
     {
+
+        // -------------------------------------------------------------------------------------------------------------
+        // Public functions
+        // -------------------------------------------------------------------------------------------------------------
+
         Problem::Problem(ParameterList aParameterList)
         {
             // Create interface
             mInterface = create_interface(aParameterList);
 
-            // Parameters: objective finite difference
-            mObjectiveFiniteDifferenceEpsilon = aParameterList.get<real>("objective_finite_difference_epsilon");
-            switch (aParameterList.get<std::string>("objective_finite_difference")[0])
-            {
-                case('b'):
-                {
-                    mObjectiveFiniteDifferenceEpsilon *= -1;
-                }
-                case('f'):
-                {
-                    compute_objective_gradient = &Problem::compute_objective_gradient_fd_bias;
-                    break;
-                }
-                case('c'):
-                {
-                    compute_objective_gradient = &Problem::compute_objective_gradient_fd_central;
-                    break;
-                }
-                default:
-                {
-                    // Do nothing, leave as analytical
-                }
-            }
+            // Parameters: finite differencing
+            set_objective_finite_differencing(aParameterList.get<std::string>("objective_finite_difference_type"),
+                                               aParameterList.get<real>("objective_finite_difference_epsilon"));
+            set_constraint_finite_differencing(aParameterList.get<std::string>("constraint_finite_difference_type"),
+                                               aParameterList.get<real>("constraint_finite_difference_epsilon"));
 
-            // Parameters: constraint finite difference
-            mConstraintFiniteDifferenceEpsilon = aParameterList.get<real>("constraint_finite_difference_epsilon");
-            switch (aParameterList.get<std::string>("constraint_finite_difference")[0])
-            {
-                case('b'):
-                {
-                    mConstraintFiniteDifferenceEpsilon *= -1;
-                }
-                case('f'):
-                {
-                    compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_bias;
-                    break;
-                }
-                case('c'):
-                {
-                    compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_central;
-                    break;
-                }
-                default:
-                {
-                    // Do nothing, leave as analytical
-                }
-            }
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -87,6 +51,24 @@ namespace moris
             mUpperBounds = mInterface->get_upper_adv_bounds();
             mConstraintTypes = this->get_constraint_types();
             MORIS_ERROR(this->check_constraint_order(), "The constraints are not ordered properly (Eq, Ineq)"); //TODO move call to alg
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        bool Problem::check_constraint_order()
+        {
+            // Checks that the constraint order is  1. equality constraints   (typ=0)
+            //                                      2. inequality constraints (typ=1)
+
+            int tSwitches = 1;
+            for (uint tConstraintIndex = 0; tConstraintIndex < mConstraintTypes.numel(); tConstraintIndex++)
+            {
+                if (mConstraintTypes(tConstraintIndex) == tSwitches)
+                {
+                    tSwitches -= 1;
+                }
+            }
+            return (tSwitches >= 0);
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -133,7 +115,7 @@ namespace moris
 
         void Problem::set_advs(Matrix<DDRMat> aNewADVs)
         {
-            if (norm(aNewADVs - mADVs) < 1e-12)
+            if (norm(aNewADVs - mADVs) < mADVNormTolerance)
             {
                 return;
             }
@@ -147,10 +129,10 @@ namespace moris
 
         Matrix<DDRMat> Problem::get_objective_gradients()
         {
-            if (mUpdateObjectiveGradient)
+            if (mUpdateObjectiveGradients)
             {
                 (this->*compute_objective_gradient)();
-                mUpdateObjectiveGradient = false;
+                mUpdateObjectiveGradients = false;
             }
 
             return mObjectiveGradient;
@@ -160,13 +142,83 @@ namespace moris
 
         Matrix<DDRMat> Problem::get_constraint_gradients()
         {
-            if (mUpdateConstraintGradient)
+            if (mUpdateConstraintGradients)
             {
                 (this->*compute_constraint_gradient)();
-                mUpdateConstraintGradient = false;
+                mUpdateConstraintGradients = false;
             }
 
             return mConstraintGradient;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        void Problem::set_objective_finite_differencing(std::string aType, real aEpsilon)
+        {
+            // Set new epsilon if it isn't zero
+            if (aEpsilon != 0.0)
+            {
+                mObjectiveFiniteDifferenceEpsilon = aEpsilon;
+            }
+            mObjectiveFiniteDifferenceEpsilon = std::abs(mObjectiveFiniteDifferenceEpsilon);
+
+            // Set objective gradient function pointer
+            switch (aType[0])
+            {
+                case('b'):
+                {
+                    mObjectiveFiniteDifferenceEpsilon *= -1;
+                }
+                case('f'):
+                {
+                    compute_objective_gradient = &Problem::compute_objective_gradient_fd_bias;
+                    break;
+                }
+                case('c'):
+                {
+                    compute_objective_gradient = &Problem::compute_objective_gradient_fd_central;
+                    break;
+                }
+                default:
+                {
+                    compute_objective_gradient = &Problem::compute_objective_gradient_analytical;
+                }
+            }
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        void Problem::set_constraint_finite_differencing(std::string aType, real aEpsilon)
+        {
+            // Set new epsilon if it isn't zero
+            if (aEpsilon != 0.0)
+            {
+                mConstraintFiniteDifferenceEpsilon = aEpsilon;
+            }
+            mConstraintFiniteDifferenceEpsilon = std::abs(mConstraintFiniteDifferenceEpsilon);
+
+            // Set constraint gradient function pointer
+            switch (aType[0])
+            {
+                case('b'):
+                {
+                    mConstraintFiniteDifferenceEpsilon *= -1;
+                }
+                case('f'):
+                {
+                    compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_bias;
+                    break;
+                }
+                case('c'):
+                {
+                    compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_central;
+                    break;
+                }
+                default:
+                {
+                    compute_constraint_gradient = &Problem::compute_constraint_gradient_analytical;
+                }
+            }
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -184,23 +236,7 @@ namespace moris
         }
 
         // -------------------------------------------------------------------------------------------------------------
-
-        bool Problem::check_constraint_order()
-        {
-            // Checks that the constraint order is  1. equality constraints   (typ=0)
-            //                                      2. inequality constraints (typ=1)
-
-            int tSwitches = 1;
-            for (uint tConstraintIndex = 0; tConstraintIndex < mConstraintTypes.numel(); tConstraintIndex++)
-            {
-                if (mConstraintTypes(tConstraintIndex) == tSwitches)
-                {
-                    tSwitches -= 1;
-                }
-            }
-            return (tSwitches >= 0);
-        }
-
+        // Private: possible functions for computing gradients (analytical, forward/backward/central finite difference)
         // -------------------------------------------------------------------------------------------------------------
 
         void Problem::compute_objective_gradient_analytical()
@@ -232,13 +268,16 @@ namespace moris
                 // Perturb
                 mADVs(tADVIndex) += mObjectiveFiniteDifferenceEpsilon;
                 mInterface->begin_new_analysis(mADVs);
+                mCriteria = mInterface->get_criteria();
                 tObjectivePerturbed = this->compute_objectives()(0);
 
                 // Biased finite difference
                 mObjectiveGradient(0, tADVIndex) =
                         (tObjectivePerturbed - mObjectives(0)) / mObjectiveFiniteDifferenceEpsilon;
+
+                // Restore ADV
+                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
             }
-            mADVs = tOriginalADVs;
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -256,6 +295,7 @@ namespace moris
                 // Perturb
                 mADVs(tADVIndex) += mConstraintFiniteDifferenceEpsilon;
                 mInterface->begin_new_analysis(mADVs);
+                mCriteria = mInterface->get_criteria();
                 tConstraintsPerturbed = this->compute_constraints();
 
                 // Biased finite difference
@@ -265,8 +305,9 @@ namespace moris
                             = (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) / mConstraintFiniteDifferenceEpsilon;
                 }
 
+                // Restore ADV
+                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
             }
-            mADVs = tOriginalADVs;
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -280,10 +321,12 @@ namespace moris
             real tObjectiveMinus;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++) {
+            for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
+            {
                 // Perturb forwards
                 mADVs(tADVIndex) += mObjectiveFiniteDifferenceEpsilon;
                 mInterface->begin_new_analysis(mADVs);
+                mCriteria = mInterface->get_criteria();
                 tObjectivePlus = this->compute_objectives()(0);
 
                 // Perturb backwards
@@ -294,8 +337,10 @@ namespace moris
                 // Central difference
                 mObjectiveGradient(0, tADVIndex) =
                         (tObjectivePlus - tObjectiveMinus) / (2 * mObjectiveFiniteDifferenceEpsilon);
+
+                // Restore ADV
+                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
             }
-            mADVs = tOriginalADVs;
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -314,6 +359,7 @@ namespace moris
                 // Perturb forwards
                 mADVs(tADVIndex) += mConstraintFiniteDifferenceEpsilon;
                 mInterface->begin_new_analysis(mADVs);
+                mCriteria = mInterface->get_criteria();
                 tConstraintsPlus = this->compute_constraints();
 
                 // Perturb backwards
@@ -328,8 +374,9 @@ namespace moris
                     = (tConstraintsPlus(tConstraintIndex) - tConstraintsMinus(tConstraintIndex)) / (2 * mConstraintFiniteDifferenceEpsilon);
                 }
 
+                // Restore ADV
+                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
             }
-            mADVs = tOriginalADVs;
         }
 
         // -------------------------------------------------------------------------------------------------------------

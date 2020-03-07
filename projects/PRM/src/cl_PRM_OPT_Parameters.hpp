@@ -17,12 +17,14 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("problem", "user_defined");
-            tParameterList.insert("interface", "user_defined");
-            tParameterList.insert("objective_finite_difference", "none");
-            tParameterList.insert("constraint_finite_difference", "none");
-            tParameterList.insert("objective_finite_difference_epsilon", 1E-8);
-            tParameterList.insert("constraint_finite_difference_epsilon", 1E-8);
+            tParameterList.insert("problem", "user_defined"); // opt Problem class type
+            tParameterList.insert("interface", "user_defined"); // opt Interface class type
+            tParameterList.insert("objective_finite_difference_type", "none");  // Type of finite differencing for objective gradients;
+                                                                                // central, forward, backward, or none
+            tParameterList.insert("constraint_finite_difference_type", "none"); // Type of finite differencing for constraint gradients;
+                                                                                // central, forward, backward, or none
+            tParameterList.insert("objective_finite_difference_epsilon", 1E-8); // Epsilon to use for objective finite differencing
+            tParameterList.insert("constraint_finite_difference_epsilon", 1E-8); // Epsilon to use for constraint finite differencing
 
             return tParameterList;
         }
@@ -160,9 +162,12 @@ namespace moris
             tParameterList.insert("compute_constraints", true); // Calculate and output the constraints at each point
             tParameterList.insert("calculate_objective_gradients", true); // Calculate and output the objective gradients at each point
             tParameterList.insert("calculate_constraint_gradients", true); // Calculate and output the constraint gradients at each point
-            tParameterList.insert("FD_objective_epsilons", ""); // Use finite differencing to obtain objective gradients with these epsilons
-            tParameterList.insert("FD_constraint_epsilons", ""); // Use finite differencing to obtain constraint gradients with these epsilons
-            tParameterList.insert("FD_objective_type", "central"); //
+            tParameterList.insert("objective_finite_difference_type", "none");  // Type of finite differencing for objective gradients;
+                                                                                // central, forward, backward, all, or none
+            tParameterList.insert("constraint_finite_difference_type", "none"); //Type of finite differencing for constraint gradients;
+                                                                                // central, forward, backward, all, or none
+            tParameterList.insert("objective_finite_difference_epsilons", ""); // Use finite differencing to obtain objective gradients with these epsilons
+            tParameterList.insert("constraint_finite_difference_epsilons", ""); // Use finite differencing to obtain constraint gradients with these epsilons
             tParameterList.insert("save", true); // Save the sweep evaluations in "hdf5_path"
             tParameterList.insert("print", false); // Print the sweep evaluations to the screen with moris::print
             tParameterList.insert("hdf5_path", ""); // Path and file name for saving if "save" is set to true
