@@ -198,13 +198,12 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         // Write mesh
-        Writer_Exodus writer(&tEnrIgMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
         writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig_multigrid.exo");
 
         // Write the fields
         writer.set_time(0.0);
         writer.close_file();
-
 
         delete tIntegMesh1;
     }

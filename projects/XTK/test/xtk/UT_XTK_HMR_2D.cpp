@@ -177,7 +177,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         // Write mesh
-        Writer_Exodus writer(&tEnrIgMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
         writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig.exo");
 
         // Write the fields

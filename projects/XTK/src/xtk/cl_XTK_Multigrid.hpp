@@ -81,7 +81,7 @@ public:
 #ifdef DEBUG
 private:
 
-    moris::Cell< moris::Matrix< DDRMat > > mEnrichedBasisCoords;
+    moris::Matrix< DDRMat >             mEnrichedBasisCoords;
 
     moris::Matrix< DDRMat >             mEnrichedBasisLevel;
     moris::Matrix< DDRMat >             mEnrichedBasisStatus;

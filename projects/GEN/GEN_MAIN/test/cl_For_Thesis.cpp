@@ -515,7 +515,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", "0_geomCheckNoFibers.exo");
 
             // Write the fields
@@ -979,7 +979,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", "0_geomCheck.exo");
 
             // Write the fields
