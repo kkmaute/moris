@@ -31,25 +31,20 @@ namespace xtk
 
     Multigrid::Multigrid( xtk::Model * aXTKModelPtr ) : mXTKModelPtr( aXTKModelPtr )
     {
-//        mXTKModelPtr
+
     }
 
 //------------------------------------------------------------------------------
 
     void Multigrid::create_fine_to_coarse_relationship()
     {
-        // get num enriched basis
-        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
-
         // set size of fine to coarse list
-        mFineBasisToCoarseBasis.resize( tNumEnrichedBasis );
+        mFineBasisToCoarseBasis.resize( mNumBasis );
 
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
 
         // get num bg basis
         uint tNumBGBasis = tInterpolationMesh.get_num_basis( 0 );
-
-        std::cout<<tNumBGBasis<<" tNumBGBasis"<<std::endl;
 
         // loop over bg basis
         for ( uint Ik = 0; Ik < tNumBGBasis; Ik ++ )
@@ -159,20 +154,17 @@ namespace xtk
             }
         }
 
-        print( mFineBasisToCoarseBasis,"mFineBasisToCoarseBasis");
+//        print( mFineBasisToCoarseBasis,"mFineBasisToCoarseBasis");
     }
 
 //------------------------------------------------------------------------------
 
     void Multigrid::create_coarse_to_fine_relationship()
     {
-        // get num enriched basis
-        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
-
         // set size of fine to coarse list
-        mCoarseBasisToFineBasis.resize( tNumEnrichedBasis );
+        mCoarseBasisToFineBasis.resize( mNumBasis );
 
-        moris::Cell< uint > tCounter( tNumEnrichedBasis, 0 );
+        moris::Cell< uint > tCounter( mNumBasis, 0 );
 
         for( uint Ik = 0; Ik < mFineBasisToCoarseBasis.size(); Ik++ )
         {
@@ -243,12 +235,10 @@ namespace xtk
     void Multigrid::build_enriched_coeff_to_background_coeff_map()
     {
         // get num enriched basis
-        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
-
-        std::cout<<tNumEnrichedBasis<<" tNumEnrichedBasis "<<std::endl;
+    	mNumBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
 
         // set size
-        mEnrichedBasisToBackgroundBasis.resize( tNumEnrichedBasis, -1 );
+        mEnrichedBasisToBackgroundBasis.resize( mNumBasis, -1 );
 
         // get background basis to enriched basis list. ( name of get function is misleading )
         const Cell<Matrix<IndexMat>> & tBackgroundCoeffsToEnrichedCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
@@ -414,19 +404,16 @@ namespace xtk
     }
 
 //------------------------------------------------------------------------------
-
+#endif
     void Multigrid::build_basis_exodus_information()
     {
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
 
-        // get num enriched basis
-        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
+        mEnrichedBasisCoords.resize( mNumBasis );
+        mEnrichedBasisLevel .set_size( mNumBasis, 1 );
+        mEnrichedBasisStatus.set_size( mNumBasis, 1 );
 
-        mEnrichedBasisCoords.resize( tNumEnrichedBasis );
-        mEnrichedBasisLevel .set_size( tNumEnrichedBasis, 1 );
-        mEnrichedBasisStatus.set_size( tNumEnrichedBasis, 1 );
-
-        for( uint Ik = 0; Ik < tNumEnrichedBasis; Ik++ )
+        for( uint Ik = 0; Ik < mNumBasis; Ik++ )
         {
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
@@ -438,7 +425,7 @@ namespace xtk
 //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
 
-#endif
+//#endif
 }
 
 

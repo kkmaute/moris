@@ -2765,12 +2765,6 @@ Model::get_ghost_stabilization(moris::moris_index  aIndex)
     return *mGhostStabilization;
 }
 
-void
-Model::perform_multilevel_enrichment_internal()
-{
-    //        mEnrichment->create_multilevel_enrichments();
-}
-
 void Model::construct_multigrid()
 {
     mMultigrid = std::make_shared< xtk::Multigrid >( this );
@@ -2783,9 +2777,8 @@ void Model::construct_multigrid()
 
     mMultigrid->create_coarse_to_fine_weights();
 
-#ifdef DEBUG
     mMultigrid->build_basis_exodus_information();
-
+#ifdef DEBUG
     mMultigrid->save_to_vtk( "Enriched_bspline.vtk");
 #endif
 }

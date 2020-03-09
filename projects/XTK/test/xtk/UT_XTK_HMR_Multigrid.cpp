@@ -165,9 +165,6 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
 
 
-
-
-
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 //
         // output to exodus file ----------------------------------------------------------

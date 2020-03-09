@@ -59,7 +59,6 @@ public:
     // multigrid accessor functions
     //------------------------------------------------------------------------------
 
-    /*
     uint                    get_num_interpolations();
     uint                    get_max_level( const moris_index aInterpolationIndex );
     uint                    get_num_basis( const moris_index aInterpolationIndex );
@@ -68,7 +67,7 @@ public:
     uint                    get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex, const moris_index aCoarseParentIndex );
     moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
     moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-    */
+
 
 
     //------------------------------------------------------------------------------
