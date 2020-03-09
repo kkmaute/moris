@@ -77,10 +77,11 @@ public:
 
     void build_enriched_coeff_to_background_coeff_map();
 
+#ifdef DEBUG
     void save_to_vtk( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
-#ifdef DEBUG
+
     void build_basis_exodus_information();
 #endif
 //------------------------------------------------------------------------------

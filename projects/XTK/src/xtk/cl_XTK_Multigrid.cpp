@@ -267,7 +267,7 @@ namespace xtk
     }
 
 //------------------------------------------------------------------------------
-
+#ifdef DEBUG
     void Multigrid::save_to_vtk( const std::string & aFilePath )
     {
         // start timer
@@ -413,7 +413,8 @@ namespace xtk
                ( double ) tElapsedTime / 1000 );
     }
 
-#ifdef DEBUG
+//------------------------------------------------------------------------------
+
     void Multigrid::build_basis_exodus_information()
     {
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
@@ -436,7 +437,8 @@ namespace xtk
 
 //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
-}
+
 #endif
+}
 
 

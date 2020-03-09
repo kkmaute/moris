@@ -133,7 +133,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
          tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_ip.e" );
 
-         tHMR.save_bsplines_to_vtk( "./xtk_exo/Bspline.vtk", 0, 0 );
+//         tHMR.save_bsplines_to_vtk( "./xtk_exo/Bspline.vtk", 0, 0 );
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
