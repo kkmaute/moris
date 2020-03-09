@@ -95,7 +95,6 @@ namespace moris
         std::string mMorisExec;
     };
 
-
 }
 
 

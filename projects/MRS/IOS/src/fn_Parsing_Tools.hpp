@@ -705,6 +705,23 @@ void string_to_cell( const std::string & aString,
 
 // -----------------------------------------------------------------------------
 
+/**
+ * This function inverts little endian to big endian and vice versa.
+ * Needed for VTK debug files.
+ */
+template <typename T> T swap_byte_endian(T aValue)
+{
+    T aOutValue;
+    auto *tPointer = (char*) &aValue;
+    auto *tOutPointer = (char*)&aOutValue;
+    int size = sizeof(T);
+    for(int i=0; i<size; i++)
+    {
+        tOutPointer[size - 1 - i] = tPointer[i];
+    }
+    return aOutValue;
+}
+
 }
 
 #endif	/* MORIS_IOS_FN_PARSING_TOOLS_HPP_ */

@@ -47,6 +47,7 @@ private:
 
     moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
     moris::Cell< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
+    moris::Cell< moris::Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
 
 public:
     Multigrid(){};
@@ -70,7 +71,13 @@ public:
 
 //------------------------------------------------------------------------------
 
+    void create_coarse_to_fine_weights();
+
+//------------------------------------------------------------------------------
+
     void build_enriched_coeff_to_background_coeff_map();
+
+    void save_to_vtk( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
 #ifdef DEBUG

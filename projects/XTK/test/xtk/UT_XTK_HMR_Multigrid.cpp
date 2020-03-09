@@ -103,7 +103,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2);
 
-         tParameters.set_multigrid( false );
+         tParameters.set_multigrid( true );
 
          Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };

@@ -2779,8 +2779,14 @@ void Model::construct_multigrid()
 
     mMultigrid->create_fine_to_coarse_relationship();
 
+    mMultigrid->create_coarse_to_fine_relationship();
+
+    mMultigrid->create_coarse_to_fine_weights();
+
 #ifdef DEBUG
     mMultigrid->build_basis_exodus_information();
+
+    mMultigrid->save_to_vtk( "Enriched_bspline.vtk");
 #endif
 }
 

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <fstream>
 
 #include "cl_Communication_Tools.hpp"
 #include "linalg_typedefs.hpp"
@@ -165,17 +166,76 @@ namespace xtk
 
     void Multigrid::create_coarse_to_fine_relationship()
     {
-//        // get num enriched basis
-//        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
-//
-//        // set size of coarse to fine list
-//        mCoarseBasisToFineBasis.resize( tNumEnrichedBasis );
-//
-//        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
-//
-//        // get num bg basis
-//        uint tNumBGBasis = tInterpolationMesh.get_num_basis( 0 );
+        // get num enriched basis
+        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
 
+        // set size of fine to coarse list
+        mCoarseBasisToFineBasis.resize( tNumEnrichedBasis );
+
+        moris::Cell< uint > tCounter( tNumEnrichedBasis, 0 );
+
+        for( uint Ik = 0; Ik < mFineBasisToCoarseBasis.size(); Ik++ )
+        {
+            for( uint Ii = 0; Ii < mFineBasisToCoarseBasis( Ik ).numel(); Ii++ )
+            {
+                tCounter( mFineBasisToCoarseBasis( Ik )( Ii ) )++;
+            }
+        }
+
+        for( uint Ik = 0; Ik < mCoarseBasisToFineBasis.size(); Ik++ )
+        {
+            mCoarseBasisToFineBasis( Ik ).set_size( tCounter( Ik ), 1, 0 );
+
+            tCounter( Ik ) = 0;
+        }
+
+        for( uint Ik = 0; Ik < mFineBasisToCoarseBasis.size(); Ik++ )
+        {
+            for( uint Ii = 0; Ii < mFineBasisToCoarseBasis( Ik ).numel(); Ii++ )
+            {
+                mCoarseBasisToFineBasis( mFineBasisToCoarseBasis( Ik )( Ii ) )( tCounter( mFineBasisToCoarseBasis( Ik )( Ii ) ) ) = Ik;
+
+                tCounter( mFineBasisToCoarseBasis( Ik )( Ii ) )++;
+            }
+        }
+
+//        print( mCoarseBasisToFineBasis,"mCoarseBasisToFineBasis");
+    }
+
+//------------------------------------------------------------------------------
+
+    void Multigrid::create_coarse_to_fine_weights()
+    {
+        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+
+        mCoarseBasisToFineBasisWeights.resize( mCoarseBasisToFineBasis.size() );
+
+        for( uint Ik = 0; Ik < mCoarseBasisToFineBasis.size(); Ik++ )
+        {
+            mCoarseBasisToFineBasisWeights( Ik ).set_size( mCoarseBasisToFineBasis( Ik ).numel(), 1, MORIS_REAL_MAX );
+
+            moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
+
+            moris::Matrix< DDRMat > tWeights = tInterpolationMesh.get_fine_basis_weights_of_basis ( 0, tBackgroundIndex );
+
+            moris::Matrix< DDSMat > tBGBasis = tInterpolationMesh.get_fine_basis_inds_of_basis ( 0, tBackgroundIndex );
+
+            moris::map< moris_index, sint > tBasisToPositionMap;
+            for( uint Ii = 0; Ii < tBGBasis.numel(); Ii++ )
+            {
+                tBasisToPositionMap[ tBGBasis( Ii ) ] = Ii;
+            }
+
+            for( uint Ii = 0; Ii < mCoarseBasisToFineBasis( Ik ).numel(); Ii++ )
+            {
+                moris_index tFineBackgroundIndex = mEnrichedBasisToBackgroundBasis( mCoarseBasisToFineBasis( Ik )( Ii ) );
+
+                sint tPos = tBasisToPositionMap.find( tFineBackgroundIndex );
+
+                mCoarseBasisToFineBasisWeights( Ik )( Ii ) = tWeights( tPos );
+            }
+        }
+//        print( mCoarseBasisToFineBasisWeights,"mCoarseBasisToFineBasisWeights");
     }
 
 //------------------------------------------------------------------------------
@@ -204,10 +264,154 @@ namespace xtk
                 mEnrichedBasisToBackgroundBasis( tBackgroundCoeffsToEnrichedCoeffs( Ik )( Ii ) ) = Ik;
             }
         }
-
     }
 
 //------------------------------------------------------------------------------
+
+    void Multigrid::save_to_vtk( const std::string & aFilePath )
+    {
+        // start timer
+        tic tTimer;
+
+        // modify filename
+        std::string tFilePath =  parallelize_path( aFilePath );
+
+        // open the file
+        std::ofstream tFile( tFilePath, std::ios::binary );
+
+        // containers
+        float tFChar = 0;
+        int   tIChar = 0;
+
+        tFile << "# vtk DataFile Version 3.0" << std::endl;
+        tFile << "GO BUFFS!" << std::endl;
+        tFile << "BINARY" << std::endl;
+
+       // get my rank
+//       moris_id tMyRank = par_rank();
+
+       uint tNumberOfBasis = mEnrichedBasisCoords.size();
+
+       // write node data
+       tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+       tFile << "POINTS " << tNumberOfBasis << " float"  << std::endl;
+
+       // ask settings for numner of dimensions
+       auto tNumberOfDimensions =   mXTKModelPtr->get_spatial_dim();
+
+       if ( tNumberOfDimensions == 2 )
+       {
+           for( auto tCoords : mEnrichedBasisCoords )
+           {
+               // write coordinates to mesh
+               tFChar = swap_byte_endian( (float) tCoords.data()[ 0 ] );
+               tFile.write( (char*) &tFChar, sizeof(float));
+               tFChar = swap_byte_endian( (float) tCoords.data()[ 1 ] );
+               tFile.write( (char*) &tFChar, sizeof(float));
+               tFChar = swap_byte_endian( (float) 0 );
+               tFile.write( (char*) &tFChar, sizeof(float));
+           }
+       }
+       else if ( tNumberOfDimensions == 3 )
+       {
+           for( auto tCoords : mEnrichedBasisCoords )
+           {
+               // write coordinates to mesh
+               tFChar = swap_byte_endian( (float) tCoords.data()[ 0 ] );
+               tFile.write( (char*) &tFChar, sizeof(float));
+               tFChar = swap_byte_endian( (float) tCoords.data()[ 1 ] );
+               tFile.write( (char*) &tFChar, sizeof(float));
+               tFChar = swap_byte_endian( (float) tCoords.data()[ 2 ] );
+               tFile.write( (char*) &tFChar, sizeof(float));
+           }
+       }
+
+       tFile << std::endl;
+
+       // write each basis as its own element
+       tFile << "CELLS " << tNumberOfBasis << " " << 2*tNumberOfBasis << std::endl;
+
+       int tOne = swap_byte_endian( (int) 1 );
+
+       // reset counter
+       int tCount = 0;
+
+       for( auto tCoords : mEnrichedBasisCoords )
+       {
+               tIChar = swap_byte_endian( tCount );
+               tFile.write( ( char* ) &tOne, sizeof(int));
+               tFile.write( ( char *) &tIChar, sizeof(int));
+
+               ++tCount;
+       }
+
+       // write cell types
+       tFile << "CELL_TYPES " << tNumberOfBasis << std::endl;
+       tIChar = swap_byte_endian( (int) 2 );
+       for ( luint k = 0; k < tNumberOfBasis; ++k)
+       {
+           tFile.write( (char*) &tIChar, sizeof( int ) );
+       }
+
+       // write node data
+       tFile << "POINT_DATA " << tNumberOfBasis << std::endl;
+
+       // write state
+       tFile << "SCALARS STATE int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for( auto tState : mEnrichedBasisStatus )
+       {
+               tIChar = swap_byte_endian( (int)tState );
+
+               tFile.write( ( char *) &tIChar, sizeof(int));
+       }
+       tFile << std::endl;
+
+       // write basis ID
+       tFile << "SCALARS Ind int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for ( uint Ik = 0; Ik < tNumberOfBasis; ++Ik)
+       {
+               tIChar = swap_byte_endian( (int) Ik );
+
+               tFile.write( ( char *) &tIChar, sizeof(int));
+       }
+       tFile << std::endl;
+
+       // write basis level
+       tFile << "SCALARS LEVEL int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for( auto tLevel : mEnrichedBasisLevel )
+       {
+               tIChar = swap_byte_endian( (int) tLevel );
+
+               tFile.write( ( char *) &tIChar, sizeof(int));
+       }
+       tFile << std::endl;
+
+//       // write basis owner
+//       tFile << "SCALARS OWNER int" << std::endl;
+//       tFile << "LOOKUP_TABLE default" << std::endl;
+//       for( auto tOwner : mEnrichedBasisOwner )
+//       {
+//           tIChar = swap_byte_endian( (int) tBasis->get_owner() );
+//
+//           tFile.write( ( char *) &tIChar, sizeof(int));
+//       }
+//       tFile << std::endl;
+
+       // close the output file
+       tFile.close();
+
+       // stop timer
+       real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+       // print output
+       MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
+               proc_string().c_str(),
+               ( long unsigned int ) tNumberOfBasis,
+               ( double ) tElapsedTime / 1000 );
+    }
 
 #ifdef DEBUG
     void Multigrid::build_basis_exodus_information()
