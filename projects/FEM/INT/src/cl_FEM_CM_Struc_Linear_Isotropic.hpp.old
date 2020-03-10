@@ -39,7 +39,7 @@ namespace moris
 
             Model_Type mPlaneType  = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
             Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
-            void ( moris::fem::CM_Struc_Linear_Isotropic:: *mConstFunc)(moris::real, moris::real) = &CM_Struc_Linear_Isotropic::full_3d;
+            void (moris::fem::CM_Struc_Linear_Isotropic:: *mConstFunc)(moris::real, moris::real) = &CM_Struc_Linear_Isotropic::full_3d;
 
 //--------------------------------------------------------------------------------------------------------------
         public:

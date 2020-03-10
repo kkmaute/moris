@@ -16,7 +16,8 @@ namespace moris
 {
     namespace fem
     {
-        //--------------------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------------------
 
         class CM_Fluid_Incompressible : public Constitutive_Model
         {
@@ -25,15 +26,24 @@ namespace moris
         private:
 
             // property type for CM
-            enum class Property_Type
+            enum class CM_Property_Type
             {
-                RHO, // fluid density
-                MU,  // fluid viscosity
+                DENSITY,   // fluid density
+                VISCOSITY, // fluid viscosity
                 MAX_ENUM
             };
 
             // local string to property enum map
-            std::map< std::string, CM_Fluid_Incompressible::Property_Type > mPropertyMap;
+            std::map< std::string, CM_Property_Type > mPropertyMap;
+
+            // function pointers
+            void ( CM_Fluid_Incompressible:: * m_eval_strain )() = nullptr;
+            void ( CM_Fluid_Incompressible:: * m_eval_divstrain )() = nullptr;
+            void ( CM_Fluid_Incompressible:: * m_eval_teststrain )() = nullptr;
+            void ( CM_Fluid_Incompressible:: * m_eval_dstraindx )( uint aOrder ) = nullptr;
+            void ( CM_Fluid_Incompressible:: * m_eval_ddivstraindu )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+            void ( CM_Fluid_Incompressible:: * m_flatten_normal )( const Matrix< DDRMat > & aNormal,
+                                                                         Matrix< DDRMat > & aFlatNormal ) = nullptr;
 
 //--------------------------------------------------------------------------------------------------------------
         public:
@@ -43,11 +53,11 @@ namespace moris
             CM_Fluid_Incompressible()
             {
                 // set the property pointer cell size
-                mProperties.resize( static_cast< uint >( CM_Fluid_Incompressible::Property_Type::MAX_ENUM ), nullptr );
+                mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
                 // populate the map
-                mPropertyMap[ "Density" ]   = CM_Fluid_Incompressible::Property_Type::RHO;
-                mPropertyMap[ "Viscosity" ] = CM_Fluid_Incompressible::Property_Type::MU;
+                mPropertyMap[ "Density" ]   = CM_Property_Type::DENSITY;
+                mPropertyMap[ "Viscosity" ] = CM_Property_Type::VISCOSITY;
 
                 // populate the dof map (default)
                 mDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
@@ -59,6 +69,22 @@ namespace moris
              * trivial destructor
              */
             ~CM_Fluid_Incompressible(){};
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * set space dim
+             */
+            void set_space_dim( uint aSpaceDim )
+            {
+                mSpaceDim = aSpaceDim;
+                this->set_function_pointers();
+            }
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * set function pointers
+             */
+            void set_function_pointers();
 
 //--------------------------------------------------------------------------------------------------------------
             /**
@@ -85,6 +111,25 @@ namespace moris
 
 //--------------------------------------------------------------------------------------------------------------
             /**
+             * evaluate the divergence of the flux
+             */
+            void eval_divflux();
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the flux wrt dof type
+             */
+            void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the flux wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            void eval_dfluxdx( uint aOrder );
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
              * evaluate the constitutive model test flux
              */
             void eval_testFlux();
@@ -105,21 +150,59 @@ namespace moris
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model strain
+             * evaluate the strain template
              */
-            void eval_strain();
+            void eval_strain()
+            {
+                ( this->*m_eval_strain )();
+            }
+            void eval_strain_2d();
+            void eval_strain_3d();
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model test strain
+             * evaluate the divergence of the strain
              */
-            void eval_testStrain();
+            void eval_divstrain()
+            {
+                ( this->*m_eval_divstrain )();
+            }
+            void eval_divstrain_2d();
+            void eval_divstrain_3d();
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model matrix
+             * evaluate the derivative of the divergence of the strain wrt dof type
              */
-            void eval_const();
+            void eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                ( this->*m_eval_ddivstraindu)( aDofTypes );
+            }
+            void eval_ddivstraindu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+            void eval_ddivstraindu_3d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the strain wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            void eval_dstraindx( uint aOrder )
+            {
+                ( this->*m_eval_dstraindx )( aOrder );
+            }
+            void eval_dstraindx_2d( uint aOrder );
+            void eval_dstraindx_3d( uint aOrder );
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the test strain
+             */
+            void eval_testStrain()
+            {
+                ( this->*m_eval_teststrain )();
+            }
+            void eval_teststrain_2d();
+            void eval_teststrain_3d();
 
 //--------------------------------------------------------------------------------------------------------------
             /**
@@ -157,33 +240,26 @@ namespace moris
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model matrix derivative wrt to a dof type
-             * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
-             * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
-             */
-            void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-//--------------------------------------------------------------------------------------------------------------
-            /**
              * flatten normal vector
              * @param[ in ] aNormal          a normal vector
              * @param[ in ] aFlattenedNormal a matrix for flattened normal to fill
              */
             void flatten_normal( const Matrix< DDRMat > & aNormal,
-                                       Matrix< DDRMat > & aFlattenedNormal );
-
-//--------------------------------------------------------------------------------------------------------------
-            /**
-             * set spatial dimensions. Modified from base to set function pointers to the appropriate eval_const()
-             * @param[ in ] aSpaceDim a spatial dimension
-             */
-            void set_space_dim( uint aSpaceDim );
+                                       Matrix< DDRMat > & aFlatNormal )
+            {
+                ( this->*m_flatten_normal )( aNormal, aFlatNormal );
+            }
+            void flatten_normal_2d( const Matrix< DDRMat > & aNormal,
+                                          Matrix< DDRMat > & aFlatNormal );
+            void flatten_normal_3d( const Matrix< DDRMat > & aNormal,
+                                          Matrix< DDRMat > & aFlatNormal );
 
 //--------------------------------------------------------------------------------------------------------------
         private:
 
 //--------------------------------------------------------------------------------------------------------------
         };
+
 //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
