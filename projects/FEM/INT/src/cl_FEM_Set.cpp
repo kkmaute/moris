@@ -239,7 +239,16 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::delete_pointers()
     {
-        //FIXME introduce Field_Interolator_Manager->delete_pointers();
+        if( mMasterFIManager != nullptr )
+        {
+            delete mMasterFIManager;
+            mMasterFIManager = nullptr;
+        }
+        if( mSlaveFIManager != nullptr )
+        {
+            delete mSlaveFIManager;
+            mSlaveFIManager = nullptr;
+        }
     }
 
 //------------------------------------------------------------------------------

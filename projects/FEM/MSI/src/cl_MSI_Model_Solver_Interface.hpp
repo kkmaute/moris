@@ -157,7 +157,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void finalize( const bool aUseMultigrid = false )
+        void finalize()
         {
             for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
             {
@@ -179,7 +179,7 @@ namespace moris
                 tElement->set_unique_adof_map();
             }
 
-            if ( aUseMultigrid )
+            if ( mMSIParameterList.get< bool >( "multigrid" ) )
             {
                 mMultigrid = new Multigrid( this, mMesh );
 

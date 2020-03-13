@@ -408,18 +408,22 @@ namespace xtk
     void Multigrid::build_basis_exodus_information()
     {
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
-
+#ifdef DEBUG
         mEnrichedBasisCoords.resize( mNumBasis );
-        mEnrichedBasisLevel .set_size( mNumBasis, 1 );
         mEnrichedBasisStatus.set_size( mNumBasis, 1 );
+#endif
+        mEnrichedBasisLevel .set_size( mNumBasis, 1 );
+
 
         for( uint Ik = 0; Ik < mNumBasis; Ik++ )
         {
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
             mEnrichedBasisLevel ( Ik ) = tInterpolationMesh.get_basis_level ( 0, tBackgroundIndex);
+#ifdef DEBUG
             mEnrichedBasisStatus( Ik ) = tInterpolationMesh.get_basis_status( 0, tBackgroundIndex);
             mEnrichedBasisCoords( Ik ) = tInterpolationMesh.get_basis_coords( 0, tBackgroundIndex);
+#endif
         }
 
 //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");

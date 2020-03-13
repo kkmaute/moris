@@ -112,6 +112,8 @@ void Performer_Manager::perform()
 
     mHMRPerformer( 0 )->finalize();
 
+    mHMRPerformer( 0 )->calculate_bspline_coordinates( tLagrangeMeshIndex, 0 );
+
     mHMRPerformer( 0 )->save_to_exodus( 0, "./hmr_exo/benchmark01.e" );
 
     std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = mHMRPerformer( 0 )->create_interpolation_mesh( tLagrangeMeshIndex );
@@ -147,6 +149,8 @@ void Performer_Manager::perform()
 
     mXTKPerformer( 0 )->perform_basis_enrichment( EntityRank::BSPLINE,0 );
     mXTKPerformer( 0 )->construct_face_oriented_ghost_penalization_cells();
+
+    mXTKPerformer( 0 )->construct_multigrid();
 
 //    xtk::Output_Options tOutputOptions;
 //    tOutputOptions.mAddNodeSets = false;

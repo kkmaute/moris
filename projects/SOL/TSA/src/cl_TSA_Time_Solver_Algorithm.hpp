@@ -9,20 +9,26 @@
 
 #include <iostream>
 
-#include "cl_MSI_Dof_Type_Enums.hpp"
-
-#include "cl_SOL_Warehouse.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
-
-#include "cl_SOL_Enums.hpp"
-
 // MORIS header files.
+#include "cl_Cell.hpp"
+#include "cl_Param_List.hpp"
+
+#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 namespace moris
 {
 class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
+namespace NLA
+{
+    class Nonlinear_Solver;
+}
+namespace sol
+{
+    class SOL_Warehouse;
+}
 
 namespace tsa
 {
@@ -85,10 +91,9 @@ namespace tsa
 
         //-------------------------------------------------------------------------------
         /**
-         * @brief Destructor
-         *
+         * @brief Destructor         *
          */
-        ~Time_Solver_Algorithm();
+        virtual ~Time_Solver_Algorithm();
 
         //-------------------------------------------------------------------------------
         /**

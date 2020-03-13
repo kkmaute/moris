@@ -85,6 +85,7 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "fn_norm.hpp"
 #include "cl_PRM_SOL_Parameters.hpp"
@@ -1105,28 +1106,6 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-//        xtk::Output_Options tOutputOptions;
-//        tOutputOptions.mAddNodeSets = false;
-//        tOutputOptions.mAddSideSets = true;
-//        tOutputOptions.mAddClusters = true;
-//
-//        // add solution field to integration mesh
-//        std::string tIntegSolFieldName = "solution";
-//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-//
-//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//        if(true)
-//        {
-//            // Write mesh
-//            Writer_Exodus writer(tIntegMesh1);
-//            writer.write_mesh("", "./xtk_exo/xtk_multigrid.exo");
-//
-//            // Write the fields
-//            writer.set_time(0.0);
-//            writer.close_file();
-//        }
-
          //------------------------------------------------------------------------------
         // create the properties
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
@@ -1161,11 +1140,6 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 3 );
 
-//        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-//        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//        tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
-//        tCMDiffLinIso2->set_space_dim( 3 );
-
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
@@ -1180,12 +1154,6 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
-
-//        std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-//        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-//        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-//        tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );

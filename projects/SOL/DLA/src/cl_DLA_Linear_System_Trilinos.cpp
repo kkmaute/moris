@@ -41,7 +41,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap,  tNumRHS );
 
-        mInput->build_graph( mMat );
+        mSolverInterface->build_graph( mMat );
     }
 
     else
@@ -96,7 +96,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHMS );
 
-        mInput->build_graph( mMat );
+        mSolverInterface->build_graph( mMat );
 }
 
 //----------------------------------------------------------------------------------------

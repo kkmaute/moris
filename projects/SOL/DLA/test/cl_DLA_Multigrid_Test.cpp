@@ -223,6 +223,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
         tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
+        tMSIParameters.set( "multigrid", true );
 
         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
                                                                                      tElementBlocks,
@@ -233,7 +234,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         tElementBlocks( 0 )->finalize( tMSI );
 
-        tMSI->finalize( true );
+        tMSI->finalize();
 
         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 
@@ -453,7 +454,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 
          tMSI->set_param("L2")= (sint)tOrder;
 
-         tMSI->finalize( true );
+         tMSI->finalize();
 
          moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 
@@ -654,7 +655,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 //
 //         tMSI->set_param("L2")= (sint)tOrder;
 //
-//         tMSI->finalize( true );
+//         tMSI->finalize();
 //
 //         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 //
@@ -856,7 +857,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
          tMSI->set_param("L2")= (sint)tOrder;
 
-         tMSI->finalize( true );
+         tMSI->finalize();
 
          moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 

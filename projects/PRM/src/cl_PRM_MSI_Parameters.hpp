@@ -47,6 +47,7 @@ namespace moris
         mMSIParameterList.insert( "VY"         , 0 );
         mMSIParameterList.insert( "VZ"         , 0 );
         mMSIParameterList.insert( "P"          , 0 );
+        mMSIParameterList.insert( "multigrid"  , false );
 
         return mMSIParameterList;
     }

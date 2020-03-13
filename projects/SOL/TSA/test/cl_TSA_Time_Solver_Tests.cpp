@@ -21,6 +21,9 @@
 #undef protected
 #undef private
 
+#include "cl_SOL_Warehouse.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
 namespace moris
 {
 namespace tsa

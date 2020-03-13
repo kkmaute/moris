@@ -13,7 +13,6 @@
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_Param_List.hpp"
 
@@ -29,10 +28,12 @@ namespace tsa
 namespace dla
 {
     class Linear_Solver_Algorithm;
+    class Linear_Solver;
 }
 namespace NLA
 {
     class Nonlinear_Solver;
+    class Nonlinear_Problem;
     class Nonlinear_Algorithm
     {
     private:

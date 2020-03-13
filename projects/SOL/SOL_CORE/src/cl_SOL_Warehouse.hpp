@@ -21,10 +21,6 @@
 
 #include "cl_Param_List.hpp"       //CON/src
 
-//#include "cl_MSI_Dof_Type_Enums.hpp"
-//#include "cl_NLA_Nonlinear_Solver.hpp"
-//#include "cl_SOL_Dist_Map.hpp"
-
 namespace moris
 {
 class Solver_Interface;

@@ -23,6 +23,8 @@
 #undef protected
 #undef private
 
+#include "cl_Matrix_Vector_Factory.hpp"
+
 namespace moris
 {
 

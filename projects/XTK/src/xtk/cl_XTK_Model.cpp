@@ -2779,7 +2779,7 @@ void Model::construct_multigrid()
 
     mMultigrid->build_basis_exodus_information();
 #ifdef DEBUG
-    mMultigrid->save_to_vtk( "Enriched_bspline.vtk");
+    mMultigrid->save_to_vtk( "Enriched_bspline_1.vtk");
 #endif
 }
 
