@@ -3,6 +3,9 @@
 
 # List header files
 set(HEADERS
+    cl_Tracer_Enums.hpp
+	cl_GlobalClock.hpp
+	cl_Tracer.hpp
     cl_Logger.hpp
 	cl_XML_Parser.hpp
 	fn_Parsing_Tools.hpp

@@ -8,6 +8,8 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_Vector.hpp"
 
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -91,6 +93,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
 
 moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter )
 {
+    Tracer tTracer(EntityBase::LinearSolver, EntityType::Amesos, EntityAction::Solve);
+
     mLinearSystem = aLinearSystem;
     mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", *mLinearSystem->get_linear_system_epetra() );
 

@@ -17,6 +17,9 @@
 
 #include "cl_Communication_Tools.hpp"
 
+#include "cl_Tracer.hpp"
+
+
 using namespace moris;
 using namespace NLA;
 using namespace dla;
@@ -237,6 +240,8 @@ void Nonlinear_Problem::delete_pointers()
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
                                                   const sint aNonLinearIt )
 {
+    Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
+
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
 
@@ -254,6 +259,8 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
                                                   const sint aNonLinearIt,
                                                   const sint aRestart )
 {
+    Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
+
     delete( mFullVector );
 
     // Build Matrix vector factory

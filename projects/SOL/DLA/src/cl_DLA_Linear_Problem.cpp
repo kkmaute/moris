@@ -10,6 +10,10 @@
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
+// detailed logging package
+#include "cl_GlobalClock.hpp"
+#include "cl_Tracer.hpp"
+
 #ifdef WITHGPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
@@ -48,6 +52,8 @@ namespace dla
 //----------------------------------------------------------------------------------------
     void Linear_Problem::assemble_residual( Dist_Vector * aFullSolutionVector )
     {
+        Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleResidual);
+
         mVectorRHS->vec_put_scalar( 0.0 );
 
         // start timer
@@ -63,6 +69,8 @@ namespace dla
 //----------------------------------------------------------------------------------------
     void Linear_Problem::assemble_jacobian( Dist_Vector * aFullSolutionVector )
     {
+        Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleJacobian);
+
         mMat->mat_put_scalar( 0.0 );
 
         // start timer

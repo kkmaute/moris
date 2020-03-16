@@ -7,12 +7,19 @@
 
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 
+// for detailed logging
+#include "cl_GlobalClock.hpp"
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
 
 void Monolithic_Time_Solver::solve_monolytic_time_system()
 {
+    // trace this solve
+    Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
+
     this->finalize();
 
     moris::real tTime_Scalar = 0;
@@ -23,6 +30,9 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
 
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
+
+        // log number of time steps
+        gClock.log(OutputSpecifier::Steps, (real) (Ik+1) );
 
         bool tBreaker = false;
         Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );

@@ -68,6 +68,11 @@
 
 #include "fn_norm.hpp"
 
+#include "cl_GlobalClock.hpp" // for testing global logging functions
+#include "cl_Tracer.hpp"
+
+//extern moris::GlobalClock gClock;
+
 namespace moris
 {
 namespace mdl
@@ -394,7 +399,11 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
      tTimeSolver.solve();
 
      moris::Matrix< DDRMat > tFinalSolution;
+
      tTimeSolver.get_full_solution( tFinalSolution );
+
+     // destroy global clock
+     gClock.stop();
 
 } //End main_function
 
