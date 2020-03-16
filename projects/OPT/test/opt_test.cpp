@@ -19,8 +19,7 @@ TEST_CASE( "[optimization]" )
         tParameterLists(1).resize(1);
         tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
         tParameterLists(1)(0) = moris::prm::create_gcmma_parameter_list();
-        tParameterLists(0)(0).set("objective_finite_difference_type", "central");
-        tParameterLists(0)(0).set("constraint_finite_difference_type", "central");
+        tParameterLists(0)(0).set("finite_difference_type", "central");
 
         // Create manager
         moris::opt::Manager tManager(tParameterLists);
@@ -29,8 +28,8 @@ TEST_CASE( "[optimization]" )
         tManager.perform();
 
         // Check Solution
-        REQUIRE(std::abs(tManager.get_objectives()(0)) < 1.0e-02); // check value of objective
-        REQUIRE(norm(tManager.get_advs() - 1.0) < 1.0e-02); // check value of design variable, x
+        REQUIRE(std::abs(tManager.get_objectives()(0)) < 2.0e-01); // check value of objective
+        REQUIRE(norm(tManager.get_advs() - 1.0) < 1.0e-01); // check value of design variable, x
     }
 
     SECTION("SQP")
@@ -93,13 +92,11 @@ TEST_CASE( "[optimization]" )
         // Path for writing file
         std::string tMorisRoot = std::getenv("MORISOUTPUT");
         std::string tHdf5FilePath = tMorisRoot + "sweep.hdf5";
+        tParameterLists(1)(0).set("evaluate_constraint_gradients", false);
         tParameterLists(1)(0).set("hdf5_path", tHdf5FilePath);
-        tParameterLists(1)(0).set("print", true);
         tParameterLists(1)(0).set("num_evaluations_per_adv", "3, 2");
-        tParameterLists(1)(0).set("objective_finite_difference_type", "all");
-        tParameterLists(1)(0).set("constraint_finite_difference_type", "all");
-        tParameterLists(1)(0).set("objective_finite_difference_epsilons", "0.01, 0.0001");
-        tParameterLists(1)(0).set("constraint_finite_difference_epsilons", "0.01, 0.0001");
+        tParameterLists(1)(0).set("finite_difference_type", "all");
+        tParameterLists(1)(0).set("finite_difference_epsilons", "0.001, 0.01; 0.00001, 0.00001");
 
         // Create manager
         moris::opt::Manager tManager(tParameterLists);

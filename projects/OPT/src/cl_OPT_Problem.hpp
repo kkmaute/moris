@@ -25,9 +25,9 @@ namespace moris
             Matrix<DDRMat> mConstraints; // constraints
             Matrix<DDRMat> mObjectiveGradient; // full gradient of the objectives with respect to the ADVs
             Matrix<DDRMat> mConstraintGradient; // full gradient of the constraints with respect to the ADVs
+            Matrix<DDRMat> mFiniteDifferenceEpsilons; // Epsilon for finite differencing
 
-            real mObjectiveFiniteDifferenceEpsilon; // Epsilon for finite differencing the objective
-            real mConstraintFiniteDifferenceEpsilon; // Epsilon for finite differencing the constraints
+            std::string mFiniteDifferenceType;
             real mADVNormTolerance = 0.0;
 
         protected:
@@ -160,17 +160,10 @@ namespace moris
              * Sets the type of finite differencing used for the objectives and an epsilon
              *
              * @param aType std::string defining type; forward, backward, central, or none
-             * @param (optional) aEpsilon real value for perturbing the ADVs
+             * @param (optional) aEpsilons vector of values for perturbing the ADVs
              */
-            void set_objective_finite_differencing(std::string aType, real aEpsilon);
-
-            /**
-             * Sets the type of finite differencing used for the constraints and an epsilon
-             *
-             * @param aType std::string defining type; forward, backward, central, or none
-             * @param (optional) aEpsilon real value for perturbing the ADVs
-             */
-            void set_constraint_finite_differencing(std::string aType, real aEpsilon);
+            void set_finite_differencing(std::string aType, Matrix<DDRMat> aEpsilons);
+            void set_finite_differencing(std::string aType);
 
             /**
              * Modifies the optimization solution. Not currently implemented.

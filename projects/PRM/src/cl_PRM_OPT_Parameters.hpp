@@ -19,12 +19,9 @@ namespace moris
 
             tParameterList.insert("problem", "user_defined"); // opt Problem class type
             tParameterList.insert("interface", "user_defined"); // opt Interface class type
-            tParameterList.insert("objective_finite_difference_type", "none");  // Type of finite differencing for objective gradients;
+            tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
                                                                                 // central, forward, backward, or none
-            tParameterList.insert("constraint_finite_difference_type", "none"); // Type of finite differencing for constraint gradients;
-                                                                                // central, forward, backward, or none
-            tParameterList.insert("objective_finite_difference_epsilon", 1E-8); // Epsilon to use for objective finite differencing
-            tParameterList.insert("constraint_finite_difference_epsilon", 1E-8); // Epsilon to use for constraint finite differencing
+            tParameterList.insert("finite_difference_epsilons", "1E-8"); // Epsilon(s) to use per ADV for finite differencing
 
             return tParameterList;
         }
@@ -158,16 +155,13 @@ namespace moris
                                                                     // Can specify different number per adv, or one value (applies to all advs)
             tParameterList.insert("custom_adv_evaluations", ""); // Evaluate with ADVs at specified values, overrides num_evaluations_per_adv
             tParameterList.insert("include_bounds", true); // Allow evaluations with ADVs at the lower and upper bounds
-            tParameterList.insert("compute_objectives", true); // Calculate and output the objective at each point
-            tParameterList.insert("compute_constraints", true); // Calculate and output the constraints at each point
-            tParameterList.insert("calculate_objective_gradients", true); // Calculate and output the objective gradients at each point
-            tParameterList.insert("calculate_constraint_gradients", true); // Calculate and output the constraint gradients at each point
-            tParameterList.insert("objective_finite_difference_type", "none");  // Type of finite differencing for objective gradients;
+            tParameterList.insert("evaluate_objectives", true); // Calculate and output the objective at each point
+            tParameterList.insert("evaluate_constraints", true); // Calculate and output the constraints at each point
+            tParameterList.insert("evaluate_objective_gradients", true); // Calculate and output the objective gradients at each point
+            tParameterList.insert("evaluate_constraint_gradients", true); // Calculate and output the constraint gradients at each point
+            tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
                                                                                 // central, forward, backward, all, or none
-            tParameterList.insert("constraint_finite_difference_type", "none"); //Type of finite differencing for constraint gradients;
-                                                                                // central, forward, backward, all, or none
-            tParameterList.insert("objective_finite_difference_epsilons", ""); // Use finite differencing to obtain objective gradients with these epsilons
-            tParameterList.insert("constraint_finite_difference_epsilons", ""); // Use finite differencing to obtain constraint gradients with these epsilons
+            tParameterList.insert("finite_difference_epsilons", "1E-8"); // Use finite differencing to obtain gradients with these epsilons
             tParameterList.insert("save", true); // Save the sweep evaluations in "hdf5_path"
             tParameterList.insert("print", false); // Print the sweep evaluations to the screen with moris::print
             tParameterList.insert("hdf5_path", ""); // Path and file name for saving if "save" is set to true

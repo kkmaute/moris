@@ -31,31 +31,13 @@ namespace moris
 
             // Extract basic sweep parameters
             bool tIncludeBounds = mParameterList.get<bool>("include_bounds");
-            mUpdateObjectives = mParameterList.get<bool>("compute_objectives");
-            mUpdateConstraints = mParameterList.get<bool>("compute_constraints");
-            mUpdateObjectiveGradients = mParameterList.get<bool>("calculate_objective_gradients");
-            mUpdateConstraintGradients = mParameterList.get<bool>("calculate_constraint_gradients");
+            mUpdateObjectives = mParameterList.get<bool>("evaluate_objectives");
+            mUpdateConstraints = mParameterList.get<bool>("evaluate_constraints");
+            mUpdateObjectiveGradients = mParameterList.get<bool>("evaluate_objective_gradients");
+            mUpdateConstraintGradients = mParameterList.get<bool>("evaluate_constraint_gradients");
             mSave = mParameterList.get<bool>("save");
             mPrint = mParameterList.get<bool>("print");
-            std::string tObjectiveFiniteDifferenceType = mParameterList.get<std::string>("objective_finite_difference_type");
-            std::string tConstraintFiniteDifferenceType = mParameterList.get<std::string>("constraint_finite_difference_type");
-            
-            // Finite difference epsilons
-            Matrix<DDRMat> tObjectiveFiniteDifferenceEpsilons(1, 1);
-            Matrix<DDRMat> tConstraintFiniteDifferenceEpsilons(1, 1);
-            string_to_mat(mParameterList.get<std::string>("objective_finite_difference_epsilons"), tObjectiveFiniteDifferenceEpsilons);
-            string_to_mat(mParameterList.get<std::string>("constraint_finite_difference_epsilons"), tConstraintFiniteDifferenceEpsilons);
-            if (tObjectiveFiniteDifferenceEpsilons.numel() == 0)
-            {
-                tObjectiveFiniteDifferenceEpsilons.set_size(1, 1, 0);
-            }
-            if (tConstraintFiniteDifferenceEpsilons.numel() == 0)
-            {
-                tConstraintFiniteDifferenceEpsilons.set_size(1, 1, 0);
-            }
-            MORIS_ERROR(tObjectiveFiniteDifferenceEpsilons.numel() == tConstraintFiniteDifferenceEpsilons.numel(), 
-                    "objective_finite_difference_epsilons and constraint_finite_difference_epsilons must have the same number of elements");
-            uint tTotalEpsilons = tObjectiveFiniteDifferenceEpsilons.numel();
+            std::string tFiniteDifferenceType = mParameterList.get<std::string>("finite_difference_type");
 
             // Set initial compute flags
             mProblem->mUpdateObjectives = this->mUpdateObjectives;
@@ -65,6 +47,29 @@ namespace moris
 
             // Get number of ADVs
             uint tNumADVs = mProblem->get_num_advs();
+
+            // Finite differencing
+            Matrix<DDRMat> tFiniteDifferenceEpsilons(1, 1);
+            string_to_mat(mParameterList.get<std::string>("finite_difference_epsilons"), tFiniteDifferenceEpsilons);
+            if (tFiniteDifferenceEpsilons.numel() == 0)
+            {
+                tFiniteDifferenceEpsilons.set_size(1, 1, 0);
+            }
+            else
+            {
+                if (tFiniteDifferenceEpsilons.n_rows() == 1)
+                {
+                    uint tNumEvals = tFiniteDifferenceEpsilons.n_cols();
+                    tFiniteDifferenceEpsilons.resize(tNumADVs, tNumEvals);
+                    for (uint tIndex = 1; tIndex < tNumADVs; tIndex++)
+                    {
+                        tFiniteDifferenceEpsilons({tIndex, tIndex}, {0, tNumEvals - 1}) = tFiniteDifferenceEpsilons({0, 0}, {0, tNumEvals - 1});
+                    }
+                }
+                MORIS_ERROR(tFiniteDifferenceEpsilons.n_rows() == tNumADVs, 
+                        "OPT_Algorithm_Sweep: Number of rows in finite_difference_epsilons must match the number of ADVs.");
+            }
+            uint tTotalEpsilons = tFiniteDifferenceEpsilons.n_cols();
 
             //----------------------------------------------------------------------------------------------------------
             // Set up evaluation points
@@ -157,16 +162,14 @@ namespace moris
             if (mSave)
             {
                 moris::save_matrix_to_hdf5_file(mFileID, "adv_evaluations", tEvaluationPoints, tStatus);
-                moris::save_matrix_to_hdf5_file(mFileID, "objective_epsilons", tObjectiveFiniteDifferenceEpsilons, tStatus);
-                moris::save_matrix_to_hdf5_file(mFileID, "constraint_epsilons", tConstraintFiniteDifferenceEpsilons, tStatus);
+                moris::save_matrix_to_hdf5_file(mFileID, "epsilons", tFiniteDifferenceEpsilons, tStatus);
             }
 
             // Print ADVs/epsilons to be evaluated
             if (mPrint)
             {
                 moris::print(tEvaluationPoints, "adv_evaluations");
-                moris::print(tObjectiveFiniteDifferenceEpsilons, "objective_epsilons");
-                moris::print(tConstraintFiniteDifferenceEpsilons, "constraint_epsilons");
+                moris::print(tFiniteDifferenceEpsilons, "epsilons");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -188,75 +191,49 @@ namespace moris
                 // Evaluate objectives and constraints
                 this->output_objectives_constraints(tEvaluationName);
 
+                // Get analytical gradients if requested
+                if (tFiniteDifferenceType == "none" || tFiniteDifferenceType == "all")
+                {
+                    mProblem->set_finite_differencing("none");
+                    this->evaluate_objective_gradients(tEvaluationName + " analytical");
+                    this->evaluate_constraint_gradients(tEvaluationName + " analytical");
+                }
+
                 // Loop through epsilons
                 for (uint tEpsilonIndex = 0; tEpsilonIndex < tTotalEpsilons; tEpsilonIndex++)
                 {
-                    // Add epsilon data
-                    if ((tObjectiveFiniteDifferenceType != "none") || (tConstraintFiniteDifferenceType != "none"))
+
+                    // Reset evaluation name with epsilon data
+                    tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
+                    if (tFiniteDifferenceType != "none")
                     {
                         tEvaluationName += " epsilon_" + std::to_string(tEpsilonIndex + 1) + "-" + std::to_string(tTotalEpsilons);
                     }
 
-                    // Compute and save objective gradients based on finite differencing requested
-                    if (tObjectiveFiniteDifferenceType == "all")
+                    // Compute and/or save gradients based on finite differencing requested
+                    if (tFiniteDifferenceType == "all")
                     {
-                        // Analytical
-                        mProblem->set_objective_finite_differencing("none",
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        this->evaluate_objective_gradients(tEvaluationName + " analytical");
-
                         // Forward
-                        mProblem->set_objective_finite_differencing("forward",
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        Matrix<DDRMat> tForwardGradient = this->evaluate_objective_gradients(
-                                tEvaluationName + " fd_forward");
+                        mProblem->set_finite_differencing("forward", tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
+                        Matrix<DDRMat> tForwardObjectiveGradient = this->evaluate_objective_gradients(tEvaluationName + " fd_forward");
+                        Matrix<DDRMat> tForwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_forward");
 
                         // Backward
-                        mProblem->set_objective_finite_differencing("backward",
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        Matrix<DDRMat> tBackwardGradient = this->evaluate_objective_gradients(
-                                tEvaluationName + " fd_backward");
+                        mProblem->set_finite_differencing("backward", tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
+                        Matrix<DDRMat> tBackwardObjectiveGradient = this->evaluate_objective_gradients(tEvaluationName + " fd_backward");
+                        Matrix<DDRMat> tBackwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_backward");
 
                         // Central
-                        this->output_variables((tForwardGradient + tBackwardGradient) / 2,
+                        this->output_variables((tForwardObjectiveGradient + tBackwardObjectiveGradient) / 2,
                                 "objective_gradients" + tEvaluationName + " fd_central");
-                    }
-                    else
-                    {
-                        mProblem->set_objective_finite_differencing(tObjectiveFiniteDifferenceType,
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        this->evaluate_objective_gradients(tEvaluationName);
-                    }
-
-                    // Compute and save constraint gradients based on finite differencing requested
-                    if (tConstraintFiniteDifferenceType == "all")
-                    {
-                        // Analytical
-                        mProblem->set_constraint_finite_differencing("none",
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        this->evaluate_constraint_gradients(tEvaluationName + " analytical");
-
-                        // Forward
-                        mProblem->set_constraint_finite_differencing("forward",
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        Matrix<DDRMat> tForwardGradient = this->evaluate_constraint_gradients(
-                                tEvaluationName + " fd_forward");
-
-                        // Backward
-                        mProblem->set_constraint_finite_differencing("backward",
-                                                                    tObjectiveFiniteDifferenceEpsilons(tEpsilonIndex));
-                        Matrix<DDRMat> tBackwardGradient = this->evaluate_constraint_gradients(
-                                tEvaluationName + " fd_backward");
-
-                        // Central
-                        this->output_variables((tForwardGradient + tBackwardGradient) / 2,
+                        this->output_variables((tForwardConstraintGradient + tBackwardConstraintGradient) / 2,
                                                "constraint_gradients" + tEvaluationName + " fd_central");
                     }
-                    else
+                    else if (tFiniteDifferenceType != "none")
                     {
-                        mProblem->set_constraint_finite_differencing(tConstraintFiniteDifferenceType,
-                                                                     tConstraintFiniteDifferenceEpsilons(tEpsilonIndex));
-                        this->evaluate_constraint_gradients(tEvaluationName);
+                        mProblem->set_finite_differencing(tFiniteDifferenceType,
+                                                                    tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
+                        this->evaluate_objective_gradients(tEvaluationName);
                     }
                 }
             }
