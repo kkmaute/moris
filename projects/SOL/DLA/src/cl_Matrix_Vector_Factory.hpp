@@ -12,47 +12,40 @@
 //#include "linalg_typedefs.hpp"
 #include "typedefs.hpp"                       //MRS/COR/src
 
-#include "cl_DLA_Enums.hpp"
-//#include "cl_Map_Class.hpp"
+#include "cl_SOL_Enums.hpp"
+//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
-    class Sparse_Matrix;
+    class Dist_Matrix;
     class Dist_Vector;
-    class Map_Class;
+    class Dist_Map;
     class Solver_Interface;
     class Matrix_Vector_Factory
     {
     private:
-        enum MapType mMapType = MapType::Epetra;
+        enum sol::MapType mMapType = sol::MapType::Epetra;
     protected:
 
     public:
-        Matrix_Vector_Factory( const enum MapType aMapType = MapType::Epetra );
+        Matrix_Vector_Factory( const enum sol::MapType aMapType = sol::MapType::Epetra );
 
-        Sparse_Matrix * create_matrix(       Solver_Interface * aInput,
-                                       const Map_Class        * aMap );
+        Dist_Matrix * create_matrix(       Solver_Interface * aInput,
+                                       const Dist_Map        * aMap );
 
-        Sparse_Matrix * create_matrix( const moris::uint aRows,
+        Dist_Matrix * create_matrix( const moris::uint aRows,
                                        const moris::uint aCols );
 
-        Dist_Vector * create_vector(       Solver_Interface    * aInput,
-                                     const Map_Class           * aMap,
-                                     const enum VectorType       aVectorType = VectorType::FREE,
-                                     const sint                  aNumVectors = 1 );
+        moris::Dist_Vector * create_vector(       moris::Solver_Interface * aInput,
+                                                  moris::Dist_Map        * aMap,
+                                            const sint                      aNumVectors = 1 );
 
         Dist_Vector * create_vector( );
 
-        Map_Class * create_map( const moris::uint             & aNumMaxDofs,
-                                const moris::Matrix< DDSMat > & aMyGlobalElements,
-                                const moris::Matrix< DDUMat > & aMyConstraintDofs,
-                                const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+        moris::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds,
+                                      const moris::Matrix< DDUMat > & aMyConstraintIds );
 
-        Map_Class * create_map( const moris::uint             & aNumMaxDofs,
-                                const moris::Matrix< DDSMat > & aMyGlobalElements,
-                                const moris::Matrix< DDUMat > & aMyConstraintDofs );
-
-        Map_Class * create_map( const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+        moris::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds );
     };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

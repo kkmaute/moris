@@ -18,6 +18,9 @@ namespace moris
             // set IQI type
             mIQIType = vis::Output_Type::L2_ERROR_ANALYTIC;
 
+            // set FEM IQI type
+            mFEMIQIType = fem::IQI_Type::L2_ERROR_ANALYTIC;
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
@@ -35,13 +38,13 @@ namespace moris
             uint tL2CheckIndex = static_cast< uint >( IQI_Property_Type::L2_CHECK );
 
             // evaluate the QI
-            aQI = trans( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) * ( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) ;
+            aQI = ( trans( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) * ( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) );
         }
 
 //------------------------------------------------------------------------------
-        void IQI_L2_Error_Analytic::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+        void IQI_L2_Error_Analytic::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
         {
-            MORIS_ERROR( false, "IQI_L2_Error_Analytic::compute_dQIdDof - Not implemented." );
+            MORIS_ERROR( false, "IQI_L2_Error_Analytic::compute_dQIdu - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

@@ -1,19 +1,22 @@
 #include "assert.hpp"
-#include "cl_FEM_SP_Factory.hpp"            //FEM/INT/src
-#include "cl_FEM_SP_Dirichlet_Nitsche.hpp"  //FEM/INT/src
-#include "cl_FEM_SP_Ghost_Displacement.hpp" //FEM/INT/src
-#include "cl_FEM_SP_Ghost_Virtual_Work.hpp" //FEM/INT/src
-#include "cl_FEM_SP_Nitsche_Interface.hpp" //FEM/INT/src
-#include "cl_FEM_SP_Master_Weight_Interface.hpp" //FEM/INT/src
-#include "cl_FEM_SP_Slave_Weight_Interface.hpp" //FEM/INT/src
+//FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_SP_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_SP_Ghost_Displacement.hpp"
+#include "cl_FEM_SP_Ghost_Virtual_Work.hpp"
+#include "cl_FEM_SP_Nitsche_Interface.hpp"
+#include "cl_FEM_SP_Master_Weight_Interface.hpp"
+#include "cl_FEM_SP_Slave_Weight_Interface.hpp"
+#include "cl_FEM_SP_Reciprocal_Total_Volume.hpp"
+#include "cl_FEM_SP_Incompressible_Flow.hpp"
 
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-        std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP( fem::Stabilization_Type aStabilizationType )
+        std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP
+        ( fem::Stabilization_Type aStabilizationType )
         {
             switch( aStabilizationType )
             {
@@ -34,6 +37,12 @@ namespace moris
 
                 case ( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ):
                     return std::make_shared< SP_Slave_Weight_Interface >();
+
+                case ( fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME ):
+                    return std::make_shared< SP_Reciprocal_Total_Volume >();
+
+                case ( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ):
+                    return std::make_shared< SP_Incompressible_Flow >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

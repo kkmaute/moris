@@ -66,6 +66,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -73,8 +74,8 @@
 
 #include "fn_norm.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 moris::real
 PlaneMatVoidMDL(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -86,13 +87,12 @@ PlaneMatVoidMDL(const moris::Matrix< moris::DDRMat > & aPoint )
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-
-Matrix< DDRMat > tConstValFunctionMatVoidMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunctionMatVoidMDL
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_MAT_VOID_2D]")
@@ -127,7 +127,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -155,14 +155,14 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
+        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -262,23 +262,23 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         // define set info
         fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk1.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk2.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tInterfaceSideSetName) );
+        tSetNeumann.set_mesh_set_name( tInterfaceSideSetName );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetGhost;
-        tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+        tSetGhost.set_mesh_set_name( "ghost_p0" );
         tSetGhost.set_IWGs( { tIWGGhost } );
 
         // create a cell of set info
@@ -302,7 +302,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -344,7 +344,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-        NLA::SOL_Warehouse tSolverWarehouse;
+        sol::SOL_Warehouse tSolverWarehouse;
 
         tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -379,45 +379,46 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
-        // Declare the fields related to enrichment strategy in output options
+//        // Declare the fields related to enrichment strategy in output options
         // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-
-
-        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-
-            tSTKIntegSol(i) = tIntegSol(tMyIndex);
-        }
-
-        // crate field in integration mesh
-        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-
-        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d.e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+        // FIXME add with output if needed
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldName = "solution";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+//
+//
+//        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
+//
+//            tSTKIntegSol(i) = tIntegSol(tMyIndex);
+//        }
+//
+//        // crate field in integration mesh
+//        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
+//        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
+//
+//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d.e";
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         //    delete tInterpMesh1;
         delete tModel;
-        delete tIntegMesh1;
+//        delete tIntegMesh1;
     }
 }

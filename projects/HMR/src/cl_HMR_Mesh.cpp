@@ -45,7 +45,10 @@ namespace moris
 
             MORIS_ERROR(mMesh != nullptr, "Mesh::Mesh(), Mesh not found");
 
-            setup_glb_to_local_maps();
+            if( mDatabase->is_finalized() )
+            {
+//                setup_glb_to_local_maps();
+            }
 
 
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
@@ -66,8 +69,10 @@ namespace moris
             MORIS_ERROR( mMesh != nullptr, "Pointer to Lagrange mesh %-5i is nullptr", aLagrangeMeshIndex );
 
 //            mDatabase->get_background_mesh()->set_activation_pattern( aLagrangeMeshIndex );
-
-            setup_glb_to_local_maps();
+            if( mDatabase->is_finalized() )
+            {
+                setup_glb_to_local_maps();
+            }
         }
 
 //-----------------------------------------------------------------------------
@@ -425,7 +430,7 @@ namespace moris
                         case( EntityRank::ELEMENT ) :
                         {
                             return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( aIndex )
-                                                                                              ->get_active_basis( aEntityIndex ) );
+                                                                                              ->get_basis_by_index( aEntityIndex ) );
                             break;
                         }
                         default :
@@ -726,11 +731,10 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         void
-        Mesh::get_elements_in_support_of_basis(const uint           aMeshIndex,
-                                               const uint           aBasisIndex,
-                                               Matrix< IndexMat > & aElementIndices)
+        Mesh::get_elements_in_support_of_basis( const uint           aMeshIndex,
+                                                const uint           aBasisIndex,
+                                                Matrix< IndexMat > & aElementIndices)
         {
-
             mMesh->get_my_elements_in_basis_support( aMeshIndex, aBasisIndex, aElementIndices );
         }
 
@@ -1687,26 +1691,40 @@ namespace moris
             return aElementIndices;
         }
 
+//-------------------------------------------------------------------------------
+
         void Mesh::setup_glb_to_local_maps()
         {
             // Initialize global to local map
             mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>( 4 + mMesh->get_number_of_bspline_meshes() );
 
-            setup_entity_global_to_local_map(EntityRank::NODE);
-            setup_entity_global_to_local_map(EntityRank::EDGE);
-            setup_entity_global_to_local_map(EntityRank::FACE);
-            setup_entity_global_to_local_map(EntityRank::ELEMENT);
+            uint tCounter = 0;
+
+            setup_entity_global_to_local_map(EntityRank::NODE, tCounter );
+            setup_entity_global_to_local_map(EntityRank::EDGE, tCounter );
+            setup_entity_global_to_local_map(EntityRank::FACE, tCounter );
+            setup_entity_global_to_local_map(EntityRank::ELEMENT, tCounter );
 
             for( uint Ik = 0; Ik < mMesh->get_number_of_bspline_meshes(); Ik++ )
             {
-                setup_entity_global_to_local_map( EntityRank::BSPLINE, Ik );
+                if( mMesh->get_bspline_mesh( Ik ) !=nullptr )
+                {
+                    setup_entity_global_to_local_map( EntityRank::BSPLINE, tCounter, Ik );
+                }
+                else
+                {
+                    // trivial case when all t-matrices are 1
+                    setup_entity_global_to_local_map( EntityRank::NODE, tCounter );
+                }
             }
 
         }
 
 //-------------------------------------------------------------------------------
 
-        void Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index aIndex)
+        void Mesh::setup_entity_global_to_local_map( enum  EntityRank     aEntityRank,
+                                                           uint         & aCounter,
+                                                     const moris_index    aIndex)
         {
             uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
 
@@ -1720,10 +1738,12 @@ namespace moris
 
 //                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
 
-                mEntityGlobaltoLocalMap( ( uint )aEntityRank + aIndex )[ tEntityId ] = tCount;
+                mEntityGlobaltoLocalMap( aCounter )[ tEntityId ] = tCount;
 
                 tCount++;
             }
+
+            aCounter++;
         }
 
 //-------------------------------------------------------------------------------

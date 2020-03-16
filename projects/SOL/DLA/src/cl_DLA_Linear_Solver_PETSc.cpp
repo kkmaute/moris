@@ -25,6 +25,11 @@ Linear_Solver_PETSc::Linear_Solver_PETSc()
     this->set_solver_parameters();
 }
 
+Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist )
+{
+
+}
+
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem * aLinearSystem )
 {
@@ -38,6 +43,7 @@ Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem * aLinearSystem )
 Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
     //KSPDestroy(&mPetscKSPProblem);
+//    PCDestroy(&mpc);
 }
 
 //----------------------------------------------------------------------------------------
@@ -128,11 +134,12 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
 
 void Linear_Solver_PETSc::build_multigrid_preconditioner( Linear_Problem * aLinearSystem )
 {
+	std::cout<<"---------build MG preconditioner-------------"<<std::endl;
     // Build multigrid operators
     aLinearSystem->get_solver_input()->build_multigrid_operators();
 
     // get multigrid operators
-    moris::Cell< Sparse_Matrix * > tProlongationList = aLinearSystem->get_solver_input()->get_multigrid_operator_pointer()->get_prolongation_list();
+    moris::Cell< Dist_Matrix * > tProlongationList = aLinearSystem->get_solver_input()->get_multigrid_operator_pointer()->get_prolongation_list();
 
     PetscInt tLevels = mParameterList.get< moris::sint >( "MultigridLevels" );
 

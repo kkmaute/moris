@@ -40,8 +40,8 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -120,7 +120,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tParameters.set_number_aura(  true );
 
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -148,11 +148,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        std::cout<<"Number of Cells = "<<tInterpMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-
-
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
-
 
         for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
         {
@@ -185,7 +181,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
 
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
@@ -196,7 +192,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  =  false;
 

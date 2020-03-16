@@ -8,6 +8,8 @@
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
+#include "cl_Param_List.hpp"
+
 #ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
 #define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
 
@@ -29,6 +31,9 @@ class Solver_Interface;
             ~Time_Solver_Factory();
 
             std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType = TimeSolverType::MONOLITHIC );
+
+            std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType,
+                                                                         const ParameterList aParameterlist);
         };
     }
 }

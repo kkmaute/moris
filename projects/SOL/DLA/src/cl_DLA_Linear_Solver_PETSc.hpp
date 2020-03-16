@@ -20,7 +20,7 @@
 namespace moris
 {
 class Dist_Vector;
-class Sparse_Matrix;
+class Dist_Matrix;
 namespace dla
 {
 class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
@@ -36,6 +36,8 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
 
     public:
     Linear_Solver_PETSc();
+
+    Linear_Solver_PETSc( const moris::ParameterList aParameterlist );
 
     Linear_Solver_PETSc( moris::Solver_Interface * aInput );
 

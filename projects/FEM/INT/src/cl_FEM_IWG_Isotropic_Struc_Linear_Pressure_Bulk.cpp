@@ -49,7 +49,7 @@ namespace moris
             moris::fem::CM_Struc_Linear_Isotropic* tLinearIso = static_cast <moris::fem::CM_Struc_Linear_Isotropic*> (mMasterCM(tElastLinIsoIndex).get());
 
             // compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += trans(tPressureFI->N()) * (tDisplacementFI->div() + tLinearIso->eval_inv_bulk_modulus() * tPressureFI->val()(0)) * aWStar;
         }
 
@@ -104,9 +104,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_drdpdv - Not implemented.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_dRdp - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

@@ -67,6 +67,9 @@ namespace moris
             //! flag telling if T-Matrices for input mesh have been calculated
             bool mHaveInputTMatrix = false;
 
+            // ! checks if finalize was called. Finalize should only be called once at the end of HMR
+            bool mFinalizedCalled = false;
+
 // -----------------------------------------------------------------------------
 
 
@@ -210,7 +213,7 @@ namespace moris
                 return mBackgroundMesh->get_number_of_active_elements_on_proc();
             }
 
-            // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
             /**
              * returns the number of ( active ) elements on this proc
@@ -397,6 +400,8 @@ namespace moris
 //                                      mParameters->get_union_pattern() );
 //            }
 
+// -----------------------------------------------------------------------------
+
             void create_union_pattern( const uint aSourceA,
                                        const uint aSourceB,
                                        const uint aTarget )
@@ -404,6 +409,13 @@ namespace moris
                 this->unite_patterns( aSourceA,
                                       aSourceB,
                                       aTarget );
+            }
+
+// -----------------------------------------------------------------------------
+
+            bool is_finalized()
+            {
+                return mFinalizedCalled;
             }
 
 // -----------------------------------------------------------------------------

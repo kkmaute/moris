@@ -466,8 +466,118 @@ private:
 
 //-------------------------------------------------------------------------------
 
-            void setup_entity_global_to_local_map(enum EntityRank aEntityRank, const moris_index     aIndex = 0);
+            void setup_entity_global_to_local_map( enum  EntityRank     aEntityRank,
+                                                         uint         & aCounter,
+                                                   const moris_index    aIndex = 0);
 
+//------------------------------------------------------------------------------
+            //##############################################
+            // Multigrid acessor functions
+            //##############################################
+//-------------------------------------------------------------------------------
+
+            uint get_num_interpolations()
+            {
+                return mMesh->get_number_of_bspline_meshes();
+            };
+
+//-------------------------------------------------------------------------------
+
+            uint get_max_level( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_max_level();
+            };
+
+//-------------------------------------------------------------------------------
+
+            uint get_num_basis( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_number_of_indexed_basis();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_basis_level( const moris_index aInterpolationIndex,
+                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_level();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
+                                                const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_number_of_parents();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
+                                                  const moris_index aBasisIndex,
+                                                  const moris_index aCoarseParentIndexForBasis )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_parent( aCoarseParentIndexForBasis )
+                            ->get_index();
+            }
+
+//-------------------------------------------------------------------------------
+
+            moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
+                                                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_children_ind_for_basis( aBasisIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
+                                                                     const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_children_weights_for_parent( aBasisIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+#ifdef DEBUG
+            Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
+                                               const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_coords();
+            }
+
+//-------------------------------------------------------------------------------
+
+            sint get_basis_status( const moris_index aInterpolationIndex,
+                                   const moris_index aBasisIndex )
+            {
+                sint tStatus = -1;
+
+                if( mMesh->get_bspline_mesh( aInterpolationIndex )
+                         ->get_basis_by_index( aBasisIndex )
+                         ->is_active() )
+                {
+                    tStatus = 1;
+                }
+                else if(mMesh->get_bspline_mesh( aInterpolationIndex )
+                             ->get_basis_by_index( aBasisIndex )
+                             ->is_refined() )
+                {
+                    tStatus = 0;
+                }
+                return tStatus;
+            }
+#endif
 
 //-------------------------------------------------------------------------------
         };

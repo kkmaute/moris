@@ -32,8 +32,12 @@ main(
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
 
-    // Run Tests
-    int result = Catch::Session().run( argc, argv );
+    int result;
+
+    {
+        // Run Tests
+        result = Catch::Session().run( argc, argv );
+    }
 
     // finalize moris global communication manager
     gMorisComm.finalize();

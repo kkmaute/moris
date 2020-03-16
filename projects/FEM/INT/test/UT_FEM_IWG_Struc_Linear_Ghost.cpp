@@ -16,36 +16,36 @@
 #include "cl_FEM_CM_Factory.hpp"                            //FEM//INT/src
 #include "cl_FEM_SP_Factory.hpp"                            //FEM//INT/src
 
-
 #include "op_equal_equal.hpp"
-moris::Matrix< moris::DDRMat > tFIConstValFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGI )
+
+void tFIConstValFunction_UTDisplGhost
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+void tFIValFunction_UTDisplGhost
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * sum( aDofFI( 0 )->val() );
+    aPropMatrix = aParameters( 0 ) * sum( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTDisplGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+void tFIDerFunction_UTDisplGhost
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    moris::Matrix< moris::DDRMat > tTemp = trans( aDofFI( 0 )->N() );
+    moris::Matrix< moris::DDRMat > tTemp = trans( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N() );
     moris::Matrix< moris::DDRMat > tReturn( tTemp.n_rows(), 1 );
     for( uint i = 0; i < tTemp.n_rows(); i++ )
     {
         tReturn( i ) = sum( tTemp.get_row( i ) );
     }
-    return aParameters( 0 )( 0, 0 ) * trans( tReturn );
+    aPropMatrix = aParameters( 0 )( 0, 0 ) * trans( tReturn );
 }
 
 using namespace moris;
@@ -329,11 +329,11 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
             // set size for the set EqnObjDofTypeList
-            tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+            tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
             // set size and populate the set dof type map
-            tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+            tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
             // set size and populate the set master and slave dof type map
             tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
@@ -352,14 +352,15 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
 
             // set size and init the set residual and jacobian
-            tIWG->mSet->mResidual.set_size( 2*tNumDof, 1 , 0.0 );
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
             tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
 
             // set requested residual dof type flag to true
             tIWG->mResidualDofTypeRequested = true;
 
             // build global property type list
-            tIWG->build_global_dof_type_list();
+            tIWG->build_global_dof_and_dv_type_list();
 
             // populate the requested master dof type
             tIWG->mRequestedMasterGlobalDofTypes = { tDofTypes };

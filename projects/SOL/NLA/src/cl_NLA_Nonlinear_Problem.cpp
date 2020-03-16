@@ -12,8 +12,9 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Factory.hpp"
-#include "cl_DLA_Enums.hpp"
-#include "cl_Vector.hpp"
+#include "cl_DLA_Linear_Problem.hpp"
+#include "cl_SOL_Enums.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
 
@@ -24,93 +25,64 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase,
+Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase,
                                             Solver_Interface   * aSolverInterface,
                                             Dist_Vector        * aFullVector,
                                       const moris::sint          aNonlinearSolverManagerIndex,
                                       const bool                 aBuildLinerSystemFlag,
-                                      const enum MapType         aMapType) :     mFullVector( aFullVector ),
+                                      const enum sol::MapType    aMapType) :     mFullVector( aFullVector ),
                                                                                  mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
                                                                                  mMapType( aMapType ),
                                                                                  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-    if( mMapType == MapType::Petsc )
-    {
-        // Initialize petsc solvers
-        PetscInitializeNoArguments();
-    }
+//    if( mMapType == sol::MapType::Petsc )
+//    {
+//        // Initialize petsc solvers
+//        PetscInitializeNoArguments();
+//    }
 
     moris::Cell< enum MSI::Dof_Type > tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
 
     // delete pointers if they already exist
     this->delete_pointers();
 
-    // create solver factory
-    Solver_Factory  tSolFactory;
-
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
-    // create map object FIXME ask liner problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
-                                   aSolverInterface->get_my_local_global_map( tRequesedDofTypes ),
-                                   aSolverInterface->get_constr_dof());
+    // create map object FIXME ask linear problem for map
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
 
-    // create map object FIXME ask liner problem for map
+    // create map object FIXME ask linear problem for map
     mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
-
 
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
+        // create solver factory
+        Solver_Factory  tSolFactory;
+
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface,
                                                            mMap,
                                                            mMapFull,
                                                            mMapType );
     }
-
-    //---------------------------arc-length vectors---------------------------------
-    //FIXME wrong map used. please fix
-    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-
-    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-
-    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-
-    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-
-    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-
-    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-
-    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
-    //---------------------------arc-length matrices--------------------------------
-    mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
-
-    //------------------------------------------------------------------------------
 }
 
 Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                                       const moris::sint        aNonlinearSolverManagerIndex,
                                       const bool               aBuildLinerSystemFlag,
-                                      const enum MapType       aMapType) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-                                                                               mMapType( aMapType ),
-                                                                               mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+                                      const enum sol::MapType  aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                                                                mMapType( aMapType ),
+                                                                                mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-    if( mMapType == MapType::Petsc )
+    std::cout<<"build linear system"<<std::endl;
+    if( mMapType == sol::MapType::Petsc )
     {
+        std::cout<<"build linear system"<<std::endl;
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
@@ -118,61 +90,29 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
-    // create map object FIXME ask liner problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
-                                   aSolverInterface->get_my_local_global_map(),
-                                   aSolverInterface->get_constr_dof(),
-                                   aSolverInterface->get_my_local_global_overlapping_map());
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map());
+
+    uint tNumRHMS = aSolverInterface->get_num_rhs();
 
     // full vector
-    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );
 
-    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );       // FIXME delete
+    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
     mDummyFullVector->vec_put_scalar( 0.0 );
     aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
-
-    //---------------------------arc-length vectors---------------------------------
-    //FIXME wrong map used. please fix
-    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    //---------------------------arc-length matrices--------------------------------
-    mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
-
-    //------------------------------------------------------------------------------
-
-//    mFullForDiag = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
     mFullVector->vec_put_scalar( 0.0 );
 
     // delete pointers if they already exist
     this->delete_pointers();
 
-    // create solver factory
-    Solver_Factory  tSolFactory;
-
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
         MORIS_LOG_INFO( "Build linear problem with index %-5i \n", mNonlinearSolverManagerIndex );
+
+        // create solver factory
+        Solver_Factory  tSolFactory;
 
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
     }
@@ -203,29 +143,16 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         delete( mFullVector );
 //        delete( mDummyFullVector );
-
-        delete( mJacVals );
-        delete( mJacVals0 );
-        delete( mDTildeVec );
-        delete( mDTilde0Vec );
-        delete( mDK );
-        delete( mDSolve );
-        delete( mDSolveNMinus1 );
-        delete( mDSolveNMinus2 );
-        delete( mGlobalRHS );
-        delete( mDFArcDDeltaD );
-        delete( mDelLamNum );
-        delete( mDelLamDen );
-        delete( mDeltaD );
-        delete( mdeltaD );
-        delete( mFext );
-
-        delete( mJacobian );
     }
 
-    if ( mMapType == MapType::Petsc)
+    if(mIsMasterSystem)
     {
-        PetscFinalize();
+        if ( mMapType == sol::MapType::Petsc)
+        {
+            std::cout<<"selete linear system"<<std::endl;
+            PetscFinalize();
+            std::cout<<"selete linear system"<<std::endl;
+        }
     }
 }
 
@@ -245,7 +172,7 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
 
-    this->print_sol_vec( aNonLinearIt );
+//    this->print_sol_vec( aNonLinearIt );
 
     if( aRebuildJacobian )
     {
@@ -285,10 +212,10 @@ Dist_Vector * Nonlinear_Problem::get_full_vector()
     return mFullVector;
 }
 
-void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndices,
-                                       const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                       const moris::uint             & aBlockRowOffsets,
-                                             moris::Matrix< DDRMat > & LHSValues )
+void Nonlinear_Problem::extract_my_values( const moris::uint                            & aNumIndices,
+                                           const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                           const moris::uint                            & aBlockRowOffsets,
+                                                 moris::Cell< moris::Matrix< DDRMat > > & LHSValues )
 {
     mFullVector->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }

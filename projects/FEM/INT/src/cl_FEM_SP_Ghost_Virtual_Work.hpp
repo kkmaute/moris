@@ -83,40 +83,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // FIXME check that property type makes sense?
-
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // FIXME check that constitutive string makes sense?
-
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * evaluate the penalty parameter value
              */
             void eval_SP();
@@ -135,7 +101,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dPPdMasterDV ( 1 x numDerDv )
              */
-            void eval_dSPdMasterDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Ghost_Virtual_Work::eval_dSPdMasterDV: not implemented." );
             }

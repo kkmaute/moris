@@ -142,8 +142,8 @@ namespace NLA
         uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements=1; };
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_matrix(const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator(const uint             & aMyElementInd,
+                                                Matrix< DDRMat > & aElementMatrix)
         {
             if( mListOfDofTypes.size() == 1)
             {
@@ -163,13 +163,13 @@ namespace NLA
             }
             else if( mListOfDofTypes.size() == 3)
             {
-                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_element_matrix: not defined");
+                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_equation_object_operator: not defined");
             }
         };
 
-        void get_element_matrix(const uint             & aMyBlockInd,
-                                const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator( const uint             & aMyBlockInd,
+                                           const uint             & aMyElementInd,
+                                                 Matrix< DDRMat > & aElementMatrix)
         {
             if( mListOfDofTypes.size() == 1)
             {
@@ -189,7 +189,7 @@ namespace NLA
             }
             else if( mListOfDofTypes.size() == 3)
             {
-                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_element_matrix: not defined");
+                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_equation_object_operator: not defined");
             }
         };
 
@@ -238,15 +238,15 @@ namespace NLA
         };
 
         // ----------------------------------------------------------------------------------------------
-        Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
+        Matrix< DDUMat > get_constrained_Ids(){ return mMyConstraintDofs; };
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_rhs( const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS );
+        void get_equation_object_rhs( const uint                     & aMyElementInd,
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
-        void get_element_rhs( const uint             & aMyBlockInd,
-                              const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS );
+        void get_equation_object_rhs( const uint                     & aMyBlockInd,
+                              const uint                     & aMyElementInd,
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------
 

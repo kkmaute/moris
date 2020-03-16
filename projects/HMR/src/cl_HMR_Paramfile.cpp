@@ -12,6 +12,9 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
 namespace moris
 {
     namespace hmr
@@ -309,7 +312,7 @@ namespace moris
         void Paramfile::load_parameter_list()
         {
             // call parameter list initializer from cl_Parameters.hpp
-            mParameterList = create_hmr_parameter_list();
+            mParameterList = prm::create_hmr_parameter_list();
             Cell< std::string > tFirst;
             Cell< std::string > tSecond;
             mParser->get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );

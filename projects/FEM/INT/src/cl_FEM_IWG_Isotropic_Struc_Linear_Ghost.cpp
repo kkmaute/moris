@@ -115,11 +115,11 @@ namespace moris
                  }
 
                  // compute master residual
-                 mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                  += tMasterdNdxFlat * tPreMultiply * aWStar;
 
                  // compute slave residual
-                 mSet->get_residual()( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
+                 mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
                  -= tSlavedNdxFlat * tPreMultiply * aWStar;
             }
         }
@@ -274,9 +274,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Ghost::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Struc_Linear_Ghost::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Ghost::compute_drdpdv - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Ghost::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

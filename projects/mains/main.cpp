@@ -46,9 +46,8 @@
 
 #include "fn_Exec_load_user_library.hpp"
 
-#include "cl_HMR_Paramfile.hpp"
-#include "cl_HMR_Parameters.hpp"
-#include "cl_HMR.hpp"
+#include "cl_WRK_Performer_Manager.hpp"
+
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -68,46 +67,27 @@ int main( int argc, char * argv[] )
 
     // Severity level 0 - all outputs
     gLogger.initialize( 2 );
-//    moris::print_banner( argc, argv );
+    moris::print_banner( argc, argv );
 
 //------------------------------------------------------------------------------
 //  The main executable is just for developing and testing.
 //  Please do not push this file to git.
 //------------------------------------------------------------------------------
 
+    std::string tInputArg = std::string(argv[ 1 ]);
+    std::string tString = "Reading dynamically linked shared object " + tInputArg + ". \n";
+    MORIS_LOG( tString.c_str() );
+
     //dynamically linked file
-    Library_IO tLibrary( argv[ 1 ] );
+    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
 
-    moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    {
+        wrk::Performer_Manager tPerformerManager( tLibrary );
 
-    // load user defined function
-    MORIS_PARAMETER_FUNCTION tHMRParameters = tLibrary.load_parameter_file( "HMR_Mesh_Paramters" );
+        tPerformerManager.initialize();
 
-    tHMRParameters( tParameters );
-
-    hmr::HMR tHMR( tParameters );
-
-   //initial refinement
-    tHMR.perform_initial_refinement( 0 );
-
-    std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( 0 );
-
-//    //  create field
-//    std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, 0 );
-//
-//    tField->evaluate_scalar_function( LvlSetCircle_2D );
-//
-//    for( uint k=0; k<2; ++k )
-//    {
-//        tHMR.flag_surface_elements_on_working_pattern( tField );
-//        tHMR.perform_refinement_based_on_working_pattern( 0 );
-//
-//        tField->evaluate_scalar_function( LvlSetCircle_2D );
-//    }
-
-    tHMR.finalize();
-
-    tHMR.save_to_exodus( 0, "./main_exo/main_test.e" );
+        tPerformerManager.perform();
+    }
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();

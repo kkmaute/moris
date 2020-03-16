@@ -289,7 +289,7 @@ namespace moris
             aParameters->set_bspline_patterns( tMatUint );
 
             // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
-            moris::Cell< Matrix< DDUMat > >tMatBspToLag( 1 );
+            moris::Cell< Matrix< DDSMat > >tMatBspToLag( 1 );
             tMatBspToLag( 0 ).set_size(tMatUint.numel(), 1);
 
             for( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )

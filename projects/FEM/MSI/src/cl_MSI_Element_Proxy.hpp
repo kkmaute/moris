@@ -13,7 +13,7 @@
 #include "cl_FEM_Node.hpp"         //FEM/INT/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {
@@ -61,13 +61,17 @@ namespace moris
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap( tTMatrix );
 
-            Matrix< DDRMat > tMyValues;
+            moris::Cell< Matrix< DDRMat > > tMyValues;
 
             mSolVec->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
 
-            tMyValues = tTMatrix * tMyValues;
+            for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                tMyValues( Ik ) = tTMatrix * tMyValues( Ik );
+            }
 
-            mElementBlock->mResidual = mFunction( tMyValues, mEqnObjInd );
+            mElementBlock->mResidual.resize( 1 );
+            mElementBlock->mResidual( 0 ) = mFunction( tMyValues( 0 ), mEqnObjInd );
         };
     };
 

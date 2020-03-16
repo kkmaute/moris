@@ -18,14 +18,14 @@
 
 #include "op_equal_equal.hpp"
 
-
-moris::Matrix< moris::DDRMat > tConstValFunction_UTElastVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGI )
+void tConstValFunction_UTElastVWGhost
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
+
 
 using namespace moris;
 using namespace fem;
@@ -321,11 +321,11 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
             tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
             // set size for the set EqnObjDofTypeList
-            tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+            tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
             // set size and populate the set dof type map
-            tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+            tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
             // set size and populate the set master and slave dof type map
             tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
@@ -344,14 +344,15 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
 
             // set size and init the set residual and jacobian
-            tIWG->mSet->mResidual.set_size( 2*tNumDof, 1 , 0.0 );
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
             tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
 
             // set requested residual dof type flag to true
             tIWG->mResidualDofTypeRequested = true;
 
             // build global property type list
-            tIWG->build_global_dof_type_list();
+            tIWG->build_global_dof_and_dv_type_list();
 
             // populate the requested master dof type
             tIWG->mRequestedMasterGlobalDofTypes = { tDofTypes };

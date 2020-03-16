@@ -42,7 +42,7 @@ namespace moris
             uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
 
             // compute the residual
-            mSet->get_residual()( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } )
             += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() * tWStar;
         }
 
@@ -96,9 +96,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Neumann::compute_drdpdv - Not implemented.");
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Neumann::compute_dRdp - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

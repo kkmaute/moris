@@ -22,8 +22,6 @@
 #undef protected
 #undef private
 
-#include "cl_MSI_Parameters.hpp"
-
 namespace moris
 {
     namespace MSI
@@ -177,8 +175,8 @@ namespace moris
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
         Equation_Set tEqnBlock;
-        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj.mEquationBlock = &tEqnBlock;
+        tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
@@ -274,8 +272,8 @@ namespace moris
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
         Equation_Set tEqnBlock;
-        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj.mEquationBlock = &tEqnBlock;
+        tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
@@ -372,8 +370,8 @@ namespace moris
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
         Equation_Set tEqnBlock;
-        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        EquObj.mEquationBlock = &tEqnBlock;
+        tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 

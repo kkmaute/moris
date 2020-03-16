@@ -13,8 +13,12 @@
 
 #include "cl_MSI_Solver_Interface.hpp"
 
+#include "cl_SOL_Warehouse.hpp"
+
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -22,8 +26,6 @@
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -202,9 +204,6 @@ namespace moris
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
-            // set order to mBSplineOrder
-            // mModel->set_dof_order( mBSplineOrder );
-
             // set weak bcs from field
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
 
@@ -215,7 +214,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
             tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -261,7 +260,7 @@ namespace moris
 
             tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-            NLA::SOL_Warehouse tSolverWarehouse;
+            sol::SOL_Warehouse tSolverWarehouse;
 
             tSolverWarehouse.set_solver_interface(mModel->get_solver_interface());
 
@@ -370,35 +369,35 @@ namespace moris
 
         }
 
-//------------------------------------------------------------------------------
-
-        void
-        Mapper::map_node_to_element_same_mesh(
-                         const moris_index   aSourceIndex,
-                         const moris_index   aTargetIndex )
-        {
-            // create the model if it has not been created yet
-            this->create_iwg_and_model();
-
-            // set weak bcs from field
-            mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
-
-            // get number of elements
-            uint tNumberOfElements = mTargetInterpMesh->get_num_elems();
-
-            // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                // get ref to entry in database
-                real & tValue = mTargetInterpMesh->get_value_of_scalar_field(
-                        aTargetIndex,
-                        EntityRank::ELEMENT,
-                        e );
-
-                // calculate value
-                tValue = mModel->compute_element_average( e );
-            }
-        }
+////------------------------------------------------------------------------------
+//
+//        void
+//        Mapper::map_node_to_element_same_mesh(
+//                         const moris_index   aSourceIndex,
+//                         const moris_index   aTargetIndex )
+//        {
+//            // create the model if it has not been created yet
+//            this->create_iwg_and_model();
+//
+//            // set weak bcs from field
+//            mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
+//
+//            // get number of elements
+//            uint tNumberOfElements = mTargetInterpMesh->get_num_elems();
+//
+//            // loop over all elements
+//            for( uint e=0; e<tNumberOfElements; ++e )
+//            {
+//                // get ref to entry in database
+//                real & tValue = mTargetInterpMesh->get_value_of_scalar_field(
+//                        aTargetIndex,
+//                        EntityRank::ELEMENT,
+//                        e );
+//
+//                // calculate value
+//                tValue = mModel->compute_element_average( e );
+//            }
+//        }
 
  //------------------------------------------------------------------------------
 

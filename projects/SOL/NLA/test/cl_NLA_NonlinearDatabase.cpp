@@ -13,7 +13,7 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #define protected public
 #define private   public
@@ -22,6 +22,8 @@
 #include "cl_NLA_Solver_Interface_Proxy2.hpp"
 #undef protected
 #undef private
+
+#include "cl_Matrix_Vector_Factory.hpp"
 
 namespace moris
 {
@@ -58,18 +60,18 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
 
         // Build matrix vector factory
-        Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+        Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 
-        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_overlapping_map() );
+        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_overlapping_map() );
 
         // Create Full Vector
-        Dist_Vector * tFullVector = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        Dist_Vector * tFullVector = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
         // Initilaze full vector with zeros
         tFullVector->vec_put_scalar( 0.0 );
 
         // Create solver database
-        SOL_Warehouse tSolverWarehouse( tSolverInput );
+        sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
 
         tNonlinearSolverManager1.set_solver_warehouse( &tSolverWarehouse );
         tNonlinearSolverManager2.set_solver_warehouse( &tSolverWarehouse );

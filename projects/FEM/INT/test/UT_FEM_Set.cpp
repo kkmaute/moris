@@ -17,13 +17,13 @@ namespace moris
     namespace fem
     {
 
-        Matrix< DDRMat > tConstValFunction_UTFEMSET( moris::Cell< Matrix< DDRMat > >    & aParameters,
-                                                     moris::Cell< Field_Interpolator* > & aDofFI,
-                                                     moris::Cell< Field_Interpolator* > & aDvFI,
-                                                     Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return aParameters( 0 );
-        }
+void tConstValFunction_UTFEMSET
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 );
+}
 
         // This test check all the member functions of the FEM Set in the particular case where
         // there is only a master.
@@ -228,10 +228,10 @@ namespace moris
 //                CHECK( equal_to( static_cast< uint >( tSet.mEqnObjDofTypeList( 5 ) ), 10 ) ); //NLSZ
 //                CHECK( equal_to( static_cast< uint >( tSet.mEqnObjDofTypeList( 6 ) ), 11 ) ); //VX
 //
-//            //std::cout<<"Test create_dof_type_list"<<std::endl;
+//            //std::cout<<"Test create_dof_and_dv_type_lists"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create dof type list
-//                tSet.create_dof_type_list();
+//                tSet.create_dof_and_dv_type_lists();
 //
 //                // check the size of mInterpDofTypeList
 //                CHECK( equal_to( tSet.mMasterDofTypes.size(), 5 ) );
@@ -245,10 +245,10 @@ namespace moris
 //                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 3 )( 2 ) ), 10 ) ); //NLSZ
 //                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 4 )( 0 ) ),  6 ) ); //LS1
 //
-//            //std::cout<<"Test create_dof_type_map"<<std::endl;
+//            //std::cout<<"Test create_dof_and_dv_type_maps"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a dof type map
-//                tSet.create_dof_type_map();
+//                tSet.create_dof_and_dv_type_maps();
 //
 //                // check mMasterDofTypeMap size
 //                CHECK( equal_to( tSet.mMasterDofTypeMap.n_cols(), 1 ) );
@@ -602,10 +602,10 @@ namespace moris
 //                CHECK( equal_to( static_cast< uint >( tSet.mEqnObjDofTypeList( 1 ) ),  3 ) ); //TEMP
 //                CHECK( equal_to( static_cast< uint >( tSet.mEqnObjDofTypeList( 2 ) ), 11 ) ); //VX
 //
-//            //std::cout<<"Test create_dof_type_list"<<std::endl;
+//            //std::cout<<"Test create_dof_and_dv_type_lists"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create dof type list
-//                tSet.create_dof_type_list();
+//                tSet.create_dof_and_dv_type_lists();
 //
 //                // check the size of mMasterDofTypes
 //                CHECK( equal_to( tSet.mMasterDofTypes.size(), 3 ) );
@@ -622,10 +622,10 @@ namespace moris
 //                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
 //                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypes( 1 )( 0 ) ),  0 ) ); //UX
 //
-//            //std::cout<<"Test create_dof_type_map"<<std::endl;
+//            //std::cout<<"Test create_dof_and_dv_type_maps"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a dof type map
-//                tSet.create_dof_type_map();
+//                tSet.create_dof_and_dv_type_maps();
 //
 //                // check mMasterDofTypeMap size
 //                CHECK( equal_to( tSet.mMasterDofTypeMap.n_cols(), 1 ) );

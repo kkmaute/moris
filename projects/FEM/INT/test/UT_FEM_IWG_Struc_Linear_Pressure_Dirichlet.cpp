@@ -22,54 +22,31 @@
 
 #include "op_equal_equal.hpp"
 
-moris::Matrix< moris::DDRMat > tConstValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunction_STRUCDIRICHLETPRESSURE
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tMValFunction_STRUCDIRICHLET
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0 },
+                   { 0.0, aParameters( 0 )( 1 ) }};
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tMValFunction_STRUCDIRICHLET_3D
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
-}
-
-moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return -1.0 * aParameters( 1 )( 0, 0 ) * aDofFI( 0 )->N();
-}
-moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return {{ aParameters( 0 )( 0 ), 0.0 },
-            { 0.0, aParameters( 0 )( 1 ) }};
-}
-
-moris::Matrix< moris::DDRMat > tMValFunction_STRUCDIRICHLET_3D( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
-            { 0.0, aParameters( 0 )( 1 ), 0.0 },
-            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
+                   { 0.0, aParameters( 0 )( 1 ), 0.0 },
+                   { 0.0, 0.0, aParameters( 0 )( 2 ) }};
 }
 
 using namespace moris;
@@ -89,15 +66,15 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLETPRESSURE );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLETPRESSURE );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
     tPropMasterDirichlet->set_parameters( {{{ 0.0 }, { 0.0 }}} );
-    tPropMasterDirichlet->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterDirichlet->set_val_function( tConstValFunction_STRUCDIRICHLETPRESSURE );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -202,12 +179,12 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -225,7 +202,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 }, {8, 11} };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 4, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 4, 12, 0.0 );
 
     // set requested residual dof type flag to true

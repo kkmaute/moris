@@ -46,9 +46,9 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+#include "cl_GEN_Discrete_Level_Set.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
 
 namespace xtk
 {
@@ -117,7 +117,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
         //Specify your decomposition methods and start cutting

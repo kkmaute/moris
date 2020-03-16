@@ -37,7 +37,7 @@ namespace moris
             Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
 
             // compute the residual
-            mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } )
             += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
                  + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tJump ) * tWStar;
@@ -123,9 +123,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_drdpdv - Not implemented.");
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_dRdp - Not implemented.");
         }
 
 

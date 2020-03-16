@@ -86,12 +86,12 @@ namespace moris
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
 
                  // get the pdof values for the ith dof type group
-                 Cell< Matrix< DDRMat > > tCoeff_Original;
+                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
 
                  // reshape tCoeffs into the order the cluster expects them
                  Matrix< DDRMat > tCoeff;
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                 this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                  // set field interpolator coefficients
                  mSet->get_field_interpolator_manager()
@@ -109,12 +109,12 @@ namespace moris
                  = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
 
                  // get the pdof values for the ith dof type group
-                 Cell< Matrix< DDRMat > > tCoeff_Original;
+                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                  // reshape tCoeffs into the order the cluster expects them
                  Matrix< DDRMat > tCoeff;
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                 this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                  // set the field coefficients
                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
@@ -130,23 +130,23 @@ namespace moris
              for( uint iDv = 0; iDv < tMasterNumDvTypes; iDv++ )
              {
                  // get the dv type group
-                 moris::Cell< MSI::Dv_Type > tDvTypeGroup
+                 moris::Cell< GEN_DV > tDvTypeGroup
                  = mSet->get_dv_type_list()( iDv );
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
-                mSet->mDesignVariableInterface->get_pdv_value( mMasterInterpolationCell->get_vertex_inds(),
-                                                               tDvTypeGroup,
-                                                               tCoeff_Original );
+                mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterInterpolationCell->get_vertex_inds(),
+                                                                  tDvTypeGroup,
+                                                                  tCoeff_Original );
 
                 // reshape tCoeffs into the order the FI expects them
                 Matrix< DDRMat > tCoeff;
-                this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                mSet->mDesignVariableInterface
+                    ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
-                 // set field interpolator coefficients
-                 mSet->get_field_interpolator_manager()
-                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
-
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager()
+                    ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
              }
 
              // get number of slave dv types
@@ -157,18 +157,19 @@ namespace moris
              for( uint iDv = 0; iDv < tSlaveNumDvTypes; iDv++ )
              {
                  // get the dv type group
-                 moris::Cell< MSI::Dv_Type > tDvTypeGroup
+                 moris::Cell< GEN_DV > tDvTypeGroup
                  = mSet->get_dv_type_list( mtk::Master_Slave::SLAVE )( iDv );
 
                  // get the pdv values for the ith dv type group
                  Cell< Matrix< DDRMat > > tCoeff_Original;
-                 mSet->mDesignVariableInterface->get_pdv_value( mSlaveInterpolationCell->get_vertex_inds(),
-                                                                tDvTypeGroup,
-                                                                tCoeff_Original );
+                 mSet->mDesignVariableInterface->get_ip_pdv_value( mSlaveInterpolationCell->get_vertex_inds(),
+                                                                   tDvTypeGroup,
+                                                                   tCoeff_Original );
 
                  // reshape tCoeffs into the order the FI expects them
                  Matrix< DDRMat > tCoeff;
-                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
+                 mSet->mDesignVariableInterface
+                     ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                  // set the field coefficients
                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
@@ -176,7 +177,7 @@ namespace moris
              }
 
              // geometry interpolators------------------------------------------
-
+             // FIXME can be dv types
              // set the IP geometry interpolator physical space and time coefficients for the master
              mSet->get_field_interpolator_manager()
                  ->get_IP_geometry_interpolator()
@@ -218,6 +219,7 @@ namespace moris
 
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
+
          }
 
 //------------------------------------------------------------------------------
@@ -243,6 +245,7 @@ namespace moris
 
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
+
         }
 
 //------------------------------------------------------------------------------
@@ -289,6 +292,63 @@ namespace moris
 
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_dRdp();
+         }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::compute_dQIdp()
+        {
+             //Fixme do this only once
+             this->compute_my_pdof_values();
+
+             // set the field interpolators coefficients
+             this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IQI_field_interpolator_managers();
+
+             // set cluster for stabilization parameter
+             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+             // ask cluster to compute jacobian
+             mFemCluster( 0 )->compute_dQIdp();
+        }
+
+//------------------------------------------------------------------------------
+         void Interpolation_Element::compute_dQIdu()
+         {
+              //Fixme do this only once
+              this->compute_my_pdof_values();
+
+              // set the field interpolators coefficients
+              this->set_field_interpolators_coefficients();
+
+              // FIXME should not be like this
+              mSet->set_IQI_field_interpolator_managers();
+
+              // set cluster for stabilization parameter
+              mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+              // ask cluster to compute jacobian
+              mFemCluster( 0 )->compute_dQIdu();
+         }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::compute_QI()
+        {
+             // FIXME do this only once
+             this->compute_my_pdof_values();
+
+             // set the field interpolators coefficients
+             this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IQI_field_interpolator_managers();
+
+             // set cluster for stabilization parameter
+             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+             // ask cluster to compute quantity of interest
+             mFemCluster( 0 )->compute_QI();
          }
 
 //------------------------------------------------------------------------------

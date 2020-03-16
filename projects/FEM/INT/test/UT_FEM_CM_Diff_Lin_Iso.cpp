@@ -14,20 +14,21 @@
 #undef protected
 #undef private
 
-moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tValFunctionCM_Diff_Lin_Iso
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 ) * aDofFI( 0 )->val();
+    aPropMatrix = aParameters( 0 )
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunctionCM_Diff_Lin_Iso( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunctionCM_Diff_Lin_Iso
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aDofFI( 0 )->N();
+    aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris
@@ -101,11 +102,11 @@ namespace moris
             fem::Set tSet;
 
             // set size for the set EqnObjDofTypeList
-            tSet.mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+            tSet.mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
             // set size and populate the set dof type map
-            tSet.mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tSet.mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tSet.mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tSet.mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // set size and populate the set master dof type map
             tSet.mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
@@ -115,12 +116,10 @@ namespace moris
             Cell< Cell < MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }};
             Field_Interpolator_Manager tFIManager( tDofTypes, &tSet );
             tFIManager.mFI = tFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
 
-            // set field interpolators
+            // set field interpolator manager
             tCMMasterDiffLinIso->set_field_interpolator_manager( &tFIManager );
-            tCMMasterDiffLinIso->set_geometry_interpolator( &tGI );
-
-            //tCMMasterDiffLinIso->get_global_dof_type_list();
 
             // check flux-------------------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -214,14 +213,7 @@ namespace moris
 
             // clean up
             //------------------------------------------------------------------------------
-            // delete the field interpolator pointers
-//            for( Field_Interpolator* tFI : tFIs )
-//            {
-//                delete tFI;
-//            }
             tFIs.clear();
-
-            //delete tSet;
 
         }/* TEST_CASE */
 

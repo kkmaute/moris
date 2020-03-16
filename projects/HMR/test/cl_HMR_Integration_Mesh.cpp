@@ -48,7 +48,7 @@ TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
     tParameters.set_refinement_buffer( 1 );
     tParameters.set_staircase_buffer( 1 );
 
-    Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
     tLagrangeToBSplineMesh( 0 ) = { {0} };
 
     tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -114,7 +114,7 @@ TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -192,7 +192,7 @@ TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
     tParameters.set_refinement_buffer( 1 );
     tParameters.set_staircase_buffer( 1 );
 
-    Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
     tLagrangeToBSplineMesh( 0 ) = { {0} };
 
     tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

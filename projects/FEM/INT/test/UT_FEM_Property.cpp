@@ -7,99 +7,112 @@
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"         //FEM/INT/src
 
-moris::Matrix< moris::DDRMat > tValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+#define protected public
+#define private   public
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#undef protected
+#undef private
+
+void tValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    moris::Matrix< moris::DDRMat > tPropertyVal( 1, 1, 1.0 );
-    return tPropertyVal;
+    aPropMatrix =  { { 1.0 } };
 }
 
-moris::Matrix< moris::DDRMat > tDerFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::Matrix< moris::DDRMat > tPropertyDer( 1, 1, 2.0);
-    return tPropertyDer;
+    aPropMatrix =  tPropertyDer;
 }
 
-moris::Matrix< moris::DDRMat > tValFunction2( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tValFunction2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 ) * aDofFI( 0 )->val() + aParameters( 2 ) * aDofFI( 1 )->val();
+    aPropMatrix =  aParameters( 0 )
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
+         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunction2( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aDofFI( 0 )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunction3( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction3
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 2 ) * aDofFI( 1 )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
 }
 
-moris::Matrix< moris::DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix =  aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tGeoValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aGeometryInterpolator->valx();
+    aPropMatrix =  aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx();
 }
 
-moris::Matrix< moris::DDRMat > tValFunction3( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tValFunction3
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 ) * aDofFI( 0 )->val() + aParameters( 2 ) * aDofFI( 1 )->val() + aParameters( 1 ) * aDvFI( 0 )->val() + aParameters( 2 ) * aDvFI( 1 )->val();
+    aPropMatrix =  aParameters( 0 )
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
+         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val()
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->val()
+         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->val();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_TEMP( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                   moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                   moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                   moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction3_TEMP
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aDofFI( 0 )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_UX( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction3_UX
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 2 ) * aDofFI( 1 )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_LS1( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction3_LS1
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aDvFI( 0 )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS1 )->N();
 }
-moris::Matrix< moris::DDRMat > tDerFunction3_LS2( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunction3_LS2
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 2 ) * aDvFI( 1 )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::LS2 )->N();
 }
+
 
 namespace moris
 {
@@ -116,7 +129,7 @@ namespace moris
                                                 mtk::Interpolation_Order::LINEAR );
 
             //create a space and a time geometry interpolator
-            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+            Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
 
             // set coeffs
             Cell< Matrix< DDRMat > > tCoeff;
@@ -129,7 +142,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             //set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            Cell< Cell< GEN_DV > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameter
@@ -146,16 +159,24 @@ namespace moris
             Cell< PropertyFunc > tDvDerFunc;
             tProperty.set_dv_derivative_functions( tDvDerFunc );
 
-            // set geometry interpolator
-            tProperty.set_geometry_interpolator( tGeomInterpolator );
-
             //check dof dependencies
             CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );
 
             // set field interpolators
             Cell< Field_Interpolator* > tFieldInterpolator( 1 );
             tFieldInterpolator( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP });
-            tProperty.set_dof_field_interpolators( tFieldInterpolator );
+
+            // create a field interpolator manager
+            fem::Set tSet; // dummy set
+            tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+            Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tFieldInterpolator;
+            tFIManager.mIPGeometryInterpolator = &tGeomInterpolator;
+            tProperty.set_field_interpolator_manager( &tFIManager );
 
             // check the property value
             Matrix< DDRMat > tPropertyValue = tProperty.val();
@@ -172,15 +193,8 @@ namespace moris
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 2.0 ) );
 
             // clean up
-            // delete field interpolators
-            for( Field_Interpolator* tFI : tFieldInterpolator )
-            {
-                delete tFI;
-            }
             tFieldInterpolator.clear();
 
-            // delete geometry interpolator
-            delete tGeomInterpolator;
         }/* TEST CASE */
 
         TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]" )
@@ -204,10 +218,10 @@ namespace moris
                                                 mtk::Interpolation_Order::LINEAR );
 
             //create a space and a time geometry interpolator
-            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+            Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
 
             //set the coefficients xHat, tHat
-            tGeomInterpolator->set_coeff( tXHat, tTHat );
+            tGeomInterpolator.set_coeff( tXHat, tTHat );
 
             // set the property coefficients
             Cell< Matrix< DDRMat > > tCoeff( 3 );
@@ -223,7 +237,7 @@ namespace moris
              tProperty.set_dof_type_list( tDofTypes );
 
              // set dv types
-             Cell< Cell< MSI::Dv_Type > > tDvTypes;
+             Cell< Cell< GEN_DV > > tDvTypes;
              tProperty.set_dv_type_list( tDvTypes );
 
              // set parameters
@@ -240,9 +254,6 @@ namespace moris
              Cell< PropertyFunc > tDvDerFunc;
              tProperty.set_dv_derivative_functions( tDvDerFunc );
 
-             // set geometry interpolator
-             tProperty.set_geometry_interpolator( tGeomInterpolator );
-
             // create an interpolation rule
             Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
                                                     Interpolation_Type::LAGRANGE,
@@ -254,11 +265,11 @@ namespace moris
             Cell< Field_Interpolator* > tFieldInterpolator( 2, nullptr );
             tFieldInterpolator( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                                tInterpolationRule,
-                                                               tGeomInterpolator,
+                                                               &tGeomInterpolator,
                                                                { MSI::Dof_Type::TEMP } );
             tFieldInterpolator( 1 ) = new Field_Interpolator ( tNumberOfFields,
                                                                tInterpolationRule,
-                                                               tGeomInterpolator,
+                                                               &tGeomInterpolator,
                                                                { MSI::Dof_Type::UX } );
 
             // set coefficients for field interpolators
@@ -272,8 +283,18 @@ namespace moris
             tFieldInterpolator( 0 )->set_space_time( tParamPoint );
             tFieldInterpolator( 1 )->set_space_time( tParamPoint );
 
-            // set coeffs and field interpolators
-            tProperty.set_dof_field_interpolators( tFieldInterpolator );
+            // create a field interpolator manager
+            fem::Set tSet; // dummy set
+            tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
+
+            Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tFieldInterpolator;
+            tFIManager.mIPGeometryInterpolator = &tGeomInterpolator;
+            tProperty.set_field_interpolator_manager( &tFIManager );
 
             //evaluate the property
             Matrix< DDRMat > tPropertyValue = tProperty.val();
@@ -297,14 +318,6 @@ namespace moris
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // clean up
-            // delete geometry interpolator
-            delete tGeomInterpolator;
-
-            // delete field interpolators
-            for( Field_Interpolator* tFI : tFieldInterpolator )
-            {
-                delete tFI;
-            }
             tFieldInterpolator.clear();
 
         }/* TEST_CASE */
@@ -330,10 +343,10 @@ namespace moris
                                                 mtk::Interpolation_Order::LINEAR );
 
             //create a space and a time geometry interpolator
-            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+            Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
 
             //set the coefficients xHat, tHat
-            tGeomInterpolator->set_coeff( tXHat, tTHat );
+            tGeomInterpolator.set_coeff( tXHat, tTHat );
 
             // set the property coefficients
             Cell< Matrix< DDRMat > > tCoeff( 3 );
@@ -349,7 +362,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             // set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes = {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }};
+            Cell< Cell< GEN_DV > > tDvTypes = {{ GEN_DV::LS1 }, { GEN_DV::LS2 }};
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameters
@@ -366,9 +379,6 @@ namespace moris
             Cell< PropertyFunc > tDvDerFunc = { tDerFunction3_LS1, tDerFunction3_LS2 };
             tProperty.set_dv_derivative_functions( tDvDerFunc );
 
-            // set geometry interpolator
-            tProperty.set_geometry_interpolator( tGeomInterpolator );
-
             // create an interpolation rule
             Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
                                                     Interpolation_Type::LAGRANGE,
@@ -380,23 +390,23 @@ namespace moris
             Cell< Field_Interpolator* > tDofFI( 2, nullptr );
             tDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                    tInterpolationRule,
-                                                   tGeomInterpolator,
+                                                   &tGeomInterpolator,
                                                    { MSI::Dof_Type::TEMP } );
             tDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields,
                                                    tInterpolationRule,
-                                                   tGeomInterpolator,
+                                                   &tGeomInterpolator,
                                                    { MSI::Dof_Type::UX } );
 
             // create a dv field interpolators
             Cell< Field_Interpolator* > tDvFI( 2, nullptr );
             tDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                   tInterpolationRule,
-                                                  tGeomInterpolator,
-                                                  { MSI::Dv_Type::LS1 } );
+                                                  &tGeomInterpolator,
+                                                  { GEN_DV::LS1 } );
             tDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields,
                                                   tInterpolationRule,
-                                                  tGeomInterpolator,
-                                                  { MSI::Dv_Type::LS2 } );
+                                                  &tGeomInterpolator,
+                                                  { GEN_DV::LS2 } );
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0( 8, 1, 2.0 );
@@ -415,9 +425,21 @@ namespace moris
             tDvFI( 0 )->set_space_time( tParamPoint );
             tDvFI( 1 )->set_space_time( tParamPoint );
 
-            // set coeffs and field interpolators
-            tProperty.set_dof_field_interpolators( tDofFI );
-            tProperty.set_dv_field_interpolators( tDvFI );
+            // create a field interpolator manager
+            fem::Set tSet; // dummy set
+            tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
+            tSet.mMasterDvTypeMap.set_size( static_cast< int >(GEN_DV::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDvTypeMap( static_cast< int >( GEN_DV::LS1 ) ) = 0;
+            tSet.mMasterDvTypeMap( static_cast< int >( GEN_DV::LS2 ) )   = 1;
+            Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI   = tDofFI;
+            tFIManager.mDvFI = tDvFI;
+            tFIManager.mIPGeometryInterpolator = &tGeomInterpolator;
+            tProperty.set_field_interpolator_manager( &tFIManager );
 
             //evaluate the property
             Matrix< DDRMat > tPropertyValue = tProperty.val();
@@ -441,37 +463,25 @@ namespace moris
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // check that property depends on dv LS1
-            REQUIRE( tProperty.check_dv_dependency( { MSI::Dv_Type::LS1 } ) );
+            REQUIRE( tProperty.check_dv_dependency( { GEN_DV::LS1 } ) );
 
             // check that property depends on dv LS2
-            REQUIRE( tProperty.check_dv_dependency( { MSI::Dv_Type::LS2 } ) );
+            REQUIRE( tProperty.check_dv_dependency( { GEN_DV::LS2 } ) );
 
             // check that property does not depend on dv UNDEFINED
-            REQUIRE( !tProperty.check_dv_dependency( { MSI::Dv_Type::UNDEFINED } ) );
+            REQUIRE( !tProperty.check_dv_dependency( { GEN_DV::UNDEFINED } ) );
 
             // evaluate the property derivative wrt to LS1 (in dependencies)
-            tPropertyDerivative = tProperty.dPropdDV( {MSI::Dv_Type::LS1} );
+            tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS1} );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.25 ) );
 
             // evaluate the property derivative wrt to LS2 (in dependencies)
-            tPropertyDerivative = tProperty.dPropdDV( {MSI::Dv_Type::LS2 } );
+            tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS2 } );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // clean up
-            // delete geometry interpolator
-            delete tGeomInterpolator;
-
             // delete field interpolators
-            for( Field_Interpolator* tFI : tDofFI )
-            {
-                delete tFI;
-            }
             tDofFI.clear();
-
-            for( Field_Interpolator* tFI : tDvFI )
-            {
-                delete tFI;
-            }
             tDvFI.clear();
 
         }/* TEST_CASE */
@@ -498,14 +508,14 @@ namespace moris
                                                 mtk::Interpolation_Order::LINEAR );
 
             //create a space and a time geometry interpolator
-            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+            Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
 
             //set the coefficients xHat, tHat
-            tGeomInterpolator->set_coeff( tXHat, tTHat );
+            tGeomInterpolator.set_coeff( tXHat, tTHat );
 
             //set the evaluation point tParamPoint
             Matrix< DDRMat > tParamPoint = {{ 0.0 }, { 0.0 }, { 0.0 }};
-            tGeomInterpolator->set_space_time( tParamPoint );
+            tGeomInterpolator.set_space_time( tParamPoint );
 
             // create property coeffs
             Cell< Matrix< DDRMat > > tCoeff( 1 );
@@ -519,7 +529,7 @@ namespace moris
             tProperty.set_dof_type_list( tDofTypes );
 
             // set dv types
-            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            Cell< Cell< GEN_DV > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
 
             // set parameters
@@ -536,16 +546,23 @@ namespace moris
             Cell< PropertyFunc > tDvDerFunc;
             tProperty.set_dv_derivative_functions( tDvDerFunc );
 
-            // set geomrty interpolator
-            tProperty.set_geometry_interpolator( tGeomInterpolator );
-
             //check dof dependencies
             CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );
 
             // set field interpolators
             Cell< Field_Interpolator* > tFieldInterpolator( 1 );
             tFieldInterpolator( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP });
-            tProperty.set_dof_field_interpolators( tFieldInterpolator );
+
+            // create a field interpolator manager
+            fem::Set tSet; // dummy set
+            tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI  = tFieldInterpolator;
+            tFIManager.mIPGeometryInterpolator = &tGeomInterpolator;
+            tProperty.set_field_interpolator_manager( &tFIManager );
 
             // evaluate the property
             Matrix< DDRMat > tPropertyValue = tProperty.val();
@@ -553,9 +570,6 @@ namespace moris
             //check property value
             CHECK( equal_to( tPropertyValue( 0, 0 ), 1.5 ) );
 
-            // clean up
-            delete tFieldInterpolator( 0 );
-            delete tGeomInterpolator;
         }/* TEST CASE */
 
     }/* namespace fem */

@@ -6,35 +6,39 @@ set(${OPT}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_Opt_Alg.hpp
-    cl_Opt_Alg_API.hpp
-    cl_Opt_Alg_GCMMA.hpp
-    cl_Opt_Alg_LBFGS.hpp
-    cl_Opt_Alg_SQP.hpp
-    cl_Opt_Alg_Sweep.hpp
-    cl_Opt_Manager.hpp
-    cl_Opt_Prob.hpp
-    Opt_Input.hpp )
+	cl_OPT_Algorithm.hpp
+	cl_OPT_Algorithm_API.hpp
+	cl_OPT_Algorithm_GCMMA.hpp
+	cl_OPT_Algorithm_LBFGS.hpp
+	cl_OPT_Algorithm_SQP.hpp
+	cl_OPT_Algorithm_Sweep.hpp
+	cl_OPT_Manager.hpp
+	cl_OPT_Problem.hpp
+	cl_OPT_Interface.hpp
+	cl_OPT_Problem_Rosenbrock.hpp
+	cl_OPT_Interface_Rosenbrock.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Optimization Library
 
 # List source files
 set(LIB_SOURCES
-    cl_Opt_Alg.cpp
-    cl_Opt_Alg_API.cpp
-    cl_Opt_Alg_GCMMA.cpp
-    cl_Opt_Alg_LBFGS.cpp
-    cl_Opt_Alg_SQP.cpp
-    cl_Opt_Alg_Sweep.cpp
-    cl_Opt_Manager.cpp
-    cl_Opt_Prob.cpp
-    Opt_Input.cpp )
+	cl_OPT_Algorithm.cpp
+	cl_OPT_Algorithm_API.cpp
+	cl_OPT_Algorithm_GCMMA.cpp
+	cl_OPT_Algorithm_LBFGS.cpp
+	cl_OPT_Algorithm_SQP.cpp
+	cl_OPT_Algorithm_Sweep.cpp
+	cl_OPT_Manager.cpp
+	cl_OPT_Problem.cpp
+	cl_OPT_Problem_Rosenbrock.cpp
+	cl_OPT_Interface_Rosenbrock.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${CON}-lib
 	${LINALG}-lib
+	${COM}-lib
 	)
 
 # Set the output path for library

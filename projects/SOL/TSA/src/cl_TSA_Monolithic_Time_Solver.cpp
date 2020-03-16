@@ -6,6 +6,11 @@
  */
 
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
 
 // for detailed logging
 #include "cl_GlobalClock.hpp"
@@ -26,7 +31,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
     moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
-
 
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
@@ -102,6 +106,8 @@ void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
     mNonlinearSolver->get_my_nonlin_problem()->set_time_value( aLambdaInc );
     mLambdaInc = aLambdaInc;
 }
+
+//-------------------------------------------------------------------------------
 
 moris::real Monolithic_Time_Solver::get_new_lambda()
 {

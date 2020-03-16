@@ -53,6 +53,11 @@ namespace moris
 
             enum CellTopology mCellTopology = CellTopology::END_ENUM;
 
+            moris::uint mSpatialDim;
+
+            Matrix<IndexMat> mSetColors;
+
+
 //------------------------------------------------------------------------------
 
         protected :
@@ -65,94 +70,6 @@ namespace moris
             moris::SetType mSetType = moris::SetType::END_ENUM;
 
 //------------------------------------------------------------------------------
-
-        private:
-
-            moris::uint mSpatialDim;
-
-//------------------------------------------------------------------------------
-
-        protected:
-
-            void communicate_ip_geometry_type()
-            {
-                mtk::Geometry_Type tIPGeometryType = mtk::Geometry_Type::UNDEFINED;
-
-                if( mSetClusters.size() > 0 )
-                {
-                    // set the integration geometry type
-                    tIPGeometryType = mSetClusters( 0 )->get_interpolation_cell().get_geometry_type();
-                }
-
-                uint tRecIPGeometryType = (uint) mtk::Geometry_Type::UNDEFINED;
-
-                min_all( (uint)tIPGeometryType, tRecIPGeometryType );
-
-                mIPGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIPGeometryType);
-
-//                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
-            };
-
-//------------------------------------------------------------------------------
-
-            // FIXME should be userdefined in FEM
-            void communicate_interpolation_order()
-            {
-//                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED,
-//                        " communicate_interpolation_order(); undefined geometry type on this processor. Try calling communicate_ip_geometry_type() first.");
-
-                mtk::Interpolation_Order tIPInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
-                mtk::Interpolation_Order tIGInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
-
-                if( mSetClusters.size() > 0 )
-                {
-                    // interpolation order for IP cells fixme
-                    tIPInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_interpolation_order();
-
-                    // interpolation order for IG cells fixme
-                    tIGInterpolationOrder = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_interpolation_order();
-                }
-
-                uint tRecIPInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
-                uint tRecIGInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
-
-                min_all( (uint)tIPInterpolationOrder, tRecIPInterpolationOrder );
-                min_all( (uint)tIGInterpolationOrder, tRecIGInterpolationOrder );
-
-                mIPSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIPInterpolationOrder);
-                mIGSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIGInterpolationOrder);
-
-//                MORIS_ASSERT( mIPSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ip interpolation order on this processor");
-//                MORIS_ASSERT( mIGSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ig interpolation order on this processor");
-            }
-
-//------------------------------------------------------------------------------
-
-            // FIXME should be userdefined in FEM
-            void communicate_is_trivial_flag( const mtk::Master_Slave aIsMaster )
-            {
-                sint tIsTrivial = 1;
-
-                if( mSetClusters.size() > 0 )
-                {
-                    // set the integration geometry type
-                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial( aIsMaster ); //FIXME change for double sided set
-                }
-
-                sint tIsTrivialMax = (sint) false;
-
-                max_all( tIsTrivial, tIsTrivialMax );
-
-                if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::MASTER )
-                {
-                    mIsTrivialMaster = true;
-                }
-                else if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::SLAVE )
-                {
-                    mIsTrivialSlave = true;
-                }
-            };
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -163,11 +80,13 @@ namespace moris
             Set()
             { };
 
-            Set(std::string                   aName,
-                moris::Cell<Cluster const *>  aBlockSetClusters,
-                const uint                    aSpatialDim ) : mSetName( aName ),
-                                                              mSetClusters( aBlockSetClusters ),
-                                                              mSpatialDim( aSpatialDim )
+            Set(std::string                  const & aName,
+                moris::Cell<Cluster const *> const & aBlockSetClusters,
+                Matrix<IndexMat>             const & aColors,
+                uint                         const & aSpatialDim ) : mSetName( aName ),
+                                                                     mSpatialDim( aSpatialDim ),
+                                                                     mSetColors(aColors),
+                                                                     mSetClusters( aBlockSetClusters )
             {
                 this->communicate_ip_geometry_type();
 
@@ -242,6 +161,13 @@ namespace moris
                 return mCellTopology;
             }
 
+//------------------------------------------------------------------------------
+
+            Matrix<IndexMat> const &
+            get_set_colors()
+            {
+                return mSetColors;
+            }
 //------------------------------------------------------------------------------
 
             /**
@@ -486,6 +412,87 @@ namespace moris
                           break;
                   }
               }
+
+        protected:
+
+            void communicate_ip_geometry_type()
+            {
+                mtk::Geometry_Type tIPGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+                if( mSetClusters.size() > 0 )
+                {
+                    // set the integration geometry type
+                    tIPGeometryType = mSetClusters( 0 )->get_interpolation_cell().get_geometry_type();
+                }
+
+                uint tRecIPGeometryType = (uint) mtk::Geometry_Type::UNDEFINED;
+
+                min_all( (uint)tIPGeometryType, tRecIPGeometryType );
+
+                mIPGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIPGeometryType);
+
+//                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+            };
+
+//------------------------------------------------------------------------------
+
+            // FIXME should be userdefined in FEM
+            void communicate_interpolation_order()
+            {
+//                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED,
+//                        " communicate_interpolation_order(); undefined geometry type on this processor. Try calling communicate_ip_geometry_type() first.");
+
+                mtk::Interpolation_Order tIPInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
+                mtk::Interpolation_Order tIGInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
+
+                if( mSetClusters.size() > 0 )
+                {
+                    // interpolation order for IP cells fixme
+                    tIPInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_interpolation_order();
+
+                    // interpolation order for IG cells fixme
+                    tIGInterpolationOrder = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_interpolation_order();
+                }
+
+                uint tRecIPInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
+                uint tRecIGInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
+
+                min_all( (uint)tIPInterpolationOrder, tRecIPInterpolationOrder );
+                min_all( (uint)tIGInterpolationOrder, tRecIGInterpolationOrder );
+
+                mIPSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIPInterpolationOrder);
+                mIGSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIGInterpolationOrder);
+
+//                MORIS_ASSERT( mIPSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ip interpolation order on this processor");
+//                MORIS_ASSERT( mIGSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ig interpolation order on this processor");
+            }
+
+//------------------------------------------------------------------------------
+
+            // FIXME should be userdefined in FEM
+            void communicate_is_trivial_flag( const mtk::Master_Slave aIsMaster )
+            {
+                sint tIsTrivial = 1;
+
+                if( mSetClusters.size() > 0 )
+                {
+                    // set the integration geometry type
+                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial( aIsMaster ); //FIXME change for double sided set
+                }
+
+                sint tIsTrivialMax = (sint) false;
+
+                max_all( tIsTrivial, tIsTrivialMax );
+
+                if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::MASTER )
+                {
+                    mIsTrivialMaster = true;
+                }
+                else if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::SLAVE )
+                {
+                    mIsTrivialSlave = true;
+                }
+            };
 
 
 //------------------------------------------------------------------------------

@@ -34,16 +34,19 @@ namespace moris
 
         ~Solver_Factory();
 
-        std::shared_ptr< Linear_Solver_Algorithm > create_solver( const enum SolverType    aSolverType = SolverType::AZTEC_IMPL );
+        std::shared_ptr< Linear_Solver_Algorithm > create_solver( const enum sol::SolverType    aSolverType = sol::SolverType::AZTEC_IMPL );
+
+        std::shared_ptr< Linear_Solver_Algorithm > create_solver( const enum sol::SolverType aSolverType,
+                                                                  const ParameterList        aParameterlist );
 
         Linear_Problem * create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                               const enum MapType              aLinSysType = MapType::Epetra,
+                                               const enum sol::MapType              aLinSysType = sol::MapType::Epetra,
                                                const bool                      aNotCreatedByNonLinSolver = false);
 
         Linear_Problem * create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                     Map_Class               * aMap,
-                                                     Map_Class               * aFullMap,
-                                               const enum MapType              aLinSysType = MapType::Epetra,
+                                                     Dist_Map               * aMap,
+                                                     Dist_Map               * aFullMap,
+                                               const enum sol::MapType         aLinSysType = sol::MapType::Epetra,
                                                const bool                      aNotCreatedByNonLinSolver = false);
     };
     }

@@ -57,6 +57,8 @@ set(EXC "EXC")
 set(FEM "FEM")
 #set(GE "GE")
 set(GEN "GEN")
+set(GEN_CORE "GEN_CORE")
+set(GEN_MAIN "GEN_MAIN")
 set(HIA "Hierarchical")
 set(HMR "HMR")
 set(INT "INT")
@@ -70,6 +72,7 @@ set(MSI "MSI")
 set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
+set(PRM "PRM")
 set(SDF "SDF")
 set(SOL "SOL")
 set(SOL_CORE "SOL_CORE")
@@ -77,6 +80,7 @@ set(SOL_CORE "SOL_CORE")
 set(TOL "TOL")
 set(TSA "TSA")
 set(VIS "VIS")
+set(WRK "WRK")
 set(XTK "XTK")
 
 # Common paths
@@ -153,19 +157,22 @@ option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
 option(MORIS_USE_OPENBLAS
-    "Use the open blas library as the linear algebra package." OFF )
+    "Use the open blas library as the linear algebra package." ON )
 
 option(MORIS_USE_MKL
     "Use the Inel Math kernel library as the linear algebra package." OFF )
 
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
+    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
+    
+option(HAVE_LBFGS
+    "Build MORIS with support for LBFGS." ON )
     
 # option(HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
@@ -238,6 +245,8 @@ option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 
 option(BUILD_OPT "Build the optimization executable." OFF)
 
+option(BUILD_PRM "Build the PRM executable." OFF)
+
 option(BUILD_SDF "Build the SDF executable." OFF)
 
 option(BUILD_STK "Build the STK executable." OFF)
@@ -251,6 +260,8 @@ option(BUILD_TSA "Build the time solver algebra executable." OFF)
 option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
 option(BUILD_VIS "Build the visualization executable." OFF)
+
+option(BUILD_WRK "Build the workflow executable." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
@@ -291,7 +302,7 @@ if (USE_TACC)
     list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt  -lgfortran -lrt -ldl -lssl -lcrypto")
 #     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
+   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto -lz -lsz")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
@@ -654,6 +665,10 @@ if(BUILD_OPT)
     include(${MORIS_DEPENDS_DIR}/OPT_Depends.cmake)
 endif()
 
+if(BUILD_PRM)
+    include(${MORIS_DEPENDS_DIR}/PRM_Depends.cmake)
+endif()
+
 if(BUILD_STK)
     include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
 endif()
@@ -676,6 +691,10 @@ endif()
 
 if(BUILD_VIS)
     include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
+endif()
+
+if(BUILD_WRK)
+    include(${MORIS_DEPENDS_DIR}/WRK_Depends.cmake)
 endif()
 
 if(BUILD_XTK)

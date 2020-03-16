@@ -19,12 +19,14 @@ CMakeCache.txt
 *.g*
 *.vtk*
 
-#*.hdf5
+*.hdf5
 *.h5
 *.e
 
 # Used by individual developers
 mains/
+/CMakeFiles/clion-environment.txt
 /CMakeFiles/clion-log.txt
 .idea
 *.idea
+

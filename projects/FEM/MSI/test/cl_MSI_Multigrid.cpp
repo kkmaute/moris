@@ -31,8 +31,6 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
 
-#include "cl_MSI_Parameters.hpp"
-
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"
@@ -41,6 +39,8 @@
 #include "cl_FEM_IWG_L2.hpp"
 
 #include "fn_r2.hpp"
+
+#include "cl_PRM_MSI_Parameters.hpp"
 
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -84,7 +84,7 @@ namespace moris
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -151,7 +151,8 @@ namespace moris
 
              // define set info
               moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
-              tSetInfo( 0 ).set_mesh_index( 0 );
+//              tSetInfo( 0 ).set_mesh_index( 0 );
+              tSetInfo( 0 ).set_mesh_set_name( "HMR_dummy_c_p0" );
               tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
              map< moris_id, moris_index >   tCoefficientsMap;
@@ -203,8 +204,9 @@ namespace moris
                  // update fem set counter
                  tFemSetCounter++;
              }
-             moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
              tMSIParameters.set( "L2", 0 );
+             tMSIParameters.set( "multigrid", true );
 
              MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
                                                                                           tElementBlocks,
@@ -215,7 +217,7 @@ namespace moris
 
              tElementBlocks( 0 )->finalize( tMSI );
 
-             tMSI->finalize( true );
+             tMSI->finalize();
 
              moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
              tExternalIndices( 0, 0 ) = 17;

@@ -6,7 +6,8 @@
  */
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
 
 #include "cl_Tracer.hpp"
 
@@ -96,7 +97,12 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
     Tracer tTracer(EntityBase::LinearSolver, EntityType::Amesos, EntityAction::Solve);
 
     mLinearSystem = aLinearSystem;
-    mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", *mLinearSystem->get_linear_system_epetra() );
+
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
+    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
+    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
+
+    mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
 
     sint error = 0;
     moris::real startSolTime     = 0.0;

@@ -10,10 +10,10 @@
 #include <boost/variant.hpp>
 
 // MORIS library header files.
+#include "cl_Matrix.hpp"
 #include "assert.hpp"
 #include "core.hpp"
 #include "ios.hpp"
-
 
 
 namespace moris
@@ -68,6 +68,12 @@ namespace moris
          */
         void insert( const std::string & aKey, Variant aVal )
         {
+            std::string tName(aVal.type().name());
+            if (!tName.compare("PKc"))
+            {
+                std::string tVal(boost::get<const char*>(aVal));
+                aVal = tVal;
+            }
             mParamMap.insert( { aKey, aVal } );
         }
 
@@ -216,8 +222,9 @@ namespace moris
     };
 
 
-    //datatype for hmr paramater list
-    typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
+    //datatype for parameter lists
+    typedef boost::variant< bool, sint, real, const char*, std::string, uint, std::pair< std::string, std::string > > ParameterListTypes;
+    typedef Param_List< ParameterListTypes > ParameterList;
 
 }
 

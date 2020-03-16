@@ -14,20 +14,20 @@
 #undef protected
 #undef private
 
-moris::Matrix< moris::DDRMat > tValFunctionCM( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tValFunctionCM
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 ) * aDofFI( 0 )->val();
+    aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tDerFunctionCM( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tDerFunctionCM
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 1 ) * aDofFI( 0 )->N();
+    aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris
@@ -57,7 +57,7 @@ namespace moris
             tCM->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
 
             // set dv types
-            tCM->set_dv_type_list( {{ MSI::Dv_Type::LS1 }} );
+            tCM->set_dv_type_list( {{ GEN_DV::LS1 }} );
 
             // set property
             tCM->set_property( tProp, "Conductivity" );
@@ -71,15 +71,15 @@ namespace moris
 
             // create a dv field interpolator
             Cell< Field_Interpolator* > tDvFIs( 2, nullptr );
-            tDvFIs( 0 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS1 } );
-            tDvFIs( 1 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS2 } );
+            tDvFIs( 0 ) = new Field_Interpolator ( 1, { GEN_DV::LS1 } );
+            tDvFIs( 1 ) = new Field_Interpolator ( 1, { GEN_DV::LS2 } );
 
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();
 
             // set size and populate the set dof type map
-            reinterpret_cast<fem::Set*>(tSet)->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            reinterpret_cast<fem::Set*>(tSet)->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            reinterpret_cast<fem::Set*>(tSet)->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            reinterpret_cast<fem::Set*>(tSet)->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // set size and populate the set master dof type map
             tSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );

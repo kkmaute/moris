@@ -12,6 +12,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
+#include "cl_XTK_Multigrid.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -65,7 +66,7 @@ Model::~Model()
  */
 Model::Model(uint aModelDimension,
              moris::mtk::Interpolation_Mesh* aMeshData,
-             moris::ge::GEN_Geometry_Engine & aGeometryEngine,
+             moris::ge::GEN_Geometry_Engine* aGeometryEngine,
              bool aLinkGeometryOnConstruction) :
                                           mSameMesh(false),
                                           mModelDimension(aModelDimension),
@@ -84,33 +85,8 @@ Model::Model(uint aModelDimension,
         link_background_mesh_to_geometry_objects();
     }
 
-    mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine.get_num_geometries());
+    mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
 }
-
-//Model::Model(uint aModelDimension,
-//             moris::mtk::Interpolation_Mesh* aMeshData,
-//             Geometry_Engine & aGeometryEngine,
-//             bool aLinkGeometryOnConstruction) :
-//                                          mSameMesh(false),
-//                                          mModelDimension(aModelDimension),
-//                                          mBackgroundMesh(aMeshData,aGeometryEngine),
-//                                          mCutMesh(mModelDimension),
-//                                          mGeometryEngine(aGeometryEngine),
-//                                          mEnrichment(nullptr),
-//                                          mGhostStabilization(nullptr),
-//                                          mEnrichedInterpMesh(0,nullptr),
-//                                          mEnrichedIntegMesh(0,nullptr),
-//                                          mConvertedToTet10s(false)
-//{
-//
-//    if(aLinkGeometryOnConstruction == true)
-//    {
-//        link_background_mesh_to_geometry_objects();
-//    }
-//
-//    mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine.get_num_geometries());
-//}
-
 
 void
 Model::link_background_mesh_to_geometry_objects()
@@ -118,8 +94,8 @@ Model::link_background_mesh_to_geometry_objects()
     // initialize geometry objects
     moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
 
-    mGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes(tNodeCoords.n_rows());
-    mGeometryEngine.initialize_geometry_object_phase_values(tNodeCoords);
+    mGeometryEngine->initialize_geometry_objects_for_background_mesh_nodes(tNodeCoords.n_rows());
+    mGeometryEngine->initialize_geometry_object_phase_values(tNodeCoords);
     mLinkedBackground = true;
 }
 
@@ -137,7 +113,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods)
 
     // Process for a decomposition
     uint tNumDecompositions = aMethods.size();
-    uint tNumGeometries = mGeometryEngine.get_num_geometries();
+    uint tNumGeometries = mGeometryEngine->get_num_geometries();
 
     print_decompsition_preamble(aMethods);
 
@@ -179,7 +155,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods)
         // If it's not the last geometry tell the geometry engine we're moving on
         if(iGeom!= tNumGeometries-1)
         {
-            mGeometryEngine.advance_geometry_index();
+            mGeometryEngine->advance_geometry_index();
         }
     }
 
@@ -235,7 +211,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             assign_node_requests_identifiers(tDecompData,tMessageTag);
 
             // Allocate interface flag space in XTK mesh even though these are not interface nodes
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
+            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
 
             // add nodes to the background mesh
             mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
@@ -286,7 +262,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             assign_node_requests_identifiers(tDecompData,tMessageTag);
 
             // Allocate interface flag space in XTK mesh even though these are not interface nodes
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
+            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
 
             // add nodes to the background mesh
             mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
@@ -381,7 +357,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                 moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
 
                 // Ask geometry engine which edges are intersected (Simple mesh local indexed edges)
-                mGeometryEngine.is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
+                mGeometryEngine->is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
 
                 // Initialize node index pointers based on number of intersected edges and parametric coordinates
                 uint tNumNewNodes = 0;
@@ -473,8 +449,8 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                         tChildMesh.mark_edge_as_on_interface(tParentIndex);
 
                         // Tell the xtk mesh that these edge nodes are interface nodes
-                        mBackgroundMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,0),mGeometryEngine.get_active_geometry_index());
-                        mBackgroundMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,1),mGeometryEngine.get_active_geometry_index());
+                        mBackgroundMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,0),mGeometryEngine->get_active_geometry_index());
+                        mBackgroundMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,1),mGeometryEngine->get_active_geometry_index());
                     }
                 } // geometry object
 
@@ -485,7 +461,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             assign_node_requests_identifiers(tDecompData,tMessageTag);
 
             // Allocate interface flag space in XTK mesh even though these are not interface nodes
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
+            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
 
             // add nodes to the background mesh
             mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
@@ -497,15 +473,15 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             create_new_node_association_with_geometry(tDecompData);
 
             // mark nodes as interface nodes
-            moris_index tGeomIndex = mGeometryEngine.get_active_geometry_index();
+            moris_index tGeomIndex = mGeometryEngine->get_active_geometry_index();
             for(moris::uint i = 0; i <tDecompData.tNewNodeId.size(); i++)
             {
                 mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
                 // determine if this vertex is on other interfaces
-                for(moris::uint j = 0; j < mGeometryEngine.get_num_geometries(); j++)
+                for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                 {
-                    moris::real const & tPhaseVal = mGeometryEngine.get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
+                    moris::real const & tPhaseVal = mGeometryEngine->get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
                     if(moris::equal_to(0.0,tPhaseVal))
                     {
                         mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
@@ -598,7 +574,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                 moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
 
                 // Ask geometry engine which edges are intersected (Simple mesh local indexed edges)
-                mGeometryEngine.is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
+                mGeometryEngine->is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
 
                 // Initialize node index pointers based on number of intersected edges and parametric coordinates
                 uint tNumNewNodes = 0;
@@ -695,7 +671,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             assign_node_requests_identifiers(tDecompData,tMessageTag);
 
             // Allocate interface flag space in XTK mesh even though these are not interface nodes
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
+            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
 
             // add nodes to the background mesh
             mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
@@ -707,16 +683,16 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             create_new_node_association_with_geometry(tDecompData);
 
             // mark nodes as interface nodes
-            moris_index tGeomIndex = mGeometryEngine.get_active_geometry_index();
+            moris_index tGeomIndex = mGeometryEngine->get_active_geometry_index();
             for(moris::uint i = 0; i <tDecompData.tNewNodeId.size(); i++)
             {
                 // this node is always on the geometry interface of current so mark this
                 mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
                 // determine if this vertex is on other interfaces
-                for(moris::uint j = 0; j < mGeometryEngine.get_num_geometries(); j++)
+                for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                 {
-                    moris::real const & tPhaseVal = mGeometryEngine.get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
+                    moris::real const & tPhaseVal = mGeometryEngine->get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
                     if(moris::equal_to(0.0,tPhaseVal))
                     {
                         mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
@@ -1111,7 +1087,7 @@ void
 Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
 {
     // create geometry objects for each node
-    mGeometryEngine.create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
+    mGeometryEngine->create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
                                                      tDecompData.mConformalDecomp,
                                                      tDecompData.tNewNodeParentTopology,
                                                      tDecompData.tParamCoordRelativeToParent,
@@ -1889,7 +1865,7 @@ void  Model::run_first_cut_routine(enum TemplateType const &          aTemplateT
 
     // Intersected elements are flagged via the Geometry_Engine
     Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
-    mGeometryEngine.is_intersected(tAllNodeCoords, tElementToNodeConnInd, 0,tGeoObjects);
+    mGeometryEngine->is_intersected(tAllNodeCoords, tElementToNodeConnInd, 0,tGeoObjects);
 
     // Count number intersected
     moris::size_t tIntersectedCount = tGeoObjects.size();
@@ -2378,7 +2354,7 @@ void
 Model::unzip_interface_internal()
 {
     // Get the number of geometries (we need to unzip each interface)
-    uint tNumGeoms = mGeometryEngine.get_num_geometries();
+    uint tNumGeoms = mGeometryEngine->get_num_geometries();
 
     // Get the interface nodes (wrt all geometries)
     Cell<moris::Matrix<moris::IndexMat>> tAllInterfaceNodeIds = mBackgroundMesh.get_interface_nodes_glob_ids();
@@ -2404,13 +2380,13 @@ Model::unzip_interface_internal()
         mBackgroundMesh.batch_create_new_nodes_as_copy_of_other_nodes(tInterfaceNodeInds,tNewUnzippedNodeIds,tNewUnzippedNodeInds);
 
         // Allocate space in background mesh interface node flags
-        mBackgroundMesh.allocate_space_in_interface_node_flags(tNumInterfaceNodes, mGeometryEngine.get_num_geometries());
+        mBackgroundMesh.allocate_space_in_interface_node_flags(tNumInterfaceNodes, mGeometryEngine->get_num_geometries());
 
         // Mark the newly created nodes as interface nodes
         mBackgroundMesh.mark_nodes_as_interface_node_loc_inds(tNewUnzippedNodeInds,iG);
 
         // Link the new nodes to the geometry object of the node they were copied to
-        mGeometryEngine.link_new_nodes_to_existing_geometry_objects(tInterfaceNodeInds,tNewUnzippedNodeInds);
+        mGeometryEngine->link_new_nodes_to_existing_geometry_objects(tInterfaceNodeInds,tNewUnzippedNodeInds);
 
         // unzip_child_mesh_index
         this->unzip_interface_internal_modify_child_mesh(iG,tInterfaceNodeInds,tNewUnzippedNodeInds,tNewUnzippedNodeIds);
@@ -2576,7 +2552,7 @@ Model::unzip_interface_internal_assign_which_element_uses_unzipped_nodes( moris:
         if(tElement0 != MORIS_INDEX_MAX)
         {
             tElement0PhaseIndex = mBackgroundMesh.get_element_phase_index(tElement0);
-            tElement0GeomSign = mGeometryEngine.get_phase_sign_of_given_phase_and_geometry(tElement0PhaseIndex,aGeometryIndex);
+            tElement0GeomSign = mGeometryEngine->get_phase_sign_of_given_phase_and_geometry(tElement0PhaseIndex,aGeometryIndex);
 
             if(tElement0GeomSign == tValWhichUsesUnzipped)
             {
@@ -2587,7 +2563,7 @@ Model::unzip_interface_internal_assign_which_element_uses_unzipped_nodes( moris:
         if(tElement1 != MORIS_INDEX_MAX)
         {
             tElement1PhaseIndex = mBackgroundMesh.get_element_phase_index(tElement1);
-            tElement1GeomSign = mGeometryEngine.get_phase_sign_of_given_phase_and_geometry(tElement1PhaseIndex,aGeometryIndex);
+            tElement1GeomSign = mGeometryEngine->get_phase_sign_of_given_phase_and_geometry(tElement1PhaseIndex,aGeometryIndex);
             if(tElement1GeomSign == tValWhichUsesUnzipped)
             {
                 tElementWhichKeepsUsesUnzippedNodes(iP) = 1;
@@ -2748,7 +2724,7 @@ Model::perform_basis_enrichment_internal(enum EntityRank  aBasisRank,
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
     							 aBasisRank,
                                  aInterpIndex,
-                                 mGeometryEngine.get_num_phases(),
+                                 mGeometryEngine->get_num_phases(),
                                  this,
                                  &mCutMesh,
                                  &mBackgroundMesh);
@@ -2789,10 +2765,22 @@ Model::get_ghost_stabilization(moris::moris_index  aIndex)
     return *mGhostStabilization;
 }
 
-void
-Model::perform_multilevel_enrichment_internal()
+void Model::construct_multigrid()
 {
-    //        mEnrichment->create_multilevel_enrichments();
+    mMultigrid = std::make_shared< xtk::Multigrid >( this );
+
+    mMultigrid->build_enriched_coeff_to_background_coeff_map();
+
+    mMultigrid->create_fine_to_coarse_relationship();
+
+    mMultigrid->create_coarse_to_fine_relationship();
+
+    mMultigrid->create_coarse_to_fine_weights();
+
+    mMultigrid->build_basis_exodus_information();
+#ifdef DEBUG
+    mMultigrid->save_to_vtk( "Enriched_bspline_1.vtk");
+#endif
 }
 
 // ----------------------------------------------------------------------------------
@@ -3228,9 +3216,9 @@ Model::print_vertex_geometry()
         moris::mtk::Vertex & tVertex = mBackgroundMesh.get_mtk_vertex(i);
 
         std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
-        for(moris::uint j = 0; j < mGeometryEngine.get_num_geometries(); j++)
+        for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
         {
-            std::cout<<std::setw(12)<<mGeometryEngine.get_entity_phase_val(tVertex.get_index(),j)<<" , ";
+            std::cout<<std::setw(12)<<mGeometryEngine->get_entity_phase_val(tVertex.get_index(),j)<<" , ";
         }
         std::cout<<std::endl;
     }
@@ -3323,7 +3311,7 @@ Model::extract_surface_mesh_to_obj_internal(std::string                      aOu
     Output_Options tOutputOptions;
 
     // Specify there are 2 possible phases
-    size_t tNumPhases = mGeometryEngine.get_num_bulk_phase();
+    size_t tNumPhases = mGeometryEngine->get_num_bulk_phase();
 
     // Say I only want to output phase 1
     Cell<size_t> tPhasesToOutput = {aPhaseIndex};
@@ -3673,16 +3661,16 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     moris::uint tSpatialDim = mBackgroundMesh.get_mesh_data().get_spatial_dim();
 
     // Children element nodes connected to elements
-    moris::Cell<moris::Matrix<moris::IdMat>>  tElementToNodeChildrenByPhase = mCutMesh.get_full_element_to_node_by_phase_glob_ids(mGeometryEngine.get_num_bulk_phase(),mBackgroundMesh.get_mesh_data());
+    moris::Cell<moris::Matrix<moris::IdMat>>  tElementToNodeChildrenByPhase = mCutMesh.get_full_element_to_node_by_phase_glob_ids(mGeometryEngine->get_num_bulk_phase(),mBackgroundMesh.get_mesh_data());
 
     // Child element ids
-    moris::Cell<moris::Matrix<moris::IdMat>>  tChildElementsByPhase = mCutMesh.get_child_elements_by_phase(mGeometryEngine.get_num_bulk_phase(),mBackgroundMesh.get_mesh_data());
+    moris::Cell<moris::Matrix<moris::IdMat>>  tChildElementsByPhase = mCutMesh.get_child_elements_by_phase(mGeometryEngine->get_num_bulk_phase(),mBackgroundMesh.get_mesh_data());
 
     // Parent elements without children
-    Cell<moris::Matrix<moris::IdMat>>  tElementNoChildrenIdsByPhase = mBackgroundMesh.get_all_non_intersected_elements_by_phase(mGeometryEngine.get_num_bulk_phase());
+    Cell<moris::Matrix<moris::IdMat>>  tElementNoChildrenIdsByPhase = mBackgroundMesh.get_all_non_intersected_elements_by_phase(mGeometryEngine->get_num_bulk_phase());
 
     // Connectivity of parent elements without children
-    Cell<moris::Matrix<moris::IdMat>>  tElementToNodeNoChildrenByPhase = mBackgroundMesh.get_non_intersected_element_to_node_by_phase(mGeometryEngine.get_num_bulk_phase());
+    Cell<moris::Matrix<moris::IdMat>>  tElementToNodeNoChildrenByPhase = mBackgroundMesh.get_non_intersected_element_to_node_by_phase(mGeometryEngine->get_num_bulk_phase());
 
     // Node map  of nodes in the phase we are interested in
     moris::Matrix<moris::IndexMat> tOutputtedNodeInds;
@@ -3693,7 +3681,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
 
 
     // Number of bulk phases
-    uint tNumBulkPhases = mGeometryEngine.get_num_phases();
+    uint tNumBulkPhases = mGeometryEngine->get_num_phases();
 
     // Get non-interescted parent elements by phase
     Cell<moris::Matrix<moris::IdMat>> tNoChildElementsByPhase = mBackgroundMesh.get_all_non_intersected_elements_by_phase(tNumBulkPhases);
@@ -3964,7 +3952,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     tMeshDataInput.SpatialDim              = &tSpatialDim;
 
     tCount = 0;
-    for(moris::uint  i = 0 ; i <mGeometryEngine.get_num_bulk_phase(); i++)
+    for(moris::uint  i = 0 ; i <mGeometryEngine->get_num_bulk_phase(); i++)
     {
         if(aOutputOptions.output_phase(i))
         {
@@ -4001,7 +3989,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
 
         tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
-        MORIS_ASSERT(mGeometryEngine.get_num_geometries() == 1,"This has not been setup for multi geometry problems.");
+        MORIS_ASSERT(mGeometryEngine->get_num_geometries() == 1,"This has not been setup for multi geometry problems.");
 
         //fixme: support changes to interface side
         this->setup_interface_side_cluster(tInterfaceNames(0), tInterfaceSideClusterInput, aOutputOptions, tInterfaceCellIdsandSideOrds, tInterfaceSideClusterParamCoords);
@@ -4098,7 +4086,7 @@ Model::get_node_map_restricted_to_output_phases(Output_Options const & aOutputOp
 
                 moris::size_t tPhaseIndex = 0;
                 moris_index   tVertexIndex = mBackgroundMesh.get_loc_entity_ind_from_entity_glb_id(tNodeMap(i),EntityRank::NODE);
-                mGeometryEngine.get_phase_index(tVertexIndex,tPhaseIndex);
+                mGeometryEngine->get_phase_index(tVertexIndex,tPhaseIndex);
                 aOutputtedNodeInds(tCount) = tVertexIndex;
                 tRestrictedNodeMap(tCount) = tNodeMap(i);
 
@@ -4123,11 +4111,11 @@ Model::setup_interface_single_side_sets(Output_Options const & aOutputOptions,
 {
     std::string tSetNameBase = "iside_";
 
-    for(moris_index iG = 0; iG< (moris_index)mGeometryEngine.get_num_geometries(); iG++)
+    for(moris_index iG = 0; iG< (moris_index)mGeometryEngine->get_num_geometries(); iG++)
     {
-        for(moris_index iP0 = 0; iP0 < (moris_index)mGeometryEngine.get_num_bulk_phase(); iP0++)
+        for(moris_index iP0 = 0; iP0 < (moris_index)mGeometryEngine->get_num_bulk_phase(); iP0++)
         {
-            for(moris_index iP1 = iP0+1; iP1 < (moris_index)mGeometryEngine.get_num_bulk_phase(); iP1++)
+            for(moris_index iP1 = iP0+1; iP1 < (moris_index)mGeometryEngine->get_num_bulk_phase(); iP1++)
             {
                 if(aOutputOptions.output_phase(iP0) && aOutputOptions.output_phase(iP1))
                 {
@@ -4451,7 +4439,7 @@ Model::get_num_phases_to_output(Output_Options const & aOutputOptions)
     uint tNumPhasesOutput = 0;
     if(aOutputOptions.output_all_phases())
     {
-        tNumPhasesOutput = mGeometryEngine.get_num_bulk_phase();
+        tNumPhasesOutput = mGeometryEngine->get_num_bulk_phase();
     }
     else
     {
@@ -4479,7 +4467,7 @@ Model::setup_cell_clusters_for_output(moris::mtk::Cell_Cluster_Input & aCellClus
         // pack the element ids into phase grouping
         Cell<moris::Matrix< moris::IdMat >> tElementIds;
         Cell<moris::Matrix< moris::IdMat >> tCMElementInds;
-        tChildMesh.pack_child_mesh_by_phase(mGeometryEngine.get_num_bulk_phase(), tElementIds, tCMElementInds);
+        tChildMesh.pack_child_mesh_by_phase(mGeometryEngine->get_num_bulk_phase(), tElementIds, tCMElementInds);
 
         // add them to cell to keep in scope
         aCellIds.push_back(tElementIds(0));
@@ -4514,7 +4502,7 @@ Model::setup_interface_side_cluster(std::string                      aInterfaceS
                                     moris::Cell<Matrix<IdMat>>     & aCellIdsandSideOrds,
                                     moris::Cell<Matrix<DDRMat>>    & aParametricCoordinates)
 {
-    moris::uint tNumPhases = mGeometryEngine.get_num_bulk_phase();
+    moris::uint tNumPhases = mGeometryEngine->get_num_bulk_phase();
 
     moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
 
@@ -4584,7 +4572,7 @@ Model::output_node(moris::moris_index aNodeIndex,
 {
     bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
     moris::size_t tPhaseIndex = 0;
-    mGeometryEngine.get_phase_index(aNodeIndex,tPhaseIndex);
+    mGeometryEngine->get_phase_index(aNodeIndex,tPhaseIndex);
 
 
     if(aOutputOptions.output_phase(tPhaseIndex) && !tIsInterface)
@@ -4604,7 +4592,7 @@ moris::size_t
 Model::determine_element_phase_index(moris::size_t aRowIndex,
                                      moris::Matrix< moris::IndexMat > const & aElementToNodeIndex)
 {
-    moris::size_t tNumGeom = mGeometryEngine.get_num_geometries();
+    moris::size_t tNumGeom = mGeometryEngine->get_num_geometries();
     moris::size_t tNumNodesPerElem = aElementToNodeIndex.n_cols();
     moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,MORIS_INDEX_MAX);
 
@@ -4616,7 +4604,7 @@ Model::determine_element_phase_index(moris::size_t aRowIndex,
         {
             if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
             {
-                tNodalPhaseVals(0,i) = mGeometryEngine.get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
+                tNodalPhaseVals(0,i) = mGeometryEngine->get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
                 tFoundNonInterfaceNode = true;
                 break;
             }
@@ -4630,7 +4618,7 @@ Model::determine_element_phase_index(moris::size_t aRowIndex,
     }
 
 
-    moris::moris_index tElemPhaseVal = mGeometryEngine.get_elem_phase_index(tNodalPhaseVals);
+    moris::moris_index tElemPhaseVal = mGeometryEngine->get_elem_phase_index(tNodalPhaseVals);
 
     return tElemPhaseVal;
 }
@@ -4660,7 +4648,7 @@ void
 Model::compute_interface_sensitivity_internal()
 {
     // Number of geometries in the geometry engine (we need to compute sensitivity wrt each)
-    uint tNumGeoms = mGeometryEngine.get_num_geometries();
+    uint tNumGeoms = mGeometryEngine->get_num_geometries();
 
     // Node coordinates
     moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
@@ -4671,7 +4659,7 @@ Model::compute_interface_sensitivity_internal()
         moris::Matrix< moris::IndexMat > tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
 
         // Compute interface sensitivity
-        mGeometryEngine.compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
+        mGeometryEngine->compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
     }
 }
 
@@ -4713,7 +4701,7 @@ Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const
 
         if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
         {
-            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine.get_geometry_object(tNodeIndex);
+            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine->get_geometry_object(tNodeIndex);
 
             moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
 
@@ -4744,7 +4732,7 @@ Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const 
                                             moris::Cell<std::string>             & adxdpNames) const
 {
     // names of sparsely packaged fields
-    moris::uint tNumDVs = mGeometryEngine.get_num_design_variables();
+    moris::uint tNumDVs = mGeometryEngine->get_num_design_variables();
 
     // spatial dimension (used often here)
     moris::uint tSpatialDim = this->get_spatial_dim();
@@ -4766,7 +4754,7 @@ Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const 
 
         if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
         {
-            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine.get_geometry_object(tNodeIndex);
+            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine->get_geometry_object(tNodeIndex);
 
             moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
 
@@ -4792,7 +4780,7 @@ Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const 
 moris::Cell< moris::Matrix < moris::DDRMat > >
 Model::assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput)
 {
-    uint tNumGeometries = mGeometryEngine.get_num_geometries();
+    uint tNumGeometries = mGeometryEngine->get_num_geometries();
     uint tNumNodes      = aNodeIndsToOutput.numel();
 
 
@@ -4805,7 +4793,7 @@ Model::assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const
         // Iterate through nodes
         for(uint iN = 0; iN<tNumNodes; iN++)
         {
-            tGeometryData(iG)(iN) = mGeometryEngine.get_entity_phase_val(aNodeIndsToOutput(iN),iG);
+            tGeometryData(iG)(iN) = mGeometryEngine->get_entity_phase_val(aNodeIndsToOutput(iN),iG);
         }
     }
 
@@ -4817,7 +4805,7 @@ Model::assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const
 moris::Cell<std::string>
 Model::assign_geometry_data_names()
 {
-    uint tNumGeometries = mGeometryEngine.get_num_geometries();
+    uint tNumGeometries = mGeometryEngine->get_num_geometries();
 
     // base string of geometry data
     std::string tBaseName = "gd_";
@@ -4839,7 +4827,7 @@ Model::assign_geometry_data_names()
 moris::Cell < enum moris::EntityRank >
 Model::assign_geometry_data_field_ranks()
 {
-    uint tNumGeometries = mGeometryEngine.get_num_geometries();
+    uint tNumGeometries = mGeometryEngine->get_num_geometries();
 
     // base string of geometry data
     std::string tBaseName = "gd_";

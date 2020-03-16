@@ -14,8 +14,10 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
-#include "cl_Vector.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Enums.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_DLA_Linear_Problem.hpp"
 
 #include "cl_Communication_Tools.hpp"
 
@@ -35,6 +37,14 @@ using namespace dla;
         // Set default parameters in parameter list for nonlinear solver
         this->set_nonlinear_solver_parameters();
     }
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+    Newton_Solver::Newton_Solver( const ParameterList aParameterlist ) : Nonlinear_Algorithm( aParameterlist )
+    {
+        mLinSolverManager = new dla::Linear_Solver();
+    }
+
 
 //--------------------------------------------------------------------------------------------------------------------------
 
@@ -132,7 +142,7 @@ using namespace dla;
                 //PreconTime
                 //SolveTime
 
-                ( mNonlinearProblem->get_full_vector())
+                ( mNonlinearProblem->get_full_vector() )
                                    ->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()
                                                                                    ->get_full_solver_LHS(), 1.0 );
 
@@ -174,10 +184,10 @@ using namespace dla;
         mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
     }
 //--------------------------------------------------------------------------------------------------------------------------
-    void Newton_Solver::extract_my_values( const moris::uint             & aNumIndices,
-                                           const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                           const moris::uint             & aBlockRowOffsets,
-                                                 moris::Matrix< DDRMat > & LHSValues )
+    void Newton_Solver::extract_my_values( const moris::uint                            & aNumIndices,
+                                           const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                           const moris::uint                            & aBlockRowOffsets,
+                                                 moris::Cell< moris::Matrix< DDRMat > > & LHSValues )
     {
         mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
     }

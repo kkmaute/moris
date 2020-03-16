@@ -84,184 +84,8 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-        void IWG::get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // set the size of the dof type list for the set
-            uint tCounter = 0;
-
-            // get number of direct master dof dependencies
-            for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
-            {
-                tCounter += mMasterDofTypes( iDOF ).size();
-            }
-
-            // get number of direct slave dof dependencies
-            for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
-            {
-                tCounter += mSlaveDofTypes( iDOF ).size();
-            }
-
-            // loop over the master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tProperty->get_non_unique_dof_types( tActiveDofType );
-
-                    //update counter
-                    tCounter += tActiveDofType.size();
-                }
-            }
-
-            // loop over slave properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property nn unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tProperty->get_non_unique_dof_types( tActiveDofType );
-
-                    // update counter
-                    tCounter += tActiveDofType.size();
-                }
-            }
-
-            // loop over master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get CM non unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tCM->get_non_unique_dof_types( tActiveDofType );
-
-                    // update counter
-                    tCounter += tActiveDofType.size();
-                }
-            }
-
-            // loop over slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-            {
-                if( tCM != nullptr )
-                {
-                    // get CM non unique dof type list
-                    moris::Cell< MSI::Dof_Type >  tActiveDofType;
-                    tCM->get_non_unique_dof_types( tActiveDofType );
-
-                    // update counter
-                    tCounter += tActiveDofType.size();
-                }
-            }
-
-            // loop over master stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get SP non unique dof type list
-                    moris::Cell< MSI::Dof_Type >  tActiveDofType;
-                    tSP->get_non_unique_dof_types( tActiveDofType );
-
-                    // update counter
-                    tCounter += tActiveDofType.size();
-                }
-            }
-
-            // reserve memory for dof type list
-            aDofTypes.reserve( tCounter );
-
-            // loop over master dof direct dependencies
-            for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
-            {
-                // populate the dof list
-                aDofTypes.append( mMasterDofTypes( iDOF ) );
-            }
-
-            // loop over slave dof direct dependencies
-            for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
-            {
-                //populate the dof list
-                aDofTypes.append( mSlaveDofTypes( iDOF )  );
-            }
-
-            // loop over master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tProperty->get_non_unique_dof_types( tActiveDofType );
-
-                    // populate the dof list
-                    aDofTypes.append( tActiveDofType );
-                }
-            }
-
-            // loop over slave properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tProperty->get_non_unique_dof_types( tActiveDofType );
-
-                    // populate the dof list
-                    aDofTypes.append( tActiveDofType );
-                }
-            }
-
-            // loop over the master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get CM non unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tCM->get_non_unique_dof_types( tActiveDofType );
-
-                    // populate the dof list
-                    aDofTypes.append( tActiveDofType );
-                }
-            }
-
-            // loop over the slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-            {
-                if( tCM != nullptr )
-                {
-                    // get CM non unique dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofType;
-                    tCM->get_non_unique_dof_types( tActiveDofType );
-
-                    // populate the dof list
-                    aDofTypes.append( tActiveDofType );
-                }
-            }
-
-            // loop over the stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get SP non unique master dof type list
-                    moris::Cell< MSI::Dof_Type >  tActiveDofType;
-                    tSP->get_non_unique_dof_types( tActiveDofType );
-
-                    // populate the dof list
-                    aDofTypes.append( tActiveDofType );
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                   moris::Cell< MSI::Dv_Type >  & aDvTypes )
+                                                   moris::Cell< GEN_DV >        & aDvTypes )
         {
             // init counters for dof and dv types
             uint tDofCounter = 0;
@@ -298,7 +122,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type > tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -316,7 +140,7 @@ namespace moris
                     // get property non unique dof and dv type lists
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type > tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -333,7 +157,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -351,7 +175,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -368,7 +192,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     moris::Cell< MSI::Dof_Type >  tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >         tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -417,7 +241,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -434,7 +258,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -451,7 +275,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -468,7 +292,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -485,7 +309,7 @@ namespace moris
                 {
                     // get SP non unique master dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< MSI::Dv_Type >  tActiveDvTypes;
+                    moris::Cell< GEN_DV >        tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -497,234 +321,12 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG::build_global_dof_type_list()
-        {
-            // MASTER-------------------------------------------------------
-            // set size for the global dof type list
-            uint tNumDofTypes = mSet->get_num_dof_types();
-
-            // set size for the global dof type list
-            mMasterGlobalDofTypes.reserve( tNumDofTypes );
-
-            // set a size for the checkList ( used to avoid repeating a dof type)
-            Matrix< DDSMat > tCheckList( tNumDofTypes, 1, -1 );
-
-            // get dof type from direct dependencies
-            for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
-            {
-                // get set index for dof type
-                sint tDofTypeIndex = mSet->get_dof_index_for_type_1( mMasterDofTypes( iDOF )( 0 ) );  //FIXME'
-
-                // put the dof type in the checklist
-                tCheckList( tDofTypeIndex ) = 1;
-
-                // put the dof type in the global type list
-                mMasterGlobalDofTypes.push_back( mMasterDofTypes( iDOF ) );
-            }
-
-            // get dof type from master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
-                    = tProperty->get_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeindex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tCheckList( tDofTypeindex) != 1 )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tDofTypeindex ) = 1;
-
-                            // put the dof type in the global type list
-                            mMasterGlobalDofTypes.push_back( tActiveDofType( iDOF ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
-                    = tCM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeindex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tCheckList( tDofTypeindex) != 1 )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tDofTypeindex ) = 1;
-
-                            // put the dof type in the global type list
-                            mMasterGlobalDofTypes.push_back( tActiveDofType( iDOF ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from master stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeindex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tCheckList( tDofTypeindex) != 1 )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tDofTypeindex ) = 1;
-
-                            // put the dof type in the global type list
-                            mMasterGlobalDofTypes.push_back( tActiveDofType( iDOF ) );
-                        }
-                    }
-                }
-            }
-
-            // reduce size of dof list to fit unique list
-            mMasterGlobalDofTypes.shrink_to_fit();
-
-            // SLAVE--------------------------------------------------------
-
-            // set size for the global dof type list
-            mSlaveGlobalDofTypes.reserve( tNumDofTypes );
-
-            // set a size for the checkList ( used to avoid repeating a dof type)
-            tCheckList.fill( -1 );
-
-            // get dof type from slave direct dependencies
-            for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
-            {
-                // get set index for dof type
-                sint tDofTypeindex = mSet->get_dof_index_for_type_1( mSlaveDofTypes( iDOF )( 0 ) );
-
-                // put the dof type in the checklist
-                tCheckList( tDofTypeindex ) = 1;
-
-                // put the dof type in the global type list
-                mSlaveGlobalDofTypes.push_back( mSlaveDofTypes( iDOF ) );
-            }
-
-            // get dof type from master properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
-                    = tProperty->get_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeindex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tCheckList( tDofTypeindex) != 1 )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tDofTypeindex ) = 1;
-
-                            // put the dof type in the global type list
-                            mSlaveGlobalDofTypes.push_back( tActiveDofType( iDOF ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
-                    = tCM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mSlaveGlobalDofTypes.push_back( tActiveDofType( iDOF ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeindex = mSet->get_dof_index_for_type_1( tActiveDofType( iDOF )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tCheckList( tDofTypeindex) != 1 )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tDofTypeindex ) = 1;
-
-                            // put the dof type in the global type list
-                            mSlaveGlobalDofTypes.push_back( tActiveDofType( iDOF ) );
-                        }
-                    }
-                }
-            }
-
-            // reduce size of dof list to fit unique list
-             mSlaveGlobalDofTypes.shrink_to_fit();
-        }
-
-//------------------------------------------------------------------------------
         void IWG::build_global_dof_and_dv_type_list()
         {
             // MASTER-------------------------------------------------------
             // get number of dof and dv types on set
-            uint tNumDofTypes = mSet->get_num_dof_types();
-            uint tNumDvTypes  = mSet->get_num_dv_types();
+            uint tNumDofTypes = mSet->get_num_unique_dof_types();
+            uint tNumDvTypes  = mSet->get_num_unique_dv_types();
 
             // set size for the global dof and dv type lists
             mMasterGlobalDofTypes.reserve( tNumDofTypes );
@@ -739,7 +341,7 @@ namespace moris
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
             {
                 // get set index for dof type
-                sint tDofTypeIndex = mSet->get_dof_index_for_type_1( mMasterDofTypes( iDof )( 0 ) );  //FIXME'
+                sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( mMasterDofTypes( iDof )( 0 ) );  //FIXME'
 
                 // put the dof type in the checklist
                 tDofCheckList( tDofTypeIndex ) = 1;
@@ -752,7 +354,7 @@ namespace moris
             for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
             {
                 // get set index for dv type
-                sint tDvTypeIndex = mSet->get_dv_index_for_type_1( mMasterDvTypes( iDv )( 0 ) );  //FIXME'
+                sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mMasterDvTypes( iDv )( 0 ) );  //FIXME'
 
                 // put the dv type in the checklist
                 tDvCheckList( tDvTypeIndex ) = 1;
@@ -774,7 +376,7 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -788,14 +390,14 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvTypes
+                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
                     = tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_dv_index_for_type_1( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDvCheckList( tDvTypeIndex) != 1 )
@@ -823,7 +425,7 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex) != 1 )
@@ -837,14 +439,14 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvTypes
+                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
                     = tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_dv_index_for_type_1( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -872,7 +474,7 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex) != 1 )
@@ -886,14 +488,14 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvTypes
+                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
                     = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_dv_index_for_type_1( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -925,7 +527,7 @@ namespace moris
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
                 // get set index for dof type
-                sint tDofTypeIndex = mSet->get_dof_index_for_type_1( mSlaveDofTypes( iDof )( 0 ) );
+                sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( mSlaveDofTypes( iDof )( 0 ) );
 
                 // put the dof type in the checklist
                 tDofCheckList( tDofTypeIndex ) = 1;
@@ -938,7 +540,7 @@ namespace moris
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
                 // get set index for dv type
-                sint tDvTypeIndex = mSet->get_dv_index_for_type_1( mSlaveDvTypes( iDv )( 0 ) );
+                sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mSlaveDvTypes( iDv )( 0 ) );
 
                 // put the dv type in the checklist
                 tDvCheckList( tDvTypeIndex ) = 1;
@@ -960,7 +562,7 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -974,14 +576,14 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvTypes
+                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
                     = tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_dv_index_for_type_1( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1009,7 +611,7 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1023,14 +625,14 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvTypes
+                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
                     = tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_dv_index_for_type_1( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1058,7 +660,7 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_dof_index_for_type_1( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1072,14 +674,14 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                     moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvTypes
+                     moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
                      = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                      // loop on property dv type
                      for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                      {
                          // get set index for dv type
-                         sint tDvTypeIndex = mSet->get_dv_index_for_type_1( tActiveDvTypes( iDv )( 0 ) );
+                         sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                          // if dv enum not in the list
                          if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1102,70 +704,89 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-void IWG::build_requested_dof_type_list( const bool aItResidual )
+void IWG::build_requested_dof_type_list( const bool aIsResidual )
 {
+    // clear the dof lists
     mRequestedMasterGlobalDofTypes.clear();
     mRequestedSlaveGlobalDofTypes .clear();
 
-    if ( aItResidual )
+    // if residual evaluation
+    if ( aIsResidual )
     {
+        // get the requested dof types
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > tRequestedDofTypes
         = mSet->get_secundary_dof_types();
 
+        // reserve possible max size for requested dof lists
         mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
         mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
 
+        // loop over the requested dof type groups
         for( auto tDofTypes : tRequestedDofTypes )
         {
+            // loop over the IWG master dof types groups
             for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
             {
+                // if requested dof type group matches IWG master dof types group
                 if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes( 0 ) )
                 {
+                    // add the IWG master dof types group to the requested dof list
                     mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
-
                     break;
                 }
             }
 
+            // loop over the IWG slave dof types groups
             for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
             {
+                // if requested dof type group matches IWG slave dof types group
                 if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes( 0 ) )
                 {
+                    // add the IWG slave dof types group to the requested dof list
                     mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
-
                     break;
                 }
             }
         }
     }
+    // if jacobian evaluation
     else
     {
+        // get the requested dof types
         Cell < enum MSI::Dof_Type > tRequestedDofTypes = mSet->get_requested_dof_types();
 
+        // reserve possible max size for requested dof lists
         mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
         mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
 
+        // loop over the requested dof types
         for( auto tDofTypes : tRequestedDofTypes )
         {
+            // loop over the IWG master dof types groups
             for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
             {
+                // if requested dof type matches IWG master dof type
                 if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes )
                 {
+                    // add the IWG master dof type to the requested dof list
                     mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
                     break;
                 }
             }
 
+            // loop over the IWG slave dof types groups
             for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
             {
+                // if requested dof type matches IWG slave dof type
                 if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes )
                 {
+                    // add the IWG slave dof type to the requested dof list
                     mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
-
                     break;
                 }
             }
 
+            // FIXME to be removed
             if( mResidualDofType( 0 ) == tDofTypes )
             {
                 mResidualDofTypeRequested = true;
@@ -1173,6 +794,7 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
         }
     }
 
+    // reduce size for requested dof lists
     mRequestedMasterGlobalDofTypes.shrink_to_fit();
     mRequestedSlaveGlobalDofTypes.shrink_to_fit();
 }
@@ -1300,11 +922,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus
-                        =  mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1317,11 +939,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus
-                        =  mSet->get_residual()( { tResStartRow, tResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } );
 
                         // evaluate Jacobian
                         aJacobiansFD.get_column( tDofCounter )
@@ -1419,13 +1041,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus_Master
-                        =  mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Plus_Slave
-                        =  mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1438,13 +1060,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus_Master
-                        =  mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Minus_Slave
-                        =  mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // evaluate Jacobian
                         aJacobiansFD( { 0, tMasterNumRows -1 }, { tDofCounter, tDofCounter } )
@@ -1490,13 +1112,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Plus_Master
-                        = mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Plus_Slave
-                        = mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1509,13 +1131,13 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         this->reset_eval_flags();
 
                         // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
 
                         Matrix< DDRMat > tResidual_Minus_Master
-                        = mSet->get_residual()( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tMasterResStartRow, tMasterResEndRow }, { 0, 0 } );
                         Matrix< DDRMat > tResidual_Minus_Slave
-                        = mSet->get_residual()( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tSlaveResStartRow, tSlaveResEndRow }, { 0, 0 } );
 
                         // evaluate Jacobian
                         aJacobiansFD( { 0, tMasterNumRows -1 }, { tDofCounter, tDofCounter } )
@@ -1630,18 +1252,18 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
             return tCheckJacobian;
         }
 
-
 //------------------------------------------------------------------------------
-
-        void IWG::compute_drdpdv_FD_geometry( real                              aWStar,
-                                              real                              aPerturbation,
-                                              moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                              moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD )
+        void IWG::compute_dRdp_FD_geometry
+        ( moris::real                       aWStar,
+          moris::real                       aPerturbation,
+          moris::Cell< Matrix< DDSMat > > & aIsActive,
+          moris::Cell< Matrix< DDRMat > > & adRdpGeoFD )
         {
             // get the GI for the IG element considered
-            Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()
+                                              ->get_IG_geometry_interpolator();
 
-            // get the residaul dof type index in the set
+            // get the residual dof type index in the set
             uint tDofIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ),
                                                            mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
@@ -1654,9 +1276,9 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
             uint tDerNumBases      = tGI->get_number_of_space_bases();
             uint tDerNumDimensions = tGI->get_number_of_space_dimensions();
 
-            // set size for adrdpdvGeoFD
-            adrdpdvGeoFD.resize( 1 );
-            adrdpdvGeoFD( 0 ).set_size( tNumRows, tDerNumBases * tDerNumDimensions, 0.0 );
+            // set size for adRdpGeoFD
+            adRdpGeoFD.resize( 1 );
+            adRdpGeoFD( 0 ).set_size( tNumRows, tDerNumBases * tDerNumDimensions, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tGI->get_space_coeff();
@@ -1668,7 +1290,7 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
                 // loop over the IG nodes
-                for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
+                for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
                 {
                     if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                     {
@@ -1682,12 +1304,11 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        // evaluate the residual plus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-
                         Matrix< DDRMat > tResidual_Plus
-                                  =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // perturbation of the coefficient
                         tCoeffPert = tCoeff;
@@ -1699,31 +1320,29 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        // evaluate the residual minus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-
                         Matrix< DDRMat > tResidual_Minus
-                                 =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // evaluate drdpdvGeo
-                        adrdpdvGeoFD( 0 ).get_column( tDvCounter )
-                                 = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        adRdpGeoFD( 0 ).get_column( tDvCounter )
+                        = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
                     }
                     // update dv counter
                     tDvCounter++;
                 }
+                // reset the coefficients values
+                tGI->set_space_coeff( tCoeff );
             }
-            // reset the coefficients values
-            tGI->set_space_coeff( tCoeff );
         }
 
 //------------------------------------------------------------------------------
-
-        void IWG::compute_drdpdv_FD_material( real                              aWStar,
-                                              real                              aPerturbation,
-                                              moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                              moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD)
+        void IWG::compute_dRdp_FD_material
+        ( moris::real                       aWStar,
+          moris::real                       aPerturbation,
+          moris::Cell< Matrix< DDRMat > > & adRdpMatFD )
         {
             // get master number of dv types
             uint tNumDvType = mMasterGlobalDvTypes.size();
@@ -1750,20 +1369,12 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                           - mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 ) + 1;
             }
 
-            adrdpdvMatFD.resize( 1 );
-            adrdpdvMatFD( 0 ).set_size( tNumRows, tNumCols, 0.0 );
-
-//            // init dv coeff counter
-//            uint tCounter = 0;
+            adRdpMatFD.resize( 1 );
+            adRdpMatFD( 0 ).set_size( tNumRows, tNumCols, 0.0 );
 
             // loop over the dv types associated with a FI
             for( uint iFI = 0; iFI < tNumDvType; iFI++ )
             {
-
-//                // get the dv index in the set
-//                uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
-//                                                             mtk::Master_Slave::MASTER );
-
                 // get the FI for the dv type
                 Field_Interpolator * tFI
                 = mMasterFIManager->get_field_interpolators_for_type( mMasterGlobalDvTypes( iFI )( 0 ) );
@@ -1794,16 +1405,15 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        // evaluate the residual plus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-
                         Matrix< DDRMat > tResidual_Plus
-                        =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += - aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
                         tFI->set_coeff( tCoeffPert );
@@ -1811,17 +1421,15 @@ void IWG::build_requested_dof_type_list( const bool aItResidual )
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual
-                        mSet->get_residual().fill( 0.0 );
+                        // evaluate the residual minus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-
                         Matrix< DDRMat > tResidual_Minus
-                        =  mSet->get_residual()( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+                        =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
-                        // evaluate Jacobian
+                        // evaluate dRdpMat
                        // uint tDvAssemblyStart = mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 );
-
-                        adrdpdvMatFD( 0 ).get_column( tCounter )
+                        adRdpMatFD( 0 ).get_column( tCounter )
                         = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // update counter

@@ -845,6 +845,64 @@ namespace moris
                  aMatrix( 0 ) = aValue;
              }
          }
+
+//------------------------------------------------------------------------------
+
+         inline
+         std::string parallelize_path( const std::string & aFilePath )
+         {
+             if( par_size() == 1 || aFilePath.size() == 0 )
+             {
+                 // leave path untouched
+                 return aFilePath;
+             }
+             else
+             {
+                 return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                       + "." + std::to_string( par_size() ) // rank of this processor
+                       + "." + std::to_string( par_rank() ) // number of procs
+                       +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
+             }
+         }
+
+//------------------------------------------------------------------------------
+         // print dots for nice output
+
+         inline
+         std::string proc_string()
+         {
+             std::string tString = "              ";
+
+             if( par_size() > 1 )
+             {
+                 uint tMyRank = par_rank();
+                 tString = "  proc " + std::to_string( tMyRank );
+
+                 if ( tMyRank < 10 )
+                 {
+                     tString +=" ... :" ;
+                 }
+                 else if ( tMyRank < 100 )
+                 {
+                     tString +=" .. :" ;
+                 }
+                 else if ( tMyRank < 1000 )
+                 {
+                     tString +=" . :" ;
+                 }
+                 else if ( tMyRank < 10000 )
+                 {
+                     tString +="  :" ;
+                 }
+                 else
+                 {
+                     tString +=" :" ;
+                 }
+             }
+
+             return tString;
+         }
+//------------------------------------------------------------------------------
 }
 
 

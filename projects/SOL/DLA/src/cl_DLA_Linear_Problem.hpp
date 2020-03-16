@@ -11,18 +11,11 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Enums.hpp"
-
-#include "Epetra_LinearProblem.h"
-
-#include <petscksp.h>
-
 namespace moris
 {
-class Sparse_Matrix;
+class Dist_Matrix;
 class Dist_Vector;
-class Map_Class;
+class Dist_Map;
 class Solver_Interface;
 namespace dla
 {
@@ -31,36 +24,31 @@ namespace dla
     private:
 
     protected:
-        Sparse_Matrix * mMat;
+        Dist_Matrix   * mMat;
         Dist_Vector   * mVectorRHS;
         Dist_Vector   * mFreeVectorLHS;
         Dist_Vector   * mFullVectorLHS;
-        Map_Class     * mMap;
+        Dist_Map      * mMap = nullptr;
+        Dist_Map      * mMapFree= nullptr;
 
-        Solver_Interface * mInput;
+        Solver_Interface * mSolverInterface;
 
         moris::real mCondEstimate;
-
-        Epetra_LinearProblem      mEpetraProblem;
 
     public:
         Linear_Problem( Solver_Interface * aInput ) : mMat(NULL),
                                                       mVectorRHS(NULL),
-                                                      mFreeVectorLHS(NULL),
+                                                      mFreeVectorLHS(nullptr),
                                                       mMap(NULL),
-                                                      mInput( aInput ),
-                                                      mEpetraProblem()
+                                                      mSolverInterface( aInput )
         {};
 
         virtual ~Linear_Problem(){};
 
+        void assemble_residual_and_jacobian(  );
         void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
         void assemble_residual( Dist_Vector * aFullSolutionVector );
         void assemble_jacobian( Dist_Vector * aFullSolutionVector );
-
-        void assemble_residual_and_jacobian(  );
-
-        virtual void build_linear_system() = 0;
 
         virtual moris::sint solve_linear_system() = 0;
 
@@ -72,13 +60,9 @@ namespace dla
 
         Dist_Vector * get_solver_RHS() { return mVectorRHS; };
 
-        Sparse_Matrix * get_matrix() { return mMat; };
+        Dist_Matrix * get_matrix() { return mMat; };
 
-        Solver_Interface * get_solver_input() const { return mInput; };
-
-        Epetra_LinearProblem * get_linear_system_epetra() { return & mEpetraProblem; };
-
-        //KSP get_linear_system_petsc() { return mPetscProblem; };
+        Solver_Interface * get_solver_input() const { return mSolverInterface; };
 
         virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
     };
