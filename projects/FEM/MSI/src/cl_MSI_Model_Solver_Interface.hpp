@@ -56,6 +56,7 @@ namespace moris
             MSI::MSI_Solver_Interface * mSolverInterface;
 
             friend class MSI_Solver_Interface;
+            friend class Multigrid;
 
 //------------------------------------------------------------------------------
 
@@ -210,9 +211,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Equation_Set * get_eqn_block( const moris::uint & aMyEquBlockInd )
+        Equation_Set * get_equation_set( const moris::uint & aMyEquSetInd )
         {
-            return mEquationBlocks( aMyEquBlockInd );
+            return mEquationBlocks( aMyEquSetInd );
         };
 
 //------------------------------------------------------------------------------

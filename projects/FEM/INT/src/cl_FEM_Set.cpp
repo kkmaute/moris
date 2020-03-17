@@ -187,6 +187,8 @@ namespace moris
 
             this->create_requested_IWG_list();
 
+            this->create_requested_IQI_list();
+
             this->build_requested_IWG_dof_type_list( aIsResidual );
 
             // set fem set pointer to IWGs

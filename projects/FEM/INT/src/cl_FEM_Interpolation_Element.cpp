@@ -338,6 +338,8 @@ namespace moris
              // FIXME do this only once
              this->compute_my_pdof_values();
 
+             mSet->initialize_mQI();
+
              // set the field interpolators coefficients
              this->set_field_interpolators_coefficients();
 
