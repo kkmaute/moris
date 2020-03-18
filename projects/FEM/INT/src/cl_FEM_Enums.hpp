@@ -105,9 +105,11 @@ namespace moris
         enum class IQI_Type
         {
             UNDEFINED,
-            VOLUME,         // volume
+            VOLUME,
             STRAIN_ENERGY,
+            STRESS,
             DOF,
+            ANALYTIC,
             END_IQI_TYPE
         };
 

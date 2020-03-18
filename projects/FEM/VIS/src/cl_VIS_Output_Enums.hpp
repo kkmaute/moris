@@ -15,6 +15,7 @@ namespace vis
     {
         STRAIN_ENERGY,
         VOLUME,
+        SIGY,   //< Y-stress
         UX,     //< X-Displacement
         UY,     //< Y-Displacement
         UZ,     //< Z-Displacement
@@ -30,6 +31,7 @@ namespace vis
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
         DOF, // Dof
+        Analytic, // Analytic
         UNDEFINED, //< Undefined
         END_ENUM//
     };

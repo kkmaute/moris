@@ -256,6 +256,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
+                                "./",
                                 "UT_MDL_FEM_Benchmark_Output_Block.exo",
                                 { "HMR_dummy" },
                                 { "Temperature" },
@@ -578,6 +579,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
+                                "./",
                                 "UT_MDL_FEM_Benchmark_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { "Temperature" },
@@ -921,6 +923,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
+                                "./",
                                 "UT_MDL_FEM_Benchmark_Ghost_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { "Temperature" },
@@ -1150,6 +1153,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
+                                "./",
                                 "UT_MDL_FEM_Benchmark_Elast_Block_Output.exo",
                                 { "HMR_dummy" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
@@ -1484,6 +1488,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
+                                "./",
                                 "UT_MDL_FEM_Benchmark_Elast_Interface_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
@@ -1838,6 +1843,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        vis::Output_Manager tOutputData;
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
+                                "./",
                                 "UT_MDL_FEM_Benchmark_Elast_Ghost_Output.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },

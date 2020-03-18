@@ -546,260 +546,257 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 {
     if(par_size()<=1)
     {
-    	uint tLagrangeMeshIndex = 0;
-    	        std::string tFieldName = "Cylinder";
+        uint tLagrangeMeshIndex = 0;
+        std::string tFieldName = "Cylinder";
 
-    	        ParameterList tParameters = hmr::create_hmr_parameter_list();
+        ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-    	        tParameters.set( "number_of_elements_per_dimension", "2, 1");
-    	        tParameters.set( "domain_dimensions", "2, 2" );
-    	        tParameters.set( "domain_offset", "-1.0, -1.0" );
-    	        tParameters.set( "domain_sidesets", "1,2,3,4" );
-    	        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "number_of_elements_per_dimension", "2, 1");
+        tParameters.set( "domain_dimensions", "2, 2" );
+        tParameters.set( "domain_offset", "-1.0, -1.0" );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-    	        tParameters.set( "lagrange_orders", "1" );
-    	        tParameters.set( "lagrange_pattern", "0" );
-    	        tParameters.set( "bspline_orders", "1" );
-    	        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-    	        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
-    	        tParameters.set( "truncate_bsplines", 1 );
-    	        tParameters.set( "refinement_buffer", 3 );
-    	        tParameters.set( "staircase_buffer", 3 );
-    	        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "refinement_buffer", 3 );
+        tParameters.set( "staircase_buffer", 3 );
+        tParameters.set( "initial_refinement", 0 );
 
-    	        tParameters.set( "use_multigrid", 0 );
-    	        tParameters.set( "severity_level", 2 );
+        tParameters.set( "use_multigrid", 0 );
+        tParameters.set( "severity_level", 2 );
 
-    	        hmr::HMR tHMR( tParameters );
+        hmr::HMR tHMR( tParameters );
 
-    	        // initial refinement
-    	        tHMR.perform_initial_refinement( 0 );
+        // initial refinement
+        tHMR.perform_initial_refinement( 0 );
 
-    	        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-    	        //// create field
-    	        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        //// create field
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-    	        tField->evaluate_scalar_function( LvlSetPlane );
-    	        //
-    	        // for( uint k=0; k<2; ++k )
-    	        // {
-    	            // tHMR.flag_surface_elements_on_working_pattern( tField );
-    	            // tHMR.perform_refinement_based_on_working_pattern( 0 );
+        tField->evaluate_scalar_function( LvlSetPlane );
+        //
+        // for( uint k=0; k<2; ++k )
+        // {
+        // tHMR.flag_surface_elements_on_working_pattern( tField );
+        // tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-    	            // tField->evaluate_scalar_function( LvlSetCircle_2D );
-    	        // }
+        // tField->evaluate_scalar_function( LvlSetCircle_2D );
+        // }
 
-    	        tHMR.finalize();
+        tHMR.finalize();
 
-    	         tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+        tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 
-    	        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-    	        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tField);
 
-    	        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 
-    	        size_t tModelDimension = 2;
-    	        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    	        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+        size_t tModelDimension = 2;
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-    	        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), tGeometryEngine);
 
-    	        tXTKModel.mVerbose = false;
+        tXTKModel.mVerbose = false;
 
-    	        //Specify decomposition Method and Cut Mesh ---------------------------------------
-    	        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-    	        tXTKModel.decompose(tDecompositionMethods);
+        //Specify decomposition Method and Cut Mesh ---------------------------------------
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        tXTKModel.decompose(tDecompositionMethods);
 
-    	        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
-    	        // get meshes
-    	        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-    	        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+        // get meshes
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
-    	        // place the pair in mesh manager
-    	        mtk::Mesh_Manager tMeshManager;
-    	        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        // place the pair in mesh manager
+        mtk::Mesh_Manager tMeshManager;
+        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-    	        uint tSpatialDimension = 2;
+        uint tSpatialDimension = 2;
 
-    	        //------------------------------------------------------------------------------
-    	        // create the properties
-    	        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
-    	        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-    	        tPropConductivity1->set_val_function( tConstValFunction );
+        //------------------------------------------------------------------------------
+        // create the properties
+        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
+        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity1->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
-    	        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
-    	        tPropConductivity2->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
+        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
+        tPropConductivity2->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tPropDirichletU = std::make_shared< fem::Property >();
-    	        tPropDirichletU->set_parameters( { {{ 0.0 }, { 0.0 }} } );
-    	        tPropDirichletU->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropDirichletU = std::make_shared< fem::Property >();
+        tPropDirichletU->set_parameters( { {{ 0.0 }, { 0.0 }} } );
+        tPropDirichletU->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tPropDirichletTEMP = std::make_shared< fem::Property >();
-    	        tPropDirichletTEMP->set_parameters( { {{ 3.0 }} } );
-    	        tPropDirichletTEMP->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropDirichletTEMP = std::make_shared< fem::Property >();
+        tPropDirichletTEMP->set_parameters( { {{ 3.0 }} } );
+        tPropDirichletTEMP->set_val_function( tConstValFunction );
 
-    	//        std::shared_ptr< fem::Property > tPropNeumannTEMP = std::make_shared< fem::Property >();
-    	//        tPropNeumann->set_parameters( { {{ 20.0 }} } );
-    	//        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
+        //        std::shared_ptr< fem::Property > tPropNeumannTEMP = std::make_shared< fem::Property >();
+        //        tPropNeumann->set_parameters( { {{ 20.0 }} } );
+        //        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
 
-    	        std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
-    	        tPropEMod1->set_parameters( { {{ 1.0 }} } );
-    	        tPropEMod1->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
+        tPropEMod1->set_parameters( { {{ 1.0 }} } );
+        tPropEMod1->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
-    	        tPropEMod2->set_parameters( { {{ 1.0 }} } );
-    	        tPropEMod2->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
+        tPropEMod2->set_parameters( { {{ 1.0 }} } );
+        tPropEMod2->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tPropPoisson = std::make_shared< fem::Property >();
-    	        tPropPoisson->set_parameters( { {{ 0.0 }} } );
-    	        tPropPoisson->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropPoisson = std::make_shared< fem::Property >();
+        tPropPoisson->set_parameters( { {{ 0.0 }} } );
+        tPropPoisson->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tCTE = std::make_shared< fem::Property >();
-    	        tCTE->set_parameters( { {{ 1.0 }} } );
-    	        tCTE->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tCTE = std::make_shared< fem::Property >();
+        tCTE->set_parameters( { {{ 1.0 }} } );
+        tCTE->set_val_function( tConstValFunction );
 
-    	        std::shared_ptr< fem::Property > tTRef = std::make_shared< fem::Property >();
-    	        tTRef->set_parameters( { {{ 1.0 }} } );
-    	        tTRef->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tTRef = std::make_shared< fem::Property >();
+        tTRef->set_parameters( { {{ 1.0 }} } );
+        tTRef->set_val_function( tConstValFunction );
 
-    	        // define constitutive models
-    	        fem::CM_Factory tCMFactory;
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
 
-    	        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    	         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
-    	                                             { "Displacement",                           "Temperature" } );
-    	         tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
-    	         tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
-    	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
-    	         tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
-    	         tCMStrucLinIso1->set_space_dim( 2 );
-    	         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+                                            { "Displacement",                           "Temperature" } );
+        tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
+        tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
+        tCMStrucLinIso1->set_property( tCTE, "CTE" );
+        tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
+        tCMStrucLinIso1->set_space_dim( 2 );
+        tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
-    	         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    	         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
-    	                                             {  "Displacement",                          "Temperature" } );
-    	         tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
-    	         tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
-    	         tCMStrucLinIso1->set_property( tCTE, "CTE" );
-    	         tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
-    	         tCMStrucLinIso2->set_space_dim( 2 );
-    	         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+                                            {  "Displacement",                          "Temperature" } );
+        tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
+        tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
+        tCMStrucLinIso1->set_property( tCTE, "CTE" );
+        tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
+        tCMStrucLinIso2->set_space_dim( 2 );
+        tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
 
-    	         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    	         tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    	         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
-    	         tCMDiffLinIso1->set_space_dim( 2 );
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
+        tCMDiffLinIso1->set_space_dim( 2 );
 
-    	         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    	         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    	         tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
-    	         tCMDiffLinIso2->set_space_dim( 2 );
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
+        tCMDiffLinIso2->set_space_dim( 2 );
 
-    	         //----------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------
 
-    	         // define stabilization parameters
-    	         fem::SP_Factory tSPFactory;
-    	         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    	         tSPDirichletNitscheU->set_parameters( { {{ 100.0 }} } );
-    	         tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitscheU->set_parameters( { {{ 100.0 }} } );
+        tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
-    	         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    	         tSPDirichletNitscheTEMP->set_parameters( { {{ 1.0 }} } );
-    	         tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitscheTEMP->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
-    	         //----------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------
 
-    	         // define the IWGs
-    	         fem::IWG_Factory tIWGFactory;
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
 
-    	         std::shared_ptr< fem::IWG > tIWGBulkU_1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-    	         tIWGBulkU_1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    	         tIWGBulkU_1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    	         tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::IWG > tIWGBulkU_1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        tIWGBulkU_1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGBulkU_1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-    	         std::shared_ptr< fem::IWG > tIWGBulkU_2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-    	         tIWGBulkU_2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    	         tIWGBulkU_2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    	         tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::IWG > tIWGBulkU_2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        tIWGBulkU_2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGBulkU_2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-    	         std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
-    	         tIWGDirichletU->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    	         tIWGDirichletU->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    	         tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
-    	         tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-    	         tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        tIWGDirichletU->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGDirichletU->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
+        tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Master_Slave::MASTER );
 
-    	//         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-    	//         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    	//         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    	//         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        //         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        //         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        //         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        //         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
-    	         std::shared_ptr< fem::IWG > tIWGBulkTEMP_1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-    	         tIWGBulkTEMP_1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    	         tIWGBulkTEMP_1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    	         tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
-    	//         tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::IWG > tIWGBulkTEMP_1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGBulkTEMP_1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulkTEMP_1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+        //         tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
-    	         std::shared_ptr< fem::IWG > tIWGBulkTEMP_2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-    	         tIWGBulkTEMP_2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    	         tIWGBulkTEMP_2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    	         tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-    	//         tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::IWG > tIWGBulkTEMP_2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGBulkTEMP_2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulkTEMP_2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        //         tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-    	         std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-    	         tIWGDirichletTEMP->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    	         tIWGDirichletTEMP->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    	         tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
-    	         tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-    	         tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
-    	         //----------------------------------------------------------------------------------------------------------
+        std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGDirichletTEMP->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGDirichletTEMP->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
+        tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
+        //----------------------------------------------------------------------------------------------------------
 
-    	         fem::Set_User_Info tSetBulk1;
-    	         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
-    	         tSetBulk1.set_IWGs( { tIWGBulkU_1, tIWGBulkTEMP_1 } );
+        fem::Set_User_Info tSetBulk1;
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk1.set_IWGs( { tIWGBulkU_1, tIWGBulkTEMP_1 } );
 
-    	         fem::Set_User_Info tSetDirichlet;
-    	         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
-    	         tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
-
-
-    	         // create a cell of set info
-    	         moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
-    	         tSetInfo( 0 ) = tSetBulk1;
-    	         tSetInfo( 1 ) = tSetDirichlet;
-    	//         tSetInfo( 2 ) = tSetBulk3;
-    	//         tSetInfo( 3 ) = tSetBulk4;
-    	//         tSetInfo( 4 ) = tSetDirichlet;
-    	//         tSetInfo( 5 ) = tSetNeumann;
-    	//         tSetInfo( 6 ) = tSetInterface;
+        fem::Set_User_Info tSetDirichlet;
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+        tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
 
 
-    	//        // create a list of active block-sets
-    	//        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
-    	//
-    	//        // create a list of active block-sets
-    	//        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
-    	//                                                 tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
-    	//                                                 tEnrIntegMesh.get_set_index_by_name ("SideSet_4_n_p1"),
-    	//                                                 tEnrIntegMesh.get_set_index_by_name ("SideSet_2_n_p1")};
-    	//
-    	//        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-    	//                                                          fem::Element_Type::BULK,
-    	//                                                          fem::Element_Type::SIDESET,
-    	//                                                          fem::Element_Type::SIDESET};
+        // create a cell of set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
+        tSetInfo( 0 ) = tSetBulk1;
+        tSetInfo( 1 ) = tSetDirichlet;
+        //         tSetInfo( 2 ) = tSetBulk3;
+        //         tSetInfo( 3 ) = tSetBulk4;
+        //         tSetInfo( 4 ) = tSetDirichlet;
+        //         tSetInfo( 5 ) = tSetNeumann;
+        //         tSetInfo( 6 ) = tSetInterface;
 
-    	        uint tBSplineMeshIndex = 0;
-    	        // create model
-    	        mdl::Model * tModel = new mdl::Model( &tMeshManager,
-    	                                               1,
-    	                                               tSetInfo,
-    	                                               0, false );
+
+        //        // create a list of active block-sets
+        //        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
+        //
+        //        // create a list of active block-sets
+        //        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
+        //                                                 tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
+        //                                                 tEnrIntegMesh.get_set_index_by_name ("SideSet_4_n_p1"),
+        //                                                 tEnrIntegMesh.get_set_index_by_name ("SideSet_2_n_p1")};
+        //
+        //        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+        //                                                          fem::Element_Type::BULK,
+        //                                                          fem::Element_Type::SIDESET,
+        //                                                          fem::Element_Type::SIDESET};
+
+        uint tBSplineMeshIndex = 0;
+        // create model
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, 0, tSetInfo, 0, false );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypesT( 1 );            tDofTypesT( 0 ) = MSI::Dof_Type::TEMP;
         moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;
@@ -1214,7 +1211,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         uint tBSplineMeshIndex = 0;
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 

@@ -466,6 +466,121 @@ Enriched_Integration_Mesh::deactivate_empty_block_sets()
 
 }
 //------------------------------------------------------------------------------
+moris::Cell<std::string>
+Enriched_Integration_Mesh::create_basis_support_fields()
+{
+    // get the enriched interpolation mesh
+    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
+
+    // base string of field
+    std::string tBaseStr = "Weight";
+
+    // field names for output
+    moris::Cell<std::string> tOutputFieldNames;
+
+    // field information for internal use
+    moris::Cell<moris::Cell<std::string>> tFieldNames(tEnrInterpMesh->get_num_interpolation_types());
+    moris::Cell<moris::Cell<moris_index>> tFieldIndices(tEnrInterpMesh->get_num_interpolation_types());
+    moris::Cell<moris::Cell<Matrix<DDRMat>>> tFieldData(tEnrInterpMesh->get_num_interpolation_types());
+
+    // iterate through interpolation types and for each basis declare the field in mesh
+    for(moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++)
+    {
+        std::string tInterpTypeStr = "_mi_" + std::to_string(iBT);
+
+        tFieldNames(iBT).resize(tEnrInterpMesh->get_num_basis_functions());
+        tFieldIndices(iBT).resize(tEnrInterpMesh->get_num_basis_functions());
+        tFieldData(iBT).resize(tEnrInterpMesh->get_num_basis_functions(),Matrix<DDRMat>(this->get_num_entities(EntityRank::NODE),1));
+
+        // iterate through basis functions
+        for(moris::uint iB = 0; iB < tEnrInterpMesh->get_num_basis_functions(); iB++)
+        {
+            // initialize the data to -1
+            tFieldData(iBT)(iB).fill(-1);
+
+            tFieldNames(iBT)(iB) = tBaseStr + tInterpTypeStr + "_ind_" + std::to_string(iB);
+
+            tOutputFieldNames.push_back(tFieldNames(iBT)(iB));
+
+            // declare the field in this mesh
+            tFieldIndices(iBT)(iB) = this->create_field(tFieldNames(iBT)(iB),EntityRank::NODE,0);
+        }
+    }
+
+    // populate field data
+    for(moris::uint iCl = 0; iCl < this->mCellClusters.size(); iCl++)
+    {
+        xtk::Cell_Cluster* tCluster = mCellClusters(iCl).get();
+
+        // get the interpolation cell
+        moris::mtk::Cell const & tInterpCell = tCluster->get_interpolation_cell();
+
+        // get the vertices attached to this cell
+        moris::Cell< moris::mtk::Vertex* > tVertices = tInterpCell.get_vertex_pointers();
+
+        // allocate place to put coefficients interpolating into these vertices
+        moris::Cell<moris::Cell<moris_index>> tCoeffsIPIntoCluster(tEnrInterpMesh->get_num_interpolation_types());
+
+        // collect coefficients of this interpolation cell
+        for(moris::uint iV = 0; iV < tVertices.size(); iV++)
+        {
+            for(moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++)
+            {
+                mtk::Vertex_Interpolation * tVertexIp = tVertices(iV)->get_interpolation( tEnrInterpMesh->get_interpolation_index((moris_index)iBT));
+
+                // get indices of coefficients
+                Matrix< IndexMat > tCoeffInds = tVertexIp->get_indices();
+
+                // resize data
+                tCoeffsIPIntoCluster(iBT).resize(tCoeffInds.numel());
+
+                for(moris::uint iC = 0; iC < tCoeffInds.numel(); iC++)
+                {
+                    tCoeffsIPIntoCluster(iBT)(iC) = tCoeffInds(iC);
+                }
+
+            }
+        }
+
+        // get primary cells from the cluster
+        moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCluster->get_primary_cells_in_cluster();
+
+        // iterate through primary cells
+        for(moris::uint iCell = 0; iCell< tPrimaryCells.size(); iCell++)
+        {
+            // get vertices attached to primary cells
+            moris::Cell< moris::mtk::Vertex* > tVertices = tPrimaryCells(iCell)->get_vertex_pointers();
+
+            // iterate through vertices and mark them as in support of all coefficients in tCoeffsIPIntoCluster
+            for(moris::uint iV = 0; iV < tVertices.size(); iV++)
+            {
+                for(moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++)
+                {
+                    for(moris::uint iC = 0; iC < tCoeffsIPIntoCluster(iBT).size(); iC++)
+                    {
+                        tFieldData(iBT)(tCoeffsIPIntoCluster(iBT)(iC))(tVertices(iV)->get_index()) = 1;
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    // add field data to mesh
+    // iterate through interpolation
+    for(moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++)
+    {
+        // iterate through basis functions
+        for(moris::uint iB = 0; iB < tEnrInterpMesh->get_num_basis_functions(); iB++)
+        {
+            this->add_field_data(tFieldIndices(iBT)(iB),EntityRank::NODE,tFieldData(iBT)(iB));
+        }
+    }
+
+    return tOutputFieldNames;
+}
+//------------------------------------------------------------------------------
 enum CellTopology
 Enriched_Integration_Mesh::get_blockset_topology(const  std::string & aSetName)
 {
@@ -948,6 +1063,13 @@ Enriched_Integration_Mesh::add_field_data(moris::moris_index       aFieldIndex,
                                           Matrix<DDRMat>  const  & aFieldData)
 {
     mFields(aFieldIndex).mFieldData = aFieldData.copy();
+}
+
+Matrix<DDRMat> const   &
+Enriched_Integration_Mesh::get_field_data(moris::moris_index       aFieldIndex,
+                                          enum moris::EntityRank   aEntityRank) const
+{
+    return mFields(aFieldIndex).mFieldData;
 }
 
 //------------------------------------------------------------------------------

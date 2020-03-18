@@ -75,7 +75,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
          moris::hmr::Parameters tParameters;
 
-         tParameters.set_number_of_elements_per_dimension( { {4}, {4}} );
+         tParameters.set_number_of_elements_per_dimension( { {12}, {12}} );
          tParameters.set_domain_dimensions({ {2}, {2} });
          tParameters.set_domain_offset({ {-1.0}, {-1.0} });
          tParameters.set_bspline_truncation( true );

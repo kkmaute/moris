@@ -117,7 +117,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2);
 
-        tParameters.set_number_aura(  true );
+        tParameters.set_number_aura( true );
 
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
@@ -147,8 +147,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_ghost_interp.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
-        std::cout<<"Number of Cells = "<<tInterpMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
 
 
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();

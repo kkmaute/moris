@@ -106,6 +106,10 @@ public:
     Matrix< IndexMat >
     get_block_entity_loc_inds( std::string     aSetName) const;
 
+
+    //------------------------------------------------------------------------------
+    // Output/ Viz Functions
+    //------------------------------------------------------------------------------
     /*
      * For cleanup when writing to an exodus file (note: in general this should not be used because
      * sets may not be always empty through an optimization run)
@@ -119,6 +123,9 @@ public:
 
     void
     deactivate_empty_block_sets();
+
+    moris::Cell<std::string>
+    create_basis_support_fields();
 
 
     //------------------------------------------------------------------------------
@@ -148,6 +155,13 @@ public:
     add_field_data(moris::moris_index       aFieldIndex,
                    enum moris::EntityRank   aEntityRank,
                    Matrix<DDRMat>  const  & aFieldData);
+
+    /*!
+     * return field data on a specified field
+     */
+    Matrix<DDRMat> const   &
+    get_field_data(moris::moris_index       aFieldIndex,
+                   enum moris::EntityRank   aEntityRank) const;
     //------------------------------------------------------------------------------
     /*
      * Convert a entity indices to entity ids

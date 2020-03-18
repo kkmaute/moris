@@ -2689,8 +2689,8 @@ Model::unzip_interface_assign_element_identifiers()
 // Enrichment Source code
 // ----------------------------------------------------------------------------------
 void
-Model::perform_basis_enrichment(enum EntityRank  aBasisRank,
-                                moris::uint      aInterpIndex)
+Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+                                moris_index      const & aMeshIndex)
 {
     // Start the clock
     std::clock_t start = std::clock();
@@ -2698,10 +2698,10 @@ Model::perform_basis_enrichment(enum EntityRank  aBasisRank,
     MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
     // allocate some new enriched interpolation and integration meshes
-    mEnrichedIntegMesh.resize(aInterpIndex+1,nullptr);
-    mEnrichedInterpMesh.resize(aInterpIndex+1,nullptr);
+    mEnrichedIntegMesh.resize(aMeshIndex+1,nullptr);
+    mEnrichedInterpMesh.resize(aMeshIndex+1,nullptr);
 
-    perform_basis_enrichment_internal(aBasisRank,aInterpIndex);
+    this->perform_basis_enrichment_internal(aBasisRank,{aMeshIndex});
 
     // Change the enrichment flag
     mEnriched = true;
@@ -2710,15 +2710,43 @@ Model::perform_basis_enrichment(enum EntityRank  aBasisRank,
     {
         std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-
-        std::cout<<"\nEnriched Integration Mesh Summary:"<<std::endl;
-        mEnrichedIntegMesh(0)->print_block_sets(0);
-        mEnrichedIntegMesh(0)->print_side_sets();
+        std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         std::cout<<"--------------------------------------------------------"<<std::endl;
-
     }
 }
+// ----------------------------------------------------------------------------------
+void
+Model::perform_basis_enrichment(enum EntityRank                 const & aBasisRank,
+                                moris::Cell<moris::moris_index> const & aMeshIndex)
+{
+    // Start the clock
+    std::clock_t start = std::clock();
 
+    MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
+
+    // allocate some new enriched interpolation and integration meshes
+    mEnrichedIntegMesh.resize(aMeshIndex.size()+1,nullptr);
+    mEnrichedInterpMesh.resize(aMeshIndex.size()+1,nullptr);
+
+    this->perform_basis_enrichment_internal(aBasisRank,aMeshIndex);
+
+    // Change the enrichment flag
+    mEnriched = true;
+
+    if(moris::par_rank() == 0 && mVerbose)
+    {
+        std::cout<<"--------------------------------------------------------"<<std::endl;
+        std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        std::cout<<"XTK: Basis enrichment performed on meshes:";
+        for(moris::uint i = 0; i < aMeshIndex.size(); i++)
+        {
+            std::cout<<std::setw(6)<<aMeshIndex(i);
+        }
+        std::cout<<std::endl;
+        std::cout<<"--------------------------------------------------------"<<std::endl;
+    }
+}
+// ----------------------------------------------------------------------------------
 
 Enrichment const &
 Model::get_basis_enrichment()
@@ -2741,17 +2769,17 @@ Model::get_enriched_integ_mesh(moris::moris_index aIndex)
 
 
 void
-Model::perform_basis_enrichment_internal(enum EntityRank  aBasisRank,
-                                         moris::uint      aInterpIndex)
+Model::perform_basis_enrichment_internal(enum EntityRank   const & aBasisRank,
+                                         moris::Cell<moris::moris_index> const & aMeshIndex)
 {
     // initialize enrichment (ptr because of circular dependency)
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
     							 aBasisRank,
-                                 aInterpIndex,
-                                 mGeometryEngine.get_num_phases(),
-                                 this,
-                                 &mCutMesh,
-                                 &mBackgroundMesh);
+    							aMeshIndex,
+    							mGeometryEngine.get_num_phases(),
+    							this,
+    							&mCutMesh,
+    							&mBackgroundMesh);
 
     // Set verbose flag to match XTK.
     mEnrichment->mVerbose = mVerbose;
@@ -3093,19 +3121,6 @@ Model::construct_cut_mesh_simple_neighborhood()
         }
     }
 
-
-//    for(moris::uint iC = 0; iC<mElementToElement.size(); iC++ )
-//    {
-//        moris::mtk::Cell & tCell = mBackgroundMesh.get_mtk_cell(iC);
-//        std::cout<<std::setw(6)<<tCell.get_id()<<" | ";
-//
-//
-//        for(moris::uint iN = 0; iN< mElementToElement(iC).size(); iN++)
-//        {
-//            std::cout<<std::setw(6)<<mElementToElement(iC)(iN)->get_id();
-//        }
-//        std::cout<<std::endl;
-//    }
     delete tCellInfo;
 }
 

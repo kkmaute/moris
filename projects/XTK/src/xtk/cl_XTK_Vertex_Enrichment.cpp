@@ -48,7 +48,8 @@ Vertex_Enrichment::set_node_index(moris::moris_index aNodeIndex)
 }
 //------------------------------------------------------------------------------
 void
-Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const & aBasisIndices )
+Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const & aBasisIndices,
+                                          moris::Matrix<moris::IndexMat> const & aBasisId)
 {
 #ifdef DEBUG
     // since I can't write these functions in one line, need to have ifdef
@@ -64,6 +65,7 @@ Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const &
 
     // allocate space
     mBasisIndices.resize(tNumBasis,1);
+    mBasisIds.resize(tNumBasis,1);
     mBasisWeights.resize(tNumBasis,1);
 
     // iterate to store data
@@ -71,6 +73,7 @@ Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const &
     {
         moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
         mBasisIndices(tBasisLocInd)         = aBasisIndices(i);
+        mBasisIds(tBasisLocInd) = aBasisId(i);
     }
 }
 //------------------------------------------------------------------------------

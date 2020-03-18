@@ -33,6 +33,7 @@
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 #include "cl_Matrix.hpp"        //LINALG
@@ -336,5 +337,143 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         delete tCutMeshData;
     }
 }
+
+TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
+{
+    if(par_size()<=1)
+    {
+        std::string tFieldName = "Geometry";
+
+         moris::uint tLagrangeMeshIndex = 0;
+         moris::uint tBSplineMeshIndex = 0;
+
+         moris::hmr::Parameters tParameters;
+
+         tParameters.set_number_of_elements_per_dimension( { {3}, {1}} );
+         tParameters.set_domain_dimensions({ {6}, {2} });
+         tParameters.set_domain_offset({ {-3.0}, {-1.0} });
+         tParameters.set_bspline_truncation( true );
+
+         tParameters.set_output_meshes( { {0} } );
+
+         tParameters.set_lagrange_orders  ( { {2} });
+         tParameters.set_lagrange_patterns({ {0} });
+
+         tParameters.set_bspline_orders   ( { {1},{2} } );
+         tParameters.set_bspline_patterns ( { {0},{0} } );
+
+         tParameters.set_side_sets({{1},{2},{3},{4} });
+         tParameters.set_max_refinement_level( 2 );
+         tParameters.set_union_pattern( 2 );
+         tParameters.set_working_pattern( 3 );
+
+         tParameters.set_refinement_buffer( 2 );
+         tParameters.set_staircase_buffer( 2 );
+
+         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         tLagrangeToBSplineMesh( 0 ) = { {0} , {1} };
+
+         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+         hmr::HMR tHMR( tParameters );
+
+         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+         // create field
+         std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+
+         tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+
+         for( uint k=0; k<2; ++k )
+         {
+             tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
+             tHMR.perform_refinement_based_on_working_pattern( 0 );
+             tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+         }
+
+         std::shared_ptr< moris::hmr::Field > tCircleField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+         tCircleField->evaluate_scalar_function( CircleMultiMat );
+         for( uint k=0; k<2; ++k )
+         {
+             tHMR.flag_surface_elements_on_working_pattern( tCircleField );
+             tHMR.perform_refinement_based_on_working_pattern( 0 );
+             tCircleField->evaluate_scalar_function( CircleMultiMat );
+
+         }
+
+         tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+         tCircleField->evaluate_scalar_function( CircleMultiMat );
+         tHMR.finalize();
+
+         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
+
+         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
+         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tCircleField);
+
+         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom};
+
+         size_t tModelDimension = 2;
+         moris::ge::GEN_Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         tXTKModel.mVerbose  =  false;
+
+        //Specify decomposition Method and Cut Mesh ---------------------------------------
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        tXTKModel.decompose(tDecompositionMethods);
+
+        // enrich using basis functions in b-spline mesh 0 and b-spline mesh 1
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, {0,1});
+
+        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+        Enriched_Integration_Mesh & tEnrInteg = tXTKModel.get_enriched_integ_mesh(0);
+        Enriched_Interpolation_Mesh & tEnrIP = tXTKModel.get_enriched_interp_mesh(0);
+
+//        moris::Cell<std::string> tBasisSupportFields = tEnrInteg.create_basis_support_fields();
+
+        std::string tEnrIgMeshFileName = "./xtk_exo/multiple_order_ig_mesh.exo";
+
+        Writer_Exodus writer(&tEnrInteg);
+        writer.write_mesh("", tEnrIgMeshFileName);
+        writer.set_time(0.0);
+//        writer.set_nodal_fields(tBasisSupportFields);
+//
+//        for(moris::uint i = 0; i < tBasisSupportFields.size(); i++)
+//        {
+//            moris_index tFieldIndex = tEnrInteg.get_field_index(tBasisSupportFields(i),EntityRank::NODE);
+//            writer.write_nodal_field(tBasisSupportFields(i), tEnrInteg.get_field_data(tFieldIndex,EntityRank::NODE));
+//        }
+
+        // Write the fields
+        writer.close_file();
+
+
+        // Declare the fields related to enrichment strategy in output options
+        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+
+        xtk::Output_Options tOutputOptions;
+        tOutputOptions.mAddNodeSets = false;
+        tOutputOptions.mAddSideSets = true;
+        tOutputOptions.mAddClusters = false;
+        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
+
+        // add solution field to integration mesh
+        std::string tIntegSolFieldName = "solution";
+        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+
+        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
+
+        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
+
+        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_enr_trun_ig.e";
+        tCutMeshData->create_output_mesh(tMeshOutputFile);
+
+        delete tCutMeshData;
+    }
+}
+
 }
 

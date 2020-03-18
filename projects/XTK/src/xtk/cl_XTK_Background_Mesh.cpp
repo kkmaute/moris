@@ -388,7 +388,8 @@ Background_Mesh::get_node_child_mesh_assocation( moris::moris_index aNodeIndex )
 
 moris::size_t
 Background_Mesh::get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntityIndex,
-                                                         enum EntityRank aEntityRank) const
+                                                         enum EntityRank aEntityRank,
+                                                         moris_index const & aMeshIndex ) const
 {
     if(aEntityRank == EntityRank::ELEMENT || aEntityRank == EntityRank::NODE)
     {
@@ -397,7 +398,7 @@ Background_Mesh::get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntity
     }
     else
     {
-        return mMeshData->get_glb_entity_id_from_entity_loc_index(aEntityIndex,aEntityRank);
+        return mMeshData->get_glb_entity_id_from_entity_loc_index(aEntityIndex,aEntityRank,aMeshIndex);
     }
 }
 

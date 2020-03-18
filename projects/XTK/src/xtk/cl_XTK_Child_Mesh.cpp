@@ -231,9 +231,13 @@ Child_Mesh::get_num_entities(enum EntityRank aEntityRank) const
 enum EntityRank
 Child_Mesh::get_facet_rank() const
 {
-    if(mSpatialDimension == 2)
+    if(mSpatialDimension == 2 && !mHMR)
     {
         return EntityRank::EDGE;
+    }
+    else if(mSpatialDimension == 2 && mHMR)
+    {
+        return EntityRank::FACE;
     }
     else if(mSpatialDimension == 3)
     {
@@ -245,7 +249,25 @@ Child_Mesh::get_facet_rank() const
         return EntityRank::END_ENUM;
     }
 }
+// ----------------------------------------------------------------------------------
+enum EntityRank
+Child_Mesh::get_facet_rank_internal() const
+{
+    if(mSpatialDimension == 2)
+    {
+        return EntityRank::EDGE;
+    }
 
+    else if(mSpatialDimension == 3)
+    {
+        return EntityRank::FACE;
+    }
+    else
+    {
+        MORIS_ASSERT(0,"Facet rank only implemented in 2 and 3 spatial dimensions");
+        return EntityRank::END_ENUM;
+    }
+}
 // ----------------------------------------------------------------------------------
 moris::mtk::Cell_Info const *
 Child_Mesh::get_cell_info() const
@@ -860,7 +882,7 @@ Child_Mesh::get_child_elements_connected_to_parent_facet(moris::moris_index     
     // First determine which of this meshes face live on the parent face
     enum EntityRank tFacetRank = this->get_facet_rank();
 
-    moris::size_t tNumFacets = get_num_entities(tFacetRank);
+    moris::size_t tNumFacets = get_num_entities(this->get_facet_rank_internal());
     moris::size_t tNumElemsOnFace = 0;
     moris::Matrix< moris::IndexMat > tLocFacesOnParentFace(1,tNumFacets);
 
@@ -871,7 +893,9 @@ Child_Mesh::get_child_elements_connected_to_parent_facet(moris::moris_index     
     // Iterate through face ancestry ranks
     for(moris::size_t i = 0; i < tNumFacets; i++)
     {
-        if(tFacetParentInds(0,i) == aParentFaceIndex && tFacetParentRanks(0,i) == (uint)(tFacetRank))
+
+        //FIXME: FIgure out how to handle the 2d case in HMR since it calls edges faces ><
+        if(tFacetParentInds(0,i) == aParentFaceIndex && tFacetParentRanks(0,i) ==(size_t) tFacetRank)
         {
             tLocFacesOnParentFace(0,tNumElemsOnFace) = i;
             tNumElemsOnFace++;
@@ -2293,7 +2317,6 @@ Child_Mesh::modify_child_mesh_internal(enum TemplateType aTemplate)
                 = sort_nodes(aTemplate, tIntersectConnRow, tEdgeToNodeCMLoc, iE, tPermutationId);
 
                 // Select more specific tet4 hierarchy template
-                // TODO: Clean these if statements up
                 enum TemplateType tNarrowTemplate = TemplateType::INVALID_TEMPLATE_TYPE;
                 if(mIntersectConnectivity(iE,0) == 4)
                 {

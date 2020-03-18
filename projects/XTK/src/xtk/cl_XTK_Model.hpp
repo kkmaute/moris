@@ -152,12 +152,19 @@ public:
     compute_sensitivity();
 
     /*!
-     * Perform the enrichment. The interp ordinal is needed for B-spline interpolation where
-     * more than one b-spline of the same order can exist
+     * Perform generalized heaviside  enrichment.
      */
     void
-    perform_basis_enrichment(enum EntityRank  aBasisRank,
-                             moris::uint      aInterpIndex = 0);
+    perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+                             moris_index      const & aMeshIndex = 0);
+
+    /*!
+     * Multiple mesh enrichment. For example we need to enrich
+     * linear and quadratic b-splines.
+     */
+    void
+    perform_basis_enrichment(enum EntityRank                 const & aBasisRank,
+                             moris::Cell<moris::moris_index> const & aMeshIndex);
 
     /*!
      * returns the basis enrichment class constructed from call to perform basis enrichment
@@ -652,8 +659,8 @@ private:
     // Enrichment computation functions -----------------------------------------------
 
     void
-    perform_basis_enrichment_internal(enum EntityRank  aBasisRank,
-                                      moris::uint      aInterpOrd);
+    perform_basis_enrichment_internal(enum EntityRank   const & aBasisRank,
+                                      moris::Cell<moris::moris_index> const & aMeshIndex);
 
     /*!
      * Links the vertex enrichment to the mtk implementation of the vertex

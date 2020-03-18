@@ -490,13 +490,13 @@ collect_parallel_basis_functions_and_support(Model & aModel,
     Enrichment const & tEnrichment = aModel.get_basis_enrichment();
 
     // get the enriched coefficient local to global ids
-    moris::Matrix<moris::IdMat> const & tLocToGlobalEnrCoeffs = tEnrInterpMesh.get_enriched_coefficient_local_to_global_map();
+    moris::Matrix<moris::IdMat> const & tLocToGlobalEnrCoeffs = tEnrInterpMesh.get_enriched_coefficient_local_to_global_map(0);
 
     // get the background coefficient local to global ids
     moris::Matrix<moris::IdMat> tLocToGlobalBackgroundCoeffs = tEnrInterpMesh.get_background_coefficient_local_to_global_map();
 
     // get the background coefficient to enriched coefficient data
-    Cell<moris::Matrix<moris::IdMat>> const & tBaseCoeffToEnrichedCoeffInds = tEnrInterpMesh.get_enriched_coefficients_to_background_coefficients();
+    Cell<moris::Matrix<moris::IdMat>> const & tBaseCoeffToEnrichedCoeffInds = tEnrInterpMesh.get_enriched_coefficients_to_background_coefficients(0);
 
     // get the subphases ids in support of enrichde basis function
     Cell<moris::Matrix< moris::IndexMat >> tSubphaseIdsInEnrichedBasisSupp = tEnrichment.get_subphases_glb_id_in_enriched_basis();
@@ -599,19 +599,7 @@ TEST_CASE("Regular Subdivision and Node Hierarchy Method Parallel","[CONF_PARALL
 
     CHECK(verify_parallel_basis_functions(tXTKModel));
 
-    // setup output mesh options with cell enrichment fields
-    Output_Options tOutputOptions;
-//    tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-//    tOutputOptions.mAddParallelFields = true;
-
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-//    tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
-    std::string tMeshOutputFile ="./xtk_exo/conformalparallel.e";
-    tCutMeshData->create_output_mesh(tMeshOutputFile);
-
-
     delete tMeshData;
-    delete tCutMeshData;
 }
 }
 

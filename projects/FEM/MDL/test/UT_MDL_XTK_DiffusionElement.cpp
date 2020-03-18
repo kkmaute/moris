@@ -218,7 +218,7 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
@@ -392,7 +392,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
         xtk::Model tXTKModel(tModelDimension,tInterpMesh1,tGeometryEngine);
-        tXTKModel.mVerbose = true;
+        tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
