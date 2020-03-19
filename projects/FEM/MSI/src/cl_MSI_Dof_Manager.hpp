@@ -123,9 +123,10 @@ namespace moris
              *
              */
             void communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
-                                                   Matrix< DDUMat >                      & aListSharedAdofIds,
-                                                   Matrix< DDUMat >                      & aListSharedAdofPos);
+                                                   moris::Cell< Matrix< DDUMat > >       & aListSharedAdofIds,
+                                                   moris::Cell< Matrix< DDUMat > >       & aListSharedAdofPos);
 
+//------------------------------------------------------------------------------
             /**
              * @brief This functon determines the maximal adof index
              *
@@ -133,6 +134,40 @@ namespace moris
              *
              */
             void get_max_adof_ind( moris::sint & aMaxAdofInd );
+
+//------------------------------------------------------------------------------
+            /**
+             * @brief Function calling the routine to set the owned Adof Ids. Options are ordered by type or ordered by host
+             *
+             * @param[in] tAdofListofTypes A temporary list containing a list of adofs for every doftype and timelevel.
+             * @param[in] aAdofOffsets     Adof offsets for this processor.
+             *
+             */
+            void set_owned_adofs_ids( const moris::Cell<moris::Cell < Adof * > > & aAdofListofTypes,
+                                      const uint                                 & aAdofOffsets );
+
+//------------------------------------------------------------------------------
+            /**
+             * @brief Function setting the Adof Ids per host
+             *
+             * @param[in] tAdofListofTypes A temporary list containing a list of adofs for every doftype and timelevel.
+             * @param[in] aAdofOffsets     Adof offsets for this processor.
+             *
+             */
+            void set_owned_adofs_ids_by_type( const moris::Cell<moris::Cell < Adof * > > & aAdofListofTypes,
+                                              const uint                                 & aAdofOffsets );
+
+//------------------------------------------------------------------------------
+            /**
+             * @brief Function setting the Adof Ids per host/underlying interpolation basis. Note this only is useful if all adofs have the same interpolation order.
+             *        If multiple interpolation meshes are used the underlying basis might not be the same although they might share the same index.
+             *
+             * @param[in] tAdofListofTypes A temporary list containing a list of adofs for every doftype and timelevel.
+             * @param[in] aAdofOffsets     Adof offsets for this processor.
+             *
+             */
+            void set_owned_adofs_ids_by_host( const moris::Cell<moris::Cell < Adof * > > & aAdofListofTypes,
+                                              const uint                                 & aAdofOffsets );
 
         public:
             Dof_Manager(){};
