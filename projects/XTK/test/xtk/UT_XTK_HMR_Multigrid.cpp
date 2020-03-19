@@ -252,15 +252,6 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         close_hdf5_file( tFileID );
 
 
-//	    uint                    get_num_interpolations();
-//	    uint                    get_max_level( const moris_index aInterpolationIndex );
-//	    uint                    get_num_basis( const moris_index aInterpolationIndex );
-//	    uint                    get_basis_level( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-//	    uint                    get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-//	    uint                    get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex, const moris_index aCoarseParentIndex );
-//	    moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-//	    moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-
 /*        // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -295,7 +286,6 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         // Write the fields
         writer.set_time(0.0);
         writer.close_file();
-
 
         delete tIntegMesh1;
 */
