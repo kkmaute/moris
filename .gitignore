@@ -19,7 +19,7 @@ CMakeCache.txt
 *.g*
 *.vtk*
 
-*.hdf5
+#*.hdf5
 *.h5
 *.e
 
