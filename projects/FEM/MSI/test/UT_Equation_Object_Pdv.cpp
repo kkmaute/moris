@@ -353,6 +353,13 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // set the time
         tWorkEqObj->set_time( { { 0 }, { 1 } } );
+		
+		moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
+        tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
+		
+		tDesignVariableInterface->set_model( tModel );
+		tDesignVariableInterface->set_requested_IQI_type( tRequestedIQITypes );
+		tWorkSet->create_requested_IQI_type_map();
 
         // Init IWG and IQI for forward analysis
         //------------------------------------------------------------------------------

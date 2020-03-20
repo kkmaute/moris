@@ -33,6 +33,37 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void Equation_Set::set_requested_IQI_types( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQITypes )
+        {
+            mRequestedIQITypes = aRequestedIQITypes;
+        }
+
+//------------------------------------------------------------------------------
+        const moris::Cell< moris::Cell< enum fem::IQI_Type > > & Equation_Set::get_requested_IQI_types()
+        {
+            return mRequestedIQITypes;
+        }
+
+//------------------------------------------------------------------------------
+        void Equation_Set::create_requested_IQI_type_map()
+        {
+            mRequestedIQITypeAssemblyMap.resize( mRequestedIQITypes.size() );
+
+            for( uint Ik = 0; Ik < mRequestedIQITypes.size(); Ik++ )
+            {
+                mRequestedIQITypeAssemblyMap( Ik ).resize( static_cast< sint >( fem::IQI_Type::END_IQI_TYPE ), gNoIndex );
+            }
+
+            for( uint Ik = 0; Ik < mRequestedIQITypes.size(); Ik++ )
+            {
+                for( uint Ii = 0; Ii < mRequestedIQITypes( Ik ).size(); Ii++ )
+                {
+                    mRequestedIQITypeAssemblyMap( Ik )( static_cast< sint >( mRequestedIQITypes( Ik )( Ii ) ) ) = Ii;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         moris::Cell < enum GEN_DV > Equation_Set::get_requested_dv_types()
         {
             moris::Cell< enum GEN_DV > tDvTypes;
@@ -41,9 +72,11 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell < moris_index > > & Equation_Set::get_QI_assembly_map()
+        // FIXME delete this one and build from requested IQI types
+        moris_index Equation_Set::get_QI_assembly_index( const enum Phase_Type    aPhaseType,
+                                                         const enum fem::IQI_Type aIQIType )
         {
-            return mDesignVariableInterface->get_QI_assembly_map();
+            return mRequestedIQITypeAssemblyMap( static_cast< uint >( aPhaseType ) )( static_cast< uint >( aIQIType ) );
         }
 
 //-------------------------------------------------------------------------------------------------

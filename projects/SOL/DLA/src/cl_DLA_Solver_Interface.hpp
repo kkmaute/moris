@@ -11,6 +11,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_FEM_Enums.hpp"
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 
@@ -110,6 +111,12 @@ public:
     virtual moris::uint get_num_my_blocks() = 0;
 
     virtual moris::uint get_num_equation_objects_on_set( uint aBlockInd ) = 0;
+
+    virtual enum fem::Element_Type get_set_type( uint aMyEquSetInd )
+    {
+    	MORIS_ERROR( false, "Solver_Interface::initiate_output: not set.");
+    	return fem::Element_Type::UNDEFINED;
+    };
 
 
     // number local elements
@@ -254,16 +261,21 @@ public:
 
     void get_adof_ids_based_on_criteria();
 
-    void calculate_criteria( const moris::uint & aMySetInd,
+    virtual void calculate_criteria( const moris::uint & aMySetInd,
                              const moris::uint & aMyElementInd )
     {
         MORIS_ERROR(false, "Solver_Interface::calculate_criteria(), not implemented for base class");
     };
 
-    const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
+    virtual const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
     {
         MORIS_ERROR(false, "Solver_Interface::get_criteria(), not implemented for base class");
         return mMat6;
+    };
+
+    void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aREquestedIQIType )
+    {
+        MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");
     };
 
 

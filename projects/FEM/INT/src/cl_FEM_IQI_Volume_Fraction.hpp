@@ -60,6 +60,23 @@ namespace moris
             void compute_QI( moris::real aWStar );
 
 //------------------------------------------------------------------------------
+        /**
+         * set stabilization parameter
+         * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+         * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+         */
+        void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                                          std::string                                aStabilizationString )
+        {
+            // FIXME check that stabilization string makes sense?
+        	std::cout<<static_cast< uint >( mStabilizationMap[ aStabilizationString ] )<<" string"<<std::endl;
+        	std::cout<<this->get_stabilization_parameters().size()<<" size"<<std::endl;
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+        }
+
+//------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

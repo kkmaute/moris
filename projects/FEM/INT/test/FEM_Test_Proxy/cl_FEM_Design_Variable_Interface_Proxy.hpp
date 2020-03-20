@@ -15,28 +15,27 @@
 
 #include "cl_MSI_Design_Variable_Interface.hpp" // COM/src
 
-
-
 extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
-namespace MSI
+namespace fem
 {
-class Design_Variable_Interface_Proxy : public Design_Variable_Interface
+class FEM_Design_Variable_Interface_Proxy : public MSI::Design_Variable_Interface
 {
 private:
-    Cell< Cell< enum GEN_DV >>     mDvTypes;
-    Cell< enum GEN_DV >            mDvTypesUnique;
+    moris::Cell< moris::Cell< enum GEN_DV >>     mDvTypes;
+    moris::Cell< enum GEN_DV >            mDvTypesUnique;
     moris::Matrix< DDRMat >        mDvValues;
     moris::Matrix< DDSMat >        mIsActiveDv;
-    Cell< moris::Matrix< IdMat > > mDvIds;
+    moris::Cell< moris::Matrix< IdMat > > mDvIds;
     moris::Matrix< DDSMat >        mMap;
     moris::Matrix< DDUMat >        mConstraintDofs;
     moris::map< GEN_DV, sint > mDvToIndexMap;
 
+
 public :
-    Design_Variable_Interface_Proxy()
+    FEM_Design_Variable_Interface_Proxy()
     {
         mDvTypes.resize( 2 );
         mDvTypes( 0 ).resize( 2 );     mDvTypes( 0 )( 0 ) = GEN_DV::XCOORD;   mDvTypes( 0 )( 1 ) = GEN_DV::YCOORD;
@@ -87,7 +86,6 @@ public :
         mMap( 6 ) = 6;
         mMap( 7 ) = 7;
 
-
 //        // create map object
 //        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 //
@@ -97,7 +95,7 @@ public :
     }
 
 // ----------------------------------------------------------------------------------------------
-    ~Design_Variable_Interface_Proxy(){};
+    ~FEM_Design_Variable_Interface_Proxy(){};
 
 //------------------------------------------------------------------------------
     void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
@@ -252,6 +250,7 @@ public :
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
     }
 //------------------------------------------------------------------------------
+
 	
     void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType );
 

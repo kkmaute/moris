@@ -27,6 +27,9 @@ namespace moris
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
 
+            // set size for the stabilization parameter pointer cell
+            mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
+
             // populate the constitutive map
             mStabilizationMap[ "Reciprocal_total_vol" ] = IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME;
         }
@@ -50,7 +53,8 @@ namespace moris
             uint tReciprocalVolIndex = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
 
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )( static_cast< uint >( mFEMIQIType ) );
+//            sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
+            sint tQIIndex = 0;
 
             //print( mSet->get_QI(), "mSet->get_QI()");
             // evaluate the QI

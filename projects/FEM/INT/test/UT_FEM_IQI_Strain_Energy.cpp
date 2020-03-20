@@ -26,7 +26,7 @@
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                //FEM//INT/src
 #include "cl_MSI_Design_Variable_Interface.hpp"                   //FEM//INT//src
-#include "FEM/MSI/test/MSI_Test_Proxy/cl_MSI_Design_Variable_Interface_Proxy.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.hpp"
 
 #include "op_equal_equal.hpp"
 
@@ -141,7 +141,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tDOFHat.matrix_data() = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
+    moris::Cell< Field_Interpolator* > tFIs( 1 );
 
     // create the field interpolator
     tFIs( 0 ) = new Field_Interpolator( 3, tFIRule, &tGI, { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
@@ -159,7 +159,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tDvHat.matrix_data() = 10.0 * tMatrixDv;
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tDvFIs( 1 );
+    moris::Cell< Field_Interpolator* > tDvFIs( 1 );
 
     // create the field interpolator
     tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { GEN_DV::DENSITY0 } );
@@ -174,7 +174,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     MSI::Equation_Set * tSet = new fem::Set();
 
     // create a GEN/MSI interface
-    MSI::Design_Variable_Interface * tGENMSIInterface = new MSI::Design_Variable_Interface_Proxy();
+    MSI::Design_Variable_Interface * tGENMSIInterface = new fem::FEM_Design_Variable_Interface_Proxy();
     tSet->set_dv_interface( tGENMSIInterface );
 
     // set fem set pointer for IQI
@@ -224,6 +224,12 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // populate the requested master dof type
     tIQI->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+
+	moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
+    tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
+
+	tSet->set_requested_IQI_types( tRequestedIQITypes );
+	tSet->create_requested_IQI_type_map();
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;

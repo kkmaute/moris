@@ -9,6 +9,7 @@
 
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_FEM_Enums.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -197,6 +198,13 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
+            enum fem::Element_Type get_set_type( uint aMyEquSetInd )
+            {
+                return mMSI->get_equation_set( aMyEquSetInd )->get_element_type();
+            };
+
+//------------------------------------------------------------------------------
+
              moris::uint get_num_my_dofs()
              {
                  return mDofMgn->get_num_owned_adofs();
@@ -368,7 +376,7 @@ namespace mdl
 //------------------------------------------------------------------------------
 
              void calculate_criteria( const moris::uint & aMySetInd,
-                                const moris::uint & aMyEquationObjectInd )
+                                      const moris::uint & aMyEquationObjectInd )
              {
                  mMSI->get_equation_set( aMySetInd )->get_equation_object_list()( aMyEquationObjectInd )->compute_QI();
              };
@@ -378,6 +386,12 @@ namespace mdl
              const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
              {
                  return mMSI->get_equation_set( aMySetInd )->get_QI();
+             };
+
+//------------------------------------------------------------------------------
+             void set_requested_IQI_type( const moris::uint & aMySetInd, const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
+             {
+            	 mMSI->get_equation_set( aMySetInd )->set_requested_IQI_types( aRequestedIQIType );
              };
         };
     }
