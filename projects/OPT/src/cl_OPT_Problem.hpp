@@ -214,18 +214,18 @@ namespace moris
             virtual Matrix<DDRMat> compute_dobjective_dadv() = 0;
 
             /**
-             * Calculates the derivative of the constraints with respect to the advs
-             *
-             * @return matrix d(constraints)_i/d(adv)_j
-             */
-            virtual Matrix<DDRMat> compute_dconstraint_dadv() = 0;
-
-            /**
              * Calculates the derivative of the objective with respect to the criteria.
              *
              * @return matrix d(objective)_i/d(criteria)_j
              */
             virtual Matrix<DDRMat> compute_dobjective_dcriteria() = 0;
+
+            /**
+             * Calculates the derivative of the constraints with respect to the advs
+             *
+             * @return matrix d(constraints)_i/d(adv)_j
+             */
+            virtual Matrix<DDRMat> compute_dconstraint_dadv() = 0;
 
             /**
              * Calculates the derivative of the constraints with respect to the criteria.

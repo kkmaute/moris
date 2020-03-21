@@ -3,7 +3,7 @@
 //
 
 #include "fn_OPT_create_problem.hpp"
-#include "cl_OPT_Problem_Rosenbrock.hpp"
+#include "cl_OPT_Problem_User_Defined.hpp"
 
 namespace moris
 {
@@ -14,7 +14,7 @@ namespace moris
             std::string tProblemType = aParameterList.get<std::string>("problem");
             if (!tProblemType.compare("user_defined"))
             {
-                return std::make_shared<Problem_Rosenbrock>(aParameterList);
+                return std::make_shared<Problem_User_Defined>(aParameterList);
             }
             else
             {

@@ -1,32 +1,30 @@
 //
-// Created by christopherson on 2/7/20.
+// Created by christopherson on 3/18/20.
 //
 
-#ifndef MORIS_CL_OPT_PROBLEM_ROSENBROCK_HPP
-#define MORIS_CL_OPT_PROBLEM_ROSENBROCK_HPP
+#ifndef MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
+#define MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
 
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Interface.hpp"
-#include "cl_Param_List.hpp" // CON/src
+#include "cl_Param_List.hpp"
+#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
     namespace opt
     {
-        class Problem_Rosenbrock : public moris::opt::Problem
+        class Problem_User_Defined : public moris::opt::Problem
         {
 
         public:
-
-            bool mConstrained = false;
 
             /**
              * Constructor
              *
              * @param aInterface Interface class written for other module (e.g. GEN)
              */
-            Problem_Rosenbrock(ParameterList aParameterList) : Problem(aParameterList)
-            {}
+            Problem_User_Defined(ParameterList aParameterList);
 
             /**
              * Gets the constraint types
@@ -78,8 +76,17 @@ namespace moris
              * @return matrix d(constraint)_i/d(criteria)_j
              */
             Matrix<DDRMat> compute_dconstraint_dcriteria();
+
+        private:
+            MORIS_DDSMAT0_FUNCTION get_constraint_types_user_defined;
+            MORIS_DDRMAT2_FUNCTION compute_objectives_user_defined;
+            MORIS_DDRMAT2_FUNCTION compute_constraints_user_defined;
+            MORIS_DDRMAT2_FUNCTION compute_dobjective_dadv_user_defined;
+            MORIS_DDRMAT2_FUNCTION compute_dobjective_dcriteria_user_defined;
+            MORIS_DDRMAT2_FUNCTION compute_dconstraint_dadv_user_defined;
+            MORIS_DDRMAT2_FUNCTION compute_dconstraint_dcriteria_user_defined;
         };
     }
 }
 
-#endif //MORIS_CL_OPT_PROBLEM_ROSENBROCK_HPP
+#endif //MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP

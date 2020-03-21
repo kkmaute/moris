@@ -3,7 +3,7 @@
 //
 
 #include "fn_OPT_create_interface.hpp"
-#include "cl_OPT_Interface_Rosenbrock.hpp"
+#include "cl_OPT_Interface_User_Defined.hpp"
 
 namespace moris
 {
@@ -14,7 +14,7 @@ namespace moris
             std::string tInterfaceType = aParameterList.get<std::string>("interface");
             if (!tInterfaceType.compare("user_defined"))
             {
-                return std::make_shared<Interface_Rosenbrock>(aParameterList);
+                return std::make_shared<Interface_User_Defined>(aParameterList);
             }
             else
             {
