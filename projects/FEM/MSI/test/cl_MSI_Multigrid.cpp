@@ -206,6 +206,7 @@ namespace moris
              }
              moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
              tMSIParameters.set( "L2", 0 );
+             tMSIParameters.set( "multigrid", true );
 
              MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
                                                                                           tElementBlocks,
@@ -216,7 +217,7 @@ namespace moris
 
              tElementBlocks( 0 )->finalize( tMSI );
 
-             tMSI->finalize( true );
+             tMSI->finalize();
 
              moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
              tExternalIndices( 0, 0 ) = 17;

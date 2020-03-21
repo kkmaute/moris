@@ -39,24 +39,22 @@ namespace moris
         public:
 
             // property type for the SP
-            enum class SP_Property_Type
+            enum class Property_Type
             {
-                RHO, // fluid density
-                MU,  // fluid viscosity
+                DENSITY, // fluid density
+                VISCOSITY,  // fluid viscosity
                 MAX_ENUM
             };
 
-            // Local string to property enum map
-            std::map< std::string, SP_Property_Type > mPropertyMap;
+            // local string to property enum map
+            std::map< std::string, Property_Type > mPropertyMap;
 
-//            // constitutive type for the SP
-//            enum class SP_Constitutive_Type
-//            {
-//                MAX_ENUM
-//            };
-//
-//            // Local string to constitutive enum map
-//            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
+            // space dimension FIXME
+            uint mSpaceDim = 2;
+
+            // pointer to function for G evaluation
+            void ( * mEvalGFunc )( Matrix< DDRMat >   & aG,
+                                   Matrix< DDRMat >   & aInvSpaceJacobian );
 
             /*
             * Rem: mParameters( 0 ) - CI = 36
@@ -68,6 +66,13 @@ namespace moris
              */
             SP_Incompressible_Flow()
             {
+                // set the property pointer cell size
+                mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+
+                // populate the map
+                mPropertyMap[ "Density" ]   = Property_Type::DENSITY;
+                mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
+
                 // populate the dof map (default)
                 mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
                 mMasterDofMap[ "Pressure" ] = MSI::Dof_Type::P;
@@ -78,17 +83,12 @@ namespace moris
              * trivial destructor
              */
             ~SP_Incompressible_Flow(){};
-//
-////------------------------------------------------------------------------------
-//            /**
-//             * reset the cluster measures required for this SP
-//             */
-//            void reset_cluster_measures()
-//            {
-//                // evaluate element size from the cluster
-//                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-//                                                                              mtk::Master_Slave::MASTER );
-//            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set function pointers for evaluation
+             */
+            void set_function_pointers();
 
 //------------------------------------------------------------------------------
             /**
@@ -119,7 +119,6 @@ namespace moris
             /**
              * evaluate the penalty parameter derivative wrt to a master dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dPPdMasterDOF ( 1 x numDerDof )
              */
             void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
@@ -127,12 +126,37 @@ namespace moris
             /**
              * evaluate the penalty parameter derivative wrt to a master dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             * dPPdMasterDV ( 1 x numDerDv )
              */
             void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
-                MORIS_ERROR( false, "SP_Incompressible_Flow::eval_dSPdMasterDV: not implemented." );
+                MORIS_ERROR( false, "SP_Incompressible_Flow::eval_dSPdMasterDV - not implemented." );
             }
+
+//------------------------------------------------------------------------------
+        private:
+//------------------------------------------------------------------------------
+            /**
+             * evaluate G
+             * where Gij = sum_d dxi_d/dx_i dxi_d/dx_j, d = 1, ..., nSpaceDim
+             * @param[ in ] aG a matrix to fill with G
+             */
+            void eval_G( Matrix< DDRMat > & aG );
+
+            /**
+             * evaluate G in 2d
+             * @param[ in ] aG                a matrix to fill with G
+             * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
+             */
+            static void eval_G_2d( Matrix< DDRMat > & aG,
+                                   Matrix< DDRMat > & aInvSpaceJacobian );
+
+            /**
+             * evaluate G in 3d
+             * @param[ in ] aG                a matrix to fill with G
+             * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
+             */
+            static void eval_G_3d( Matrix< DDRMat > & aG,
+                                   Matrix< DDRMat > & aSpaceJacobian );
 
 //------------------------------------------------------------------------------
         };

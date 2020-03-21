@@ -8,8 +8,7 @@
 #define MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_
 
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
-#include "cl_SOL_Dist_Vector.hpp"
-#include "cl_DLA_Solver_Interface.hpp"
+
 
 namespace moris
 {
@@ -43,7 +42,7 @@ namespace tsa
 
         //-------------------------------------------------------------------------------
 
-        ~Staggered_Time_Solver(){};
+//        ~Staggered_Time_Solver(){};
 
         //-------------------------------------------------------------------------------
         /**

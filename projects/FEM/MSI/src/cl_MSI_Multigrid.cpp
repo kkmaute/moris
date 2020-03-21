@@ -22,7 +22,7 @@ namespace moris
                                                                          mModelSolverInterface( aModelSolverInterface )
     {
         // Set number of desired multigrid levels
-        mMultigridLevels = 2;   //FIXME Input
+        mMultigridLevels = mModelSolverInterface->mMSIParameterList.get< moris::sint >( "level" );
 
         for( uint Ik = 0; Ik < mMesh->get_num_interpolations(); Ik ++)
         {
@@ -39,7 +39,7 @@ namespace moris
         // get list of owned adofs
         Cell< moris::Cell < Adof * > > tOwnedAdofList = mModelSolverInterface->get_dof_manager()->get_owned_adofs();
 
-        // get number of owned adofs                                                                      //FIXME has to be adjusted for only a subset of adofs ( types or time)
+        // get number of owned adofs                                               //FIXME has to be adjusted for only a subset of adofs ( types or time)
         moris::uint tNumOwnedAdofs = mModelSolverInterface->get_dof_manager()->get_num_owned_adofs();
 
         // List which relates every adof to its external index. For fines level
@@ -51,7 +51,7 @@ namespace moris
         mListAdofExtIndMap( 0 )         .set_size( tNumOwnedAdofs, 1 );
         mListAdofTypeTimeIdentifier( 0 ).set_size( tNumOwnedAdofs, 1 );
 
-        // Loop over all adofs on fines mesh. Fill lists witrh external adof indices and type/time identifier
+        // Loop over all adofs on fines mesh. Fill lists with external adof indices and type/time identifier
         for ( uint Ik = 0; Ik < tOwnedAdofList.size(); Ik ++ )
         {
             for ( Adof* tAdof : tOwnedAdofList( Ik ) )
@@ -77,7 +77,7 @@ namespace moris
 
     void Multigrid::create_multigrid_level_dof_ordering()
     {
-        // Get unique used dof type orders // indices now
+        // Get unique used dof type orders // indices now ( Bspline mesh indices )
         moris::Matrix< DDSMat > tDofTypeMeshIndices = mModelSolverInterface->get_dof_manager()->get_unique_adof_mesh_indices();
 
         //-------------- Determine max level and max adof index for adof mesh ------------------------------
@@ -147,9 +147,6 @@ namespace moris
                 moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type( tDofType );
 
                 // Ask mesh for the level of this mesh index
-//                moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
-//                                                                     ->get_basis_by_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
-//                                                                     ->get_level();
                 moris::uint tDofLevel = mMesh->get_basis_level( tMeshIndex, mListAdofExtIndMap( Ik )( Ii, 0 ) );
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
@@ -188,23 +185,16 @@ namespace moris
                 // Get order of this dof type
                 moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type( tDofType );
 
-                // get basis pointer for adof which was too fine.
-//                moris::hmr::Basis * tBasis = mMesh->get_HMR_lagrange_mesh()
-//                                                  ->get_bspline_mesh( tMeshIndex )
-//                                                  ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) );
-
                 // Get type/time identifier for this dof
                 moris::uint tTypeIdentifier = mListAdofTypeTimeIdentifier( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 );
 
                 // get the number of carse adofs which are interpolating into this fine adof.
-//                moris:: uint tNumCoarseDofs = tBasis ->get_number_of_parents();
                 moris:: uint tNumCoarseDofs = mMesh->get_num_coarse_basis_of_basis( tMeshIndex, mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) );
 
                 // Loop over these coarse adofs
                 for ( moris::uint Ia = 0; Ia < tNumCoarseDofs; Ia++ )
                 {
                     // Get external index of coarse adof
-//                    moris:: uint tCoarseDofIndex = tBasis->get_parent( Ia )->get_index();
                     moris:: uint tCoarseDofIndex = mMesh->get_coarse_basis_index_of_basis( tMeshIndex,
                                                                                            mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ),
                                                                                            Ia );

@@ -74,9 +74,6 @@ namespace dla
                 moris::uint tDofIdentifier = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
 
                 // Ask mesh for the level of this dof index
-//                moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
-//                                                                      ->get_basis_by_index( tExtDofInd )
-//                                                                      ->get_level();
                 moris::uint tDofLevel = mMesh->get_basis_level( tMeshIndex, tExtDofInd );
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
@@ -99,9 +96,6 @@ namespace dla
                     moris::Matrix< DDSMat > tRowMat( 1, 1, Ii );
 
                     // Get vector with external fine indices
-//                    moris::Matrix< DDSMat > tIndices = mMesh->get_HMR_lagrange_mesh()
-//                                                            ->get_bspline_mesh( tMeshIndex )
-//                                                            ->get_children_ind_for_basis( tExtDofInd );
                     moris::Matrix< DDSMat > tIndices = mMesh->get_fine_basis_inds_of_basis( tMeshIndex, tExtDofInd );
 
                     // Initialize vector with col indices
@@ -110,13 +104,10 @@ namespace dla
                     // Map col external fine indices to col index
                     for ( moris::uint Ia = 0; Ia < tIndices.numel(); Ia++ )
                     {
-                        tColMat( Ia, 0 ) = mMultigridMap(Ik-1)(0)( tIndices( Ia, 0 ), 0 );
+                        tColMat( Ia, 0 ) = mMultigridMap(Ik-1)(0)( tIndices( Ia, 0 ), 0 );           //FIXME add identifier
                     }
 
                     // Get weights
-//                    moris::Matrix< DDRMat > tWeights = mMesh->get_HMR_lagrange_mesh()
-//                                                            ->get_bspline_mesh( tMeshIndex )
-//                                                            ->get_children_weights_for_parent( tExtDofInd );
                     moris::Matrix< DDRMat > tWeights = mMesh->get_fine_basis_weights_of_basis( tMeshIndex, tExtDofInd  );
 
                     // Fill weights in operator

@@ -222,18 +222,6 @@ namespace moris
             // compute displacement gradient
             moris::Matrix<moris::DDRMat> tB = mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->dnNdxn( 1 );
 
-//            moris::Matrix<moris::DDRMat> tBf( 1, tB.numel(), 0.0 );
-//
-//            uint tInd = 0;
-//            for ( uint tRow = 0; tRow < tB.n_rows(); tRow++ )
-//            {
-//                for (uint tCol = 0; tCol < tB.n_cols(); tCol++)
-//                {
-//                    tBf( tInd ) = tB( tRow, tCol );
-//                    tInd++;
-//                }
-//            }
-
             moris::Matrix<moris::DDRMat> tBf = reshape( trans( tB ), 1, tB.numel() );
             return tBf;
         }
@@ -258,7 +246,6 @@ namespace moris
             }
 
             // if pressure
-            // FIXME should this be handled by dStraindDOF???
             if ( aDofTypes( 0 ) == mDofMap[ "Pressure" ] )
             {
                 Matrix< DDRMat > tN = mFIManager->get_field_interpolators_for_type( mDofMap[ "Pressure" ] )->N();
@@ -303,70 +290,6 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
-
-//            // get the dof type as a uint
-//            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-//
-//            // get the dof type index
-//            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-//
-//            // if direct dependency on the dof type
-//            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
-//            {
-//                // compute derivative with direct dependency
-//                if ( aDofTypes(0) == MSI::Dof_Type::P )
-//                {
-//                    // dof type is pressure
-//                    Matrix<DDRMat> tN = mDofFI(1)->N();
-//
-//                    // flattening
-//                    switch ( mSpaceDim )
-//                    {
-//                        case ( 2 ):
-//                        {
-//                            mdFluxdDof( tDofIndex ).set_size( 3, tN.numel(), 0.0 );
-//                            for (uint tCol = 0; tCol < tN.numel(); tCol++)
-//                            {
-//                                mdFluxdDof(tDofIndex)(0, tCol) = -tN(tCol);
-//                                mdFluxdDof(tDofIndex)(1, tCol) = -tN(tCol);
-//                            }
-//                            break;
-//                        }
-//                        case( 3 ):
-//                        {
-//                            mdFluxdDof( tDofIndex ).set_size( 6, tN.numel(), 0.0 );
-//                            for (uint tCol = 0; tCol < tN.numel(); tCol++)
-//                            {
-//                                mdFluxdDof(tDofIndex)(0, tCol) = -tN(tCol);
-//                                mdFluxdDof(tDofIndex)(1, tCol) = -tN(tCol);
-//                                mdFluxdDof(tDofIndex)(2, tCol) = -tN(tCol);
-//                            }
-//                            break;
-//                        }
-//                        default:
-//                        {
-//                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_dFluxdDOF - Flattening only implemented in 2D and 3D");
-//                        }
-//                    }
-//                }
-//                else
-//                {
-//                    mdFluxdDof( tDofIndex ) = this->constitutive() * this->dStraindDOF( aDofTypes );
-//                }
-//            }
-//            else
-//            {
-//                // reset the matrix
-//                mdFluxdDof( tDofIndex ).set_size( 3, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
-//
-//            // if indirect dependency on the dof type
-//            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
-//            if ( mProperties( tEModIndex )->check_dof_dependency( aDofTypes ) )
-//            {
-//                // compute derivative with indirect dependency through properties
-//                mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
-//            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -417,34 +340,6 @@ namespace moris
                 mdTestTractiondDof( tDofIndex ).matrix_data()
                 +=  ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump ) * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
-
-//            // get the dof type as a uint
-//            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-//
-//            // get the dof type index
-//            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-//
-//            Matrix< DDRMat > tNormal;
-//
-//            // flatten normal
-//            this->flatten_normal( aNormal, tNormal );
-//
-//            // if indirect dependency on the dof type
-//            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
-//            if ( mProperties( tEModIndex )->check_dof_dependency( aDofTypes ) )
-//            {
-//                mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(),
-//                                                          mDofFI( tDofIndex )->get_number_of_space_bases(), 0.0 );
-//
-//                // compute derivative with indirect dependency through properties
-//                mdTestTractiondDof( tDofIndex ).matrix_data()
-//                +=  ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump )
-//                    * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
-//            }
-//            else
-//            {
-//                mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(), mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -485,35 +380,6 @@ namespace moris
             {
                 MORIS_ERROR( !mProperties( tCTEIndex )->check_dof_dependency( aDofTypes ), "CM_Struc_Linear_Isotropic::eval_dStraindDOF - Add dependency on CTE" );
             }
-
-//            // get the dof type as a uint
-//            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-//
-//            // get the dof type index
-//            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-//
-//            // if direct dependency on the dof type
-//            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 && aDofTypes(0) == MSI::Dof_Type::UX )
-//            {
-//                // compute derivative with direct dependency
-//                mdStraindDof( tDofIndex ) = this->testStrain();
-//            }
-//            else
-//            {
-//                // reset the matrix
-//                mdStraindDof( tDofIndex ).set_size( 3, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
-//
-//            // if thermal expansion
-//            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
-//            if ( mProperties( tCTEIndex ) != nullptr && aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
-//            {
-//                // build thermal expansion vector
-//                Matrix< DDRMat > tThermalExpansionVector;
-//                this->get_isotropic_thermal_expansion_vector( tThermalExpansionVector );
-//
-//                mdStraindDof( tDofIndex ).matrix_data() += ( -1.0 ) * tThermalExpansionVector * mDofFI( tDofIndex )->NBuild();
-//            }
         }
 
 //--------------------------------------------------------------------------------------------------------------

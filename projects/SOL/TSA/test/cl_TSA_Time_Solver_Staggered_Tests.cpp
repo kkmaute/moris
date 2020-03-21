@@ -27,6 +27,10 @@
 #undef protected
 #undef private
 
+#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
 namespace moris
 {
 namespace tsa

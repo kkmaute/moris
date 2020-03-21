@@ -81,12 +81,13 @@ int main( int argc, char * argv[] )
     //dynamically linked file
     std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
 
-    wrk::Performer_Manager tPerformerManager( tLibrary );
+    {
+        wrk::Performer_Manager tPerformerManager( tLibrary );
 
-	tPerformerManager.initialize();
+        tPerformerManager.initialize();
 
-	tPerformerManager.perform();
-
+        tPerformerManager.perform();
+    }
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();

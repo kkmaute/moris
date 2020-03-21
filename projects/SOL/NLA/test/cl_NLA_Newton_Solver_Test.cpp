@@ -419,15 +419,15 @@ namespace moris
 
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
-        dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+        dla::Linear_Solver  tLinSolManager;
         Nonlinear_Solver  tNonLinSolManager;
 
-        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, 0,true, sol::MapType::Petsc );
+        Nonlinear_Problem tNonlinearProblem( tSolverInput, 0,true, sol::MapType::Petsc );
 
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
+        tNonlLinSolverAlgorithm->set_linear_solver( &tLinSolManager );
 
         tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
         tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
@@ -440,10 +440,10 @@ namespace moris
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::PETSC );
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::PETSC );
 
-        tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
-        tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
+        tLinSolManager.set_linear_algorithm( 0, tLinSolver1 );
+        tLinSolManager.set_linear_algorithm( 1, tLinSolver2 );
 
-        tNonLinSolManager.solve( tNonlinearProblem );
+        tNonLinSolManager.solve( &tNonlinearProblem );
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
@@ -454,8 +454,7 @@ namespace moris
         CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
         CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
-        delete( tNonlinearProblem );
-        delete( tLinSolManager );
+//        delete( tNonlinearProblem );
         delete( tSolverInput );
         }
     }

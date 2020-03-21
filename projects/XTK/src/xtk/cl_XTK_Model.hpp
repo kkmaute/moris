@@ -312,27 +312,12 @@ public:
     moris_index
     get_subphase_index(moris_id aSubphaseId);
 
-
     //--------------------------------------------------------------------------------
-
-    // multi grid stuff
-
-    void   perform_multilevel_enrichment_internal();
-    //--------------------------------------------------------------------------------
-    // FIXME  only temporary
-    void set_HMR_mesh_ptr( std::shared_ptr< moris::mtk::Mesh > aMesh )
-    {
-        mHMRMesh = aMesh;
-    };
-
-    std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
 
     std::shared_ptr< Multigrid > get_multigrid_ptr()
     {
         return mMultigrid;
     }
-
-    //--------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------
     // Printing Functions

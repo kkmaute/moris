@@ -55,7 +55,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
-        mInput->build_graph( mMat );
+        mSolverInterface->build_graph( mMat );
 
 //        mFreeVectorLHS->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
 //        mFreeVectorLHS->print();
@@ -93,7 +93,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
-    mInput->build_graph( mMat );
+    mSolverInterface->build_graph( mMat );
 
 }
 //----------------------------------------------------------------------------------------
@@ -104,9 +104,16 @@ Linear_System_PETSc::~Linear_System_PETSc()
     delete( mVectorRHS );
     delete( mFreeVectorLHS );
     delete( mFullVectorLHS );
-    delete( mMap );
+    if( mMap != nullptr )
+    {
+        delete( mMap );
+    }
+    if( mMapFree != nullptr )
+    {
+        delete( mMapFree );
+    }
 
-//    mInput->delete_multigrid();
+//    mSolverInterface->delete_multigrid();
 
     //KSPDestroy( &mPetscProblem );
     //( &mpc );

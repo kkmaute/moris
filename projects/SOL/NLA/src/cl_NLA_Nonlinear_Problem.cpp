@@ -12,6 +12,7 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
@@ -75,8 +76,10 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 {
     mSolverInterface = aSolverInterface;
 
+    std::cout<<"build linear system"<<std::endl;
     if( mMapType == sol::MapType::Petsc )
     {
+        std::cout<<"build linear system"<<std::endl;
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
@@ -143,7 +146,9 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc)
         {
+            std::cout<<"selete linear system"<<std::endl;
             PetscFinalize();
+            std::cout<<"selete linear system"<<std::endl;
         }
     }
 }

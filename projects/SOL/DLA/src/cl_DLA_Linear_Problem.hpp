@@ -11,13 +11,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_SOL_Enums.hpp"
-
-#include "Epetra_LinearProblem.h"
-
-#include <petscksp.h>
-
 namespace moris
 {
 class Dist_Matrix;
@@ -31,14 +24,14 @@ namespace dla
     private:
 
     protected:
-    	Dist_Matrix * mMat;
+        Dist_Matrix   * mMat;
         Dist_Vector   * mVectorRHS;
         Dist_Vector   * mFreeVectorLHS;
         Dist_Vector   * mFullVectorLHS;
-        Dist_Map     * mMap;
-        Dist_Map     * mMapFree;
+        Dist_Map      * mMap = nullptr;
+        Dist_Map      * mMapFree= nullptr;
 
-        Solver_Interface * mInput;
+        Solver_Interface * mSolverInterface;
 
         moris::real mCondEstimate;
 
@@ -47,16 +40,15 @@ namespace dla
                                                       mVectorRHS(NULL),
                                                       mFreeVectorLHS(nullptr),
                                                       mMap(NULL),
-                                                      mInput( aInput )
+                                                      mSolverInterface( aInput )
         {};
 
         virtual ~Linear_Problem(){};
 
+        void assemble_residual_and_jacobian(  );
         void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
         void assemble_residual( Dist_Vector * aFullSolutionVector );
         void assemble_jacobian( Dist_Vector * aFullSolutionVector );
-
-        void assemble_residual_and_jacobian(  );
 
         virtual moris::sint solve_linear_system() = 0;
 
@@ -70,11 +62,7 @@ namespace dla
 
         Dist_Matrix * get_matrix() { return mMat; };
 
-        Solver_Interface * get_solver_input() const { return mInput; };
-
-//        Epetra_LinearProblem * get_linear_system_epetra() { return & mEpetraProblem; };
-
-        //KSP get_linear_system_petsc() { return mPetscProblem; };
+        Solver_Interface * get_solver_input() const { return mSolverInterface; };
 
         virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
     };

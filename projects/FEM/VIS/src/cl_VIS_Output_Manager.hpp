@@ -100,7 +100,10 @@ namespace moris
 
             ~Output_Manager()
             {
-               //FIXME add delete
+                for( auto tMesh : mVisMesh )
+                {
+                    delete tMesh;
+                }
             };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -123,6 +126,8 @@ namespace moris
                 mWriter( aVisMeshIndex )->close_file();
 
                 this->delete_pointers( aVisMeshIndex );
+
+                MORIS_LOG( " Finished writing output. \n ");
             }
 
 //-----------------------------------------------------------------------------------------------------------

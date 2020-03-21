@@ -14,6 +14,7 @@
 #include "cl_Map.hpp"
 
 #include "cl_GEN_Dv_Enums.hpp"
+#include "cl_FEM_Enums.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
@@ -34,19 +35,11 @@ namespace mdl
         class Design_Variable_Interface
         {
         private:
-//                moris::MSI::Model_Solver_Interface * mMSI = nullptr;
-//                moris::MSI::Dof_Manager            * mDofMgn = nullptr;
 
                 Matrix< DDRMat>  mTime;
 
-                mdl::Model * mModel = nullptr;
-
         protected:
-
-//                Dist_Map * mVectorMap = nullptr;
-//
-//                //! Full Vector
-//                Dist_Vector * mVector = nullptr;
+                mdl::Model * mModel = nullptr;
 
         public:
 
@@ -186,10 +179,11 @@ namespace mdl
              */
             virtual void get_ig_requested_dv_types( Cell< enum GEN_DV > & aDvTypes ) = 0;
 //------------------------------------------------------------------------------
-            /**
-             * get QI assembly map
-             */
-            virtual moris::Cell< moris::Cell< moris_index > > & get_QI_assembly_map() = 0;
+			
+			 virtual void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
+             {
+				 MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
+             };
 
 
         };

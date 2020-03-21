@@ -81,6 +81,7 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_PRM_VIS_Parameters.hpp"
 
