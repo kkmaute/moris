@@ -16,9 +16,9 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
-#include "cl_Sparse_Matrix.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Enums.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 //------------------------------------------------------------------------------
 // linalg includes
 #include "cl_Matrix.hpp"

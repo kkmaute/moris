@@ -16,18 +16,27 @@
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
+#include <functional>
+
 namespace moris
 {
-class Map_Class;
-namespace NLA
+class Dist_Map;
+namespace sol
 {
     class SOL_Warehouse;
 }
+
+    class Solver_Interface;
+
 namespace tsa
 {
     class Time_Solver;
 
-    typedef std::function< bool ( moris::tsa::Time_Solver * ) > Output_Criteria;
+    typedef std::function< bool ( moris::tsa::Time_Solver * aTimeSolver ) > Output_Criteria;
+
+//    typedef std::function< bool ( moris::tsa::Time_Solver * aTimeSolver ) > Output_Criteria;
+//    typedef std::function< void ( moris::tsa::Time_Solver * aTimeSolver,
+//                                  bool &                    aIsActive ) > Output_Criteria_1;
 
     class Time_Solver_Algorithm;
     class Time_Solver
@@ -43,17 +52,18 @@ namespace tsa
         moris::Cell< Time_Solver * > mTimeSubSolverList;
 
         //! Pointer to solver database
-        NLA::SOL_Warehouse * mSolverWarehouse;
+        sol::SOL_Warehouse * mSolverWarehouse;
 
         //! Pointer to solver interface
         Solver_Interface * mSolverInterface = nullptr;
 
         Dist_Vector * mFullVector = nullptr;
 
-        Map_Class * mFullMap = nullptr;
+        Dist_Map * mFullMap = nullptr;
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;
+//        moris::Cell< Output_Criteria_1 > mOutputCriteriaPointer_1;
 
 
 //        //! Reference norm
@@ -65,7 +75,7 @@ namespace tsa
 //        //! Actual residual norm
 //        moris::real mResidualNorm = -1.0;
 
-        Param_List< boost::variant< bool, sint, real > > mParameterListTimeSolver;
+        moris::ParameterList mParameterListTimeSolver;
 
         enum TimeSolverType mTimeSolverType = TimeSolverType::END_ENUM;
 
@@ -76,15 +86,30 @@ namespace tsa
 
         bool mIsMasterTimeSolver = false;
 
+        //--------------------------------------------------------------------------------------------------
+
+        void check_for_outputs();
+
     protected:
 
     public:
         /**
          * @brief Constructor. Creates a default time solver
          *
-         * @param[in] aTimeSolverType    Time solver type. Default is Newton
+         * @param[in] aTimeSolverType    Time solver type. Default is MONOLITHIC
          */
         Time_Solver( const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Constructor using a given parameterlist
+         *
+         * @param[in] aParameterlist     User defined parameter list
+         * @param[in] aTimeSolverType    Time solver type. Default is Newton
+         */
+        Time_Solver( const ParameterList       aParameterlist,
+                     const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -143,6 +168,10 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
+        /**
+         * @brief Gets solver interface
+         *
+         */
         Solver_Interface * get_solver_interface(){ return mSolverInterface; };
 
         //--------------------------------------------------------------------------------------------------
@@ -200,7 +229,7 @@ namespace tsa
          *
          * @param[out] rSolverDatabase Returns the pointer to the solver database
          */
-        NLA::SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
+        sol::SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
 
         //--------------------------------------------------------------------------------------------------
 
@@ -209,22 +238,28 @@ namespace tsa
          *
          * @param[in] rSolverDatabase Poiner to the solver database
          */
-        void set_solver_warehouse( NLA::SOL_Warehouse * aSolverWarehouse );
+        void set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse );
 
         //--------------------------------------------------------------------------------------------------
 
-        void set_output( const uint aOutputIndex,
+        /**
+         * @brief Set output index and criteria
+         *
+         * @param[in] aOutputIndex       Index connected to this output criteria
+         * @param[in] aOutputCriteria    Pointer to the output criteria
+         */
+        void set_output( const uint            aOutputIndex,
                                Output_Criteria aOutputCriteria );
-
-        //--------------------------------------------------------------------------------------------------
-
-        void check_for_outputs();
 
         //--------------------------------------------------------------------------------------------------
 
         void solve();
 
+        //--------------------------------------------------------------------------------------------------
+
         void solve( Dist_Vector * aFullVector);
+
+        //--------------------------------------------------------------------------------------------------
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
 
@@ -261,7 +296,7 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > & set_param( char const* aKey )
+        ParameterListTypes& set_param( char const* aKey )
         {
             return mParameterListTimeSolver( aKey );
         }

@@ -15,8 +15,6 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_flux()
         {
             // compute flux
-//            mFlux = this->constitutive() * mDofFI( 0 )->gradx( 1 );
-
             mFlux = this->constitutive()
                   * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 );
         }
@@ -32,7 +30,6 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_testTraction( const Matrix< DDRMat > & aNormal )
         {
             // compute test traction
-//            mTestTraction = trans( mDofFI( 0 )->dnNdxn( 1 ) ) * this->constitutive() * aNormal;
             mTestTraction = trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
                           * this->constitutive() * aNormal;
         }
@@ -41,7 +38,6 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_strain()
         {
             // compute strain
-//            mStrain = mDofFI( 0 )->gradx( 1 );
             mStrain = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 );
         }
 
@@ -49,7 +45,6 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_testStrain()
         {
             // compute test strain
-//            mTestStrain = mDofFI( 0 )->dnNdxn( 1 );
             mTestStrain = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
         }
 
@@ -85,16 +80,6 @@ namespace moris
                 // reset the matrix
                 mdFluxdDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
             }
-//            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
-//            {
-//                // compute derivative with direct dependency
-//                mdFluxdDof( tDofIndex ) = this->constitutive() * mDofFI( 0 )->dnNdxn( 1 );
-//            }
-//            else
-//            {
-//                // reset the matrix
-//                mdFluxdDof( tDofIndex ).set_size( mSpaceDim, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
 
             // if indirect dependency on the dof type
             if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
@@ -172,18 +157,6 @@ namespace moris
                 // reset the matrix
                 mdStraindDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
             }
-
-//            // if direct dependency on the dof type
-//            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
-//            {
-//                // compute derivative with direct dependency
-//                mdStraindDof( tDofIndex ) = mDofFI( 0 )->dnNdxn( 1 );
-//            }
-//            else
-//            {
-//                // reset the matrix
-//                mdStraindDof( tDofIndex ).set_size( mSpaceDim, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
         }
 
 //------------------------------------------------------------------------------
@@ -207,19 +180,19 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dFluxdDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dFluxdDV - This function is not implemented.");
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dStraindDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dStraindDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented.");
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dConstdDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dConstdDV - This function is not implemented.");
         }

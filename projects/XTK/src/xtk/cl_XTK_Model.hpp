@@ -56,7 +56,7 @@
 #include "fn_tet_volume.hpp"
 
 // general geometry engine class
-#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
 
 namespace xtk
 {
@@ -66,6 +66,7 @@ class Ghost_Stabilization;
 class Enriched_Interpolation_Mesh;
 class Enriched_Integration_Mesh;
 class Ghost_Stabilization;
+class Multigrid;
 }
 
 
@@ -88,27 +89,20 @@ public:
     friend class Enriched_Interpolation_Mesh;
     friend class Enriched_Integration_Mesh;
     friend class Ghost_Stabilization;
+    friend class Multigrid;
 
     //--------------------------------------------------------------------------------
     // Initialization
     //--------------------------------------------------------------------------------
     Model(){};
 
-    /*
-     * using the general geometry engine
-     */
-    Model(uint aModelDimension,
-          moris::mtk::Interpolation_Mesh* aMeshData,
-          moris::ge::GEN_Geometry_Engine & aGeometryEngine,
-          bool aLinkGeometryOnConstruction = true);
-
     /**
      * Primary constructor (this constructor is used for all cases except when testing something)
      */
-//    Model(uint aModelDimension,
-//          moris::mtk::Interpolation_Mesh* aMeshData,
-//          Geometry_Engine & aGeometryEngine,
-//          bool aLinkGeometryOnConstruction = true);
+    Model(uint aModelDimension,
+          moris::mtk::Interpolation_Mesh* aMeshData,
+          moris::ge::GEN_Geometry_Engine* aGeometryEngine,
+          bool aLinkGeometryOnConstruction = true);
 
     // Indicates the background mesh and the geometry are the same thing
     bool mSameMesh;
@@ -203,6 +197,13 @@ public:
     void
     convert_mesh_tet4_to_tet10();
 
+    // ----------------------------------------------------------------------------------
+
+    /*!
+     * Construct multigrid information
+     */
+    void construct_multigrid();
+
     //--------------------------------------------------------------------------------
     // Member data access functions
     //--------------------------------------------------------------------------------
@@ -211,8 +212,7 @@ public:
     Cut_Mesh const &        get_cut_mesh() const        { return mCutMesh; }
     Background_Mesh &       get_background_mesh()       { return mBackgroundMesh; }
     Background_Mesh const & get_background_mesh() const { return mBackgroundMesh; }
-//    Geometry_Engine &       get_geom_engine()           { return mGeometryEngine; }
-    moris::ge::GEN_Geometry_Engine &       get_geom_engine()           { return mGeometryEngine; }
+    moris::ge::GEN_Geometry_Engine*       get_geom_engine()           { return mGeometryEngine; }
 
     // ----------------------------------------------------------------------------------
     // Outputting functions
@@ -319,22 +319,12 @@ public:
     moris_index
     get_subphase_index(moris_id aSubphaseId);
 
-
     //--------------------------------------------------------------------------------
 
-    // multi grid stuff
-
-    void   perform_multilevel_enrichment_internal();
-    //--------------------------------------------------------------------------------
-    // FIXME  only temporary
-    void set_HMR_mesh_ptr( std::shared_ptr< moris::mtk::Mesh > aMesh )
+    std::shared_ptr< Multigrid > get_multigrid_ptr()
     {
-        mHMRMesh = aMesh;
-    };
-
-    std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
-
-    //--------------------------------------------------------------------------------
+        return mMultigrid;
+    }
 
     //--------------------------------------------------------------------------------
     // Printing Functions
@@ -358,14 +348,15 @@ protected:
     uint                               mModelDimension;
     Background_Mesh                    mBackgroundMesh;
     Cut_Mesh                           mCutMesh;
-//    Geometry_Engine                    mGeometryEngine;
 
-    moris::ge::GEN_Geometry_Engine     mGeometryEngine;
+    moris::ge::GEN_Geometry_Engine*     mGeometryEngine;
 
     Enrichment*                        mEnrichment;
     Ghost_Stabilization*               mGhostStabilization;
     Cell<Enriched_Interpolation_Mesh*> mEnrichedInterpMesh;
     Cell<Enriched_Integration_Mesh*>   mEnrichedIntegMesh;
+
+    std::shared_ptr< xtk::Multigrid >  mMultigrid;
 
 private:
 

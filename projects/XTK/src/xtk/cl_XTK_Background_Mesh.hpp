@@ -38,7 +38,7 @@
 #include "cl_MGE_Geometry_Engine.hpp"
 
 // general geometry engine class
-#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
 
 namespace xtk
 {
@@ -50,10 +50,7 @@ public:
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData);
 
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                    Geometry_Engine & aGeometryEngine);
-    // general geometry engine
-    Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                    moris::ge::GEN_Geometry_Engine & aGeometryEngine);
+                    moris::ge::GEN_Geometry_Engine* aGeometryEngine);
 
     ~Background_Mesh();
     /*!

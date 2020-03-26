@@ -125,7 +125,7 @@ set(LIB_DEPENDENCIES
 	${IOS}-lib
 	${ALG}-lib
 	${MTK}-lib
-	${GEN}-lib
+	${GEN_MAIN}-lib
     ${MORIS_BASE_LIBS}
     )
 

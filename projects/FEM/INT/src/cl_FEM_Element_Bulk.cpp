@@ -90,7 +90,8 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -120,28 +121,41 @@ namespace moris
 //------------------------------------------------------------------------------
         void Element_Bulk::compute_dRdp()
         {
+            // FIXME all this should be in the FI Manager
+            // get the geometry pdv values
+            Matrix< DDRMat > tPdvValues = mMasterCell->get_vertex_coords();
+
+            // reshape the matrix tPdvValues into a cell of vectors tPdvValueList
+            moris::Cell< Matrix< DDRMat > > tPdvValueList( 2 );
+            tPdvValueList( 0 ) = tPdvValues.get_column( 0 );
+            tPdvValueList( 1 ) = tPdvValues.get_column( 1 );
+
+            // get the pdv values from the MSI/GEN interface
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterCell->get_vertex_inds(),
+                                                              { GEN_DV::XCOORD, GEN_DV::YCOORD },
+                                                              tPdvValueList, tIsActiveDv );//FIXME
+
+            // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
+            mSet->mDesignVariableInterface->reshape_pdv_values( tPdvValueList,
+                                                                tPdvValues );
+
             // set the geometry interpolator physical space and time coefficients for integration cell
-//            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords() );
-        	Matrix< DDRMat > tPdvValues = mMasterCell->get_vertex_coords();
-        	moris::Cell< Matrix< DDSMat > > aIsActiveDv;
-
-        	moris::Cell< Matrix< DDRMat > > tPdvValueList( 2 );
-        	tPdvValueList( 0 ) = tPdvValues.get_column( 0 );
-        	tPdvValueList( 1 ) = tPdvValues.get_column( 1 );
-        	mSet->mDesignVariableInterface->get_pdv_value( mMasterCell->get_vertex_inds(),
-                                                           { MSI::Dv_Type::XCOORD, MSI::Dv_Type::YCOORD },
-                                                           tPdvValueList, aIsActiveDv );//FIXME
-
-        	tPdvValues.get_column( 0 ) =  tPdvValueList( 0 ).matrix_data();
-        	tPdvValues.get_column( 1 ) =  tPdvValueList( 1 ).matrix_data();
-
-        	mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( tPdvValues );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
-
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( tPdvValues );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // END FIXME all this should be in the FI Manager
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -153,22 +167,9 @@ namespace moris
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // set the ith integration point in the IG param space for IG geometry interpolator
+                // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( tLocalIntegPoint );
-
-                // bring the ith integration point in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                mSet->get_field_interpolator_manager()
-                    ->get_IG_geometry_interpolator()
-                    ->map_integration_point( tGlobalIntegPoint );
-
-                // set evaluation point for IP geometry interpolator
-                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
-
-                // set evaluation point for field interpolator
-                mSet->mMasterFIManager->set_space_time( tGlobalIntegPoint );
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -183,34 +184,191 @@ namespace moris
                     // FIXME set nodal weak BCs
                     mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
 
-                    // compute jacobian at evaluation point
+                    // compute dRdpMat at evaluation point
                     real tPerturbation = 1E-6;
-                    moris::Cell< Matrix< DDRMat > > tdrdpdvMatFD;
-                    moris::Cell< Matrix< DDRMat > > tdrdpdvGeoFD;
-//                    mSet->get_requested_IWGs()( iIWG )->compute_drdpdv_FD( tWStar,
-//                                                                           tPerturbation,
-//                                                                           aIsActiveDv,
-//                                                                           tdrdpdvMatFD,
-//                                                                           tdrdpdvGeoFD );
+                    moris::Cell< Matrix< DDRMat > > tdRdpMatFD;
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material( tWStar,
+                                                                                  tPerturbation,
+                                                                                  tdRdpMatFD );
 
-                    mSet->get_requested_IWGs()( iIWG )->compute_drdpdv_FD_material( tWStar,
-                                                                                    tPerturbation,
-                                                                                    aIsActiveDv,
-                                                                                    tdrdpdvMatFD);
+                    // compute dRdpGeo at evaluation point
+                    moris::Cell< Matrix< DDRMat > > tdRdpGeoFD;
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry( tWStar,
+                                                                                  tPerturbation,
+                                                                                  tIsActiveDv,
+                                                                                  tdRdpGeoFD );
+                }
+            }
+        }
 
-                    mSet->get_requested_IWGs()( iIWG )->compute_drdpdv_FD_geometry( tWStar,
-                                                                                    tPerturbation,
-                                                                                    aIsActiveDv,
-                                                                                    tdrdpdvGeoFD );
-//                    print( tdrdpdvMatFD, "tdrdpdvMatFD");
-//                    print( tdrdpdvGeoFD, "tdrdpdvGeoFD");
+//------------------------------------------------------------------------------
+        void Element_Bulk::compute_QI()
+        {
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // FIXME create a cell of IQI values
+            moris::Cell< Matrix< DDRMat > > tQIValues( tNumIQIs );
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IQI
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // compute QI at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->compute_QI( tWStar );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Element_Bulk::compute_dQIdp()
+        {
+            // FIXME all this should be in the FI Manager
+            // get the geometry pdv values
+            Matrix< DDRMat > tPdvValues = mMasterCell->get_vertex_coords();
+
+            // reshape the matrix tPdvValues into a cell of vectors tPdvValueList
+            moris::Cell< Matrix< DDRMat > > tPdvValueList( 2 );
+            tPdvValueList( 0 ) = tPdvValues.get_column( 0 );
+            tPdvValueList( 1 ) = tPdvValues.get_column( 1 );
+
+            // get the pdv values from the MSI/GEN interface
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterCell->get_vertex_inds(),
+                                                              { GEN_DV::XCOORD, GEN_DV::YCOORD },
+                                                              tPdvValueList, tIsActiveDv );//FIXME
+
+            // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
+            mSet->mDesignVariableInterface->reshape_pdv_values( tPdvValueList,
+                                                                tPdvValues );
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( tPdvValues );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // END FIXME all this should be in the FI Manager
+
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // compute dQIdpMat at evaluation point
+                    real tPerturbation = 1E-6;
+                    Matrix< DDRMat > tdQIdpMatFD;
+                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material( tWStar,
+                                                                                   tPerturbation,
+                                                                                   tdQIdpMatFD );
+
+                    // compute dQIdpGeo at evaluation point
+                    Matrix< DDRMat > tdQIdpGeoFD;
+                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry( tWStar,
+                                                                                   tPerturbation,
+                                                                                   tIsActiveDv,
+                                                                                   tdQIdpGeoFD );
+                    // fill list of dQIdp
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Element_Bulk::compute_dQIdu()
+        {
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
+
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // compute dQIdu at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdu( tWStar );
                 }
             }
         }
 
 //------------------------------------------------------------------------------
         void Element_Bulk::compute_quantity_of_interest_global( const uint aMeshIndex,
-                                                                enum vis::Output_Type aOutputType )
+                                                                enum  vis::Output_Type aOutputType )
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());

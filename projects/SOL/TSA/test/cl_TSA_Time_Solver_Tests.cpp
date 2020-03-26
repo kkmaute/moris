@@ -21,6 +21,9 @@
 #undef protected
 #undef private
 
+#include "cl_SOL_Warehouse.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
 namespace moris
 {
 namespace tsa
@@ -35,7 +38,7 @@ namespace tsa
         Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tSolverInput );
+        sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
 
         NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
 

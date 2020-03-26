@@ -5,7 +5,11 @@
 
 #include "cl_MDL_Model.hpp"
 #include "cl_MSI_Equation_Set.hpp"
+#include "cl_MSI_Equation_Model.hpp"
+
 #include "cl_FEM_Set.hpp"
+
+#include "fn_Parsing_Tools.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -53,6 +57,54 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
+    void Output_Manager::set_outputs( moris::ParameterList aParamterelist )
+    {
+        // create output data object
+        vis::Output_Data tOutputData;
+
+        // fill output data object
+        tOutputData.mMeshIndex  = aParamterelist.get< moris::sint >( "Output_Index" );
+        tOutputData.mMeshType   = static_cast< moris::vis::VIS_Mesh_Type >( aParamterelist.get< moris::uint >( "Mesh_Type" ) );
+        tOutputData.mOutputPath = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
+        tOutputData.mMeshName   = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
+
+        moris::Cell< std::string > tSetNames;
+        string_to_cell( aParamterelist.get< std::string >( "Set_Names" ), tSetNames );
+        tOutputData.mSetNames   = tSetNames;
+
+        moris::Cell< std::string > tFieldNames;
+        string_to_cell( aParamterelist.get< std::string >( "Field_Names" ), tFieldNames );
+        tOutputData.mFieldNames = tFieldNames;
+
+        moris::Cell< enum vis::Field_Type > tFieldTypes;
+        moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
+        string_to_cell( aParamterelist.get< std::string >( "Field_Type" ) ,
+                        tFieldTypes,
+                        tFieldTypeMap );
+        tOutputData.mFieldType  = tFieldTypes;
+
+        moris::Cell< enum vis::Output_Type > tOutputTypes;
+        moris::map< std::string, enum vis::Output_Type > tOutputTypeMap = get_vis_output_type_map();
+        string_to_cell( aParamterelist.get< std::string >( "Output_Type" ) ,
+                        tOutputTypes,
+                        tOutputTypeMap );
+        tOutputData.mOutputType = tOutputTypes;
+
+        // resize list of output data objects
+        sint tSize = mOutputData.size();
+        sint OutputDataSize = std::max( tSize, tOutputData.mMeshIndex + 1 );
+
+        mOutputData.resize( OutputDataSize );
+
+        // assign output data object to list
+        mOutputData( tOutputData.mMeshIndex ) = tOutputData;
+
+        // resize mesh list
+        mVisMesh.resize( mOutputData.size(), nullptr );
+    }
+
+//-----------------------------------------------------------------------------------------------------------
+
     void Output_Manager::create_visualization_mesh( const uint                aVisMeshIndex,
                                                           mtk::Mesh_Manager * aMesh,
                                                     const uint                aMeshPairIndex)
@@ -77,17 +129,19 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Output_Manager::set_visualization_sets( const uint         aVisMeshIndex,
-                                                       mdl::Model * aModel )
+    void Output_Manager::set_visualization_sets( const uint                                   aVisMeshIndex,
+                                                       std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
         // get number of requested sets
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
         // get mtk set index to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );   //FIXME make this smarter
+        map< moris_index, moris_index > & tMeshSetToFemSetMap
+        = aEquationModel->get_mesh_set_to_fem_set_index_map();
 
-        // copy fem::Set to base class MSI::Equation_Set. can this be done with a reinterpret_cast?
-        moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
+        // get equation sets
+        moris::Cell< MSI::Equation_Set * > tEquationSets
+        = aEquationModel->get_equation_sets();
 
         // get integration mesh
         mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
@@ -100,13 +154,16 @@ namespace moris
             // get mtk set index
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-            // find set index for this block index
-            moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
+            if ( tMeshSetToFemSetMap.key_exists( tSetIndex ) )
+            {
+                // find set index for this block index
+                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
 
-            // set vis set to fem set. +1 because 0 is reserved for fem
-            tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
-                                                                       mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
-                                                                       mOnlyPrimary );
+                // set vis set to fem set. +1 because 0 is reserved for fem
+                tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
+                                                                           mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
+                                                                           mOnlyPrimary );
+            }
         }
     }
 
@@ -120,6 +177,10 @@ namespace moris
 
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
+
+        std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +". \n";
+
+        MORIS_LOG( tMassage.c_str() );
 
         // write mesh to file
         mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
@@ -313,14 +374,15 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-
-    void Output_Manager::write_field( const uint         aVisMeshIndex,
-                                            mdl::Model * aModel )
+    void Output_Manager::write_field( const uint                                   aVisMeshIndex,
+                                            std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
-        map< moris_index, moris_index > & tMeshSetToFemSetMap = aModel->get_mesh_set_to_fem_set_index_map( );
+        // get mesh set to fem set index map
+        map< moris_index, moris_index > & tMeshSetToFemSetMap
+        = aEquationModel->get_mesh_set_to_fem_set_index_map( );
 
         // get equation sets
-        moris::Cell< MSI::Equation_Set * > tEquationSets = aModel->get_equation_sets();
+        moris::Cell< MSI::Equation_Set * > tEquationSets = aEquationModel->get_equation_sets();
 
         // get integration mesh
         mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
@@ -335,30 +397,33 @@ namespace moris
             std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
 
             // nodal and global field vaues
-            Matrix< DDRMat > tNodalValues( mVisMesh( aVisMeshIndex )->get_num_nodes(), 1, 0.0 );
+            Matrix< DDRMat > tNodalValues( mVisMesh( aVisMeshIndex )->get_num_nodes(), 1, 0.0 );   //FIXME replace default with NaN
             moris::real      tGlobalValue;
 
             // loop over all blocks on this output object
             for( uint Ii = 0; Ii < mOutputData( aVisMeshIndex ).mSetNames.size(); Ii++ )
             {
-            	moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
+                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-                // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
-
-                // elemental field values
-                Matrix< DDRMat > tElementValues;
-
-                tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( aVisMeshIndex + 1,
-                                                                                  &tElementValues,
-                                                                                  &tNodalValues,
-                                                                                  &tGlobalValue,
-                                                                                  mOutputData( aVisMeshIndex ).mOutputType( Ik ),
-                                                                                  mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
-
-                if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
+                if ( tMeshSetToFemSetMap.key_exists( tSetIndex ) )
                 {
-                    mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( Ii ), tFieldName, tElementValues );
+                    // find set index for this block index
+                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
+
+                    // elemental field values
+                    Matrix< DDRMat > tElementValues;
+
+                    tEquationSets( tEquationSetIndex )->compute_quantity_of_interest( aVisMeshIndex + 1,
+                                                                                      &tElementValues,
+                                                                                      &tNodalValues,
+                                                                                      &tGlobalValue,
+                                                                                      mOutputData( aVisMeshIndex ).mOutputType( Ik ),
+                                                                                      mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
+
+                    if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
+                    {
+                        mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( Ii ), tFieldName, tElementValues );
+                    }
                 }
             }
 

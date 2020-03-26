@@ -75,7 +75,7 @@ TEST_CASE("HMR_IO","[moris],[hmr],[HMR_IO]")
 
             tParameters.set_initial_refinement( 1 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -217,7 +217,7 @@ TEST_CASE("HMR_Field_IO_HDF","[moris],[hmr],[HMR_Field_IO_HDF]")
 
             tParameters.set_initial_refinement( 1 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1}, {2} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

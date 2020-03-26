@@ -22,8 +22,6 @@
 #undef protected
 #undef private
 
-#include "cl_MSI_Parameters.hpp"
-
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -46,6 +44,8 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set.hpp"                      //FEM/INT/src
+
+#include "cl_PRM_MSI_Parameters.hpp"                      //FEM/INT/src
 
 namespace moris
 {
@@ -123,7 +123,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         uint tNumCoeff = 1000000;
 
         sint tDofOrder = 1;
-        moris::ParameterList tMSIParameters = MSI::create_hmr_parameter_list();
+        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
         tMSIParameters.set( "VX", tDofOrder );
         tMSIParameters.set( "LS1", tDofOrder );
 

@@ -6,7 +6,7 @@
  */
 #include "cl_MSI_Design_Variable_Interface.hpp"
 
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {

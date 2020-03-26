@@ -20,7 +20,7 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
-            mPropertyMap[ "Select" ] = IWG_Property_Type::SELECT;
+            mPropertyMap[ "Select" ]    = IWG_Property_Type::SELECT;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -81,10 +81,11 @@ namespace moris
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // compute the residual
-            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
             += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
                  + mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * aWStar;
+
         }
 
 //------------------------------------------------------------------------------
@@ -176,19 +177,19 @@ namespace moris
                     += trans( tFI->N() ) * tM * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) * aWStar;
                 }
             }
+
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_drdpdv - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

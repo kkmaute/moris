@@ -35,10 +35,10 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "cl_VIS_Factory.hpp"
 
@@ -95,7 +95,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 tParameters.set_refinement_buffer( 1 );
                 tParameters.set_staircase_buffer( 1 );
 
-                Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { {0} };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -122,7 +122,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 
                 std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-                moris::ge::GEN_Geom_Field tPlaneFieldAsGeom( tPlaneField );
+                moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
                 moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = {&tPlaneFieldAsGeom};
 
@@ -130,7 +130,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
                 //Specify decomposition Method and Cut Mesh ---------------------------------------

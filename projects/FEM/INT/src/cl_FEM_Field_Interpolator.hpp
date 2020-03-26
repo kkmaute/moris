@@ -17,6 +17,8 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"     //FEM/MSI/src
 
+#include "cl_GEN_Dv_Enums.hpp"
+
 namespace moris
 {
     namespace fem
@@ -62,7 +64,7 @@ class Property;
             moris::Cell< MSI::Dof_Type > mDofType;
 
             // dv type
-            moris::Cell< MSI::Dv_Type > mDvType;
+            moris::Cell< GEN_DV > mDvType;
 
             // flag for evaluation
             bool mNBuildEval = true;
@@ -107,7 +109,7 @@ class Property;
             Field_Interpolator( const uint                         & aNumberOfFields,
                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                const moris::Cell< MSI::Dv_Type >    aDvType );
+                                const moris::Cell< GEN_DV >          aDvType );
 
             /**
              * trivial constructor for unit test
@@ -122,8 +124,8 @@ class Property;
             /**
               * trivial constructor for unit test
               */
-             Field_Interpolator( const uint                        & aNumberOfFields,
-                                 const moris::Cell< MSI::Dv_Type >   aDvType ) : mNumberOfFields( aNumberOfFields ),
+             Field_Interpolator( const uint                  & aNumberOfFields,
+                                 const moris::Cell< GEN_DV >   aDvType ) : mNumberOfFields( aNumberOfFields ),
                                                                                  mDvType( aDvType )
              {
                  mNFieldCoeff = mNumberOfFields;
@@ -148,7 +150,7 @@ class Property;
             /**
              * get dof type
              */
-            const moris::Cell< MSI::Dv_Type > & get_dv_type() const
+            const moris::Cell< GEN_DV > & get_dv_type() const
             {
                 return mDvType;
             }
@@ -344,13 +346,17 @@ class Property;
             Matrix< DDRMat > gradx( const uint & aDerivativeOrder );
 
 //------------------------------------------------------------------------------
-
             /**
             * evaluates the field spatial divergence at given space and time evaluation point
-             *
             * @return divergence of the field
             */
             moris::real div();
+
+            /**
+            * evaluates the spatial divergence operator at given space and time evaluation point
+            * @param[ out ] divergence operator
+            */
+            Matrix< DDRMat > div_operator();
 
 //------------------------------------------------------------------------------
             /**

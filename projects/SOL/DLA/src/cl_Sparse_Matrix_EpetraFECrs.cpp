@@ -11,7 +11,7 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * aInput,
-                                                      const Map_Class        * aMap ) : Sparse_Matrix( aMap )
+                                                      const Dist_Map        * aMap ) : Dist_Matrix( aMap )
 {
     // Fixme implement get function for nonzero rows
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
@@ -29,10 +29,10 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * a
     mDirichletBCVec.set_size  ( aInput->get_max_num_global_dofs(), 1, 0 );
 
     // build BC vector
-    this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constr_dof() );
+    this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constrained_Ids() );
 
     // create matrix class
-    mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->mFreeEpetraMap, nonzerosRow );
+    mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_map(), nonzerosRow );
 
     //mEpetraMap = ( Map_Epetra * ) aMap;
 }
@@ -144,7 +144,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( Dist_Vector & aDiagVec ) const
     }
 
     // extract diagonal values into vector
-    int error = mEpetraMat->ExtractDiagonalCopy( ( Epetra_Vector & ) *(aDiagVec.get_vector()) );
+    int error = mEpetraMat->ExtractDiagonalCopy( ( Epetra_Vector & ) *(aDiagVec.get_epetra_vector()) );
 
     if ( error != 0 )
     {
@@ -157,7 +157,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( Dist_Vector & aDiagVec ) const
 void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the left
-    int error = mEpetraMat->LeftScale( ( Epetra_Vector & ) *aScaleVector.get_vector() );
+    int error = mEpetraMat->LeftScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
 
     if ( error != 0 )
     {
@@ -170,7 +170,7 @@ void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const Dist_Vector & aScal
 void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the right
-    int error = mEpetraMat->RightScale( ( Epetra_Vector & ) *aScaleVector.get_vector() );
+    int error = mEpetraMat->RightScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
 
     if ( error != 0 )
     {
@@ -187,7 +187,7 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const Dist_Vector & aDi
     }
 
     // replace diagonal matrix values with vector values
-    int error = mEpetraMat->ReplaceDiagonalValues( ( const Epetra_Vector & ) *(aDiagVec.get_vector()) );
+    int error = mEpetraMat->ReplaceDiagonalValues( ( const Epetra_Vector & ) *(aDiagVec.get_epetra_vector()) );
 
     if ( error != 0 )
     {
@@ -220,6 +220,6 @@ void Sparse_Matrix_EpetraFECrs::save_matrix_to_matrix_market_file( const char* a
 
 void Sparse_Matrix_EpetraFECrs::save_matrix_map_to_matrix_market_file( const char* aFilename )
 {
-    EpetraExt::BlockMapToMatrixMarketFile( aFilename, *mMap->mFreeEpetraMap );
+    EpetraExt::BlockMapToMatrixMarketFile( aFilename, *mMap->get_epetra_map() );
 }
 

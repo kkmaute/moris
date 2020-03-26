@@ -293,7 +293,7 @@ public:
 
         for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
         {
-            mListofBlocks( Ik ) = new moris::mtk::Block(tBlockSetNames(Ik), this->get_cell_clusters_in_set( Ik ), this->get_spatial_dim());
+            mListofBlocks( Ik ) = new moris::mtk::Block(tBlockSetNames(Ik), this->get_cell_clusters_in_set( Ik ),{{0}}, this->get_spatial_dim());
         }
     }
 
@@ -351,7 +351,7 @@ public:
 
         for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
         {
-            mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim());
+            mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ),{{0}}, this->get_spatial_dim());
         }
     }
 

@@ -13,6 +13,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "fn_isempty.hpp"
 
 #include <memory>
 
@@ -33,6 +34,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
     this->setup_side_set_clusters();
     this->setup_interface_side_sets();
     this->setup_double_side_set_clusters();
+    this->setup_color_to_set();
     this->collect_all_sets();
 }
 //------------------------------------------------------------------------------
@@ -378,6 +380,7 @@ Enriched_Integration_Mesh::deactivate_empty_sets()
 {
     this->deactivate_empty_block_sets();
     this->deactivate_empty_side_sets();
+    this->setup_color_to_set();
     this->collect_all_sets();
 }
 
@@ -430,12 +433,14 @@ Enriched_Integration_Mesh::deactivate_empty_block_sets()
     moris::Cell<std::string>                            tOldSetNames    = mBlockSetNames;
     moris::Cell<enum CellTopology>                      tOldSetTopo     = mBlockSetTopology;
     moris::Cell<moris::Cell<xtk::Cell_Cluster const *>> tOldSetClusters = mPrimaryBlockSetClusters;
+    moris::Cell<moris::Matrix<IndexMat>>                tOldColors      = mBlockSetColors;
 
     // clear member data
     mBlockSetLabelToOrd.clear();
     mBlockSetNames.clear();
     mBlockSetTopology.clear();
     mPrimaryBlockSetClusters.clear();
+    mBlockSetColors.clear();
 
     for(auto iB: mListofBlocks)
     {
@@ -455,6 +460,8 @@ Enriched_Integration_Mesh::deactivate_empty_block_sets()
             mBlockSetNames.push_back(tOldSetNames(i));
             mPrimaryBlockSetClusters.push_back(tOldSetClusters(i));
             mBlockSetTopology.push_back(tOldSetTopo(i));
+            mBlockSetColors.push_back(tOldColors(i));
+
 
             MORIS_ASSERT(mBlockSetLabelToOrd.find(tOldSetNames(i)) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh");
             mBlockSetLabelToOrd[tOldSetNames(i)] = tSetIndex ;
@@ -711,6 +718,13 @@ Enriched_Integration_Mesh::get_cell_clusters_in_set(moris_index aBlockSetOrdinal
     return tClusterInSet;
 
 }
+Matrix<IndexMat>
+Enriched_Integration_Mesh::get_block_set_colors(moris_index aBlockSetOrdinal) const
+{
+    MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mBlockSetColors.size(),"Block set ordinal out of bounds");
+    return mBlockSetColors(aBlockSetOrdinal);
+}
+
 //------------------------------------------------------------------------------
 moris::Cell<mtk::Cluster const *>
 Enriched_Integration_Mesh::get_side_set_cluster(moris_index aSideSetOrdinal) const
@@ -727,6 +741,12 @@ Enriched_Integration_Mesh::get_side_set_cluster(moris_index aSideSetOrdinal) con
     }
 
     return tSideClustersInSet;
+}
+Matrix<IndexMat>
+Enriched_Integration_Mesh::get_side_set_colors(moris_index aSideSetOrdinal) const
+{
+    MORIS_ASSERT(aSideSetOrdinal<(moris_index)mSideSetColors.size(),"Side set ordinal out of bounds");
+    return mSideSetColors(aSideSetOrdinal);
 }
 //------------------------------------------------------------------------------
 uint
@@ -785,6 +805,13 @@ Enriched_Integration_Mesh::get_double_side_set_cluster(moris_index aSideSetOrdin
 
     return tDblSideClusters;
 }
+Matrix<IndexMat>
+Enriched_Integration_Mesh::get_double_side_set_colors(moris_index aSideSetOrdinal) const
+{
+    MORIS_ASSERT(aSideSetOrdinal<(moris_index)mDoubleSideSetLabels.size(),"Double side set ordinal out of bounds");
+    return mMasterDoubleSideSetColor(aSideSetOrdinal);
+}
+
 //------------------------------------------------------------------------------
 uint
 Enriched_Integration_Mesh::get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
@@ -854,7 +881,8 @@ Enriched_Integration_Mesh::print_block_sets(moris::uint aVerbosityLevel) const
     {
         std::cout<<"\n    Block Name: "     <<std::setw(20)<<mBlockSetNames(iBS)
                 <<" | Block Set Ord: "    <<std::setw(9)<<iBS
-                <<" | Num Cell Clusters: "<<std::setw(9)<<this->mPrimaryBlockSetClusters(iBS).size();
+                <<" | Num Cell Clusters: "<<std::setw(9)<<mPrimaryBlockSetClusters(iBS).size()
+                <<" | Bulk Phase: "<<std::setw(9)<<mBlockSetColors(iBS)(0);
 
         if(aVerbosityLevel > 0)
         {
@@ -893,7 +921,10 @@ Enriched_Integration_Mesh::print_side_sets(moris::uint aVerbosityLevel) const
 
     for(moris::uint iSS = 0; iSS < this->get_num_side_sets(); iSS++)
     {
-        std::cout<<"    Side Set Name: "<<std::setw(20)<<mSideSetLabels(iSS)<<" | Side Set Ord: "<<std::setw(9)<<iSS<<" | Num Cell Clusters: "<<std::setw(9)<<this->mSideSets(iSS).size()<<std::endl;
+        std::cout<<"    Side Set Name: "   <<std::setw(20)<<mSideSetLabels(iSS)
+                 <<" | Side Set Ord: "     <<std::setw(9)<<iSS
+                 <<" | Num Cell Clusters: "<<std::setw(9)<<this->mSideSets(iSS).size()
+                 <<" | Bulk Phase: "<<std::setw(9)<<mSideSetColors(iSS)(0)<<std::endl;
     }
 }
 //------------------------------------------------------------------------------
@@ -905,7 +936,11 @@ Enriched_Integration_Mesh::print_double_side_sets(moris::uint aVerbosityLevel) c
 
     for(moris::uint iSS = 0; iSS < this->get_num_double_side_set(); iSS++)
     {
-        std::cout<<"    Dbl Side Set Name: "<<std::setw(20)<<mDoubleSideSetLabels(iSS)<<" | Dbl Side Set Ord: "<<std::setw(9)<<iSS<<" | Num Cell Clusters: "<<std::setw(9)<<this->mDoubleSideSets(iSS).size();
+        std::cout<<"    Dbl Side Set Name: "<<std::setw(20)<<mDoubleSideSetLabels(iSS)
+                <<" | Dbl Side Set Ord: "<<std::setw(9)<<iSS
+                <<" | Num Cell Clusters: "<<std::setw(9)<<this->mDoubleSideSets(iSS).size()
+                <<" | Master Bulk Phase: "<<std::setw(9)<<mMasterDoubleSideSetColor(iSS)(0)
+                <<" | Slave Bulk Phase: "<<std::setw(9)<<mSlaveDoubleSideSetColor(iSS)(0);
 
         if(aVerbosityLevel>0)
         {
@@ -954,7 +989,9 @@ Enriched_Integration_Mesh::create_side_set_from_dbl_side_set(moris_index const &
     }
 
     this->commit_side_set(tSideSetIndex(0));
+    this->set_side_set_colors(tSideSetIndex(0),this->get_double_side_set_colors(aDblSideSetIndex));
 
+    this->setup_color_to_set();
     this->collect_all_sets();
 
     return tSideSetIndex(0);
@@ -1001,7 +1038,8 @@ Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(moris_index c
     }
 
     this->commit_block_set(tBlockSetIndex(0));
-
+    this->set_block_set_colors(tBlockSetIndex(0),this->get_side_set_colors(aSideSetIndex));
+    this->setup_color_to_set();
     this->collect_all_sets();
 
     return tBlockSetIndex(0);
@@ -1013,9 +1051,9 @@ Enriched_Integration_Mesh::get_interface_side_set_name(moris_index aGeomIndex,
                                                        moris_index aBulkPhaseIndex0,
                                                        moris_index aBulkPhaseIndex1)
 {
-    MORIS_ASSERT(aGeomIndex< (moris_index)mModel->get_geom_engine().get_num_geometries(),"Geometry index out of bounds");
-    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
-    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
+    MORIS_ASSERT(aGeomIndex< (moris_index)mModel->get_geom_engine()->get_num_geometries(),"Geometry index out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
 
     return "iside_g_" + std::to_string(aGeomIndex) + "_b0_" + std::to_string(aBulkPhaseIndex0) + "_b1_" + std::to_string(aBulkPhaseIndex1);
 }
@@ -1025,8 +1063,8 @@ Enriched_Integration_Mesh::get_dbl_interface_side_set_name(moris_index aBulkPhas
                                                            moris_index aBulkPhaseIndex1)
 {
     MORIS_ASSERT(aBulkPhaseIndex0<aBulkPhaseIndex1,"Double side set names are defined from low index to high");
-    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
-    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine().get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
+    MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
 
     return "dbl_iside_p0_" + std::to_string(aBulkPhaseIndex0) + "_p1_" + std::to_string(aBulkPhaseIndex1);
 }
@@ -1120,7 +1158,10 @@ Enriched_Integration_Mesh::commit_double_side_set(moris_index const & aDoubleSid
     MORIS_ASSERT(mListofDoubleSideSets.size() == (uint)aDoubleSideSetIndex,"Committing double side set failed. aDoubleSideSetIndex needs to be equivalent to the size of the list of double side sets");
     mListofDoubleSideSets.resize( mListofDoubleSideSets.size()+1, nullptr );
 
-    mListofDoubleSideSets( aDoubleSideSetIndex ) = new moris::mtk::Double_Side_Set(mDoubleSideSetLabels(aDoubleSideSetIndex), this->get_double_side_set_cluster( aDoubleSideSetIndex ), this->get_spatial_dim());
+    mListofDoubleSideSets( aDoubleSideSetIndex ) = new moris::mtk::Double_Side_Set(mDoubleSideSetLabels(aDoubleSideSetIndex),
+                                                                                   this->get_double_side_set_cluster( aDoubleSideSetIndex ),
+                                                                                   this->get_double_side_set_colors(aDoubleSideSetIndex),
+                                                                                   this->get_spatial_dim());
 }
 void
 Enriched_Integration_Mesh::commit_side_set(moris_index const & aSideSetIndex)
@@ -1128,7 +1169,10 @@ Enriched_Integration_Mesh::commit_side_set(moris_index const & aSideSetIndex)
     MORIS_ASSERT(mListofSideSets.size() == (uint)aSideSetIndex,"Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of double side sets");
     mListofSideSets.resize( mListofSideSets.size()+1, nullptr );
 
-    mListofSideSets( aSideSetIndex ) = new moris::mtk::Side_Set(mSideSetLabels(aSideSetIndex), this->get_side_set_cluster( aSideSetIndex ), this->get_spatial_dim());
+    mListofSideSets( aSideSetIndex ) = new moris::mtk::Side_Set(mSideSetLabels(aSideSetIndex),
+                                                                this->get_side_set_cluster( aSideSetIndex ),
+                                                                this->get_side_set_colors(aSideSetIndex),
+                                                                this->get_spatial_dim());
 }
 //------------------------------------------------------------------------------
 void
@@ -1137,7 +1181,10 @@ Enriched_Integration_Mesh::commit_block_set(moris_index const & aBlockSetIndex)
     MORIS_ASSERT(mListofBlocks.size() == (uint)aBlockSetIndex,"Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of double side sets");
     mListofBlocks.resize( mListofBlocks.size()+1, nullptr );
 
-    mListofBlocks( aBlockSetIndex ) = new moris::mtk::Block(mBlockSetNames(aBlockSetIndex), this->get_cell_clusters_in_set( aBlockSetIndex ), this->get_spatial_dim());
+    mListofBlocks( aBlockSetIndex ) = new moris::mtk::Block(mBlockSetNames(aBlockSetIndex),
+                                                            this->get_cell_clusters_in_set( aBlockSetIndex ),
+                                                            this->get_block_set_colors(aBlockSetIndex),
+                                                            this->get_spatial_dim());
 }
 //------------------------------------------------------------------------------
 void
@@ -1265,6 +1312,13 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
         Cell<moris_index> tChildBlockSetOrds   = this->register_block_set_names_with_cell_topo(tPhaseChildBlockSetNames,tChildTopo);
         Cell<moris_index> tNoChildBlockSetOrds = this->register_block_set_names_with_cell_topo(tPhaseNoChildBlockSetNames,tParentTopo);
 
+        // set block set colors
+        for(moris_index i = 0; i <(moris_index) tChildBlockSetOrds.size(); i ++)
+        {
+            this->set_block_set_colors(tChildBlockSetOrds(i),{{i}});
+            this->set_block_set_colors(tNoChildBlockSetOrds(i),{{i}});
+        }
+
         // get the cells in this block
         moris::Cell<moris::mtk::Cell const*> tCellsInBlock = tBackgroundMesh.get_mesh_data().get_block_set_cells(tBlockSetsNames(iBS));
 
@@ -1298,15 +1352,11 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
         }
     }
 
-    // create mtk set information
-    mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
-
-    moris::Cell<std::string> tBSNames = this->get_block_set_names();
-
-    for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
+    for(moris::uint Ik = mListofBlocks.size(); Ik< mPrimaryBlockSetClusters.size(); Ik++)
     {
-        mListofBlocks( Ik ) = new moris::mtk::Block( tBSNames(Ik), this->get_cell_clusters_in_set( Ik ), this->get_spatial_dim() );
+        this->commit_block_set(Ik);
     }
+
 }
 
 
@@ -1343,6 +1393,13 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
         // add side set names to member data
         Cell<moris_index> tChildSideSetOrds = this->register_side_set_names(tPhaseChildSideSetNames);
         Cell<moris_index> tNoChildSideSetOrds = this->register_side_set_names(tPhaseNoChildSideSetNames);
+
+        // set side set colors
+        for(moris_index i = 0; i <(moris_index) tChildSideSetOrds.size(); i ++)
+        {
+            this->set_side_set_colors(tChildSideSetOrds(i),{{i}});
+            this->set_side_set_colors(tNoChildSideSetOrds(i),{{i}});
+        }
 
         // get the cells in this side set and their side ordinals
         moris::Cell< mtk::Cell const * > tCellsInSideSet;
@@ -1479,11 +1536,9 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
         }
     }
 
-    mListofSideSets.resize( mSideSets.size(), nullptr );
-
-    for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
+    for(moris::uint Ik = mListofSideSets.size(); Ik< mSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik),this->get_side_set_cluster( Ik ), this->get_spatial_dim() );
+        this->commit_side_set(Ik);
     }
 
 }
@@ -1492,6 +1547,15 @@ void
 Enriched_Integration_Mesh::setup_double_side_set_clusters()
 {
     this->setup_double_sided_interface_sides();
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::setup_color_to_set()
+{
+    this->construct_color_to_set_relationship(mBlockSetColors,mColorsBlockSets);
+    this->construct_color_to_set_relationship(mSideSetColors,mColorsSideSets);
+    this->construct_color_to_set_relationship(mMasterDoubleSideSetColor,mColorMasterDoubleSideSet);
+    this->construct_color_to_set_relationship(mSlaveDoubleSideSetColor,mColorSlaveDoubleSideSet);
 }
 //------------------------------------------------------------------------------
 void
@@ -1505,7 +1569,7 @@ Enriched_Integration_Mesh::setup_double_sided_interface_sides()
 void
 Enriched_Integration_Mesh::declare_interface_double_side_sets()
 {
-    uint tNumBulkPhases = mModel->get_geom_engine().get_num_bulk_phase();
+    uint tNumBulkPhases = mModel->get_geom_engine()->get_num_bulk_phase();
 
     Cell<std::string> tDoubleInterfaceSideNames;
 
@@ -1513,6 +1577,9 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
     mBulkPhaseToDblSideIndex.fill(MORIS_INDEX_MAX);
 
     moris_index tCount = 0;
+
+    Cell<Matrix<IndexMat>> tInterfaceMasterSideColors;
+    Cell<Matrix<IndexMat>> tInterfaceSlaveSideColors;
 
     for(moris::moris_index iP0 = 0; iP0 <(moris_index) tNumBulkPhases; iP0++)
     {
@@ -1522,13 +1589,22 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
             std::string tInterfaceSideSetName = this->get_dbl_interface_side_set_name(iP0,iP1);
 
             tDoubleInterfaceSideNames.push_back(tInterfaceSideSetName);
+            tInterfaceMasterSideColors.push_back({{iP0}});
+            tInterfaceSlaveSideColors.push_back({{iP1}});
 
             mBulkPhaseToDblSideIndex(iP0,iP1) = tCount;
             mBulkPhaseToDblSideIndex(iP1,iP0) = tCount;
             tCount++;
         }
     }
-    this->register_double_side_set_names(tDoubleInterfaceSideNames);
+
+    Cell<moris_index> tDblSideSetOrds = this->register_double_side_set_names(tDoubleInterfaceSideNames);
+
+    // set interface side set colors
+    for(moris_index iSS = 0; iSS < (moris_index)tDblSideSetOrds.size(); iSS++)
+    {
+        this->set_double_side_set_colors(tDblSideSetOrds(iSS),tInterfaceMasterSideColors(iSS),tInterfaceSlaveSideColors(iSS));
+    }
 }
 
 moris_index
@@ -1651,18 +1727,16 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
         tChildMesh->delete_double_sides_interface_sets();
     }
 
-    mListofDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
-
-    for(moris::uint Ik = 0; Ik<mListofDoubleSideSets.size(); Ik++)
+    for(moris::uint Ik = mListofDoubleSideSets.size(); Ik< mDoubleSideSets.size(); Ik++)
     {
-        mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(mDoubleSideSetLabels(Ik), this->get_double_side_set_cluster( Ik ), this->get_spatial_dim());
+        this->commit_double_side_set(Ik);
     }
 }
 //------------------------------------------------------------------------------
 moris::Cell<std::string>
 Enriched_Integration_Mesh::split_set_name_by_bulk_phase(std::string aBaseName)
 {
-    moris::uint tNumPhases = mModel->mGeometryEngine.get_num_bulk_phase();
+    moris::uint tNumPhases = mModel->mGeometryEngine->get_num_bulk_phase();
     moris::Cell<std::string> tSetNames(tNumPhases);
     for(moris::uint  i = 0; i<tNumPhases; i++)
     {
@@ -1703,7 +1777,17 @@ Enriched_Integration_Mesh::register_block_set_names_with_cell_topo(moris::Cell<s
     }
 
     mPrimaryBlockSetClusters.resize(mPrimaryBlockSetClusters.size() + tNumSetsToRegister);
+    mBlockSetColors.resize(mBlockSetColors.size() + tNumSetsToRegister);
     return tBlockSetOrds;
+}
+//------------------------------------------------------------------------------
+
+void
+Enriched_Integration_Mesh::set_block_set_colors(moris_index const &    aBlockSetIndex,
+                     Matrix<IndexMat> const & aBlockSetColors)
+{
+    MORIS_ASSERT(moris::isempty(mBlockSetColors(aBlockSetIndex)),"Attempting to overwrite colors of a block set");
+    mBlockSetColors(aBlockSetIndex) = aBlockSetColors;
 }
 //------------------------------------------------------------------------------
 Cell<moris_index>
@@ -1725,8 +1809,18 @@ Enriched_Integration_Mesh::register_side_set_names(moris::Cell<std::string> cons
     }
 
     mSideSets.resize(mSideSets.size() + tNumSetsToRegister);
+    mSideSetColors.resize(mSideSetColors.size() + tNumSetsToRegister);
 
     return tSideSetOrds;
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::set_side_set_colors(moris_index const &     aSideSetIndex,
+                                               Matrix<IndexMat> const & aSideSetColors)
+{
+
+    MORIS_ASSERT(moris::isempty(mSideSetColors(aSideSetIndex)),"Attempting to overwrite colors of a side set");
+    mSideSetColors(aSideSetIndex) = aSideSetColors;
 }
 //------------------------------------------------------------------------------
 Cell<moris_index>
@@ -1750,7 +1844,21 @@ Enriched_Integration_Mesh::register_double_side_set_names(moris::Cell<std::strin
     mDoubleSideSets.resize(mDoubleSideSets.size() + tNumSetsToRegister);
     mDoubleSideSetsMasterIndex.resize(mDoubleSideSetsMasterIndex.size() + tNumSetsToRegister);
     mDoubleSideSetsSlaveIndex.resize(mDoubleSideSetsSlaveIndex.size() + tNumSetsToRegister);
+    mMasterDoubleSideSetColor.resize(mMasterDoubleSideSetColor.size() + tNumSetsToRegister);
+    mSlaveDoubleSideSetColor.resize(mSlaveDoubleSideSetColor.size() + tNumSetsToRegister);
+
     return tDblSideSetOrds;
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::set_double_side_set_colors(moris_index const &      aDblSideSetIndex,
+                                                      Matrix<IndexMat> const & aMasterSideColors,
+                                                      Matrix<IndexMat> const & aSlaveSideColors)
+{
+    MORIS_ASSERT(moris::isempty(mMasterDoubleSideSetColor(aDblSideSetIndex)),"Attempting to overwrite colors of a master side of double side set");
+    MORIS_ASSERT(moris::isempty(mSlaveDoubleSideSetColor(aDblSideSetIndex)),"Attempting to overwrite colors of a slave side of double side set");
+    mMasterDoubleSideSetColor(aDblSideSetIndex) = aMasterSideColors;
+    mSlaveDoubleSideSetColor(aDblSideSetIndex)  = aSlaveSideColors;
 }
 //------------------------------------------------------------------------------
 void
@@ -1764,10 +1872,11 @@ Enriched_Integration_Mesh::setup_interface_side_sets()
 void
 Enriched_Integration_Mesh::declare_interface_side_sets()
 {
-    uint tNumGeometries = mModel->get_geom_engine().get_num_geometries();
-    uint tNumBulkPhases = mModel->get_geom_engine().get_num_bulk_phase();
+    uint tNumGeometries = mModel->get_geom_engine()->get_num_geometries();
+    uint tNumBulkPhases = mModel->get_geom_engine()->get_num_bulk_phase();
 
-    Cell<std::string> tInterfaceSideNames;
+    Cell<std::string>      tInterfaceSideNames;
+    Cell<Matrix<IndexMat>> tInterfaceSideColors;
     for(moris::moris_index iG = 0; iG < (moris_index)tNumGeometries; iG++)
     {
         for(moris::moris_index iP0 = 0; iP0 <(moris_index) tNumBulkPhases; iP0++)
@@ -1779,20 +1888,27 @@ Enriched_Integration_Mesh::declare_interface_side_sets()
                     std::string tInterfaceSideSetName = get_interface_side_set_name(iG,iP0,iP1);
 
                     tInterfaceSideNames.push_back(tInterfaceSideSetName);
+                    tInterfaceSideColors.push_back({{iP0}});
                 }
             }
         }
     }
 
-    register_side_set_names(tInterfaceSideNames);
+    Cell<moris_index> tSideSetOrds = this->register_side_set_names(tInterfaceSideNames);
 
+
+    // set interface side set colors
+    for(moris_index iSS = 0; iSS < (moris_index)tSideSetOrds.size(); iSS++)
+    {
+        this->set_side_set_colors(tSideSetOrds(iSS),tInterfaceSideColors(iSS));
+    }
 }
 //------------------------------------------------------------------------------
 void
 Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
 {
-    uint tNumGeometries  = mModel->get_geom_engine().get_num_geometries();
-    uint tNumBulkPhases  = mModel->get_geom_engine().get_num_bulk_phase();
+    uint tNumGeometries  = mModel->get_geom_engine()->get_num_geometries();
+    uint tNumBulkPhases  = mModel->get_geom_engine()->get_num_bulk_phase();
     uint tNumChildMeshes = mModel->get_cut_mesh().get_num_child_meshes();
 
     Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
@@ -1891,15 +2007,40 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
         }
     }
 
-    uint tCurrentSize = mListofSideSets.size();
-    mListofSideSets.resize( mSideSets.size(), nullptr );
-
-    for(moris::uint Ik = tCurrentSize; Ik<mListofSideSets.size(); Ik++)
+    for(moris::uint Ik = mListofSideSets.size(); Ik< mSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim() );
+        this->commit_side_set(Ik);
     }
 
 }
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::construct_color_to_set_relationship(moris::Cell<moris::Matrix<IndexMat>> const & aSetColors,
+                                                               moris::Cell<moris::Cell<moris_index>> & aColorToSetIndex)
+{
+    moris_index tMaxColor = 0;
+    for(moris::uint i = 0; i < aSetColors.size(); i++)
+    {
+        moris_index tLocMax = aSetColors(i).max();
+        if(tLocMax > tMaxColor)
+        {
+            tMaxColor = tLocMax;
+        }
+    }
+
+    // size
+    aColorToSetIndex.clear();
+    aColorToSetIndex.resize(tMaxColor+1);
+
+    for(moris::uint i = 0; i < aSetColors.size(); i++)
+    {
+        for(moris::uint iC = 0; iC < aSetColors(i).numel(); iC++)
+        {
+            aColorToSetIndex(aSetColors(i)(iC)).push_back( (moris_index) i);
+        }
+    }
+}
+
 //------------------------------------------------------------------------------
 bool
 Enriched_Integration_Mesh::field_exists(std::string              aLabel,

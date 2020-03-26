@@ -12,7 +12,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include "cl_Param_List.hpp" // CON/src
 
@@ -37,10 +37,13 @@ namespace dla
         moris::real mNumFactTime;
         moris::real mPreCondTime;
 
-        Param_List< boost::variant< bool, sint, real, std::string > > mParameterList; // The Algorithm specific parameter list
+        moris::ParameterList mParameterList; // The Algorithm specific parameter list
 
     public:
         Linear_Solver_Algorithm( ){};
+
+        Linear_Solver_Algorithm( const moris::ParameterList aParameterlist ) : mParameterList( aParameterlist )
+        {};
 
         virtual ~Linear_Solver_Algorithm(){};
 
@@ -67,7 +70,7 @@ namespace dla
 
 //        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 
-        boost::variant< bool, sint, real, std::string > &  set_param( const std::string & aKey )
+        ParameterListTypes&  set_param( const std::string & aKey )
         {
             return mParameterList( aKey );
         }

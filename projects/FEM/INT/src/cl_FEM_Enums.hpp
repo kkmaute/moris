@@ -20,7 +20,8 @@ namespace moris
             UNDEFINED,
             CONSTANT, // constant interpolation
             LAGRANGE, // the most common finite element types
-            BEZIER    // Bezier type elements
+            BEZIER,   // Bezier type elements
+            END_INTERPOLATION_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -28,7 +29,8 @@ namespace moris
         {
             UNDEFINED,
             CONSTANT,
-            GAUSS    // Gauss ( Quad and Hex ), Dunavant ( Tri ), Hammer ( Tet )
+            GAUSS,    // Gauss ( Quad and Hex ), Dunavant ( Tri ), Hammer ( Tet )
+            END_INTEGRATION_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -61,6 +63,7 @@ namespace moris
             TET_10,
             TET_11,
             TET_15,
+            END_INTEGRATION_ORDER
         };
 
 //------------------------------------------------------------------------------
@@ -98,6 +101,8 @@ namespace moris
             STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
             STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
             STRUC_LINEAR_PRESSURE_DIRICHLET, // linear elasticity Dirichlet mixed formulation (Nitsche)
+            INCOMPRESSIBLE_NS_VELOCITY_BULK,
+            INCOMPRESSIBLE_NS_PRESSURE_BULK,
             END_IWG_TYPE
         };
 
@@ -105,11 +110,17 @@ namespace moris
         enum class IQI_Type
         {
             UNDEFINED,
-            VOLUME,
+            VOLUME,         // volume
             STRAIN_ENERGY,
-            STRESS,
+            VOLUME_FRACTION,
             DOF,
+            PROPERTY,
+            L2_ERROR_ANALYTIC,
+            H1_ERROR_ANALYTIC,
+            H1_SEMI_ERROR,
+            J_INTEGRAL,
             ANALYTIC,
+            STRESS,
             END_IQI_TYPE
         };
 
@@ -121,19 +132,20 @@ namespace moris
             DIFF_LIN_ISO,
             STRUC_LIN_ISO,
             STRUC_LIN_ISO_PRESSURE,
+            FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
-
 //------------------------------------------------------------------------------
 
         enum class Model_Type
         {
+            UNDEFINED,
             PLANE_STRESS,
             PLANE_STRAIN,
             FULL,
             HYDROSTATIC, // not implemented yet
             DEVIATORIC,
-            MAX_ENUM
+            END_MODEL_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -146,6 +158,8 @@ namespace moris
             NITSCHE_INTERFACE,
             MASTER_WEIGHT_INTERFACE,
             SLAVE_WEIGHT_INTERFACE,
+            RECIPROCAL_TOTAL_VOLUME,
+            INCOMPRESSIBLE_FLOW,
             END_STABILIZATION_TYPE
         };
 

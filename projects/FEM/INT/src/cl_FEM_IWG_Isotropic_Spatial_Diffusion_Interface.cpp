@@ -67,13 +67,13 @@ namespace moris
             Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
             += ( - trans( tFIMaster->N() ) * tTraction
                  + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) * tWStar ;
 
             // compute slave residual
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
             += (   trans( tFISlave->N() ) * tTraction
                  + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
                  - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tJump ) * tWStar;
@@ -272,16 +272,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                       moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian_and_residual - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_drdpdv - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

@@ -78,11 +78,13 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - Unknown aPropertyString." );
+
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed" );
-
-                // FIXME check that property type makes sense?
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -99,25 +101,16 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // FIXME check that constitutive string makes sense?
+                // check that aConstitutiveString makes sense
+                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
+
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_constitutive_model - No slave allowed." );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // FIXME check that stabilization string makes sense?
-
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
             }
 
 //------------------------------------------------------------------------------
@@ -142,15 +135,14 @@ namespace moris
              * @param[ in ] aJacobians list of jacobian matrices to fill
              * @param[ in ] aResidual  residual vector to fill
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the derivative of the residual wrt design variables
              * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_drdpdv( real aWStar );
+            void compute_dRdp( real aWStar );
 
 //------------------------------------------------------------------------------
         };

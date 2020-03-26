@@ -15,7 +15,7 @@ list(APPEND MORIS_SOURCE_DIRS ${XTK})
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
-
+include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 # Moris packages included for exe's
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 

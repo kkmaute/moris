@@ -23,29 +23,28 @@
 #include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
 
-
-moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunction_UTInterface
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIValFunction_UTInterface
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIDerFunction_UTInterface
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 using namespace moris;
@@ -200,10 +199,10 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -217,7 +216,8 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
     tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
 
-    tIWG->mSet->mResidual.set_size( 16, 1 , 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 16, 1 , 0.0 );
     tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;

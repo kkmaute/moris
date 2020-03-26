@@ -1238,7 +1238,6 @@ std::unordered_map<moris_id,moris_id>
 Enrichment::construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPhaseBasisIndex)
 {
     uint tNumBasisOfSubphase = aSubPhaseBasisIndex.size();
-
     std::unordered_map<moris_id,moris_id> tSubphaseBasisMap;
     for(moris::uint iB =0; iB < tNumBasisOfSubphase; iB++)
     {

@@ -22,44 +22,44 @@
 #include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
 
-moris::Matrix< moris::DDRMat > tConstValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunction_STRUCBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tGeoValFunction_STRUCBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIValFunction_STRUCBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
+    aPropMatrix = aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIDerFunction_STRUCBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return -1.0 * aParameters( 1 )( 0, 0 ) * aDofFI( 0 )->N();
+    aPropMatrix = -1.0 * aParameters( 1 )( 0, 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
 }
-moris::Matrix< moris::DDRMat > tMValFunction_STRUCBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tMValFunction_STRUCBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ), 0.0 },
-            { 0.0, aParameters( 0 )( 1 ) }};
+    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0 },
+                   { 0.0, aParameters( 0 )( 1 ) }};
 }
 
 using namespace moris;
@@ -170,11 +170,11 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
     
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
     
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
     
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -189,7 +189,8 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
     
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
     
     // set requested residual dof type flag to true
@@ -203,7 +204,7 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
+    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
     
     // populate the field interpolator manager
@@ -356,12 +357,12 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Disp
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -379,7 +380,8 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Disp
     tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 0 }, {0, 0} };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 12, 0.0 );
 
     // set requested residual dof type flag to true
@@ -393,7 +395,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Disp
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
+    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager
@@ -538,11 +540,11 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
     
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
     
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
     
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -557,7 +559,8 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
     
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
     
     // set requested residual dof type flag to true
@@ -571,7 +574,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum MSI::Dv_Type > > tDummyDv;
+    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
     
     // populate the field interpolator manager

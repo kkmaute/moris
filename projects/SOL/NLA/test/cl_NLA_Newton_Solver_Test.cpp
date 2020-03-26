@@ -15,7 +15,7 @@
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 #define protected public
 #define private   public
@@ -292,13 +292,13 @@ namespace moris
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver options
@@ -352,12 +352,12 @@ namespace moris
          */
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
-        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
-        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
         delete( tNonlinearProblem );
         delete( tLinSolManager );
@@ -389,8 +389,8 @@ namespace moris
         tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
         tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
         tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
@@ -399,12 +399,12 @@ namespace moris
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
-        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
-        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
         delete( tNonlinearProblem );
         delete( tLinSolManager );
@@ -419,15 +419,15 @@ namespace moris
 
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
-        dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+        dla::Linear_Solver  tLinSolManager;
         Nonlinear_Solver  tNonLinSolManager;
 
-        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, 0,true, MapType::Petsc );
+        Nonlinear_Problem tNonlinearProblem( tSolverInput, 0,true, sol::MapType::Petsc );
 
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
+        tNonlLinSolverAlgorithm->set_linear_solver( &tLinSolManager );
 
         tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
         tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
@@ -437,25 +437,24 @@ namespace moris
         tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::PETSC );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::PETSC );
 
-        tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
-        tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
+        tLinSolManager.set_linear_algorithm( 0, tLinSolver1 );
+        tLinSolManager.set_linear_algorithm( 1, tLinSolver2 );
 
-        tNonLinSolManager.solve( tNonlinearProblem );
+        tNonLinSolManager.solve( &tNonlinearProblem );
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
-        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
-        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0154803, 1.0e+08 ) );
 
-        delete( tNonlinearProblem );
-        delete( tLinSolManager );
+//        delete( tNonlinearProblem );
         delete( tSolverInput );
         }
     }
@@ -536,7 +535,7 @@ namespace moris
 //                    Matrix< DDSMat > tRow( 1, 1, (j*tN)+i );
 //                    Matrix< DDRMat > tVal( 1, 1, 0.0 );
 //
-//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( 1, tRow, tVal );
+//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( tRow, tVal );
 //                }
 //                else
 //                {
@@ -545,7 +544,7 @@ namespace moris
 //                    moris::real Value1 = temp1*std::sqrt(std::min( (real)(std::min( i,tN-i-1 ))*hx, temp) );
 //                    Matrix< DDRMat > tVal( 1, 1, Value1 );
 //
-//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( 1, tRow, tVal );
+//                    tNonlinearProblem->mVectorFullSol->sum_into_global_values( tRow, tVal );
 //                }
 //            }
 //        }
@@ -596,13 +595,13 @@ namespace moris
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver options
@@ -614,13 +613,13 @@ namespace moris
          * tLinSolver1->set_param("AZ_keep_info") = 1;
          * \endcode
          */
-        tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
-        tLinSolver1->set_param("AZ_output") = AZ_none;
-        tLinSolver1->set_param("AZ_keep_info") = 1;
-        //tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
-        tLinSolver1->set_param("AZ_graph_fill") = 5;
-
-        tLinSolver1->set_param("Use_ML_Prec") = true;
+//        tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
+//        tLinSolver1->set_param("AZ_output") = AZ_none;
+//        tLinSolver1->set_param("AZ_keep_info") = 1;
+//        //tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
+//        tLinSolver1->set_param("AZ_graph_fill") = 5;
+//
+//        tLinSolver1->set_param("Use_ML_Prec") = true;
         //tLinSolver1->set_param("ML_reuse") = true;
 
         /*!
@@ -647,27 +646,27 @@ namespace moris
         tGlobalIndExtract( 1, 0 ) = 13077;        tGlobalIndExtract( 2, 0 ) = 15089;
         tGlobalIndExtract( 3, 0 ) = 1032;        tGlobalIndExtract( 4, 0 ) = 777;
         tGlobalIndExtract( 5, 0 ) = 9999;
-        Matrix< DDRMat > tMyValues;
+        moris::Cell< Matrix< DDRMat > > tMyValues;
 
         tNonlinearProblem->extract_my_values( 6, tGlobalIndExtract, 0, tMyValues);
 
         if( par_rank() == 0 )
         {
-            CHECK( equal_to( tMyValues( 0, 0 ), 0.00354517, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 1, 0 ), 0.0470188, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 2, 0 ), 0.05089045, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 3, 0 ), 0.00361458, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 4, 0 ), 0.000600491, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 5, 0 ), 0.0, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.00354517, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0470188, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 2, 0 ), 0.05089045, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 3, 0 ), 0.00361458, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 4, 0 ), 0.000600491, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 5, 0 ), 0.0, 1.0e+08 ) );
         }
         if( par_rank() == 2 )
         {
-            CHECK( equal_to( tMyValues( 0, 0 ), 0.00354517, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 1, 0 ), 0.0470188, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 2, 0 ), 0.05089045, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 3, 0 ), 0.00361458, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 4, 0 ), 0.000600491, 1.0e+08 ) );
-            CHECK( equal_to( tMyValues( 5, 0 ), 0.0, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 0, 0 ), 0.00354517, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.0470188, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 2, 0 ), 0.05089045, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 3, 0 ), 0.00361458, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 4, 0 ), 0.000600491, 1.0e+08 ) );
+            CHECK( equal_to( tMyValues( 0 )( 5, 0 ), 0.0, 1.0e+08 ) );
         }
         }
     }

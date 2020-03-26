@@ -6,7 +6,8 @@
  */
 #include <ctime>
 
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
@@ -15,7 +16,9 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
-#include "cl_Map_Class.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
+#include "cl_SOL_Dist_Map.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -24,10 +27,14 @@ using namespace tsa;
 
 //-------------------------------------------------------------------------------
 
-Time_Solver_Algorithm::Time_Solver_Algorithm( const enum MapType aMapType )
+Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
 {
     this->set_time_solver_parameters();
 }
+
+Time_Solver_Algorithm::Time_Solver_Algorithm( const ParameterList aParameterlist,
+                                              const enum sol::MapType aMapType ) : mParameterListTimeSolver( aParameterlist )
+{}
 
 //-------------------------------------------------------------------------------
 
@@ -40,7 +47,6 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
     }
     delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
     delete( mFullMap );
-
 }
 //-------------------------------------------------------------------------------
 
@@ -74,40 +80,45 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 
 void Time_Solver_Algorithm::finalize()
 {
-    // create map object
-    Matrix_Vector_Factory tMatFactory( MapType::Epetra );
-
-
-
     if ( mIsMasterTimeSolver )
     {
+        // create map object
+        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
         mSolverInterface = mSolverWarehouse->get_solver_interface();
 
-        std::cout<<"Number of Dofs "<<mSolverInterface->get_my_local_global_overlapping_map().numel()<<std::endl;
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
+        MORIS_LOG_INFO( "Creating main time solver system with %-5i dofs.\n", mSolverInterface->get_my_local_global_overlapping_map().numel() );
+
+        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
         // full vector and prev full vector
-        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
-        //mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
+        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
         mFullVector->vec_put_scalar( 0.0 );
-        //mPrevFullVector->vec_put_scalar( 0.0 );
+
+        mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
     }
     else
     {
+        // create map object
+        Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
+
         mSolverInterface = mMyTimeSolver->get_solver_interface();
 //        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
 
-        std::cout<<"Number of Dofs "<<mSolverInterface->get_my_local_global_overlapping_map().numel()<<std::endl;
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
+        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
+
+        mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
     }
-
-    mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
 
     mPrevFullVector->vec_put_scalar( 0.0 );
 }
+
+//-------------------------------------------------------------------------------
 
 void Time_Solver_Algorithm::set_time_solver_parameters()
 {

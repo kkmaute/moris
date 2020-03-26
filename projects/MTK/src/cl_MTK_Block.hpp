@@ -201,9 +201,10 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( std::string                   aName,
-                   moris::Cell<Cluster const *>  aBlockSetClusters,
-                   const uint                    aSpatialDim ) : Set( aName, aBlockSetClusters, aSpatialDim )
+            Block( std::string                  const & aName,
+                   moris::Cell<Cluster const *> const & aBlockSetClusters,
+                   Matrix<IndexMat>             const & aColors,
+                   uint                         const & aSpatialDim ) : Set( aName, aBlockSetClusters, aColors, aSpatialDim )
             {
                 mSetType = moris::SetType::BULK;
                 this->calculate_vertices_on_blocks( mOnlyPrimaryVertCheck );

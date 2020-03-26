@@ -23,6 +23,7 @@ set(TEST_DEPENDENCIES
     ${DLA}-lib
     ${COM}-lib
     ${MTK}-lib
+    ${PRM}-lib
     )
 
 # Set the output path for test

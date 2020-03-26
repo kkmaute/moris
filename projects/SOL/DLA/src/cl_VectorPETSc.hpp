@@ -11,7 +11,7 @@
 #include "linalg_typedefs.hpp"
 
 //#include "cl_MatrixPETSc.hpp"
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 #include "cl_Map_PETSc.hpp"
 namespace moris
 {
@@ -19,6 +19,8 @@ namespace moris
 class Vector_PETSc : public moris::Dist_Vector
 {
 private:
+
+    Vec               mPetscVector =nullptr;
 
     moris::Matrix< DDUMat >   mDirichletBCVec;
 
@@ -30,17 +32,20 @@ protected:
 public:
     /** Default contructor */
     Vector_PETSc(       moris::Solver_Interface * aInput,
-                  const moris::Map_Class        * aMap,
-                  const enum moris::VectorType    aVectorType );
+                        moris::Dist_Map        * aMap,
+                  const sint                      aNumVectores );
 
     /** Destructor */
     ~Vector_PETSc();
 
-    void sum_into_global_values( const moris::uint             & aNumMyDof,
-                                 const moris::Matrix< DDSMat > & aEleDofConectivity,
-                                 const moris::Matrix< DDRMat > & aRHSVal );
+    void sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                 const moris::Matrix< DDRMat > & aValues,
+                                 const uint                    & aVectorIndex = 0 );
 
-    void replace_global_values(){};
+    void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
+                                const moris::Matrix< DDRMat > & aValues,
+                                const uint                    & aVectorIndex = 0)
+    {};
 
     void vector_global_asembly();
 
@@ -66,7 +71,7 @@ public:
     void extract_my_values( const moris::uint             & aNumIndices,
                             const moris::Matrix< DDSMat > & aGlobalBlockRows,
                             const moris::uint             & aBlockRowOffsets,
-                                  moris::Matrix< DDRMat > & LHSValues );
+                                  moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
     void print() const;
 
@@ -77,6 +82,16 @@ public:
     void read_vector_from_HDF5( const char* aFilename );
 
 //-----------------------------------------------------------------------------
+
+    virtual Vec get_petsc_vector()
+    {
+        return mPetscVector;
+    };
+
+    virtual Vec get_petsc_vector() const
+    {
+        return mPetscVector;
+    };
 
     void check_vector();
 };

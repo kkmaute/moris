@@ -9,8 +9,8 @@
 
 #include "cl_XTK_Model.hpp"
 //#include "cl_Sphere.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Sphere.hpp"
 
 namespace xtk
 {
@@ -41,7 +41,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
-            Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+            Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
             tXTKModel.mVerbose  =  false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------

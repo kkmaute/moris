@@ -9,8 +9,6 @@ set(TEST_SOURCES
     #UT_MDL_Mesh_Model_Helper.cpp
     UT_MDL_XTK_DiffusionElement.cpp
     UT_MDL_XTK_HMR_DiffusionElement.cpp
-    UT_MDL_XTK_HMR_2D.cpp
-    UT_MDL_XTK_HMR_Diffusion_Element_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Contact_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Incompressible.cpp
@@ -20,9 +18,11 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
     UT_MDL_XTK_HMR_Material_Void_Bar_Plane.cpp
     UT_MDL_XTK_HMR_Symm_BCs.cpp
-    UT_MDL_Input.cpp
     #UT_MDL_Gyroid.cpp
     UT_MDL_FEM_Benchmark.cpp
+    UT_MDL_FEM_Benchmark2.cpp
+    UT_MDL_FEM_DQ_Dp.cpp
+    UT_MDL_Input.cpp
 
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
@@ -49,6 +49,19 @@ foreach(XTK_INCLUDE ${XTK_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
 endforeach()   
 
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
+endforeach()
+
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
@@ -59,7 +72,9 @@ set(TEST_DEPENDENCIES
     ${SDF}-lib
     ${MAP}-lib
     ${XTK}-lib
+    ${GEN_MAIN}-lib
     ${MORIS_BASE_LIBS}
+    ${PRM}-lib
     )
 
 # Set the output path for test

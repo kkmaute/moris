@@ -15,7 +15,12 @@ list(APPEND MORIS_SOURCE_DIRS ${OPT})
 set(OPT_TPL_DEPENDENCIES
     "gcmma"
     "snopt"
+    "lbfgsb"
     )
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
+
+# for test
+include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)

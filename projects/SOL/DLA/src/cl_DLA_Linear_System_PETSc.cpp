@@ -13,7 +13,7 @@
 
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_DLA_Enums.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include <petsc.h>
 #include <petscis.h>
@@ -37,26 +37,25 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // create map object
-        mMap = tMatFactory.create_map( aInput->get_max_num_global_dofs(),
-                                       aInput->get_my_local_global_map(),
-                                       aInput->get_constr_dof(),
-                                       aInput->get_my_local_global_overlapping_map());      //FIXME
+        mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
+                                       aInput->get_constrained_Ids() );      //FIXME
+
+        mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
+                                       aInput->get_constrained_Ids() );      //FIXME
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMap );
+        mMat = tMatFactory.create_matrix( aInput, mMapFree );
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
+        mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
-        mInput->build_graph( mMat );
-
-        this->build_linear_system();
+        mSolverInterface->build_graph( mMat );
 
 //        mFreeVectorLHS->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
 //        mFreeVectorLHS->print();
@@ -72,8 +71,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                                Map_Class        * aFreeMap,
-                                                Map_Class        * aFullMap,
+                                                Dist_Map        * aFreeMap,
+                                                Dist_Map        * aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
@@ -83,7 +82,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         PetscInitializeNoArguments();
     }
 
-    Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+    Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );
@@ -94,9 +93,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
-   mInput->build_graph( mMat );
+    mSolverInterface->build_graph( mMat );
 
-    this->build_linear_system();
 }
 //----------------------------------------------------------------------------------------
 
@@ -106,9 +104,16 @@ Linear_System_PETSc::~Linear_System_PETSc()
     delete( mVectorRHS );
     delete( mFreeVectorLHS );
     delete( mFullVectorLHS );
-    delete( mMap );
+    if( mMap != nullptr )
+    {
+        delete( mMap );
+    }
+    if( mMapFree != nullptr )
+    {
+        delete( mMapFree );
+    }
 
-//    mInput->delete_multigrid();
+//    mSolverInterface->delete_multigrid();
 
     //KSPDestroy( &mPetscProblem );
     //( &mpc );
@@ -118,16 +123,6 @@ Linear_System_PETSc::~Linear_System_PETSc()
         PetscFinalize();
     }
 }
-
-//----------------------------------------------------------------------------------------
-void Linear_System_PETSc::build_linear_system()
- {
-     // Set matrix. solution vector and RHS
-     //KSPSetOperators( tPetscKSPProblem, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
-
-//     mMat->print();
-//     std::cout<<*mVectorRHS->get_vector()<<std::endl;
- }
 
 //------------------------------------------------------------------------------------------
 moris::sint Linear_System_PETSc::solve_linear_system()

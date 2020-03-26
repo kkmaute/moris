@@ -13,13 +13,12 @@
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_Param_List.hpp"
 
 namespace moris
 {
-class Map_Class;
+class Dist_Map;
 class Dist_Vector;
 class Solver_Interface;
 namespace tsa
@@ -29,10 +28,12 @@ namespace tsa
 namespace dla
 {
     class Linear_Solver_Algorithm;
+    class Linear_Solver;
 }
 namespace NLA
 {
     class Nonlinear_Solver;
+    class Nonlinear_Problem;
     class Nonlinear_Algorithm
     {
     private:
@@ -48,7 +49,7 @@ namespace NLA
         Nonlinear_Problem * mNonlinearProblem = nullptr;
 
         //! Parameterlist for this nonlinear solver
-        Param_List< boost::variant< bool, sint, real, const char* > > mParameterListNonlinearSolver;
+        moris::ParameterList mParameterListNonlinearSolver;
 
         bool mLinSolverOwned = true;
 
@@ -80,6 +81,11 @@ namespace NLA
             this->set_nonlinear_solver_parameters();
         };
 
+//--------------------------------------------------------------------------------------------------
+
+        Nonlinear_Algorithm( const ParameterList aParameterlist ) : mParameterListNonlinearSolver( aParameterlist )
+        {    };
+
         //--------------------------------------------------------------------------------------------------
 
         virtual ~Nonlinear_Algorithm(){};
@@ -108,10 +114,10 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
-        virtual void extract_my_values( const moris::uint             & aNumIndices,
-                                        const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                        const moris::uint             & aBlockRowOffsets,
-                                              moris::Matrix< DDRMat > & LHSValues ) = 0;
+        virtual void extract_my_values( const moris::uint                            & aNumIndices,
+                                        const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+                                        const moris::uint                            & aBlockRowOffsets,
+                                              moris::Cell< moris::Matrix< DDRMat > > & LHSValues ) = 0;
 
         //--------------------------------------------------------------------------------------------------
 
@@ -119,7 +125,10 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
-        virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
+        ParameterListTypes & set_param( char const* aKey )
+        {
+            return mParameterListNonlinearSolver( aKey );
+        }
 
         //--------------------------------------------------------------------------------------------------
 

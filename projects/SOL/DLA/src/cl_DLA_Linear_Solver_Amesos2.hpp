@@ -9,6 +9,9 @@
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
+//#include "Amesos2.hpp"
+//#include "Amesos2_Version.hpp"
+
 //#include <Teuchos_ScalarTraits.hpp>
 //#include <Teuchos_RCP.hpp>
 //#include <Teuchos_GlobalMPISession.hpp>
@@ -26,34 +29,40 @@ namespace moris
 {
 namespace dla
 {
-//class Linear_Solver_Amesos2 : public Linear_Solver_Algorithm
-//{
-//private:
+class Linear_Solver_Amesos2 : public Linear_Solver_Algorithm
+{
+private:
 //    Teuchos::RCP< Amesos2::Solver< Epetra_CrsMatrix,Epetra_MultiVector > > mAmesos2Solver;
-//
+
 //    Epetra_LinearProblem      mEpetraProblem;
-//
-//    Teuchos::RCP<Epetra_CrsMatrix> mAMatrix;
-//	Teuchos::RCP<Epetra_MultiVector> mRHS;
-//    Teuchos::RCP<Epetra_MultiVector> mLHS;
-//
-//    bool              mIsPastFirstSolve;
-//
-//protected:
-//public:
-//    Linear_Solver_Amesos2(Solver_Interface * aInput);
-//
-//    ~Linear_Solver_Amesos2();
-//
-//    void set_solver_parameters();
-//
-//    //int SetSystemMatrix ( bool aUseTranspose );
-//
-//    moris::sint solve_linear_system();
-//
-//    void set_solver_internal_parameters();
-//
-//};
+
+    bool              mIsPastFirstSolve;
+
+    Linear_Problem   * mLinearSystem =  nullptr;
+
+protected:
+public:
+    Linear_Solver_Amesos2(Solver_Interface * aInput);
+
+    Linear_Solver_Amesos2();
+
+    ~Linear_Solver_Amesos2();
+
+    void set_solver_parameters();
+
+    void set_linear_problem( Linear_Problem * aLinearSystem ){};
+
+    //int SetSystemMatrix ( bool aUseTranspose );
+
+    moris::sint solve_linear_system();
+
+    moris::sint solve_linear_system(      Linear_Problem * aLinearSystem,
+                                     const moris::sint     aIter );
+
+
+    void set_solver_internal_parameters();
+
+};
 }
 }
 

@@ -52,12 +52,15 @@ namespace xtk
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_" + std::to_string(aBulkPhase), tFacetTopo);
+
+        tEnrIgMesh.setup_color_to_set();
+        tEnrIgMesh.collect_all_sets();
     }
 
     std::string
     Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index aBulkPhase)
     {
-        MORIS_ASSERT(aBulkPhase < (moris_index)mXTKModel->get_geom_engine().get_num_bulk_phase(),"Bulk Phase index out of bounds.");
+        MORIS_ASSERT(aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(),"Bulk Phase index out of bounds.");
         return "ghost_p" + std::to_string(aBulkPhase);
     }
 
@@ -77,8 +80,12 @@ namespace xtk
         // number of interpolation cells
         moris::uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities(EntityRank::ELEMENT);
 
+        std::cout<<"tCurrentNewInterpCellIndex = "<<tCurrentNewInterpCellIndex<<std::endl;
+        std::cout<<"tOwnedInterpCells.size() = "<<tOwnedInterpCells.size()<<std::endl;
+        std::cout<<"tNotOwnedInterpCells.size() = "<<tNotOwnedInterpCells.size()<<std::endl;
+
         // allocate data in ghost setup data
-        aGhostSetupData.mSubphaseIndexToInterpolationCellIndex.resize(tCurrentNewInterpCellIndex,MORIS_INDEX_MAX);
+        aGhostSetupData.mSubphaseIndexToInterpolationCellIndex.resize(mXTKModel->get_subphase_to_subphase().size(),MORIS_INDEX_MAX);
 
         // figure out how many of the interpolation cells are not trivial (this value is the number of new interpolion cells)
         // iterate through owned interpolation cells and give them an id if they are not trivial clusters
@@ -87,6 +94,13 @@ namespace xtk
         moris::uint tNumNewInterpCellsOwned    = 0;
 
         Cell<Interpolation_Cell_Unzipped *> tNonTrivialOwnedInterpCells;
+
+        for(moris::size_t i = 0; i<tOwnedInterpCells.size(); i++)
+        {
+            std::cout<<tOwnedInterpCells(i)<<std::endl;
+            std::cout<<"tOwnedInterpCells(i)->get_subphase_index() = "<<tOwnedInterpCells(i)->get_subphase_index()<<std::endl;
+
+        }
 
         for(moris::size_t i = 0; i<tOwnedInterpCells.size(); i++)
         {
@@ -276,7 +290,7 @@ namespace xtk
     void
     Ghost_Stabilization::declare_ghost_double_side_sets_in_mesh(Ghost_Setup_Data & aGhostSetupData)
     {
-        uint tNumBulkPhases = mXTKModel->get_geom_engine().get_num_bulk_phase();
+        uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
 
         Cell<std::string> tGhostDoubleSideNames(tNumBulkPhases);
 
@@ -308,7 +322,7 @@ namespace xtk
         moris::Cell<moris::Cell<moris_index>>  const & tTransitionLocation                 = mXTKModel->get_subphase_to_subphase_transition_loc();
 
         // number of bulk phases in the mesh
-        moris::uint tNumBulkPhases = mXTKModel->get_geom_engine().get_num_bulk_phase();
+        moris::uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
 
         // number of subphases in mesh
         moris::uint tNumSubphases = tSubphaseToSubphase.size();
@@ -417,6 +431,7 @@ namespace xtk
             }
 
             tEnrIntegMesh.commit_double_side_set(aGhostSetupData.mDblSideSetIndexInMesh(i));
+            tEnrIntegMesh.set_double_side_set_colors(aGhostSetupData.mDblSideSetIndexInMesh(i),{{(moris_index)i}},{{(moris_index)i}});
         }
 
         tEnrIntegMesh.collect_all_sets();

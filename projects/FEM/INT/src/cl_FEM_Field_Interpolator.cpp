@@ -61,7 +61,7 @@ namespace moris
         Field_Interpolator::Field_Interpolator( const uint                         & aNumberOfFields,
                                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                                const moris::Cell< MSI::Dv_Type >    aDvType )
+                                                const moris::Cell< GEN_DV >          aDvType )
                                               : mNumberOfFields( aNumberOfFields ),
                                                 mGeometryInterpolator( aGeometryInterpolator ),
                                                 mDvType( aDvType )
@@ -180,9 +180,6 @@ namespace moris
 
              //evaluate space time SF by multiplying space and time SF
              mNBuild = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
-
-//             // set bool for evaluation
-//             mNBuildEval = false;
          }
 
 //------------------------------------------------------------------------------
@@ -307,9 +304,6 @@ namespace moris
             // compute first derivative of the SF wrt x
 //            mdNdx = solve( tJGeot, tdNFielddXi );
             mdNdx = inv( tJGeot ) * tdNFielddXi;
-
-//            // set bool for evaluation
-//            mdNdxEval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -352,9 +346,6 @@ namespace moris
             //build the second derivatives of the space time SF wrt x
             Matrix< DDRMat > td2NFielddXi2 = td2NFielddxi2 - tKGeot * tdNFielddx;
             md2Ndx2 = solve( tLGeot, td2NFielddXi2 );
-
-//            // set bool for evaluation
-//            md2Ndx2Eval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -405,9 +396,6 @@ namespace moris
             //build the third derivatives of the space time SF wrt x
             Matrix< DDRMat > td3NFielddXi3 = td3NFielddxi3 - tJ3bGeot * td2NFielddx2 - tJ3cGeot * tdNFielddx;
             md3Ndx3 = solve( tJ3aGeot, td3NFielddXi3 );
-
-//            // set bool for evaluation
-//            md3Ndx3Eval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -563,24 +551,22 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         moris::real Field_Interpolator::div()
         {
             // check that mUHat is set
             MORIS_ASSERT( mUHat.numel() > 0,  "Field_Interpolator::div - mUHat is not set." );
 
-//            // evaluate gradient
-//            Matrix< DDRMat > tGradx = this->gradx( 1 );
-//
-//            // evaluate divergence
-//            moris::real tDivergence = 0;
-//            for (uint tIndex = 0; tIndex < tGradx.n_rows(); tIndex++)
-//            {
-//                tDivergence += tGradx(tIndex, tIndex);
-//            }
-//            return tDivergence;
-
+            // evaluate spatial divergence from gradient
             return sum( diag_vec( this->gradx( 1 ).matrix_data() ) );
+        }
+
+        moris::Matrix< DDRMat > Field_Interpolator::div_operator()
+        {
+            // init div operator
+//            Matrix< DDRMat > tDivOperator = reshape( trans( this->dNdx( 1 ) ), 1, this->dNdx( 1 ).numel() );
+
+            // evaluate spatial divergence operator from dNdx
+            return  reshape( trans( this->dnNdxn( 1 ) ), 1, this->dnNdxn( 1 ).numel() );
         }
 
 //------------------------------------------------------------------------------

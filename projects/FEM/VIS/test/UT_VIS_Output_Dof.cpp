@@ -46,9 +46,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 #include "cl_VIS_Factory.hpp"
 
@@ -77,6 +77,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -91,12 +92,12 @@ moris::real PlaneVisTest(const moris::Matrix< moris::DDRMat > & aPoint )
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-Matrix< DDRMat > tConstValFunc_OUTDOF( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                       moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                       moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                       fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunc_OUTDOF
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
 bool tSolverOutputCriteria( moris::tsa::Time_Solver * )
@@ -137,7 +138,7 @@ namespace moris
                 tParameters.set_refinement_buffer( 1 );
                 tParameters.set_staircase_buffer( 1 );
 
-                Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { {0} };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -162,7 +163,7 @@ namespace moris
 
                 std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-                moris::ge::GEN_Geom_Field tPlaneFieldAsGeom( tPlaneField );
+                moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
                 moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = {&tPlaneFieldAsGeom};
 
@@ -170,7 +171,7 @@ namespace moris
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
                 //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -287,38 +288,38 @@ namespace moris
 
                 // define set info
                 fem::Set_User_Info tSetBulk1;
-                tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+                tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
                 tSetBulk1.set_IWGs( { tIWGBulk } );
                 tSetBulk1.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk2;
-                tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+                tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
                 tSetBulk2.set_IWGs( { tIWGBulk } );
                 tSetBulk2.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk3;
-                tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+                tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
                 tSetBulk3.set_IWGs( { tIWGBulk } );
                 tSetBulk3.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetBulk4;
-                tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+                tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
                 tSetBulk4.set_IWGs( { tIWGBulk } );
                 tSetBulk4.set_IQIs( { tIQIUX, tIQIUY } );
 
                 fem::Set_User_Info tSetDirichlet;
-                tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+                tSetDirichlet.set_mesh_set_name( "SideSet_2_n_p1" );
                 tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
                 fem::Set_User_Info tSetNeumann;
-                tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+                tSetNeumann.set_mesh_set_name( "SideSet_4_n_p0" );
                 tSetNeumann.set_IWGs( { tIWGNeumann } );
 
                 // create a list of active block-sets
                 std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 );
 
                 fem::Set_User_Info tSetInterface;
-                tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName) );
+                tSetInterface.set_mesh_set_name( tDblInterfaceSideSetName );
                 tSetInterface.set_IWGs( { tIWGInterface } );
 
                 // create a cell of set info
@@ -359,7 +360,7 @@ namespace moris
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
                 dla::Solver_Factory  tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
                 tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
                 tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -388,7 +389,7 @@ namespace moris
                 tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
                 // Create solver database
-                NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+                sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
                 tNonlinearSolverMain.set_solver_warehouse( &tSolverWarehouse );
 

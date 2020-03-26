@@ -1,0 +1,38 @@
+### Parameters Library Config File ###
+
+if(@PRM@_CONFIGURED)
+	return()
+endif()
+
+set(@PRM@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+#< TEMP
+set(MORIS "@MORIS@")
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@PRM@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@PRM@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@PRM@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@PRM_COMPILE_DEFINITIONS@")
+set(@PRM@_C_FLAGS "@MORIS_C_FLAGS@" "@PRM_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@PRM_CONFIG_TPL_DEPENDENCIES@
+@PRM_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_PRM_CONFIG_INSTALL_DIR@/@PRM@Targets.cmake")
+
+# Library target list
+set(@PRM@_LIBRARIES @PRM@-lib)

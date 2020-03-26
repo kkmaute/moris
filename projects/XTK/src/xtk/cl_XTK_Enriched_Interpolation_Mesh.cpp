@@ -10,6 +10,8 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Map.hpp"
 
+#include "cl_XTK_Multigrid.hpp"
+
 namespace xtk
 {
 //------------------------------------------------------------------------------
@@ -127,7 +129,7 @@ Enriched_Interpolation_Mesh::get_all_vertices() const
 moris_id
 Enriched_Interpolation_Mesh::get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
                                                                      enum EntityRank aEntityRank,
-																	 const moris_index aIndex ) const
+                                                                     const moris_index aIndex ) const
 {
     moris::uint tMapIndex = (uint)aEntityRank;
 
@@ -139,7 +141,7 @@ Enriched_Interpolation_Mesh::get_glb_entity_id_from_entity_loc_index(moris_index
 moris_index
 Enriched_Interpolation_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
                                                                    enum EntityRank aEntityRank,
-																   const moris_index aIndex ) const
+                                                                   const moris_index aIndex ) const
 {
     moris::uint tMapIndex = (uint)aEntityRank;
 
@@ -156,7 +158,7 @@ Matrix<IdMat>
 Enriched_Interpolation_Mesh::get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                                                       enum EntityRank aInputEntityRank,
                                                                       enum EntityRank aOutputEntityRank,
-																	  const moris_index aIndex ) const
+                                                                      const moris_index aIndex ) const
 {
     moris_index tEntityIndex = get_loc_entity_ind_from_entity_glb_id(aEntityId,aInputEntityRank);
 
@@ -743,6 +745,76 @@ Enriched_Interpolation_Mesh::allocate_entity_ids(moris::size_t   aNumReqs,
 }
 
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// multigrid accessor functions
+//------------------------------------------------------------------------------
+
+uint Enriched_Interpolation_Mesh::get_num_interpolations()
+{
+    return mXTKModel->get_multigrid_ptr()->get_num_interpolations();
+}
+
+//------------------------------------------------------------------------------
+
+uint Enriched_Interpolation_Mesh::get_max_level( const moris_index aInterpolationIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_max_level( aInterpolationIndex );
+}
+
+//------------------------------------------------------------------------------
+
+uint Enriched_Interpolation_Mesh::get_num_basis( const moris_index aInterpolationIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_num_basis( aInterpolationIndex );
+}
+
+//------------------------------------------------------------------------------
+
+uint Enriched_Interpolation_Mesh::get_basis_level( const moris_index aInterpolationIndex,
+                                                   const moris_index aBasisIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_basis_level( aInterpolationIndex,
+                                                            aBasisIndex );
+}
+
+//------------------------------------------------------------------------------
+
+uint Enriched_Interpolation_Mesh::get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
+                                                                 const moris_index aBasisIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_num_coarse_basis_of_basis( aInterpolationIndex,
+                                                                          aBasisIndex );
+}
+
+//------------------------------------------------------------------------------
+
+uint Enriched_Interpolation_Mesh::get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
+                                                                   const moris_index aBasisIndex,
+                                                                   const moris_index aCoarseParentIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_coarse_basis_index_of_basis( aInterpolationIndex,
+                                                                            aBasisIndex,
+                                                                            aCoarseParentIndex );
+}
+
+//------------------------------------------------------------------------------
+
+moris::Matrix< DDSMat > Enriched_Interpolation_Mesh::get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
+                                                                                   const moris_index aBasisIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_fine_basis_inds_of_basis( aInterpolationIndex,
+                                                                         aBasisIndex );
+}
+
+//------------------------------------------------------------------------------
+
+moris::Matrix< DDRMat > Enriched_Interpolation_Mesh::get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
+                                                                                      const moris_index aBasisIndex )
+{
+    return mXTKModel->get_multigrid_ptr()->get_fine_basis_weights_of_basis( aInterpolationIndex,
+                                                                            aBasisIndex );
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 

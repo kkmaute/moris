@@ -22,52 +22,52 @@
 #include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                                moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tGeoValFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIValFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIDerFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-moris::Matrix< moris::DDRMat > tFIValDvFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIValDvFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aDvFI( 0 )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerDvFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tFIDerDvFunction_UTIWGDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 ) * aDvFI( 0 )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
 }
 
 using namespace moris;
@@ -175,11 +175,11 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
@@ -194,7 +194,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     // set requested residual dof type flag to true
@@ -344,10 +345,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
@@ -357,7 +358,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
@@ -504,10 +506,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
@@ -517,7 +519,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
@@ -573,7 +576,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
     tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterConductivity->set_dv_type_list( {{ MSI::Dv_Type::DENSITY }} );
+    tPropMasterConductivity->set_dv_type_list( {{ GEN_DV::DENSITY0 }} );
     tPropMasterConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
     tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
 
@@ -666,7 +669,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     Cell< Field_Interpolator* > tDvFIs( 1 );
 
     // create the field interpolator
-    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dv_Type::DENSITY } );
+    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { GEN_DV::DENSITY0 } );
 
     // set the coefficients
     tDvFIs( 0 )->set_coeff( tDvHat );
@@ -679,20 +682,20 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-    tIWG->mSet->mUniqueDvTypeList.resize( 5, MSI::Dv_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDvTypeList.resize( 5, GEN_DV::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mDvTypeMap.set_size( static_cast< int >( MSI::Dv_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mDvTypeMap( static_cast< int >( MSI::Dv_Type::DENSITY ) ) = 0;
+    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
 
-    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( MSI::Dv_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( MSI::Dv_Type::DENSITY ) ) = 0;
+    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
 
     tIWG->mSet->mResDofAssemblyMap.resize( 1 );
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
@@ -700,7 +703,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     tIWG->mSet->mDvAssemblyMap.resize( 1 );
     tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 7 } };
 
-    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
 
     tIWG->mResidualDofTypeRequested = true;
 
@@ -727,22 +731,21 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     // check evaluation of drdpdv  by FD
     //------------------------------------------------------------------------------
     // init the jacobian for IWG and FD evaluation
-    Cell< Matrix< DDRMat > > tdrdpdvMatFD;
-    Cell< Matrix< DDRMat > > tdrdpdvGeoFD;
+    Cell< Matrix< DDRMat > > tdRdpMatFD;
+    Cell< Matrix< DDRMat > > tdRdpGeoFD;
     Cell< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
                                            {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
                                            {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }} };
 
     // check jacobian by FD
-    tIWG->compute_drdpdv_FD_material( 1.0,
-                                      tPerturbation,
-                                      tIsActive,
-                                      tdrdpdvMatFD );
+    tIWG->compute_dRdp_FD_material( 1.0,
+                                    tPerturbation,
+                                    tdRdpMatFD );
 
-    tIWG->compute_drdpdv_FD_geometry( 1.0,
-                                      tPerturbation,
-                                      tIsActive,
-                                      tdrdpdvGeoFD );
+    tIWG->compute_dRdp_FD_geometry( 1.0,
+                                    tPerturbation,
+                                    tIsActive,
+                                    tdRdpGeoFD );
 
     // print for debug
     //print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );

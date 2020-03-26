@@ -18,53 +18,51 @@ namespace moris
             // set IQI type
             mIQIType = vis::Output_Type::STRAIN_ENERGY;
 
+            // set fem IQI type
+            mFEMIQIType = fem::IQI_Type::STRAIN_ENERGY;
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IQI_Constitutive_Type::ELAST_LIN_ISO;
+            mConstitutiveMap[ "Elast" ] = IQI_Constitutive_Type::ELAST;
         }
 //------------------------------------------------------------------------------
         void IQI_Strain_Energy::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get indices for properties, CM and SP
-            uint tElastLinIsoIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
+            uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
 
             // evaluate the QI
-            aQI = trans( mMasterCM( tElastLinIsoIndex )->flux() ) * mMasterCM( tElastLinIsoIndex )->strain();
+            aQI = trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }
 
 //------------------------------------------------------------------------------
-        void IQI_Strain_Energy::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+        void IQI_Strain_Energy::compute_QI( moris::real aWStar )
         {
-            // FIXME should not be done here
-            // get number of dof coefficients
-            uint tNumCoeff = 0;
+            // get indices for properties, CM and SP
+            uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
+
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )( static_cast< uint >( mFEMIQIType ) );
+
+            print( mSet->get_QI(), "mSet->get_QI()");
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
+        }
+
+//------------------------------------------------------------------------------
+        void IQI_Strain_Energy::compute_dQIdu( real aWStar )
+        {
+            // get the column index to assemble in residual
+            uint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )( static_cast< uint >( mFEMIQIType ) );
 
             // get the requested dof types
-            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes = this->get_requested_dof_types();
-
-            // loop over the requested dof types
-            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
-            {
-                // get the set index for dof type
-                sint tDofIndex = mSet->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
-
-                // if the dof type was set
-                if( tDofIndex != -1 )
-                {
-                    // update number of coefficients
-                    tNumCoeff += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                 ->get_number_of_space_time_coefficients();
-                }
-            }
-
-            // set size for dQIdDof
-            adQIdDof.set_size( tNumCoeff, 1, 0.0 );
-            // END FIXME
+            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes
+            = this->get_requested_dof_types();
 
             // get indices for properties, CM and SP
-            uint tElastLinIsoIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
+            uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
 
             // compute dQIdDof for indirect dof dependencies
             for( uint iDof = 0; iDof < tRequestedDofTypes.size(); iDof++ )
@@ -80,12 +78,12 @@ namespace moris
                 uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                 // if constitutive model has dependency on the dof type
-                if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( { tDofType } ) )
+                if ( mMasterCM( tElastIndex )->check_dof_dependency( { tDofType } ) )
                 {
                     // compute dQIdDof
-                    adQIdDof( { tStartRow, tEndRow }, { 0, 0 } )
-                    += trans( mMasterCM( tElastLinIsoIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastLinIsoIndex )->strain( )
-                     + trans( trans(mMasterCM( tElastLinIsoIndex )->flux()) * mMasterCM( tElastLinIsoIndex )->dStraindDOF( { tDofType } ) );
+                   mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } )
+                    += aWStar * ( trans( mMasterCM( tElastIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastIndex )->strain( )
+                    +  trans( trans( mMasterCM( tElastIndex )->flux() )             * mMasterCM( tElastIndex )->dStraindDOF( { tDofType } ) ) );
                 }
             }
         }

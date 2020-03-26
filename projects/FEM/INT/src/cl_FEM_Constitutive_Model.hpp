@@ -17,6 +17,8 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include <map>
 
+#include "cl_GEN_Dv_Enums.hpp"
+
 namespace moris
 {
     namespace fem
@@ -30,34 +32,22 @@ namespace moris
         class Constitutive_Model
         {
 
-        private:
-
-            bool mFluxEval = true;
-
         protected :
-
-            // constitutive model type
-            fem::Constitutive_Type mConstitutiveType;
 
             // field interpolator manager
             Field_Interpolator_Manager * mFIManager = nullptr;
 
+            // fem set pointer
             Set * mSet = nullptr;
 
             // dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
-            // Local string to dof enum map
+            // local string to dof enum map
             std::map< std::string, MSI::Dof_Type > mDofMap;
 
             // dof type map
             Matrix< DDSMat > mDofTypeMap;
-
-            // bool for global dof type list and map build
-            bool mGlobalDofBuild = true;
-            bool mGlobalDvBuild  = true;
-            bool mGlobalDofMapBuild = true;
-            bool mGlobalDvMapBuild  = true;
 
             // global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
@@ -65,14 +55,14 @@ namespace moris
             // global dof type map
             Matrix< DDSMat > mGlobalDofTypeMap;
 
-//            // dof field interpolators
-//            moris::Cell< Field_Interpolator* > mDofFI;
-
             // dv type list
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
+
+            // local string to dv enum map
+            std::map< std::string, GEN_DV > mDvMap;
 
             // global dv type list
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mGlobalDvTypes;
 
             // global dv type map
             Matrix< DDSMat > mGlobalDvTypeMap;
@@ -80,41 +70,19 @@ namespace moris
             // dv type map
             Matrix< DDSMat > mDvTypeMap;
 
-//            // dv field interpolators
-//            moris::Cell< Field_Interpolator* > mDvFI;
-
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
 
             // spatial dimensions
             uint mSpaceDim;
 
-            // flag for evaluation
-            moris::Cell< bool > mdFluxdDofEval;
-            moris::Cell< bool > mdFluxdDvEval;
-
-            bool mTractionEval   = true;
-            moris::Cell< bool > mdTractiondDofEval;
-            moris::Cell< bool > mdTractiondDvEval;
-
-            bool mTestTractionEval   = true;
-            moris::Cell< bool > mdTestTractiondDofEval;
-            moris::Cell< bool > mdTestTractiondDvEval;
-
-            bool mStrainEval     = true;
-            moris::Cell< bool > mdStraindDofEval;
-            moris::Cell< bool > mdStraindDvEval;
-
-            bool mTestStrainEval = true;
-
-            bool mConstEval      = true;
-            moris::Cell< bool > mdConstdDofEval;
-            moris::Cell< bool > mdConstdDvEval;
-
             // storage for evaluation
             Matrix< DDRMat > mFlux;
+            Matrix< DDRMat > mDivFlux;
             moris::Cell< Matrix< DDRMat > > mdFluxdDof;
             moris::Cell< Matrix< DDRMat > > mdFluxdDv;
+            moris::Cell< Matrix< DDRMat > > mdFluxdx;
+            moris::Cell< Matrix< DDRMat > > mddivfluxdu;
 
             Matrix< DDRMat > mTraction;
             moris::Cell< Matrix< DDRMat > > mdTractiondDof;
@@ -125,14 +93,57 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mdTestTractiondDv;
 
             Matrix< DDRMat > mStrain;
+            Matrix< DDRMat > mDivStrain;
             moris::Cell< Matrix< DDRMat > > mdStraindDof;
             moris::Cell< Matrix< DDRMat > > mdStraindDv;
+            moris::Cell< Matrix< DDRMat > > mdStraindx;
+            moris::Cell< Matrix< DDRMat > > mddivstraindu;
 
             Matrix< DDRMat > mTestStrain;
 
             Matrix< DDRMat > mConst;
             moris::Cell< Matrix< DDRMat > > mdConstdDof;
             moris::Cell< Matrix< DDRMat > > mdConstdDv;
+
+            // constitutive model name for input and debug
+            std::string mName;
+
+        private:
+
+            // bool for global dof type list and map build
+            bool mGlobalDofBuild = true;
+            bool mGlobalDvBuild  = true;
+            bool mGlobalDofMapBuild = true;
+            bool mGlobalDvMapBuild  = true;
+
+            // flag for evaluation
+            bool mFluxEval = true;
+            bool mDivFluxEval = true;
+            moris::Cell< bool > mdFluxdDofEval;
+            moris::Cell< bool > mdFluxdDvEval;
+            moris::Cell< bool > mdFluxdxEval;
+            moris::Cell< bool > mddivfluxduEval;
+
+            bool mTractionEval = true;
+            moris::Cell< bool > mdTractiondDofEval;
+            moris::Cell< bool > mdTractiondDvEval;
+
+            bool mTestTractionEval = true;
+            moris::Cell< bool > mdTestTractiondDofEval;
+            moris::Cell< bool > mdTestTractiondDvEval;
+
+            bool mStrainEval = true;
+            bool mDivStrainEval = true;
+            moris::Cell< bool > mdStraindDofEval;
+            moris::Cell< bool > mdStraindDvEval;
+            moris::Cell< bool > mdStraindxEval;
+            moris::Cell< bool > mddivstrainduEval;
+
+            bool mTestStrainEval = true;
+
+            bool mConstEval = true;
+            moris::Cell< bool > mdConstdDofEval;
+            moris::Cell< bool > mdConstdDvEval;
 
 //------------------------------------------------------------------------------
         public :
@@ -141,13 +152,65 @@ namespace moris
             /**
              * constructor
              */
-            Constitutive_Model(){};
+            Constitutive_Model()
+            {
+                // FIXME for now only 1st order allowed
+                uint tOrder = 1;
+
+                // set storage for evaluation
+                mdFluxdx.resize( tOrder );
+                mdStraindx.resize( tOrder );
+
+                // set flag for evaluation
+                mdFluxdxEval.assign( tOrder, true );
+                mdStraindxEval.assign( tOrder, true );
+            };
 
 //------------------------------------------------------------------------------
             /**
              * virtual destructor
              */
             virtual ~Constitutive_Model(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for CM name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for CM name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * print names
+             */
+            void print_names()
+            {
+                std::cout<<"----------"<<std::endl;
+                std::cout<<"CM: "<<mName<<std::endl;
+
+                // properties
+                for( uint iProp = 0; iProp < mProperties.size(); iProp++ )
+                {
+                    if( mProperties( iProp ) != nullptr )
+                    {
+                        std::cout<<"Property: "<<mProperties( iProp )->get_name()<<std::endl;
+                    }
+                }
+                std::cout<<"----------"<<std::endl;
+            }
 
 //------------------------------------------------------------------------------
             /*
@@ -181,18 +244,22 @@ namespace moris
             {
                 // reset the value flag
                 mFluxEval         = true;
+                mDivFluxEval      = true;
                 mTractionEval     = true;
                 mTestTractionEval = true;
                 mStrainEval       = true;
+                mDivStrainEval    = true;
                 mTestStrainEval   = true;
                 mConstEval        = true;
 
                 // reset the dof derivative flag
                 uint tNumDofTypes = mGlobalDofTypes.size();
                 mdFluxdDofEval.assign( tNumDofTypes, true );
+                mddivfluxduEval.assign( tNumDofTypes, true );
                 mdTractiondDofEval.assign( tNumDofTypes, true );
                 mdTestTractiondDofEval.assign( tNumDofTypes, true );
                 mdStraindDofEval.assign( tNumDofTypes, true );
+                mddivstrainduEval.assign( tNumDofTypes, true );
                 mdConstdDofEval.assign( tNumDofTypes, true );
 
                 // reset the dv derivative flag
@@ -301,7 +368,7 @@ namespace moris
              * set constitutive model dv types
              * @param[ in ] aDvTypes a cell of cell of dv types
              */
-            void set_dv_type_list( moris::Cell< moris::Cell< MSI::Dv_Type > > aDvTypes )
+            void set_dv_type_list( moris::Cell< moris::Cell< GEN_DV > > aDvTypes )
             {
                 // set the dv types
                 mDvTypes = aDvTypes;
@@ -313,10 +380,31 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * set constitutive model dv types
+             * @param[ in ] aDvTypes a cell of cell of dv types
+             */
+            void set_dv_type_list( moris::Cell< moris::Cell< GEN_DV > > aDvTypes,
+                                   moris::Cell< std::string >           aDvStrings )
+            {
+                // set the dv types
+                mDvTypes = aDvTypes;
+
+                // build a map for the dv types
+                this->build_dv_type_map();
+
+                // set the dv map
+                for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
+                {
+                    mDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * return a cell of dv types
              * @param[ out ] aDvTypes a cell of cell of dv types
              */
-            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list() const
+            const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list() const
             {
                 return mDvTypes;
             };
@@ -359,29 +447,6 @@ namespace moris
                 return mDvTypeMap;
             }
 
-////------------------------------------------------------------------------------
-//            /**
-//             * set dof field interpolators
-//             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
-//             */
-//            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
-//            {
-//                // check input size
-//                MORIS_ASSERT( aFieldInterpolators.size() == this->get_global_dof_type_list().size(),
-//                              "Constitutive_Model::set_dof_field_interpolators - wrong input size. " );
-//
-//                // check field interpolator type
-//                bool tCheckFI = true;
-//                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-//                {
-//                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == get_global_dof_type_list()( iFI )( 0 ) );
-//                }
-//                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dof_field_interpolators - wrong field interpolator dof type. ");
-//
-//                // set field interpolators
-//                mDofFI = aFieldInterpolators;
-//            }
-
 //------------------------------------------------------------------------------
             /**
              * set field interpolator manager
@@ -391,107 +456,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set dof field interpolators
-             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
+             * set model type
+             * @param[ in ] aModelType an enum for model type
              */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator )
+            virtual void set_model_type( fem::Model_Type aModelType )
             {
-                // set geometry interpolator for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties() )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
+                MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
             }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * get dof field interpolators
-//             * @param[ out ] mDofFI cell of dof field interpolator pointers
-//             */
-//            const moris::Cell< Field_Interpolator* > & get_dof_field_interpolators()
-//            {
-//                return mDofFI;
-//            };
-
-////------------------------------------------------------------------------------
-//            /**
-//             * check that dof field interpolators were assigned
-//             */
-//            void check_dof_field_interpolators()
-//            {
-//                // check field interpolators cell size
-//                MORIS_ASSERT( mDofFI.size() == this->get_global_dof_type_list().size(),
-//                              "Constitutive_Model::check_dof_field_interpolators - wrong FI size. " );
-//
-//               // loop over the field interpolator pointers
-//               for( uint iFI = 0; iFI < this->get_global_dof_type_list().size(); iFI++ )
-//               {
-//                   // check that the field interpolator was set
-//                   MORIS_ASSERT( mDofFI( iFI ) != nullptr,
-//                                 "Constitutive_Model::check_dof_field_interpolators - FI missing. " );
-//               }
-//            }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * set dv field interpolators
-//             * @param[ in ] aFieldInterpolators cell of dv field interpolator pointers
-//             */
-//            void set_dv_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators )
-//            {
-//                // get input size
-//                uint tNumInputFI = aFieldInterpolators.size();
-//
-//                // check input size
-//                MORIS_ASSERT( tNumInputFI == this->get_global_dv_type_list().size(),
-//                              "Constitutive_Model::set_dv_field_interpolators - wrong input size. " );
-//
-//                // check field interpolator type
-//                bool tCheckFI = true;
-//                for( uint iFI = 0; iFI < tNumInputFI; iFI++ )
-//                {
-//                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == this->get_global_dv_type_list()( iFI )( 0 ) );
-//                }
-//                MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dv_field_interpolators - wrong field interpolator dv type. ");
-//
-//                // set field interpolators
-//                mDvFI = aFieldInterpolators;
-//            }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * get dv field interpolators
-//             * @param[ out ] mDvFI cell of dv field interpolator pointers
-//             */
-//            const moris::Cell< Field_Interpolator* > & get_dv_field_interpolators()
-//            {
-//                return mDvFI;
-//            };
-
-////------------------------------------------------------------------------------
-//            /**
-//             * check that dv field interpolators were assigned
-//             */
-//            void check_dv_field_interpolators()
-//            {
-//                // get num of dv types
-//                uint tNumDvTypes = this->get_global_dv_type_list().size();
-//
-//                // check field interpolators cell size
-//                MORIS_ASSERT( mDvFI.size() == tNumDvTypes,
-//                              "Constitutive_Model::check_dv_field_interpolators - wrong FI size. " );
-//
-//               // loop over the field interpolator pointers
-//               for( uint iFI = 0; iFI < tNumDvTypes; iFI++ )
-//               {
-//                   // check that the field interpolator was set
-//                   MORIS_ASSERT( mDvFI( iFI ) != nullptr,
-//                                 "Constitutive_Model::check_dv_field_interpolators - FI missing. " );
-//               }
-//            }
 
 //------------------------------------------------------------------------------
             /**
@@ -502,12 +473,7 @@ namespace moris
             virtual void set_property( std::shared_ptr< fem::Property > aProperty,
                                        std::string                      aPropertyType )
             {
-                MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
-            }
-
-            virtual void set_model_type(fem::Model_Type aModelType)
-            {
-                MORIS_ERROR( false, "Constitutive_Model::set_model_type - This function does nothing." );
+                MORIS_ERROR( false, "Constitutive_Model::set_property - Not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -589,16 +555,20 @@ namespace moris
 
                 // set flag for evaluation
                 mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
+                mddivfluxduEval.resize( tNumGlobalDofTypes, true );
                 mdTractiondDofEval.resize( tNumGlobalDofTypes, true );
                 mdTestTractiondDofEval.resize( tNumGlobalDofTypes, true );
                 mdStraindDofEval.resize( tNumGlobalDofTypes, true );
+                mddivstrainduEval.resize( tNumGlobalDofTypes, true );
                 mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
                 // set storage for evaluation
                 mdFluxdDof.resize( tNumGlobalDofTypes );
+                mddivfluxdu.resize( tNumGlobalDofTypes );
                 mdTractiondDof.resize( tNumGlobalDofTypes );
                 mdTestTractiondDof.resize( tNumGlobalDofTypes );
                 mdStraindDof.resize( tNumGlobalDofTypes );
+                mddivstraindu.resize( tNumGlobalDofTypes );
                 mdConstdDof.resize( tNumGlobalDofTypes );
             };
 
@@ -699,7 +669,7 @@ namespace moris
              * @param[ in ] aDvTypes  a cell of dv type to fill
              */
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes );
+                                                  moris::Cell< GEN_DV >        & aDvTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -820,7 +790,7 @@ namespace moris
                     if( tProperty != nullptr )
                     {
                         // get active dv types
-                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                        moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tProperty->get_dv_type_list();
 
                         for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                         {
@@ -871,7 +841,7 @@ namespace moris
              * get global dv type list
              * @param[ out ] mGlobalDvTypes global list of dv types
              */
-            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_global_dv_type_list()
+            const moris::Cell< moris::Cell< GEN_DV > > & get_global_dv_type_list()
             {
                 if( mGlobalDvBuild )
                 {
@@ -933,7 +903,7 @@ namespace moris
              * @param[ out ] tDvDependency a bool true if dependency on dv type
              *
              */
-            bool check_dv_dependency( const moris::Cell< MSI::Dv_Type > & aDvType )
+            bool check_dv_dependency( const moris::Cell< GEN_DV > & aDvType )
             {
                 // set bool for dependency
                 bool tDvDependency = false;
@@ -978,6 +948,71 @@ namespace moris
             virtual void eval_flux()
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_flux - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the divergence of the flux
+             * @param[ out ] mDivFlux divergence of the flux
+             */
+            const Matrix< DDRMat > & divflux()
+            {
+                // if the divergence of the flux was not evaluated
+                if( mDivFluxEval )
+                {
+                    // evaluate the divergence of the flux
+                    this->eval_divflux();
+
+                    // set bool for evaluation
+                    mDivFluxEval = false;
+                }
+                // return the divergence of the flux value
+                return mDivFlux;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the divergence of the flux
+             */
+            virtual void eval_divflux()
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_divflux - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the divergence of the flux wrt to dof type
+             * @param[ out ] mddivfluxdu derivative of the divergence of the flux
+             *                           wrt to dof type
+             */
+            const Matrix< DDRMat > & ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                // if aDofType is not an active dof type for the CM
+                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::ddivfluxdu - no dependency in this dof type." );
+
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+                // if the derivative of the divergence of the flux was not evaluated
+                if( mddivfluxduEval( tDofIndex ) )
+                {
+                    // evaluate the derivative of the divergence of the flux
+                    this->eval_ddivfluxdu( aDofType );
+
+                    // set bool for evaluation
+                    mddivfluxduEval( tDofIndex ) = false;
+                }
+                // return the divergence of the flux value
+                return mddivfluxdu( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the flux wrt to dof type
+             */
+            virtual void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_ddivfluxdu - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1073,6 +1108,71 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * get the divergence of the strain
+             * @param[ out ] mDivFlux divergence of the strain
+             */
+            const Matrix< DDRMat > & divstrain()
+            {
+                // if the divergence of the strain was not evaluated
+                if( mDivStrainEval )
+                {
+                    // evaluate the divergence of the strain
+                    this->eval_divstrain();
+
+                    // set bool for evaluation
+                    mDivStrainEval = false;
+                }
+                // return the divergence of the strain value
+                return mDivStrain;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the divergence of the strain
+             */
+            virtual void eval_divstrain()
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_divstrain - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the divergence of the strain wrt to dof type
+             * @param[ out ] mddivstraindu derivative of the divergence of the strain
+             *                             wrt to dof type
+             */
+            const Matrix< DDRMat > & ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                // if aDofType is not an active dof type for the CM
+                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::ddivstraindu - no dependency in this dof type." );
+
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+                // if the derivative of the divergence of the strain was not evaluated
+                if( mddivstrainduEval( tDofIndex ) )
+                {
+                    // evaluate the derivative of the divergence of the strain
+                    this->eval_ddivstraindu( aDofType );
+
+                    // set bool for evaluation
+                    mddivstrainduEval( tDofIndex ) = false;
+                }
+                // return the divergence of the strain value
+                return mddivstraindu( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the strain wrt to dof type
+             */
+            virtual void eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_ddivstraindu - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * get the constitutive model test strain
              * @param[ out ] mTestStrain constitutive model test strain
              */
@@ -1127,6 +1227,39 @@ namespace moris
             virtual void eval_const()
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_const - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the flux wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            const Matrix< DDRMat > & dfluxdx( uint aOrder )
+            {
+                MORIS_ERROR( aOrder == 1, "Constitutive_Model::dfluxdx - Works only for 1st order derivative for now." );
+
+               // if the derivative has not been evaluated yet
+               if( mdFluxdxEval( aOrder - 1 ) )
+               {
+                   // evaluate the derivative
+                   this->eval_dfluxdx( aOrder );
+
+                   // set bool for evaluation
+                   mdFluxdxEval( aOrder - 1 ) = false;
+               }
+
+               // return the derivative
+               return mdFluxdx( aOrder - 1 );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the flux wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            virtual void eval_dfluxdx( uint aOrder )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dfluxdx - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1299,6 +1432,39 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * get the derivative of the strain wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            const Matrix< DDRMat > & dstraindx( uint aOrder )
+            {
+                MORIS_ERROR( aOrder == 1, "Constitutive_Model::dstraindx - Works only for 1st order derivative for now." );
+
+               // if the derivative has not been evaluated yet
+               if( mdStraindxEval( aOrder - 1 ) )
+               {
+                   // evaluate the derivative
+                   this->eval_dstraindx( aOrder );
+
+                   // set bool for evaluation
+                   mdStraindxEval( aOrder - 1 ) = false;
+               }
+
+               // return the derivative
+               return mdStraindx( aOrder - 1 );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the strain wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            virtual void eval_dstraindx( uint aOrder )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dstraindx - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * get the derivative of the strain wrt dof
              * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
              * @param[ out ] mdStraindDof derivative of the strain wrt dof
@@ -1379,7 +1545,7 @@ namespace moris
              * @param[ in ]  aDvTypes  a dv type wrt which the derivative is evaluated
              * @param[ out ] mdFluxdDv derivative of the flux wrt dv
              */
-            const Matrix< DDRMat > & dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDvType )
+            const Matrix< DDRMat > & dFluxdDV( const moris::Cell< GEN_DV > & aDvType )
             {
                // if aDvType is not an active dv type
                MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dFluxdDV - no dependency in this dv type." );
@@ -1406,7 +1572,7 @@ namespace moris
              * evaluate the constitutive model flux derivative wrt to a dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            virtual void eval_dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+            virtual void eval_dFluxdDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDV - This function does nothing. " );
             }
@@ -1417,7 +1583,7 @@ namespace moris
              * @param[ in ]  aDvTypes    a dv type wrt which the derivative is evaluated
              * @param[ out ] mdStraindDv derivative of the strain wrt dv
              */
-            const Matrix< DDRMat > & dStraindDV( const moris::Cell< MSI::Dv_Type > & aDvType )
+            const Matrix< DDRMat > & dStraindDV( const moris::Cell< GEN_DV > & aDvType )
             {
                // if aDvType is not an active dv type for the property
                MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dStraindDV - no dependency in this dv type." );
@@ -1444,7 +1610,7 @@ namespace moris
              * evaluate the constitutive model strain derivative wrt to a dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            virtual void eval_dStraindDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+            virtual void eval_dStraindDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dStraindDV - This function does nothing. " );
             }
@@ -1455,7 +1621,7 @@ namespace moris
              * @param[ in ]  aDvTypes   a dv type wrt which the derivative is evaluated
              * @param[ out ] mdConstdDv derivative of the constitutive matrix wrt dv
              */
-            const Matrix< DDRMat > & dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvType )
+            const Matrix< DDRMat > & dConstdDV( const moris::Cell< GEN_DV > & aDvType )
             {
                // if aDvType is not an active dv type for the property
                MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dConstdDV - no dependency in this dv type." );
@@ -1482,7 +1648,7 @@ namespace moris
              * evaluate the constitutive model constitutive matrix derivative wrt to a dv type
              * @param[ in ] aDvTypes a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+            virtual void eval_dConstdDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDV - This function does nothing. " );
             }
@@ -1516,10 +1682,10 @@ namespace moris
              * @param[ in ] adFluxdDV_FD  a matrix to fill with derivative evaluation
              * @param[ in ] aPerturbation real to perturb for FD
              */
-            void eval_dFluxdDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                         Matrix< DDRMat >            & adFluxdDV_FD,
-                                         real                          aPerturbation );
 
+            void eval_dFluxdDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                         Matrix< DDRMat >      & adFluxdDV_FD,
+                                         real                    aPerturbation );
 //------------------------------------------------------------------------------
             /**
             * evaluate the constitutive model strain derivative wrt to a dv type
@@ -1527,9 +1693,10 @@ namespace moris
             * @param[ in ] adStraindDV_FD a matrix to fill with derivative evaluation
             * @param[ in ] aPerturbation  real to perturb for FD
             */
-            void eval_dStraindDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
-                                     Matrix< DDRMat >                  & adStraindDV_FD,
-                                     real                                aPerturbation );
+
+            void eval_dStraindDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+                                     Matrix< DDRMat >            & adStraindDV_FD,
+                                     real                          aPerturbation );
 
 //------------------------------------------------------------------------------
         };

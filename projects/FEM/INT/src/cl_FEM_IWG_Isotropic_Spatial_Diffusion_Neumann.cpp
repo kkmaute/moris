@@ -29,8 +29,11 @@ namespace moris
             // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
-            // get index for residual dof type
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get filed interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -39,20 +42,22 @@ namespace moris
             uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
 
             // compute the residual
-            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } )
             += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() * tWStar;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get index for residual dof type
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            // get index for residual dof type, indices for assembly
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -67,33 +72,33 @@ namespace moris
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDepDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // get index for the dof type
-                uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
+                // get the dof type indices for assembly
+                uint tDepDofIndex   = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepDofIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepDofIndex, 1 );
 
                 // if dependency in the dof type
-                if ( mMasterProp( tNeumannIndex )->check_dof_dependency( tDofType ) )
+                if ( mMasterProp( tNeumannIndex )->check_dof_dependency( tDepDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                    += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->dPropdDOF( tDofType ) * tWStar;
+                    mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                    += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->dPropdDOF( tDepDofType ) * aWStar;
                 }
             }
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                     moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, " IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Neumann::compute_drdpdv - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Neumann::compute_dRdp - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

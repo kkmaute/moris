@@ -14,6 +14,7 @@
  *  Created on: Sep 10, 2019
  *      Author: doble
  */
+
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -50,11 +51,13 @@
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_PRM_HMR_Parameters.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+
+
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -129,7 +132,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
          tParameters.set_refinement_buffer( 1 );
          tParameters.set_staircase_buffer( 1 );
 
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -156,14 +159,14 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -254,7 +257,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2 );
 
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
 
          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -293,15 +296,15 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
-         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tCircleField);
+         moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
+         moris::ge::GEN_Geom_Field_HMR tCircleFieldAsGeom(tCircleField);
 
          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom};
 
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -347,33 +350,28 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
          moris::uint tLagrangeMeshIndex = 0;
          moris::uint tBSplineMeshIndex = 0;
 
-         moris::hmr::Parameters tParameters;
+         ParameterList tParameters = prm::create_hmr_parameter_list();
 
-         tParameters.set_number_of_elements_per_dimension( { {3}, {1}} );
-         tParameters.set_domain_dimensions({ {6}, {2} });
-         tParameters.set_domain_offset({ {-3.0}, {-1.0} });
-         tParameters.set_bspline_truncation( true );
+         tParameters.set( "number_of_elements_per_dimension", std::string("3, 1"));
+         tParameters.set( "domain_dimensions",                std::string("6,2"));
+         tParameters.set( "domain_offset",                    std::string("-3,-1") );
+         tParameters.set( "domain_sidesets",                  std::string("1,2,3,4"));
+         tParameters.set( "lagrange_output_meshes",           std::string("0") );
+         tParameters.set( "lagrange_orders",                  std::string("2"));
+         tParameters.set( "lagrange_pattern",                 std::string("0") );
+         tParameters.set( "bspline_orders",                   std::string("1,2"));
+         tParameters.set( "bspline_pattern",                 std::string("0,0"));
+         tParameters.set( "lagrange_to_bspline",              std::string("0,1") );
+         tParameters.set( "max_refinement_level",             3);
+         tParameters.set( "truncate_bsplines", 1 );
+         tParameters.set( "refinement_buffer", 2 );
+         tParameters.set( "staircase_buffer", 2 );
+         tParameters.set( "initial_refinement", 0 );
 
-         tParameters.set_output_meshes( { {0} } );
+         tParameters.set( "use_multigrid", 0 );
+         tParameters.set( "severity_level", 2 );
+         tParameters.set( "use_number_aura", 1);
 
-         tParameters.set_lagrange_orders  ( { {2} });
-         tParameters.set_lagrange_patterns({ {0} });
-
-         tParameters.set_bspline_orders   ( { {1},{2} } );
-         tParameters.set_bspline_patterns ( { {0},{0} } );
-
-         tParameters.set_side_sets({{1},{2},{3},{4} });
-         tParameters.set_max_refinement_level( 2 );
-         tParameters.set_union_pattern( 2 );
-         tParameters.set_working_pattern( 3 );
-
-         tParameters.set_refinement_buffer( 2 );
-         tParameters.set_staircase_buffer( 2 );
-
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
-         tLagrangeToBSplineMesh( 0 ) = { {0} , {1} };
-
-         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
          hmr::HMR tHMR( tParameters );
 
@@ -409,15 +407,15 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
-         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tCircleField);
+         moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
+         moris::ge::GEN_Geom_Field_HMR tCircleFieldAsGeom(tCircleField);
 
          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom};
 
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

@@ -173,7 +173,7 @@ namespace moris
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank,
-									   const moris_index     aIndex = 0 ) const;
+                                       const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ namespace moris
                                        moris_index     aEntityId,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank,
-									   const moris_index     aIndex = 0 ) const;
+                                       const moris_index     aIndex = 0 ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ namespace moris
             moris_id get_glb_entity_id_from_entity_loc_index(
                     moris_index     aEntityIndex,
                     enum EntityRank aEntityRank,
-					const moris_index     aIndex = 0 ) const ;
+                    const moris_index     aIndex = 0 ) const ;
 
             moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
 
@@ -258,7 +258,7 @@ namespace moris
             moris_index get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
                     enum EntityRank aEntityRank,
-					const moris_index     aIndex = 0) const;
+                    const moris_index     aIndex = 0) const;
 
 //-------------------------------------------------------------------------------
 
@@ -384,7 +384,7 @@ namespace moris
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
                     const uint              aEntityIndex,
-					const moris_index     aIndex = 0);
+                    const moris_index     aIndex = 0);
 
 //-------------------------------------------------------------------------------
 
@@ -392,13 +392,13 @@ namespace moris
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
                     const uint              aEntityIndex,
-					const moris_index     aIndex = 0) const;
+                    const moris_index     aIndex = 0) const;
 
 //-------------------------------------------------------------------------------
 
             Matrix<DDRMat> & get_field( const moris_index     aFieldIndex,
                                         const enum EntityRank aEntityRank,
-										const moris_index     aIndex = 0);
+                                        const moris_index     aIndex = 0);
 
 //-------------------------------------------------------------------------------
 
@@ -466,12 +466,118 @@ private:
 
 //-------------------------------------------------------------------------------
 
-            void setup_entity_global_to_local_map(enum EntityRank aEntityRank);
+            void setup_entity_global_to_local_map( enum  EntityRank     aEntityRank,
+                                                         uint         & aCounter,
+                                                   const moris_index    aIndex = 0);
+
+//------------------------------------------------------------------------------
+            //##############################################
+            // Multigrid acessor functions
+            //##############################################
+//-------------------------------------------------------------------------------
+
+            uint get_num_interpolations()
+            {
+                return mMesh->get_number_of_bspline_meshes();
+            };
 
 //-------------------------------------------------------------------------------
 
-            void setup_element_global_to_local_map();
+            uint get_max_level( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_max_level();
+            };
 
+//-------------------------------------------------------------------------------
+
+            uint get_num_basis( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_number_of_indexed_basis();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_basis_level( const moris_index aInterpolationIndex,
+                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_level();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
+                                                const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_number_of_parents();
+            }
+
+//-------------------------------------------------------------------------------
+
+            uint get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
+                                                  const moris_index aBasisIndex,
+                                                  const moris_index aCoarseParentIndexForBasis )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_parent( aCoarseParentIndexForBasis )
+                            ->get_index();
+            }
+
+//-------------------------------------------------------------------------------
+
+            moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
+                                                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_children_ind_for_basis( aBasisIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
+                                                                     const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_children_weights_for_parent( aBasisIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+#ifdef DEBUG
+            Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
+                                               const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
+                            ->get_basis_by_index( aBasisIndex )
+                            ->get_coords();
+            }
+
+//-------------------------------------------------------------------------------
+
+            sint get_basis_status( const moris_index aInterpolationIndex,
+                                   const moris_index aBasisIndex )
+            {
+                sint tStatus = -1;
+
+                if( mMesh->get_bspline_mesh( aInterpolationIndex )
+                         ->get_basis_by_index( aBasisIndex )
+                         ->is_active() )
+                {
+                    tStatus = 1;
+                }
+                else if(mMesh->get_bspline_mesh( aInterpolationIndex )
+                             ->get_basis_by_index( aBasisIndex )
+                             ->is_refined() )
+                {
+                    tStatus = 0;
+                }
+                return tStatus;
+            }
+#endif
 
 //-------------------------------------------------------------------------------
         };

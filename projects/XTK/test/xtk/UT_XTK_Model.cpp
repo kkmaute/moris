@@ -10,6 +10,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 #include "xtk/fn_write_element_ownership_as_field.hpp"
 
@@ -17,7 +18,7 @@
 
 #include "cl_MTK_Visualization_STK.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "cl_GEN_Sphere.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
@@ -65,7 +66,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
@@ -189,7 +190,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
-            Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+            Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
             tXTKModel.mVerbose  =  false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -311,7 +312,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
                     moris::Matrix< moris::DDRMat > tHex8LSVs(8,1);
                     for(size_t iNode = 0; iNode<8; iNode++)
                     {
-                        tHex8LSVs(iNode)  = tXTKModel.get_geom_engine().get_entity_phase_val(tNodesAttachedToParentElem(iNode),0);
+                        tHex8LSVs(iNode)  = tXTKModel.get_geom_engine()->get_entity_phase_val(tNodesAttachedToParentElem(iNode),0);
                     }
 
                     // Get the interface node parametric coordinate in iCM
@@ -400,7 +401,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
 
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose  =  false;
     /*
      * Decompose
@@ -417,6 +418,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
 
 
     tXTKModel.perform_basis_enrichment(EntityRank::NODE);
+
 
     /*
      * Get the output mesh and write to exodus file

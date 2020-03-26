@@ -30,6 +30,7 @@ namespace moris
     namespace MSI
     {
         class MSI_Solver_Interface;
+        class Equation_Model;
         class Model_Solver_Interface
         {
         private:
@@ -52,11 +53,10 @@ namespace moris
             //! Multigrid object pointer
             Multigrid * mMultigrid = nullptr;
 
-
-
             MSI::MSI_Solver_Interface * mSolverInterface;
 
             friend class MSI_Solver_Interface;
+            friend class Multigrid;
 
 //------------------------------------------------------------------------------
 
@@ -115,10 +115,17 @@ namespace moris
 
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
-
             mDofMgn.initialize_pdof_type_list( mEquationBlocks );
-
         };
+
+//------------------------------------------------------------------------------
+
+        Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
+                                     std::shared_ptr< MSI::Equation_Model >            & aEquationModel,
+                               const Matrix< IdMat >                                   & aCommTable,
+                               const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                               const moris::uint                                         aNumMaxAdofs,
+                                     mtk::Mesh                                         * aMesh );
 
 //------------------------------------------------------------------------------
 
@@ -151,7 +158,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void finalize( const bool aUseMultigrid = false )
+        void finalize()
         {
             for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
             {
@@ -173,7 +180,7 @@ namespace moris
                 tElement->set_unique_adof_map();
             }
 
-            if ( aUseMultigrid )
+            if ( mMSIParameterList.get< bool >( "multigrid" ) )
             {
                 mMultigrid = new Multigrid( this, mMesh );
 
@@ -204,9 +211,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Equation_Set * get_eqn_block( const moris::uint & aMyEquBlockInd )
+        Equation_Set * get_equation_set( const moris::uint & aMyEquSetInd )
         {
-            return mEquationBlocks( aMyEquBlockInd );
+            return mEquationBlocks( aMyEquSetInd );
         };
 
 //------------------------------------------------------------------------------

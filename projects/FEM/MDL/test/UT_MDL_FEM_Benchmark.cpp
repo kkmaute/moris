@@ -49,6 +49,7 @@
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"           //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 #include "cl_VIS_Factory.hpp"
@@ -81,9 +82,9 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
-
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "cl_SOL_Warehouse.hpp"
 #include "cl_GE_Geometry_Library.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -92,14 +93,23 @@ namespace moris
 {
 
 // define free function for properties
-Matrix< DDRMat > tPropValConstFunc_MDLFEMBench( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                                moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                                moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                                fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tPropValConstFunc_MDLFEMBench
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aParameters( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
+void tPropValFuncL2_MDLFEMBench
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = {{ 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) }};
+}
+
+// define function for cutting plane
 moris::real tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tOffset = 2.6;
@@ -124,9 +134,6 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -145,7 +152,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         tParameters.set_initial_refinement( 0 );
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -182,6 +189,9 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
        tPropTempLoad1->set_parameters( { {{ 0.0 }} } );
        tPropTempLoad1->set_val_function( tPropValConstFunc_MDLFEMBench );
+
+       std::shared_ptr< fem::Property > tPropL2Analytic = std::make_shared< fem::Property >();
+       tPropL2Analytic->set_val_function( tPropValFuncL2_MDLFEMBench );
 
        // define constitutive models
        fem::CM_Factory tCMFactory;
@@ -226,11 +236,16 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQITEMP->set_output_type_index( 0 );
 
+       std::shared_ptr< fem::IQI > tIQIL2TEMP = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
+       tIQIL2TEMP->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
+       tIQIL2TEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+       tIQIL2TEMP->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
+
        // define set info
        fem::Set_User_Info tSetBulk1;
        tSetBulk1.set_mesh_index( 0 );
        tSetBulk1.set_IWGs( { tIWGBulk1 } );
-       tSetBulk1.set_IQIs( { tIQITEMP } );
+       tSetBulk1.set_IQIs( { tIQITEMP, tIQIL2TEMP } );
 
        fem::Set_User_Info tSetDirichlet;
        tSetDirichlet.set_mesh_index( 4 );
@@ -259,17 +274,16 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Output_Block.exo",
                                 { "HMR_dummy" },
-                                { "Temperature" },
-                                { vis::Field_Type::NODAL },
-                                { vis::Output_Type::TEMP } );
-
+                                { "Temperature", "L2 error" },
+                                { vis::Field_Type::NODAL, vis::Field_Type::GLOBAL },
+                                { vis::Output_Type::TEMP, vis::Output_Type::L2_ERROR_ANALYTIC } );
        tModel->set_output_manager( &tOutputData );
 
        // --------------------------------------------------------------------------------------
        // define linear solver and algorithm
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-       = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+       = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -302,7 +316,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -338,9 +352,6 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -363,7 +374,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -395,7 +406,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
@@ -403,7 +414,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -526,37 +537,37 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk2 } );
        tSetBulk1.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk2 } );
        tSetBulk2.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk1 } );
        tSetBulk3.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk1 } );
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
        fem::Set_User_Info tSetInterface1;
-       tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
+       tSetInterface1.set_mesh_set_name( tDblInterfaceSideSetName );
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
@@ -589,8 +600,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
        tModel->set_output_manager( &tOutputData );
 
        dla::Solver_Factory  tSolFactory;
-       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-       //SolverType::AMESOS_IMPL
+       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -628,7 +638,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -662,9 +672,6 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -687,7 +694,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -719,7 +726,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
@@ -727,7 +734,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -865,41 +872,41 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk2 } );
        tSetBulk1.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk2 } );
        tSetBulk2.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk1 } );
        tSetBulk3.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk1 } );
        tSetBulk4.set_IQIs( { tIQITEMP } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
        fem::Set_User_Info tSetInterface1;
-       tSetInterface1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tDblInterfaceSideSetName ) );
+       tSetInterface1.set_mesh_set_name( tDblInterfaceSideSetName );
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        fem::Set_User_Info tSetGhost;
-       tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+       tSetGhost.set_mesh_set_name( "ghost_p0" );
        tSetGhost.set_IWGs( { tIWGGhost } );
 
        // create a cell of set info
@@ -933,7 +940,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tModel->set_output_manager( &tOutputData );
 
        dla::Solver_Factory  tSolFactory;
-       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+       std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -970,7 +977,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -1006,9 +1013,6 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1027,7 +1031,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         tParameters.set_initial_refinement( 0 );
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1166,7 +1170,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
        // define linear solver and algorithm
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-       = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+       = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -1199,7 +1203,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -1234,9 +1238,6 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1259,7 +1260,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1291,7 +1292,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
@@ -1299,7 +1300,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1437,35 +1438,35 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk1 } );
        tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk1 } );
        tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk2 } );
        tSetBulk3.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk2 } );
        tSetBulk4.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        fem::Set_User_Info tSetInterface;
-       tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) ) );
+       tSetInterface.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) );
        tSetInterface.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
@@ -1501,7 +1502,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
        // define linear solver and algorithm
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-       = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+       = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -1534,7 +1535,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 
@@ -1569,9 +1570,6 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         // create settings object
         moris::hmr::Parameters tParameters;
 
-        // Dummy parameter list
-        ParameterList tParam = hmr::create_hmr_parameter_list();
-
         tParameters.set_number_of_elements_per_dimension( { {4}, {2}, {2} } );
         tParameters.set_domain_dimensions( 10, 5, 5 );
         tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
@@ -1594,7 +1592,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1626,7 +1624,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
@@ -1634,7 +1632,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1787,39 +1785,39 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
        // define set info
        fem::Set_User_Info tSetBulk1;
-       tSetBulk1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0") );
+       tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
        tSetBulk1.set_IWGs( { tIWGBulk1 } );
        tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk2;
-       tSetBulk2.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0") );
+       tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
        tSetBulk2.set_IWGs( { tIWGBulk1 } );
        tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk3;
-       tSetBulk3.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1") );
+       tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
        tSetBulk3.set_IWGs( { tIWGBulk2 } );
        tSetBulk3.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetBulk4;
-       tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+       tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
        tSetBulk4.set_IWGs( { tIWGBulk2 } );
        tSetBulk4.set_IQIs( { tIQIUX, tIQIUY, tIQIUZ } );
 
        fem::Set_User_Info tSetDirichlet;
-       tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p0") );
+       tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p0" );
        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
        fem::Set_User_Info tSetNeumann;
-       tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+       tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
        tSetNeumann.set_IWGs( { tIWGNeumann } );
 
        fem::Set_User_Info tSetInterface;
-       tSetInterface.set_mesh_index( tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) ) );
+       tSetInterface.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 ) );
        tSetInterface.set_IWGs( { tIWGInterface } );
 
        fem::Set_User_Info tSetGhost;
-       tSetGhost.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("ghost_p0") );
+       tSetGhost.set_mesh_set_name( "ghost_p0" );
        tSetGhost.set_IWGs( { tIWGGhost } );
 
        // create a cell of set info
@@ -1856,7 +1854,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        // define linear solver and algorithm
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
-       = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+       = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
 //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
 //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
@@ -1889,7 +1887,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-       NLA::SOL_Warehouse tSolverWarehouse;
+       sol::SOL_Warehouse tSolverWarehouse;
 
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
 

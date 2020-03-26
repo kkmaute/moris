@@ -40,9 +40,9 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+#include "cl_GEN_Discrete_Level_Set.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
 
 namespace xtk
 {
@@ -109,7 +109,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
          */
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  =  false;
         /*
@@ -240,7 +240,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
          */
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  = false;
 
@@ -256,6 +256,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
 
         // declare cell enrichment fields in output mesh
         Cell<std::string> tEnrichmentFieldNames;

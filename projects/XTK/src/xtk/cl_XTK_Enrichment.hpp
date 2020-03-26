@@ -117,6 +117,8 @@ public:
 
     typedef std::unordered_map<moris::moris_index,moris::moris_index> IndexMap;
 
+    friend class Multigrid;
+
 
     /*!
      * Performs basis function enrichment so that each element in connected regions of a given bulk phase are

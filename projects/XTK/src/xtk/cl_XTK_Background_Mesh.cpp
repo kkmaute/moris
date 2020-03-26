@@ -29,25 +29,8 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
 }
 
 // ----------------------------------------------------------------------------------
-
 Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                                 Geometry_Engine & aGeometryEngine):
-    mMeshData(aMeshData),
-    mEntityLocaltoGlobalMap(4),
-    mChildMtkCells(0),
-    mXtkMtkVertices(0),
-    mNodeIndexToChildMeshIndex(0,0)
-{
-    intialize_downward_inheritance();
-    mExternalMeshData.set_up_external_entity_data(mMeshData);
-    initialize_background_mesh_vertices();
-    setup_local_to_global_maps();
-}
-
-// ----------------------------------------------------------------------------------
-// general geometry engine constructor
-Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                                 moris::ge::GEN_Geometry_Engine & aGeometryEngine):
+                                 moris::ge::GEN_Geometry_Engine* aGeometryEngine):
     mMeshData(aMeshData),
     mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
@@ -494,6 +477,7 @@ Background_Mesh::get_selected_node_coordinates_loc_inds(moris::Matrix< moris::In
         if (mExternalMeshData.is_external_entity(aNodeIndices(n), tEntityRank))
         {
             moris::Matrix< moris::DDRMat > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
+
             tSelectedNodesCoords.set_row(n,tNodeCoords);
         }
 

@@ -14,6 +14,9 @@
 #include "fn_norm.hpp"
 #include "fn_equal_to.hpp"
 
+#include "cl_PRM_HMR_Parameters.hpp"
+
+
 using namespace moris;
 using namespace hmr;
 
@@ -126,7 +129,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
             uint tLagrangeMeshIndex = 0;
 
             // Dummy parameter list
-            ParameterList tParam = create_hmr_parameter_list();
+            ParameterList tParam = prm::create_hmr_parameter_list();
 
             // The parameter object controls the behavior of HMR.
             moris::hmr::Parameters tParameters;
@@ -158,7 +161,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tParameters.set_initial_refinement( 1 );
 
-            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

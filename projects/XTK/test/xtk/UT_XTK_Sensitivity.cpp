@@ -33,7 +33,7 @@
 #include "cl_MTK_Scalar_Field_Info.hpp"
 
 
-#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "cl_GEN_Discrete_Level_Set.hpp"
 
 using namespace moris;
 
@@ -106,12 +106,12 @@ namespace xtk
               // set  up the geometry/geometry engine
               moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,tScalarFieldNames);
               moris::ge::GEN_Phase_Table        tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-              moris::ge::GEN_Geometry_Engine    tGEIn(tLevelSetMesh,tPhaseTable);
+              moris::ge::GEN_Geometry_Engine    tGEIn( tLevelSetMesh, tPhaseTable );
               tGEIn.mComputeDxDp = true;
               tGEIn.mThresholdValue = 0.0;
               // Setup XTK Model -----------------------------
               size_t tModelDimension = 3;
-              Model tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGEIn);
+              Model tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),&tGEIn);
               tXTKModel.mSameMesh = true;
 
               //Specify your decomposition methods and start cutting
@@ -121,14 +121,14 @@ namespace xtk
               // compute sensitivities
               tXTKModel.compute_sensitivity();
 
-              moris::ge::GEN_Geometry_Engine const & tGEOut          = tXTKModel.get_geom_engine();
+              moris::ge::GEN_Geometry_Engine* const tGEOut          = tXTKModel.get_geom_engine();
               Background_Mesh & tBackgroundMesh = tXTKModel.get_background_mesh();
 
               // store the xtk computed derivative
               if( i == 0)
               {
-                  tDxDp     = tGEOut.get_node_dx_dp(tInterfaceNodeInd);
-                  tDxDpInds = tGEOut.get_node_adv_indices(tInterfaceNodeInd);
+                  tDxDp     = tGEOut->get_node_dx_dp(tInterfaceNodeInd);
+                  tDxDpInds = tGEOut->get_node_adv_indices(tInterfaceNodeInd);
               }
               else
               {

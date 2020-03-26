@@ -79,30 +79,34 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "fn_norm.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Circle.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
+
+#include "cl_PRM_HMR_Parameters.hpp"
+
 
 namespace moris
 {
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aCoeff( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tMValFunction
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ),                   0.0 },
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
             { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
@@ -112,8 +116,6 @@ moris::real LvlSetCircle_2D_outsideDomain(const moris::Matrix< moris::DDRMat > &
     return    norm( aPoint - tCenter ) - 0.001;
 }
 
-
-
 TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 {
     if(par_size()<=1)
@@ -121,20 +123,20 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "600, 6");
-        tParameters.set( "domain_dimensions", "100, 2" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("600, 6"));
+        tParameters.set( "domain_dimensions", std::string("100, 2") );
 //        tParameters.set( "domain_offset", "-50.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+        tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -175,7 +177,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         moris::ge::GEN_Phase_Table     tPhaseTable(1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-         xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+         xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -281,19 +283,19 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 
         // define set info
         fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1") );
+        tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk4.set_IWGs( { tIWGBulk1 } );
 
         fem::Set_User_Info tSetDirichletFixed;
-        tSetDirichletFixed.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1") );
+        tSetDirichletFixed.set_mesh_set_name( "SideSet_4_n_p1" );
         tSetDirichletFixed.set_IWGs( { tIWGDirichletFixed_ss4 } );
 
         fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+        tSetDirichlet.set_mesh_set_name( "SideSet_2_n_p1" );
         tSetDirichlet.set_IWGs( { tIWGDirichlet_ss2 } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1") );
+        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -318,7 +320,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tDofTypesU( 0 ) = MSI::Dof_Type::UX;    tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -353,7 +355,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
-        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
         tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
 
@@ -381,42 +383,44 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         //----------------------------------
 
         // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = false;
-        tOutputOptions.mAddClusters = false;
+        // FIXME add with output if needed
 
-        // add solution field to integration mesh
-        std::string tIntegSolFieldNameUX = "UX";
-        std::string tIntegSolFieldNameUY = "UY";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // Write to Integration mesh for visualization
-        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-
-
-        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-
-        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-        }
-
-        // add solution field to integration mesh
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-
-        // -------------- output solution mesh -----------------------
-        std::string tMeshOutputFile = "./mdl_exo/symmetry_boundary_conditions_test_beam.e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = false;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldNameUX = "UX";
+//        std::string tIntegSolFieldNameUY = "UY";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
+//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
+//
+//
+//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+//
+//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+//        {
+//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
+//        }
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
+//
+//        // -------------- output solution mesh -----------------------
+//        std::string tMeshOutputFile = "./mdl_exo/symmetry_boundary_conditions_test_beam.e";
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
         // -----------------------------------------------------------
-        delete tIntegMesh1;
+//        delete tIntegMesh1;
         delete tModel;
     }
 }

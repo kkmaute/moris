@@ -17,6 +17,8 @@
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 
+#include "cl_GEN_Dv_Enums.hpp"
+
 namespace moris
 {
     namespace fem
@@ -53,9 +55,6 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
 
-            // bool for global dof type list and map
-            bool mGlobalDofBuild = true;
-
             // master and slave global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
@@ -64,25 +63,17 @@ namespace moris
             Matrix< DDSMat > mMasterGlobalDofTypeMap;
             Matrix< DDSMat > mSlaveGlobalDofTypeMap;
 
-            // master and slave dof field interpolators
-            moris::Cell< Field_Interpolator* > mMasterDofFI;
-            moris::Cell< Field_Interpolator* > mSlaveDofFI;
-
             // master and slave dv type lists
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mMasterDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mSlaveDvTypes;
 
             // master and slave global dv type list
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterGlobalDvTypes;
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mMasterGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mSlaveGlobalDvTypes;
 
             // master and slave global dv type maps
             Matrix< DDSMat > mMasterGlobalDvTypeMap;
             Matrix< DDSMat > mSlaveGlobalDvTypeMap;
-
-            // master and slave dv field interpolators
-            moris::Cell< Field_Interpolator* > mMasterDvFI;
-            moris::Cell< Field_Interpolator* > mSlaveDvFI;
 
             // master and slave properties
             moris::Cell< std::shared_ptr< Property > > mMasterProp;
@@ -92,19 +83,34 @@ namespace moris
             moris::Cell< std::shared_ptr< Constitutive_Model > > mMasterCM;
             moris::Cell< std::shared_ptr< Constitutive_Model > > mSlaveCM;
 
-            // flag for evaluation
-            bool mPPEval = true;
-            moris::Cell< bool > mdPPdMasterDofEval;
-            moris::Cell< bool > mdPPdSlaveDofEval;
-            moris::Cell< bool > mdPPdMasterDvEval;
-            moris::Cell< bool > mdPPdSlaveDvEval;
-
             // storage
             Matrix< DDRMat > mPPVal;
             moris::Cell< Matrix< DDRMat > > mdPPdMasterDof;
             moris::Cell< Matrix< DDRMat > > mdPPdSlaveDof;
             moris::Cell< Matrix< DDRMat > > mdPPdMasterDv;
             moris::Cell< Matrix< DDRMat > > mdPPdSlaveDv;
+
+            // local string to dof enum map
+            std::map< std::string, MSI::Dof_Type > mMasterDofMap;
+            std::map< std::string, MSI::Dof_Type > mSlaveDofMap;
+
+            // local string to dv enum map
+            std::map< std::string, GEN_DV > mMasterDvMap;
+            std::map< std::string, GEN_DV > mSlaveDvMap;
+
+            std::string mName;
+
+        private:
+
+            // bool for global dof type list and map
+            bool mGlobalDofBuild = true;
+
+            // flag for evaluation
+            bool mPPEval = true;
+            moris::Cell< bool > mdPPdMasterDofEval;
+            moris::Cell< bool > mdPPdSlaveDofEval;
+            moris::Cell< bool > mdPPdMasterDvEval;
+            moris::Cell< bool > mdPPdSlaveDvEval;
 
 //------------------------------------------------------------------------------
         public :
@@ -120,6 +126,69 @@ namespace moris
              * virtual destructor
              */
             virtual ~Stabilization_Parameter(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for CM name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for CM name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * print names
+             */
+            void print_names()
+            {
+                std::cout<<"----------"<<std::endl;
+                std::cout<<"SP: "<<mName<<std::endl;
+
+                // properties
+                for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+                {
+                    if( mMasterProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+                {
+                    if( mSlaveProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+
+                // CM
+                for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+                {
+                    if( mMasterCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Master CM: "<<mMasterCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+                {
+                    if( mSlaveCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Slave CM:  "<<mSlaveCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+                std::cout<<"----------"<<std::endl;
+            }
 
 //------------------------------------------------------------------------------
             /*
@@ -197,10 +266,9 @@ namespace moris
              * NOTE: only implement if your stabilization parameter requires
              * cluster measure access. Otherwise no-op.
              */
-            virtual
-            void reset_cluster_measures()
+            virtual void reset_cluster_measures()
             {
-
+                MORIS_ERROR( false, "Stabilization_Parameter::reset_cluster_measures - not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -232,7 +300,50 @@ namespace moris
                     }
                     default :
                     {
-                        MORIS_ERROR( false, "Penalty_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set dof types
+             * @param[ in ] aDofTypes a cell of cell of dof types
+             * @param[ in ] aIsMaster enum for master or slave
+             */
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                                    moris::Cell< std::string >                  & aDofStrings,
+                                    mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterDofTypes = aDofTypes;
+
+                        // set the dof map
+                        for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
+                        {
+                            mMasterDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
+                        }
+
+                        break;
+                    }
+                    case( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlaveDofTypes = aDofTypes;
+
+                        // set the dof map
+                        for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
+                        {
+                            mSlaveDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
+                        }
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
                         break;
                     }
                 }
@@ -266,7 +377,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "Penalty_Parameter::get_dof_type_list - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_dof_type_list - can only be master or slave." );
                         return mMasterDofTypes;
                         break;
                     }
@@ -279,8 +390,8 @@ namespace moris
              * @param[ in ] aDvTypes a list of group of dv types
              * @param[ in ] aIsMaster enum for master or slave
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes,
-                                    mtk::Master_Slave                                 aIsMaster = mtk::Master_Slave::MASTER )
+            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+                                    mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER )
             {
                 switch ( aIsMaster )
                 {
@@ -296,7 +407,49 @@ namespace moris
                     }
                     default :
                     {
-                        MORIS_ERROR( false, "Penalty_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set dv types
+             * @param[ in ] aDvTypes a cell of cell of dv types
+             */
+            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+                                         moris::Cell< std::string >           & aDvStrings,
+                                         mtk::Master_Slave                      aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterDvTypes = aDvTypes;
+
+                        // set the dv map
+                        for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
+                        {
+                            mMasterDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
+                        }
+
+                        break;
+                    }
+                    case( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlaveDvTypes = aDvTypes;
+
+                        // set the dv map
+                        for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
+                        {
+                            mSlaveDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
+                        }
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
                         break;
                     }
                 }
@@ -308,7 +461,7 @@ namespace moris
              * @param[ in ]  aIsMaster enum master or slave
              * @param[ out ] aDvTypes a list of group of dv types
              */
-            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
             {
                 // switch on master/slave
                 switch( aIsMaster )
@@ -330,7 +483,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "Penalty_Parameter::get_dv_type_list - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_dv_type_list - can only be master or slave." );
                         return mMasterDvTypes;
                         break;
                     }
@@ -389,9 +542,9 @@ namespace moris
              * property, constitutive and stabilization dependencies
              * for both master and slave
              */
-            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >        & aDofTypes );
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                  moris::Cell< MSI::Dv_Type >  & aDvTypes );
+                                                  moris::Cell< GEN_DV >        & aDvTypes );
 //------------------------------------------------------------------------------
             /**
              * create a global dof type list including constitutive and property dependencies
@@ -510,157 +663,11 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
-            /**
-             * set field interpolators
-             * @param[ in ] afieldInterpolators a lisy of field interpolator pointers
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > aFieldInterpolators,
-                                              mtk::Master_Slave                  aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // get input size
-                uint tInputNumFI = aFieldInterpolators.size();
-
-                // check input size
-                MORIS_ASSERT( tInputNumFI == this->get_global_dof_type_list( aIsMaster ).size(),
-                              "Stabilization_Parameter::set_dof_field_interpolators - wrong input size. " );
-
-                // check dof field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < tInputNumFI; iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == this->get_global_dof_type_list( aIsMaster )( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "Stabilization_Parameter::set_dof_field_interpolators - wrong field interpolator dof type. ");
-
-                // set field interpolators
-                this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
-
-//                // set field interpolators for constitutive models
-//                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-//                {
-//                    if( tCM != nullptr )
-//                    {
-//                        // get the list of dof types for the CM
-//                        moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
-//
-//                        // get the number of dof type for the CM
-//                        uint tNumDofTypes = tCMDofTypes.size();
-//
-//                        // set the size of the field interpolators list for the CM
-//                        moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-//
-//                        // loop over the dof types
-//                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-//                        {
-//                            // get the dof type index in set
-//                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
-//
-//                            // fill the field interpolators list for the CM
-//                            tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
-//                        }
-//
-//                        // set the field interpolators for the CM
-//                        tCM->set_dof_field_interpolators( tCMFIs );
-//                    }
-//                }
-//
-//                // set field interpolators for properties
-//                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-//                {
-//                    if( tProp != nullptr )
-//                    {
-//                        // get the list of dof types for the property
-//                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-//
-//                        // get the number of dof type for the property
-//                        uint tNumDofTypes = tPropDofTypes.size();
-//
-//                        // set the size of the field interpolators list for the property
-//                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-//
-//                        // loop over the dof types
-//                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-//                        {
-//                            // get the dof type index in SP
-//                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
-//
-//                            // fill the field interpolators list for the property
-//                            tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
-//                        }
-//
-//                        // set the field interpolators for the property
-//                        tProp->set_dof_field_interpolators( tPropFIs );
-//                    }
-//                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get dof field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of dof field interpolator pointers
-             */
-            moris::Cell< Field_Interpolator* > & get_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master field interpolator pointers
-                        return mMasterDofFI;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave field interpolator pointers
-                        return mSlaveDofFI;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "Stabilization_Parameter::set_dof_field_interpolators - can only be master or slave." );
-                        return mMasterDofFI;
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set geometry interpolator
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointers
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // set geometry interpolator for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
-
-                // set geometry interpolator for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->set_geometry_interpolator( aGeometryInterpolator );
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
             virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                                                  std::string                           aConstitutiveString,
                                                  mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
-                MORIS_ERROR( false, "Stabilization_Parameter::set_constitutive_model - This function does nothing." );
+                MORIS_ERROR( false, "Stabilization_Parameter::set_constitutive_model - Not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -686,7 +693,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_constitutive_models - can only be master or slave." );
                         return mMasterCM;
                     }
                 }
@@ -697,7 +704,7 @@ namespace moris
                                        std::string                 aPropertyString,
                                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
-                MORIS_ERROR( false, "Stabilization_Parameter::set_property - This function does nothing." );
+                MORIS_ERROR( false, "Stabilization_Parameter::set_property - Not implemented for base class." );
             }
 
 //------------------------------------------------------------------------------
@@ -723,7 +730,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
+                        MORIS_ASSERT( false, "Stabilization_Parameter::get_properties - can only be master or slave." );
                         return mMasterProp;
                     }
                 }
@@ -734,7 +741,7 @@ namespace moris
              * get global dv type list
              * @param[ out ] mGlobalDvTypes global list of dv type
              */
-            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            const moris::Cell< moris::Cell< GEN_DV > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // switch on master/slave
                 switch( aIsMaster )
@@ -822,7 +829,7 @@ namespace moris
                     if( tProperty != nullptr )
                     {
                         // get dv types for property
-                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                        moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tProperty->get_dv_type_list();
 
                         // loop on property dv type
                         for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -856,7 +863,7 @@ namespace moris
                     if( tCM != nullptr )
                     {
                         // get dof types for constitutive model
-                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+                        moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tCM->get_global_dv_type_list();
 
                         // loop on property dv type
                         for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -940,7 +947,7 @@ namespace moris
                     if( tProperty != nullptr )
                     {
                         // get dv types for property
-                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                        moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tProperty->get_dv_type_list();
 
                         // loop on property dv type
                         for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -974,7 +981,7 @@ namespace moris
                     if( tCM != nullptr )
                     {
                         // get dv types for constitutive model
-                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+                        moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tCM->get_global_dv_type_list();
 
                         // loop on property dv type
                         for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1078,7 +1085,7 @@ namespace moris
              * @param[ in ]  aDvType       a group of dv types
              * @param[ out ] tDvDependency a bool true if dependency on dv type
              */
-            bool check_master_dv_dependency( const moris::Cell< MSI::Dv_Type > & aDvType )
+            bool check_master_dv_dependency( const moris::Cell< GEN_DV > & aDvType )
             {
                 // set bool for dependency
                 bool tDvDependency = false;
@@ -1103,7 +1110,7 @@ namespace moris
              * @param[ out ] tDvDependency a bool true if dependency on dv type
              *
              */
-            bool check_slave_dv_dependency( const moris::Cell< MSI::Dv_Type > & aDvType )
+            bool check_slave_dv_dependency( const moris::Cell< GEN_DV > & aDvType )
             {
                 // set bool for dependency
                 bool tDvDependency = false;
@@ -1147,7 +1154,7 @@ namespace moris
              */
             virtual void eval_SP()
             {
-                MORIS_ERROR( false, " Stabilization_Parameter::eval_PP - This function does nothing. " );
+                MORIS_ERROR( false, " Stabilization_Parameter::eval_PP - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1185,7 +1192,7 @@ namespace moris
              */
             virtual void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
-                MORIS_ERROR( false, " Penalty_Parameter::eval_dSPdMasterDOF - This function does nothing. " );
+                MORIS_ERROR( false, " Penalty_Parameter::eval_dSPdMasterDOF - Not implemented for base class. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1223,7 +1230,7 @@ namespace moris
              */
             virtual void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
-                MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDOF - This function does nothing. " );
+                MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDOF - Not implemented for base class. " );
             }
 
  //------------------------------------------------------------------------------
@@ -1232,7 +1239,7 @@ namespace moris
               * @param[ in ]  aDvTypes      a dv type wrt which the derivative is evaluated
               * @param[ out ] mdPPdMasterDv penalty parameter derivative wrt master dv
               */
-             const Matrix< DDRMat > & dSPdMasterDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+             const Matrix< DDRMat > & dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
              {
                  // if aDofType is not an active dv type for the property
                  MORIS_ERROR( this->check_master_dv_dependency( aDvTypes ), "Penalty_Parameter::dPPdMasterDV - no dependency in this dv type." );
@@ -1258,9 +1265,9 @@ namespace moris
              /**
               * evaluate the penalty parameter derivative wrt master dv
               */
-             virtual void eval_dSPdMasterDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+             virtual void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
              {
-                 MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdMasterDV - This function does nothing. " );
+                 MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdMasterDV - Not implemented for base class. " );
              }
 
  //------------------------------------------------------------------------------
@@ -1269,7 +1276,7 @@ namespace moris
               * @param[ in ]  aDvTypes     a dv type wrt which the derivative is evaluated
               * @param[ out ] mdPPdSlaveDv penalty parameter derivative wrt master dv
               */
-             const Matrix< DDRMat > & dSPdSlaveDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+             const Matrix< DDRMat > & dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes )
              {
                  // if aDofType is not an active dv type for the property
                  MORIS_ERROR( this->check_slave_dv_dependency( aDvTypes ),
@@ -1296,7 +1303,7 @@ namespace moris
              /**
               * evaluate the penalty parameter derivative wrt slave dv
               */
-             virtual void eval_dSPdSlaveDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+             virtual void eval_dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes )
              {
                  MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDV - This function does nothing. " );
              }

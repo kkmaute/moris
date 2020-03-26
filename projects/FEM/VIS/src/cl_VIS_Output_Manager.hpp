@@ -18,11 +18,18 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Reader_Exodus.hpp"
 
+#include "cl_Param_List.hpp"
+
 namespace moris
 {
     namespace mtk
     {
         class Mesh_Manager;
+    }
+
+    namespace MSI
+    {
+        class Equation_Model;
     }
 
     namespace mdl
@@ -39,6 +46,9 @@ namespace moris
 
             //! Mesh Type
             enum VIS_Mesh_Type              mMeshType;
+
+            //! Output Path
+            std::string                     mOutputPath;
 
             //! Mesh Name
             std::string                     mMeshName;
@@ -64,36 +74,39 @@ namespace moris
         class Output_Manager
         {
         private:
+
             moris::Cell< vis::Output_Data > mOutputData;
 
-            moris::Cell< MSI::Equation_Set * > mEquationSets;
-
             Cell< mtk::Mesh * > mVisMesh;
-
-            Matrix< IndexMat > mListOfRequestedBlocks;
 
             bool mOnlyPrimary = false;
 
             moris::Cell< Writer_Exodus * >  mWriter;
 
             mtk::Mesh_Manager *             mMTKMesh = nullptr;
+
             moris::uint                     mMTKMeshPairIndex;
 
         protected:
 
         public:
-            Output_Manager()
-            {
-                mListOfRequestedBlocks = { { 0, 1, 2, 3 } };
-                mOnlyPrimary = false ;
+            Output_Manager(){};
 
+//-----------------------------------------------------------------------------------------------------------
+
+            Output_Manager( moris::ParameterList aParamterelist )
+            {
+                this->set_outputs( aParamterelist );
             };
 
 //-----------------------------------------------------------------------------------------------------------
 
             ~Output_Manager()
             {
-               //FIXME add delete
+                for( auto tMesh : mVisMesh )
+                {
+                    delete tMesh;
+                }
             };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -116,6 +129,8 @@ namespace moris
                 mWriter( aVisMeshIndex )->close_file();
 
                 this->delete_pointers( aVisMeshIndex );
+
+                MORIS_LOG( " Finished writing output. \n ");
             }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -131,14 +146,18 @@ namespace moris
 
 //---------------------------------------------------------------------------------------------------------------------------
 
+            void set_outputs( moris::ParameterList aParamterelist );
+
+//---------------------------------------------------------------------------------------------------------------------------
+
             void create_visualization_mesh( const uint                aVisMeshIndex,
                                                   mtk::Mesh_Manager * aMesh,
                                             const uint                aMeshPairIndex);
 
 //-----------------------------------------------------------------------------------------------------------
 
-            void set_visualization_sets( const uint         aVisMeshIndex,
-                                               mdl::Model * aModel );
+            void set_visualization_sets( const uint                                   aVisMeshIndex,
+                                               std::shared_ptr< MSI::Equation_Model > aEquationModel );
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -163,8 +182,8 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            void write_field( const uint         aVisMeshIndex,
-                                    mdl::Model * aModel );
+            void write_field( const uint                                   aVisMeshIndex,
+                                    std::shared_ptr< MSI::Equation_Model > aEquationModel );
 
 //-----------------------------------------------------------------------------------------------------------
 

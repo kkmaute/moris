@@ -72,7 +72,9 @@ public:
     std::string                       get_block_set_label(moris_index aBlockSetOrdinal) const;
     moris_index                       get_block_set_index(std::string aBlockSetLabel) const;
     moris::Cell<mtk::Cluster const *> get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const;
+    Matrix<IndexMat>                  get_block_set_colors(moris_index aBlockSetOrdinal) const;
     moris::Cell<mtk::Cluster const *> get_side_set_cluster(moris_index aSideSetOrdinal) const;
+    Matrix<IndexMat>                  get_side_set_colors(moris_index aSideSetOrdinal) const;
     uint                              get_num_side_sets() const;
     std::string                       get_side_set_label(moris_index aSideSetOrdinal) const;
     moris_index                       get_side_set_index(std::string aSideSetLabel) const;
@@ -80,6 +82,7 @@ public:
     std::string                       get_double_sided_set_label(moris_index aSideSetOrdinal) const;
     moris_index                       get_double_sided_set_index(std::string aDoubleSideSetLabel) const;
     moris::Cell<mtk::Cluster const*>  get_double_side_set_cluster(moris_index aSideSetOrdinal) const;
+    Matrix<IndexMat>                  get_double_side_set_colors(moris_index aSideSetOrdinal) const;
     uint                              get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const;
     //------------------------------------------------------------------------------
     // end integration mesh functions
@@ -113,7 +116,6 @@ public:
     /*
      * For cleanup when writing to an exodus file (note: in general this should not be used because
      * sets may not be always empty through an optimization run)
-     *
      */
     void
     deactivate_empty_sets();
@@ -240,12 +242,15 @@ protected:
     moris::Cell<std::string>                            mBlockSetNames;
     moris::Cell<enum CellTopology>                      mBlockSetTopology;
     moris::Cell<moris::Cell<xtk::Cell_Cluster const *>> mPrimaryBlockSetClusters;
+    moris::Cell<moris::Matrix<IndexMat>>                mBlockSetColors; /*Bulk phases*/
+    moris::Cell<moris::Cell<moris_index>>               mColorsBlockSets; /*transpose of mBlockSetColors*/
 
     // side sets
-    std::unordered_map<std::string, moris_index> mSideSideSetLabelToOrd;
-    moris::Cell<std::string>                     mSideSetLabels;
+    std::unordered_map<std::string, moris_index>                 mSideSideSetLabelToOrd;
+    moris::Cell<std::string>                                     mSideSetLabels;
     moris::Cell<moris::Cell<std::shared_ptr<xtk::Side_Cluster>>> mSideSets;
-
+    moris::Cell<moris::Matrix<IndexMat>>                         mSideSetColors; /*Bulk phases of cells attached to side*/
+    moris::Cell<moris::Cell<moris_index>>                        mColorsSideSets; /*transpose of mSideSetColors*/
     // double side sets
     std::unordered_map<std::string, moris_index>        mDoubleSideSetLabelToOrd;
     moris::Cell<std::string>                            mDoubleSideSetLabels;
@@ -255,7 +260,10 @@ protected:
     moris::Cell<mtk::Double_Side_Cluster*>              mDoubleSideClusters;
     moris::Cell<std::shared_ptr<xtk::Side_Cluster>>     mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
     moris::Matrix<moris::IndexMat>                      mBulkPhaseToDblSideIndex;
-
+    moris::Cell<moris::Matrix<IndexMat>>                mMasterDoubleSideSetColor;
+    moris::Cell<moris::Matrix<IndexMat>>                mSlaveDoubleSideSetColor;
+    moris::Cell<moris::Cell<moris_index>>               mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
+    moris::Cell<moris::Cell<moris_index>>               mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
     // Fields
     moris::Cell<xtk::Field> mFields;   /*Structure Node (0), Cell(1)*/
     moris::Cell<std::unordered_map<std::string, moris_index>> mFieldLabelToIndex;
@@ -292,6 +300,9 @@ private:
     setup_double_side_set_clusters();
     //------------------------------------------------------------------------------
     void
+    setup_color_to_set();
+    //------------------------------------------------------------------------------
+    void
     setup_double_sided_interface_sides();
     //------------------------------------------------------------------------------
     void
@@ -314,11 +325,24 @@ private:
     register_block_set_names_with_cell_topo(moris::Cell<std::string> const & aBlockSetNames,
                                             enum CellTopology                aBlockTopology);
     //------------------------------------------------------------------------------
+    void
+    set_block_set_colors(moris_index const &    aBlockSetIndex,
+                         Matrix<IndexMat> const & aBlockSetColors);
+    //------------------------------------------------------------------------------
     Cell<moris_index>
     register_side_set_names(moris::Cell<std::string> const & aSideSetNames);
     //------------------------------------------------------------------------------
+    void
+    set_side_set_colors(moris_index const &    aSideSetIndex,
+                         Matrix<IndexMat> const & aSideSetColors);
+    //------------------------------------------------------------------------------
     Cell<moris_index>
     register_double_side_set_names(moris::Cell<std::string> const & aDblSideSetNames);
+    //------------------------------------------------------------------------------
+    void
+    set_double_side_set_colors(moris_index const &      aDblSideSetIndex,
+                               Matrix<IndexMat> const & aMasterSideColors,
+                               Matrix<IndexMat> const & aSlaveSideColors);
     //------------------------------------------------------------------------------
     void
     setup_interface_side_sets();
@@ -328,6 +352,11 @@ private:
     //------------------------------------------------------------------------------
     void
     create_interface_side_sets_and_clusters();
+    //------------------------------------------------------------------------------
+    void
+    construct_color_to_set_relationship(moris::Cell<moris::Matrix<IndexMat>> const & aSetColors,
+                                        moris::Cell<moris::Cell<moris_index>> & aColorToSetIndex);
+
     //------------------------------------------------------------------------------
     // Internal Additional Field Functions
     //------------------------------------------------------------------------------

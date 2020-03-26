@@ -10,6 +10,8 @@
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
+#include "cl_FEM_IWG.hpp"                 //FEM/MSI/src
+#include "cl_FEM_IQI.hpp"                 //FEM/MSI/src
 
 namespace moris
 {
@@ -35,6 +37,9 @@ namespace moris
         // set mesh index
         uint mMeshIndex;
 
+        // mesh set name
+        std::string mMeshSetName;
+
 //------------------------------------------------------------------------------
         public :
 
@@ -49,6 +54,28 @@ namespace moris
              * trivial destructor
              */
              ~Set_User_Info(){};
+
+//------------------------------------------------------------------------------
+             /**
+              * print names
+              */
+             void print_names()
+             {
+                 // print the mesh set name
+                 std::cout<<"Mesh set name: "<<mMeshSetName<<std::endl;
+
+                 // print IWG names
+                 for ( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
+                 {
+                     std::cout<<"IWG name: "<<mIWGs( iIWG )->get_name()<<std::endl;
+                 }
+
+                 // print IQI names
+                 for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
+                 {
+                     std::cout<<"IQI name: "<<mIQIs( iIQI )->get_name()<<std::endl;
+                 }
+             }
 
 //------------------------------------------------------------------------------
             /**
@@ -72,12 +99,42 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * set the mesh set name
+             * @param[ in ] aMeshSetName mesh set name
+             */
+            void set_mesh_set_name( std::string aMeshSetName )
+            {
+                mMeshSetName = aMeshSetName;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * get the mesh index
+             * @param[ out ] mMeshSetName mesh set name
+             */
+            std::string get_mesh_set_name()
+            {
+                return mMeshSetName;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * set IWGs
              * @param[ in ] aIWGs list of IWG pointers
              */
             void set_IWGs( const moris::Cell< std::shared_ptr< fem::IWG > > & aIWGs )
             {
                 mIWGs = aIWGs;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set IWG
+             * @param[ in ] aIWG IWG pointer
+             */
+            void set_IWG( std::shared_ptr< fem::IWG > aIWG )
+            {
+                mIWGs.push_back( aIWG );
             }
 
 //------------------------------------------------------------------------------
@@ -98,6 +155,16 @@ namespace moris
             void set_IQIs( const moris::Cell< std::shared_ptr< fem::IQI > > & aIQIs )
             {
                 mIQIs = aIQIs;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set IQI
+             * @param[ in ] aIQI IQI pointer
+             */
+            void set_IQI( std::shared_ptr< fem::IQI > aIQI )
+            {
+                mIQIs.push_back( aIQI );
             }
 
 //------------------------------------------------------------------------------

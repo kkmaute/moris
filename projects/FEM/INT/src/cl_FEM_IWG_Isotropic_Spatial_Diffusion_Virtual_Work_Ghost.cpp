@@ -50,8 +50,8 @@ namespace moris
             // get master field interpolator for the residual dof type
             Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get slave field interpolator for the residual dof type
-            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+//            // get slave field interpolator for the residual dof type
+//            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
             switch ( tMasterFI->get_space_interpolation_order() )
@@ -79,7 +79,6 @@ namespace moris
             }
             MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
 
-
             // get indices for SP, CM and properties
             uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
 
@@ -87,21 +86,22 @@ namespace moris
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // penalty parameter
-                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
+                uint tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
 
                 // get flattened normal matrix
-                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( 1 );
+                Matrix<DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
 
                 // compute the jump in traction
                 Matrix< DDRMat > tGradJump = mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
                                            - mSlaveCM( tDiffLinIsoIndex )->traction( mNormal );
 
-                // compute the residual
-                mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                +=   tGhostPenalty * trans( tMasterFI->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * tGradJump * aWStar;
+                // compute the master residual
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                += tGhostPenalty * trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump * aWStar;
 
-                mSet->get_residual()( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
-                += - tGhostPenalty * trans( tSlaveFI->dnNdxn( 1 ) )  * trans( tNormalMatrix ) * tGradJump * aWStar;
+                // compute the slave residual
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
+                -= tGhostPenalty * trans( mSlaveCM( tDiffLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump * aWStar;
             }
         }
 
@@ -298,16 +298,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_drdpdv - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

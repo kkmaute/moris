@@ -10,6 +10,7 @@ set(HEADERS
     cl_MSI_Dof_Manager.hpp
     cl_MSI_Dof_Type_Enums.hpp
     cl_MSI_Model_Solver_Interface.hpp
+    cl_MSI_Equation_Model.hpp
     cl_MSI_Equation_Object.hpp
     cl_MSI_Equation_Set.hpp
     cl_MSI_Pdof_Host.hpp
@@ -18,7 +19,6 @@ set(HEADERS
     cl_MSI_Element_Proxy.hpp
     cl_MSI_Multigrid.hpp
     cl_MSI_Design_Variable_Interface.hpp
-    cl_MSI_Parameters.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,17 +33,18 @@ set(LIB_SOURCES
     cl_MSI_Equation_Set.cpp
     cl_MSI_Multigrid.cpp
     cl_MSI_Solver_Interface.cpp
-    cl_MSI_Design_Variable_Interface.cpp
-    cl_MSI_Parameters.cpp )
+    cl_MSI_Design_Variable_Interface.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${LINALG}-lib
     ${COM}-lib
     ${CON}-lib
+    ${GEN_CORE}-lib
     ${INT}-lib
     ${DLA}-lib
     ${HMR}-lib
+    ${PRM}-lib
     #${MDL}-lib
    )
 

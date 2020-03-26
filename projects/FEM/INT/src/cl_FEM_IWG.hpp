@@ -18,6 +18,8 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
 
+#include "cl_GEN_Dv_Enums.hpp"
+
 #include "fn_reshape.hpp"
 
 namespace moris
@@ -61,7 +63,7 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
 
-            // master and slave global dof type lists
+            // master and slave requested global dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
@@ -70,12 +72,12 @@ namespace moris
             Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
 
             // master and slave dv type lists
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mMasterDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mSlaveDvTypes;
 
             // master and slave global dv type list
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterGlobalDvTypes;
-            moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mMasterGlobalDvTypes;
+            moris::Cell< moris::Cell< GEN_DV > > mSlaveGlobalDvTypes;
 
             // master and slave properties
             moris::Cell< std::shared_ptr< Property > > mMasterProp;
@@ -87,6 +89,8 @@ namespace moris
 
             // stabilization parameters
             moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
+
+            std::string mName;
 
 //------------------------------------------------------------------------------
         public :
@@ -104,6 +108,78 @@ namespace moris
             virtual ~IWG(){};
 
 //------------------------------------------------------------------------------
+            /**
+             * set name
+             * param[ in ] aName a string for CM name
+             */
+            void set_name( std::string aName )
+            {
+                mName = aName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get name
+             * param[ out ] mName a string for CM name
+             */
+            std::string get_name()
+            {
+                return mName;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * print name
+             */
+            void print_names()
+            {
+                std::cout<<"----------"<<std::endl;
+                std::cout<<"IWG: "<<mName<<std::endl;
+
+                // properties
+                for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+                {
+                    if( mMasterProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+                {
+                    if( mSlaveProp( iProp ) != nullptr )
+                    {
+                        std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
+                    }
+                }
+
+                // CM
+                for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+                {
+                    if( mMasterCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Master CM:       "<<mMasterCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+                for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+                {
+                    if( mSlaveCM( iCM ) != nullptr )
+                    {
+                        std::cout<<"Slave CM:        "<<mSlaveCM( iCM )->get_name()<<std::endl;
+                    }
+                }
+
+                // SP
+                for( uint iSP = 0; iSP < mStabilizationParam.size(); iSP++ )
+                {
+                    if( mStabilizationParam( iSP ) != nullptr )
+                    {
+                        std::cout<<"SP:              "<<mStabilizationParam( iSP )->get_name()<<std::endl;
+                    }
+                }
+                std::cout<<"----------"<<std::endl;
+            }
+
+//------------------------------------------------------------------------------
             /*
              * set member set pointer
              * @param[ in ] aSetPointer a FEM set pointer
@@ -111,6 +187,16 @@ namespace moris
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * get member set pointer
+             * @param[ out ] aSetPointer a FEM set pointer
+             */
+            Set * get_set_pointer()
+            {
+                return mSet;
             }
 
 //------------------------------------------------------------------------------
@@ -265,8 +351,8 @@ namespace moris
              * @param[ in ] aDvTypes a list of group of dv types
              * @param[ in ] aIsMaster enum for master or slave
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes,
-                                    mtk::Master_Slave                                 aIsMaster = mtk::Master_Slave::MASTER )
+            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+                                    mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER )
             {
                 switch ( aIsMaster )
                 {
@@ -294,7 +380,7 @@ namespace moris
              * @param[ in ]  aIsMaster enum master or slave
              * @param[ out ] aDvTypes a list of group of dv types
              */
-            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
             {
                 // switch on master/slave
                 switch( aIsMaster )
@@ -450,7 +536,7 @@ namespace moris
               * create a global dof type list including
               * IWG, property, constitutive and stabilization dependencies
               */
-             void build_global_dof_type_list();
+//             void build_global_dof_type_list();
              void build_global_dof_and_dv_type_list();
 
 //------------------------------------------------------------------------------
@@ -459,9 +545,9 @@ namespace moris
               * IWG, property, constitutive and stabilization dependencies
               * for both master and slave
               */
-             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
+//             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >        & aDofTypes );
              void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                   moris::Cell< MSI::Dv_Type >  & aDvTypes );
+                                                   moris::Cell< GEN_DV >        & aDvTypes );
 
 //------------------------------------------------------------------------------
               /**
@@ -515,7 +601,7 @@ namespace moris
                * @param[ in ]  aIsMaster       enum master or slave
                * @param[ out ] mGlobalDvTypes global list of group of dv types
                */
-              moris::Cell< moris::Cell< MSI::Dv_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+              moris::Cell< moris::Cell< GEN_DV > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
               {
                   // if the global list was not yet built
                   if( mGlobalDvBuild )
@@ -572,14 +658,9 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the residual and the Jacobian
-             * @param[ in ] aResidual matrix to fill with residual
-             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            virtual void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
-            {
-                MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
-            }
+            virtual void compute_jacobian_and_residual( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -614,27 +695,36 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the residual wrt the design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * @param[ in ] aWStar weight associated to evaluation point
              */
-            virtual void compute_drdpdv( real aWStar ) = 0;
+            virtual void compute_dRdp( real aWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the derivative of the residual wrt the design variables
-             * by finite difference
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * evaluate the derivative of the residual
+             * wrt the material design variables by finite difference
+             * @param[ in ] aWStar        weight associated to evaluation point
+             * @param[ in ] aPerturbation real for dv perturbation
+             * @param[ in ] aIsActive     cell of vectors for active dv
+             * @param[ in ] adRdpMatFD    cell of matrix for dRdpMat to fill
              */
-            void compute_drdpdv_FD_material( real                              aWStar,
-                                             real                              aPerturbation,
-                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                             moris::Cell< Matrix< DDRMat > > & adrdpdvMatFD );
+            void compute_dRdp_FD_material( moris::real                       aWStar,
+                                           moris::real                       aPerturbation,
+                                           moris::Cell< Matrix< DDRMat > > & adRdpMatFD );
 
 //------------------------------------------------------------------------------
-
-            void compute_drdpdv_FD_geometry( real                              aWStar,
-                                             real                              aPerturbation,
-                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                             moris::Cell< Matrix< DDRMat > > & adrdpdvGeoFD );
+            /**
+             * evaluate the derivative of the residual
+             * wrt the geometry design variables by finite difference
+             * @param[ in ] aWStar weight associated to evaluation point
+             * @param[ in ] aPerturbation real for dv perturbation
+             * @param[ in ] aIsActive     cell of vectors for active dv
+             * @param[ in ] adRdpGeoFD    cell of matrix for dRdpGeo to fill
+             */
+            void compute_dRdp_FD_geometry( moris::real                       aWStar,
+                                           moris::real                       aPerturbation,
+                                           moris::Cell< Matrix< DDSMat > > & aIsActive,
+                                           moris::Cell< Matrix< DDRMat > > & adRdpGeoFD );
 
 //------------------------------------------------------------------------------
             /**
@@ -712,26 +802,6 @@ namespace moris
              * @param[ in ] aItResidual bool true if ???
              */
             void build_requested_dof_type_list( const bool aItResidual );
-
-//------------------------------------------------------------------------------
-//
-//            virtual real compute_integration_error( const Matrix< DDRMat > & aNodalDOF,
-//                                                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
-//                                                    const uint        & aPointIndex )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//                return 0.0;
-//            }
-
-//------------------------------------------------------------------------------
-//
-//            real interpolate_scalar_at_point( const Matrix< DDRMat > & aNodalWeakBC,
-//                                              const uint             & aPointIndex )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//                return 0.0;
-//            }
-
 
         };
 //------------------------------------------------------------------------------

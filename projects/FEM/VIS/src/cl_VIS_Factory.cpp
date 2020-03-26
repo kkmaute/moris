@@ -52,7 +52,7 @@ namespace moris
         this->create_visualization_blocks();
 
         // Create vis mesh
-        return new Visualization_Mesh( mListofBlocks, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
+        return new Visualization_Mesh( mListofBlocks,mClustersOnBlock, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -71,6 +71,8 @@ namespace moris
         // define vertex id and index counter
         moris_index tVertexIndexCounter = 0;
         moris_id tVertexIdCounter = 0;
+
+        uint tMaxVertexInd = tIntegrationMesh->get_num_entities( EntityRank::NODE );
 
         // loop over all requested sets
         for( uint Ij = 0; Ij < mNumRequestedSets; Ij++ )
@@ -91,7 +93,7 @@ namespace moris
 
                 // resize list of vertices for this set
                 mVerticesOnSet( Ij ).resize( tNumVerticesOnSet, nullptr );
-                mVertexMapOnSet( Ij ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
+                mVertexMapOnSet( Ij ).set_size( tMaxVertexInd + 1, 1, -1 );
 
                 // Loop over all vertices on this set and create new vis vertices
                 for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
@@ -322,6 +324,7 @@ namespace moris
 
             mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                                                          mClustersOnBlock( Ij ),
+                                                         tMeshSet->get_set_colors(),
                                                          tMeshSet->get_spatial_dim() );
 
             mListofBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );

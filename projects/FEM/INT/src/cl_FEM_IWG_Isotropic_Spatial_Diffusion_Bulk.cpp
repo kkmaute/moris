@@ -46,7 +46,7 @@ namespace moris
             uint tLoadIndex       = static_cast< uint >( IWG_Property_Type::LOAD );
 
             // compute the residual
-            mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->flux() * tWStar;
 
             // if body load
@@ -56,7 +56,7 @@ namespace moris
                 Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // compute contribution of body load to residual
-                mSet->get_residual()( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                 += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
         }
@@ -73,6 +73,7 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+
 
             // get field interpolator for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -103,8 +104,7 @@ namespace moris
                     if ( mMasterProp( tLoadIndex )->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
+                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                         -= trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDOF( tDofType ) * tWStar;
                     }
                 }
@@ -113,8 +113,7 @@ namespace moris
                 if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDOF( tDofType ) ) * tWStar;
                     // fixme add derivative of the test strain
                 }
@@ -122,19 +121,20 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv( real aWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
+
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_dRdp - Not implemented." );
 
 //            // get index for a given dof type
 //            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -152,7 +152,7 @@ namespace moris
 //            for( uint iDv = 0; iDv < tNumDvDependencies; iDv++ )
 //            {
 //                // get the treated dv type
-//                Cell< MSI::Dv_Type > tDvType = mMasterGlobalDvTypes( iDv );
+//                Cell< GEN_DV > tDvType = mMasterGlobalDvTypes( iDv );
 //
 //                // get index for the treated dv type
 //                uint tIndexDep = mSet->get_dv_index_for_type( tDvType( 0 ), mtk::Master_Slave::MASTER );
@@ -180,8 +180,6 @@ namespace moris
 //                    += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDV( tDvType ) ) * tWStar;
 //                }
 //            }
-
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Bulk::compute_drdpdv - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

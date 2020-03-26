@@ -15,10 +15,14 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
-#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
 namespace moris
 {
+class Solver_Interface;
+namespace sol
+{
+class SOL_Warehouse;
+}
 namespace tsa
 {
 class Time_Solver_Algorithm;
@@ -27,7 +31,6 @@ namespace NLA
 {
     class Nonlinear_Problem;
     class Nonlinear_Algorithm;
-    class SOL_Warehouse;
     class Nonlinear_Solver
     {
     private:
@@ -44,7 +47,7 @@ namespace NLA
         moris::Cell< Nonlinear_Solver * > mNonLinearSubSolverList;
 
         //! Pointer to solver database
-        SOL_Warehouse * mSolverWarehouse = nullptr;
+        sol::SOL_Warehouse * mSolverWarehouse = nullptr;
 
         //! Pointer to nonlinear problem
         Nonlinear_Problem * mNonlinearProblem = nullptr;
@@ -64,7 +67,7 @@ namespace NLA
         //! Actual residual norm
         moris::real mResidualNorm = -1.0;
 
-        Param_List< boost::variant< bool, sint, real > > mParameterListNonLinearSolver;
+        moris::ParameterList mParameterListNonLinearSolver;
 
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
@@ -87,6 +90,8 @@ namespace NLA
          * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
          */
         Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+
+        Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType, const ParameterList aParameterlist );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -218,7 +223,7 @@ namespace NLA
          *
          * @param[out] rSolverDatabase Returns the pointer to the solver database
          */
-        SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
+        sol::SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
 
         //--------------------------------------------------------------------------------------------------
 
@@ -227,7 +232,7 @@ namespace NLA
          *
          * @param[in] rSolverDatabase Poiner to the solver database
          */
-        void set_solver_warehouse( SOL_Warehouse * aSolverWarehouse );
+        void set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse );
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief sets the time iteration
@@ -293,7 +298,7 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real > & set_param( char const* aKey )
+        ParameterListTypes & set_param( char const* aKey )
         {
 
             return mParameterListNonLinearSolver( aKey );

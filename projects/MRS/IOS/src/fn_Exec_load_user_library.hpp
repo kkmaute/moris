@@ -1,5 +1,5 @@
 /*
- * fn_hmr_load_user_library.hpp
+ * fn_Exec_load_user_library.hpp
  *
  *  Created on: Okt 13, 2019
  *      Author: schmidt
@@ -22,15 +22,34 @@
 
 namespace moris
 {
+    namespace tsa
+    {
+        class Time_Solver;
+    }
+
+    namespace fem
+    {
+        class Field_Interpolator_Manager;
+    }
 
 // -----------------------------------------------------------------------------
 
         /**
          * Interface for user defined function
          */
-        typedef void ( *MORIS_USER_FUNCTION ) ( Cell<moris::real > & aParameter );
+        typedef void ( *MORIS_USER_FUNCTION ) ( Cell< moris::real > & aParameter );
 
-        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::ParameterList & aParamterList );
+        typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
+
+        typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+
+        typedef void ( *MORIS_GEN_FUNCTION ) (       moris::real                & aReturnValue,
+                                               const moris::Matrix< DDRMat >    & aPoint,
+                                               const moris::Cell< moris::real > & aConst );
+
+        typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
+                                                    moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+                                                    moris::fem::Field_Interpolator_Manager        * aFIManager );
 
 // -----------------------------------------------------------------------------
 
@@ -113,9 +132,67 @@ namespace moris
                     = reinterpret_cast<MORIS_PARAMETER_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
-                // create error message
+//                // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                         + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_FEM_FREE_FUNCTION
+            load_fem_free_functions( const std::string & aFunctionName )
+            {
+                MORIS_FEM_FREE_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_FEM_FREE_FUNCTION>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            MORIS_GEN_FUNCTION
+            load_gen_free_functions( const std::string & aFunctionName )
+            {
+                MORIS_GEN_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_GEN_FUNCTION>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_SOL_CRITERIA_FUNC
+            load_sol_criteria_functions( const std::string & aFunctionName )
+            {
+                MORIS_SOL_CRITERIA_FUNC aUserFunction
+                    = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
 
                 // make sure that loading succeeded
                 MORIS_ERROR( aUserFunction, tError.c_str() );

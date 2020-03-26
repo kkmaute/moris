@@ -29,7 +29,7 @@
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
-#include "cl_Map_Class.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 #include "cl_Param_List.hpp" // CON/src
 
@@ -47,14 +47,12 @@ namespace dla
         Linear_System_Trilinos( Solver_Interface * aInput );
 
         Linear_System_Trilinos( Solver_Interface * aInput,
-                                Map_Class *        aMap,
-                                Map_Class *        aFullMap );
+        		Dist_Map *        aMap,
+				Dist_Map *        aFullMap );
 
         Linear_System_Trilinos( const char* aString );
 
         ~Linear_System_Trilinos();
-
-        void build_linear_system();
 
         moris::sint solve_linear_system();
 

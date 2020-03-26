@@ -21,7 +21,7 @@
 namespace moris
 {
     class Dist_Vector;
-    class Sparse_Matrix;
+    class Dist_Matrix;
 
     namespace mtk
     {
@@ -43,6 +43,7 @@ private:
         moris::Matrix< DDSMat >                        mMat5;
         moris::Cell< Matrix< DDUMat > >                mMat2;
         moris::Cell< Matrix< DDSMat > >                mMat3;
+        moris::Cell< Matrix< DDRMat > >                mMat6;
         moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
 
 public:
@@ -75,8 +76,8 @@ public:
 
     virtual void free_block_memory( const uint aBlockInd )         =0;
 
-    virtual void initialize_block( const uint aBlockInd,
-                                   const bool aIsResidual )
+    virtual void initialize_set( const uint aBlockInd,
+                                 const bool aIsResidual )
     {  };
 
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -101,20 +102,14 @@ public:
     // local dimension of the problem
     virtual moris::uint get_num_my_dofs()         =0;
 
+    virtual moris::uint get_num_rhs(){ return 1; };
+
     virtual uint get_max_num_global_dofs() = 0;
 
     // number local elements blocks
-    virtual moris::uint get_num_my_blocks()
-    {
-        MORIS_ERROR( false, "Solver_Interface::get_num_my_blocks: not set.");
-        return 0;
-    };
+    virtual moris::uint get_num_my_blocks() = 0;
 
-    virtual moris::uint get_num_my_elements_on_block( uint aBlockInd )
-    {
-        MORIS_ERROR( false, "Solver_Interface::get_num_my_blocks: not set.");
-        return 0;
-    };
+    virtual moris::uint get_num_equation_objects_on_set( uint aBlockInd ) = 0;
 
 
     // number local elements
@@ -136,14 +131,14 @@ public:
         return aMat;
     };
 
-    virtual moris::Matrix< DDUMat > get_constr_dof()          =0;
+    virtual moris::Matrix< DDUMat > get_constrained_Ids() =0;
 
-    virtual void get_element_matrix(const moris::uint             & aMyElementInd,
-                                          moris::Matrix< DDRMat > & aElementMatrix) =0;
+    virtual void get_equation_object_operator( const moris::uint             & aMyElementInd,
+                                                     moris::Matrix< DDRMat > & aElementMatrix) =0;
 
-    virtual void get_element_matrix(const moris::uint             & aMyBlockInd,
-                                    const moris::uint             & aMyElementInd,
-                                          moris::Matrix< DDRMat > & aElementMatrix) =0;
+    virtual void get_equation_object_operator( const moris::uint             & aMyBlockInd,
+                                               const moris::uint             & aMyElementInd,
+                                                     moris::Matrix< DDRMat > & aElementMatrix) =0;
 
     virtual void get_element_topology(const moris::uint             & aMyElementInd,
                                             moris::Matrix< DDSMat > & aElementTopology) =0;
@@ -152,12 +147,12 @@ public:
                                       const moris::uint             & aMyElementInd,
                                             moris::Matrix< DDSMat > & aElementTopology) = 0;
 
-    virtual void get_element_rhs(const moris::uint             & aMyElementInd,
-                                       moris::Matrix< DDRMat > & aElementRHS ) =0;
+    virtual void get_equation_object_rhs(const moris::uint              & aMyElementInd,
+                                       Cell< Matrix< DDRMat > > & aElementRHS ) =0;
 
-    virtual void get_element_rhs(const moris::uint             & aMyBlockInd,
-                                 const moris::uint             & aMyElementInd,
-                                       moris::Matrix< DDRMat > & aElementRHS ) =0;
+    virtual void get_equation_object_rhs(const moris::uint              & aMyBlockInd,
+                                 const moris::uint              & aMyElementInd,
+                                       Cell< Matrix< DDRMat > > & aElementRHS ) =0;
 
     //------------------------------------------------------------
     virtual void set_time_value( const moris::real & aLambda,
@@ -240,22 +235,36 @@ public:
     };
 
 //---------------------------------------------------------------------------------------------------------
-    void build_graph( moris::Sparse_Matrix * aMat );
+    void build_graph( moris::Dist_Matrix * aMat );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+    void fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+    void fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS,
                               moris::Dist_Vector   * aFullSolutionVector );
 
-    void assemble_jacobian( moris::Sparse_Matrix * aMat,
+    void assemble_jacobian( moris::Dist_Matrix * aMat,
                             moris::Dist_Vector   * aFullSolutionVector );
 
     void assemble_RHS( moris::Dist_Vector * aVectorRHS,
                        moris::Dist_Vector * aFullSolutionVector );
+
+    void get_adof_ids_based_on_criteria();
+
+    void calculate_criteria( const moris::uint & aMySetInd,
+                             const moris::uint & aMyElementInd )
+    {
+        MORIS_ERROR(false, "Solver_Interface::calculate_criteria(), not implemented for base class");
+    };
+
+    const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
+    {
+        MORIS_ERROR(false, "Solver_Interface::get_criteria(), not implemented for base class");
+        return mMat6;
+    };
 
 
 };

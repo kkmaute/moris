@@ -74,7 +74,9 @@ namespace moris
             void set_property( std::shared_ptr< fem::Property > aProperty,
                                std::string                      aPropertyString )
             {
-                // FIXME check that property type make sense?
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "CM_Diffusion_Linear_Isotropic::set_property - Unknown aPropertyString." );
 
                 // set the property in the property cell
                 mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -190,7 +192,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dFluxdDV ( mSpaceDim x numDerDv )
              */
-            void eval_dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDofTypes );
+            void eval_dFluxdDV( const moris::Cell< GEN_DV > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -198,7 +200,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dStraindDV ( mSpaceDim x numDerDV )
              */
-            void eval_dStraindDV( const moris::Cell< MSI::Dv_Type > & aDofTypes );
+            void eval_dStraindDV( const moris::Cell< GEN_DV > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -206,7 +208,7 @@ namespace moris
              * @param[ in ] aDvTypes   a dv type wrt which the derivative is evaluated
              * dConstdDV ( 1 x numDerDv )
              */
-            void eval_dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes );
+            void eval_dConstdDV( const moris::Cell< GEN_DV > & aDvTypes );
 
 //------------------------------------------------------------------------------
         };

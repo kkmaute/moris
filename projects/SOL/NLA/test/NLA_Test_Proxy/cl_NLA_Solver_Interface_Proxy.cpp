@@ -6,7 +6,7 @@
  */
 #include "cl_NLA_Solver_Interface_Proxy.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Vector.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -91,13 +91,13 @@ moris::Matrix< DDSMat > & NLA_Solver_Interface_Proxy::get_time_level_Ids_plus()
 //-------------------------------------------------
 void NLA_Solver_Interface_Proxy::perform_mapping()
 {
-    Matrix< DDRMat > tMat;
+    moris::Cell< Matrix< DDRMat > > tMat;
     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
 
     mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
 
-    mSolutionVectorPrev->sum_into_global_values( 1, tMatRows2, tMat );
+    mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
 
     mSolutionVectorPrev->vector_global_asembly();
 }

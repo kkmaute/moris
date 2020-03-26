@@ -154,13 +154,13 @@ namespace tsa
 
         uint get_num_my_blocks(){return 1; };
 
-        uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements=1; };
+        uint get_num_equation_objects_on_set( uint aBlockInd){return mNumElements=1; };
 
         void perform_mapping();
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_matrix(const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator(const uint             & aMyElementInd,
+                                                Matrix< DDRMat > & aElementMatrix)
         {
             mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
             if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
@@ -175,9 +175,9 @@ namespace tsa
             }
         };
 
-        void get_element_matrix(const uint             & aMyBlockInd,
-                                const uint             & aMyElementInd,
-                                      Matrix< DDRMat > & aElementMatrix)
+        void get_equation_object_operator( const uint             & aMyBlockInd,
+                                           const uint             & aMyElementInd,
+                                                 Matrix< DDRMat > & aElementMatrix)
         {
             mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
             if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
@@ -233,15 +233,15 @@ namespace tsa
         };
 
         // ----------------------------------------------------------------------------------------------
-        Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
+        Matrix< DDUMat > get_constrained_Ids(){ return mMyConstraintDofs; };
 
         // ----------------------------------------------------------------------------------------------
-        void get_element_rhs( const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS );
+        void get_equation_object_rhs( const uint                     & aMyElementInd,
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
-        void get_element_rhs( const uint             & aMyBlockInd,
-                              const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS );
+        void get_equation_object_rhs( const uint                     & aMyBlockInd,
+                              const uint                     & aMyElementInd,
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------
 

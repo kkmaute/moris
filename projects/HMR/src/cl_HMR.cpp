@@ -119,11 +119,8 @@ namespace moris
 
         void HMR::finalize()
         {
-            MORIS_ERROR( !mFinalizedCalled, "HMR::finalize(), Finalize was called earlier. You should only call it once." );
             // finish database
             mDatabase->finalize();
-
-            mFinalizedCalled = true;
         }
 
 // -----------------------------------------------------------------------------
@@ -330,8 +327,9 @@ namespace moris
                         // get pointer to interpolation object
                         mtk::Vertex_Interpolation * tInterp = tMesh->get_node_by_index( Ik )->get_interpolation( Im );
 
-                        tCoeffIDs( { Ik, Ik }, { 0, tMaxI - 1 } ) = tInterp->get_ids().matrix_data();
-                        tWeights( { Ik, Ik }, { 0, tMaxI - 1 } ) = tInterp->get_weights()->matrix_data();
+                        tCoeffIDs( { Ik, Ik }, { 0, tMaxI - 1 } ) = trans(tInterp->get_ids().matrix_data());
+                        tWeights( { Ik, Ik }, { 0, tMaxI - 1 } ) = trans(tInterp->get_weights()->matrix_data());
+
                     }
 
                     // generate label
@@ -738,6 +736,15 @@ namespace moris
             // dump mesh
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
                      ->get_bspline_mesh( aBsplineMeshIndex )->save_to_vtk( aFilePath );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::calculate_bspline_coordinates( const uint        & aLagrangeMeshIndex,
+                                                 const uint        & aBsplineMeshIndex  )
+        {
+            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
+                     ->get_bspline_mesh( aBsplineMeshIndex )->calculate_basis_coordinates();
         }
 
 // -----------------------------------------------------------------------------

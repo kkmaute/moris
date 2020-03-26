@@ -6,6 +6,7 @@
  */
 
 #include <memory>   // Shared ptrs
+
 #include "catch.hpp"
 
 // XTKL: Logging and Assertion Includes
@@ -36,9 +37,9 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Geom_Field_HMR.hpp"
 
 namespace xtk
 {
@@ -168,7 +169,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose  =  false;
 
     // Specify your decomposition methods and start cutting
@@ -226,7 +227,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
     tXTKModel.mVerbose  =  false;
 
     // Specify your decomposition methods and start cutting
@@ -288,7 +289,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
-        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};

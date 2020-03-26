@@ -34,6 +34,7 @@ protected:
 
     moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
     moris::Cell< moris::Cell< mtk::Vertex * > >  mVerticesOnSet;
+    moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;
 
     const bool                                  mOnlyPrimary;
 
@@ -43,13 +44,15 @@ protected:
 
 public:
 
-    Visualization_Mesh( moris::Cell< moris::mtk::Set * >            aListofBlocks,
-                        moris::Cell< moris::Cell< mtk::Cell * > >   aCellsOnBlock,
-                        moris::Cell< moris::Cell< mtk::Vertex * > > aVerticesOnBlock,
-                        const bool                                  aOnlyPrimary ) : mListofBlocks( aListofBlocks ),
-                                                                                     mCellsOnSet( aCellsOnBlock ),
-                                                                                     mVerticesOnSet( aVerticesOnBlock ),
-                                                                                     mOnlyPrimary( aOnlyPrimary )
+    Visualization_Mesh( moris::Cell< moris::mtk::Set * >                   aListofBlocks,
+                        moris::Cell< moris::Cell< const mtk::Cluster * > > aClustersOnBlock,
+                        moris::Cell< moris::Cell< mtk::Cell * > >          aCellsOnBlock,
+                        moris::Cell< moris::Cell< mtk::Vertex * > >        aVerticesOnBlock,
+                        const bool                                         aOnlyPrimary ) : mListofBlocks( aListofBlocks ),
+                                                                                            mCellsOnSet( aCellsOnBlock ),
+                                                                                            mVerticesOnSet( aVerticesOnBlock ),
+                                                                                            mClustersOnBlock( aClustersOnBlock ),
+                                                                                            mOnlyPrimary( aOnlyPrimary )
     {
         this->collect_all_sets();
     }
@@ -58,6 +61,31 @@ public:
 
     ~Visualization_Mesh()
     {
+        for( auto tSet : mListOfAllSets )
+        {
+            delete tSet;
+        }
+        for( auto tCellOnSet : mCellsOnSet )
+        {
+            for( auto tCell : tCellOnSet )
+            {
+                delete tCell;
+            }
+        }
+        for( auto tVerticesOnSet : mVerticesOnSet )
+        {
+            for( auto tVertex : tVerticesOnSet )
+            {
+                delete tVertex;
+            }
+        }
+        for( auto tClustersOnSet : mClustersOnBlock )
+        {
+            for( auto tCluster : tClustersOnSet )
+            {
+                delete tCluster;
+            }
+        }
     };
     //##############################################
     // Cell Cluster Access

@@ -38,10 +38,15 @@
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
-#include "../projects/GEN/src/geometry/cl_GEN_Sphere_Box.hpp"
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Sphere_Box.hpp"
+
+//#include "cl_GEN_Geometry.hpp"
+//#include "cl_GEN_Plane.hpp"
+//#include "cl_GEN_Sphere.hpp"
+//#include "cl_GEN_Sphere_Box.hpp"
 
 // select namespaces
 using namespace moris;
@@ -247,7 +252,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
          moris::ge::GEN_Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
 
           // setup the XTK model
-          Model tXTKModel(3,tMeshData,tGeometryEngine);
+          Model tXTKModel(3,tMeshData,&tGeometryEngine);
           tXTKModel.mVerbose  =  false;
 
           // decompose the mesh
