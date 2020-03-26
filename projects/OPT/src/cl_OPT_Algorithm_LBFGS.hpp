@@ -44,7 +44,7 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve(Problem* aOptProb );
+            void solve(std::shared_ptr<Problem> aOptProb );
 
             /**
              * @brief MORIS-GCMMA interface for evaluation of objectives and

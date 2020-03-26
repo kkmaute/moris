@@ -13,7 +13,7 @@ namespace moris
         class Algorithm
         {
         public:
-            moris::opt::Problem* mProblem; // Object of type optimization problem
+            std::shared_ptr<moris::opt::Problem> mProblem; // Object of type optimization problem
             Matrix< DDSMat > mActive; // flag for active/inactive constraints
             ParameterList mParameterList; // The Algorithm specific parameter list
 
@@ -42,21 +42,12 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            virtual void solve(Problem* aOptProb ) = 0;
+            virtual void solve(std::shared_ptr<Problem> aOptProb) = 0;
 
             /**
              * @brief Initialize the member variables
              */
             void initialize();
-
-//            /**
-//             * @brief Accessor for the parameter list of Algorithm
-//             */
-//            Param_List< Variant > &
-//            params()
-//            {
-//                return mParameterList;
-//            }
 
             /**
              * @brief Accessor to set a value in the parameter list of Algorithm

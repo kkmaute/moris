@@ -13,12 +13,13 @@
 // dynamic linker function
 #include "dlfcn.h"
 
-#include "HMR_Globals.hpp"
+//#include "HMR_Globals.hpp"
 #include "assert.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -37,7 +38,14 @@ namespace moris
         /**
          * Interface for user defined function
          */
-        typedef void ( *MORIS_USER_FUNCTION ) ( Cell< moris::real > & aParameter );
+        typedef Matrix<DDRMat> ( *MORIS_DDRMAT0_FUNCTION ) ( );
+
+        typedef Matrix<DDRMat> ( *MORIS_DDRMAT1_FUNCTION ) ( const moris::Matrix<DDRMat>& );
+
+        typedef Matrix<DDRMat> ( *MORIS_DDRMAT2_FUNCTION ) ( const moris::Matrix<DDRMat>&,
+                                                             const moris::Matrix<DDRMat>& );
+
+        typedef Matrix<DDSMat> ( *MORIS_DDSMAT0_FUNCTION ) ( );
 
         typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
 
@@ -105,16 +113,76 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            MORIS_USER_FUNCTION
-            load_function( const std::string & aFunctionName )
+            MORIS_DDRMAT0_FUNCTION
+            load_ddrmat0_function( const std::string & aFunctionName )
             {
-                MORIS_USER_FUNCTION aUserFunction
-                    = reinterpret_cast<MORIS_USER_FUNCTION>
+                MORIS_DDRMAT0_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_DDRMAT0_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                         + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            // -----------------------------------------------------------------------------
+
+            MORIS_DDRMAT1_FUNCTION
+            load_ddrmat1_function( const std::string & aFunctionName )
+            {
+                MORIS_DDRMAT1_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_DDRMAT1_FUNCTION>
+                        ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                      + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            // -----------------------------------------------------------------------------
+
+            MORIS_DDRMAT2_FUNCTION
+            load_ddrmat2_function( const std::string & aFunctionName )
+            {
+                MORIS_DDRMAT2_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_DDRMAT2_FUNCTION>
+                        ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                      + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            // -----------------------------------------------------------------------------
+
+            MORIS_DDSMAT0_FUNCTION
+            load_ddsmat0_function( const std::string & aFunctionName )
+            {
+                MORIS_DDSMAT0_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_DDSMAT0_FUNCTION>
+                        ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                      + "  within file " + mPath;
 
                 // make sure that loading succeeded
                 MORIS_ERROR( aUserFunction, tError.c_str() );

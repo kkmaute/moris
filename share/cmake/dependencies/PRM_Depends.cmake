@@ -17,3 +17,4 @@ set(PRM_TPL_DEPENDENCIES
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)

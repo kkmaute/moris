@@ -154,13 +154,13 @@ public:
 #endif
 //------------------------------------------------------------------------------
 
-    void build_basis_exodus_information();
+    void build_basis_exodus_information(std::string aName);
 
 //------------------------------------------------------------------------------
 
 #ifdef DEBUG
 private:
-    moris::Cell< moris::Matrix< DDRMat > > mEnrichedBasisCoords;
+    moris::Matrix< DDRMat > mEnrichedBasisCoords;
 
     moris::Matrix< DDRMat >             mEnrichedBasisStatus;
 #endif

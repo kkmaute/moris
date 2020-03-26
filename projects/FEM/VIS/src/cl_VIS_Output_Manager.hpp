@@ -81,7 +81,7 @@ namespace moris
 
             bool mOnlyPrimary = false;
 
-            moris::Cell< Writer_Exodus * >  mWriter;
+            moris::Cell< moris::mtk::Writer_Exodus * >  mWriter;
 
             mtk::Mesh_Manager *             mMTKMesh = nullptr;
 

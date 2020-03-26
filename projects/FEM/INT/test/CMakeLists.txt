@@ -46,6 +46,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_Input.cpp
+    FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
     )
 
 # List test dependencies

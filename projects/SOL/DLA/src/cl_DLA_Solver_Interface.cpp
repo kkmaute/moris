@@ -208,19 +208,27 @@ void Solver_Interface::get_adof_ids_based_on_criteria()       // FIXME find bett
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
     {
-//        std::cout<<"Block "<<Ii<<std::endl;
-        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
-
-        this->initialize_set( Ii, false );
-
-        for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+        if( this->get_set_type( Ii ) == fem::Element_Type::BULK )
         {
-            this->calculate_criteria( Ii, Ik );
+            std::cout<<"-------------------- Block -------------------------"<<Ii<<std::endl;
+            moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-            const moris::Cell< moris::Matrix< DDRMat> > & tCriteria = this->get_criteria( Ii );
+            moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
+            tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::VOLUME_FRACTION );
 
-print(tCriteria,"tCriteria");
+            this->set_requested_IQI_type( Ii, tRequestedIQITypes );
 
+            this->initialize_set( Ii, false );
+
+            for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+            {
+                this->calculate_criteria( Ii, Ik );
+
+                const moris::Cell< moris::Matrix< DDRMat> > & tCriteria = this->get_criteria( Ii );
+
+                print(tCriteria,"tCriteria");
+
+            }
         }
     }
 }

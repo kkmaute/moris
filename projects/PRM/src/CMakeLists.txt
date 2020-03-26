@@ -10,7 +10,8 @@ set(HEADERS
     cl_PRM_GEN_Parameters.hpp
     cl_PRM_MSI_Parameters.hpp
     cl_PRM_SOL_Parameters.hpp
-    cl_PRM_HMR_Parameters.hpp 
+    cl_PRM_HMR_Parameters.hpp
+    cl_PRM_OPT_Parameters.hpp
      )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

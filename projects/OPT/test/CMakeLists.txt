@@ -12,6 +12,7 @@ set(TEST_DEPENDENCIES
     ${OPT}-lib
     ${MORIS_BASE_LIBS}
     ${COM}-lib
+	${PRM}-lib
     )
 
 # Set the output path for test

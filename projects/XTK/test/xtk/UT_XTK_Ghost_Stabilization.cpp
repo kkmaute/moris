@@ -55,7 +55,7 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     tXTKModel.get_ghost_stabilization().visualize_ghost_on_mesh(0);
 
     // Write mesh
-    Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh());
+    moris::mtk::Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh());
     writer.write_mesh("", "./xtk_exo/xtk_test_ghost.exo");
 
     // Write the fields

@@ -78,6 +78,16 @@ namespace moris
         }
 
         /**
+         * Removes the specified key and its associated value from the map
+         *
+         * @param aKey the key to be erased
+         */
+        void erase(const std::string & aKey)
+        {
+            mParamMap.erase(aKey);
+        }
+
+        /**
          * @brief Sets an element to a value if it exists, otherwise an error is thrown
          *
          * @param[in] aKey Key corresponding to the mapped value that
@@ -101,7 +111,13 @@ namespace moris
             }
             else
             {
-                it->second  = aVal;
+                std::string tName(aVal.type().name());
+                if (!tName.compare("PKc"))
+                {
+                    std::string tVal(boost::get<const char*>(aVal));
+                    aVal = tVal;
+                }
+                it->second = aVal;
             }
         }
 

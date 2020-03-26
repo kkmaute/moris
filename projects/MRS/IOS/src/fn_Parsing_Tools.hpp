@@ -29,15 +29,13 @@ void string_to_mat( const std::string & aString,
 {
     if( aString.size() > 0 )
     {
-        uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
+        uint tCountRow = std::count( aString.begin(), aString.end(), ';') + 1;
+        uint tCountCol = (std::count( aString.begin(), aString.end(), ',') / tCountRow) + 1;
 
         std::string tString( aString );
 
         // allocate memory
-        aMat.set_size( tCount, 1 );
-
-        // reset counter
-        tCount = 0;
+        aMat.set_size( tCountRow, tCountCol );
 
         // reset position
         size_t tPos = 0;
@@ -45,21 +43,37 @@ void string_to_mat( const std::string & aString,
         // reset string
         tString = aString;
 
-        while( tPos < tString.size() )
+        // Create output matrix
+        uint tRowIndex;
+        uint tColIndex;
+        for (tRowIndex = 0; tRowIndex < tCountRow; tRowIndex++)
         {
-            // find string
-            tPos = tString.find( "," );
+            for (tColIndex = 0; tColIndex < tCountCol - 1; tColIndex++)
+            {
+                // find string
+                tPos = tString.find( "," );
+
+                // copy value into output matrix
+                if( tPos <  tString.size() )
+                {
+                    aMat(tRowIndex, tColIndex) = stod(  tString.substr( 0, tPos ) );
+                    tString =  tString.substr( tPos+1, tString.size() );
+                }
+            }
+
+            // Last value before next row
+            tPos = tString.find( ";" );
 
             // copy value into output matrix
             if( tPos <  tString.size() )
             {
-                aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
+                aMat(tRowIndex, tColIndex) = stod(  tString.substr( 0, tPos ) );
                 tString =  tString.substr( tPos+1, tString.size() );
             }
         }
 
         // copy value into output matrix
-        aMat( tCount++ ) = stod( tString );
+        aMat( tCountRow - 1, tCountCol - 1 ) = stod( tString );
     }
     else
     {
