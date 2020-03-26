@@ -8,10 +8,6 @@
 #define MORIS_DISTLINALG_CL_TSA_MONOLITHIC_TIME_SOLVER_HPP_
 
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
-#include "cl_SOL_Dist_Vector.hpp"
-
-#include "cl_DLA_Solver_Interface.hpp"
-#include "cl_Matrix_Vector_Factory.hpp"
 
 namespace moris
 {
@@ -49,7 +45,7 @@ namespace tsa
 
         //-------------------------------------------------------------------------------
 
-        ~Monolithic_Time_Solver(){};
+//        ~Monolithic_Time_Solver(){};
 
         //-------------------------------------------------------------------------------
         /**

@@ -41,6 +41,7 @@ Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem * aLinearSystem )
 Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
     //KSPDestroy(&mPetscKSPProblem);
+//    PCDestroy(&mpc);
 }
 
 //----------------------------------------------------------------------------------------

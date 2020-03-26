@@ -53,6 +53,7 @@ public:
 //                                   mVertexParamCoords( 0, 0 )
 //    {};
 
+    ~Cell_Cluster_Visualization(){}
     //----------------------------------------------------------------
     bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 

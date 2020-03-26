@@ -171,6 +171,16 @@ public:
     {}
 
 //------------------------------------------------------------------------------
+
+    ~GEN_Geometry_Engine()
+    {
+//        for( auto tGeometry : mGeometry )
+//        {
+//            delete tGeometry;
+//        }
+    }
+
+//------------------------------------------------------------------------------
     /**
      * initialize
      * @param[ in ] aLibrary a pointer to library for reading inputs

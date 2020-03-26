@@ -111,6 +111,7 @@ namespace moris
 
         // create the MSI parameter list
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+        tMSIParameters.set( "multigrid", mUseMultigrid );
 
         if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
         {
@@ -130,7 +131,7 @@ namespace moris
         mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
         // finalize the model solver interface
-        mModelSolverInterface->finalize( mUseMultigrid );
+        mModelSolverInterface->finalize();
 
         // calculate AdofMap
         mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
@@ -264,7 +265,7 @@ namespace moris
         mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
         // finalize the model solver interface
-        mModelSolverInterface->finalize( false );
+        mModelSolverInterface->finalize();
 
         // calculate AdofMap
         mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
@@ -369,6 +370,7 @@ namespace moris
 
             // create the MSI parameter list
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+            tMSIParameters.set( "multigrid", mUseMultigrid );
 
             // create the model solver interface from the MSI parameter list
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
@@ -383,7 +385,7 @@ namespace moris
             mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
             // finalize the model solver interface
-            mModelSolverInterface->finalize( mUseMultigrid );
+            mModelSolverInterface->finalize();
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();

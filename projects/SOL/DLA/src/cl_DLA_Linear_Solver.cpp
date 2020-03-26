@@ -128,15 +128,6 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
         tTryRestartOnFailIt = tTryRestartOnFailIt + 1;
     }
 
-//    if ( ( tErrorStatus != 0 && mParameterListLinearSolver.get< bool >( "DLA_hard_break" ) ) && !mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_on_fail" ) )
-//    {
-//        if( par_rank() == 0 )
-//        {
-//            MORIS_LOG( "\n Linear Solver status absolute value = %i\n", tErrorStatus );
-//            MORIS_ERROR( false, "Linear Solver did not exit with status 0!\n" );
-//        }
-//    }
-
     if( ( tErrorStatus != 0 ) )
     {
         if( par_rank() == 0)
@@ -152,12 +143,6 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
     {
         MORIS_LOG_INFO( " Solve of linear system took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
     }
-
-//    if ( tErrorStatus != 0 && mParameterListLinearSolver.get< bool >( "DLA_hard_break" ) )
-//    {
-//        aIter = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-//        aHardBreak = true;
-//    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

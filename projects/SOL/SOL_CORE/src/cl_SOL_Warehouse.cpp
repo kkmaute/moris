@@ -39,6 +39,32 @@ using namespace sol;
 
 SOL_Warehouse::~SOL_Warehouse()
 {
+    for( auto tLinearSolver : mLinearSolvers )
+    {
+        delete tLinearSolver;
+    }
+    for( auto tNonLinearSolver : mNonlinearSolvers )
+    {
+        delete tNonLinearSolver;
+    }
+    for( auto tTimeSolver : mTimeSolvers )
+    {
+        delete tTimeSolver;
+    }
+
+    for( uint Ik = 0; Ik < mLinearSolverAlgorithms.size(); Ik++ )
+    {
+        mLinearSolverAlgorithms( Ik ).reset();
+    }
+    for( uint Ik = 0; Ik < mNonlinearSolverAlgoriths.size(); Ik++ )
+    {
+        mNonlinearSolverAlgoriths( Ik ).reset();
+    }
+    for( uint Ik = 0; Ik < mTimeSolverAlgorithms.size(); Ik++ )
+    {
+        mTimeSolverAlgorithms( Ik ).reset();
+    }
+
     if( mTPLType == moris::sol::MapType::Petsc)
     {
         PetscFinalize();

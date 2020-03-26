@@ -66,6 +66,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -180,7 +181,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
 
         // Write mesh
-        Writer_Exodus writer(&tEnrIntegMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
         writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e");
 
         // Write the fields

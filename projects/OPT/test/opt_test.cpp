@@ -2,8 +2,7 @@
 #include <catch.hpp>
 
 // MORIS project header files.
-#include "cl_OPT_Interface_Rosenbrock.hpp"
-#include "cl_OPT_Problem_Rosenbrock.hpp"
+#include "cl_PRM_OPT_Parameters.hpp"
 #include "cl_OPT_Manager.hpp"
 
 // ---------------------------------------------------------------------
@@ -14,56 +13,53 @@ TEST_CASE( "[optimization]" )
 
     SECTION("GCMMA")
     {
-        // Create test interface
-        moris::opt::Interface_Rosenbrock tInterface;
+        // moris root
+        std::string tMorisRoot = std::getenv("MORISROOT");
 
-        // Create problem, assign interface
-        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
-        tProblem.mConstrained = true;
+        // Set up default parameter lists
+        moris::Cell<moris::Cell<ParameterList>> tParameterLists(2);
+        tParameterLists(0).resize(1);
+        tParameterLists(1).resize(1);
+        tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
+        tParameterLists(1)(0) = moris::prm::create_gcmma_parameter_list();
 
-        // Create algorithm and set parameters
-        opt::Algorithm_API tAlgGCMMA("GCMMA");
-        tAlgGCMMA.set_param("step_size") = 0.01;    // set the desired step size
-        tAlgGCMMA.set_param("penalty")   = 1000.0; // set the desired GCMMA penalty
+        // Change parameters
+        tParameterLists(0)(0).set("finite_difference_type", "central");
+        tParameterLists(0)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
 
-        // Assign algorithm to cell for manager
-        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgGCMMA);
+        // Create manager
+        moris::opt::Manager tManager(tParameterLists);
 
-        // Create manager, assign cell of algorithms and problem
-        moris::opt::Manager tManager(tAlgorithms, &tProblem);
-
-        // Solve the optimization problem
-        tManager.solve_opt_system();
+        // Solve optimization problem
+        tManager.perform();
 
         // Check Solution
-        REQUIRE(std::abs(tProblem.get_objectives()(0)) < 1.0e-02); // check value of objective
-        REQUIRE(norm(tProblem.get_advs() - 1.0) < 1.0e-02); // check value of design variable, x
+        REQUIRE(std::abs(tManager.get_objectives()(0)) < 2.0e-01); // check value of objective
+        REQUIRE(norm(tManager.get_advs() - 1.0) < 1.0e-01); // check value of design variable, x
     }
 
     SECTION("SQP")
     {
-        // Create test interface
-        moris::opt::Interface_Rosenbrock tInterface;
+        // moris root
+        std::string tMorisRoot = std::getenv("MORISROOT");
 
-        // Create problem, assign interface
-        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
-        tProblem.mConstrained = true;
+        // Set up parameter lists
+        moris::Cell<moris::Cell<ParameterList>> tParameterLists(2);
+        tParameterLists(0).resize(1);
+        tParameterLists(1).resize(1);
+        tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
+        tParameterLists(1)(0) = moris::prm::create_sqp_parameter_list();
+        tParameterLists(0)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
 
-        // Create algorithm and set parameters TODO set parameters for tighter convergence
-        opt::Algorithm_API tAlgSQP("SQP");
-
-        // Assign algorithm to cell for manager
-        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgSQP);
-
-        // Create manager, assign cell of algorithms and problem
-        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+        // Create manager
+        moris::opt::Manager tManager(tParameterLists);
 
         // Solve optimization problem
-        tManager.solve_opt_system();
+        tManager.perform();
 
         // Check Solution
-        REQUIRE(std::abs(tProblem.get_objectives()(0)) < 1.0e-03); // check value of objective
-        REQUIRE(norm(tProblem.get_advs() - 1.0) < 2.0e-02); // check value of design variable, x
+        REQUIRE(std::abs(tManager.get_objectives()(0)) < 1.0e-03); // check value of objective
+        REQUIRE(norm(tManager.get_advs() - 1.0) < 2.0e-02); // check value of design variable, x
     }
 
 //    SECTION("LBFGS")
@@ -73,8 +69,8 @@ TEST_CASE( "[optimization]" )
 //        moris::opt::Interface_Rosenbrock tInterface;
 //
 //        // Create problem, assign interface
-//        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
-//        tProblem.mConstrained = false;
+//        moris::opt::Problem_Rosenbrock tManager(&tInterface);
+//        tManager.mConstrained = false;
 //
 //        // Create algorithm and set parameters
 //        opt::Algorithm_API tAlgBFGS("LBFGS");
@@ -83,38 +79,43 @@ TEST_CASE( "[optimization]" )
 //        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgBFGS);
 //
 //        // Create manager, assign cell of algorithms and problem
-//        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+//        moris::opt::Manager tManager(tAlgorithms, &tManager);
 //
 //        // Solve optimization problem
-//        tManager.solve_opt_system();
+//        tManager.perform();
 //
-//        moris::print(tProblem.get_advs(), "advs");
-//        moris::print(tProblem.get_objectives(), "objective");
+//        moris::print(tManager.get_advs(), "advs");
+//        moris::print(tManager.get_objectives(), "objective");
 //
 //
 //    }
 
     SECTION( "SWEEP" )
     {
-        // Create test interface
-        moris::opt::Interface_Rosenbrock tInterface;
+        // moris root
+        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisOutput = std::getenv("MORISOUTPUT");
 
-        // Create problem, assign interface
-        moris::opt::Problem_Rosenbrock tProblem(&tInterface);
-        tProblem.mConstrained = true;
+        // Set up default parameter lists
+        moris::Cell<moris::Cell<ParameterList>> tParameterLists(2);
+        tParameterLists(0).resize(1);
+        tParameterLists(1).resize(1);
+        tParameterLists(0)(0) = moris::prm::create_opt_manager_parameter_list();
+        tParameterLists(1)(0) = moris::prm::create_sweep_parameter_list();
 
-        // Create algorithm and set parameters
-        opt::Algorithm_API tAlgSweep("SWEEP");
-        tAlgSweep.set_param("print") = false;
+        // Change parameters
+        tParameterLists(0)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
+        tParameterLists(1)(0).set("evaluate_constraint_gradients", false);
+        tParameterLists(1)(0).set("hdf5_path", tMorisOutput + "sweep.hdf5");
+        tParameterLists(1)(0).set("num_evaluations_per_adv", "3, 2");
+        tParameterLists(1)(0).set("finite_difference_type", "all");
+        tParameterLists(1)(0).set("finite_difference_epsilons", "0.001, 0.01; 0.00001, 0.00001");
 
-        // Assign algorithm to cell for manager
-        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgSweep);
-
-        // Create manager, assign cell of algorithms and problem
-        moris::opt::Manager tManager(tAlgorithms, &tProblem);
+        // Create manager
+        moris::opt::Manager tManager(tParameterLists);
 
         // Solve optimization problem
-        tManager.solve_opt_system();
+        tManager.perform();
     }
 }
 

@@ -12,6 +12,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
+#include "cl_XTK_Multigrid.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -2764,10 +2765,23 @@ Model::get_ghost_stabilization(moris::moris_index  aIndex)
     return *mGhostStabilization;
 }
 
-void
-Model::perform_multilevel_enrichment_internal()
+void Model::construct_multigrid()
 {
-    //        mEnrichment->create_multilevel_enrichments();
+    mMultigrid = std::make_shared< xtk::Multigrid >( this );
+
+    mMultigrid->build_enriched_coeff_to_background_coeff_map();
+
+    mMultigrid->create_fine_to_coarse_relationship();
+
+    mMultigrid->create_coarse_to_fine_relationship();
+
+    mMultigrid->create_coarse_to_fine_weights();
+
+    //mMultigrid->build_basis_exodus_information();
+#ifdef DEBUG
+    std::string tName = "Enriched_bspline_1.exo";
+    mMultigrid->build_basis_exodus_information(tName);
+#endif
 }
 
 // ----------------------------------------------------------------------------------

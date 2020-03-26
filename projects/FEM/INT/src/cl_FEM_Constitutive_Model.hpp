@@ -78,8 +78,11 @@ namespace moris
 
             // storage for evaluation
             Matrix< DDRMat > mFlux;
+            Matrix< DDRMat > mDivFlux;
             moris::Cell< Matrix< DDRMat > > mdFluxdDof;
             moris::Cell< Matrix< DDRMat > > mdFluxdDv;
+            moris::Cell< Matrix< DDRMat > > mdFluxdx;
+            moris::Cell< Matrix< DDRMat > > mddivfluxdu;
 
             Matrix< DDRMat > mTraction;
             moris::Cell< Matrix< DDRMat > > mdTractiondDof;
@@ -90,8 +93,11 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mdTestTractiondDv;
 
             Matrix< DDRMat > mStrain;
+            Matrix< DDRMat > mDivStrain;
             moris::Cell< Matrix< DDRMat > > mdStraindDof;
             moris::Cell< Matrix< DDRMat > > mdStraindDv;
+            moris::Cell< Matrix< DDRMat > > mdStraindx;
+            moris::Cell< Matrix< DDRMat > > mddivstraindu;
 
             Matrix< DDRMat > mTestStrain;
 
@@ -112,8 +118,11 @@ namespace moris
 
             // flag for evaluation
             bool mFluxEval = true;
+            bool mDivFluxEval = true;
             moris::Cell< bool > mdFluxdDofEval;
             moris::Cell< bool > mdFluxdDvEval;
+            moris::Cell< bool > mdFluxdxEval;
+            moris::Cell< bool > mddivfluxduEval;
 
             bool mTractionEval = true;
             moris::Cell< bool > mdTractiondDofEval;
@@ -124,8 +133,11 @@ namespace moris
             moris::Cell< bool > mdTestTractiondDvEval;
 
             bool mStrainEval = true;
+            bool mDivStrainEval = true;
             moris::Cell< bool > mdStraindDofEval;
             moris::Cell< bool > mdStraindDvEval;
+            moris::Cell< bool > mdStraindxEval;
+            moris::Cell< bool > mddivstrainduEval;
 
             bool mTestStrainEval = true;
 
@@ -140,7 +152,19 @@ namespace moris
             /**
              * constructor
              */
-            Constitutive_Model(){};
+            Constitutive_Model()
+            {
+                // FIXME for now only 1st order allowed
+                uint tOrder = 1;
+
+                // set storage for evaluation
+                mdFluxdx.resize( tOrder );
+                mdStraindx.resize( tOrder );
+
+                // set flag for evaluation
+                mdFluxdxEval.assign( tOrder, true );
+                mdStraindxEval.assign( tOrder, true );
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -220,18 +244,22 @@ namespace moris
             {
                 // reset the value flag
                 mFluxEval         = true;
+                mDivFluxEval      = true;
                 mTractionEval     = true;
                 mTestTractionEval = true;
                 mStrainEval       = true;
+                mDivStrainEval    = true;
                 mTestStrainEval   = true;
                 mConstEval        = true;
 
                 // reset the dof derivative flag
                 uint tNumDofTypes = mGlobalDofTypes.size();
                 mdFluxdDofEval.assign( tNumDofTypes, true );
+                mddivfluxduEval.assign( tNumDofTypes, true );
                 mdTractiondDofEval.assign( tNumDofTypes, true );
                 mdTestTractiondDofEval.assign( tNumDofTypes, true );
                 mdStraindDofEval.assign( tNumDofTypes, true );
+                mddivstrainduEval.assign( tNumDofTypes, true );
                 mdConstdDofEval.assign( tNumDofTypes, true );
 
                 // reset the dv derivative flag
@@ -527,16 +555,20 @@ namespace moris
 
                 // set flag for evaluation
                 mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
+                mddivfluxduEval.resize( tNumGlobalDofTypes, true );
                 mdTractiondDofEval.resize( tNumGlobalDofTypes, true );
                 mdTestTractiondDofEval.resize( tNumGlobalDofTypes, true );
                 mdStraindDofEval.resize( tNumGlobalDofTypes, true );
+                mddivstrainduEval.resize( tNumGlobalDofTypes, true );
                 mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
                 // set storage for evaluation
                 mdFluxdDof.resize( tNumGlobalDofTypes );
+                mddivfluxdu.resize( tNumGlobalDofTypes );
                 mdTractiondDof.resize( tNumGlobalDofTypes );
                 mdTestTractiondDof.resize( tNumGlobalDofTypes );
                 mdStraindDof.resize( tNumGlobalDofTypes );
+                mddivstraindu.resize( tNumGlobalDofTypes );
                 mdConstdDof.resize( tNumGlobalDofTypes );
             };
 
@@ -920,6 +952,71 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * get the divergence of the flux
+             * @param[ out ] mDivFlux divergence of the flux
+             */
+            const Matrix< DDRMat > & divflux()
+            {
+                // if the divergence of the flux was not evaluated
+                if( mDivFluxEval )
+                {
+                    // evaluate the divergence of the flux
+                    this->eval_divflux();
+
+                    // set bool for evaluation
+                    mDivFluxEval = false;
+                }
+                // return the divergence of the flux value
+                return mDivFlux;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the divergence of the flux
+             */
+            virtual void eval_divflux()
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_divflux - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the divergence of the flux wrt to dof type
+             * @param[ out ] mddivfluxdu derivative of the divergence of the flux
+             *                           wrt to dof type
+             */
+            const Matrix< DDRMat > & ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                // if aDofType is not an active dof type for the CM
+                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::ddivfluxdu - no dependency in this dof type." );
+
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+                // if the derivative of the divergence of the flux was not evaluated
+                if( mddivfluxduEval( tDofIndex ) )
+                {
+                    // evaluate the derivative of the divergence of the flux
+                    this->eval_ddivfluxdu( aDofType );
+
+                    // set bool for evaluation
+                    mddivfluxduEval( tDofIndex ) = false;
+                }
+                // return the divergence of the flux value
+                return mddivfluxdu( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the flux wrt to dof type
+             */
+            virtual void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_ddivfluxdu - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * get the constitutive model traction
              * @param[ in ]  aNormal   normal
              * @param[ out ] mTraction constitutive model traction
@@ -1011,6 +1108,71 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * get the divergence of the strain
+             * @param[ out ] mDivFlux divergence of the strain
+             */
+            const Matrix< DDRMat > & divstrain()
+            {
+                // if the divergence of the strain was not evaluated
+                if( mDivStrainEval )
+                {
+                    // evaluate the divergence of the strain
+                    this->eval_divstrain();
+
+                    // set bool for evaluation
+                    mDivStrainEval = false;
+                }
+                // return the divergence of the strain value
+                return mDivStrain;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the divergence of the strain
+             */
+            virtual void eval_divstrain()
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_divstrain - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the divergence of the strain wrt to dof type
+             * @param[ out ] mddivstraindu derivative of the divergence of the strain
+             *                             wrt to dof type
+             */
+            const Matrix< DDRMat > & ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                // if aDofType is not an active dof type for the CM
+                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::ddivstraindu - no dependency in this dof type." );
+
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+                // if the derivative of the divergence of the strain was not evaluated
+                if( mddivstrainduEval( tDofIndex ) )
+                {
+                    // evaluate the derivative of the divergence of the strain
+                    this->eval_ddivstraindu( aDofType );
+
+                    // set bool for evaluation
+                    mddivstrainduEval( tDofIndex ) = false;
+                }
+                // return the divergence of the strain value
+                return mddivstraindu( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the strain wrt to dof type
+             */
+            virtual void eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_ddivstraindu - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * get the constitutive model test strain
              * @param[ out ] mTestStrain constitutive model test strain
              */
@@ -1065,6 +1227,39 @@ namespace moris
             virtual void eval_const()
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_const - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the flux wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            const Matrix< DDRMat > & dfluxdx( uint aOrder )
+            {
+                MORIS_ERROR( aOrder == 1, "Constitutive_Model::dfluxdx - Works only for 1st order derivative for now." );
+
+               // if the derivative has not been evaluated yet
+               if( mdFluxdxEval( aOrder - 1 ) )
+               {
+                   // evaluate the derivative
+                   this->eval_dfluxdx( aOrder );
+
+                   // set bool for evaluation
+                   mdFluxdxEval( aOrder - 1 ) = false;
+               }
+
+               // return the derivative
+               return mdFluxdx( aOrder - 1 );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the flux wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            virtual void eval_dfluxdx( uint aOrder )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dfluxdx - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -1233,6 +1428,39 @@ namespace moris
                                                  const Matrix< DDRMat >             & aJump )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the strain wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            const Matrix< DDRMat > & dstraindx( uint aOrder )
+            {
+                MORIS_ERROR( aOrder == 1, "Constitutive_Model::dstraindx - Works only for 1st order derivative for now." );
+
+               // if the derivative has not been evaluated yet
+               if( mdStraindxEval( aOrder - 1 ) )
+               {
+                   // evaluate the derivative
+                   this->eval_dstraindx( aOrder );
+
+                   // set bool for evaluation
+                   mdStraindxEval( aOrder - 1 ) = false;
+               }
+
+               // return the derivative
+               return mdStraindx( aOrder - 1 );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the strain wrt space
+             * @param[ in ] aOrder order of the derivative
+             */
+            virtual void eval_dstraindx( uint aOrder )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dstraindx - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------

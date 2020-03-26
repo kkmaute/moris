@@ -22,6 +22,9 @@ private:
 public:
     Cluster(){};
 
+    virtual
+    ~Cluster(){};
+
     //##############################################
     // Characteristic functions
     //##############################################

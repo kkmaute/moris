@@ -81,89 +81,14 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_SQP::Algorithm_SQP( ) :
-                Algorithm(),
-                mOptIter(0)
+        Algorithm_SQP::Algorithm_SQP() : Algorithm(), mOptIter(0)
         {
-            // assign algorithm specific parameters - these values have been
-            // carried forward from the old code
+            // Not sure what these are triggering
             mMinWLen = 500;
             mObjAdd  = 0.0;
             mObjRow  = 1;
             mProb    = (char*)"fem ";
 
-            //******************************************************************
-            // assign default parameter values - PLEASE REFER to documentation
-            // at '.../MTPLS/Snopt/doc/snopt.pdf' for CLEAR UNDERSTANDING of the
-            // parameters encountered in this algorithm.
-            //******************************************************************
-
-            // Printing
-            mParameterList.insert( "Major print level", 1 );   // Controls the amount of output to print each major iteration.
-            mParameterList.insert( "Minor print level", 1 );   // Controls the amount of output during the QP subproblems.
-            mParameterList.insert( "Print file"       , 0 );   // Change to >0 to print output to file.
-            mParameterList.insert( "Summary file"     , 0 );   // Change to >0 to print summary to file.
-            mParameterList.insert( "Print frequency"  , 100 ); // Every nth minor iteration we print output to file.
-            mParameterList.insert( "Log frequency"    , 100 ); // Related to print frequency.
-            mParameterList.insert( "Summary frequency", 100 ); // Every nth minor iteration we print output to file.
-            mParameterList.insert( "Timing level"     , 3 );   // prints CPU times
-
-            // SQP method
-            mParameterList.insert( "Major iterations limit", 1000 );                    // number of allowed major iterations
-            mParameterList.insert( "Minor iterations limit", 500 );                     // number of allowed minor iterations
-            mParameterList.insert( "Major step limit"      , 2.0 );                     // limits the change in variable during linesearch
-            mParameterList.insert( "Superbasics limit"     , 500 );                     // places a limit on the storage of superbasic variables
-            mParameterList.insert( "New superbasics limit" , 99 );                      // controls early termination of QPs
-            mParameterList.insert( "linesearch_type"       , "Derivative linesearch" ); // other options are:
-                                                                                        // "Nonderivative linesearch"
-            mParameterList.insert( "Linesearch tolerance"       , 0.9 );                // controls accuracy of linesearch
-            mParameterList.insert( "Function precision"         , 3e-13 );              // relative accuracy with which nonlinear functions are computed
-            mParameterList.insert( "Difference interval"        , 5.5e-7 );             // determines accuracy of gradients using forward differencing
-            mParameterList.insert( "Central difference interval", 6.7e-5 );             // determines accuracy of gradients using central differencing
-            mParameterList.insert( "Proximal point method"      , 1 );                  // satisfies linear constraints near initial guess
-            mParameterList.insert( "Violation limit"            , 10.0 );               // limit on maximum constraint violation after linesearch
-            mParameterList.insert( "Unbounded step size"        , 1.0e18 );             // determines unboundedness of linesearch step size
-            mParameterList.insert( "Unbounded objective value"  , 1.0e15 );             // determines unboundedness of objective
-            mParameterList.insert( "Infinite bound size", 1.0e+20 );                    // any upper bound greater than this value is regarded as infinity
-
-            // QP subproblems
-            mParameterList.insert( "Iterations limit", 10000 );   // sum of allowed minor iterations over all major iterations
-            mParameterList.insert( "Elastic weight"  , 2.0e+4 );  // weighting of infeasibilities in the objective of the QP subproblem
-            mParameterList.insert( "Partial price"   , 1 );       // reduces the work required for each "pricing" operation
-            mParameterList.insert( "Pivot tolerance" , 3.7e-11 ); // guards the basis matrix from becoming singular
-
-            // Hessian approximation
-            mParameterList.insert( "hessian_type"     , "Hessian Full memory" ); // Method for storing and updating the Hessian.
-                                                                                 // Set to "Hessian Limited memory" for variables > 75.
-            mParameterList.insert( "Hessian frequency", 999999 );                // for full memory Hessian
-            mParameterList.insert( "Hessian updates"  , 20 );                    // for limited memory Hessian
-
-            // Frequencies
-            mParameterList.insert( "Expand frequency"       , 10000 ); // for anti-cycling procedure
-            mParameterList.insert( "Factorization frequency", 50 );    // for basis updates
-
-            // LU options
-            mParameterList.insert( "LU factor tolerance"     , 10.0 );                  // limits size of multipliers in L
-            mParameterList.insert( "LU update tolerance"     , 10.0 );                  // limits size of multipliers in L during updates
-            mParameterList.insert( "LU density tolerance"    , 0.6  );                  // handles sparsity of LU factorization
-            mParameterList.insert( "LU singularity tolerance", 2e-6 );                  // handles guard against singularity during factorization
-            mParameterList.insert( "lu_pivoting_type"        , "LU Partial Pivoting" ); // Related to LU factorization. Other options are
-                                                                                        // "LU Rook Pivoting" - more costly and stable
-                                                                                        // "LU Complete Pivoting" - more costly and stable
-
-            // Convergence Tolerances
-            mParameterList.insert( "Major optimality tolerance" , 1e-6 ); // target accuracy of the dual variable
-            mParameterList.insert( "Minor optimality tolerance" , 5e-7 ); // Also related to target accuracy of the dual variable
-            mParameterList.insert( "Major feasibility tolerance", 1e-6 ); // target nonlinear constraint violation
-            mParameterList.insert( "Feasibility tolerance"      , 1e-6 ); // Related to minor feasibility tolerance
-            mParameterList.insert( "Minor feasibility tolerance", 1e-6 ); // for satisfying the QP bounds
-
-            // Derivative checking
-            mParameterList.insert( "Verify level", 0 ); // Finite difference check on derivatives computed by user-provided routines
-
-            // Scaling
-            mParameterList.insert( "Scale option"   , 1 );   // flag for scaling of constraints and variables
-            mParameterList.insert( "Scale tolerance", 0.9 ); // affects effectiveness with which constraint matrix is scaled
         }
 
         //----------------------------------------------------------------------
@@ -176,9 +101,13 @@ namespace moris
 
         void Algorithm_SQP::set_params(char* cw, int lencw, int* iw, int leniw, double* rw, int lenrw)
         {
+            // Initialize
             int iPrint = 0;
             int iSumm  = 0;
             int iExit  = 0;
+
+            // Remove algorithm name from the parameter list
+            mParameterList.erase("algorithm");
 
             // loop over all entries in the parameter list
             for ( auto it = mParameterList.begin(); it != mParameterList.end(); ++it )
@@ -237,7 +166,7 @@ namespace moris
 
         //----------------------------------------------------------------------
 
-        void Algorithm_SQP::solve(Problem* aOptProb )
+        void Algorithm_SQP::solve(std::shared_ptr<Problem> aOptProb )
         {
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
@@ -456,8 +385,8 @@ void OptAlgSQP_usrfun(
     if(*needG)
     {
         // get the gradient of objective and constraints
-        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradient();
-        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradient();
+        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradients();
+        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradients();
 
         for( int i = 0, cur_nz = 0; i < *n; ++i )
         {

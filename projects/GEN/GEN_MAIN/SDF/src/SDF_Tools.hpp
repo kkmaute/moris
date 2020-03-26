@@ -21,6 +21,8 @@
 #include "linalg_typedefs.hpp"
 #include "fn_norm.hpp"
 
+#include "fn_Parsing_Tools.hpp"
+
 namespace moris
 {
     namespace sdf
@@ -97,25 +99,6 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        /**
-         * This function inverts little endian to big endian and vice versa.
-         * Needed for VTK debug files.
-         */
-        template <typename T> T swap_byte_endian(T aValue)
-        {
-            T aOutValue;
-            auto *tPointer = (char*) &aValue;
-            auto *tOutPointer = (char*)&aOutValue;
-            int size = sizeof(T);
-            for(int i=0; i<size; i++)
-            {
-                tOutPointer[size - 1 - i] = tPointer[i];
-            }
-            return aOutValue;
-        }
-
-// -----------------------------------------------------------------------------
-
         bool
         string_to_bool( const std::string & aString )
         {
@@ -135,61 +118,6 @@ namespace moris
                                     || tLowerString == "1" ) ;
         }
 
-// -----------------------------------------------------------------------------
-
-        std::string
-        parallelize_path( const std::string & aFilePath )
-        {
-            if( par_size() == 1 || aFilePath.size() == 0 )
-            {
-                // leave path untouched
-                return aFilePath;
-            }
-            else
-            {
-                return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                        + "." + std::to_string( par_size() ) // rank of this processor
-                + "." + std::to_string( par_rank() ) // number of procs
-                +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        std::string
-        proc_string()
-        {
-            std::string tString = "              ";
-
-            if( par_size() > 1 )
-            {
-                uint tMyRank = par_rank();
-                tString = "  proc " + std::to_string( tMyRank );
-
-                if ( tMyRank < 10 )
-                {
-                    tString +=" ... :" ;
-                }
-                else if ( tMyRank < 100 )
-                {
-                    tString +=" .. :" ;
-                }
-                else if ( tMyRank < 1000 )
-                {
-                    tString +=" . :" ;
-                }
-                else if ( tMyRank < 10000 )
-                {
-                    tString +="  :" ;
-                }
-                else
-                {
-                    tString +=" :" ;
-                }
-            }
-
-            return tString;
-        }
 // =============================================================================
 // Linear Algebra
 // =============================================================================

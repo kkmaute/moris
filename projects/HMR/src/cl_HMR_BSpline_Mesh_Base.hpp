@@ -211,6 +211,15 @@ namespace moris
             uint get_number_of_basis_connected_to_basis( const moris_index aIndex );
 
 // ----------------------------------------------------------------------------
+
+            /**
+             * calculates XZY coordinates for each basis
+             *
+             * @return void
+             */
+            virtual void calculate_basis_coordinates() = 0;
+
+// ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
@@ -301,7 +310,6 @@ namespace moris
                                                                        Cell< Element * > & aElements );
 
 
-
 // ----------------------------------------------------------------------------
         private:
 // ----------------------------------------------------------------------------
@@ -338,15 +346,6 @@ namespace moris
              * @return void
              */
             void link_basis_to_elements_on_level_zero();
-
-// ----------------------------------------------------------------------------
-
-            /**
-             * calculates XZY coordinates for each basis
-             *
-             * @return void
-             */
-            virtual void calculate_basis_coordinates() = 0;
 
 // ----------------------------------------------------------------------------
 

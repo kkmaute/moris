@@ -10,18 +10,16 @@
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
-#ifdef WITHGPERFTOOLS
-#include <gperftools/profiler.h>
-#endif
-
 namespace moris
 {
 namespace dla
 {
     Dist_Vector * Linear_Problem::get_full_solver_LHS()
     {
+        // zero out full LHS vec
         mFullVectorLHS->vec_put_scalar( 0.0 );
 
+        // Import free LHS to full LHS
         mFullVectorLHS->import_local_to_global( *mFreeVectorLHS );
 
         return mFullVectorLHS;
@@ -36,25 +34,29 @@ namespace dla
 //----------------------------------------------------------------------------------------
     void Linear_Problem::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
     {
+        // zero out RHS
         mVectorRHS->vec_put_scalar( 0.0 );
+
+        // zero out matrix
         mMat->mat_put_scalar( 0.0 );
 
-        mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector );
-
-        //mMat->print();
-        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
+        //
+        mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector );
     }
 
 //----------------------------------------------------------------------------------------
     void Linear_Problem::assemble_residual( Dist_Vector * aFullSolutionVector )
     {
+        // Zero out RHS
         mVectorRHS->vec_put_scalar( 0.0 );
 
         // start timer
         tic tTimer;
-        mInput->assemble_RHS( mVectorRHS, aFullSolutionVector );
-        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
+        // assemble RHS
+        mSolverInterface->assemble_RHS( mVectorRHS, aFullSolutionVector );
+
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
         MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
 
         //mVectorRHS->print();
@@ -67,20 +69,14 @@ namespace dla
 
         // start timer
         tic tTimer;
-#ifdef WITHGPERFTOOLS
-     ProfilerStart("/tmp/gprofmoris.log");
-#endif
 
-        mInput->assemble_jacobian( mMat, aFullSolutionVector);
+        // assemble jacobian
+        mSolverInterface->assemble_jacobian( mMat, aFullSolutionVector);
 
-#ifdef WITHGPERFTOOLS
-    ProfilerStop();
-#endif
+        // stop timer
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-       // stop timer
-       real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-       MORIS_LOG_INFO( " Assembly of jacobianon processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " Assembly of jacobianon processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
 //----------------------------------------------------------------------------------------
@@ -89,7 +85,7 @@ namespace dla
         mVectorRHS->vec_put_scalar( 0.0 );
         mMat->mat_put_scalar( 0.0 );
 
-        mInput->fill_matrix_and_RHS( mMat, mVectorRHS);
+        mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS);
     }
 
 }

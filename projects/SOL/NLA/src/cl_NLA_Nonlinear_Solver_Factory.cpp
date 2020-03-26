@@ -20,23 +20,6 @@ Nonlinear_Solver_Factory::Nonlinear_Solver_Factory()
 Nonlinear_Solver_Factory::~Nonlinear_Solver_Factory()
 {}
 
-//std::shared_ptr< Nonlinear_Solver > Nonlinear_Solver_Factory::create_nonlinear_solver(       Solver_Interface         * aSolverInput,
-//                                                                                       const enum NonlinearSolverType   aNonLinSolverType )
-//{
-//    std::shared_ptr< Nonlinear_Solver > tNonLinSys = nullptr;
-//
-//    switch( aNonLinSolverType )
-//    {
-//    case ( NonlinearSolverType::NEWTON_SOLVER ):
-//        tNonLinSys = std::make_shared< Newton_Solver >( aSolverInput );
-//        break;
-//    default:
-//        MORIS_ERROR( false, "No solver type specified" );
-//        break;
-//    }
-//
-//    return tNonLinSys;
-//}
 
 std::shared_ptr< Nonlinear_Algorithm > Nonlinear_Solver_Factory::create_nonlinear_solver( const enum NonlinearSolverType aNonLinSolverType )
 {

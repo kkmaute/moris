@@ -119,11 +119,8 @@ namespace moris
 
         void HMR::finalize()
         {
-            MORIS_ERROR( !mFinalizedCalled, "HMR::finalize(), Finalize was called earlier. You should only call it once." );
             // finish database
             mDatabase->finalize();
-
-            mFinalizedCalled = true;
         }
 
 // -----------------------------------------------------------------------------
@@ -739,6 +736,15 @@ namespace moris
             // dump mesh
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
                      ->get_bspline_mesh( aBsplineMeshIndex )->save_to_vtk( aFilePath );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::calculate_bspline_coordinates( const uint        & aLagrangeMeshIndex,
+                                                 const uint        & aBsplineMeshIndex  )
+        {
+            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
+                     ->get_bspline_mesh( aBsplineMeshIndex )->calculate_basis_coordinates();
         }
 
 // -----------------------------------------------------------------------------

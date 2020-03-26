@@ -18,29 +18,12 @@
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
 
+#include "fn_Parsing_Tools.hpp"
+
 namespace moris
 {
     namespace hmr
     {
-// -----------------------------------------------------------------------------
-
-    /**
-     * This function inverts little endian to big endian and vice versa.
-     * Needed for VTK debug files.
-     */
-    template <typename T> T swap_byte_endian(T aValue)
-    {
-        T aOutValue;
-        auto *tPointer = (char*) &aValue;
-        auto *tOutPointer = (char*)&aOutValue;
-        int size = sizeof(T);
-        for(int i=0; i<size; i++)
-        {
-            tOutPointer[size - 1 - i] = tPointer[i];
-        }
-        return aOutValue;
-    }
-
 // -----------------------------------------------------------------------------
     // print dots for nice output
 
@@ -140,25 +123,6 @@ namespace moris
 
         return ( tLowerString == "true" || tLowerString == "on"
               || tLowerString == "yes"  || tLowerString == "1" ) ;
-    }
-
-// -----------------------------------------------------------------------------
-
-    inline
-    std::string parallelize_path( const std::string & aFilePath )
-    {
-        if( par_size() == 1 || aFilePath.size() == 0 )
-        {
-            // leave path untouched
-            return aFilePath;
-        }
-        else
-        {
-            return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                  + "." + std::to_string( par_size() ) // rank of this processor
-                  + "." + std::to_string( par_rank() ) // number of procs
-                  +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
-        }
     }
 
 // -----------------------------------------------------------------------------

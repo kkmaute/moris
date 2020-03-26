@@ -58,7 +58,7 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
-
+#include "cl_SOL_Warehouse.hpp"
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
@@ -320,7 +320,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         {
             tEnrIntegMesh.deactivate_empty_sets();
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", tEnrIgMeshFileName);
 
             // Write the fields

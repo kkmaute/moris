@@ -78,7 +78,7 @@ public :
     uint get_num_my_elements(){ return mNumElements; };
 
     // number of elements on proc
-    uint get_num_my_elements_on_block( uint aBlockInd ){ return mNumElements; };
+    uint get_num_equation_objects_on_set( uint aBlockInd ){ return mNumElements; };
 
     // ----------------------------------------------------------------------------------------------
     void get_equation_object_operator(const uint             & aMyElementInd,

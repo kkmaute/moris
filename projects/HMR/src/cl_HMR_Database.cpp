@@ -429,6 +429,8 @@ namespace moris
 
         void Database::finalize()
         {
+            MORIS_ERROR( !mFinalizedCalled, "Database::finalize(), Finalize was called earlier. You should only call it once." );
+
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
@@ -501,6 +503,8 @@ namespace moris
 
             // create sidesets for output pattern
             this->create_side_sets();
+
+            mFinalizedCalled = true;
         }
 
 // -----------------------------------------------------------------------------

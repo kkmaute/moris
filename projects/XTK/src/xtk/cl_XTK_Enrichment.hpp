@@ -85,6 +85,8 @@ public:
 
     typedef std::unordered_map<moris::moris_index,moris::moris_index> IndexMap;
 
+    friend class Multigrid;
+
 
     /*!
      * Performs basis function enrichment so that each element in connected regions of a given bulk phase are
@@ -190,7 +192,7 @@ private:
     Enrichment_Parameters mParameters;
 
     // Enrichment Data ordered by basis function indices
-    // For each basis function, the element indices and elemental subphases
+    // For each basis function, the element indices and elemental
     Cell<moris::Matrix< moris::IndexMat >> mElementEnrichmentLevel;
     Cell<moris::Matrix< moris::IndexMat >> mElementIndsInBasis;
 

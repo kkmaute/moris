@@ -15,10 +15,10 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
-#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
 namespace moris
 {
+class Solver_Interface;
 namespace sol
 {
 class SOL_Warehouse;

@@ -13,8 +13,12 @@
 
 #include "cl_MSI_Solver_Interface.hpp"
 
+#include "cl_SOL_Warehouse.hpp"
+
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -22,8 +26,6 @@
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"

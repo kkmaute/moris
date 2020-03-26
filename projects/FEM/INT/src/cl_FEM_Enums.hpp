@@ -101,6 +101,8 @@ namespace moris
             STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
             STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
             STRUC_LINEAR_PRESSURE_DIRICHLET, // linear elasticity Dirichlet mixed formulation (Nitsche)
+            INCOMPRESSIBLE_NS_VELOCITY_BULK,
+            INCOMPRESSIBLE_NS_PRESSURE_BULK,
             END_IWG_TYPE
         };
 

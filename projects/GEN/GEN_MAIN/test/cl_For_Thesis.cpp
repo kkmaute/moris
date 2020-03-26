@@ -77,6 +77,8 @@
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 
+#include "cl_SOL_Warehouse.hpp"
+
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
@@ -515,7 +517,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", "0_geomCheckNoFibers.exo");
 
             // Write the fields
@@ -979,7 +981,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", "0_geomCheck.exo");
 
             // Write the fields

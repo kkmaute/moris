@@ -6,8 +6,10 @@
  */
 
 #include "cl_TSA_Staggered_Time_Solver.hpp"
-
 #include "cl_TSA_Time_Solver.hpp"
+
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 
 using namespace moris;

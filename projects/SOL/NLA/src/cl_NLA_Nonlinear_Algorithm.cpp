@@ -7,8 +7,10 @@
 #include <ctime>
 
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
 
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_SOL_Dist_Vector.hpp"
 

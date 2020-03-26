@@ -59,6 +59,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -636,7 +637,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tGhost.visualize_ghost_on_mesh( 1 );
         tGhost.visualize_ghost_on_mesh( 2 );
 
-        Writer_Exodus writer(&tEnrIntegMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
         writer.write_mesh("", "benchmark_enriched_ig_w_ghost.exo");
         writer.close_file();
 

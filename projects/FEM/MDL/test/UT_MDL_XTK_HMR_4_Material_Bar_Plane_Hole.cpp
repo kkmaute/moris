@@ -72,6 +72,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -781,7 +782,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(9,"ghost_ss_3");
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_3", CellTopology::HEX8);
 
-        Writer_Exodus writer(&tEnrIgMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
         writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo");
 
         // Write the fields

@@ -52,7 +52,7 @@ namespace moris
         this->create_visualization_blocks();
 
         // Create vis mesh
-        return new Visualization_Mesh( mListofBlocks, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
+        return new Visualization_Mesh( mListofBlocks,mClustersOnBlock, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
     }
 
 //-----------------------------------------------------------------------------------------------------------

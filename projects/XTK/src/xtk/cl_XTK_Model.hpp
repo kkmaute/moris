@@ -66,6 +66,7 @@ class Ghost_Stabilization;
 class Enriched_Interpolation_Mesh;
 class Enriched_Integration_Mesh;
 class Ghost_Stabilization;
+class Multigrid;
 }
 
 
@@ -88,6 +89,7 @@ public:
     friend class Enriched_Interpolation_Mesh;
     friend class Enriched_Integration_Mesh;
     friend class Ghost_Stabilization;
+    friend class Multigrid;
 
     //--------------------------------------------------------------------------------
     // Initialization
@@ -187,6 +189,13 @@ public:
      */
     void
     convert_mesh_tet4_to_tet10();
+
+    // ----------------------------------------------------------------------------------
+
+    /*!
+     * Construct multigrid information
+     */
+    void construct_multigrid();
 
     //--------------------------------------------------------------------------------
     // Member data access functions
@@ -303,22 +312,12 @@ public:
     moris_index
     get_subphase_index(moris_id aSubphaseId);
 
-
     //--------------------------------------------------------------------------------
 
-    // multi grid stuff
-
-    void   perform_multilevel_enrichment_internal();
-    //--------------------------------------------------------------------------------
-    // FIXME  only temporary
-    void set_HMR_mesh_ptr( std::shared_ptr< moris::mtk::Mesh > aMesh )
+    std::shared_ptr< Multigrid > get_multigrid_ptr()
     {
-        mHMRMesh = aMesh;
-    };
-
-    std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
-
-    //--------------------------------------------------------------------------------
+        return mMultigrid;
+    }
 
     //--------------------------------------------------------------------------------
     // Printing Functions
@@ -349,6 +348,8 @@ protected:
     Ghost_Stabilization*               mGhostStabilization;
     Cell<Enriched_Interpolation_Mesh*> mEnrichedInterpMesh;
     Cell<Enriched_Integration_Mesh*>   mEnrichedIntegMesh;
+
+    std::shared_ptr< xtk::Multigrid >  mMultigrid;
 
 private:
 

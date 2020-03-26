@@ -11,6 +11,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_FEM_Enums.hpp"
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 
@@ -43,6 +44,7 @@ private:
         moris::Matrix< DDSMat >                        mMat5;
         moris::Cell< Matrix< DDUMat > >                mMat2;
         moris::Cell< Matrix< DDSMat > >                mMat3;
+        moris::Cell< Matrix< DDRMat > >                mMat6;
         moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
 
 public:
@@ -75,8 +77,8 @@ public:
 
     virtual void free_block_memory( const uint aBlockInd )         =0;
 
-    virtual void initialize_block( const uint aBlockInd,
-                                   const bool aIsResidual )
+    virtual void initialize_set( const uint aBlockInd,
+                                 const bool aIsResidual )
     {  };
 
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -108,7 +110,13 @@ public:
     // number local elements blocks
     virtual moris::uint get_num_my_blocks() = 0;
 
-    virtual moris::uint get_num_my_elements_on_block( uint aBlockInd ) = 0;
+    virtual moris::uint get_num_equation_objects_on_set( uint aBlockInd ) = 0;
+
+    virtual enum fem::Element_Type get_set_type( uint aMyEquSetInd )
+    {
+    	MORIS_ERROR( false, "Solver_Interface::initiate_output: not set.");
+    	return fem::Element_Type::UNDEFINED;
+    };
 
 
     // number local elements
@@ -250,6 +258,25 @@ public:
 
     void assemble_RHS( moris::Dist_Vector * aVectorRHS,
                        moris::Dist_Vector * aFullSolutionVector );
+
+    void get_adof_ids_based_on_criteria();
+
+    virtual void calculate_criteria( const moris::uint & aMySetInd,
+                             const moris::uint & aMyElementInd )
+    {
+        MORIS_ERROR(false, "Solver_Interface::calculate_criteria(), not implemented for base class");
+    };
+
+    virtual const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
+    {
+        MORIS_ERROR(false, "Solver_Interface::get_criteria(), not implemented for base class");
+        return mMat6;
+    };
+
+    void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aREquestedIQIType )
+    {
+        MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");
+    };
 
 
 };

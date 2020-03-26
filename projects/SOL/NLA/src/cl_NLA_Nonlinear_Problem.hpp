@@ -12,7 +12,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
-#include "cl_DLA_Linear_Problem.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include "cl_Param_List.hpp"
 

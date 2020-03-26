@@ -56,6 +56,7 @@ namespace moris
             MSI::MSI_Solver_Interface * mSolverInterface;
 
             friend class MSI_Solver_Interface;
+            friend class Multigrid;
 
 //------------------------------------------------------------------------------
 
@@ -157,7 +158,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void finalize( const bool aUseMultigrid = false )
+        void finalize()
         {
             for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
             {
@@ -179,7 +180,7 @@ namespace moris
                 tElement->set_unique_adof_map();
             }
 
-            if ( aUseMultigrid )
+            if ( mMSIParameterList.get< bool >( "multigrid" ) )
             {
                 mMultigrid = new Multigrid( this, mMesh );
 
@@ -210,9 +211,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Equation_Set * get_eqn_block( const moris::uint & aMyEquBlockInd )
+        Equation_Set * get_equation_set( const moris::uint & aMyEquSetInd )
         {
-            return mEquationBlocks( aMyEquBlockInd );
+            return mEquationBlocks( aMyEquSetInd );
         };
 
 //------------------------------------------------------------------------------
@@ -297,6 +298,15 @@ namespace moris
         {
             return mSolverInterface;
         };
+
+//------------------------------------------------------------------------------
+
+        ParameterList & get_msi_parameterlist()
+        {
+            return mMSIParameterList;
+        };
+
+
 
 //------------------------------------------------------------------------------
     };

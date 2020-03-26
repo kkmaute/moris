@@ -14,8 +14,10 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_DLA_Linear_Problem.hpp"
 
 #include "cl_Communication_Tools.hpp"
 

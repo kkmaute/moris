@@ -262,6 +262,23 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * MTK Interface: return the coords of this node as Moris::Mat
+             */
+#ifdef DEBUG
+            Matrix< DDRMat > get_coords() const
+            {
+                Matrix< DDRMat > aCoords( 1, N );
+                for( uint k=0; k<N; ++k )
+                {
+                    aCoords( k ) = mXYZ[ k ];
+                }
+                return aCoords;
+            }
+#endif
+
+// -----------------------------------------------------------------------------
+
+            /**
              * reserves the memory for the  neighbor container
              *
              * @return void
