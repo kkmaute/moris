@@ -39,6 +39,7 @@ namespace vis
         H1_SEMI_ERROR, // H1-semi error for dof
         PROPERTY, //Property
         J_INTEGRAL,  // J-Integral
+        K1_SENT,     // 1st stress intensity factor for the case of a single edge notch tension analysis
         END_ENUM//
     };
 
@@ -70,6 +71,7 @@ namespace vis
         tVisOutputTypeMap["H1_SEMI_ERROR"]     = vis::Output_Type::H1_SEMI_ERROR;
         tVisOutputTypeMap["PROPERTY"]          = vis::Output_Type::PROPERTY;
         tVisOutputTypeMap["J_INTEGRAL"]        = vis::Output_Type::J_INTEGRAL;
+        tVisOutputTypeMap["K1_SENT"]           = vis::Output_Type::K1_SENT;
         tVisOutputTypeMap["END_ENUM"]          = vis::Output_Type::END_ENUM;
 
         return tVisOutputTypeMap;

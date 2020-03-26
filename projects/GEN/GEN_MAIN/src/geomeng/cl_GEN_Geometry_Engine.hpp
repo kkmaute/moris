@@ -542,49 +542,6 @@ public:
      * @param[ in ] aPdvType          list of dv types (material only)
      * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
      */
-//    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
-//                        const bool          aUsingGeometryDvs = true )
-//    {
-//        // copy the input dv type list
-//        moris::Cell< enum GEN_DV > tTempList = aPdvType;
-//
-//        // if geometry dv
-//        if(aUsingGeometryDvs)
-//        {
-//            // switch on space dimension
-//            switch(mSpatialDim)
-//            {
-//                // if 2D
-//                case(2):
-//                {
-//                    // add x, y coords to the dv type list
-//                    tTempList.push_back(GEN_DV::XCOORD);
-//                    tTempList.push_back(GEN_DV::YCOORD);
-//                    break;
-//                }
-//                // if 3D
-//                case(3):
-//                {
-//                    // add x, y, z coords to the dv type list
-//                    tTempList.push_back(GEN_DV::XCOORD);
-//                    tTempList.push_back(GEN_DV::YCOORD);
-//                    tTempList.push_back(GEN_DV::ZCOORD);
-//                    break;
-//                }
-//                default:
-//                {
-//                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-//                }
-//            }
-//        }
-//
-//        // set the set dv type flag to true
-//        mTypesSet = true;
-//
-//        // set the dv type list for the pdv host manager
-//        mPdvHostManager.set_pdv_types( tTempList );
-//    }
-
     void set_pdv_types( Cell< enum GEN_DV > aPdvType )
     {
         // set the set dv type flag to true

@@ -7,16 +7,17 @@
 
 #include <memory>
 #include "assert.hpp"
-#include "cl_FEM_IQI_Factory.hpp"       //FEM/INT/src
-#include "cl_FEM_IQI_Volume.hpp"        //FEM/INT/src
-#include "cl_FEM_IQI_Strain_Energy.hpp" //FEM/INT/src
-#include "cl_FEM_IQI_Dof.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_Property.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_L2_Error_Analytic.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_H1_Error_Analytic.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_H1_Semi_Error.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_J_Integral.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_Volume_Fraction.hpp"           //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"               //FEM/INT/src
+#include "cl_FEM_IQI_Volume.hpp"                //FEM/INT/src
+#include "cl_FEM_IQI_Strain_Energy.hpp"         //FEM/INT/src
+#include "cl_FEM_IQI_Dof.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI_Property.hpp"              //FEM/INT/src
+#include "cl_FEM_IQI_L2_Error_Analytic.hpp"     //FEM/INT/src
+#include "cl_FEM_IQI_H1_Error_Analytic.hpp"     //FEM/INT/src
+#include "cl_FEM_IQI_H1_Semi_Error.hpp"         //FEM/INT/src
+#include "cl_FEM_IQI_J_Integral.hpp"            //FEM/INT/src
+#include "cl_FEM_IQI_K1_SENT.hpp"                //FEM/INT/src
+#include "cl_FEM_IQI_Volume_Fraction.hpp"       //FEM/INT/src
 
 namespace moris
 {
@@ -53,6 +54,9 @@ namespace moris
 
                 case ( IQI_Type::J_INTEGRAL ):
                     return std::make_shared< IQI_J_Integral >();
+
+                case ( IQI_Type::K1_SENT ):
+                    return std::make_shared< IQI_K1_SENT >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

@@ -117,6 +117,7 @@ namespace moris
             H1_ERROR_ANALYTIC,
             H1_SEMI_ERROR,
             J_INTEGRAL,
+            K1_SENT,
             END_IQI_TYPE
         };
 
