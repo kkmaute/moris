@@ -1,5 +1,5 @@
 /*
- * cl_PRM_FEM_Parameters.hpp
+ * cl_PRM_SOL_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: schmidt
@@ -348,6 +348,8 @@ ParameterList create_time_solver_parameter_list()
     tTimeParameterList.insert( "TSA_Output_Indices" , std::string("") );
 
     tTimeParameterList.insert( "TSA_Output_Crteria" , std::string("") );
+
+    tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , std::string("") );
 
     return tTimeParameterList;
 }
