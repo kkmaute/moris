@@ -41,6 +41,8 @@ namespace moris
         return tSolverWarehouseList;
     }
 
+//------------------------------------------------------------------------------
+
     // creates a parameter list with default inputs
     ParameterList create_linear_algorithm_parameter_list_aztec( )
     {
@@ -146,6 +148,21 @@ namespace moris
         return tLinAlgorithmParameterList;
     }
 
+//------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    ParameterList create_linear_algorithm_parameter_list_amesos( )
+    {
+        ParameterList tLinAlgorithmParameterList;
+
+        enum moris::sol::SolverType tType = moris::sol::SolverType::AMESOS_IMPL;
+
+        tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
+
+        return tLinAlgorithmParameterList;
+    }
+
+//------------------------------------------------------------------------------
     // creates a parameter list with default inputs
     ParameterList create_linear_algorithm_parameter_list_petsc( )
     {
@@ -349,7 +366,7 @@ ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::Sol
         return create_linear_algorithm_parameter_list_aztec( );
         break;
     case ( sol::SolverType::AMESOS_IMPL ):
-		MORIS_ERROR( false, "No implemented yet" );
+        return create_linear_algorithm_parameter_list_amesos();
         break;
     case ( sol::SolverType::PETSC ):
         return create_linear_algorithm_parameter_list_petsc( );
