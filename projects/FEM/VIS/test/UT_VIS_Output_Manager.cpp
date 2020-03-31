@@ -336,7 +336,7 @@ namespace moris
 
             // create model
             mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                    1,
+                    0,
                     tSetInfo );
 
             // --------------------------------------------------------------------------------------
@@ -632,7 +632,7 @@ namespace moris
             tSetInfo( 6 ) = tSetInterface;
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tSetInfo );
+            mdl::Model * tModel = new mdl::Model( &tMeshManager, 0, tSetInfo );
 
             // --------------------------------------------------------------------------------------
             // Define outputs

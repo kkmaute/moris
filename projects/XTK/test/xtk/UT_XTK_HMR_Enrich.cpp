@@ -423,7 +423,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         tXTKModel.decompose(tDecompositionMethods);
 
         // enrich using basis functions in b-spline mesh 0 and b-spline mesh 1
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, {0,1});
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, {{0,1}});
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

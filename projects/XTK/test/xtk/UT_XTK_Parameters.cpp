@@ -61,7 +61,7 @@ TEST_CASE("XTK Parameter List","[PARAM]")
     tXTKParams.set( "enrich_mesh_indices",std::string("0"));
 
     // set ghost
-    tXTKParams.set( "ghost_stab", true );
+    tXTKParams.set( "ghost_stab", false );
 
     Model tXTKModel(tXTKParams);
     tXTKModel.mVerbose = true;

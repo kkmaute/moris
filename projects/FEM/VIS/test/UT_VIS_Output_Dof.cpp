@@ -334,7 +334,7 @@ namespace moris
 
                 // create model
                 mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                                      1,
+                                                      0,
                                                       tSetInfo );
 
                 // --------------------------------------------------------------------------------------
