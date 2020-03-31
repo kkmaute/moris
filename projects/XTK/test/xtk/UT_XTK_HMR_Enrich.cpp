@@ -434,7 +434,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
         std::string tEnrIgMeshFileName = "./xtk_exo/multiple_order_ig_mesh.exo";
 
-        Writer_Exodus writer(&tEnrInteg);
+        mtk::Writer_Exodus writer(&tEnrInteg);
         writer.write_mesh("", tEnrIgMeshFileName);
         writer.set_time(0.0);
 //        writer.set_nodal_fields(tBasisSupportFields);

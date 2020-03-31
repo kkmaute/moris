@@ -31,13 +31,13 @@
 namespace xtk
 {
 
-Enrichment::Enrichment(enum Enrichment_Method          const & aMethod,
-                       enum EntityRank                 const & aBasisRank,
-                       moris::Cell<moris::moris_index> const & aInterpIndex,
-                       moris::moris_index              const & aNumBulkPhases,
-                       xtk::Model*                             aXTKModelPtr,
-                       xtk::Cut_Mesh*                          aCutMeshPtr,
-                       xtk::Background_Mesh*                   aBackgroundMeshPtr):
+Enrichment::Enrichment(enum Enrichment_Method const & aMethod,
+                       enum EntityRank        const & aBasisRank,
+                       Matrix<IndexMat>       const & aInterpIndex,
+                       moris::moris_index     const & aNumBulkPhases,
+                       xtk::Model*                    aXTKModelPtr,
+                       xtk::Cut_Mesh*                 aCutMeshPtr,
+                       xtk::Background_Mesh*          aBackgroundMeshPtr):
         mEnrichmentMethod(aMethod),
         mBasisRank(aBasisRank),
         mMeshIndices(aInterpIndex),
@@ -45,7 +45,7 @@ Enrichment::Enrichment(enum Enrichment_Method          const & aMethod,
         mXTKModelPtr(aXTKModelPtr),
         mCutMeshPtr(aCutMeshPtr),
         mBackgroundMeshPtr(aBackgroundMeshPtr),
-        mEnrichmentData(aInterpIndex.size(),aCutMeshPtr)
+        mEnrichmentData(aInterpIndex.numel(),aCutMeshPtr)
 {
 
 }
@@ -114,7 +114,7 @@ Enrichment::perform_basis_cluster_enrichment()
     this->construct_neighborhoods();
 
     // iterate through basis types (i.e. linear and quadratic)
-    for(moris::size_t iBasisType = 0; iBasisType < mMeshIndices.size(); iBasisType++)
+    for(moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++)
     {
 
         // Number of basis functions
@@ -334,10 +334,6 @@ Enrichment::unzip_subphase_bin_enrichment_into_element_enrichment(moris_index co
         {
             // get the child mesh
             Child_Mesh & tChildMesh = mCutMeshPtr->get_child_mesh(tSubphaseToCM(tSubphaseIndex));
-
-            // get subphase child mesh
-            //fixme:REMOVE THIS ONCE ONLY USING mSubphaseBGBasisIndices DATA
-//            tChildMesh.add_basis_and_enrichment_to_subphase_group(tSubphaseIndex,aBasisIndex,aSubPhaseBinEnrichmentVals(i));
 
             // get the child elements in subphas
             Cell<moris::Matrix< moris::IndexMat >> const & tCellToSubphase = tChildMesh.get_subphase_groups();
@@ -834,10 +830,10 @@ Enrichment::construct_enriched_interpolation_mesh()
 
     this->construct_enriched_interpolation_vertices_and_cells();
 
-    mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs.resize(mMeshIndices.size());
-    mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichCoeffLocToGlob.resize(mMeshIndices.size());
+    mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs.resize(mMeshIndices.numel());
+    mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichCoeffLocToGlob.resize(mMeshIndices.numel());
 
-    for(moris::uint i = 0; i < mMeshIndices.size(); i++)
+    for(moris::uint i = 0; i < mMeshIndices.numel(); i++)
     {
         // add the coeff to enriched coefs to enriched interpolation mesh
         mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs(mMeshIndices(i)) = mEnrichmentData(i).mBasisEnrichmentIndices;
@@ -898,12 +894,12 @@ Enrichment::allocate_interpolation_cells()
     tEnrInterpMesh->mEnrichedInterpVerts.resize(tNumVertsPerCell*tNumEnrInterpCells);
 
     // allocate the base vertices to vertex enrichment data
-    tEnrInterpMesh->mBaseInterpVertToVertEnrichmentIndex.resize(mMeshIndices.size(), mBackgroundMeshPtr->get_mesh_data().get_num_nodes());
+    tEnrInterpMesh->mBaseInterpVertToVertEnrichmentIndex.resize(mMeshIndices.numel(), mBackgroundMeshPtr->get_mesh_data().get_num_nodes());
 
     // allocate space in the vertex enrichment index to parent vertex enrichment data
-    tEnrInterpMesh->mVertexEnrichmentParentVertexIndex.resize(mMeshIndices.size());
+    tEnrInterpMesh->mVertexEnrichmentParentVertexIndex.resize(mMeshIndices.numel());
 
-    tEnrInterpMesh->mInterpVertEnrichment.resize(mMeshIndices.size());
+    tEnrInterpMesh->mInterpVertEnrichment.resize(mMeshIndices.numel());
 
     // allocate base cell to enriched cell data
     tEnrInterpMesh->mBaseCelltoEnrichedCell.resize(mBackgroundMeshPtr->get_mesh_data().get_num_elems());
@@ -966,7 +962,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
                 moris_index tBulkPhase = mXTKModelPtr->mBackgroundMesh.get_element_phase_index(tParentCell.get_index());
 
 
-                for(moris::uint iMT = 0; iMT < mMeshIndices.size(); iMT++)
+                for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
                 {
                     // vertex interpolations of the parent cell
                     moris::Cell<mtk::Vertex_Interpolation*> tVertexInterpolations = tParentCell.get_vertex_interpolations( mMeshIndices(iMT) );
@@ -1058,7 +1054,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             // number of vertices
             uint tNumVertices = tParentCell.get_number_of_vertices();
 
-            for(moris::uint iMT = 0; iMT < mMeshIndices.size(); iMT++)
+            for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
             {
 
                 // vertex interpolations of the parent cell

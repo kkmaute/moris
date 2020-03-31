@@ -105,7 +105,7 @@ public:
 
     Enrichment(enum Enrichment_Method          const & aMethod,
                enum EntityRank                 const & aBasisRank,
-               moris::Cell<moris::moris_index> const & aInterpIndex,
+               Matrix<IndexMat>                const & aInterpIndex,
                moris::moris_index              const & aNumBulkPhases,
                xtk::Model*                             aXTKModelPtr,
                xtk::Cut_Mesh*                          aCutMeshPtr,
@@ -192,7 +192,7 @@ private:
     enum EntityRank mBasisRank;
 
     // index of interpolation
-    moris::Cell<moris_index> mMeshIndices;
+    Matrix<IndexMat> mMeshIndices;
 
     // number of bulk-phases possible in model
     moris::size_t mNumBulkPhases;

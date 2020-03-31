@@ -80,10 +80,6 @@ namespace xtk
         // number of interpolation cells
         moris::uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities(EntityRank::ELEMENT);
 
-        std::cout<<"tCurrentNewInterpCellIndex = "<<tCurrentNewInterpCellIndex<<std::endl;
-        std::cout<<"tOwnedInterpCells.size() = "<<tOwnedInterpCells.size()<<std::endl;
-        std::cout<<"tNotOwnedInterpCells.size() = "<<tNotOwnedInterpCells.size()<<std::endl;
-
         // allocate data in ghost setup data
         aGhostSetupData.mSubphaseIndexToInterpolationCellIndex.resize(mXTKModel->get_subphase_to_subphase().size(),MORIS_INDEX_MAX);
 
@@ -94,13 +90,6 @@ namespace xtk
         moris::uint tNumNewInterpCellsOwned    = 0;
 
         Cell<Interpolation_Cell_Unzipped *> tNonTrivialOwnedInterpCells;
-
-        for(moris::size_t i = 0; i<tOwnedInterpCells.size(); i++)
-        {
-            std::cout<<tOwnedInterpCells(i)<<std::endl;
-            std::cout<<"tOwnedInterpCells(i)->get_subphase_index() = "<<tOwnedInterpCells(i)->get_subphase_index()<<std::endl;
-
-        }
 
         for(moris::size_t i = 0; i<tOwnedInterpCells.size(); i++)
         {

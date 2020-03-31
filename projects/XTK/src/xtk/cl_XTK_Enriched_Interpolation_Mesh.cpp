@@ -406,13 +406,13 @@ Enriched_Interpolation_Mesh::get_enriched_interpolation_cells() const
 uint
 Enriched_Interpolation_Mesh::get_num_interpolation_types() const
 {
-    return mMeshIndices.size();
+    return mMeshIndices.numel();
 }
 //------------------------------------------------------------------------------
 moris_index
 Enriched_Interpolation_Mesh::get_interpolation_index(moris_index const & aLocalInterpIndex) const
 {
-    MORIS_ASSERT(aLocalInterpIndex < (moris_index) mMeshIndices.size(),"Local interpolation index out of bounds");
+    MORIS_ASSERT(aLocalInterpIndex < (moris_index) mMeshIndices.numel(),"Local interpolation index out of bounds");
     return mMeshIndices(aLocalInterpIndex);
 }
 
@@ -610,7 +610,7 @@ void Enriched_Interpolation_Mesh::print_enriched_cell_maps() const
 //------------------------------------------------------------------------------
 void Enriched_Interpolation_Mesh::print_basis_to_enriched_basis() const
 {
-    for(moris::uint iM = 0; iM < mMeshIndices.size(); iM++)
+    for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
     {
         moris::uint tNumBasis = mCoeffToEnrichCoeffs(iM).size();
         std::cout<<"\nBackground Basis to Enriched Basis Indices For Mesh: " << mMeshIndices(iM) <<std::endl;
@@ -695,7 +695,7 @@ Enriched_Interpolation_Mesh::setup_cell_maps()
 void
 Enriched_Interpolation_Mesh::setup_mesh_index_map()
 {
-    for(moris::uint i =0; i <mMeshIndices.size(); i++)
+    for(moris::uint i =0; i <mMeshIndices.numel(); i++)
     {
         MORIS_ASSERT(mMeshIndexToLocMeshIndex.find(mMeshIndices(i)) == mMeshIndexToLocMeshIndex.end(),"Duplicate id in the mesh index map detected");
 

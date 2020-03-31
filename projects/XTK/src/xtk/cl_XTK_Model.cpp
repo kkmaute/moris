@@ -27,6 +27,7 @@
 #include "cl_MTK_Visualization_STK.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "fn_Parsing_Tools.hpp"
 //#include "cl_XTK_Enrichment.hpp"
 using namespace moris;
 
@@ -79,6 +80,8 @@ Model::Model(uint aModelDimension,
                                           mEnrichedIntegMesh(0,nullptr),
                                           mConvertedToTet10s(false)
 {
+    // flag this as a non-parameter list based run
+    mParameterList.insert("has_parameter_list", false);
 
     if(aLinkGeometryOnConstruction == true)
     {
@@ -88,16 +91,153 @@ Model::Model(uint aModelDimension,
     mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
 }
 
-void
-Model::link_background_mesh_to_geometry_objects()
+Model::Model(moris::ParameterList const & aParameterList):
+        mParameterList(aParameterList)
 {
-    // initialize geometry objects
-    moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-    mGeometryEngine->initialize_geometry_objects_for_background_mesh_nodes(tNodeCoords.n_rows());
-    mGeometryEngine->initialize_geometry_object_phase_values(tNodeCoords);
-    mLinkedBackground = true;
+    // flag this as a paramter list based run
+    mParameterList.insert("has_parameter_list", true);
 }
+
+void
+Model::set_geometry_engine(moris::ge::GEN_Geometry_Engine* aGeometryEngine)
+{
+    mGeometryEngine = aGeometryEngine;
+}
+
+void
+Model::set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh)
+{
+    mSameMesh           = false;
+    mModelDimension     = aMesh->get_spatial_dim();
+    mCutMesh            = Cut_Mesh(this,mModelDimension),
+    mEnrichment         = nullptr;
+    mGhostStabilization = nullptr;
+    mEnrichedInterpMesh = Cell<Enriched_Interpolation_Mesh*>(0, nullptr);
+    mEnrichedIntegMesh  = Cell<Enriched_Integration_Mesh*>(0, nullptr);
+    mConvertedToTet10s  = false;
+
+    mBackgroundMesh = Background_Mesh(aMesh,mGeometryEngine);
+    link_background_mesh_to_geometry_objects();
+    mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
+}
+
+void
+Model::perform()
+{
+    MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
+    MORIS_ERROR(this->valid_parameters(),"Invalid parameters detected in XTK.");
+
+    if(mParameterList.get<bool>("decompose"))
+    {
+        Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
+        this->decompose(tSubdivisionMethods);
+    }
+
+    if(mParameterList.get<bool>("enrich"))
+    {
+        enum EntityRank tBasisRank = get_entity_rank_from_str(mParameterList.get<std::string>("basis_rank"));
+
+        Matrix<IndexMat> tMeshIndexCell;
+        moris::string_to_mat(mParameterList.get< std::string >( "enrich_mesh_indices" ), tMeshIndexCell);
+
+        this->perform_basis_enrichment(tBasisRank,tMeshIndexCell);
+    }
+
+    if(mParameterList.get<bool>("ghost_stab"))
+    {
+        this->construct_face_oriented_ghost_penalization_cells();
+    }
+}
+
+bool
+Model::has_parameter_list()
+{
+    return mParameterList.get<bool>("has_parameter_list");
+}
+
+bool
+Model::valid_parameters()
+{
+    bool tDecompose = mParameterList.get<bool>("decompose");
+    bool tEnrich    = mParameterList.get<bool>("enrich");
+    bool tGhost     = mParameterList.get<bool>("ghost_stab");
+
+    if(tEnrich == true)
+    {
+        MORIS_ERROR(tDecompose, "To perform basis enrichment, decomposition is also required.");
+    }
+
+    if(tGhost == true)
+    {
+        MORIS_ERROR(tDecompose && tEnrich, "To perform ghost stabilization, decomposition and enrichment are also required.");
+    }
+
+    return true;
+}
+
+Cell<enum Subdivision_Method>
+Model::get_subdivision_methods()
+{
+    MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
+
+
+    moris::uint       tSpatialDimension = this->get_spatial_dim();
+    enum CellTopology tBGCellTopo       = mBackgroundMesh.get_parent_cell_topology();
+    std::string       tDecompStr        = mParameterList.get<std::string>("decomposition_type");
+
+    // determine if we are going conformal or not
+    bool tConformal = true;
+    if(tDecompStr.compare("conformal") == 0 )
+    {
+        tConformal = true;
+    }
+    else if(tDecompStr.compare("nonconformal") == 0 )
+    {
+        tConformal = true;
+    }
+    else
+    {
+        MORIS_ERROR(0,"Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal");
+    }
+
+
+    if(tSpatialDimension == 2 )
+    {
+        if(tBGCellTopo == CellTopology::QUAD4  && tConformal)
+        {
+            return {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        }
+        else if(tBGCellTopo == CellTopology::QUAD4  && !tConformal)
+        {
+            return {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
+        }
+    }
+    else if ( tSpatialDimension == 3 )
+    {
+        if(tBGCellTopo == CellTopology::HEX8  && tConformal)
+        {
+            return {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+        }
+        else if(tBGCellTopo == CellTopology::HEX8  && !tConformal)
+        {
+            return {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+        }
+        else if(tBGCellTopo == CellTopology::TET4  && tConformal)
+        {
+            return {Subdivision_Method::C_HIERARCHY_TET4};
+        }
+    }
+    else
+    {
+        MORIS_ASSERT(0,"Invalid spatial dimension");
+    }
+
+    MORIS_ERROR(0,"Failed determining subdivision methods");
+
+    return Cell<enum Subdivision_Method>(0);
+
+}
+
 
 // ----------------------------------------------------------------------------------
 // Decomposition Source code
@@ -1461,6 +1601,17 @@ Model::return_request_answers(  moris_index const & aMPITag,
 }
 
 void
+Model::link_background_mesh_to_geometry_objects()
+{
+    // initialize geometry objects
+    moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
+
+    mGeometryEngine->initialize_geometry_objects_for_background_mesh_nodes(tNodeCoords.n_rows());
+    mGeometryEngine->initialize_geometry_object_phase_values(tNodeCoords);
+    mLinkedBackground = true;
+}
+
+void
 Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
 {
     // Change XTK model decomposition state flag
@@ -2677,7 +2828,7 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
     mEnrichedIntegMesh.resize(aMeshIndex+1,nullptr);
     mEnrichedInterpMesh.resize(aMeshIndex+1,nullptr);
 
-    this->perform_basis_enrichment_internal(aBasisRank,{aMeshIndex});
+    this->perform_basis_enrichment_internal(aBasisRank,{{aMeshIndex}});
 
     // Change the enrichment flag
     mEnriched = true;
@@ -2692,8 +2843,8 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
 }
 // ----------------------------------------------------------------------------------
 void
-Model::perform_basis_enrichment(enum EntityRank                 const & aBasisRank,
-                                moris::Cell<moris::moris_index> const & aMeshIndex)
+Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+                                Matrix<IndexMat> const & aMeshIndex)
 {
     // Start the clock
     std::clock_t start = std::clock();
@@ -2701,8 +2852,8 @@ Model::perform_basis_enrichment(enum EntityRank                 const & aBasisRa
     MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
     // allocate some new enriched interpolation and integration meshes
-    mEnrichedIntegMesh.resize(aMeshIndex.size()+1,nullptr);
-    mEnrichedInterpMesh.resize(aMeshIndex.size()+1,nullptr);
+    mEnrichedIntegMesh.resize(aMeshIndex.numel()+1,nullptr);
+    mEnrichedInterpMesh.resize(aMeshIndex.numel()+1,nullptr);
 
     this->perform_basis_enrichment_internal(aBasisRank,aMeshIndex);
 
@@ -2714,7 +2865,7 @@ Model::perform_basis_enrichment(enum EntityRank                 const & aBasisRa
         std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         std::cout<<"XTK: Basis enrichment performed on meshes:";
-        for(moris::uint i = 0; i < aMeshIndex.size(); i++)
+        for(moris::uint i = 0; i < aMeshIndex.numel(); i++)
         {
             std::cout<<std::setw(6)<<aMeshIndex(i);
         }
@@ -2745,8 +2896,8 @@ Model::get_enriched_integ_mesh(moris::moris_index aIndex)
 
 
 void
-Model::perform_basis_enrichment_internal(enum EntityRank   const & aBasisRank,
-                                         moris::Cell<moris::moris_index> const & aMeshIndex)
+Model::perform_basis_enrichment_internal(enum EntityRank  const & aBasisRank,
+                                         Matrix<IndexMat> const & aMeshIndex)
 {
     // initialize enrichment (ptr because of circular dependency)
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,

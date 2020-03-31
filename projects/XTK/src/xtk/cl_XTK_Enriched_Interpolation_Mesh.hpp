@@ -216,7 +216,7 @@ protected:
     enum EntityRank mBasisRank;
 
     // mesh index
-    moris::Cell<moris_index> mMeshIndices;
+    Matrix<IndexMat> mMeshIndices;
     std::unordered_map<moris_index,moris_index> mMeshIndexToLocMeshIndex;
 
     // enriched interpolation vertices
