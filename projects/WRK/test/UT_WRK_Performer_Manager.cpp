@@ -7,6 +7,7 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "fn_Exec_load_user_library.hpp"
+#include "cl_Communication_Tools.hpp"
 
 using namespace moris;
 

@@ -9,6 +9,11 @@
 #include "cl_FEM_SP_Slave_Weight_Interface.hpp"
 #include "cl_FEM_SP_Reciprocal_Total_Volume.hpp"
 #include "cl_FEM_SP_Incompressible_Flow.hpp"
+#include "cl_FEM_SP_Viscous_Ghost.hpp"
+#include "cl_FEM_SP_Convective_Ghost.hpp"
+#include "cl_FEM_SP_Pressure_Ghost.hpp"
+#include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
+#include "cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp"
 
 namespace moris
 {
@@ -43,6 +48,21 @@ namespace moris
 
                 case ( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ):
                     return std::make_shared< SP_Incompressible_Flow >();
+
+                case ( fem::Stabilization_Type::VISCOUS_GHOST ):
+                    return std::make_shared< SP_Viscous_Ghost >();
+
+                case ( fem::Stabilization_Type::CONVECTIVE_GHOST ):
+                    return std::make_shared< SP_Convective_Ghost >();
+
+                case ( fem::Stabilization_Type::PRESSURE_GHOST ):
+                    return std::make_shared< SP_Pressure_Ghost >();
+
+                case ( fem::Stabilization_Type::TIME_VELOCITY_GHOST ):
+                    return std::make_shared< SP_Time_Velocity_Ghost >();
+
+                case ( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ):
+                    return std::make_shared< SP_Velocity_Dirichlet_Nitsche >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

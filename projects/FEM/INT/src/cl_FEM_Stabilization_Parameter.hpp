@@ -51,6 +51,12 @@ namespace moris
             // list of parameters
             moris::Cell< Matrix< DDRMat > > mParameters;
 
+            // interpolation order
+            uint mOrder = 1;
+
+            // normal
+            Matrix< DDRMat > mNormal;
+
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
@@ -98,6 +104,7 @@ namespace moris
             std::map< std::string, GEN_DV > mMasterDvMap;
             std::map< std::string, GEN_DV > mSlaveDvMap;
 
+            // string for stabilization parameter name
             std::string mName;
 
         private:
@@ -244,6 +251,28 @@ namespace moris
              {
                  // set a cluster
                  mParameters = aParameters;
+             }
+
+//------------------------------------------------------------------------------
+            /**
+             * set interpolation order
+             * @param[ in ] aOrder an interpolation order
+             */
+             void set_interpolation_order( uint aOrder )
+             {
+                 // set an interpolation order
+                 mOrder = aOrder;
+             }
+
+//------------------------------------------------------------------------------
+            /**
+             * set normal
+             * @param[ in ] aNormal a normal
+             */
+             void set_normal( Matrix< DDRMat > aNormal )
+             {
+                 // set a cluster
+                 mNormal = aNormal;
              }
 
 //------------------------------------------------------------------------------

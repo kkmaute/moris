@@ -43,12 +43,12 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
+            // get master index for residual dof type (here velocity), indices for assembly
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get the velocity and pressure FIs
+            // get the velocity FI
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the density and gravity properties
@@ -63,23 +63,19 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
-            // get the density value
-            real tDensity = tDensityProp->val()( 0 );
-
             // compute the residual strong form
             Matrix< DDRMat > tRM;
             real tRC;
             this->compute_residual_strong_form( tRM, tRC );
 
-            // compute the residual weak form
-            uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
-            uint tNumCol = tVelocityFI->dnNdxn( 1 ).n_cols();
-            Matrix< DDRMat > tujvij( tNumRow, tNumRow * tNumCol, 0.0 );
-            for( uint i = 0; i < tNumRow; i++ )
-            {
-                tujvij( { i, i },{ i * tNumCol, ( i + 1 ) * tNumCol -1 }) = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 );
-            }
+            // get the density value
+            real tDensity = tDensityProp->val()( 0 );
 
+            // compute uj vij
+            Matrix< DDRMat > tujvij;
+            this->compute_ujvij( tujvij );
+
+            // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += aWStar * (   trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) )
                           + trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
@@ -104,12 +100,12 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
+            // get master index for residual dof type (here velocity), indices for assembly
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get field interpolator for a given dof type
+            // get velocity FI
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the density and gravity properties
@@ -132,7 +128,6 @@ namespace moris
             real tRC;
             this->compute_residual_strong_form( tRM, tRC );
 
-
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
@@ -145,36 +140,20 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
-                uint tNumCol = tVelocityFI->dnNdxn( 1 ).n_cols();
-                Matrix< DDRMat > tujvij( tNumRow, tNumRow * tNumCol, 0.0 );
-                for( uint i = 0; i < tNumRow; i++ )
-                {
-                    tujvij( { i, i },{ i * tNumCol, ( i + 1 ) * tNumCol -1 }) = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 );
-                }
+                // compute uj vij
+                Matrix< DDRMat > tujvij;
+                this->compute_ujvij( tujvij );
 
                 // if residual dof type (velocity)
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
-                    // init matrix
-                    uint tNumRowt = tVelocityFI->get_number_of_fields();
-                    uint tNumColt = tVelocityFI->dnNdtn( 1 ).n_cols();
-                    Matrix< DDRMat > tdnNdtn( tNumRowt, tNumRowt * tNumColt , 0.0 );
-                    Matrix< DDRMat > tujvijrM( tNumRowt * tNumColt, tNumRowt * tNumColt , 0.0 );
+                    // compute dnNdtn
+                    Matrix< DDRMat > tdnNdtn;
+                    this->compute_dnNdtn( tdnNdtn );
 
-                    // loop over the dimension
-                    for( uint iField = 0; iField < tNumRowt; iField++ )
-                    {
-                        // fill the matrix for each dimension
-                        tdnNdtn( { iField, iField }, { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 } ) = tVelocityFI->dnNdtn( 1 ).matrix_data();
-
-                        for( uint iCol = 0; iCol < tNumRowt; iCol++ )
-                        {
-                        tujvijrM( { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 },
-                                  { iCol * tNumColt, ( iCol + 1 ) * tNumColt - 1 } )
-                        = trans( tVelocityFI->dnNdxn( 1 ).get_row( iCol ) ) * tVelocityFI->NBuild() * tRM( iField );
-                        }
-                    }
+                    // compute uj vij rM
+                    Matrix< DDRMat > tujvijrM;
+                    this->compute_ujvijrm( tujvijrM, tRM );
 
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
@@ -183,7 +162,6 @@ namespace moris
                          + trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N()
                          + trans( tVelocityFI->N() ) * tDensity * tujvij  //tVelocityFI->dnNdxn( 1 ) * tVelocityFI->val()
                          + tujvijrM * tDensity * tIncFlowSP->val()( 0 ) );
-
                 }
 
                 // compute the jacobian strong form
@@ -192,7 +170,8 @@ namespace moris
                 compute_jacobian_strong_form( tDofType, tJM, tJC );
 
                 // compute the jacobian contribution from strong form
-                mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
+                mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                      { tMasterDepStartIndex, tMasterDepStopIndex } )
                 += aWStar *(   trans( tujvij ) * tDensity * tIncFlowSP->val()( 0 ) * tJM
                              + trans( tVelocityFI->div_operator() ) * tIncFlowSP->val()( 1 ) * tJC );
 
@@ -214,18 +193,6 @@ namespace moris
                     }
                 }
 
-                // if gravity
-                if ( tGravityProp != nullptr )
-                {
-                    // if property has dependency on the dof type
-                    if ( tGravityProp->check_dof_dependency( tDofType ) )
-                    {
-                        // compute the jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->dPropdDOF( tDofType ) );
-                    }
-                }
-
                 // if constitutive model has dependency on the dof type
                 if ( tIncFluidCM->check_dof_dependency( tDofType ) )
                 {
@@ -242,6 +209,18 @@ namespace moris
                     += aWStar *
                        (   trans( tujvij ) * tDensity * tRM * tIncFlowSP->dSPdMasterDOF( tDofType ).get_row( 0 )
                          + trans( tVelocityFI->div_operator() ) * tRC * tIncFlowSP->dSPdMasterDOF( tDofType ).get_row( 1 ) );
+                }
+
+                // if gravity
+                if ( tGravityProp != nullptr )
+                {
+                    // if property has dependency on the dof type
+                    if ( tGravityProp->check_dof_dependency( tDofType ) )
+                    {
+                        // compute the jacobian
+                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
+                        -= aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->dPropdDOF( tDofType ) );
+                    }
                 }
             }
         }
@@ -311,7 +290,7 @@ namespace moris
           Matrix< DDRMat >             & aJM,
           Matrix< DDRMat >             & aJC )
         {
-            // get the res dof and the derivative dof FI
+            // get the res dof and the derivative dof FIs
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
             Field_Interpolator * tDerFI      = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -336,27 +315,18 @@ namespace moris
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
 
+            // if derivative wrt to residual dof type (here velocity)
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
-                uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
-                uint tNumCol = tVelocityFI->dnNdxn( 1 ).n_cols();
-                Matrix< DDRMat > tujvij( tNumRow, tNumRow * tNumCol, 0.0 );
-                for( uint i = 0; i < tNumRow; i++ )
-                {
-                    tujvij( { i, i },{ i * tNumCol, ( i + 1 ) * tNumCol -1 }) = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 );
-                }
-                // init matrix
-                uint tNumRowt = tVelocityFI->get_number_of_fields();
-                uint tNumColt = tVelocityFI->dnNdtn( 1 ).n_cols();
-                Matrix< DDRMat > tdnNdtn( tNumRowt, tNumRowt * tNumColt , 0.0 );
-                // loop over the fields
-                for( uint iField = 0; iField < tNumRowt; iField++ )
-                {
-                    // fill the matrix for each dimension
-                    tdnNdtn( { iField, iField }, { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 } ) = tVelocityFI->dnNdtn( 1 ).matrix_data();
-                }
+                // compute the term uj vij
+                Matrix< DDRMat > tujvij;
+                this->compute_ujvij( tujvij );
 
-                // compute the residual strong form
+                // compute the term dnNdtn
+                Matrix< DDRMat > tdnNdtn;
+                this->compute_dnNdtn( tdnNdtn );
+
+                // compute the jacobian strong form
                 aJM.matrix_data() += tDensity * tdnNdtn
                                    + tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N()
                                    + tDensity * tujvij ;
@@ -364,25 +334,97 @@ namespace moris
                 aJC.matrix_data() += tVelocityFI->div_operator().matrix_data();
             }
 
+            // if density depends on dof type
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
+                // compute contribution to jacobian strong form
                 aJM.matrix_data() += tVelocityFI->gradt( 1 ) * tDensityProp->dPropdDOF( aDofTypes )
                                    + trans( tVelocityFI->val() ) * tVelocityFI->gradx( 1 ) * tDensityProp->dPropdDOF( aDofTypes );
             }
 
+            // if CM depends on dof type
             if( tIncFluidCM->check_dof_dependency( aDofTypes ) )
             {
+                // compute contribution to jacobian strong form
                 aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
             }
 
             // if gravity
             if ( tGravityProp != nullptr )
             {
+                // if gravity depends on dof type
                 if( tGravityProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add gravity to residual strong form
                     aJM.matrix_data() -= tDensity * tGravityProp->dPropdDOF( aDofTypes ).matrix_data();
                 }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Velocity_Bulk::compute_ujvij( Matrix< DDRMat > & aujvij )
+        {
+            // get the residual dof type FI (here velocity)
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // init size for uj vij
+            uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
+            uint tNumCol = tVelocityFI->dnNdxn( 1 ).n_cols();
+            aujvij.set_size( tNumRow, tNumRow * tNumCol, 0.0 );
+
+            // loop over the number of rows
+            for( uint i = 0; i < tNumRow; i++ )
+            {
+                // compute uj vij
+                aujvij( { i, i }, { i * tNumCol, ( i + 1 ) * tNumCol -1 })
+                = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 );
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Velocity_Bulk::compute_ujvijrm( Matrix< DDRMat > & aujvijrm,
+                                                                   Matrix< DDRMat > & arm )
+        {
+            // get the residual dof type FI (here velocity)
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // set size for uj vij rM
+            uint tNumField = tVelocityFI->get_number_of_fields();
+            uint tNumBases = tVelocityFI->get_number_of_space_time_bases();
+            aujvijrm.set_size( tNumField * tNumBases, tNumField * tNumBases , 0.0 );
+
+            // loop over the number of fields
+            for( uint iField = 0; iField < tNumField; iField++ )
+            {
+                // loop over the number of fields
+                for( uint iField2 = 0; iField2 < tNumField; iField2++ )
+                {
+                    // compute uj vij rm
+                    aujvijrm( { iField  * tNumBases, ( iField + 1 )  * tNumBases - 1 },
+                              { iField2 * tNumBases, ( iField2 + 1 ) * tNumBases - 1 } )
+                    = trans( tVelocityFI->dnNdxn( 1 ).get_row( iField2 ) ) * tVelocityFI->NBuild() * arm( iField );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        // FIXME provided directly by the field interpolator?
+        void IWG_Incompressible_NS_Velocity_Bulk::compute_dnNdtn( Matrix< DDRMat > & adnNdtn )
+        {
+            // get the residual dof type FI (here velocity)
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // init size for dnNdtn
+            uint tNumRowt = tVelocityFI->get_number_of_fields();
+            uint tNumColt = tVelocityFI->dnNdtn( 1 ).n_cols();
+            adnNdtn.set_size( tNumRowt, tNumRowt * tNumColt , 0.0 );
+
+            // loop over the fields
+            for( uint iField = 0; iField < tNumRowt; iField++ )
+            {
+                // fill the matrix for each dimension
+                adnNdtn( { iField, iField }, { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 } )
+                = tVelocityFI->dnNdtn( 1 ).matrix_data();
             }
         }
 

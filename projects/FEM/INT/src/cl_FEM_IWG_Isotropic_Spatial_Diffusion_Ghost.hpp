@@ -9,15 +9,15 @@
 #define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_GHOST_HPP_
 
 #include <map>
-
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
-
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
-
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+//MRS/COR/src
+#include "typedefs.hpp"
+#include "cl_Cell.hpp"
+//LINALG/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+//FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_IWG.hpp"
 
 namespace moris
 {
@@ -27,34 +27,15 @@ namespace moris
 
         class IWG_Isotropic_Spatial_Diffusion_Ghost : public IWG
         {
-
-            // order of Shape functions
+            // interpolation order
             uint mOrder;
 
 //------------------------------------------------------------------------------
         public:
 
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
-
-            enum class IWG_Constitutive_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
             enum class IWG_Stabilization_Type
             {
-                GHOST_DISPL_1,
-                GHOST_DISPL_2,
-                GHOST_DISPL_3,
+                GHOST_DISPL,
                 MAX_ENUM
             };
 

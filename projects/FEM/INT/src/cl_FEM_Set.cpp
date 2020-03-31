@@ -1690,13 +1690,13 @@ namespace moris
                 switch( aInterpolationOrder )
                 {
                     case( mtk::Interpolation_Order::LINEAR ):
-                        return fem::Integration_Order::BAR_1;
-
-                    case( mtk::Interpolation_Order::QUADRATIC ):
                         return fem::Integration_Order::BAR_2;
 
-                    case( mtk::Interpolation_Order::CUBIC ):
+                    case( mtk::Interpolation_Order::QUADRATIC ):
                         return fem::Integration_Order::BAR_3;
+
+                    case( mtk::Interpolation_Order::CUBIC ):
+                        return fem::Integration_Order::BAR_4;
 
                     default:
                         MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");

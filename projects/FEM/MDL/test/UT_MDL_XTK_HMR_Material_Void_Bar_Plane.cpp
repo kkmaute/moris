@@ -226,6 +226,10 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
         tSPDirichletNitsche->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
+        std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+        tSPGhost->set_parameters( {{{ 0.1 }} });
+        tSPGhost->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -247,18 +251,11 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
-        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
-
-        // Ghost stabilization
         std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
         tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-        tSP1->set_parameters( {{{ 0.1 }}, {{ 1.0 }} });
-        tSP1->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
-        tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
+        tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -274,6 +271,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
+        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
         tSetNeumann.set_mesh_set_name( tInterfaceSideSetName );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 

@@ -33,6 +33,7 @@ namespace vis
         VX,     //< X-Velocity
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
+        P,
         DOF, // Dof
         L2_ERROR_ANALYTIC, // L2 error for dof
         H1_ERROR_ANALYTIC, // H1 error for dof
