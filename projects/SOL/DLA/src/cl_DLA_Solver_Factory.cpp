@@ -63,9 +63,9 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
     case ( sol::SolverType::AZTEC_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Aztec >( aParameterlist );
         break;
-//    case ( sol::SolverType::AMESOS_IMPL ):
-//        tLinSol = std::make_shared< Linear_Solver_Amesos >( aParameterlist );
-//        break;
+    case ( sol::SolverType::AMESOS_IMPL ):
+        tLinSol = std::make_shared< Linear_Solver_Amesos >( aParameterlist );
+        break;
 //    case ( sol::SolverType::BELOS_IMPL ):
 //        tLinSol = std::make_shared< Linear_Solver_Belos >( aParameterlist );
 //        break;

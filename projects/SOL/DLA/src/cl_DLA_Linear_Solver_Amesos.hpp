@@ -37,6 +37,8 @@ protected:
 public:
     Linear_Solver_Amesos(){};
 
+    Linear_Solver_Amesos( const moris::ParameterList aParameterlist );
+
     Linear_Solver_Amesos( Linear_Problem * aLinearSystem  );
 
     ~Linear_Solver_Amesos();

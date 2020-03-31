@@ -1,5 +1,5 @@
 /*
- * cl_PRM_FEM_Parameters.hpp
+ * cl_PRM_SOL_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: schmidt
@@ -40,6 +40,8 @@ namespace moris
 
         return tSolverWarehouseList;
     }
+
+//------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
     ParameterList create_linear_algorithm_parameter_list_aztec( )
@@ -146,6 +148,21 @@ namespace moris
         return tLinAlgorithmParameterList;
     }
 
+//------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    ParameterList create_linear_algorithm_parameter_list_amesos( )
+    {
+        ParameterList tLinAlgorithmParameterList;
+
+        enum moris::sol::SolverType tType = moris::sol::SolverType::AMESOS_IMPL;
+
+        tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
+
+        return tLinAlgorithmParameterList;
+    }
+
+//------------------------------------------------------------------------------
     // creates a parameter list with default inputs
     ParameterList create_linear_algorithm_parameter_list_petsc( )
     {
@@ -332,6 +349,8 @@ ParameterList create_time_solver_parameter_list()
 
     tTimeParameterList.insert( "TSA_Output_Crteria" , std::string("") );
 
+    tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , std::string("") );
+
     return tTimeParameterList;
 }
 
@@ -349,7 +368,7 @@ ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::Sol
         return create_linear_algorithm_parameter_list_aztec( );
         break;
     case ( sol::SolverType::AMESOS_IMPL ):
-		MORIS_ERROR( false, "No implemented yet" );
+        return create_linear_algorithm_parameter_list_amesos();
         break;
     case ( sol::SolverType::PETSC ):
         return create_linear_algorithm_parameter_list_petsc( );
