@@ -194,7 +194,7 @@ namespace moris
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
                 // Write mesh
-                Writer_Exodus writer(&tEnrIntegMesh);
+                moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
                 writer.write_mesh("", "aaaaa_pdvGeomCheck.exo");
                 // Write the fields
                 writer.set_time(1.0);
@@ -330,7 +330,7 @@ namespace moris
             if (tOutputXTKMesh)
             {
                 // Write mesh
-                Writer_Exodus writer(&tEnrIntegMesh);
+                moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
                 writer.write_mesh("", "aaaaa_integrationMesh.exo");
                 // Write the fields
                 writer.set_time(0.0);
@@ -519,7 +519,7 @@ namespace moris
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
                 // Write mesh
-                Writer_Exodus writer(&tEnrIntegMesh);
+                moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
                 writer.write_mesh("", "aaaaa_pdvGeomCheck.exo");
                 // Write the fields
                 writer.set_time(1.0);

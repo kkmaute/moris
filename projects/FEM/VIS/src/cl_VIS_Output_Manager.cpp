@@ -123,7 +123,7 @@ namespace moris
         mWriter.resize( mOutputData.size(), nullptr );
 
         // create writer for this mesh
-        mWriter( aVisMeshIndex ) = new Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+        mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
     }
 
 //-----------------------------------------------------------------------------------------------------------

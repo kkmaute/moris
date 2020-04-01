@@ -15,6 +15,9 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
 
+#include "fn_Parsing_Tools.hpp"
+#include "cl_PRM_SOL_Parameters.hpp"
+
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 
@@ -267,7 +270,8 @@ using namespace tsa;
 
         // full vector and prev full vector
         mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
-        mFullVector->vec_put_scalar( 0.0 );
+
+        this->initialize_sol_vec();
 
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
@@ -279,13 +283,54 @@ using namespace tsa;
 
         this->check_for_outputs();
     }
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+    void Time_Solver::initialize_sol_vec()
+    {
+        mFullVector->vec_put_scalar( 0.0 );
+
+        moris::Cell< moris::Cell< std::string > > tDofTypeAndValuePair;
+        string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_Initialize_Sol_Vec" ),
+                                tDofTypeAndValuePair );
+
+        map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
+
+        for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
+        {
+            // First string is dof type
+            moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
+
+            moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
+
+            moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
+
+            moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
+
+            if( tDofTypeAndValuePair( Ik ).size() == 2 )
+            {
+                mFullVector->replace_global_values( tAdofIds,
+                                                    tValues );
+            }
+            else if( tDofTypeAndValuePair( Ik ).size() == 3 )
+            {
+                moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
+
+                mFullVector->replace_global_values( tAdofIds,
+                                                    tValues,
+                                                    ( uint ) tVectorIndex );
+            }
+            else
+            {
+                MORIS_ERROR( false, " Time_Solver::initialize_sol_vec(), TSA_Initialize_Sol_Vec input not correct" );
+            }
+        }
+    }
 //--------------------------------------------------------------------------------------------------------------------------
     void Time_Solver::set_time_solver_parameters()
     {
         // Maximal number of linear solver restarts on fail
-//        mParameterListTimeSolver.insert( "NLA_max_non_lin_solver_restarts" , 0 );
-
-//        tTimeParameterList.mParameterListTimeSolver( "TSA_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
+        mParameterListTimeSolver = prm::create_time_solver_parameter_list();
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

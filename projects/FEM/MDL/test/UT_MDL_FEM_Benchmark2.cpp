@@ -637,7 +637,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tGhost.visualize_ghost_on_mesh( 1 );
         tGhost.visualize_ghost_on_mesh( 2 );
 
-        Writer_Exodus writer(&tEnrIntegMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
         writer.write_mesh("", "benchmark_enriched_ig_w_ghost.exo");
         writer.close_file();
 

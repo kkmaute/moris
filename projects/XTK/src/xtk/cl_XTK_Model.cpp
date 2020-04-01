@@ -2777,10 +2777,9 @@ void Model::construct_multigrid()
 
     mMultigrid->create_coarse_to_fine_weights();
 
-    mMultigrid->build_basis_exodus_information();
-#ifdef DEBUG
-    mMultigrid->save_to_vtk( "Enriched_bspline_1.vtk");
-#endif
+    std::string tName = "Enriched_bspline_1.exo";
+    mMultigrid->build_basis_exodus_information(tName);
+
 }
 
 // ----------------------------------------------------------------------------------

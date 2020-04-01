@@ -320,7 +320,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         {
             tEnrIntegMesh.deactivate_empty_sets();
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", tEnrIgMeshFileName);
 
             // Write the fields

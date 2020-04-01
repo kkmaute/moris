@@ -14,6 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace xtk
 {
@@ -36,10 +37,13 @@ class Library_IO;
     {
        class GEN_Geometry_Engine;
     }
-
     namespace mdl
     {
        class Model;
+    }
+    namespace opt
+    {
+        class Manager;
     }
 
     namespace wrk
@@ -55,6 +59,9 @@ class Library_IO;
             moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
             moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
             moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
+            moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
+
+//            friend class wrk::Workflow;
 
 //------------------------------------------------------------------------------
         public:

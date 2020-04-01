@@ -8,6 +8,7 @@
 #include "typedefs.hpp" // COR/src
 #include "cl_OPT_Algorithm.hpp" // OPT/src
 #include "cl_OPT_Problem.hpp" // OPT/src
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -26,7 +27,10 @@ namespace moris
                  *
                  * @param[in] aAlgId Optimization Algorithm
                  */
-                Algorithm_API(const std::string aAlgId );
+                Algorithm_API(ParameterList aParameterList);
+
+                Algorithm_API()
+                {}
 
                 /**
                  * Copy Constructor through cloning
@@ -60,9 +64,9 @@ namespace moris
                  * @param[in] aOptProb Object of type Problem containing relevant
                  *            data regarding ADVs, the objective and constraints
                  */
-                void solve(Problem* aOptProb )
+                void solve(std::shared_ptr<Problem> aOptProb )
                 {
-                    mAlgorithm->solve(aOptProb );
+                    mAlgorithm->solve(aOptProb);
                 }
         };
     }  // namespace opt

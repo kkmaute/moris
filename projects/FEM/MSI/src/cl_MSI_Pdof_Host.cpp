@@ -271,7 +271,7 @@ namespace MSI
                 for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel(); Ik++)
                 {
                     tUniqueAdofList( tCounter, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 );
-                    tCounter = tCounter + 1;
+                    tCounter++;
                 }
             }
         }

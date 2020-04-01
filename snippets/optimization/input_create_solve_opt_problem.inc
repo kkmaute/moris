@@ -28,7 +28,7 @@ moris::input::create_solve_opt_problem(
     opt::Manager aOptManager( tOptProb );
 
     // solve the optimization problem
-    aOptManager.solve_opt_system( );
+    aOptManager.perform( );
 
     // Update the arguments, to be passed to the test file, based on the
     // values of the optimization run

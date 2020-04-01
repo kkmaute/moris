@@ -4,6 +4,7 @@
 // MORIS project header files.
 #include "core.hpp"
 #include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
+#include "HDF5_Tools.hpp"
 
 namespace moris
 {
@@ -38,25 +39,46 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve(Problem* aOptProb );
+            void solve(std::shared_ptr<Problem> aOptProb );
+
+        private:
+            bool mSave; // If saving the results of the sweep to an hdf5 file
+            bool mPrint; // If printing the results of the sweep to the screen with moris::print
+            bool mUpdateObjectives; // whether or not to compute new objectives when requested
+            bool mUpdateConstraints; // whether or not to compute new constraints when requested
+            bool mUpdateObjectiveGradients; // "                 " objective gradients
+            bool mUpdateConstraintGradients; // "                 " constraint gradients
+            hid_t mFileID; // Fild id for hdf5 file
 
             /**
-             * @brief Call for evaluation of objectives and constraints
+             * Outputs the optimization problem at the current ADVs (objective and constraints)
              *
-             * @param[in]  aIter Optimization iteration number
+             * @param aEvaluationName The name to be printed/saved after the optimization variable type
              */
-            void func( sint aIter );
+            void output_objectives_constraints(std::string aEvaluationName);
 
             /**
-             * @brief Call for evaluation of derivative of objectives and
-             *        constraints
+             * Evaluates the objective gradients at the current ADVs and outputs them
+             *
+             * @param aEvaluationName The name to be printed/saved after the optimization variable type
              */
-            void grad( );
+            Matrix<DDRMat> evaluate_objective_gradients(std::string aEvaluationName);
 
             /**
-             *@brief Prints result of the  algorithm based on mStopFlag
+             * Evaluates the constraint gradients at the current ADVs and outputs them
+             *
+             * @param aEvaluationName The name to be printed/saved after the optimization variable type
              */
-            void print_results( );
+            Matrix<DDRMat> evaluate_constraint_gradients(std::string aEvaluationName);
+
+            /**
+             * Outputs the given optimization variables based on printing/saving options
+             *
+             * @param aVariables Matrix of optimization variables
+             * @param aFullEvaluationName Full name to be output to the screen/hdf5
+             */
+            void output_variables(Matrix<DDRMat> aVariables, std::string aFullEvaluationName);
+
         };
     }  // namespace opt
 }      // namespace moris

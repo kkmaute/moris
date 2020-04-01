@@ -807,7 +807,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         if(true)
         {
             // Write mesh
-            Writer_Exodus writer(tIntegMesh1);
+            moris::mtk::Writer_Exodus writer(tIntegMesh1);
             writer.write_mesh("", "./xtk_exo/xtk_multigrid.exo");
 
             // Write the fields
@@ -1146,6 +1146,8 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
         tSPDirichletNitsche->set_property( tPropConductivity2, "Material", mtk::Master_Slave::MASTER );
 
+        std::shared_ptr< fem::Stabilization_Parameter > tSPReciprocalVolume = tSPFactory.create_SP( fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -1170,21 +1172,26 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         // define the IQIs
         fem::IQI_Factory tIQIFactory;
 
-        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
-        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
-        tIQITEMP->set_output_type_index( 0 );
+//        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+//        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+//        tIQITEMP->set_output_type_index( 0 );
+
+        std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
+        tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
+        tIQIVolFraction->set_stabilization_parameter( tSPReciprocalVolume, "Reciprocal_total_vol" );
+
 
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk1.set_IWGs( { tIWGBulk1 } );
-        tSetBulk1.set_IQIs( { tIQITEMP } );
+        tSetBulk1.set_IQIs( { tIQIVolFraction } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk2.set_IWGs( { tIWGBulk1 } );
-        tSetBulk2.set_IQIs( { tIQITEMP } );
+        tSetBulk2.set_IQIs( { tIQIVolFraction } );
 
         fem::Set_User_Info tSetDirichlet1;
         tSetDirichlet1.set_mesh_set_name( "SideSet_1_n_p0" );
