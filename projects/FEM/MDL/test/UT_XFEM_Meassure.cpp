@@ -122,7 +122,7 @@ namespace moris
 using namespace dla;
 using namespace NLA;
 
-TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
+TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
 {
 
     if(par_size() == 1)
@@ -317,6 +317,11 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
        // create the IQIs
        fem::IQI_Factory tIQIFactory;
 
+//       std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//       tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+//       tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+//       tIQITEMP->set_output_type_index( 0 );
+
        std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
        tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
        tIQIVolFraction->set_stabilization_parameter( tSPReciprocalVolume, "Reciprocal_total_vol" );
@@ -376,17 +381,17 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
        Solver_Interface *  tSolverInterface = tModel->get_solver_interface();
 
        // --------------------------------------------------------------------------------------
-//       // Define outputs
-//       vis::Output_Manager tOutputData;
-//       tOutputData.set_outputs( 0,
-//                                vis::VIS_Mesh_Type::STANDARD,
-//                                "UT_MDL_FEM_Benchmark_Output.exo",
-//                                { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-//                                { "Temperature" },
-//                                { vis::Field_Type::NODAL },
-//                                { vis::Output_Type::TEMP } );
-//
-//       tModel->set_output_manager( &tOutputData );
+       // Define outputs
+       vis::Output_Manager tOutputData;
+       tOutputData.set_outputs( 0,
+                                vis::VIS_Mesh_Type::STANDARD,
+                                "UT_MDL_FEM_Benchmark_Output.exo",
+                                { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
+                                { "Temperature" },
+                                { vis::Field_Type::NODAL },
+                                { vis::Output_Type::TEMP } );
+
+       tModel->set_output_manager( &tOutputData );
 
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
@@ -446,10 +451,7 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
 
-
-       moris::Cell< moris::Matrix< IdMat > >  aCriteriaIds;
-
-       tSolverInterface->get_adof_ids_based_on_criteria( aCriteriaIds, 0.1 );
+       tSolverInterface->get_adof_ids_based_on_criteria();
     }
 
 }/* END_TEST_CASE */

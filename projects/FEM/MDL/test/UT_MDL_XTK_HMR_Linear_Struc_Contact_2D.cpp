@@ -93,7 +93,7 @@ void tMValFunctionContact
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
-            { 0.0,                   aParameters( 0 )( 1 ) }};
+                   { 0.0,                   aParameters( 0 )( 1 ) }};
 }
 
 //-------------------------------------------------------------------------------------

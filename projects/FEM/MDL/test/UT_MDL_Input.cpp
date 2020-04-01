@@ -287,205 +287,205 @@ TEST_CASE("MDL Input","[MDL_Input]")
 * - the unpacking of the FEM inputs
 * - the building of the FEM Model from these inputs
 */
-TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
-{
-    if(par_size() == 1)
-    {
-        std::string tFieldName = "Circle";
-
-        moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
-
-        moris::hmr::Parameters tParameters;
-
-        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {4} } );
-        tParameters.set_domain_dimensions({ {1}, {1}, {2} });
-        tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
-        tParameters.set_bspline_truncation( true );
-        tParameters.set_side_sets({ {5}, {6} });
-
-        tParameters.set_output_meshes( { {0} } );
-
-        tParameters.set_lagrange_orders  ( { {1} });
-        tParameters.set_lagrange_patterns({ {0} });
-
-        tParameters.set_bspline_orders   ( { {1} } );
-        tParameters.set_bspline_patterns ( { {0} } );
-
-        tParameters.set_union_pattern( 2 );
-        tParameters.set_working_pattern( 3 );
-
-        tParameters.set_refinement_buffer( 2 );
-        tParameters.set_staircase_buffer( 2);
-
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-        hmr::HMR tHMR( tParameters );
-
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
-        tField->evaluate_scalar_function( LevelSetPlaneFunction );
-
-        for( uint k=0; k<0; ++k )
-        {
-            tHMR.flag_surface_elements_on_working_pattern( tField );
-            tHMR.perform_refinement_based_on_working_pattern( 0 );
-
-            tField->evaluate_scalar_function( LevelSetPlaneFunction );
-        }
-
-        tHMR.finalize();
-
-        tHMR.save_to_exodus( 0, "./mdl_exo/mdl_input.e" );
-
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
-        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
-
-        moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
-
-        // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
-
-        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-        size_t tModelDimension = 3;
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-
-        xtk::Model tXTKModel(tModelDimension,tIPMesh.get(), &tGeometryEngine);
-        tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = false;
-
-        // do the cutting
-        tXTKModel.decompose(tDecompositionMethods);
-
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = true;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Integration_Mesh* tIGMesh = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh );
-
-        //------------------------------------------------------------------------------
-        // create a cell of cell of parameter list for fem
-        moris::Cell< moris::Cell< ParameterList > > tParameterList( 5 );
-
-        //------------------------------------------------------------------------------
-        // fill the property part of the parameter list
-        uint tNumProperties = 3;
-        tParameterList( 0 ).resize( tNumProperties );
-
-        // create parameter list for property 1
-        tParameterList( 0 )( 0 ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( 0 ).set( "property_name",       std::string("PropertyConductivity") );
-        tParameterList( 0 )( 0 ).set( "dof_dependencies",    std::string("TEMP") );
-        tParameterList( 0 )( 0 ).set( "function_parameters", std::string("1.0") );
-        tParameterList( 0 )( 0 ).set( "value_function",      std::string("Func1") );
-
-        // create parameter list for property 2
-        tParameterList( 0 )( 1 ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( 1 ).set( "property_name",       std::string("PropertyDirichlet") );
-        tParameterList( 0 )( 1 ).set( "dof_dependencies",    std::string("TEMP") );
-        tParameterList( 0 )( 1 ).set( "function_parameters", std::string("5.0") );
-        tParameterList( 0 )( 1 ).set( "value_function",      std::string("Func1") );
-
-        // create parameter list for property 2
-        tParameterList( 0 )( 2 ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( 2 ).set( "property_name",       std::string("PropertyNeumann") );
-        tParameterList( 0 )( 2 ).set( "dof_dependencies",    std::string("TEMP") );
-        tParameterList( 0 )( 2 ).set( "function_parameters", std::string("20.0") );
-        tParameterList( 0 )( 2 ).set( "value_function",      std::string("Func1") );
-
-        //------------------------------------------------------------------------------
-        // fill the constitutive model part of the parameter list
-        uint tNumCMs = 1;
-        tParameterList( 1 ).resize( tNumCMs );
-
-        // create parameter list for constitutive model 1
-        tParameterList( 1 )( 0 ) = prm::create_constitutive_model_parameter_list();
-        tParameterList( 1 )( 0 ).set( "constitutive_name", std::string("CMDiffusion") );
-        tParameterList( 1 )( 0 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-        tParameterList( 1 )( 0 ).set( "dof_dependencies",  std::pair< std::string, std::string >( std::string("TEMP"), std::string("Temperature") ) );
-        tParameterList( 1 )( 0 ).set( "properties",        std::string("PropertyConductivity,Conductivity") );
-
-        //------------------------------------------------------------------------------
-        // fill the stabilization parameter part of the parameter list
-        uint tNumSPs = 1;
-        tParameterList( 2 ).resize( tNumSPs );
-
-        // create parameter list for stabilization parameter 1
-        tParameterList( 2 )( 0 ) = prm::create_stabilization_parameter_parameter_list();
-        tParameterList( 2 )( 0 ).set( "stabilization_name",  std::string("SPDirichlet") );
-        tParameterList( 2 )( 0 ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
-        tParameterList( 2 )( 0 ).set( "function_parameters", std::string("1.0") );
-        tParameterList( 2 )( 0 ).set( "master_properties",   std::string("PropertyConductivity,Material") );
-
-        //------------------------------------------------------------------------------
-        // fill the IWG part of the parameter list
-        uint tNumIWGs = 3;
-        tParameterList( 3 ).resize( tNumIWGs );
-
-        // create parameter list for IWG 1
-        tParameterList( 3 )( 0 ) = prm::create_IWG_parameter_list();
-        tParameterList( 3 )( 0 ).set( "IWG_name",                   std::string("SPATIALDIFF_BULK") );
-        tParameterList( 3 )( 0 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-        tParameterList( 3 )( 0 ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( 0 ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( 0 ).set( "master_constitutive_models", std::string("CMDiffusion,DiffLinIso") );
-        tParameterList( 3 )( 0 ).set( "mesh_set_names",             std::string("child_0,parent_0") );
-
-        // create parameter list for IWG 2
-        tParameterList( 3 )( 1 ) = prm::create_IWG_parameter_list();
-        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET") );
-        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET ) );
-        tParameterList( 3 )( 1 ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( 1 ).set( "master_properties",          std::string("PropertyDirichlet,Dirichlet") );
-        tParameterList( 3 )( 1 ).set( "master_constitutive_models", std::string("CMDiffusion,DiffLinIso") );
-        tParameterList( 3 )( 1 ).set( "stabilization_parameters",   std::string("SPDirichlet,DirichletNitsche") );
-        tParameterList( 3 )( 1 ).set( "mesh_set_names",             std::string("SideSet_1") );
-
-        // create parameter list for IWG 3
-        tParameterList( 3 )( 2 ) = prm::create_IWG_parameter_list();
-        tParameterList( 3 )( 2 ).set( "IWG_name",                std::string("SPATIALDIFF_NEUMANN") );
-        tParameterList( 3 )( 2 ).set( "IWG_type",                static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
-        tParameterList( 3 )( 2 ).set( "dof_residual",            std::string("TEMP") );
-        tParameterList( 3 )( 2 ).set( "master_dof_dependencies", std::string("TEMP") );
-        tParameterList( 3 )( 2 ).set( "master_properties",       std::string("PropertyNeumann,Neumann") );
-        tParameterList( 3 )( 2 ).set( "mesh_set_names",          std::string("iside_g_0_p0_0_p1_1") );
-
-        //------------------------------------------------------------------------------
-        // path for property function reading
-        std::string tMeshFilePath = std::getenv("MORISROOT");
-        tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
-        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
-
-        // create model
-        fem::FEM_Model * tFEMModel = new fem::FEM_Model( &tMeshManager,
-                                                          tBSplineMeshIndex,
-                                                          tParameterList,
-                                                          tLibrary );
-
-        //------------------------------------------------------------------------------
-        // clean up
-        delete tFEMModel;
-    }
-
-}/* END_TEST_CASE */
+//TEST_CASE("FEM_MDL_Input","[FEM_MDL_Input]")
+//{
+//    if(par_size() == 1)
+//    {
+//        std::string tFieldName = "Circle";
+//
+//        moris::uint tLagrangeMeshIndex = 0;
+//        moris::uint tBSplineMeshIndex = 0;
+//
+//        moris::hmr::Parameters tParameters;
+//
+//        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {4} } );
+//        tParameters.set_domain_dimensions({ {1}, {1}, {2} });
+//        tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
+//        tParameters.set_bspline_truncation( true );
+//        tParameters.set_side_sets({ {5}, {6} });
+//
+//        tParameters.set_output_meshes( { {0} } );
+//
+//        tParameters.set_lagrange_orders  ( { {1} });
+//        tParameters.set_lagrange_patterns({ {0} });
+//
+//        tParameters.set_bspline_orders   ( { {1} } );
+//        tParameters.set_bspline_patterns ( { {0} } );
+//
+//        tParameters.set_union_pattern( 2 );
+//        tParameters.set_working_pattern( 3 );
+//
+//        tParameters.set_refinement_buffer( 2 );
+//        tParameters.set_staircase_buffer( 2);
+//
+//        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+//        tLagrangeToBSplineMesh( 0 ) = { {0} };
+//
+//        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//
+//        // create field
+//        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+//
+//        tField->evaluate_scalar_function( LevelSetPlaneFunction );
+//
+//        for( uint k=0; k<0; ++k )
+//        {
+//            tHMR.flag_surface_elements_on_working_pattern( tField );
+//            tHMR.perform_refinement_based_on_working_pattern( 0 );
+//
+//            tField->evaluate_scalar_function( LevelSetPlaneFunction );
+//        }
+//
+//        tHMR.finalize();
+//
+//        tHMR.save_to_exodus( 0, "./mdl_exo/mdl_input.e" );
+//
+//        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+//
+//        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
+//
+//        moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+//
+//        // Tell the geometry engine about the discrete field mesh and how to interpret phases
+//        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//        ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+//
+//        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
+//        size_t tModelDimension = 3;
+//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+//
+//        xtk::Model tXTKModel(tModelDimension,tIPMesh.get(), &tGeometryEngine);
+//        tXTKModel.mSameMesh = true;
+//        tXTKModel.mVerbose = false;
+//
+//        // do the cutting
+//        tXTKModel.decompose(tDecompositionMethods);
+//
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = true;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldName = "solution";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+//
+//        moris::mtk::Integration_Mesh* tIGMesh = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh );
+//
+//        //------------------------------------------------------------------------------
+//        // create a cell of cell of parameter list for fem
+//        moris::Cell< moris::Cell< ParameterList > > tParameterList( 5 );
+//
+//        //------------------------------------------------------------------------------
+//        // fill the property part of the parameter list
+//        uint tNumProperties = 3;
+//        tParameterList( 0 ).resize( tNumProperties );
+//
+//        // create parameter list for property 1
+//        tParameterList( 0 )( 0 ) = prm::create_property_parameter_list();
+//        tParameterList( 0 )( 0 ).set( "property_name",       std::string("PropertyConductivity") );
+//        tParameterList( 0 )( 0 ).set( "dof_dependencies",    std::string("TEMP") );
+//        tParameterList( 0 )( 0 ).set( "function_parameters", std::string("1.0") );
+//        tParameterList( 0 )( 0 ).set( "value_function",      std::string("Func1") );
+//
+//        // create parameter list for property 2
+//        tParameterList( 0 )( 1 ) = prm::create_property_parameter_list();
+//        tParameterList( 0 )( 1 ).set( "property_name",       std::string("PropertyDirichlet") );
+//        tParameterList( 0 )( 1 ).set( "dof_dependencies",    std::string("TEMP") );
+//        tParameterList( 0 )( 1 ).set( "function_parameters", std::string("5.0") );
+//        tParameterList( 0 )( 1 ).set( "value_function",      std::string("Func1") );
+//
+//        // create parameter list for property 2
+//        tParameterList( 0 )( 2 ) = prm::create_property_parameter_list();
+//        tParameterList( 0 )( 2 ).set( "property_name",       std::string("PropertyNeumann") );
+//        tParameterList( 0 )( 2 ).set( "dof_dependencies",    std::string("TEMP") );
+//        tParameterList( 0 )( 2 ).set( "function_parameters", std::string("20.0") );
+//        tParameterList( 0 )( 2 ).set( "value_function",      std::string("Func1") );
+//
+//        //------------------------------------------------------------------------------
+//        // fill the constitutive model part of the parameter list
+//        uint tNumCMs = 1;
+//        tParameterList( 1 ).resize( tNumCMs );
+//
+//        // create parameter list for constitutive model 1
+//        tParameterList( 1 )( 0 ) = prm::create_constitutive_model_parameter_list();
+//        tParameterList( 1 )( 0 ).set( "constitutive_name", std::string("CMDiffusion") );
+//        tParameterList( 1 )( 0 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
+//        tParameterList( 1 )( 0 ).set( "dof_dependencies",  std::pair< std::string, std::string >( std::string("TEMP"), std::string("Temperature") ) );
+//        tParameterList( 1 )( 0 ).set( "properties",        std::string("PropertyConductivity,Conductivity") );
+//
+//        //------------------------------------------------------------------------------
+//        // fill the stabilization parameter part of the parameter list
+//        uint tNumSPs = 1;
+//        tParameterList( 2 ).resize( tNumSPs );
+//
+//        // create parameter list for stabilization parameter 1
+//        tParameterList( 2 )( 0 ) = prm::create_stabilization_parameter_parameter_list();
+//        tParameterList( 2 )( 0 ).set( "stabilization_name",  std::string("SPDirichlet") );
+//        tParameterList( 2 )( 0 ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+//        tParameterList( 2 )( 0 ).set( "function_parameters", std::string("1.0") );
+//        tParameterList( 2 )( 0 ).set( "master_properties",   std::string("PropertyConductivity,Material") );
+//
+//        //------------------------------------------------------------------------------
+//        // fill the IWG part of the parameter list
+//        uint tNumIWGs = 3;
+//        tParameterList( 3 ).resize( tNumIWGs );
+//
+//        // create parameter list for IWG 1
+//        tParameterList( 3 )( 0 ) = prm::create_IWG_parameter_list();
+//        tParameterList( 3 )( 0 ).set( "IWG_name",                   std::string("SPATIALDIFF_BULK") );
+//        tParameterList( 3 )( 0 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
+//        tParameterList( 3 )( 0 ).set( "dof_residual",               std::string("TEMP") );
+//        tParameterList( 3 )( 0 ).set( "master_dof_dependencies",    std::string("TEMP") );
+//        tParameterList( 3 )( 0 ).set( "master_constitutive_models", std::string("CMDiffusion,DiffLinIso") );
+//        tParameterList( 3 )( 0 ).set( "mesh_set_names",             std::string("child_0,parent_0") );
+//
+//        // create parameter list for IWG 2
+//        tParameterList( 3 )( 1 ) = prm::create_IWG_parameter_list();
+//        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET") );
+//        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET ) );
+//        tParameterList( 3 )( 1 ).set( "dof_residual",               std::string("TEMP") );
+//        tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    std::string("TEMP") );
+//        tParameterList( 3 )( 1 ).set( "master_properties",          std::string("PropertyDirichlet,Dirichlet") );
+//        tParameterList( 3 )( 1 ).set( "master_constitutive_models", std::string("CMDiffusion,DiffLinIso") );
+//        tParameterList( 3 )( 1 ).set( "stabilization_parameters",   std::string("SPDirichlet,DirichletNitsche") );
+//        tParameterList( 3 )( 1 ).set( "mesh_set_names",             std::string("SideSet_1") );
+//
+//        // create parameter list for IWG 3
+//        tParameterList( 3 )( 2 ) = prm::create_IWG_parameter_list();
+//        tParameterList( 3 )( 2 ).set( "IWG_name",                std::string("SPATIALDIFF_NEUMANN") );
+//        tParameterList( 3 )( 2 ).set( "IWG_type",                static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
+//        tParameterList( 3 )( 2 ).set( "dof_residual",            std::string("TEMP") );
+//        tParameterList( 3 )( 2 ).set( "master_dof_dependencies", std::string("TEMP") );
+//        tParameterList( 3 )( 2 ).set( "master_properties",       std::string("PropertyNeumann,Neumann") );
+//        tParameterList( 3 )( 2 ).set( "mesh_set_names",          std::string("iside_g_0_p0_0_p1_1") );
+//
+//        //------------------------------------------------------------------------------
+//        // path for property function reading
+//        std::string tMeshFilePath = std::getenv("MORISROOT");
+//        tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
+//        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
+//
+//        // create model
+//        fem::FEM_Model * tFEMModel = new fem::FEM_Model( &tMeshManager,
+//                                                          tBSplineMeshIndex,
+//                                                          tParameterList,
+//                                                          tLibrary );
+//
+//        //------------------------------------------------------------------------------
+//        // clean up
+//        delete tFEMModel;
+//    }
+//
+//}/* END_TEST_CASE */
 
 }/* END_MORIS_NAMESPACE */
 

@@ -708,6 +708,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
             tOutputData.set_outputs( 0,
                                      vis::VIS_Mesh_Type::STANDARD,
+                                     "./",
                                      "aaaaaaaaaa_outputCheck2D.e",
                                      { "HMR_dummy_n_p3", "HMR_dummy_c_p3" },
                                      { "UX", "UY", "J_INTEGRAL" },

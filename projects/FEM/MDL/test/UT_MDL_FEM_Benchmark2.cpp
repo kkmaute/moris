@@ -415,6 +415,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
                                  "MDL_FEM_Benchmark_Diffusion_1Mat.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
@@ -781,6 +782,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
                                  "MDL_FEM_Benchmark_Diffusion_1Mat_Ghost.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
@@ -1196,6 +1198,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
                                  "UT_MDL_FEM_Bench2_Output_2Mat.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
@@ -1604,6 +1607,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
                                  "UT_MDL_FEM_Bench2_Output_2Mat.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                                  { "TEMP", "L2", "TEMP_EXACT" },

@@ -107,9 +107,11 @@ set(HEADERS
     cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IQI.hpp
+    cl_FEM_IQI_Analytic.hpp
     cl_FEM_IQI_Factory.hpp
     cl_FEM_IQI_Volume.hpp
     cl_FEM_IQI_Strain_Energy.hpp
+    cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
@@ -196,9 +198,11 @@ set(LIB_SOURCES
     cl_FEM_SP_Ghost_Virtual_Work.cpp
     cl_FEM_SP_Incompressible_Flow.cpp
     cl_FEM_IQI.cpp
+    cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
+    cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp

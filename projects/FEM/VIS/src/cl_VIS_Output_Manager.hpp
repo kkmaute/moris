@@ -53,6 +53,9 @@ namespace moris
             //! Mesh Name
             std::string                     mMeshName;
 
+            //! Mesh Name
+            std::string                     mMeshPath;
+
             //! Set names which shall be part of this mesh
             moris::Cell< std::string >      mSetNames;
 
@@ -134,6 +137,7 @@ namespace moris
 
             void set_outputs( const uint                              aOutputIndex,
                               const enum VIS_Mesh_Type                aMeshType,
+                              const std::string                     & aMeshPath,
                               const std::string                     & aMeshName,
                               const moris::Cell< std::string >      & aBlockNames,
                               const moris::Cell< std::string >      & aFieldNames,

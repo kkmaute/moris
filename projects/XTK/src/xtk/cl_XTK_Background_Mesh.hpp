@@ -177,7 +177,8 @@ public:
      */
     moris::size_t
     get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntityIndex,
-                                            enum EntityRank aEntityRank) const;
+                                            enum EntityRank aEntityRank,
+                                            moris_index const & aMeshIndex = 0) const;
     /*!
      * From a vector of entity ids and ranks, return the global ids of these entities
      */

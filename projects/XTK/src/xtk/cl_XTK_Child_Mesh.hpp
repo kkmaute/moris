@@ -97,6 +97,10 @@ public:
     enum EntityRank
     get_facet_rank() const;
 
+    enum EntityRank
+    get_facet_rank_internal() const;
+
+
     /*!
      * Returns the connectivity pointer (i.e. a TET4 connectivity)
      */
@@ -858,6 +862,10 @@ public:
         return CellTopology::INVALID;
     }
 
+
+    void
+    mark_as_hmr_child_mesh(){ mHMR = true; };
+
 private:
     // Parent element index
     moris::moris_index mParentElementIndex;
@@ -881,7 +889,6 @@ private:
 
     // Geometries which intersect this child mesh
     Cell<moris_index> mGeometryIndex;
-
 
     // Child element information ---------------------------
     moris::Matrix< moris::IdMat >    mChildElementIds;
@@ -952,6 +959,9 @@ private:
 
     // Unzipping information
     bool mUnzippingFlag = false;
+
+    // HMR Flag
+    bool mHMR = false;
 
 private:
     void

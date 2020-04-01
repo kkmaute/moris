@@ -274,6 +274,7 @@ public:
         return mMat6;
     };
 
+
     virtual void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aRequestedIQIType )
     {
         MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");

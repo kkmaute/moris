@@ -193,17 +193,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
                                                1,
                                                tSetInfo );
 
-        // define outputs
-        // --------------------------------------------------------------------------------------
-        vis::Output_Manager tOutputData;
-        tOutputData.set_outputs( 0,
-                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
-                                 "UT_Output_cube_with_side_sets.exo",
-                                 { "block_1" },
-                                 { "TEMP" },
-                                 { vis::Field_Type::NODAL },
-                                 { vis::Output_Type::TEMP } );
-        tModel->set_output_manager( &tOutputData );
+        //------------------------------------------------------------------------------
 
         //------------------------------------------------------------------------------
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );

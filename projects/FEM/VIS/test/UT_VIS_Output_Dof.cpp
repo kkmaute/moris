@@ -334,7 +334,7 @@ namespace moris
 
                 // create model
                 mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                                      1,
+                                                      0,
                                                       tSetInfo );
 
                 // --------------------------------------------------------------------------------------
@@ -345,6 +345,7 @@ namespace moris
                 tOutputData.set_outputs( 0,
                                          VIS_Mesh_Type::STANDARD,
 //                                         VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                                         "./",
                                          "Vis_Output_Dof.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { "Displacement nodal UX", "Displacement nodal UY" },

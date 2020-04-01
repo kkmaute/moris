@@ -154,7 +154,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
          for( uint Ik = 0; Ik < tNumBlocks; Ik++ )
          {
              ISCreateGeneral( PETSC_COMM_WORLD, tCriteriaIds( Ik ).numel(), tCriteriaIds( Ik ).data(), PETSC_COPY_VALUES, &tIs( Ik ) );
-             ISView( tIs( Ik ) , PETSC_VIEWER_STDOUT_SELF );
+//             ISView( tIs( Ik ) , PETSC_VIEWER_STDOUT_SELF );
          }
 
          PCASMSetLocalSubdomains( dPCFirstDown, tNumBlocks, NULL, tIs.data().data() );

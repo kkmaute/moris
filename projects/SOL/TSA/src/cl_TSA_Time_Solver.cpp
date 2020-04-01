@@ -288,34 +288,44 @@ using namespace tsa;
 
     void Time_Solver::initialize_sol_vec()
     {
+        // initialize solution vector with zero
         mFullVector->vec_put_scalar( 0.0 );
 
+        // extract initialization string from parameterlist
         moris::Cell< moris::Cell< std::string > > tDofTypeAndValuePair;
         string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_Initialize_Sol_Vec" ),
                                 tDofTypeAndValuePair );
 
+        // get string to dof type map
         map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
 
+        // loop over input dof types
         for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
         {
             // First string is dof type
             moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
 
+            // get local global ids for this dof type
             moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
 
+            // get value from input
             moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
 
+            // add value into Matrix
             moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
 
             if( tDofTypeAndValuePair( Ik ).size() == 2 )
             {
+                // replace inital values in solution vector
                 mFullVector->replace_global_values( tAdofIds,
                                                     tValues );
             }
             else if( tDofTypeAndValuePair( Ik ).size() == 3 )
             {
+                // get solution vector index
                 moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
 
+                // replace inital values in solution vector
                 mFullVector->replace_global_values( tAdofIds,
                                                     tValues,
                                                     ( uint ) tVectorIndex );
