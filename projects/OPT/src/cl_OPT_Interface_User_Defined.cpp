@@ -45,15 +45,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Interface_User_Defined::begin_new_analysis(Matrix<DDRMat> aNewADVs)
+        Matrix<DDRMat> Interface_User_Defined::get_criteria(Matrix<DDRMat> aNewADVs)
         {
             mADVs = aNewADVs;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> Interface_User_Defined::get_criteria()
-        {
             return this->get_criteria_user_defined(mADVs);
         }
 

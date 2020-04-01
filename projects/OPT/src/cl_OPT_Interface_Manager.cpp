@@ -30,17 +30,8 @@ namespace moris
             mNumADVsPerInterface.set_size(mNumInterfaces, 1, 0);
             mNumADVsPerInterface(0) = tCurrentGlobalADVs;
 
-            // Give each interface the ADVs if shared
-            if (mSharedADVs)
-            {
-                for (uint tInterfaceIndex = 1; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
-                {
-                    mInterfaces(tInterfaceIndex)->begin_new_analysis(tGlobalADVs);
-                }
-            }
-
             // ADVs are not shared
-            else
+            if (!mSharedADVs)
             {
                 // Loop through local ADVs
                 for (uint tInterfaceIndex = 1; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
@@ -159,14 +150,35 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Interface_Manager::begin_new_analysis(Matrix<DDRMat> aNewADVs)
+        Matrix<DDRMat> Interface_Manager::get_criteria(Matrix<DDRMat> aNewADVs)
         {
+            // Set up global criteria
+            Matrix<DDRMat> tGlobalCriteria;
+            Matrix<DDRMat> tLocalCriteria;
+            uint tCurrentGlobalCriteria = tGlobalCriteria.length();
+
+            // Criteria per interface
+            mNumCriteriaPerInterface.set_size(mNumInterfaces, 1);
+            mNumCriteriaPerInterface(0) = tCurrentGlobalCriteria;
+
             // If ADVs are shared, begin new analysis with all ADVs
             if (mSharedADVs)
             {
                 for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
                 {
-                    mInterfaces(tInterfaceIndex)->begin_new_analysis(aNewADVs);
+                    // Get the local criteria
+                    tLocalCriteria = mInterfaces(tInterfaceIndex)->get_criteria(aNewADVs);
+                    mNumCriteriaPerInterface(tInterfaceIndex) = tLocalCriteria.length();
+
+                    // Put into the global criteria
+                    tGlobalCriteria.resize(tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex), 1);
+                    for (uint tCriteriaIndex = 0; tCriteriaIndex < mNumCriteriaPerInterface(tInterfaceIndex); tCriteriaIndex++)
+                    {
+                        tGlobalCriteria(tCurrentGlobalCriteria + tCriteriaIndex) = tLocalCriteria(tCriteriaIndex);
+                    }
+
+                    // Update number of global criteria
+                    tCurrentGlobalCriteria += mNumCriteriaPerInterface(tInterfaceIndex);
                 }
             }
 
@@ -182,41 +194,22 @@ namespace moris
                     {
                         tLocalADVs(tADVIndex) = aNewADVs(tGlobalADVIndex++);
                     }
-                    mInterfaces(tInterfaceIndex)->begin_new_analysis(tLocalADVs);
+                    // Get the local criteria
+                    tLocalCriteria = mInterfaces(tInterfaceIndex)->get_criteria(tLocalADVs);
+                    mNumCriteriaPerInterface(tInterfaceIndex) = tLocalCriteria.length();
+
+                    // Put into the global criteria
+                    tGlobalCriteria.resize(tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex), 1);
+                    for (uint tCriteriaIndex = 0; tCriteriaIndex < mNumCriteriaPerInterface(tInterfaceIndex); tCriteriaIndex++)
+                    {
+                        tGlobalCriteria(tCurrentGlobalCriteria + tCriteriaIndex) = tLocalCriteria(tCriteriaIndex);
+                    }
+
+                    // Update number of global criteria
+                    tCurrentGlobalCriteria += mNumCriteriaPerInterface(tInterfaceIndex);
                 }
             }
-        }
 
-        // -------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> Interface_Manager::get_criteria()
-        {
-            // Set up global criteria
-            Matrix<DDRMat> tGlobalCriteria = mInterfaces(0)->get_criteria();
-            Matrix<DDRMat> tLocalCriteria;
-            uint tCurrentGlobalCriteria = tGlobalCriteria.length();
-
-            // Criteria per interface
-            mNumCriteriaPerInterface.set_size(mNumInterfaces, 1);
-            mNumCriteriaPerInterface(0) = tCurrentGlobalCriteria;
-
-            // Get local criteria from each interface and append
-            for (uint tInterfaceIndex = 1; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
-            {
-                // Get the local criteria
-                tLocalCriteria = mInterfaces(tInterfaceIndex)->get_criteria();
-                mNumCriteriaPerInterface(tInterfaceIndex) = tLocalCriteria.length();
-
-                // Put into the global criteria
-                tGlobalCriteria.resize(tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex), 1);
-                for (uint tCriteriaIndex = 0; tCriteriaIndex < mNumCriteriaPerInterface(tInterfaceIndex); tCriteriaIndex++)
-                {
-                    tGlobalCriteria(tCurrentGlobalCriteria + tCriteriaIndex) = tLocalCriteria(tCriteriaIndex);
-                }
-
-                // Update number of global criteria
-                tCurrentGlobalCriteria += mNumCriteriaPerInterface(tInterfaceIndex);
-            }
             return tGlobalCriteria;
         }
 

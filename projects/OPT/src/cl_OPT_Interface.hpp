@@ -50,18 +50,11 @@ namespace moris
             virtual Matrix<DDRMat> get_upper_adv_bounds() = 0;
 
             /**
-             * Updates the ADVs to start an optimization step with a new analysis
-             *
-             * @param aNewADVs the new matrix of ADV values
-             */
-            virtual void begin_new_analysis(Matrix<DDRMat> aNewADVs) = 0;
-
-            /**
-             * Gets the criteria values
+             * Gets the criteria values given a new set of ADVs
              *
              * @return vector of criteria
              */
-            virtual Matrix<DDRMat> get_criteria() = 0;
+            virtual Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs) = 0;
 
             /**
              * Gets the derivative of the criteria with respect to the advs

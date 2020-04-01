@@ -72,7 +72,7 @@ namespace moris
 
                 // Check Solution
                 REQUIRE(std::abs(tManager.get_objectives()(0)) < 1.0e-03); // check value of objective
-                REQUIRE(norm(tManager.get_advs() - 1.0) < 2.0e-02); // check value of design variable, x
+                REQUIRE(norm(tManager.get_advs() - 1.0) < 2.0e-02); // check value of design variables
             }
 
             //    SECTION("LBFGS")
@@ -156,10 +156,9 @@ namespace moris
 //                std::shared_ptr<Interface> tInterface = create_interface(tParameterLists);
 //                Matrix<DDRMat> tNewADVs = tInterface->initialize_advs();
 //                std::cout << "" << std::endl;
-//                moris::print(tInterface->get_criteria(), "criteria 1");
+//                moris::print(tInterface->get_criteria(tNewADVs), "criteria 1");
 //                std::cout << "" << std::endl;
-//                tInterface->begin_new_analysis(tNewADVs + 1);
-//                moris::print(tInterface->get_criteria(), "criteria 2");
+//                moris::print(tInterface->get_criteria(tNewADVs + 1), "criteria 2");
 //                moris::print(tInterface->get_dcriteria_dadv(), "critera grad");
             }
         }
