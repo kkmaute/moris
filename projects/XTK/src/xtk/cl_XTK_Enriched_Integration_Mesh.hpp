@@ -109,6 +109,16 @@ public:
     Matrix< IndexMat >
     get_block_entity_loc_inds( std::string     aSetName) const;
 
+    /*!
+     * This function creates additional dbl sided interfaces. By default,
+     * the enriched integrztion mesh creates only the low-master high-slave
+     * dbl sided interfaces. This functions allows creation of  low-slave high-master
+     * interfaces.
+     */
+    void
+    create_dbl_sided_interface_set(moris_index aMasterBulkPhaseIndex,
+                                   moris_index aSlaveBulkPhaseIndex);
+
 
     //------------------------------------------------------------------------------
     // Output/ Viz Functions
@@ -251,6 +261,7 @@ protected:
     moris::Cell<moris::Cell<std::shared_ptr<xtk::Side_Cluster>>> mSideSets;
     moris::Cell<moris::Matrix<IndexMat>>                         mSideSetColors; /*Bulk phases of cells attached to side*/
     moris::Cell<moris::Cell<moris_index>>                        mColorsSideSets; /*transpose of mSideSetColors*/
+
     // double side sets
     std::unordered_map<std::string, moris_index>        mDoubleSideSetLabelToOrd;
     moris::Cell<std::string>                            mDoubleSideSetLabels;

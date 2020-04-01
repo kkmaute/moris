@@ -375,6 +375,59 @@ Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string     aSetName) 
     return tCellIndices;
 }
 //------------------------------------------------------------------------------
+
+void
+Enriched_Integration_Mesh::create_dbl_sided_interface_set(moris_index aMasterBulkPhaseIndex,
+                                                          moris_index aSlaveBulkPhaseIndex)
+{
+    MORIS_ERROR(aMasterBulkPhaseIndex>aSlaveBulkPhaseIndex,"The master bulk phase needs to be lower than the slave bulk phase.");
+
+    // get the name of this side set
+    std::string tInterfaceDblSideName = this->get_dbl_interface_side_set_name(aMasterBulkPhaseIndex,aSlaveBulkPhaseIndex);
+
+    // register it with the mesh
+    Cell<moris_index> tDblSideSetOrds = this->register_double_side_set_names({tInterfaceDblSideName});
+
+    // get the other
+    moris_index tOtherInterfaceIndex = this->get_dbl_side_set_index(aSlaveBulkPhaseIndex,aMasterBulkPhaseIndex);
+
+    std::cout<<"tInterfaceDblSideName = "<<tInterfaceDblSideName<<std::endl;
+    std::cout<<"tOtherInterfaceIndex = "<<tOtherInterfaceIndex<<std::endl;
+    std::cout<<"tDblSideSetOrds(0) = "<<tDblSideSetOrds(0)<<std::endl;
+    // set the colors
+    Matrix<IndexMat> tMasterColor = {{aMasterBulkPhaseIndex}};
+    Matrix<IndexMat> tSlaveColor  = {{aSlaveBulkPhaseIndex}};
+    this->set_double_side_set_colors(tDblSideSetOrds(0),tMasterColor,tSlaveColor);
+
+    // resize member data
+    moris::uint tNumPairsInSet = mDoubleSideSetsMasterIndex(tOtherInterfaceIndex).size();
+    mDoubleSideSetsMasterIndex(tDblSideSetOrds(0)).resize(tNumPairsInSet);
+    mDoubleSideSetsSlaveIndex(tDblSideSetOrds(0)).resize(tNumPairsInSet);
+
+    for(moris::uint i = 0; i < tNumPairsInSet; i++)
+    {
+        // master is slave slave is master
+        mDoubleSideSetsMasterIndex(tDblSideSetOrds(0))(i) = mDoubleSideSetsSlaveIndex(tOtherInterfaceIndex)(i);
+        mDoubleSideSetsSlaveIndex(tDblSideSetOrds(0))(i) = mDoubleSideSetsMasterIndex(tOtherInterfaceIndex)(i);
+
+        // get master ans slave clusters
+        Side_Cluster* tMasterSideCluster = mDoubleSideSingleSideClusters(mDoubleSideSetsMasterIndex(tDblSideSetOrds(0))(i)).get();
+        Side_Cluster* tSlaveSideCluster  = mDoubleSideSingleSideClusters(mDoubleSideSetsSlaveIndex(tDblSideSetOrds(0))(i)).get();
+
+        // create double side set
+        mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tMasterSideCluster,tSlaveSideCluster, tSlaveSideCluster->mChildMesh->get_vertices());
+
+        mDoubleSideClusters.push_back(tDblSideCluster);
+        mDoubleSideSets(tDblSideSetOrds(0)).push_back(tDblSideCluster);
+    }
+
+
+    this->setup_color_to_set();
+    this->commit_double_side_set(tDblSideSetOrds(0));
+    this->collect_all_sets();
+
+}
+
 void
 Enriched_Integration_Mesh::deactivate_empty_sets()
 {
@@ -1062,7 +1115,6 @@ std::string
 Enriched_Integration_Mesh::get_dbl_interface_side_set_name(moris_index aBulkPhaseIndex0,
                                                            moris_index aBulkPhaseIndex1)
 {
-    MORIS_ASSERT(aBulkPhaseIndex0<aBulkPhaseIndex1,"Double side set names are defined from low index to high");
     MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
     MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
 
