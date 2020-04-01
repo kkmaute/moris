@@ -13,12 +13,21 @@ namespace moris
     namespace opt
     {
         /**
-         * Creates an instance of the specified Problem class and returns a shared pointer to it
+         * Creates an instance of an Interface class or Interface_Manager and returns a shared pointer to it
          *
-         * @param aParameterList moris::ParameterList
-         * @return std::shared_ptr<Problem>
+         * @param aParameterLists Cell<moris::ParameterList> parameter lists for individual interfaces
+         * @return std::shared_ptr<Interface>
+         */
+        std::shared_ptr<Interface> create_interface(Cell<ParameterList> aParameterLists);
+
+        /**
+         * Creates an instance of the specified Interface class and returns a shared pointer to it
+         *
+         * @param aParameterList moris::ParameterList a single interface parameter list
+         * @return std::shared_ptr<Interface>
          */
         std::shared_ptr<Interface> create_interface(ParameterList aParameterList);
+
     }
 }
 

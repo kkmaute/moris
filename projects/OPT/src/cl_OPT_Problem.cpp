@@ -2,7 +2,6 @@
 #include "cl_OPT_Problem.hpp" // OPT/src
 #include "op_plus.hpp"
 #include "fn_norm.hpp"
-#include "fn_OPT_create_interface.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 extern moris::Logger gLogger;
@@ -16,10 +15,10 @@ namespace moris
         // Public functions
         // -------------------------------------------------------------------------------------------------------------
 
-        Problem::Problem(ParameterList aParameterList)
+        Problem::Problem(ParameterList aParameterList, std::shared_ptr<Interface> aInterface)
         {
-            // Create interface
-            mInterface = create_interface(aParameterList);
+            // Set interface
+            mInterface = aInterface;
 
             // Parameters: finite differencing
             mFiniteDifferenceType = aParameterList.get<std::string>("finite_difference_type");

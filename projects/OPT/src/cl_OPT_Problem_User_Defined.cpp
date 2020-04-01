@@ -10,7 +10,8 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
-        Problem_User_Defined::Problem_User_Defined(ParameterList aParameterList) : Problem(aParameterList)
+        Problem_User_Defined::Problem_User_Defined(ParameterList aParameterList, std::shared_ptr<Interface> aInterface)
+        : Problem(aParameterList, aInterface)
         {
             // Load library
             moris::Library_IO tLibrary(aParameterList.get<std::string>("library"));

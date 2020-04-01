@@ -45,7 +45,7 @@ namespace moris
              *
              * @param aInterface Interface class written for other module (e.g. GEN)
              */
-            Problem(ParameterList aParameterList);
+            Problem(ParameterList aParameterList, std::shared_ptr<Interface> aInterface);
 
             /**
              * Destructor

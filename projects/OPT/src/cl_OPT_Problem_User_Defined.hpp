@@ -22,9 +22,10 @@ namespace moris
             /**
              * Constructor
              *
+             * @param aParameterList parameter list for this problem specifying the needed library
              * @param aInterface Interface class written for other module (e.g. GEN)
              */
-            Problem_User_Defined(ParameterList aParameterList);
+            Problem_User_Defined(ParameterList aParameterList, std::shared_ptr<Interface> aInterface);
 
             /**
              * Gets the constraint types

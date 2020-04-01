@@ -1,30 +1,45 @@
 //
-// Created by christopherson on 3/16/20.
+// Created by christopherson on 3/20/20.
 //
 
-#ifndef MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
-#define MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
+#ifndef MORIS_CL_OPT_INTERFACE_MANAGER_HPP
+#define MORIS_CL_OPT_INTERFACE_MANAGER_HPP
 
 #include "cl_OPT_Interface.hpp"
 #include "cl_Param_List.hpp"
-#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
     namespace opt
     {
-        class Interface_User_Defined : public Interface
+        class Interface_Manager : public Interface
         {
-        private:
-            Matrix<DDRMat> mADVs;
-            moris::Library_IO mLibrary;
-
         public:
+            Cell<std::shared_ptr<Interface>> mInterfaces;
+            Matrix<DDUMat> mNumADVsPerInterface;
+            Matrix<DDUMat> mNumCriteriaPerInterface;
+
+            bool mSharedADVs = false;
+            bool mParallel = false;
+
+            uint mNumInterfaces;
 
             /**
              * Constructor
              */
-            Interface_User_Defined(ParameterList aParameterList);
+            Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Interface>> aInterfaces);
+
+            /**
+             * Destructor
+             */
+            ~Interface_Manager()
+            {
+            }
+
+            /**
+             * Sets the individual interfaces based on a cell of parameter lists
+             */
+            void set_interfaces();
 
             /**
              * Initializes the vector of ADV values
@@ -65,18 +80,9 @@ namespace moris
              * @return matrix d(criteria)_i/d(adv)_j
              */
             Matrix<DDRMat> get_dcriteria_dadv();
-            
-        private:
-            // Loaded user-defined functions
-            MORIS_DDRMAT0_FUNCTION initialize_advs_user_defined;
-            MORIS_DDRMAT0_FUNCTION get_lower_adv_bounds_user_defined;
-            MORIS_DDRMAT0_FUNCTION get_upper_adv_bounds_user_defined;
-            MORIS_DDSMAT0_FUNCTION get_constraint_types_user_defined;
-            MORIS_DDRMAT1_FUNCTION get_criteria_user_defined;
-            MORIS_DDRMAT1_FUNCTION get_dcriteria_dadv_user_defined;
 
         };
     }   // namespace opt
 }   // namespace moris
 
-#endif //MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
+#endif //MORIS_CL_OPT_INTERFACE_MANAGER_HPP
