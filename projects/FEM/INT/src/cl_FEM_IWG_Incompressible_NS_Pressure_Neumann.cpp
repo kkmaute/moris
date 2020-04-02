@@ -42,7 +42,7 @@ namespace moris
 
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar* ( trans( tVelocityFI->N() ) * tPropPressure->val()( 0 ) * mNormal );
+            += aWStar * ( trans( tVelocityFI->N() ) * tPropPressure->val()( 0 ) * mNormal );
         }
 
 //------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar* ( trans( tVelocityFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                    += aWStar * ( trans( tVelocityFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
                 }
             }
         }

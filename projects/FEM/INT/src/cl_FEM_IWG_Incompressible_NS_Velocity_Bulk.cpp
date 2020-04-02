@@ -75,11 +75,31 @@ namespace moris
             Matrix< DDRMat > tujvij;
             this->compute_ujvij( tujvij );
 
+            // FIXME
+            Matrix< DDRMat > tPre;
+            if( tVelocityFI->get_number_of_fields() == 2 )
+            {
+                tPre.set_size( 3, 3, 0.0 );
+                tPre( 0, 0 ) = 1.0;
+                tPre( 1, 1 ) = 1.0;
+                tPre( 2, 2 ) = 2.0;
+            }
+            else
+            {
+                tPre.set_size( 6, 6, 0.0 );
+                tPre( 0, 0 ) = 1.0;
+                tPre( 1, 1 ) = 1.0;
+                tPre( 2, 2 ) = 1.0;
+                tPre( 3, 3 ) = 2.0;
+                tPre( 4, 4 ) = 2.0;
+                tPre( 5, 5 ) = 2.0;
+            }
+
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += aWStar * (   trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) )
                           + trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
-                          + trans( tIncFluidCM->testStrain() ) * tIncFluidCM->flux()
+                          + trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux()
                           + trans( tujvij ) * tDensity * tIncFlowSP->val()( 0 ) * tRM
                           + trans( tVelocityFI->div_operator() ) * tIncFlowSP->val()( 1 ) * tRC );
 
@@ -122,6 +142,26 @@ namespace moris
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
+
+            // FIXME
+            Matrix< DDRMat > tPre;
+            if( tVelocityFI->get_number_of_fields() == 2 )
+            {
+                tPre.set_size( 3, 3, 0.0 );
+                tPre( 0, 0 ) = 1.0;
+                tPre( 1, 1 ) = 1.0;
+                tPre( 2, 2 ) = 2.0;
+            }
+            else
+            {
+                tPre.set_size( 6, 6, 0.0 );
+                tPre( 0, 0 ) = 1.0;
+                tPre( 1, 1 ) = 1.0;
+                tPre( 2, 2 ) = 1.0;
+                tPre( 3, 3 ) = 2.0;
+                tPre( 4, 4 ) = 2.0;
+                tPre( 5, 5 ) = 2.0;
+            }
 
             // compute the residual strong form
             Matrix< DDRMat > tRM;
@@ -198,7 +238,7 @@ namespace moris
                 {
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( trans( tIncFluidCM->testStrain() ) * tIncFluidCM->dFluxdDOF( tDofType ) );
+                    += aWStar * ( trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
                 }
 
                 // if stabilization parameter has dependency on the dof type

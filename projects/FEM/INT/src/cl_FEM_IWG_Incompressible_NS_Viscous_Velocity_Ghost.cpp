@@ -85,7 +85,7 @@ namespace moris
 
                 // set the order for stabilization parameters
                 tSPViscous->set_interpolation_order( iOrder );
-                tSPTime->set_interpolation_order( iOrder );
+                //tSPTime->set_interpolation_order( iOrder );
 
                 // get normal matrix
                 Matrix< DDRMat > tFlatNormal;
@@ -93,9 +93,12 @@ namespace moris
 
                 // premultiply common terms
                 Matrix< DDRMat > tPreMultiply
-                = ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) )
+                = tSPViscous->val()( 0 )
                   * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
                  tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+//                = ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) )
+//                  * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
+//                 tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
 
                  // get flattened directional derivatives for master and slave
                 Matrix< DDRMat > tMasterdNdxFlat;
@@ -175,7 +178,7 @@ namespace moris
 
                 // set the order for the stabilization parameter
                 tSPViscous->set_interpolation_order( iOrder );
-                tSPTime->set_interpolation_order( iOrder );
+                //tSPTime->set_interpolation_order( iOrder );
 
                 // get flattened normal
                 Matrix< DDRMat > tFlatNormal;
@@ -208,12 +211,15 @@ namespace moris
                         // dRM/dM
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                               { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
+                        += aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
+                        //+= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
 
                         // dRS/dM
                         mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
                                               { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
+                        -= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
+                        //-= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
+
                     }
 
                     // if viscous stabilization parameter depends on dof type
@@ -235,24 +241,24 @@ namespace moris
                         -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
                     }
 
-                    // if time stabilization parameter depends on dof type
-                    if ( tSPTime->check_dof_dependency( tDofType ) )
-                    {
-                        // premultiply common terms
-                        Matrix< DDRMat > tPreMultiply
-                        = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
-                        tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
-                        tPreMultiply = tPreMultiply * tSPTime->dSPdMasterDOF( tDofType );
-
-                        // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * ( tMasterdNdxFlat * tPreMultiply );
-
-                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
-                    }
+//                    // if time stabilization parameter depends on dof type
+//                    if ( tSPTime->check_dof_dependency( tDofType ) )
+//                    {
+//                        // premultiply common terms
+//                        Matrix< DDRMat > tPreMultiply
+//                        = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
+//                        tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+//                        tPreMultiply = tPreMultiply * tSPTime->dSPdMasterDOF( tDofType );
+//
+//                        // add contribution to jacobian
+//                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+//                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
+//                        += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+//
+//                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
+//                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
+//                        -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
+//                    }
                 }
 
                 // compute the jacobian for indirect dof dependencies through slave
@@ -272,12 +278,14 @@ namespace moris
                         // dRM/dS
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                               { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
-                        -= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
+                        -= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
+                        //-= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
 
                         // dRS/dS
                         mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
                                               { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                        += aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
+                        += aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
+                        //+= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
                     }
                 }
             }

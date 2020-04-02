@@ -32,8 +32,7 @@ namespace moris
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
-std::cout<<"tTestDofIndex"<<tTestDofIndex<<std::endl;
-std::cout<<"size"<<mTestTraction.size()<<std::endl;
+
             // compute test traction
             mTestTraction( tTestDofIndex ) = trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
                                            * this->constitutive() * aNormal;
