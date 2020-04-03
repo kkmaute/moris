@@ -12,6 +12,12 @@
 using namespace moris;
 using namespace dla;
 
+Linear_Solver_Amesos::Linear_Solver_Amesos( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist )
+{
+    // boolean for symbolic factorization after first solve
+    mIsPastFirstSolve = false;
+}
+
 Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem ) //: mAmesosSolver( NULL ),
                                                                          //  mAmesosFactory()
 {

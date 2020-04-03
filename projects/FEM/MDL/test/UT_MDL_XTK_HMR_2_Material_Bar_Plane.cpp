@@ -344,7 +344,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 

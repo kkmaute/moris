@@ -508,6 +508,10 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         for( uint i = 0; i < tFullSolution.numel(); i++ )
         {
             tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
+            if( !tSolutionCheck )
+            {
+                std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+            }
         }
         CHECK( tSolutionCheck );
 

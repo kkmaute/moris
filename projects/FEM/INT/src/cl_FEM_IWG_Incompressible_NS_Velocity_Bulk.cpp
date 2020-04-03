@@ -75,7 +75,7 @@ namespace moris
             Matrix< DDRMat > tujvij;
             this->compute_ujvij( tujvij );
 
-            // FIXME
+            // build multiplication matrix for sigma_ij epsilon_ij
             Matrix< DDRMat > tPre;
             if( tVelocityFI->get_number_of_fields() == 2 )
             {
@@ -143,7 +143,7 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
-            // FIXME
+            // build multiplication matrix for sigma_ij epsilon_ij
             Matrix< DDRMat > tPre;
             if( tVelocityFI->get_number_of_fields() == 2 )
             {

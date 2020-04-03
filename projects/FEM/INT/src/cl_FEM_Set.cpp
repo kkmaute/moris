@@ -1243,8 +1243,7 @@ namespace moris
         mRequestedIWGs.clear();
 
         // reserve max size for requested IWG list
-        //(i.e. as many as requested dof types)
-        mRequestedIWGs.reserve( tRequestedDofTypes.size() );
+        mRequestedIWGs.reserve( mIWGs.size() );
 
         // loop over the requested dof types
         for( MSI::Dof_Type tDofType : tRequestedDofTypes )
@@ -1257,7 +1256,6 @@ namespace moris
                 {
                     // add the IWg to the requested IWG list
                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
-                    break;
                 }
             }
         }

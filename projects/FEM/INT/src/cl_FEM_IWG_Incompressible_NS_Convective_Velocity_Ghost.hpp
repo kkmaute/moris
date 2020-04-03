@@ -30,24 +30,6 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 
-//            // local property enums
-//            enum class IWG_Property_Type
-//            {
-//                MAX_ENUM
-//            };
-//
-//            // local string to property enum map
-//            std::map< std::string, IWG_Property_Type > mPropertyMap;
-//
-//            // local constitutive enums
-//            enum class IWG_Constitutive_Type
-//            {
-//                MAX_ENUM
-//            };
-//
-//            // local string to constitutive enum map
-//            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
             // local stabilization enums
             enum class IWG_Stabilization_Type
             {
@@ -69,44 +51,6 @@ namespace moris
              * trivial destructor
              */
             ~IWG_Incompressible_NS_Convective_Velocity_Ghost(){};
-
-////------------------------------------------------------------------------------
-//            /**
-//             * set property
-//             * @param[ in ] aProperty       a property pointer
-//             * @param[ in ] aPropertyString a string defining the property
-//             * @param[ in ] aIsMaster       an enum for master or slave
-//             */
-//            void set_property( std::shared_ptr< Property > aProperty,
-//                               std::string                 aPropertyString,
-//                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-//            {
-//                // check that aPropertyString makes sense
-//                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-//                             "IWG_Incompressible_NS_Velocity_Ghost::set_property - Unknown aPropertyString." );
-//
-//                // set the property in the property cell
-//                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-//            }
-//
-////------------------------------------------------------------------------------
-//            /**
-//             * set constitutive model
-//             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-//             * @param[ in ] aConstitutiveString a string defining the constitutive model
-//             * @param[ in ] aIsMaster           an enum for master or slave
-//             */
-//            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-//                                         std::string                           aConstitutiveString,
-//                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-//            {
-//                // check that aConstitutiveString makes sense
-//                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-//                             "IWG_Incompressible_NS_Velocity_Ghost::set_constitutive_model - Unknown aConstitutiveString." );
-//
-//                // set the constitutive model in the constitutive model cell
-//                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-//            }
 
 //------------------------------------------------------------------------------
             /**

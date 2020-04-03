@@ -116,6 +116,15 @@ namespace moris
                     -= aWStar * ( trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityFI->N() );
                 }
 
+                // if imposed velocity property depends on dof type
+                if ( tPropVelocity->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution of CM to jacobian
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * ( trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tPropVelocity->dPropdDOF( tDofType ) );
+                }
+
                 // if fluid constitutive model depends on dof type
                 if ( tCMFluid->check_dof_dependency( tDofType ) )
                 {

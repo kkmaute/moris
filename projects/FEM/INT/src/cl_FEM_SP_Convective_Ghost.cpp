@@ -54,6 +54,10 @@ namespace moris
             {
                 // get the sign of u.n
                 Matrix< DDRMat > tSign = tAbs / tAbsReal;
+                if ( tAbsReal == 0.0 )
+                {
+                    tSign = {{ 0.0 }};
+                }
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ).matrix_data()

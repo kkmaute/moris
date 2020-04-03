@@ -108,7 +108,17 @@ Cut_Mesh::initialize_new_mesh_from_parent_element(moris::size_t              aCh
 
     // Set all edge parent ranks to EntityRank::EDGE which = 1;
     moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel());
-    tParentEdgeRanks.fill(1);
+
+    // This is needed for HMR because edges in 2-d have rank 2
+    if(mModel->get_background_mesh().get_mesh_data().get_mesh_type() == MeshType::HMR && mSpatialDim == 2)
+    {
+        tParentEdgeRanks.fill(2);
+    }
+    else
+    {
+        tParentEdgeRanks.fill(1);
+    }
+
 
     // Set all node parent ranks to EntityRank::FACE which = 2;
     moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel());
@@ -132,6 +142,11 @@ Cut_Mesh::initialize_new_mesh_from_parent_element(moris::size_t              aCh
                                                   aParentEntities(2),
                                                   tParentFaceRanks,
                                                   tInterfaceSides);
+
+    if(mModel->get_background_mesh().get_mesh_data().get_mesh_type() == MeshType::HMR)
+    {
+        mChildrenMeshes(aChildMeshIndex).mark_as_hmr_child_mesh();
+    }
 
     // set parent element parametric coordinate
     switch(aTemplate)

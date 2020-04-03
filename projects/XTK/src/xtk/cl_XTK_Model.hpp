@@ -58,6 +58,9 @@
 // general geometry engine class
 #include "cl_GEN_Geometry_Engine.hpp"
 
+#include "cl_Param_List.hpp"
+
+
 namespace xtk
 {
 class Enrichment;
@@ -104,20 +107,28 @@ public:
           moris::ge::GEN_Geometry_Engine* aGeometryEngine,
           bool aLinkGeometryOnConstruction = true);
 
+    Model(moris::ParameterList const & aParameterList);
+
     // Indicates the background mesh and the geometry are the same thing
     bool mSameMesh;
 
     ~Model();
 
-    /*!
-     * Initializes link between background mesh and the geometry
-     */
     void
-    link_background_mesh_to_geometry_objects();
+    set_geometry_engine(moris::ge::GEN_Geometry_Engine* aGeometryEngine);
+
+    void
+    set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh);
 
     //--------------------------------------------------------------------------------
     // Operations
     //--------------------------------------------------------------------------------
+    /*!
+     * All operation perform call
+     */
+    void
+    perform();
+
     /*!
      * Decomposes a mesh to conform to a geometry
      * @param aMethods - specify which type of subdivision method to use (this could be changed to command line parsing or XML reading)
@@ -146,12 +157,19 @@ public:
     compute_sensitivity();
 
     /*!
-     * Perform the enrichment. The interp ordinal is needed for B-spline interpolation where
-     * more than one b-spline of the same order can exist
+     * Perform generalized heaviside  enrichment.
      */
     void
-    perform_basis_enrichment(enum EntityRank  aBasisRank,
-                             moris::uint      aInterpIndex = 0);
+    perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+                             moris_index      const & aMeshIndex = 0);
+
+    /*!
+     * Multiple mesh enrichment. For example we need to enrich
+     * linear and quadratic b-splines.
+     */
+    void
+    perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+                             Matrix<IndexMat> const & aMeshIndex);
 
     /*!
      * returns the basis enrichment class constructed from call to perform basis enrichment
@@ -338,6 +356,8 @@ public:
     print_interface_vertices();
 
 protected:
+    moris::ParameterList               mParameterList;
+
     uint                               mModelDimension;
     Background_Mesh                    mBackgroundMesh;
     Cut_Mesh                           mCutMesh;
@@ -385,6 +405,25 @@ private:
 
     // Private Functions
 private:
+    // Functions that take parameter inputs and setup XTK inputs
+    bool
+    has_parameter_list();
+
+
+    /*!
+     * Verifys provided parameter list
+     */
+    bool
+    valid_parameters();
+
+
+    /*
+     * Using the parameter list, figure out the cell of subdivision methods
+     */
+    Cell<enum Subdivision_Method>
+    get_subdivision_methods();
+
+
     // Internal Decomposition Functions------------------------------------------------------
     /*!
      * formulates node requests in the geometry objects. Dependent on the type of decomposition
@@ -488,6 +527,13 @@ protected:
                                     moris::moris_id &    aNodeId);
 
 private:
+
+    /*!
+     * Initializes link between background mesh and the geometry
+     */
+    void
+    link_background_mesh_to_geometry_objects();
+
     /*
      * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
      * Tasks performed here:
@@ -643,8 +689,8 @@ private:
     // Enrichment computation functions -----------------------------------------------
 
     void
-    perform_basis_enrichment_internal(enum EntityRank  aBasisRank,
-                                      moris::uint      aInterpOrd);
+    perform_basis_enrichment_internal(enum EntityRank   const & aBasisRank,
+                                      Matrix<IndexMat> const & aMeshIndex);
 
     /*!
      * Links the vertex enrichment to the mtk implementation of the vertex

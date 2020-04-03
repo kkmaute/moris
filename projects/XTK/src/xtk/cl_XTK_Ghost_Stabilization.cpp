@@ -81,7 +81,7 @@ namespace xtk
         moris::uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities(EntityRank::ELEMENT);
 
         // allocate data in ghost setup data
-        aGhostSetupData.mSubphaseIndexToInterpolationCellIndex.resize(tCurrentNewInterpCellIndex,MORIS_INDEX_MAX);
+        aGhostSetupData.mSubphaseIndexToInterpolationCellIndex.resize(mXTKModel->get_subphase_to_subphase().size(),MORIS_INDEX_MAX);
 
         // figure out how many of the interpolation cells are not trivial (this value is the number of new interpolion cells)
         // iterate through owned interpolation cells and give them an id if they are not trivial clusters
@@ -422,6 +422,8 @@ namespace xtk
             tEnrIntegMesh.commit_double_side_set(aGhostSetupData.mDblSideSetIndexInMesh(i));
             tEnrIntegMesh.set_double_side_set_colors(aGhostSetupData.mDblSideSetIndexInMesh(i),{{(moris_index)i}},{{(moris_index)i}});
         }
+
+        tEnrIntegMesh.collect_all_sets();
 
     }
 

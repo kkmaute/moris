@@ -1,4 +1,5 @@
 
+
 #include "cl_Stopwatch.hpp" //CHR/src
 
 // fixme: temporary
@@ -62,6 +63,10 @@ void Performer_Manager::initialize()
 
     // Create GE with parameter list
     mGENPerformer( 0 ) = std::make_shared< ge::GEN_Geometry_Engine >( tGENParameterList(0)(0) );
+
+    mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+
+    mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
 }
 
 void Performer_Manager::perform_refinement()
@@ -119,7 +124,6 @@ void Performer_Manager::perform()
     std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = mHMRPerformer( 0 )->create_interpolation_mesh( tLagrangeMeshIndex );
     std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = mHMRPerformer( 0 )->create_integration_mesh( 1, 0, *tInterpolationMesh );
 
-    mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
     mMTKPerformer( 0 )->register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get() );
     size_t tSpatialDimension = tInterpolationMesh->get_spatial_dim();
 
@@ -184,10 +188,7 @@ void Performer_Manager::perform()
 //            delete tIntegMesh1;
     }
 
-
-
     // place the pair in mesh manager
-    mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
     mMTKPerformer( 1 )->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
     // create model

@@ -125,10 +125,13 @@ namespace moris
             H1_ERROR_ANALYTIC,
             H1_SEMI_ERROR,
             J_INTEGRAL,
+            ANALYTIC,
+            STRESS,
             END_IQI_TYPE
         };
 
 //------------------------------------------------------------------------------
+
         enum class Constitutive_Type
         {
             UNDEFINED,
@@ -138,8 +141,8 @@ namespace moris
             FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
-
 //------------------------------------------------------------------------------
+
         enum class Model_Type
         {
             UNDEFINED,
@@ -169,6 +172,17 @@ namespace moris
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
             END_STABILIZATION_TYPE
+        };
+
+//------------------------------------------------------------------------------
+        enum class Cluster_Measure
+        {
+            UNDEFINED,
+            MASTER_VOLUME,
+            SLAVE_VOLUME,
+            INTERFACE_SURFACE,
+            ELEMENT_SIZE,
+            END_CLUSTER_MEASURE
         };
 
 //------------------------------------------------------------------------------

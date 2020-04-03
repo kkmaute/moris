@@ -5,6 +5,8 @@
  *      Author: doble
  */
 
+
+
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Map.hpp"
 
@@ -26,9 +28,14 @@ Enriched_Interpolation_Mesh::~Enriched_Interpolation_Mesh()
 {
     if( mCellInfo!= nullptr ) { delete mCellInfo; }
 
-    for(auto it : mInterpVertEnrichment)
+    for(moris::uint i = 0; i < mInterpVertEnrichment.size(); i++)
     {
-        delete it;
+        for(auto it : mInterpVertEnrichment(i))
+        {
+            delete it;
+        }
+
+        mInterpVertEnrichment(i).clear();
     }
 
     mInterpVertEnrichment.clear();
@@ -78,14 +85,14 @@ Enriched_Interpolation_Mesh::get_num_entities( enum EntityRank aEntityRank, cons
 uint
 Enriched_Interpolation_Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
 {
-    uint tNumCoeffs = 0;
+	uint tNumCoeffs = 0;
+	moris_index tLocalMeshIndex = this->get_local_mesh_index(aBSplineMeshIndex);
+	for(auto it = mCoeffToEnrichCoeffs(tLocalMeshIndex).cbegin(); it < mCoeffToEnrichCoeffs(tLocalMeshIndex).cend(); it++)
+	{
+		tNumCoeffs = tNumCoeffs + it->numel();
+	}
 
-    for(auto it = mCoeffToEnrichCoeffs.cbegin(); it < mCoeffToEnrichCoeffs.cend(); it++)
-    {
-        tNumCoeffs = tNumCoeffs + it->numel();
-    }
-
-    return tNumCoeffs;
+	return tNumCoeffs;
 }
 
 //------------------------------------------------------------------------------
@@ -93,7 +100,7 @@ Matrix<IndexMat>
 Enriched_Interpolation_Mesh::get_entity_connected_to_entity_loc_inds(moris_index  aEntityIndex,
                                                                      enum EntityRank aInputEntityRank,
                                                                      enum EntityRank aOutputEntityRank,
-                                                                     const moris_index aIndex ) const
+																	 const moris_index aIndex ) const
 {
     MORIS_ERROR(aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,"Only support element to node connectivity");
     MORIS_ASSERT(aEntityIndex<(moris_index)mEnrichedInterpCells.size(),"Element index out of bounds");
@@ -235,28 +242,34 @@ Enriched_Interpolation_Mesh::get_adof_map( const uint aBSplineIndex, map< moris_
 {
     aAdofMap.clear();
 
-    for(moris::uint i = 0; i < mEnrichCoeffLocToGlob.numel(); i++)
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aBSplineIndex);
+
+    for(moris::uint i = 0; i < mEnrichCoeffLocToGlob(tLocalMeshIndex).numel(); i++)
     {
-        aAdofMap[mEnrichCoeffLocToGlob(i)] = i;
+        aAdofMap[mEnrichCoeffLocToGlob(tLocalMeshIndex)(i)] = i;
     }
 }
 //------------------------------------------------------------------------------
 Matrix<IndexMat> const &
-Enriched_Interpolation_Mesh::get_enriched_coefficients_at_background_coefficient(moris_index aBackgroundCoeffIndex) const
+Enriched_Interpolation_Mesh::get_enriched_coefficients_at_background_coefficient(moris_index const & aMeshIndex,
+                                                                                 moris_index aBackgroundCoeffIndex) const
 {
-    MORIS_ASSERT(aBackgroundCoeffIndex< (moris_index)mCoeffToEnrichCoeffs.size(), "Background coefficient index out of bounds. Be sure this is not an enriched coefficient index passed in.");
-    return mCoeffToEnrichCoeffs(aBackgroundCoeffIndex);
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    MORIS_ASSERT(aBackgroundCoeffIndex< (moris_index)mCoeffToEnrichCoeffs(tLocalMeshIndex).size(), "Background coefficient index out of bounds. Be sure this is not an enriched coefficient index passed in.");
+    return mCoeffToEnrichCoeffs(tLocalMeshIndex)(aBackgroundCoeffIndex);
 }
 Cell<Matrix<IndexMat>> const &
-Enriched_Interpolation_Mesh::get_enriched_coefficients_to_background_coefficients() const
+Enriched_Interpolation_Mesh::get_enriched_coefficients_to_background_coefficients(moris_index const & aMeshIndex) const
 {
-    return mCoeffToEnrichCoeffs;
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    return mCoeffToEnrichCoeffs(tLocalMeshIndex);
 }
 //------------------------------------------------------------------------------
 Matrix<IndexMat> const &
-Enriched_Interpolation_Mesh::get_enriched_coefficient_local_to_global_map() const
+Enriched_Interpolation_Mesh::get_enriched_coefficient_local_to_global_map(moris_index const & aMeshIndex) const
 {
-    return mEnrichCoeffLocToGlob;
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    return mEnrichCoeffLocToGlob(tLocalMeshIndex);
 }
 //------------------------------------------------------------------------------
 Matrix<IndexMat>
@@ -298,15 +311,18 @@ Enriched_Interpolation_Mesh::get_unzipped_vertex_pointer(moris_index aVertexInde
 
 //------------------------------------------------------------------------------
 moris_index
-Enriched_Interpolation_Mesh::add_vertex_enrichment( mtk::Vertex *       aBaseInterpVertex,
-                                                    Vertex_Enrichment & aVertexEnrichment,
-                                                    bool              & aNewVertex)
+Enriched_Interpolation_Mesh::add_vertex_enrichment( moris_index   const & aMeshIndex,
+                                                    mtk::Vertex *         aBaseInterpVertex,
+                                                    Vertex_Enrichment   & aVertexEnrichment,
+                                                    bool                & aNewVertex)
 {
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+
     // vertex index of the base interpolation vertex
     moris_index tBaseVertIndex = aBaseInterpVertex->get_index();
 
     // Number of enriched vertices related to the base vertex
-    moris::uint tNumVertsEnrOnBaseVert = mBaseInterpVertToVertEnrichmentIndex(tBaseVertIndex).size();
+    moris::uint tNumVertsEnrOnBaseVert = mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex).size();
 
     // not new until we make it to the end
     aNewVertex = false;
@@ -314,9 +330,9 @@ Enriched_Interpolation_Mesh::add_vertex_enrichment( mtk::Vertex *       aBaseInt
     // iterate through the enriched vertices related to the base vertex and see if any are equal
     for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
     {
-        moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex(tBaseVertIndex)(i);
+        moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex)(i);
 
-        if(aVertexEnrichment == *mInterpVertEnrichment(tVertEnrIndex))
+        if(aVertexEnrichment == *mInterpVertEnrichment(tLocalMeshIndex)(tVertEnrIndex))
         {
             return tVertEnrIndex;
         }
@@ -327,31 +343,43 @@ Enriched_Interpolation_Mesh::add_vertex_enrichment( mtk::Vertex *       aBaseInt
     aNewVertex = true;
 
     // index of the vertex enrichment
-    moris_index tVertexEnrichmentIndex = mInterpVertEnrichment.size();
+    moris_index tVertexEnrichmentIndex = mInterpVertEnrichment(tLocalMeshIndex).size();
 
     // add to member data
-    mInterpVertEnrichment.push_back(new Vertex_Enrichment(aVertexEnrichment));
+    mInterpVertEnrichment(tLocalMeshIndex).push_back(new Vertex_Enrichment(aVertexEnrichment));
 
     // add a dummy value to the parent vertex index of a vertex interpolation
-    mVertexEnrichmentParentVertexIndex.push_back(tVertexEnrichmentIndex);
+    mVertexEnrichmentParentVertexIndex(tLocalMeshIndex).push_back(tVertexEnrichmentIndex);
 
-    mBaseInterpVertToVertEnrichmentIndex(tBaseVertIndex).push_back(tVertexEnrichmentIndex);
+    mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex).push_back(tVertexEnrichmentIndex);
 
     return tVertexEnrichmentIndex;
 }
 //------------------------------------------------------------------------------
 Vertex_Enrichment *
-Enriched_Interpolation_Mesh::get_vertex_enrichment(moris_index aVertexEnrichmentIndex)
+Enriched_Interpolation_Mesh::get_vertex_enrichment(moris_index const & aMeshIndex,
+                                                   moris_index const & aVertexEnrichmentIndex)
 {
-    MORIS_ASSERT(aVertexEnrichmentIndex< (moris_index)mInterpVertEnrichment.size(),"Provided vertex enrichment index out of bounds");
-    return mInterpVertEnrichment(aVertexEnrichmentIndex);
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    MORIS_ASSERT(aVertexEnrichmentIndex< (moris_index)mInterpVertEnrichment(tLocalMeshIndex).size(),"Provided vertex enrichment index out of bounds");
+    return mInterpVertEnrichment(tLocalMeshIndex)(aVertexEnrichmentIndex);
 }
 //------------------------------------------------------------------------------
 moris_index
-Enriched_Interpolation_Mesh::get_vertex_related_to_vertex_enrichment(moris_index aVertexEnrichmentIndex) const
+Enriched_Interpolation_Mesh::get_vertex_related_to_vertex_enrichment(moris_index const & aMeshIndex,
+                                                                     moris_index aVertexEnrichmentIndex) const
 {
-    MORIS_ASSERT(aVertexEnrichmentIndex< (moris_index)mVertexEnrichmentParentVertexIndex.size(),"Provided vertex enrichment index out of bounds");
-    return mVertexEnrichmentParentVertexIndex(aVertexEnrichmentIndex);
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    MORIS_ASSERT(aVertexEnrichmentIndex< (moris_index)mVertexEnrichmentParentVertexIndex(tLocalMeshIndex).size(),"Provided vertex enrichment index out of bounds");
+    return mVertexEnrichmentParentVertexIndex(tLocalMeshIndex)(aVertexEnrichmentIndex);
+}
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Interpolation_Mesh::get_local_mesh_index(moris_index const & aMeshIndex) const
+{
+    auto tIter = mMeshIndexToLocMeshIndex.find(aMeshIndex);
+    MORIS_ASSERT(tIter != mMeshIndexToLocMeshIndex.end(),"Mesh index not in map");
+    return tIter->second;
 }
 //------------------------------------------------------------------------------
 
@@ -374,6 +402,20 @@ Enriched_Interpolation_Mesh::get_enriched_interpolation_cells() const
 {
     return mEnrichedInterpCells;
 }
+//------------------------------------------------------------------------------
+uint
+Enriched_Interpolation_Mesh::get_num_interpolation_types() const
+{
+    return mMeshIndices.numel();
+}
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Interpolation_Mesh::get_interpolation_index(moris_index const & aLocalInterpIndex) const
+{
+    MORIS_ASSERT(aLocalInterpIndex < (moris_index) mMeshIndices.numel(),"Local interpolation index out of bounds");
+    return mMeshIndices(aLocalInterpIndex);
+}
+
 //------------------------------------------------------------------------------
 Cell<Interpolation_Cell_Unzipped *> &
 Enriched_Interpolation_Mesh::get_enriched_interpolation_cells()
@@ -491,30 +533,35 @@ Enriched_Interpolation_Mesh::convert_ids_to_indices(Matrix<IdMat> const & aIds,
 
 //------------------------------------------------------------------------------
 void
-Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(Matrix<IndexMat> const & aEnrichedIndices,
+Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(moris_index      const & aMeshIndex,
+                                                                   Matrix<IndexMat> const & aEnrichedIndices,
                                                                    Matrix<IdMat>          & aEnrichedIds) const
 {
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+
+
     aEnrichedIds.resize(aEnrichedIndices.n_rows(),aEnrichedIndices.n_cols());
 
     for(moris::uint i = 0; i < aEnrichedIndices.n_rows(); i++)
     {
         for(moris::uint j = 0; j < aEnrichedIndices.n_cols(); j++)
         {
-            aEnrichedIds(i,j) = mEnrichCoeffLocToGlob(aEnrichedIndices(i,j));
+            aEnrichedIds(i,j) = mEnrichCoeffLocToGlob(tLocalMeshIndex)(aEnrichedIndices(i,j));
         }
     }
 }
 
 //------------------------------------------------------------------------------
 void
-Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(Cell<Matrix<IndexMat>> const & aEnrichedIndices,
+Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(moris_index            const & aMeshIndex,
+                                                                   Cell<Matrix<IndexMat>> const & aEnrichedIndices,
                                                                    Cell<Matrix<IdMat>>          & aEnrichedIds) const
 {
     aEnrichedIds.resize(aEnrichedIndices.size());
 
     for(moris::uint i = 0; i < aEnrichedIndices.size(); i++)
     {
-        this->convert_enriched_basis_indices_to_ids(aEnrichedIndices(i),aEnrichedIds(i));
+        this->convert_enriched_basis_indices_to_ids(aMeshIndex,aEnrichedIndices(i),aEnrichedIds(i));
     }
 }
 
@@ -563,17 +610,20 @@ void Enriched_Interpolation_Mesh::print_enriched_cell_maps() const
 //------------------------------------------------------------------------------
 void Enriched_Interpolation_Mesh::print_basis_to_enriched_basis() const
 {
-    moris::uint tNumBasis = mCoeffToEnrichCoeffs.size();
-    std::cout<<"\nBasis to Enriched Basis Indices:"<<std::endl;
-    for(moris::uint iB = 0; iB < tNumBasis; iB++)
+    for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
     {
-        std::cout<<"    Basis Index: "<< std::setw(9)<<iB<<" | Enriched Indices";
-
-        for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(iB).numel(); iEB++)
+        moris::uint tNumBasis = mCoeffToEnrichCoeffs(iM).size();
+        std::cout<<"\nBackground Basis to Enriched Basis Indices For Mesh: " << mMeshIndices(iM) <<std::endl;
+        for(moris::uint iB = 0; iB < tNumBasis; iB++)
         {
-            std::cout<<std::setw(9)<<mCoeffToEnrichCoeffs(iB)(iEB);
+            std::cout<<"    Basis Index: "<< std::setw(9)<<iB<<" | Enriched Indices";
+
+            for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(iM)(iB).numel(); iEB++)
+            {
+                std::cout<<std::setw(9)<<mCoeffToEnrichCoeffs(iM)(iB)(iEB);
+            }
+            std::cout<<std::endl;
         }
-        std::cout<<std::endl;
     }
 }
 //------------------------------------------------------------------------------
@@ -593,28 +643,7 @@ void Enriched_Interpolation_Mesh::print_vertex_interpolation() const
 void
 Enriched_Interpolation_Mesh::finalize_setup()
 {
-    this->assign_vertex_interpolation_ids();
     this->setup_local_to_global_maps();
-}
-//------------------------------------------------------------------------------
-void
-Enriched_Interpolation_Mesh::assign_vertex_interpolation_ids()
-{
-
-    //FIXME: Implement in parallel
-    moris::uint tNumVerts = this->get_num_entities(EntityRank::NODE);
-    for(moris::moris_index i =0; i <(moris_index)tNumVerts; i++)
-    {
-        Matrix<IndexMat> tBasisIndices = mInterpVertEnrichment(i)->get_indices();
-        Matrix<IndexMat> tBasisIds(1,tBasisIndices.numel());
-        for(moris::uint j = 0; j < tBasisIndices.numel(); j++)
-        {
-            tBasisIds(j) = mEnrichCoeffLocToGlob(tBasisIndices(j));
-        }
-
-
-        mInterpVertEnrichment(i)->mBasisIds = tBasisIds;
-    }
 }
 
 void
@@ -662,6 +691,18 @@ Enriched_Interpolation_Mesh::setup_cell_maps()
         mGlobaltoLobalMaps(3)[mEnrichedInterpCells(i)->get_id()] = mEnrichedInterpCells(i)->get_index();
     }
 }
+
+void
+Enriched_Interpolation_Mesh::setup_mesh_index_map()
+{
+    for(moris::uint i =0; i <mMeshIndices.numel(); i++)
+    {
+        MORIS_ASSERT(mMeshIndexToLocMeshIndex.find(mMeshIndices(i)) == mMeshIndexToLocMeshIndex.end(),"Duplicate id in the mesh index map detected");
+
+        mMeshIndexToLocMeshIndex[mMeshIndices(i)] = i;
+    }
+}
+
 //------------------------------------------------------------------------------
 moris_id
 Enriched_Interpolation_Mesh::allocate_entity_ids(moris::size_t   aNumReqs,

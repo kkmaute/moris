@@ -10,6 +10,8 @@
 #include "cl_FEM_IQI_Factory.hpp"       //FEM/INT/src
 #include "cl_FEM_IQI_Volume.hpp"        //FEM/INT/src
 #include "cl_FEM_IQI_Strain_Energy.hpp" //FEM/INT/src
+#include "cl_FEM_IQI_Stress.hpp"        //FEM/INT/src
+#include "cl_FEM_IQI_Analytic.hpp"
 #include "cl_FEM_IQI_Dof.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_Property.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"           //FEM/INT/src
@@ -41,6 +43,10 @@ namespace moris
 
                 case ( IQI_Type::STRAIN_ENERGY ):
                     return std::make_shared< IQI_Strain_Energy >();
+                case( IQI_Type::STRESS):
+                    return std::make_shared< IQI_Stress >();
+                case( IQI_Type::ANALYTIC):
+                    return std::make_shared< IQI_Analytic >();
 
                 case ( IQI_Type::L2_ERROR_ANALYTIC ):
                     return std::make_shared< IQI_L2_Error_Analytic >();

@@ -233,8 +233,7 @@ namespace moris
                      Matrix< DDRMat> tValue = {{mSet->get_jacobian()( iRow, iCol )}};
                      if( !isfinite( tValue ) )
                      {
-             tIsFinite = false;
-                         mSet->get_jacobian()( iRow, iCol ) = 1E-5;
+                         tIsFinite = false;
                      }
                  }
              }
@@ -242,8 +241,6 @@ namespace moris
              {
                  std::cout<<"Interpolation_Element::compute_jacobian - non finite values in jacobian."<<std::endl;
              }
-             //print( mSet->get_jacobian(), "mSet->get_jacobian()" );
-
          }
 
 //------------------------------------------------------------------------------

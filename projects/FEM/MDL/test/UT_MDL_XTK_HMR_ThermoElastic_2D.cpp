@@ -382,7 +382,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 
@@ -484,105 +484,105 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
     }
 }
 
-TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_Input]")
-{
-    if(par_size()<=1)
-    {
-        uint tLagrangeMeshIndex = 0;
-        std::string tFieldName = "Cylinder";
-
-        ParameterList tParameters = prm::create_hmr_parameter_list();
-
-        tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
-        tParameters.set( "domain_dimensions", std::string("2, 2") );
-        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes",std::string( "0") );
-
-        tParameters.set( "lagrange_orders", std::string("1" ));
-        tParameters.set( "lagrange_pattern", std::string("0" ));
-        tParameters.set( "bspline_orders", std::string("1" ));
-        tParameters.set( "bspline_pattern", std::string("0" ));
-
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
-
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
-
-        tParameters.set( "use_multigrid", 0 );
-        tParameters.set( "severity_level", 2 );
-
-        hmr::HMR tHMR( tParameters );
-
-        // initial refinement
-        tHMR.perform_initial_refinement( 0 );
-
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        //// create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-        tField->evaluate_scalar_function( LvlSetPlane );
-        //
-        // for( uint k=0; k<2; ++k )
-        // {
-            // tHMR.flag_surface_elements_on_working_pattern( tField );
-            // tHMR.perform_refinement_based_on_working_pattern( 0 );
-
-            // tField->evaluate_scalar_function( LvlSetCircle_2D );
-        // }
-
-        tHMR.finalize();
-
-         tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
-
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
-
-        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tField);
-
-        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
-
-        size_t tModelDimension = 2;
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-
-        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
-
-        tXTKModel.mVerbose = false;
-
-        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
-
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
-
-        // get meshes
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-        // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
-
-        std::string tInputFilePath = std::getenv("MORISROOT");
-        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
-
-        // create a pointer to library for input reading
-        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
-
-        // create model
-        mdl::Model * tModel = new mdl::Model( tLibrary,
-                                              &tMeshManager,
-                                              0 );
-
-        // solve
-        tModel->solve();
-
-        // clean up
-        delete tModel;
-    }
-}
+//TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_Input]")
+//{
+//    if(par_size()<=1)
+//    {
+//        uint tLagrangeMeshIndex = 0;
+//        std::string tFieldName = "Cylinder";
+//
+//        ParameterList tParameters = prm::create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
+//        tParameters.set( "domain_dimensions", std::string("2, 2") );
+//        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+//        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+//        tParameters.set( "lagrange_output_meshes",std::string( "0") );
+//
+//        tParameters.set( "lagrange_orders", std::string("1" ));
+//        tParameters.set( "lagrange_pattern", std::string("0" ));
+//        tParameters.set( "bspline_orders", std::string("1" ));
+//        tParameters.set( "bspline_pattern", std::string("0" ));
+//
+//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "refinement_buffer", 3 );
+//        tParameters.set( "staircase_buffer", 3 );
+//        tParameters.set( "initial_refinement", 0 );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//        tParameters.set( "severity_level", 2 );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        // initial refinement
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//
+//        //// create field
+//        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+//        tField->evaluate_scalar_function( LvlSetPlane );
+//        //
+//        // for( uint k=0; k<2; ++k )
+//        // {
+//            // tHMR.flag_surface_elements_on_working_pattern( tField );
+//            // tHMR.perform_refinement_based_on_working_pattern( 0 );
+//
+//            // tField->evaluate_scalar_function( LvlSetCircle_2D );
+//        // }
+//
+//        tHMR.finalize();
+//
+//         tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+//
+//        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+//
+//        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tField);
+//
+//        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+//
+//        size_t tModelDimension = 2;
+//        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+//
+//        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
+//
+//        tXTKModel.mVerbose = false;
+//
+//        //Specify decomposition Method and Cut Mesh ---------------------------------------
+//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//        tXTKModel.decompose(tDecompositionMethods);
+//
+//        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+//
+//        // get meshes
+//        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+//        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+//
+//        std::string tInputFilePath = std::getenv("MORISROOT");
+//        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
+//
+//        // create a pointer to library for input reading
+//        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
+//
+//        // create model
+//        mdl::Model * tModel = new mdl::Model( tLibrary,
+//                                              &tMeshManager,
+//                                              0 );
+//
+//        // solve
+//        tModel->solve();
+//
+//        // clean up
+//        delete tModel;
+//    }
+//}
 
 TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2D_staggered]")
 {
@@ -817,7 +817,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         uint tBSplineMeshIndex = 0;
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 
