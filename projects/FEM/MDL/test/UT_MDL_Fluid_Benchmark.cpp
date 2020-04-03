@@ -259,9 +259,9 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
             tHMR.perform_refinement_based_on_working_pattern( 0, false );
         }
         tHMR.finalize();
-//        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
+        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //-----------------------------------------------------------------------------------------------
 
@@ -279,7 +279,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
-        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -575,6 +575,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 
         // clean up
         //------------------------------------------------------------------------------
+        delete tInterpolationMesh;
         delete tIntegMesh1;
         delete tModel;
     }
@@ -701,7 +702,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
+        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //-----------------------------------------------------------------------------------------------
 
@@ -719,7 +721,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
-        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1006,6 +1008,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         // clean up
         //------------------------------------------------------------------------------
+        delete tInterpolationMesh;
         delete tIntegMesh1;
         delete tModel;
     }
@@ -1148,7 +1151,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tHMR.finalize();
 ////        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 //
-//        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+//        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
+//        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 //
 //        //-----------------------------------------------------------------------------------------------
 //
@@ -1168,7 +1172,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 //
 //        // --------------------------------------------------------------------------------------
-//        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+//        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
 //        tXTKModel.mVerbose = true;
 //
 //        //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1492,6 +1496,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //
 //        // clean up
 //        //------------------------------------------------------------------------------
+//        delete tInterpolationMesh;
 //        delete tIntegMesh1;
 //        delete tModel;
 //    }
@@ -1556,12 +1561,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Con
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
+        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh
+        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
-       tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh.get() );
+       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
 
         // create for fem
         // --------------------------------------------------------------------------------------
@@ -1761,6 +1768,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Con
         // clean up
         //------------------------------------------------------------------------------
         delete tModel;
+        delete tIPMesh;
+        delete tIGMesh;
     }
 }
 
@@ -1822,12 +1831,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Con
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
+        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh
+        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
-       tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh.get() );
+       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
 
         // create for fem
         // --------------------------------------------------------------------------------------
@@ -2022,6 +2033,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Con
         // clean up
         //------------------------------------------------------------------------------
         delete tModel;
+        delete tIPMesh;
+        delete tIGMesh;
     }
 }
 
@@ -2086,12 +2099,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
+        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh
+        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh.get() );
+        tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
 
         // create for fem
         // --------------------------------------------------------------------------------------
@@ -2315,6 +2330,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_
         // clean up
         //------------------------------------------------------------------------------
         delete tModel;
+        delete tIPMesh;
+        delete tIGMesh;
     }
 }
 
@@ -2498,7 +2515,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
+        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //-----------------------------------------------------------------------------------------------
 
@@ -2513,7 +2531,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
-        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -2794,6 +2812,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         // clean up
         //------------------------------------------------------------------------------
+        delete tInterpolationMesh;
         delete tIntegMesh1;
         delete tModel;
     }
