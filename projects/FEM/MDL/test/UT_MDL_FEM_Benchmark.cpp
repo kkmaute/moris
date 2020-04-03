@@ -165,12 +165,12 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
-       tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh.get() );
+       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
 
        //------------------------------------------------------------------------------
        // create the properties
@@ -333,7 +333,11 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
+       delete tIPMesh;
+       delete tIGMesh;
+
     }
+
 
 }/* END_TEST_CASE */
 
@@ -404,7 +408,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -414,7 +418,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -656,6 +660,8 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
+
+       delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */
@@ -724,7 +730,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -734,7 +740,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -995,6 +1001,8 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
+
+       delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */
@@ -1044,12 +1052,12 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
-       tMeshManager.register_mesh_pair( tIPMesh.get(), tIGMesh.get() );
+       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
 
        //------------------------------------------------------------------------------
        // create the properties
@@ -1220,6 +1228,9 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
+
+           delete tIPMesh;
+           delete tIGMesh;
     }
 
 }/* END_TEST_CASE */
@@ -1290,7 +1301,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -1300,7 +1311,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1552,6 +1563,8 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
+
+       delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */
@@ -1622,7 +1635,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -1632,7 +1645,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1904,6 +1917,8 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
+
+       delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */

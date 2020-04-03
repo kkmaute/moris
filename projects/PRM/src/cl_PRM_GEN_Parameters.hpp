@@ -32,6 +32,8 @@ namespace moris
 
         tParameterList.insert( "geometries", std::string("") );
 
+        tParameterList.insert( "number_HMR_refinments", 0 );
+
         return tParameterList;
     }
 

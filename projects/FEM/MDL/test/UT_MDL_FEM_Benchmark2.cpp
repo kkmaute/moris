@@ -259,7 +259,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
 
@@ -274,7 +274,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
           moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
           tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -496,6 +496,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         // clean up
         //------------------------------------------------------------------------------
+        delete tInterpolationMesh;
         delete tIntegMesh1;
         delete tModel;
     }
@@ -604,7 +605,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
 
@@ -619,7 +620,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
           moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
           tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -873,6 +874,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         // clean up
         //------------------------------------------------------------------------------
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 
@@ -993,7 +995,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
@@ -1007,7 +1009,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         // specify decomposition method and cut mesh
@@ -1283,6 +1285,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         //------------------------------------------------------------------------------
         delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 
@@ -1402,7 +1405,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
@@ -1416,7 +1419,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         // specify decomposition method and cut mesh
@@ -1692,6 +1695,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         //------------------------------------------------------------------------------
         delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 }

@@ -161,7 +161,7 @@ namespace moris
 
                 tHMR.finalize();
 
-                std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+                hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
                 moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
@@ -171,7 +171,7 @@ namespace moris
                 moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-                xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+                xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
                 //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -411,6 +411,8 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 tTimeSolver.solve();
+
+                delete tInterpMesh;
 
             }
     }

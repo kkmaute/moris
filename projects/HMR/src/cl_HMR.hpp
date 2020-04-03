@@ -17,6 +17,10 @@
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 namespace moris
 {
+namespace mtk
+{
+    class Mesh_Manager;
+}
     namespace hmr
     {
         class Field;
@@ -48,6 +52,8 @@ namespace moris
 
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
+
+            std::shared_ptr< mtk::Mesh_Manager > mMTKPerformer = nullptr;
 
             /*
              * @brief determines elements (cells) intersected by the level set
@@ -277,20 +283,25 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aLagrangeMeshIndex );
+            Interpolation_Mesh_HMR * create_interpolation_mesh( const uint & aLagrangeMeshIndex );
 
-            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aLagrangeOrder,
-                                                                                 const uint & aPattern );
+            Interpolation_Mesh_HMR * create_interpolation_mesh( const uint & aLagrangeOrder,
+                                                                 const uint & aPattern );
 
-            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aOrder,
-                                                                                 const uint & aLagrangePattern,
-                                                                                 const uint & aBsplinePattern);
+            Interpolation_Mesh_HMR * create_interpolation_mesh( const uint & aOrder,
+                                                                const uint & aLagrangePattern,
+                                                                const uint & aBsplinePattern);
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Integration_Mesh_HMR > create_integration_mesh( const uint                   & aLagrangeOrder,
-                                                                             const uint                   & aPattern,
-                                                                                   Interpolation_Mesh_HMR & aInterpolationMesh);
+            Integration_Mesh_HMR * create_integration_mesh( const uint                   & aLagrangeOrder,
+                                                            const uint                   & aPattern,
+                                                            Interpolation_Mesh_HMR & aInterpolationMesh);
+
+// -----------------------------------------------------------------------------
+
+             Integration_Mesh_HMR * create_integration_mesh( const uint                   & aLagrangeMeshIndex,
+                                                             Interpolation_Mesh_HMR & aInterpolationMesh);
 
 // -----------------------------------------------------------------------------
             std::shared_ptr< Field > create_field( const std::string & aLabel );
@@ -378,6 +389,17 @@ namespace moris
              * calculate T-Matrices, faces and edges
              */
             void finalize();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * performs HMR specific task. Right now only finalize. more will be added
+             */
+            void perform();
+
+// -----------------------------------------------------------------------------
+
+            void set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
 
 // -----------------------------------------------------------------------------
 // Debug files

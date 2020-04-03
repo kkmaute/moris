@@ -45,6 +45,7 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_WRK_Performer_Manager.cpp
+    cl_WRK_Workflow.cpp
     )
 
 # List library dependencies

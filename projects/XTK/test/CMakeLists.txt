@@ -89,6 +89,10 @@ set(TEST_DEPENDENCIES
 	${ALG}-lib
 	${MTK}-lib
 	${XTK}-lib
+	${MAP}-lib
+	${MDL}-lib
+	${INT}-lib
+    ${HMR}-lib
 	${GEN_MAIN}-lib
     ${MORIS_BASE_LIBS}
     )

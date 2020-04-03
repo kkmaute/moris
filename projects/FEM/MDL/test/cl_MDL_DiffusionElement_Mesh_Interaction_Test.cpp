@@ -547,12 +547,12 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0,*tInterpolationMesh);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0,*tInterpolationMesh);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get() );
+        tMeshManager.register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -746,6 +746,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // clean up
         delete tModel;
+        delete tInterpolationMesh;
+        delete tIntegrationMesh;
 
     }/* if( par_size() */
 }
@@ -803,12 +805,12 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, *tInterpolationMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, *tInterpolationMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tInterpolationMesh.get(),tIntegrationMesh.get() );
+        tMeshManager.register_mesh_pair( tInterpolationMesh,tIntegrationMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -1014,6 +1016,10 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         // check bool is true
         REQUIRE( tCheckNodalSolution );
 
+        delete tIntegrationMesh;
+        delete tInterpolationMesh;
+
+
     }/* if( par_size() */
 }
 
@@ -1072,12 +1078,12 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, *tInterpolationMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, *tInterpolationMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
+        tMeshManager.register_mesh_pair(tInterpolationMesh,tIntegrationMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -1250,6 +1256,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         // clean up
         delete tModel;
+        delete tIntegrationMesh;
+        delete tInterpolationMesh;
 
     }/* if( par_size() */
 }
