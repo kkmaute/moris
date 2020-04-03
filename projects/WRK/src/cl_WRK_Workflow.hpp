@@ -48,30 +48,29 @@ class Library_IO;
 
     namespace wrk
     {
+    class Performer_Manager;
 //------------------------------------------------------------------------------
 
-        class Performer_Manager
+        class Workflow
         {
-            std::shared_ptr< Library_IO > mLibrary;
+        private:
+            wrk::Performer_Manager * mPerformerManager;
 
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /**
              * constructor
-             * @param[ in ] aMesh          mesh for this problem
              */
-            Performer_Manager( std::shared_ptr< Library_IO > aLibrary );
+            Workflow( wrk::Performer_Manager * aPerformerManager );
 
 //------------------------------------------------------------------------------
             /**
              * destructor
              */
-            ~Performer_Manager(){};
+            ~Workflow(){};
 
             void initialize();
-
-            void perform_refinement();
 
             void perform();
 

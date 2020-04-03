@@ -100,7 +100,7 @@ main( int    argc,
      * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Background Mesh"
      */
-    moris::mtk::Interpolation_Mesh* tBackgroundMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
+    std::shared_ptr<moris::mtk::Interpolation_Mesh> tBackgroundMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
 
     /*!
      * \subsection geometry_vector_sectup 2.) Geometry Vector Setup
@@ -226,7 +226,7 @@ main( int    argc,
      *  \endcode
      */
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
+    Model tXTKModel(tModelDimension, tBackgroundMesh.get(), tGeometryEngine);
     tXTKModel.mVerbose  =  false;
 
 
@@ -342,7 +342,6 @@ main( int    argc,
 
 
     delete tOutputMesh;
-    delete tBackgroundMesh;
 
     gMorisComm.finalize();
 

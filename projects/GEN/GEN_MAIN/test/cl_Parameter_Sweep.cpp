@@ -212,13 +212,9 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
         tHMR.finalize();
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
-
-        mtk::Mesh_Manager tMesh1;
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
         //------------------------------------------------------------------------------
         real tXcenter = 0.0;
         real tYcenter = 0.0;

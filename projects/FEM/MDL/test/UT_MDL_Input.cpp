@@ -170,7 +170,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         tHMR.save_to_exodus( 0, "./mdl_exo/mdl_input.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -183,7 +183,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(), &tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh, &tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -203,7 +203,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+        tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -279,6 +279,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         // clean up
         delete tModel;
+        delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */

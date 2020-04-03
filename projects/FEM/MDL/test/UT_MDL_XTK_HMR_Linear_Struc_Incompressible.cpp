@@ -219,15 +219,14 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
 
         tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         moris::ge::Circle tCircle( 0.4501, 0.0, 0.0 );
 
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
-
+        xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -514,6 +513,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         // clean up
 //        delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
@@ -571,14 +571,14 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 
         tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_3d.e" );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         moris::ge::Sphere tSphere( 0.4501, 10.0, 0.0, 0.0 );
 
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere, tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
+        xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -910,6 +910,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         // clean up
 //        delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 

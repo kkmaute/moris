@@ -59,12 +59,12 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
         std::shared_ptr< hmr::Field > tField = tMesh->create_field( "SDF", tLagrangeMeshIndex);
         tHMR.finalize();
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(2, 0,*tInterpolationMesh);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh(2, 0,*tInterpolationMesh);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
+        uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpolationMesh,tIntegrationMesh);
 
         // get path for STL file to load
         std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
@@ -91,6 +91,9 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
 
         bool tMatrixMatch = all_true( tField->get_node_values() == tLSVals );
         CHECK( tMatrixMatch );
+
+        delete tIntegrationMesh;
+        delete tInterpolationMesh;
 
 //        tHMR.save_to_exodus( "SDF_test.exo" );
     }

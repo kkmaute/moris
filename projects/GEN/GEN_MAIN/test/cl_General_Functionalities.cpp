@@ -108,11 +108,11 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
         //------------------------------------------------------------------------------
         tHMR.finalize();
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
 
         mtk::Mesh_Manager tMesh;
-        moris_index tMeshPairIndex = tMesh.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
+        moris_index tMeshPairIndex = tMesh.register_mesh_pair( tInterpMesh, tIntegrationMesh );
         //------------------------------------------------------------------------------
         moris::Cell<moris::mtk::Vertex const *> tAllVertices = tMesh.get_interpolation_mesh( tMeshPairIndex )->get_all_vertices();
 
@@ -162,6 +162,8 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
         {
             REQUIRE( std::abs(tLSVals(i) - tCorrectVals(i)) <tEpsilon );
         }
+        delete tInterpMesh;
+        delete tIntegrationMesh;
         //================================ end =================================================
     }   // end serial statement
 }
@@ -363,7 +365,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         std::shared_ptr< moris::hmr::Mesh > tHMRMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 //        tHMR.finalize();
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 //        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
         //------------------------------------------------------------------------------
         std::shared_ptr< hmr::Field > tField = tHMRMesh->create_field( "circle", tLagrangeMeshIndex);
@@ -385,7 +387,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
         tXTKModel.mVerbose = false;
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
         tXTKModel.decompose( tDecompositionMethods );
@@ -414,6 +416,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
 
         //------------------------------------------------------------------------------
         delete tIntegMesh1;
+        delete tInterpMesh;
 
     }
 }

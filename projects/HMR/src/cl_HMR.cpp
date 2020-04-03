@@ -125,6 +125,39 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        void HMR::perform()
+        {
+            this->finalize();
+
+            const Matrix< DDUMat > & OutputMeshIndex = mParameters->get_output_mesh();
+
+            MORIS_ERROR( OutputMeshIndex.numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
+
+            uint tLagrangeMeshIndex = OutputMeshIndex( 0, 0 );
+
+//            this->calculate_bspline_coordinates( tLagrangeMeshIndex, 0 );
+
+//            this->save_to_exodus( 0, "./hmr_exo/benchmark01.e" );
+
+            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
+                         = this->create_interpolation_mesh( tLagrangeMeshIndex );
+            moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh
+                         = this->create_integration_mesh( tLagrangeMeshIndex, *tInterpolationMesh );
+
+            MORIS_ERROR( mMTKPerformer != nullptr, "HMR::perform(), MTK performer not set!" );
+
+            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
+        {
+            mMTKPerformer = aMTKPerformer;
+        }
+
+// -----------------------------------------------------------------------------
+
 //        void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
 //        {
 //            MORIS_ERROR(false,"renumber_and_save_to_exodus() not changed yet" );
@@ -628,40 +661,50 @@ namespace moris
                                              aBsplinePattern );
         }
 
-        std::shared_ptr< Interpolation_Mesh_HMR > HMR::create_interpolation_mesh( const uint & aLagrangeMeshIndex)
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aLagrangeMeshIndex)
         {
-            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase, aLagrangeMeshIndex );
+            return new Interpolation_Mesh_HMR( mDatabase, aLagrangeMeshIndex );
         }
 
 
-        std::shared_ptr< Interpolation_Mesh_HMR > HMR::create_interpolation_mesh( const uint & aLagrangeOrder,
-                                                                                  const uint & aPattern )
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aLagrangeOrder,
+                                                                 const uint & aPattern )
         {
-            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase,
-                                                               aLagrangeOrder,
-                                                               aPattern );
+            return new Interpolation_Mesh_HMR( mDatabase,
+                                               aLagrangeOrder,
+                                               aPattern );
         }
 
-        std::shared_ptr< Interpolation_Mesh_HMR > HMR::create_interpolation_mesh( const uint & aOrder,
-                                                                                  const uint & aLagrangePattern,
-                                                                                  const uint & aBsplinePattern)
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aOrder,
+                                                                 const uint & aLagrangePattern,
+                                                                 const uint & aBsplinePattern)
         {
-            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase,
-                                                               aOrder,
-                                                               aLagrangePattern,
-                                                               aBsplinePattern);
+            return new Interpolation_Mesh_HMR ( mDatabase,
+                                                aOrder,
+                                                aLagrangePattern,
+                                                aBsplinePattern);
         }
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Integration_Mesh_HMR > HMR::create_integration_mesh( const uint &                   aLagrangeOrder,
-                                                                              const uint &                   aPattern,
-                                                                                    Interpolation_Mesh_HMR & aInterpolationMesh)
+        Integration_Mesh_HMR * HMR::create_integration_mesh( const uint &                   aLagrangeOrder,
+                                                             const uint &                   aPattern,
+                                                             Interpolation_Mesh_HMR & aInterpolationMesh)
         {
-            return std::make_shared< Integration_Mesh_HMR >( mDatabase,
-                                                             aLagrangeOrder,
-                                                             aPattern,
-                                                             aInterpolationMesh);
+            return new Integration_Mesh_HMR ( mDatabase,
+                                              aLagrangeOrder,
+                                              aPattern,
+                                              aInterpolationMesh);
+        }
+
+// -----------------------------------------------------------------------------
+
+        Integration_Mesh_HMR * HMR::create_integration_mesh( const uint &                   aLagrangeMeshIndex,
+                                                             Interpolation_Mesh_HMR & aInterpolationMesh)
+        {
+            return new Integration_Mesh_HMR ( mDatabase,
+                                              aLagrangeMeshIndex,
+                                              aInterpolationMesh);
         }
 
 
@@ -1648,9 +1691,9 @@ namespace moris
                                              mParameters->get_union_pattern() );
 
             // create union mesh
-            std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpolationMesh = this->create_interpolation_mesh( tOrder,
-                                                                                                                 mParameters->get_union_pattern(),
-                                                                                                                 tTargetPattern );   // order, lagrange pattern, bspline pattern
+            Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( tOrder,
+                                                                                                mParameters->get_union_pattern(),
+                                                                                                tTargetPattern );   // order, lagrange pattern, bspline pattern
 
             // create union field
             std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),
@@ -1686,12 +1729,12 @@ namespace moris
             }
 
             // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-            std::shared_ptr<Integration_Mesh_HMR> tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), *tUnionInterpolationMesh );
+            Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), *tUnionInterpolationMesh );
 
 
             // Add union mesh to mesh manager
             mtk::Mesh_Manager tMeshManager;
-            moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair( tUnionInterpolationMesh.get(), tIntegrationUnionMesh.get() );
+            moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
             // create mapper
             mapper::Mapper tMapper( &tMeshManager,
@@ -1742,9 +1785,9 @@ namespace moris
             uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
 
             // create union mesh
-            std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpolationMesh = this->create_interpolation_mesh( aUnionOrder,
-                                                                                                                 mParameters->get_union_pattern(),
-                                                                                                                 mParameters->get_union_pattern() );
+            Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( aUnionOrder,
+                                                                                                mParameters->get_union_pattern(),
+                                                                                                mParameters->get_union_pattern() );
 
             // create union field
             std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),

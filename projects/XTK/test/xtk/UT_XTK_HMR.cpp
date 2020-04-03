@@ -146,7 +146,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_ghost_interp.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
 
@@ -192,7 +192,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  =  false;
 
@@ -222,6 +222,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         tIntegMesh1->create_output_mesh(tOutputFile);
 
         delete tIntegMesh1;
+        delete tInterpMesh;
     }
 }
 }

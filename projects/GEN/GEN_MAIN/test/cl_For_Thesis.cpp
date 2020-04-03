@@ -432,10 +432,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
         tHMR.finalize();
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
-
-        mtk::Mesh_Manager tMesh1;
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //------------------------------------------------------------------------------
         real tCrackX;
@@ -500,7 +497,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
 
         tXTKModel.mVerbose = false;
 
@@ -815,6 +812,8 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             tTimeSolver.set_output( 0, tSolverOutputCriteriaThesis );
             //------------------------------------------------------------------------------
             tTimeSolver.solve();
+
+            delete tInterpMesh;
         }   // end full problem logic statement
 
     } // end par size statement
@@ -930,10 +929,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
 
         tFieldData( 0 ) = tGENGeometryEngine_temp.get_cylinder_vals( tMeshIndex, &tFibers, tNumberOfFibers );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpMesh );
-
-        mtk::Mesh_Manager tMesh1;
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         real tElapsedTime0 = tTimer0.toc<moris::chronos::milliseconds>().wall;
         tElapsedTime0 /= 1000;
@@ -965,7 +961,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
 
         tXTKModel.mVerbose = false;
 
@@ -990,6 +986,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
 
             writer.close_file();
         }
+        delete tInterpMesh;
         //============================= end temporary ==========================================
     }   //end par_size() statement
 

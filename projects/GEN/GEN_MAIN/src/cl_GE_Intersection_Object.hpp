@@ -24,6 +24,7 @@ namespace moris
 {
 namespace ge
 {
+class Geometry;
 /*
  * @brief Define a simple geometric primitive, such as a line.
  *        A primitive can be passed into the geometry engine to ask if there is an intersection with it and
