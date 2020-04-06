@@ -83,12 +83,21 @@ namespace moris
 
     //--------------------------------------------------------------------------------
 
+    MPI_Comm
+    Comm_Manager::get_comm()
+    {
+        return mComm( mActiveCommunicator );
+    }
+
+    //--------------------------------------------------------------------------------
+
     size_t
     Comm_Manager::add_communicator( MPI_Comm    & aNewComm,
-                                    std::string & aCommName)
+                                    const std::string& aCommName)
     {
         // Use the current size as the next index
         size_t aCommIndex = mComm.size();
+        mActiveCommunicator = aCommIndex;
 
         // Append the communicator to the list
         mComm.push_back( aNewComm );
@@ -96,6 +105,14 @@ namespace moris
 
         // return the index
         return aCommIndex;
+    }
+
+    //--------------------------------------------------------------------------------
+
+    void Comm_Manager::remove_communicator(size_t aCommIndex)
+    {
+        MORIS_ERROR((aCommIndex < mComm.size()), "Tried to remove a communicator index that doesn't exist.");
+        mComm.erase(aCommIndex);
     }
 
     //--------------------------------------------------------------------------------

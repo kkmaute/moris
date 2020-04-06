@@ -14,15 +14,18 @@ namespace moris
     {
         class Interface_Manager : public Interface
         {
-        public:
+        private:
             Cell<std::shared_ptr<Interface>> mInterfaces;
             Matrix<DDUMat> mNumADVsPerInterface;
             Matrix<DDUMat> mNumCriteriaPerInterface;
+            Matrix<DDSMat> mProcessorBoundaries;
 
-            bool mSharedADVs = false;
-            bool mParallel = false;
+            bool mSharedADVs;
+            bool mParallel;
 
             uint mNumInterfaces;
+
+        public:
 
             /**
              * Constructor
@@ -73,6 +76,11 @@ namespace moris
              * @return matrix d(criteria)_i/d(adv)_j
              */
             Matrix<DDRMat> get_dcriteria_dadv();
+
+            /**
+             * Gets the local advs based on whether or not they are shared
+             */
+            Matrix<DDRMat> get_local_advs(Matrix<DDRMat> aGlobalADVs, uint tInterfaceIndex);
 
         };
     }   // namespace opt

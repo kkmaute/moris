@@ -4,6 +4,8 @@
 
 #include "cl_OPT_Interface_Manager.hpp"
 #include "fn_sum.hpp"
+#include "fn_Parsing_Tools.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace moris
 {
@@ -14,7 +16,22 @@ namespace moris
 
         Interface_Manager::Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Interface>> aInterfaces) : mInterfaces(aInterfaces)
         {
+            // Set number of interfaces
             mNumInterfaces = aInterfaces.size();
+
+            // Set parameters
+            mSharedADVs = aParameterList.get<bool>("shared_advs");
+            mParallel = aParameterList.get<bool>("parallel");
+            string_to_mat(aParameterList.get<std::string>("num_processors_per_interface"), mProcessorBoundaries);
+
+            // Check processors
+            MORIS_ERROR(sum(mProcessorBoundaries) <= par_size(), "Sum of number of processors per interface must not exceed number of available processors");
+
+            // Change from number of processors to processor boundaries
+            for (uint tInterfaceIndex = 1; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+            {
+                mProcessorBoundaries(tInterfaceIndex) += mProcessorBoundaries(tInterfaceIndex - 1);
+            }
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -153,63 +170,102 @@ namespace moris
         Matrix<DDRMat> Interface_Manager::get_criteria(Matrix<DDRMat> aNewADVs)
         {
             // Set up global criteria
-            Matrix<DDRMat> tGlobalCriteria;
+            Matrix<DDRMat> tGlobalCriteria(1, 1);
             Matrix<DDRMat> tLocalCriteria;
-            uint tCurrentGlobalCriteria = tGlobalCriteria.length();
-
-            // Criteria per interface
+            uint tCurrentGlobalCriteria = 0;
             mNumCriteriaPerInterface.set_size(mNumInterfaces, 1);
-            mNumCriteriaPerInterface(0) = tCurrentGlobalCriteria;
 
-            // If ADVs are shared, begin new analysis with all ADVs
-            if (mSharedADVs)
+            // Local ADVs
+            Matrix<DDRMat> tLocalADVs(0, 0);
+
+            // Get criteria in parallel if requested
+            Cell<Matrix<DDRMat>> tReceiveMats;
+            if (mParallel)
             {
-                for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+                // Assign new comm color and rank
+                int tColor = 0;
+                while (par_rank() >= mProcessorBoundaries(tColor) and tColor < int(mNumInterfaces))
                 {
-                    // Get the local criteria
-                    tLocalCriteria = mInterfaces(tInterfaceIndex)->get_criteria(aNewADVs);
-                    mNumCriteriaPerInterface(tInterfaceIndex) = tLocalCriteria.length();
+                    tColor++;
+                }
+                int tKey = mProcessorBoundaries(tColor) - par_rank() - 1;
 
-                    // Put into the global criteria
-                    tGlobalCriteria.resize(tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex), 1);
-                    for (uint tCriteriaIndex = 0; tCriteriaIndex < mNumCriteriaPerInterface(tInterfaceIndex); tCriteriaIndex++)
+                // Split and get local criteria
+                comm_split(tColor, tKey, "criteria_communicator");
+                tLocalADVs = get_local_advs(aNewADVs, tColor);
+                tLocalCriteria = mInterfaces(tColor)->get_criteria(tLocalADVs);
+                barrier("criteria_evaluation");
+                comm_join();
+
+                // Set up communication list and cells of mats
+                Matrix<IdMat> tCommunicationList(0, 0);
+                Cell<Matrix<DDRMat>> tSendMats(0);
+
+                // Send to other procs if I was rank 0 after split
+                if (!tKey)
+                {
+                    tCommunicationList.resize(par_size(), 1);
+                    tSendMats.resize(par_size());
+                    for (int tParRank = 0; tParRank < par_size(); tParRank++)
                     {
-                        tGlobalCriteria(tCurrentGlobalCriteria + tCriteriaIndex) = tLocalCriteria(tCriteriaIndex);
+                        tSendMats(tParRank) = tLocalCriteria;
+                        tCommunicationList(tParRank) = tParRank;
                     }
+                }
 
-                    // Update number of global criteria
-                    tCurrentGlobalCriteria += mNumCriteriaPerInterface(tInterfaceIndex);
+                // Otherwise just receive from rank 0 procs
+                else
+                {
+                    tCommunicationList.resize(mNumInterfaces, 1);
+                    tSendMats.resize(mNumInterfaces);
+                    for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+                    {
+                        tCommunicationList(tInterfaceIndex) = mProcessorBoundaries(tInterfaceIndex) - 1;
+                    }
+                }
+
+                // Communicate local criteria
+                communicate_mats(tCommunicationList, tSendMats, tReceiveMats);
+
+                // Only use necessary info if I was rank 0
+                if (!tKey)
+                {
+                    for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+                    {
+                        tReceiveMats(tInterfaceIndex) = tReceiveMats(mProcessorBoundaries(tInterfaceIndex) - 1);
+                    }
+                    tReceiveMats(tColor) = tLocalCriteria;
                 }
             }
 
-            // Otherwise, split the ADVs based on how many are needed per interface
+            // Get criteria in serial
             else
             {
-                Matrix<DDRMat> tLocalADVs(0, 0);
-                uint tGlobalADVIndex = 0;
+                tReceiveMats.resize(mNumInterfaces);
                 for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
                 {
-                    tLocalADVs.set_size(mNumADVsPerInterface(tInterfaceIndex), 1);
-                    for (uint tADVIndex = 0; tADVIndex < mNumADVsPerInterface(tInterfaceIndex); tADVIndex++)
-                    {
-                        tLocalADVs(tADVIndex) = aNewADVs(tGlobalADVIndex++);
-                    }
-                    // Get the local criteria
-                    tLocalCriteria = mInterfaces(tInterfaceIndex)->get_criteria(tLocalADVs);
-                    mNumCriteriaPerInterface(tInterfaceIndex) = tLocalCriteria.length();
-
-                    // Put into the global criteria
-                    tGlobalCriteria.resize(tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex), 1);
-                    for (uint tCriteriaIndex = 0; tCriteriaIndex < mNumCriteriaPerInterface(tInterfaceIndex); tCriteriaIndex++)
-                    {
-                        tGlobalCriteria(tCurrentGlobalCriteria + tCriteriaIndex) = tLocalCriteria(tCriteriaIndex);
-                    }
-
-                    // Update number of global criteria
-                    tCurrentGlobalCriteria += mNumCriteriaPerInterface(tInterfaceIndex);
+                    tLocalADVs = get_local_advs(aNewADVs, tInterfaceIndex);
+                    tReceiveMats(tInterfaceIndex) = mInterfaces(tInterfaceIndex)->get_criteria(tLocalADVs);
                 }
             }
 
+            // Assemble on procs
+            for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+            {
+                // Get the local criteria
+                tLocalCriteria = tReceiveMats(tInterfaceIndex);
+                mNumCriteriaPerInterface(tInterfaceIndex) = tLocalCriteria.length();
+
+                // Put into the global criteria
+                tGlobalCriteria.resize(tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex), 1);
+                for (uint tCriteriaIndex = 0; tCriteriaIndex < mNumCriteriaPerInterface(tInterfaceIndex); tCriteriaIndex++)
+                {
+                    tGlobalCriteria(tCurrentGlobalCriteria + tCriteriaIndex) = tLocalCriteria(tCriteriaIndex);
+                }
+
+                // Update number of global criteria
+                tCurrentGlobalCriteria += mNumCriteriaPerInterface(tInterfaceIndex);
+            }
             return tGlobalCriteria;
         }
 
@@ -224,14 +280,82 @@ namespace moris
             uint tCurrentGlobalADVs = 0;
             uint tCurrentLocalADVs = 0;
 
-            // Get local criteria gradients from each interface and append accordingly
+            // Get criteria gradients in parallel
+            Cell<Matrix<DDRMat>> tReceiveMats;
+            if (mParallel)
+            {
+                // Assign new comm color and rank
+                int tColor = 0;
+                while (par_rank() >= mProcessorBoundaries(tColor) and tColor < int(mNumInterfaces))
+                {
+                    tColor++;
+                }
+                int tKey = mProcessorBoundaries(tColor) - par_rank() - 1;
+
+                // Split and get local criteria
+                comm_split(tColor, tKey, "criteria_communicator");
+                tLocalCriteriaGradients = mInterfaces(tColor)->get_dcriteria_dadv();
+                barrier("d_criteria_dadv");
+                comm_join();
+
+                // Set up communication list and cells of mats
+                Matrix<IdMat> tCommunicationList(0, 0);
+                Cell<Matrix<DDRMat>> tSendMats(0);
+
+                // Send to other procs if I was rank 0 after split
+                if (!tKey)
+                {
+                    tCommunicationList.resize(par_size(), 1);
+                    tSendMats.resize(par_size());
+                    for (int tParRank = 0; tParRank < par_size(); tParRank++)
+                    {
+                        tSendMats(tParRank) = tLocalCriteriaGradients;
+                        tCommunicationList(tParRank) = tParRank;
+                    }
+                }
+
+                // Otherwise just receive from rank 0 procs
+                else
+                {
+                    tCommunicationList.resize(mNumInterfaces, 1);
+                    tSendMats.resize(mNumInterfaces);
+                    for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+                    {
+                        tCommunicationList(tInterfaceIndex) = mProcessorBoundaries(tInterfaceIndex) - 1;
+                    }
+                }
+
+                // Communicate local criteria
+                communicate_mats(tCommunicationList, tSendMats, tReceiveMats);
+
+                // Only use necessary info if I was rank 0
+                if (!tKey)
+                {
+                    for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+                    {
+                        tReceiveMats(tInterfaceIndex) = tReceiveMats(mProcessorBoundaries(tInterfaceIndex) - 1);
+                    }
+                    tReceiveMats(tColor) = tLocalCriteriaGradients;
+                }
+            }
+
+            // Get local criteria gradients in serial
+            else
+            {
+                tReceiveMats.resize(mNumInterfaces);
+                for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
+                {
+                    tReceiveMats(tInterfaceIndex) = mInterfaces(tInterfaceIndex)->get_dcriteria_dadv();
+                }
+            }
+
+            // Assemble into global list
             for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
             {
                 // Get the local criteria
-                tLocalCriteriaGradients = mInterfaces(tInterfaceIndex)->get_dcriteria_dadv();
                 if (mSharedADVs)
                 {
-                    tCurrentLocalADVs = tLocalCriteriaGradients.n_cols();
+                    tCurrentLocalADVs = tReceiveMats(tInterfaceIndex).n_cols();
                 }
                 else
                 {
@@ -241,7 +365,7 @@ namespace moris
                 // Put into the global criteria
                 tGlobalCriteriaGradients({tCurrentGlobalCriteria, tCurrentGlobalCriteria + mNumCriteriaPerInterface(tInterfaceIndex) - 1},
                         {tCurrentGlobalADVs, tCurrentGlobalADVs + tCurrentLocalADVs - 1})
-                         = tLocalCriteriaGradients({0, mNumCriteriaPerInterface(tInterfaceIndex) - 1},
+                         = tReceiveMats(tInterfaceIndex)({0, mNumCriteriaPerInterface(tInterfaceIndex) - 1},
                                  {0, tCurrentLocalADVs - 1});
 
                 // Update number of global critera/advs
@@ -252,6 +376,36 @@ namespace moris
                 }
             }
             return tGlobalCriteriaGradients;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Interface_Manager::get_local_advs(Matrix<DDRMat> aGlobalADVs, uint tThisInterface)
+        {
+            Matrix<DDRMat> tLocalADVs(0, 0);
+
+            // ADVs are shared
+            if (mSharedADVs)
+            {
+                tLocalADVs = aGlobalADVs;
+            }
+
+            // ADVs are not shared
+            else
+            {
+                tLocalADVs.resize(mNumADVsPerInterface(tThisInterface), 1);
+                uint tGlobalADVIndex = 0;
+                for (uint tInterfaceIndex = 0; tInterfaceIndex < tThisInterface; tInterfaceIndex++)
+                {
+                    tGlobalADVIndex += mNumADVsPerInterface(tInterfaceIndex);
+                }
+                for (uint tADVIndex = 0; tADVIndex < mNumADVsPerInterface(tThisInterface); tADVIndex++)
+                {
+                    tLocalADVs(tADVIndex) = aGlobalADVs(tGlobalADVIndex++);
+                }
+            }
+
+            return tLocalADVs;
         }
 
         // -------------------------------------------------------------------------------------------------------------

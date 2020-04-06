@@ -17,7 +17,7 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("problem", "user_defined"); // opt Problem class type
+            tParameterList.insert("problem", "user_defined"); // OPT Problem class type
             tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
                                                                       // central, forward, backward, or none
             tParameterList.insert("finite_difference_epsilons", "1E-8"); // Epsilon(s) to use per ADV for finite differencing
@@ -28,11 +28,24 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        ParameterList create_opt_interface_manager_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert("shared_advs", false); // opt Interface class type
+            tParameterList.insert("parallel", false);
+            tParameterList.insert("num_processors_per_interface", "");
+
+            return tParameterList;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         ParameterList create_opt_interface_parameter_list()
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("type", "user_defined"); // opt Interface class type
+            tParameterList.insert("type", "user_defined"); // OPT Interface class type
             tParameterList.insert("library", "");
 
             return tParameterList;

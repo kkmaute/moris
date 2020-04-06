@@ -8,14 +8,17 @@
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "fn_OPT_create_interface.hpp"
 #include "../src/cl_OPT_Interface_User_Defined.hpp"
+#include "cl_Communication_Tools.hpp"
 
-// ---------------------------------------------------------------------
 namespace moris
 {
     namespace opt
     {
         TEST_CASE( "[optimization]" )
         {
+
+            // ---------------------------------------------------------------------------------------------------------
+
             SECTION("GCMMA")
             {
                 // moris root
@@ -46,6 +49,8 @@ namespace moris
                 REQUIRE(norm(tManager.get_advs() - 1.0) < 1.0e-01); // check value of design variables
             }
 
+            // ---------------------------------------------------------------------------------------------------------
+
             SECTION("SQP")
             {
                 // moris root
@@ -75,6 +80,8 @@ namespace moris
                 REQUIRE(norm(tManager.get_advs() - 1.0) < 2.0e-02); // check value of design variables
             }
 
+            // ---------------------------------------------------------------------------------------------------------
+
             //    SECTION("LBFGS")
             //    {
             //
@@ -103,7 +110,9 @@ namespace moris
             //
             //    }
 
-            SECTION( "SWEEP" )
+            // ---------------------------------------------------------------------------------------------------------
+
+            SECTION( "sweep" )
             {
                 // moris root
                 std::string tMorisRoot = std::getenv("MORISROOT");
@@ -133,34 +142,59 @@ namespace moris
                 tManager.perform();
             }
 
-            SECTION( "INTERFACE" )
+            // ---------------------------------------------------------------------------------------------------------
+
+            SECTION( "interface" )
             {
-                // moris root
-                std::string tMorisRoot = std::getenv("MORISROOT");
+                if (par_size() == 4 or par_size() == 8)
+                {
+                    // moris root
+                    std::string tMorisRoot = std::getenv("MORISROOT");
 
-                // Set up default interface parameter lists
-                moris::Cell<ParameterList> tParameterLists(5);
-                tParameterLists(0) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(1) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(2) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(3) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(4) = moris::prm::create_opt_interface_parameter_list();
+                    // Set up default interface parameter lists
+                    moris::Cell<ParameterList> tParameterLists(5);
+                    tParameterLists(0) = moris::prm::create_opt_interface_manager_parameter_list();
+                    tParameterLists(1) = moris::prm::create_opt_interface_parameter_list();
+                    tParameterLists(2) = moris::prm::create_opt_interface_parameter_list();
+                    tParameterLists(3) = moris::prm::create_opt_interface_parameter_list();
+                    tParameterLists(4) = moris::prm::create_opt_interface_parameter_list();
 
-                // Add individual user-defined dummy interfaces
-                tParameterLists(1).set("library", tMorisRoot + "projects/OPT/test/data/Interface_1.so");
-                tParameterLists(2).set("library", tMorisRoot + "projects/OPT/test/data/Interface_2.so");
-                tParameterLists(3).set("library", tMorisRoot + "projects/OPT/test/data/Interface_3.so");
-                tParameterLists(4).set("library", tMorisRoot + "projects/OPT/test/data/Interface_4.so");
+                    // Set manager parameters
+                    tParameterLists(0).set("parallel", true);
+                    tParameterLists(0).set("shared_advs", false);
+                    if (par_size() == 4)
+                    {
+                        tParameterLists(0).set("num_processors_per_interface", "1, 1, 1, 1");
+                    }
+                    else
+                    {
+                        tParameterLists(0).set("num_processors_per_interface", "1, 2, 3, 2");
+                    }
 
-                // Create interface
-//                std::shared_ptr<Interface> tInterface = create_interface(tParameterLists);
-//                Matrix<DDRMat> tNewADVs = tInterface->initialize_advs();
-//                std::cout << "" << std::endl;
-//                moris::print(tInterface->get_criteria(tNewADVs), "criteria 1");
-//                std::cout << "" << std::endl;
-//                moris::print(tInterface->get_criteria(tNewADVs + 1), "criteria 2");
-//                moris::print(tInterface->get_dcriteria_dadv(), "critera grad");
+                    // Add individual user-defined dummy interfaces
+                    tParameterLists(1).set("library", tMorisRoot + "projects/OPT/test/data/Interface_1.so");
+                    tParameterLists(2).set("library", tMorisRoot + "projects/OPT/test/data/Interface_2.so");
+                    tParameterLists(3).set("library", tMorisRoot + "projects/OPT/test/data/Interface_3.so");
+                    tParameterLists(4).set("library", tMorisRoot + "projects/OPT/test/data/Interface_4.so");
+
+                    // Create interface
+                    std::shared_ptr<Interface> tInterface = create_interface(tParameterLists);
+                    Matrix<DDRMat> tNewADVs = tInterface->initialize_advs();
+                    tNewADVs = tInterface->get_criteria(tNewADVs);
+                    for (uint tADVIndex = 0; tADVIndex < 8; tADVIndex++)
+                    {
+                        REQUIRE(tNewADVs(tADVIndex) == tADVIndex + 1);
+                    }
+                    tNewADVs = tInterface->get_dcriteria_dadv();
+                    for (uint tADVIndex = 0; tADVIndex < 8; tADVIndex++)
+                    {
+                        REQUIRE(tNewADVs(tADVIndex, tADVIndex) == tADVIndex + 1);
+                    }
+                }
             }
-        }
-    }
-}
+
+            // ---------------------------------------------------------------------------------------------------------
+
+        } // test case "[optimization]"
+    } // namespace opt
+} // namespace moris
