@@ -31,23 +31,9 @@ namespace moris
             }
 
             /**
-             * Initializes the vector of ADV values
+             * Initializes the vectors of ADV values, lower bounds, and upper bounds
              */
-            virtual Matrix<DDRMat> initialize_advs() = 0;
-
-            /**
-             * Gets the lower bound values for the advs
-             *
-             * @return vector of lower bounds
-             */
-            virtual Matrix<DDRMat> get_lower_adv_bounds() = 0;
-
-            /**
-             * Gets the upper bound values for the advs
-             *
-             * @return vector of upper bounds
-             */
-            virtual Matrix<DDRMat> get_upper_adv_bounds() = 0;
+            virtual void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds) = 0;
 
             /**
              * Gets the criteria values given a new set of ADVs

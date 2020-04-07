@@ -43,7 +43,8 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aInterface Interface class written for other module (e.g. GEN)
+             * @param aParameterList Parameter list for constructing the problem
+             * @param aInterface Interface class written for other module
              */
             Problem(ParameterList aParameterList, std::shared_ptr<Interface> aInterface);
 

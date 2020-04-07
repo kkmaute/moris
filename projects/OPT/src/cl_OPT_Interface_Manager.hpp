@@ -45,23 +45,9 @@ namespace moris
             void set_interfaces();
 
             /**
-             * Initializes the vector of ADV values
+             * Initializes the vectors of ADV values, lower bounds, and upper bounds
              */
-            Matrix<DDRMat> initialize_advs();
-
-            /**
-             * Gets the lower bound values for the advs
-             *
-             * @return vector of lower bounds
-             */
-            Matrix<DDRMat> get_lower_adv_bounds();
-
-            /**
-             * Gets the upper bound values for the advs
-             *
-             * @return vector of upper bounds
-             */
-            Matrix<DDRMat> get_upper_adv_bounds();
+            void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
 
             /**
              * Gets the criteria values

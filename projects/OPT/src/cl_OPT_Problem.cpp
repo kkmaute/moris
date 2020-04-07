@@ -37,7 +37,7 @@ namespace moris
         void Problem::initialize()
         {
             // Initialize ADVs
-            mADVs = mInterface->initialize_advs(); // get some ADVs from the interface
+            mInterface->initialize(mADVs, mLowerBounds, mUpperBounds);
             this->override_advs(); // user can override the interface ADVs
 
             // Set finite difference epsilons knowing number of advs
@@ -46,9 +46,7 @@ namespace moris
             // Get the criteria at the first step
             mCriteria = mInterface->get_criteria(mADVs);
 
-            // Initialize bounds and constraints
-            mLowerBounds = mInterface->get_lower_adv_bounds();
-            mUpperBounds = mInterface->get_upper_adv_bounds();
+            // Initialize constraints
             mConstraintTypes = this->get_constraint_types();
             MORIS_ERROR(this->check_constraint_order(), "The constraints are not ordered properly (Eq, Ineq)"); //TODO move call to alg
         }

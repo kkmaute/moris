@@ -27,23 +27,9 @@ namespace moris
             Interface_User_Defined(ParameterList aParameterList);
 
             /**
-             * Initializes the vector of ADV values
+             * Initializes the vectors of ADV values, lower bounds, and upper bounds
              */
-            Matrix<DDRMat> initialize_advs();
-
-            /**
-             * Gets the lower bound values for the advs
-             *
-             * @return vector of lower bounds
-             */
-            Matrix<DDRMat> get_lower_adv_bounds();
-
-            /**
-             * Gets the upper bound values for the advs
-             *
-             * @return vector of upper bounds
-             */
-            Matrix<DDRMat> get_upper_adv_bounds();
+            void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
 
             /**
              * Gets the criteria values
@@ -61,10 +47,7 @@ namespace moris
             
         private:
             // Loaded user-defined functions
-            MORIS_DDRMAT0_FUNCTION initialize_advs_user_defined;
-            MORIS_DDRMAT0_FUNCTION get_lower_adv_bounds_user_defined;
-            MORIS_DDRMAT0_FUNCTION get_upper_adv_bounds_user_defined;
-            MORIS_DDSMAT0_FUNCTION get_constraint_types_user_defined;
+            MORIS_DDRMAT3_REF_FUNCTION initialize_user_defined;
             MORIS_DDRMAT1_FUNCTION get_criteria_user_defined;
             MORIS_DDRMAT1_FUNCTION get_dcriteria_dadv_user_defined;
 

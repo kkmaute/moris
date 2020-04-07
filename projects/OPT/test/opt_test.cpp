@@ -146,7 +146,7 @@ namespace moris
 
             SECTION( "interface" )
             {
-                if (par_size() == 4 or par_size() == 8)
+                if (par_size() == 4 or par_size() == 1)
                 {
                     // moris root
                     std::string tMorisRoot = std::getenv("MORISROOT");
@@ -179,16 +179,19 @@ namespace moris
 
                     // Create interface
                     std::shared_ptr<Interface> tInterface = create_interface(tParameterLists);
-                    Matrix<DDRMat> tNewADVs = tInterface->initialize_advs();
-                    tNewADVs = tInterface->get_criteria(tNewADVs);
+                    Matrix<DDRMat> tADVs;
+                    Matrix<DDRMat> tLowerBounds;
+                    Matrix<DDRMat> tUpperBounds;
+                    tInterface->initialize(tADVs, tLowerBounds, tUpperBounds);
                     for (uint tADVIndex = 0; tADVIndex < 8; tADVIndex++)
                     {
-                        REQUIRE(tNewADVs(tADVIndex) == tADVIndex + 1);
+                        REQUIRE(tADVs(tADVIndex) == tADVIndex + 1);
                     }
-                    tNewADVs = tInterface->get_dcriteria_dadv();
+                    tInterface->get_criteria(tADVs);
+                    Matrix<DDRMat> tCriteriaGradients = tInterface->get_dcriteria_dadv();
                     for (uint tADVIndex = 0; tADVIndex < 8; tADVIndex++)
                     {
-                        REQUIRE(tNewADVs(tADVIndex, tADVIndex) == tADVIndex + 1);
+                        REQUIRE(tCriteriaGradients(tADVIndex, tADVIndex) == tADVIndex + 1);
                     }
                 }
             }
