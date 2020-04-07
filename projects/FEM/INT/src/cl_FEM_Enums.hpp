@@ -103,6 +103,12 @@ namespace moris
             STRUC_LINEAR_PRESSURE_DIRICHLET, // linear elasticity Dirichlet mixed formulation (Nitsche)
             INCOMPRESSIBLE_NS_VELOCITY_BULK,
             INCOMPRESSIBLE_NS_PRESSURE_BULK,
+            INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST,
+            INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST,
+            INCOMPRESSIBLE_NS_PRESSURE_GHOST,
+            INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE,
+            INCOMPRESSIBLE_NS_IMPOSED_PRESSURE,
             END_IWG_TYPE
         };
 
@@ -119,10 +125,13 @@ namespace moris
             H1_ERROR_ANALYTIC,
             H1_SEMI_ERROR,
             J_INTEGRAL,
+            ANALYTIC,
+            STRESS,
             END_IQI_TYPE
         };
 
 //------------------------------------------------------------------------------
+
         enum class Constitutive_Type
         {
             UNDEFINED,
@@ -132,8 +141,8 @@ namespace moris
             FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
-
 //------------------------------------------------------------------------------
+
         enum class Model_Type
         {
             UNDEFINED,
@@ -157,7 +166,23 @@ namespace moris
             SLAVE_WEIGHT_INTERFACE,
             RECIPROCAL_TOTAL_VOLUME,
             INCOMPRESSIBLE_FLOW,
+            VISCOUS_GHOST,
+            CONVECTIVE_GHOST,
+            PRESSURE_GHOST,
+            TIME_VELOCITY_GHOST,
+            VELOCITY_DIRICHLET_NITSCHE,
             END_STABILIZATION_TYPE
+        };
+
+//------------------------------------------------------------------------------
+        enum class Cluster_Measure
+        {
+            UNDEFINED,
+            MASTER_VOLUME,
+            SLAVE_VOLUME,
+            INTERFACE_SURFACE,
+            ELEMENT_SIZE,
+            END_CLUSTER_MEASURE
         };
 
 //------------------------------------------------------------------------------

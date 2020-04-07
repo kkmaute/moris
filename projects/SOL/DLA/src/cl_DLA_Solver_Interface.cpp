@@ -200,36 +200,58 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
     aVectorRHS->vector_global_asembly();
 }
 
-void Solver_Interface::get_adof_ids_based_on_criteria()       // FIXME find better name
+void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
+                                                       const moris::real                       aThreshold  )       // FIXME find better name
 {
     // Get number of Sets
     moris::uint tNumSets = this->get_num_my_blocks();
 
+    uint tCounter = 0;
+
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
     {
+    	// only check bulk sets
         if( this->get_set_type( Ii ) == fem::Element_Type::BULK )
         {
-            std::cout<<"-------------------- Block -------------------------"<<Ii<<std::endl;
+            // get number of equations on set
             moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
+
+            // resize adof id vector
+            aCriteriaIds.resize( aCriteriaIds.size() + tNumEquationObjectOnSet );
 
             moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
             tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::VOLUME_FRACTION );
 
             this->set_requested_IQI_type( Ii, tRequestedIQITypes );
 
+            // initialize set
             this->initialize_set( Ii, false );
 
+            // loop over equation objects on set
             for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
             {
+                // calcuate criteria
                 this->calculate_criteria( Ii, Ik );
 
+                // get criteria
                 const moris::Cell< moris::Matrix< DDRMat> > & tCriteria = this->get_criteria( Ii );
 
-                print(tCriteria,"tCriteria");
+                // if criteria mets requirement
+                if( tCriteria( 0 )( 0 ) < aThreshold )
+                {
+                    // get adof ids of this equation object
+                    moris::Matrix< DDSMat > tMat;
+                    this->get_element_topology( Ii, Ik, tMat );
 
+                    // store ids in cell
+                    aCriteriaIds( tCounter++ ) = tMat;
+                }
             }
         }
+
+        // resize cell to number of triggered equation objects
+        aCriteriaIds.resize( tCounter );
     }
 }
 

@@ -24,9 +24,9 @@ Interpolation_Vertex_Unzipped::Interpolation_Vertex_Unzipped(mtk::Vertex*       
                                                                      mVertexId(aVertexId),
                                                                      mVertexIndex(aVertexIndex),
                                                                      mVertexOwner(aVertexOwner),
-                                                                     mOrder(aInterpolationOrder),
-                                                                     mInterpolation(aVertexInterp)
+                                                                     mInterpolation(aInterpolationOrder+1,nullptr)
 {
+    mInterpolation(aInterpolationOrder) = aVertexInterp;
 }
 //------------------------------------------------------------------------------
 Matrix< DDRMat >
@@ -56,30 +56,44 @@ Interpolation_Vertex_Unzipped::get_owner() const
 mtk::Vertex_Interpolation *
 Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder )
 {
-    return mInterpolation;
+    return mInterpolation(aOrder);
 }
 //------------------------------------------------------------------------------
 const mtk::Vertex_Interpolation *
 Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder ) const
 {
-    return mInterpolation;
+    return mInterpolation(aOrder);
 }
 //------------------------------------------------------------------------------
 Vertex_Enrichment *
 Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder )
 {
-    return mInterpolation;
+    return mInterpolation(aOrder);
 }
 //------------------------------------------------------------------------------
 Vertex_Enrichment const *
 Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder ) const
 {
-    return mInterpolation;
+    return mInterpolation(aOrder);
 }//------------------------------------------------------------------------------
 mtk::Vertex const *
 Interpolation_Vertex_Unzipped::get_base_vertex(  ) const
 {
     return mBaseInterpVertex;
+}
+//------------------------------------------------------------------------------
+void
+Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
+                                                        Vertex_Enrichment* aVertexInterp)
+{
+    if(aOrder >= mInterpolation.size())
+    {
+        mInterpolation.resize(aOrder+1,nullptr);
+    }
+
+    MORIS_ASSERT(mInterpolation(aOrder) == nullptr,"Vertex interpolation for this order already set");
+
+    mInterpolation(aOrder) = aVertexInterp;
 }
 //------------------------------------------------------------------------------
 

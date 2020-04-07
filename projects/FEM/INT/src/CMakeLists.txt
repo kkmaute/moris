@@ -35,6 +35,12 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
+    cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
+    cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp
+    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
     #cl_FEM_IWG_Helmholtz_Bulk2.hpp
     #cl_FEM_IWG_Helmholtz_Interface.hpp
@@ -107,9 +113,11 @@ set(HEADERS
     cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IQI.hpp
+    cl_FEM_IQI_Analytic.hpp
     cl_FEM_IQI_Factory.hpp
     cl_FEM_IQI_Volume.hpp
     cl_FEM_IQI_Strain_Energy.hpp
+    cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
@@ -127,6 +135,11 @@ set(HEADERS
     cl_FEM_SP_Ghost_Displacement.hpp
     cl_FEM_SP_Ghost_Virtual_Work.hpp
     cl_FEM_SP_Incompressible_Flow.hpp
+    cl_FEM_SP_Viscous_Ghost.hpp
+    cl_FEM_SP_Convective_Ghost.hpp
+    cl_FEM_SP_Pressure_Ghost.hpp
+    cl_FEM_SP_Time_Velocity_Ghost.hpp
+    cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -162,6 +175,12 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
+    cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.cpp
+    cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
+    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     #cl_FEM_IWG_Helmholtz_Bulk.cpp
     #cl_FEM_IWG_Helmholtz_Bulk2.cpp
     #cl_FEM_IWG_Helmholtz_Interface.cpp
@@ -195,10 +214,17 @@ set(LIB_SOURCES
     cl_FEM_SP_Ghost_Displacement.cpp
     cl_FEM_SP_Ghost_Virtual_Work.cpp
     cl_FEM_SP_Incompressible_Flow.cpp
+    cl_FEM_SP_Viscous_Ghost.cpp
+    cl_FEM_SP_Convective_Ghost.cpp
+    cl_FEM_SP_Pressure_Ghost.cpp
+    cl_FEM_SP_Time_Velocity_Ghost.cpp
+    cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_IQI.cpp
+    cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
+    cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp

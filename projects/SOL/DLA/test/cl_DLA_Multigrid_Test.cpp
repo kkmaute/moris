@@ -127,8 +127,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         // grab pointer to output field
         //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex);
-        std::shared_ptr< hmr::Integration_Mesh_HMR > tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
+        hmr::Interpolation_Mesh_HMR * tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex);
+        hmr::Integration_Mesh_HMR * tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
 
         // create field
         std::shared_ptr< moris::hmr::Field > tField = tInterpolationMesh->create_field( "Circle", tLagrangeMeshIndex );
@@ -230,7 +230,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                                                                      tInterpolationMesh->get_communication_table(),
                                                                                      tCoefficientsMap,
                                                                                      tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
-                                                                                     tInterpolationMesh.get() );
+                                                                                     tInterpolationMesh );
 
         tElementBlocks( 0 )->finalize( tMSI );
 
@@ -361,6 +361,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              delete k ;
          }
          tElementBlocks.clear();
+
+         delete tIntegrationMesh;
+         delete tInterpolationMesh;
     }
 }
 

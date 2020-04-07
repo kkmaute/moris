@@ -66,7 +66,7 @@ CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 {
-    if(par_size()<=1)
+    if(par_size()<=4)
     {
         std::string tFieldName = "Cylinder";
 
@@ -75,7 +75,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
          moris::hmr::Parameters tParameters;
 
-         tParameters.set_number_of_elements_per_dimension( { {2}, {2}} );
+         tParameters.set_number_of_elements_per_dimension( { {12}, {12}} );
          tParameters.set_domain_dimensions({ {2}, {2} });
          tParameters.set_domain_offset({ {-1.0}, {-1.0} });
          tParameters.set_bspline_truncation( true );
@@ -95,6 +95,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
          tParameters.set_refinement_buffer( 2 );
          tParameters.set_staircase_buffer( 2);
+         tParameters.set_number_aura(true);
 
          Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
          tLagrangeToBSplineMesh( 0 ) = { {0} };
@@ -122,7 +123,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
          tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_ip.e" );
 
-         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
          moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -131,7 +132,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -140,20 +141,17 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
-//        tXTKModel.print_subphase_neighborhood();
-
 
         xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
 
-        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
+//        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
+//
+
 
         // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-        moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
-        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
-
-
 
          // Declare the fields related to enrichment strategy in output options
          Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
@@ -186,6 +184,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
 
         delete tIntegMesh1;
+        delete tInterpMesh;
     }
 }
 
@@ -247,7 +246,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
          tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_wi_2d_ip.e" );
 
-         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
          // create a plane which intentionally intersects from fine to coarse
          moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
@@ -259,7 +258,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -294,6 +293,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         delete tIntegMesh1;
+        delete tInterpMesh;
     }
 }
 

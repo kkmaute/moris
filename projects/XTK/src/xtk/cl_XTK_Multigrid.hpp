@@ -43,6 +43,8 @@ private:
 
     xtk::Model * mXTKModelPtr = nullptr;
 
+    moris_index mMeshIndex;
+
     moris::Cell< moris_index > mEnrichedBasisToBackgroundBasis;
 
     moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;

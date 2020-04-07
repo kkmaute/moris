@@ -104,6 +104,7 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_GE_Factory.cpp
+    cl_GE_PDV_Info.cpp
     
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp

@@ -96,12 +96,12 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
         tHMR.finalize();
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
 
         mtk::Mesh_Manager tMeshManager;
 
-        uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
+        uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegrationMesh );
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
         Cell< enum GEN_DV > tPdvList0(1);

@@ -90,6 +90,7 @@ namespace moris
             // stabilization parameters
             moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
+            // string for IWG name
             std::string mName;
 
 //------------------------------------------------------------------------------

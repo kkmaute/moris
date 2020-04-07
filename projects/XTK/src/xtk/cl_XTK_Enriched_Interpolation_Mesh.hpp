@@ -85,19 +85,20 @@ public:
      * Get the enriched interpolation coefficients associated with a background coefficient
      */
     Matrix<IndexMat> const &
-    get_enriched_coefficients_at_background_coefficient(moris_index aBackgroundCoeffIndex) const;
+    get_enriched_coefficients_at_background_coefficient(moris_index const & aMeshIndex,
+                                                        moris_index aBackgroundCoeffIndex) const;
     //------------------------------------------------------------------------------
     /*!
      * get the enriched coefficients at all the background mesh coefficients
      */
     Cell<Matrix<IndexMat>> const &
-    get_enriched_coefficients_to_background_coefficients() const;
+    get_enriched_coefficients_to_background_coefficients(moris_index const & aMeshIndex) const;
     //------------------------------------------------------------------------------
     /*!
      * get the local enriched coefficient to global map
      */
     Matrix<IndexMat> const &
-    get_enriched_coefficient_local_to_global_map() const;
+    get_enriched_coefficient_local_to_global_map(moris_index const & aMeshIndex) const;
     //------------------------------------------------------------------------------
     /*!
      * Return the vector of background coefficient local to global
@@ -125,6 +126,19 @@ public:
      */
     Cell<Interpolation_Cell_Unzipped*> const &
     get_enriched_interpolation_cells() const;
+
+    //------------------------------------------------------------------------------
+    /*!
+     * Get the number of interpolation (t-matrices) defined on this mesh
+     */
+    uint
+    get_num_interpolation_types() const;
+
+    /*
+     * Get the interpolation index for a local index
+     */
+    moris_index
+    get_interpolation_index(moris_index const & aLocalInterpIndex) const;
 
 protected:
     Cell<Interpolation_Cell_Unzipped*> &
@@ -172,11 +186,13 @@ public:
      */
     //------------------------------------------------------------------------------
     void
-    convert_enriched_basis_indices_to_ids(Matrix<IndexMat> const & aEnrichedIndices,
+    convert_enriched_basis_indices_to_ids(moris_index      const & aMeshIndex,
+                                          Matrix<IndexMat> const & aEnrichedIndices,
                                           Matrix<IdMat>          & aEnrichedIds) const;
 
     void
-    convert_enriched_basis_indices_to_ids(Cell<Matrix<IndexMat>> const & aEnrichedIndices,
+    convert_enriched_basis_indices_to_ids(moris_index            const & aMeshIndex,
+                                          Cell<Matrix<IndexMat>> const & aEnrichedIndices,
                                           Cell<Matrix<IdMat>>          & aEnrichedIds) const;
 
     // Print functions
@@ -200,7 +216,8 @@ protected:
     enum EntityRank mBasisRank;
 
     // mesh index
-    moris_index mMeshIndex;
+    Matrix<IndexMat> mMeshIndices;
+    std::unordered_map<moris_index,moris_index> mMeshIndexToLocMeshIndex;
 
     // enriched interpolation vertices
     moris::uint                         mNumVerts;
@@ -211,19 +228,21 @@ protected:
     Cell<Interpolation_Cell_Unzipped*>  mEnrichedInterpCells;
 
     // for each outer cell (base interpolation vertex), indices of enriched vertices
-    Cell<Cell<moris_index>> mBaseInterpVertToVertEnrichmentIndex;
+    Cell<Cell<Cell<moris_index>>> mBaseInterpVertToVertEnrichmentIndex;
 
-    // vertex enrichments
-    Cell<Vertex_Enrichment *> mInterpVertEnrichment;
+    // vertex enrichments or t-matrix
+    // outer cell - mesh index (i.e. linear or quadratic b-spline enrichment)
+    // middle cell  - interpolation vertex index
+    Cell<Cell<Vertex_Enrichment *>> mInterpVertEnrichment;
 
     // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
-    Cell<moris_index>       mVertexEnrichmentParentVertexIndex;
+    Cell<Cell<moris_index>>       mVertexEnrichmentParentVertexIndex;
 
     // basis coefficient to enriched basis coefficient
-    moris::Cell<moris::Matrix<moris::IndexMat>> mCoeffToEnrichCoeffs;
+    Cell<moris::Cell<moris::Matrix<moris::IndexMat>>> mCoeffToEnrichCoeffs;
 
     // local to global enriched basis vector
-    moris::Matrix<moris::IdMat> mEnrichCoeffLocToGlob;
+    Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffLocToGlob;
 
     // Entity maps
     Cell<Matrix< IdMat >>                          mLocalToGlobalMaps;
@@ -238,35 +257,43 @@ protected:
     // functions used by enrichment for construction of the mesh
     /*
      * Add a vertex enrichment to the member data. returns the index of the vertex enrichment.
-     * I do not return a pointer here because addresses may change while constructing the data
      */
     moris_index
-    add_vertex_enrichment( mtk::Vertex *       aBaseInterpVertex,
-                           Vertex_Enrichment & aVertexEnrichment,
-                           bool              & aNewVertex);
+    add_vertex_enrichment( moris_index   const & aMeshIndex,
+                           mtk::Vertex *         aBaseInterpVertex,
+                           Vertex_Enrichment   & aVertexEnrichment,
+                           bool                & aNewVertex);
     //------------------------------------------------------------------------------
     /*
      * Get the pointer to the vertex enrichment provided the vertex enrichment index.
      */
     Vertex_Enrichment*
-    get_vertex_enrichment(moris_index aVertexEnrichmentIndex);
+    get_vertex_enrichment( moris_index const & aMeshIndex,
+                           moris_index const & aVertexEnrichmentIndex);
     //------------------------------------------------------------------------------
     /*
      * Returns the vertex index corresponding to the vertex enrichment
      */
     moris_index
-    get_vertex_related_to_vertex_enrichment(moris_index aVertexEnrichmentIndex) const;
+    get_vertex_related_to_vertex_enrichment(moris_index const & aMeshIndex,
+                                            moris_index aVertexEnrichmentIndex) const;
+
+    //------------------------------------------------------------------------------
+    /*
+     *
+     */
+    moris_index
+    get_local_mesh_index(moris_index const & aMeshIndex) const;
+
 
     void
     finalize_setup();
-
-    void
-    assign_vertex_interpolation_ids();
 
     // map setup
     void setup_local_to_global_maps();
     void setup_vertex_maps();
     void setup_cell_maps();
+    void setup_mesh_index_map();
 
     //------------------------------------------------------------------------------
     // Parallel functions

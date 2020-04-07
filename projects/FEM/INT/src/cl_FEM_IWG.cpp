@@ -1188,6 +1188,15 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
                     tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
+
+//                    // for debug
+//                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )
+//                    {
+//                        std::cout<<"iiJac "<<iiJac<<std::endl;
+//                        std::cout<<"jjJac "<<jjJac<<std::endl;
+//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+//                    }
                 }
             }
 

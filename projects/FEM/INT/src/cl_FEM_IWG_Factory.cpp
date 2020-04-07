@@ -34,6 +34,12 @@
 //Incompressible fluid
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp"
 
 namespace moris
 {
@@ -110,6 +116,24 @@ namespace moris
 
                 case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ):
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Bulk >();
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST ):
+                    return std::make_shared< IWG_Incompressible_NS_Viscous_Velocity_Ghost >();
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST ):
+                    return std::make_shared< IWG_Incompressible_NS_Convective_Velocity_Ghost >();
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST ):
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Ghost >();
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE ):
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >();
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE ):
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >();
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE ):
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );

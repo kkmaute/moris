@@ -57,9 +57,6 @@ public:
                                                       moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
 
-//        moris::real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
-//                            + (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
-//                              - (mRadius * mRadius);
         /*
          * the below form linearizes the circle equation
          */
@@ -70,6 +67,11 @@ public:
 
         moris::real tFunctionValue = norm( tCoord-tCenter ) - mRadius;
         return tFunctionValue;
+    }
+
+    moris::real evaluate_field_value_with_single_coordinate(moris::Matrix< moris::DDRMat > const & aCoordinates) const
+    {
+        return this->evaluate_field_value_with_coordinate(0,aCoordinates);
     }
     //------------------------------------------------------------------------------
 

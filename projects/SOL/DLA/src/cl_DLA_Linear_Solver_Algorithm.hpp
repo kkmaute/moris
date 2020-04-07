@@ -18,10 +18,13 @@
 
 namespace moris
 {
+class Solver_Interface;
+
 namespace dla
 {
     class Linear_Problem;
     class Linear_Solver_Algorithm
+
     {
     private:
 
@@ -37,6 +40,8 @@ namespace dla
         moris::real mNumFactTime;
         moris::real mPreCondTime;
 
+        Solver_Interface * mSolverInterface;
+
         moris::ParameterList mParameterList; // The Algorithm specific parameter list
 
     public:
@@ -51,7 +56,8 @@ namespace dla
 
         virtual moris::sint solve_linear_system() = 0;
 
-        virtual moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter = 1 ) = 0;
+        virtual moris::sint solve_linear_system(       Linear_Problem * aLinearSystem,
+                                                 const moris::sint      aIter = 1 ) = 0;
 
 //        Dist_Vector * get_solver_LHS()
 //        {

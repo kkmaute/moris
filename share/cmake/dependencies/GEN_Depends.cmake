@@ -23,6 +23,7 @@ include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 
 # Includes needed for test

@@ -109,6 +109,20 @@ public:
     Matrix< IndexMat >
     get_block_entity_loc_inds( std::string     aSetName) const;
 
+    /*!
+     * This function creates additional dbl sided interfaces. By default,
+     * the enriched integrztion mesh creates only the low-master high-slave
+     * dbl sided interfaces. This functions allows creation of  low-slave high-master
+     * interfaces.
+     */
+    void
+    create_dbl_sided_interface_set(moris_index aMasterBulkPhaseIndex,
+                                   moris_index aSlaveBulkPhaseIndex);
+
+
+    //------------------------------------------------------------------------------
+    // Output/ Viz Functions
+    //------------------------------------------------------------------------------
     /*
      * For cleanup when writing to an exodus file (note: in general this should not be used because
      * sets may not be always empty through an optimization run)
@@ -121,6 +135,9 @@ public:
 
     void
     deactivate_empty_block_sets();
+
+    moris::Cell<std::string>
+    create_basis_support_fields();
 
 
     //------------------------------------------------------------------------------
@@ -150,6 +167,13 @@ public:
     add_field_data(moris::moris_index       aFieldIndex,
                    enum moris::EntityRank   aEntityRank,
                    Matrix<DDRMat>  const  & aFieldData);
+
+    /*!
+     * return field data on a specified field
+     */
+    Matrix<DDRMat> const   &
+    get_field_data(moris::moris_index       aFieldIndex,
+                   enum moris::EntityRank   aEntityRank) const;
     //------------------------------------------------------------------------------
     /*
      * Convert a entity indices to entity ids
@@ -237,6 +261,7 @@ protected:
     moris::Cell<moris::Cell<std::shared_ptr<xtk::Side_Cluster>>> mSideSets;
     moris::Cell<moris::Matrix<IndexMat>>                         mSideSetColors; /*Bulk phases of cells attached to side*/
     moris::Cell<moris::Cell<moris_index>>                        mColorsSideSets; /*transpose of mSideSetColors*/
+
     // double side sets
     std::unordered_map<std::string, moris_index>        mDoubleSideSetLabelToOrd;
     moris::Cell<std::string>                            mDoubleSideSetLabels;

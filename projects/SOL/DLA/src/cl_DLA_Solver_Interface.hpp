@@ -259,7 +259,8 @@ public:
     void assemble_RHS( moris::Dist_Vector * aVectorRHS,
                        moris::Dist_Vector * aFullSolutionVector );
 
-    void get_adof_ids_based_on_criteria();
+    void get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
+                                         const moris::real                       aThreshold );
 
     virtual void calculate_criteria( const moris::uint & aMySetInd,
                              const moris::uint & aMyElementInd )
@@ -273,7 +274,8 @@ public:
         return mMat6;
     };
 
-    void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aREquestedIQIType )
+
+    virtual void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aRequestedIQIType )
     {
         MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");
     };

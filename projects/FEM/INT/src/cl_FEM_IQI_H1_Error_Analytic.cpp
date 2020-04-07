@@ -37,8 +37,11 @@ namespace moris
             // get property index
             uint tH1CheckIndex = static_cast< uint >( IQI_Property_Type::H1_CHECK );
 
+            // get jump between value and analytic
+            Matrix< DDRMat > tJump = reshape( tFI->gradx( 1 ) - mMasterProp( tH1CheckIndex )->val(), tFI->gradx( 1 ).numel(), 1 );
+
             // evaluate the QI
-            aQI = trans( tFI->gradx( 1 ) - mMasterProp( tH1CheckIndex )->val() ) * ( tFI->gradx( 1 ) - mMasterProp( tH1CheckIndex )->val() ) ;
+            aQI = trans( tJump ) * tJump ;
         }
 
 //------------------------------------------------------------------------------

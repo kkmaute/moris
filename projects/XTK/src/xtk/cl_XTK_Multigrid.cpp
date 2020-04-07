@@ -30,7 +30,7 @@
 namespace xtk
 {
 
-    Multigrid::Multigrid( xtk::Model * aXTKModelPtr ) : mXTKModelPtr( aXTKModelPtr )
+    Multigrid::Multigrid( xtk::Model * aXTKModelPtr ) : mXTKModelPtr( aXTKModelPtr ), mMeshIndex(0)
     {
 
     }
@@ -53,8 +53,7 @@ namespace xtk
             // Basis indices are consecutive and correpond to Ik
 
             // get enriched basis for this bg basis
-            const Matrix<IndexMat> & tEnrichedCoeffsForBackroundCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
-                                                       ->get_enriched_coefficients_at_background_coefficient( Ik );
+            const Matrix<IndexMat> & tEnrichedCoeffsForBackroundCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_coefficients_at_background_coefficient(mMeshIndex, Ik );
 
             // loop over enriched basis for background basis Ik
             for ( uint Ia = 0; Ia < tEnrichedCoeffsForBackroundCoeffs.numel(); Ia ++ )
@@ -69,88 +68,37 @@ namespace xtk
                 mFineBasisToCoarseBasis( tEnrichedBasisInd ).set_size( tNumCoarseBasis, 1, -1 );
 
                 // get subphases for enriched basis
-                const Cell< moris::Matrix< moris::IndexMat > > & tSubphaseIndForEnrichedBasis = mXTKModelPtr->mEnrichment
-                                                      ->get_subphases_loc_inds_in_enriched_basis();
+                const Cell< moris::Matrix< moris::IndexMat > > & tSubphaseIndForEnrichedBasis = mXTKModelPtr->mEnrichment->get_subphases_loc_inds_in_enriched_basis();
 
                 // get FIRST sub-phase index of basis. First because we assume the fine basis support is complete within the coarse one
                 moris_index tFirstSubphaseInSupportIndex = tSubphaseIndForEnrichedBasis( tEnrichedBasisInd )( 0 );
 
-                // check if subphase is in child mesh. If it is continue with child mesh data. Otherwise with enriched mesh data
-                if( mXTKModelPtr->subphase_is_in_child_mesh( tFirstSubphaseInSupportIndex ) )
+                // get bg basis interpolating into tFirstSubphaseInSupportIndex ( Interpolation cell index correponds to subphase index)
+                Cell< moris_index > tBasisForSubphaseIndex = mXTKModelPtr->mEnrichment->mEnrichmentData(mMeshIndex).mSubphaseBGBasisIndices(  tFirstSubphaseInSupportIndex );
+
+                // get enrichment level for bg basis interpolating into tFirstSubphaseInSupportIndex ( Interpolation cell index correponds to subphase index)
+                Cell< moris_index > tBasisEnrLevForSubphaseIndex = mXTKModelPtr->mEnrichment->mEnrichmentData(mMeshIndex).mSubphaseBGBasisEnrLev( tFirstSubphaseInSupportIndex );
+
+                // build map which maps bg basis index to entry in tBasisForSubphaseIndex/tBasisEnrLevForSubphaseIndex
+                std::unordered_map< moris_id, moris_id > tSubPhaseBasisMap = mXTKModelPtr->mEnrichment->construct_subphase_basis_to_basis_map( tBasisForSubphaseIndex );
+
+                // loop over coarse basis
+                for ( uint Ii = 0; Ii < tNumCoarseBasis; Ii ++ )
                 {
-                    // get list with child meshes in cut mesh. cut mesh is collection of child meshes. subphase corresponds to child mesh entry
-                    const Matrix<IndexMat> & tSubPhaseIndexToChildMesh = mXTKModelPtr->get_cut_mesh().get_subphase_to_child_mesh_connectivity();
+                    // get coarse bg basis
+                    moris_index tCoarseBasisIndex = tInterpolationMesh.get_coarse_basis_index_of_basis( 0, Ik, Ii );
 
-                    // get child mesh index
-                    moris_index tChildMeshIndex = tSubPhaseIndexToChildMesh( tFirstSubphaseInSupportIndex );
+                    // find enrichment level for this coarse bg basis and subphase
+                    moris_index tEnrichmentLev = tBasisEnrLevForSubphaseIndex( tSubPhaseBasisMap.find( tCoarseBasisIndex )->second );
 
-                    // get child mesh using child mesh index
-                    Child_Mesh & tCM = mXTKModelPtr->get_cut_mesh().get_child_mesh( tChildMeshIndex );
+                    // get enriched basis for this coarse bg basis and enrichment level
+                    const Matrix<IndexMat> & tCoarseEnrichedCoeffsForCoarseBackroundCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
+                                                                           ->get_enriched_coefficients_at_background_coefficient(mMeshIndex, tCoarseBasisIndex );
 
-                    // get local index of this subphase in the child mesh
-                    moris_index tSubphaseLocIndex = tCM.get_subphase_loc_index( tFirstSubphaseInSupportIndex );
+                    moris_index tEnrichedCoarseBasisIndex = tCoarseEnrichedCoeffsForCoarseBackroundCoeffs( tEnrichmentLev );
 
-                    // Subphase basis of the current subphase in child mesh
-                    Cell< moris_index > const & tSubPhaseBasis = tCM.get_subphase_basis_indices( tSubphaseLocIndex );
-
-                    Cell< moris_index > const & tSubphaseBasisEnrichLev = tCM.get_subphase_basis_enrichment_levels( tSubphaseLocIndex );
-
-                    // construct a map between bg basis index and index relative to the subphase cluster
-                    std::unordered_map< moris_id, moris_id > tSubPhaseBasisMap = mXTKModelPtr->mEnrichment->construct_subphase_basis_to_basis_map( tSubPhaseBasis );
-
-                    // loop over coarse background basis
-                    for ( uint Ii = 0; Ii < tNumCoarseBasis; Ii ++ )
-                    {
-                        // get coarse basis iondex
-                        moris_id tCoarseBasisIndex = tInterpolationMesh.get_coarse_basis_index_of_basis( 0, Ik, Ii );
-
-                        // find enriched coarse basis index for this coarse bg basis index
-                        moris_id tEnrichedBasisLocation = tSubPhaseBasisMap.find( tCoarseBasisIndex )->second;
-
-                        moris_index tEnrichmentLevel = tSubphaseBasisEnrichLev( tEnrichedBasisLocation );
-
-                        // get enriched basis for this coarse bg basis and enrichment level
-                        const Matrix<IndexMat> & tCoarseEnrichedCoeffsForCoarseBackroundCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
-                                                                   ->get_enriched_coefficients_at_background_coefficient( tCoarseBasisIndex );
-
-                        moris_index tEnrichedCoarseBasisIndex = tCoarseEnrichedCoeffsForCoarseBackroundCoeffs( tEnrichmentLevel );
-
-                        // add enriched coarse basis index to list
-                        mFineBasisToCoarseBasis( tEnrichedBasisInd )( Ii ) = tEnrichedCoarseBasisIndex;
-
-//                        std::cout<<tCoarseBasisIndex<<" tCoarseBasisIndex"<<std::endl;
-//                        std::cout<<tEnrichedBasisIndex<<" tEnrichedBasisIndex"<<std::endl;
-                    }
-                }
-                else
-                {
-                    // get bg basis interpolating into tFirstSubphaseInSupportIndex ( Interpolation cell index correponds to subphase index)
-                    Cell< moris_index > tBasisForSubphaseIndex = mXTKModelPtr->mEnrichment->mInterpCellBasis( tFirstSubphaseInSupportIndex );
-
-                    // get enrichment level for bg basis interpolating into tFirstSubphaseInSupportIndex ( Interpolation cell index correponds to subphase index)
-                    Cell< moris_index > tBasisEnrLevForSubphaseIndex = mXTKModelPtr->mEnrichment->mInterpCellBasisEnrLev( tFirstSubphaseInSupportIndex );
-
-                    // build map which maps bg basis index to entry in tBasisForSubphaseIndex/tBasisEnrLevForSubphaseIndex
-                    std::unordered_map< moris_id, moris_id > tSubPhaseBasisMap = mXTKModelPtr->mEnrichment->construct_subphase_basis_to_basis_map( tBasisForSubphaseIndex );
-
-                    // loop over coarse basis
-                    for ( uint Ii = 0; Ii < tNumCoarseBasis; Ii ++ )
-                    {
-                        // get coarse bg basis
-                        moris_index tCoarseBasisIndex = tInterpolationMesh.get_coarse_basis_index_of_basis( 0, Ik, Ii );
-
-                        // find enrichment level for this coarse bg basis and subphase
-                        moris_index tEnrichmentLev = tBasisEnrLevForSubphaseIndex( tSubPhaseBasisMap.find( tCoarseBasisIndex )->second );
-
-                        // get enriched basis for this coarse bg basis and enrichment level
-                        const Matrix<IndexMat> & tCoarseEnrichedCoeffsForCoarseBackroundCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
-                                                                   ->get_enriched_coefficients_at_background_coefficient( tCoarseBasisIndex );
-
-                        moris_index tEnrichedCoarseBasisIndex = tCoarseEnrichedCoeffsForCoarseBackroundCoeffs( tEnrichmentLev );
-
-                        // add enriched coarse basis to list
-                        mFineBasisToCoarseBasis( tEnrichedBasisInd )( Ii ) = tEnrichedCoarseBasisIndex;
-                    }
+                    // add enriched coarse basis to list
+                    mFineBasisToCoarseBasis( tEnrichedBasisInd )( Ii ) = tEnrichedCoarseBasisIndex;
                 }
             }
         }
@@ -243,7 +191,7 @@ namespace xtk
 
         // get background basis to enriched basis list. ( name of get function is misleading )
         const Cell<Matrix<IndexMat>> & tBackgroundCoeffsToEnrichedCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
-                                                   ->get_enriched_coefficients_to_background_coefficients();
+                                                   ->get_enriched_coefficients_to_background_coefficients(mMeshIndex);
 
         for( uint Ik = 0; Ik < tBackgroundCoeffsToEnrichedCoeffs.size(); Ik++ )
         {
@@ -405,29 +353,31 @@ namespace xtk
 //    }
 //#endif
 
-#ifdef DEBUG
     void Multigrid::build_basis_exodus_information(std::string aName)
     {
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
 
-
         // get num enriched basis
         uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
 
+#ifdef DEBUG
         mEnrichedBasisCoords.set_size( tNumEnrichedBasis, mXTKModelPtr->get_spatial_dim() );
-        mEnrichedBasisLevel .set_size( tNumEnrichedBasis, 1 );
         mEnrichedBasisStatus.set_size( tNumEnrichedBasis, 1 );
+#endif
+        mEnrichedBasisLevel .set_size( tNumEnrichedBasis, 1 );
 
         for( uint Ik = 0; Ik < mNumBasis; Ik++ )
         {
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
             mEnrichedBasisLevel ( Ik ) = tInterpolationMesh.get_basis_level ( 0, tBackgroundIndex);
+#ifdef DEBUG
             mEnrichedBasisStatus( Ik ) = tInterpolationMesh.get_basis_status( 0, tBackgroundIndex);
             mEnrichedBasisCoords( {Ik, Ik}, {0, mXTKModelPtr->get_spatial_dim() - 1} ) = tInterpolationMesh.get_basis_coords( 0, tBackgroundIndex).matrix_data();
-
+#endif
         }
 
+#ifdef DEBUG
         // Create writer/file
         moris::mtk::Writer_Exodus tWriter;
         std::string tMorisRoot = std::getenv("MORISOUTPUT");
@@ -446,11 +396,9 @@ namespace xtk
 
         // Close file
         tWriter.close_file();
-
+#endif
 //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
-
-#endif
 }
 
 
