@@ -50,10 +50,14 @@ void Workflow::perform()
     //---------------------------------------------------------------------------------------
     //                               Stage 1: HMR refinement
     //---------------------------------------------------------------------------------------
+
+    // uniform initial refinrment
     mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
 
+    // perform refinement
     mPerformerManager->mGENPerformer( 0 )->perform();
 
+    // perform finalize HMR
     mPerformerManager->mHMRPerformer( 0 )->perform();
 
     //-----------------------------------------------------------------------------z----------
@@ -76,7 +80,7 @@ void Workflow::perform()
 
 //    tEnrIntegMesh.print();
 
-//    if(false)
+//    if(true)
 //    {
 //        tEnrIntegMesh.deactivate_empty_sets();
 //        // Write mesh
