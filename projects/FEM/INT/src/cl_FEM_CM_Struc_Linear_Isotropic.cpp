@@ -505,6 +505,44 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------------------------------------
+        moris::real CM_Struc_Linear_Isotropic::get_e_prime(  )
+        {
+            moris::real tEPrime;
+
+            /* get modulus value */
+            uint tEIndex = static_cast< uint >( Property_Type::EMOD );
+            real tE      = mProperties( tEIndex )->val()( 0 );
+
+            /* get Poisson ratio value */
+            uint tNuIndex = static_cast< uint >( Property_Type::NU );
+            real tNu      = mProperties( tNuIndex )->val()( 0 );
+
+            switch ( mPlaneType )
+            {
+                case ( Model_Type::PLANE_STRESS ):
+                {
+                    /*  Eprime = E  */
+                    tEPrime = tE;
+                    break;
+                }
+                case ( Model_Type::PLANE_STRAIN ):
+                {
+                    /*  Eprime = E/(1-nu^2) */
+                    tEPrime = tE/( 1-(tNu*tNu) );
+                    break;
+                }
+                default:
+                {
+                    tEPrime = tE;
+                    MORIS_ASSERT( false, "CM_Struc_Linear_Isotropic::get_e_prime() - not implemented for loading case " );
+                    break;
+                }
+            }
+
+            return tEPrime;
+        }
+
+//--------------------------------------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::set_function_pointers()
         {
             switch(mSpaceDim)

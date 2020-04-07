@@ -169,7 +169,7 @@ namespace moris
 //-----------------------------------------------------------------------------------------------------------
 
     void Output_Manager::write_mesh( const uint aVisMeshIndex,
-                                     const real tTime )
+                                     const real aTime )
     {
         // specify file path
         std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mOutputPath;
@@ -190,7 +190,7 @@ namespace moris
         this->add_global_fields( aVisMeshIndex );
 
         // write time to file
-        mWriter( aVisMeshIndex )->set_time( tTime );
+        mWriter( aVisMeshIndex )->set_time( aTime );
 
         // write standard outputs like IDs and Indices to file
         //this->write_mesh_indices( aVisMeshIndex );

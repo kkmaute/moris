@@ -2,6 +2,8 @@
 
 #include "catch.hpp"
 
+#include "cl_Communication_Tools.hpp"
+
 #include "op_times.hpp"
 #include "op_equal_equal.hpp"
 

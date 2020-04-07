@@ -34,10 +34,7 @@ namespace moris
         enum class IQI_Property_Type
         {
             CRACK_LENGTH,
-            NUM_NODES,
-            E,
-            NU,
-            PLAIN_TYPE,
+            NUM_NODES,      // TODO: try using the 2*(a/10) criteria to get stopping criteria for the integration
             MAX_ENUM
         };
 

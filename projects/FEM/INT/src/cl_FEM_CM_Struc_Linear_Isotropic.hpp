@@ -213,6 +213,11 @@ namespace moris
             void set_model_type( Model_Type aModelType);
 
 //--------------------------------------------------------------------------------------------------------------
+            /*
+             * @brief returns the E prime values used in the computation of the Stress Intensity Factor(s)
+             */
+            moris::real get_e_prime(  );
+//--------------------------------------------------------------------------------------------------------------
         private:
 
             /**

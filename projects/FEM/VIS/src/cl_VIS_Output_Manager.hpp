@@ -84,6 +84,8 @@ namespace moris
 
             moris::uint                     mMTKMeshPairIndex;
 
+            moris::real mTimeStamp;
+
         protected:
 
         public:

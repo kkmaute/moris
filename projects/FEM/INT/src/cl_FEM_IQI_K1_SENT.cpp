@@ -34,20 +34,11 @@ namespace moris
                 // populate the property map
                 mPropertyMap[ "CRACK_LENGTH" ] = IQI_Property_Type::CRACK_LENGTH;
                 mPropertyMap[ "NUM_NODES" ]    = IQI_Property_Type::NUM_NODES;
-                mPropertyMap[ "E" ]            = IQI_Property_Type::E;
-                mPropertyMap[ "NU" ]           = IQI_Property_Type::NU;
-                mPropertyMap[ "PLAIN_TYPE" ]   = IQI_Property_Type::PLAIN_TYPE;
 
             }
 //------------------------------------------------------------------------------
             void IQI_K1_SENT::compute_QI( Matrix< DDRMat > & aQI )
             {
-                /*
-                 * TODO:
-                 *      - loop over both the top and the bottom nodes
-                 *      - get plain type from CM? or input as a parameter (plain stress/strain)
-                 */
-
                 real tPi = 3.14159265358979323846;
 
                 /* -------------------- get node data -------------------- */
@@ -57,10 +48,21 @@ namespace moris
                 Matrix< DDRMat > tElemVals;     // dummy matrix
                 Matrix< DDRMat > tNodeVals;     // node displacements
                 real             tGlobVal;      // dummy global value
+
+                moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes(1,3);
+                tRequestedIQITypes(0)(0) = fem::IQI_Type::DOF;
+                tRequestedIQITypes(0)(1) = fem::IQI_Type::DOF;
+                tRequestedIQITypes(0)(2) = fem::IQI_Type::K1_SENT;
+
+                mSet->set_requested_IQI_types( tRequestedIQITypes );
+
+                mSet->initialize_set( false, true );
+
                 mSet->compute_quantity_of_interest( tMeshIndex, &tElemVals, &tNodeVals, &tGlobVal, vis::Output_Type::DOF, vis::Field_Type::NODAL );
 
 print(tNodeVals,"tNodeVals");
-                // get node coordinates
+                /* -------------------- get node data -------------------- */
+                // get node coordinate values
                 Cell< Matrix< DDRMat > > tAllCoords;                                                        // cell of all node coordinate vectors
                 moris::Cell< mtk::Cluster const * > tTempClusters = mSet->get_clusters_on_set();
 
@@ -95,14 +97,14 @@ print(tAllCoords,"tAllCoords");
 
                 for( uint ii=0; ii<1; ii++ )        // loop over top and bottom nodes ( needs to be implemented for bottom nodes )
                 {
-                    for( uint i=2; i<(uint)tNumNodes; i++ )     // loop over specified number of nodes along crack line ( the number 100 should be pulled from a parameter )
+                    for( uint i=2; i<(uint)tNumNodes; i++ )     // loop over specified number of nodes along crack line
                     {
                         if( ii==0 )
                         {
                             /*  for the top nodes   */
                             real tR  = tCrackLength - tAllCoords( i )(0);                // radius defined as distance in x-direction from the crack tip
                             real tDR = tAllCoords( i )(0) - tAllCoords( i-1 )(0);
-                            real tUx = tNodeVals( i,0 );    // TODO: make sure this is how the information is being returned in the compute_IQI function above
+                            real tUx = tNodeVals( i,0 );                                 // TODO: make sure this is how the information is being returned in the compute_IQI function above
 
                             tAMat(0,0) += (tR/2/tPi)*tDR;
                             tAMat(0,1) += std::sqrt(tR/2/tPi)*tDR;
@@ -130,14 +132,10 @@ print(tAllCoords,"tAllCoords");
                 /* solve Ax=b problem to get coefficients and use them to compute K1 */
                 Matrix< DDRMat > tCVec = inv(tAMat)*tBVec;
 
-                /*
-                 * case: plain stress
-                 *          Eprime = E
-                 * case: plain strain
-                 *          Eprime = E/(1-nu^2)
-                 */
-                uint tEIndex = static_cast< uint >( IQI_Property_Type::E );                 // get property index for Young's Modulus
-                real tEprime = mMasterProp( tEIndex )->val()(0,0);                          // FIXME: get plain type from CM? currently assuming plain stress....
+                /* get value of E' from the Constitutive Model */
+                uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
+
+                real tEprime = mMasterCM( tElastIndex )->get_e_prime();
 
                 aQI.resize(1,1);
                 /* compute K1 from displacement correlation */

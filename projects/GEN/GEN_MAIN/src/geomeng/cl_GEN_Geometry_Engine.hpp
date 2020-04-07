@@ -26,6 +26,7 @@
 #include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Field.hpp"
+#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -131,6 +132,9 @@ private:    // ----------- member data ----------
 
     ParameterList mParameterList;
 
+    // flag to tell if the GGF has been initialized or not
+    bool mGGFInitialized = false;
+
 public:
 
 //------------------------------------------------------------------------------
@@ -182,7 +186,8 @@ public:
 
 //------------------------------------------------------------------------------
     /**
-     * initialize
+     * this function initializes the geometry engine with the provided analytic functions from the input file
+     *
      * @param[ in ] aLibrary a pointer to library for reading inputs
      */
     void initialize( std::shared_ptr< Library_IO > aLibrary );
@@ -390,7 +395,7 @@ public:
      */
     moris::size_t get_num_geometries();
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     /*
      * @brief Returns the number of phases
      */
@@ -410,26 +415,27 @@ public:
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::uint get_num_design_variables() const;
 
 //------------------------------------------------------------------------------
     /*
      * @brief Returns the ADV indices of the provided nodes
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
     ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
 
 //------------------------------------------------------------------------------
     /**
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::size_t get_num_design_vars_analytic();
 
@@ -520,12 +526,13 @@ public:
 
                 mGeometry( Ik )->eval( tVal, tCoord, tTempConstCell );
 
-                // FIXME will not work in parallel. Ind are not consistent because of aura
+                // FIXME will not work in parallel. Indices are not consistent because of aura....
                 aAllFieldVals( Ik )( iVert ) = tVal;
             }
         }
     }
 
+//------------------------------------------------------------------------------
 
 
 
