@@ -69,13 +69,13 @@ namespace moris
             // compute master residual
             mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
             += ( - trans( tFIMaster->N() ) * tTraction
-                 + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
+                 + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) * tWStar ;
 
             // compute slave residual
             mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
             += (   trans( tFISlave->N() ) * tTraction
-                 + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
+                 + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump
                  - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tJump ) * tWStar;
         }
 
@@ -117,22 +117,22 @@ namespace moris
             {
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) } )
-                +=  (   mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFIMaster->N()
+                +=  (   mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFIMaster->N()
                       + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tFIMaster->N() ) * tWStar;
 
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) } )
-                += ( - mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFISlave->N()
+                += ( - mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFISlave->N()
                      - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tFISlave->N() ) * tWStar;
 
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) } )
-                += (   mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFIMaster->N()
+                += (   mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFIMaster->N()
                      - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tFIMaster->N() ) * tWStar;
 
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) } )
-                += ( - mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFISlave->N()
+                += ( - mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFISlave->N()
                      + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tFISlave->N() ) * tWStar;
             }
 
@@ -157,7 +157,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
                     += ( - trans( tFIMaster->N() ) * mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                       + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ) * tWStar;
+                       + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) ) * tWStar;
 
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
@@ -184,7 +184,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
                     += ( - trans( tFIMaster->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tMasterWeightIndex )->dSPdMasterDOF( tDofType )
-                         + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tMasterWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
+                         + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump * mStabilizationParam( tMasterWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
 
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
@@ -201,7 +201,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
                     += (   trans( tFISlave->N() ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tSlaveWeightIndex )->dSPdMasterDOF( tDofType )
-                         + mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tSlaveWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
+                         + mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump * mStabilizationParam( tSlaveWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
                 }
             }
 
@@ -226,7 +226,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
                     += (   trans( tFISlave->N() ) * mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                         + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ) * tWStar;
+                         + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) ) * tWStar;
                 }
 
                 // if dependency of stabilization parameters on the dof type
@@ -248,7 +248,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
                     += ( - trans( tFIMaster->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tMasterWeightIndex )->dSPdSlaveDOF( tDofType )
-                         + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tMasterWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
+                         + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump * mStabilizationParam( tMasterWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
 
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
@@ -266,7 +266,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
                     += (   trans( tFISlave->N() ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tSlaveWeightIndex )->dSPdSlaveDOF( tDofType )
-                         + mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tSlaveWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
+                         + mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump * mStabilizationParam( tSlaveWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
                 }
             }
         }

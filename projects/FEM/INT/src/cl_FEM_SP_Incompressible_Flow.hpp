@@ -31,11 +31,6 @@ namespace moris
         {
 
 //------------------------------------------------------------------------------
-        private:
-
-//            // cluster measures
-//            real mElementSize      = 1.0; // element size
-
         public:
 
             // property type for the SP
@@ -83,6 +78,17 @@ namespace moris
              * trivial destructor
              */
             ~SP_Incompressible_Flow(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * reset the cluster measures required for this SP
+             */
+            void reset_cluster_measures()
+            {
+//                // evaluate element size from the cluster
+//                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+//                                                                              mtk::Master_Slave::MASTER );
+            }
 
 //------------------------------------------------------------------------------
             /**

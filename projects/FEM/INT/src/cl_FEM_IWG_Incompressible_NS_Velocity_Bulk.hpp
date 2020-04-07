@@ -167,6 +167,8 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual strong form
+             * @param[ in ] aRM a matrix to fill with RM
+             * @param[ in ] aRC a matrix to fill with RC
              */
             void compute_residual_strong_form( Matrix< DDRMat > & aRM,
                                                real             & aRC );
@@ -174,10 +176,38 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual strong form
+             * @param[ in ] aDofTypes a list of dof type wrt which
+             *                        the derivative is requested
+             * @param[ in ] aJM       a matrix to fill with dRMdDof
+             * @param[ in ] aJC       a matrix to fill with dRCdDof
              */
             void compute_jacobian_strong_form( moris::Cell< MSI::Dof_Type > aDofTypes,
                                                Matrix< DDRMat > & aJM,
                                                Matrix< DDRMat > & aJC );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the term uj vij
+             * @param[ in ] aujvij a matrix to fill with uj vij
+             */
+            void compute_ujvij( Matrix< DDRMat > & aujvij );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the term uj vij rm
+             * @param[ in ] aujvijrm a matrix to fill with uj vij rm
+             * @param[ in ] arm      provided strong form residual
+             */
+            void compute_ujvijrm( Matrix< DDRMat > & aujvijrm,
+                                  Matrix< DDRMat > & arm );
+
+//------------------------------------------------------------------------------
+            // FIXME provided directly by the field interpolator?
+            /**
+             * compute the term dnNdtn
+             * @param[ in ] adnNdtn a matrix to fill with dnNdtn
+             */
+            void compute_dnNdtn( Matrix< DDRMat > & adnNdtn );
 
 //------------------------------------------------------------------------------
         };

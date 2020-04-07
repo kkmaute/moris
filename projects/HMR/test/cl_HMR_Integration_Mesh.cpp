@@ -70,10 +70,10 @@ TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
     tHMR.finalize();
 
     // create pointer to output mesh
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+    hmr::Interpolation_Mesh_HMR * tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
     // create pointer to output mesh
-    std::shared_ptr< hmr::Integration_Mesh_HMR > tOutputIntegMesh = tHMR.create_integration_mesh( 1, 0, *tOutputInterpMesh );
+    hmr::Integration_Mesh_HMR * tOutputIntegMesh = tHMR.create_integration_mesh( 1, 0, *tOutputInterpMesh );
 
     moris::Cell<std::string> tBlockNames = tOutputIntegMesh->get_block_set_names();
 
@@ -87,6 +87,9 @@ TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
     uint tSideNames = tOutputIntegMesh->get_num_side_sets();
 
     CHECK(tSideNames == 6);
+
+    delete tOutputInterpMesh;
+    delete tOutputIntegMesh;
 }
 
 TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
@@ -214,7 +217,7 @@ TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
     tHMR.finalize();
 
     // create pointer to output mesh
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+    hmr::Interpolation_Mesh_HMR * tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
     moris::Matrix< IndexMat > tNodeIndices;
 
@@ -240,6 +243,8 @@ TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
     }
 
     CHECK( tCheck );
+
+    delete tOutputInterpMesh;
     }
 }
 

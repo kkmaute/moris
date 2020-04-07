@@ -159,7 +159,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         for(moris::uint i = 0; i < tEnrInterpMesh.get_num_background_coefficients(); i++)
         {
-            Matrix<IndexMat> const & tEnrichedCoeffs = tEnrInterpMesh.get_enriched_coefficients_at_background_coefficient((moris_index)i);
+            Matrix<IndexMat> const & tEnrichedCoeffs = tEnrInterpMesh.get_enriched_coefficients_at_background_coefficient(0,(moris_index)i);
             CHECK(all_true(tEnrichedCoeffs == tGoldCoeffToEnrCoeff(i)));
         }
 
@@ -185,6 +185,16 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tGoldVoidCellsInClusters(3) = {{21,23,24,28}};
         tGoldVoidCellsInClusters(4) = {{20,22,23,25,26,27,28,29,30,31}};
         tGoldVoidCellsInClusters(5) = {{20,21,22,24,25,26,27,29,30,31}};
+
+//        // Expected interpolation vertices
+//        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
+//        tGoldInterpCoeff(0) = {{0,6,9,15}};
+//        tGoldInterpCoeff(1) = {{1,7,10,16}};
+//        tGoldInterpCoeff(2) = {{2,8,11,17}};
+//        tGoldInterpCoeff(3) = {{3,18,21,12}};
+//        tGoldInterpCoeff(4) = {{4,19,22,13}};
+//        tGoldInterpCoeff(5) = {{ 5,20,23,14}};
+//
 
         // Expected interpolation vertices
         moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
@@ -236,6 +246,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
                 tVertexInterpInds(j) = tIndices(0);
             }
+
             CHECK(all_true(tVertexInterpInds == tGoldInterpCoeff(i)));
         }
 

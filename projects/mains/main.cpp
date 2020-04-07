@@ -47,6 +47,7 @@
 #include "fn_Exec_load_user_library.hpp"
 
 #include "cl_WRK_Performer_Manager.hpp"
+#include "cl_WRK_Workflow.hpp"
 
 
 moris::Comm_Manager gMorisComm;
@@ -84,9 +85,15 @@ int main( int argc, char * argv[] )
     {
         wrk::Performer_Manager tPerformerManager( tLibrary );
 
-        tPerformerManager.initialize();
+        tPerformerManager.initialize_performers();
 
-        tPerformerManager.perform();
+        tPerformerManager.set_performer_cooperations();
+        {
+            wrk::Workflow tWorkflow( &tPerformerManager );
+
+        tWorkflow.perform();
+        }
+
     }
 
     // finalize MORIS global communication manager

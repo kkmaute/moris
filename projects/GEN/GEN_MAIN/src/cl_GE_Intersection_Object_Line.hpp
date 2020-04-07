@@ -10,6 +10,7 @@
 
 // GE includes
 #include "cl_GE_Intersection_Object.hpp"
+#include "cl_GE_Geometry.hpp"
 
 // MTK includes
 #include "cl_MTK_Enums.hpp"
@@ -18,6 +19,7 @@ namespace moris
 {
 namespace ge
 {
+class Geometry;
 
 class Intersection_Object_Line : public Intersection_Object
 {

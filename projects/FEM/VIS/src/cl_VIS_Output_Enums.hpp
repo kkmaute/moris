@@ -18,6 +18,7 @@ namespace vis
         UNDEFINED, //< Undefined
         STRAIN_ENERGY,
         VOLUME,
+        SIGY,   //< Y-stress
         VOLUME_FRACTION,
         UX,     //< X-Displacement
         UY,     //< Y-Displacement
@@ -33,7 +34,9 @@ namespace vis
         VX,     //< X-Velocity
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
+        P,
         DOF, // Dof
+        Analytic, // Analytic
         L2_ERROR_ANALYTIC, // L2 error for dof
         H1_ERROR_ANALYTIC, // H1 error for dof
         H1_SEMI_ERROR, // H1-semi error for dof

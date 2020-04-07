@@ -31,7 +31,7 @@ namespace dla
         Dist_Map      * mMap = nullptr;
         Dist_Map      * mMapFree= nullptr;
 
-        Solver_Interface * mSolverInterface;
+        Solver_Interface * mSolverInterface = nullptr;
 
         moris::real mCondEstimate;
 

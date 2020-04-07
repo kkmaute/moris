@@ -172,7 +172,7 @@ namespace moris
 
             //                tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
             moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
@@ -182,7 +182,7 @@ namespace moris
             moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
             moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-            xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
             tXTKModel.mVerbose = false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -336,7 +336,7 @@ namespace moris
 
             // create model
             mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                    1,
+                    0,
                     tSetInfo );
 
             // --------------------------------------------------------------------------------------
@@ -347,6 +347,7 @@ namespace moris
             tOutputData.set_outputs( 0,
                     //                                         VIS_Mesh_Type::STANDARD,
                     VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                    "./",
                     "Output_Vis_Mesh_overlapping.exo",
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                     { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
@@ -411,6 +412,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
             tTimeSolver.solve();
+
+            delete tInterpMesh;
         }
     }
 
@@ -468,7 +471,7 @@ namespace moris
 
             //                tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
             moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
@@ -478,7 +481,7 @@ namespace moris
             moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
             moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-            xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
             tXTKModel.mVerbose = false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -631,7 +634,7 @@ namespace moris
             tSetInfo( 6 ) = tSetInterface;
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tSetInfo );
+            mdl::Model * tModel = new mdl::Model( &tMeshManager, 0, tSetInfo );
 
             // --------------------------------------------------------------------------------------
             // Define outputs
@@ -702,6 +705,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
             tTimeSolver.solve();
+
+            delete tInterpMesh;
         }
     }
 

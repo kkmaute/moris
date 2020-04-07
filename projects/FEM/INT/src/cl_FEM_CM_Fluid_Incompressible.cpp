@@ -62,7 +62,7 @@ namespace moris
             std::shared_ptr< Property > tViscosityProp = mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
 
             // compute flux
-            mFlux = -1.0 * tP + 2 * tViscosityProp->val()( 0 ) * this->strain();
+            mFlux = -1.0 * tP + 2.0 * tViscosityProp->val()( 0 ) * this->strain();
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ namespace moris
             std::shared_ptr< Property > tViscosityProp = mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
 
             // compute flux
-            mDivFlux = -1.0 * tPressureFI->gradx( 1 ) + 2 * tViscosityProp->val()( 0 ) * this->divstrain();
+            mDivFlux = -1.0 * tPressureFI->gradx( 1 ) + 2.0 * tViscosityProp->val()( 0 ) * this->divstrain();
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -141,13 +141,42 @@ namespace moris
 //--------------------------------------------------------------------------------------------------------------
         void CM_Fluid_Incompressible::eval_traction( const Matrix< DDRMat > & aNormal )
         {
-            MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_traction - Not implemented." );
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // compute the traction
+            mTraction = tFlatNormal * this->flux();
         }
 
 //--------------------------------------------------------------------------------------------------------------
-        void CM_Fluid_Incompressible::eval_testTraction( const Matrix< DDRMat > & aNormal )
+        void CM_Fluid_Incompressible::eval_testTraction( const Matrix< DDRMat >             & aNormal,
+                                                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
-            MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_testTraction - Not implemented." );
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // get the viscosity property
+            std::shared_ptr< Property > tViscosityProp
+            = mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+
+            // if test traction wrt velocity
+            if( aTestDofTypes( 0 ) == mDofMap["Velocity"] )
+            {
+                // compute test traction wrt velocity
+                mTestTraction( tTestDofIndex ) = 2.0 * tViscosityProp->val()( 0 ) * tFlatNormal * this->testStrain();
+            }
+
+            // if test traction wrt pressure
+            if( aTestDofTypes( 0 ) == mDofMap["Pressure"] )
+            {
+                // compute test traction wrt velocity
+                mTestTraction( tTestDofIndex ) = tFlatNormal * this->dFluxdDOF( aTestDofTypes ) ;
+            }
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -162,7 +191,7 @@ namespace moris
             mStrain.set_size( 3, 1, 0.0 );
             mStrain( 0, 0 ) = tVelocityGradx( 0, 0 );
             mStrain( 1, 0 ) = tVelocityGradx( 1, 1 );
-            mStrain( 2, 0 ) = tVelocityGradx( 1, 0 ) + tVelocityGradx( 0, 1 );
+            mStrain( 2, 0 ) = 0.5 * ( tVelocityGradx( 1, 0 ) + tVelocityGradx( 0, 1 ) );
         }
 
         void CM_Fluid_Incompressible::eval_strain_3d()
@@ -177,9 +206,9 @@ namespace moris
             mStrain( 0, 0 ) = tVelocityGradx( 0, 0 );
             mStrain( 1, 0 ) = tVelocityGradx( 1, 1 );
             mStrain( 2, 0 ) = tVelocityGradx( 2, 2 );
-            mStrain( 3, 0 ) = tVelocityGradx( 1, 2 ) + tVelocityGradx( 2, 1 );
-            mStrain( 4, 0 ) = tVelocityGradx( 0, 2 ) + tVelocityGradx( 2, 0 );
-            mStrain( 5, 0 ) = tVelocityGradx( 0, 1 ) + tVelocityGradx( 1, 0 );
+            mStrain( 3, 0 ) = 0.5 * ( tVelocityGradx( 1, 2 ) + tVelocityGradx( 2, 1 ) );
+            mStrain( 4, 0 ) = 0.5 * ( tVelocityGradx( 0, 2 ) + tVelocityGradx( 2, 0 ) );
+            mStrain( 5, 0 ) = 0.5 * ( tVelocityGradx( 0, 1 ) + tVelocityGradx( 1, 0 ) );
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -194,8 +223,8 @@ namespace moris
 
             // fill div strain
             mDivStrain( 0 ) = tVelocityGrad( 0, 0 )
-                            + tVelocityGrad( 1, 0 ) + tVelocityGrad( 2, 1 );
-            mDivStrain( 1 ) = tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 )
+                            + 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 2, 1 ) );
+            mDivStrain( 1 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 ) )
                             + tVelocityGrad( 1, 1 );
         }
 
@@ -210,13 +239,13 @@ namespace moris
 
             // fill div strain
             mDivStrain( 0 ) = tVelocityGrad( 0, 0 )
-                            + tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 )
-                            + tVelocityGrad( 2, 0 ) + tVelocityGrad( 4, 2 );
-            mDivStrain( 1 ) = tVelocityGrad( 5, 0 ) + tVelocityGrad( 0, 1 )
+                            + 0.5* ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 ) )
+                            + 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 4, 2 ) );
+            mDivStrain( 1 ) = 0.5 * ( tVelocityGrad( 5, 0 ) + tVelocityGrad( 0, 1 ) )
                             + tVelocityGrad( 1, 1 )
-                            + tVelocityGrad( 2, 1 ) + tVelocityGrad( 3, 2 );
-            mDivStrain( 2 ) = tVelocityGrad( 4, 0 ) + tVelocityGrad( 0, 2 )
-                            + tVelocityGrad( 3, 1 ) + tVelocityGrad( 1, 2 )
+                            + 0.5 * ( tVelocityGrad( 2, 1 ) + tVelocityGrad( 3, 2 ) );
+            mDivStrain( 2 ) = 0.5 * ( tVelocityGrad( 4, 0 ) + tVelocityGrad( 0, 2 ) )
+                            + 0.5 * ( tVelocityGrad( 3, 1 ) + tVelocityGrad( 1, 2 ) )
                             + tVelocityGrad( 2, 2 );
         }
 
@@ -241,10 +270,10 @@ namespace moris
                 uint tNumBases = tFI->get_number_of_space_time_bases();
 
                 // fill ddivstrain/du
-                mddivstraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } )             = tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 );
-                mddivstraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = tVelocityd2Ndx2.get_row( 2 );
-                mddivstraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } )             = tVelocityd2Ndx2.get_row( 2 );
-                mddivstraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 );
+                mddivstraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } )             = tVelocityd2Ndx2.get_row( 0 ) + 0.5 * tVelocityd2Ndx2.get_row( 1 );
+                mddivstraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 0.5 * tVelocityd2Ndx2.get_row( 2 );
+                mddivstraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } )             = 0.5 * tVelocityd2Ndx2.get_row( 2 );
+                mddivstraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = 0.5 * tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 );
             }
         }
 
@@ -268,17 +297,17 @@ namespace moris
                 uint tNumBases = tFI->get_number_of_space_time_bases();
 
                 // fill ddivstrain/du
-                mddivstraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } )                 = tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 ) + tVelocityd2Ndx2.get_row( 2 );
-                mddivstraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } )     = tVelocityd2Ndx2.get_row( 5 );
-                mddivstraindu( tDofIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tVelocityd2Ndx2.get_row( 4 );
+                mddivstraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } )                 = tVelocityd2Ndx2.get_row( 0 ) + 0.5 * tVelocityd2Ndx2.get_row( 1 ) + 0.5 * tVelocityd2Ndx2.get_row( 2 );
+                mddivstraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } )     = 0.5 * tVelocityd2Ndx2.get_row( 5 );
+                mddivstraindu( tDofIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 0.5 * tVelocityd2Ndx2.get_row( 4 );
 
-                mddivstraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } )                 = tVelocityd2Ndx2.get_row( 5 );
-                mddivstraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } )     = tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 ) + tVelocityd2Ndx2.get_row( 2 );
-                mddivstraindu( tDofIndex )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tVelocityd2Ndx2.get_row( 3 );
+                mddivstraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } )                 = 0.5 * tVelocityd2Ndx2.get_row( 5 );
+                mddivstraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } )     = 0.5 * tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 ) + 0.5 * tVelocityd2Ndx2.get_row( 2 );
+                mddivstraindu( tDofIndex )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 0.5 * tVelocityd2Ndx2.get_row( 3 );
 
-                mddivstraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } )                 = tVelocityd2Ndx2.get_row( 4 );
-                mddivstraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } )     = tVelocityd2Ndx2.get_row( 3 );
-                mddivstraindu( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tVelocityd2Ndx2.get_row( 0 ) + tVelocityd2Ndx2.get_row( 1 ) + tVelocityd2Ndx2.get_row( 2 );
+                mddivstraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } )                 = 0.5 * tVelocityd2Ndx2.get_row( 4 );
+                mddivstraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } )     = 0.5 * tVelocityd2Ndx2.get_row( 3 );
+                mddivstraindu( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 0.5 * tVelocityd2Ndx2.get_row( 0 ) + 0.5 * tVelocityd2Ndx2.get_row( 1 ) + tVelocityd2Ndx2.get_row( 2 );
             }
         }
 
@@ -301,11 +330,11 @@ namespace moris
                     mdStraindx( aOrder - 1 )( 0, 1 ) = tVelocityGrad( 2, 0 );
                     mdStraindx( aOrder - 1 )( 1, 0 ) = tVelocityGrad( 2, 1 );
                     mdStraindx( aOrder - 1 )( 1, 1 ) = tVelocityGrad( 1, 1 );
-                    mdStraindx( aOrder - 1 )( 2, 0 ) = tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 );
-                    mdStraindx( aOrder - 1 )( 2, 1 ) = tVelocityGrad( 1, 0 ) + tVelocityGrad( 2, 1 );
+                    mdStraindx( aOrder - 1 )( 2, 0 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 ) );
+                    mdStraindx( aOrder - 1 )( 2, 1 ) = 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 2, 1 ) );
                 }
                 default :
-                    MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx< 2 > - order not supported." );
+                    MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx_2d - order not supported." );
             }
         }
 
@@ -332,18 +361,18 @@ namespace moris
                     mdStraindx( aOrder - 1 )( 2, 0 ) = tVelocityGrad( 4, 2 );
                     mdStraindx( aOrder - 1 )( 2, 1 ) = tVelocityGrad( 3, 2 );
                     mdStraindx( aOrder - 1 )( 2, 2 ) = tVelocityGrad( 2, 2 );
-                    mdStraindx( aOrder - 1 )( 3, 0 ) = tVelocityGrad( 4, 1 ) + tVelocityGrad( 5, 2 );
-                    mdStraindx( aOrder - 1 )( 3, 1 ) = tVelocityGrad( 3, 1 ) + tVelocityGrad( 1, 2 );
-                    mdStraindx( aOrder - 1 )( 3, 2 ) = tVelocityGrad( 2, 1 ) + tVelocityGrad( 3, 2 );
-                    mdStraindx( aOrder - 1 )( 4, 0 ) = tVelocityGrad( 4, 0 ) + tVelocityGrad( 0, 2 );
-                    mdStraindx( aOrder - 1 )( 4, 1 ) = tVelocityGrad( 3, 0 ) + tVelocityGrad( 5, 2 );
-                    mdStraindx( aOrder - 1 )( 4, 2 ) = tVelocityGrad( 2, 0 ) + tVelocityGrad( 4, 2 );
-                    mdStraindx( aOrder - 1 )( 5, 0 ) = tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 );
-                    mdStraindx( aOrder - 1 )( 5, 1 ) = tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 );
-                    mdStraindx( aOrder - 1 )( 5, 2 ) = tVelocityGrad( 3, 0 ) + tVelocityGrad( 4, 1 );
+                    mdStraindx( aOrder - 1 )( 3, 0 ) = 0.5 * ( tVelocityGrad( 4, 1 ) + tVelocityGrad( 5, 2 ) );
+                    mdStraindx( aOrder - 1 )( 3, 1 ) = 0.5 * ( tVelocityGrad( 3, 1 ) + tVelocityGrad( 1, 2 ) );
+                    mdStraindx( aOrder - 1 )( 3, 2 ) = 0.5 * ( tVelocityGrad( 2, 1 ) + tVelocityGrad( 3, 2 ) );
+                    mdStraindx( aOrder - 1 )( 4, 0 ) = 0.5 * ( tVelocityGrad( 4, 0 ) + tVelocityGrad( 0, 2 ) );
+                    mdStraindx( aOrder - 1 )( 4, 1 ) = 0.5 * ( tVelocityGrad( 3, 0 ) + tVelocityGrad( 5, 2 ) );
+                    mdStraindx( aOrder - 1 )( 4, 2 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 4, 2 ) );
+                    mdStraindx( aOrder - 1 )( 5, 0 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 ) );
+                    mdStraindx( aOrder - 1 )( 5, 1 ) = 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 ) );
+                    mdStraindx( aOrder - 1 )( 5, 2 ) = 0.5 * ( tVelocityGrad( 3, 0 ) + tVelocityGrad( 4, 1 ) );
                 }
                 default :
-                    MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx< 3 > - order not supported." );
+                    MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx_3d - order not supported." );
             }
         }
 
@@ -351,20 +380,20 @@ namespace moris
         void CM_Fluid_Incompressible::eval_teststrain_2d()
         {
             // compute displacement gradient
-            Matrix< DDRMat > tdnNdxn
-            = mFIManager->get_field_interpolators_for_type( mDofMap[ "Velocity" ] )->dnNdxn( 1 );
+            Matrix< DDRMat > tdnNdxn = mFIManager->get_field_interpolators_for_type( mDofMap[ "Velocity" ] )
+                                                 ->dnNdxn( 1 );
 
             // get number of bases for displacement
-            uint tNumBases
-            = mFIManager->get_field_interpolators_for_type( mDofMap[ "Velocity" ] )->get_number_of_space_time_bases();
+            uint tNumBases = mFIManager->get_field_interpolators_for_type( mDofMap[ "Velocity" ] )
+                                       ->get_number_of_space_time_bases();
 
             // build the test strain
             mTestStrain.set_size( 3, tNumBases * 2, 0.0 );
-            mTestStrain( { 0, 0 },{ 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 2, 2 },{ 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 2, 2 }, { 0, tNumBases - 1 } ) = 0.5 * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
 
-            mTestStrain( { 1, 1 },{ tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 2, 2 },{ tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = 0.5 * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
         }
 
         void CM_Fluid_Incompressible::eval_teststrain_3d()
@@ -378,18 +407,18 @@ namespace moris
             = mFIManager->get_field_interpolators_for_type( mDofMap[ "Velocity" ] )->get_number_of_space_time_bases();
 
             // build the test strain
-            mTestStrain.set_size( 6, tNumBases * 3 , 0.0 );
+            mTestStrain.set_size( 6, tNumBases * 3, 0.0 );
             mTestStrain( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 4, 4 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 5, 5 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 4, 4 }, { 0, tNumBases - 1 } ) = 0.5 * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 5, 5 }, { 0, tNumBases - 1 } ) = 0.5 * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
 
             mTestStrain( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = 0.5 * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = 0.5 * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
 
             mTestStrain( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 0.5 * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+            mTestStrain( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 0.5 * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -402,7 +431,7 @@ namespace moris
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdFluxdDof
-            mdFluxdDof( tDofIndex ).set_size( ( mSpaceDim - 1) * 3, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdFluxdDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the viscosity property
             std::shared_ptr< Property > tViscosityProp = mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
@@ -441,15 +470,53 @@ namespace moris
         void CM_Fluid_Incompressible::eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                           const Matrix< DDRMat >             & aNormal )
         {
-            MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dTractiondDOF - Not implemented." );
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // flatten normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // compute dtractiondu
+            mdTractiondDof( tDofIndex ) = tFlatNormal * this->dFluxdDOF( aDofTypes );
         }
 
 //--------------------------------------------------------------------------------------------------------------
         void CM_Fluid_Incompressible::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                               const Matrix< DDRMat >             & aNormal,
-                                                              const Matrix< DDRMat >             & aJump )
+                                                              const Matrix< DDRMat >             & aJump,
+                                                              const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
-            MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dTestTractiondDOF - Not implemented." );
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // init the dTestTractiondDof
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
+                                                                       mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the viscosity property
+            std::shared_ptr< Property > tViscosityProp = mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+
+            // if dependency on the dof type
+            if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
+            {
+                // flatten normal
+                Matrix< DDRMat > tFlatNormal;
+                this->flatten_normal( aNormal, tFlatNormal );
+
+                // compute contribution to dTestTractiondDof
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data()
+                += trans( this->testTraction( tFlatNormal, aTestDofTypes ) ) * aJump * tViscosityProp->dPropdDOF( aDofTypes ) / tViscosityProp->val()( 0 );
+            }
         }
 
 //--------------------------------------------------------------------------------------------------------------

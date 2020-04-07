@@ -198,11 +198,11 @@ namespace moris
             // check test traction----------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model test traction
-            Matrix< DDRMat > tTestTraction = tCMMasterDiffLinIso->testTraction( tNormal );
+            Matrix< DDRMat > tTestTraction = tCMMasterDiffLinIso->testTraction( tNormal, { MSI::Dof_Type::TEMP } );
             //print( tTestTraction, "tTestTraction");
 
             // evaluate the constitutive model test traction derivative
-            Matrix< DDRMat > tdTestTractiondDOF = tCMMasterDiffLinIso->dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal,{{0.0}} );
+            Matrix< DDRMat > tdTestTractiondDOF = tCMMasterDiffLinIso->dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal, { { 0.0 } }, { MSI::Dof_Type::TEMP } );
             //print( tdTestTractiondDOF, "tdTestTractiondDOF" );
 
             // check test strain------------------------------------------------------------

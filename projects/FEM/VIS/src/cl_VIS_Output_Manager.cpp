@@ -22,6 +22,7 @@ namespace moris
 
     void Output_Manager::set_outputs( const uint                              aOutputIndex,
                                       const enum VIS_Mesh_Type                aMeshType,
+                                      const std::string                     & aMeshPath,
                                       const std::string                     & aMeshName,
                                       const moris::Cell< std::string >      & aBlockNames,
                                       const moris::Cell< std::string >      & aFieldNames,
@@ -34,8 +35,8 @@ namespace moris
         // fill output data object
         tOutputData.mMeshIndex  = aOutputIndex;
         tOutputData.mMeshType   = aMeshType;
-        tOutputData.mOutputPath = std::getenv("MORISOUTPUT");
         tOutputData.mMeshName   = aMeshName;
+        tOutputData.mMeshPath   = aMeshPath;
         tOutputData.mSetNames   = aBlockNames;
         tOutputData.mFieldNames = aFieldNames;
         tOutputData.mFieldType  = aFieldType;
@@ -172,7 +173,7 @@ namespace moris
                                      const real aTime )
     {
         // specify file path
-        std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mOutputPath;
+        std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
 
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;

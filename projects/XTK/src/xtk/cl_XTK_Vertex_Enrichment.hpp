@@ -129,7 +129,8 @@ public:
      * An assertion will catch duplicates in debug mode
      */
     void
-    add_basis_information( moris::Matrix<moris::IndexMat> const & aBasisIndices );
+    add_basis_information( moris::Matrix<moris::IndexMat> const & aBasisIndices,
+                           moris::Matrix<moris::IndexMat> const & aBasisId);
 
     void
     add_basis_weights(moris::Matrix<moris::IndexMat> const & aBasisIndices,
@@ -222,7 +223,7 @@ operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
 
     for(moris::uint i = 0; i < tBasisIndices.numel(); i++)
     {
-        os<<"Basis Index: "<<std::setw(9)<<tBasisIndices(i)<<" | Basis Id: "<<std::setw(9)<<tBasisIds(i)<<" | Basis Weight: "<<std::setw(9)<<tBasisWeights(i)<<" | Basis Owner: "<<std::setw(9)<<tBasisOwner(i)<<std::endl;
+        os<<"Basis Index: "<<std::setw(9)<<tBasisIndices(i)<<" | Basis Weight: "<<std::setw(9)<<tBasisWeights(i)<<" | Basis Owner: "<<std::setw(9)<<tBasisOwner(i)<<std::endl;
     }
 
     return os;

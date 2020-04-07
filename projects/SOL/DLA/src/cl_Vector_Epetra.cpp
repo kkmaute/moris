@@ -35,7 +35,6 @@ void Vector_Epetra::replace_global_values( const moris::Matrix< DDSMat > & aGlob
                                            const moris::Matrix< DDRMat > & aValues,
                                            const uint                    & aVectorIndex )
 {
-    MORIS_ASSERT( false, "replace_global_values not implemented yet" );
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->ReplaceGlobalValues( aGlobalIds.numel(),
                                                                                 aGlobalIds.data(),
                                                                                 aValues.data(),

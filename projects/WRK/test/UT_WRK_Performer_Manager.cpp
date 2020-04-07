@@ -8,7 +8,9 @@
 #include "op_equal_equal.hpp"
 
 #include "cl_WRK_Performer_Manager.hpp"
+#include "cl_WRK_Workflow.hpp"
 #include "fn_Exec_load_user_library.hpp"
+#include "cl_Communication_Tools.hpp"
 
 using namespace moris;
 
@@ -23,8 +25,12 @@ TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 
 	wrk::Performer_Manager tPerformerManager( tLibrary );
 
-	tPerformerManager.initialize();
+	tPerformerManager.initialize_performers();
 
-	tPerformerManager.perform();
+	tPerformerManager.set_performer_cooperations();
+
+	wrk::Workflow tWorkflow( &tPerformerManager );
+
+	tWorkflow.perform();
     }
 }

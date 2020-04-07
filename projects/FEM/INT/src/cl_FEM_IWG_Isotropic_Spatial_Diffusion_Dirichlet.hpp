@@ -109,7 +109,6 @@ namespace moris
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-
             }
 
 //------------------------------------------------------------------------------

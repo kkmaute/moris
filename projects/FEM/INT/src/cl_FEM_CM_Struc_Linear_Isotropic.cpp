@@ -59,14 +59,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Linear_Isotropic::eval_testTraction( const Matrix< DDRMat > & aNormal )
+        void CM_Struc_Linear_Isotropic::eval_testTraction( const Matrix< DDRMat >             & aNormal,
+                                                           const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
             // flatten normal
             Matrix< DDRMat > tNormal;
             this->flatten_normal( aNormal, tNormal );
 
             // compute test traction
-            mTestTraction = trans( this->testStrain() ) * this->constitutive() * trans( tNormal );
+            mTestTraction( tTestDofIndex ) = trans( this->testStrain() ) * this->constitutive() * trans( tNormal );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -316,8 +320,12 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                                 const Matrix< DDRMat >             & aNormal,
-                                                                const Matrix< DDRMat >             & aJump )
+                                                                const Matrix< DDRMat >             & aJump,
+                                                                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -325,8 +333,8 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // init the dTestTractiondDof
-            mdTestTractiondDof( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->get_number_of_space_time_coefficients(),
-                                                      mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_bases(), 0.0 );
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->get_number_of_space_time_coefficients(),
+                                                                       mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_bases(), 0.0 );
 
             // if indirect dependency on the dof type
             uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
@@ -337,8 +345,8 @@ namespace moris
                 this->flatten_normal( aNormal, tNormal );
 
                 // compute derivative with indirect dependency through properties
-                mdTestTractiondDof( tDofIndex ).matrix_data()
-                +=  ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump ) * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data()
+                +=  ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->testTraction( tNormal, aTestDofTypes ) * trans( aJump ) * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
         }
 

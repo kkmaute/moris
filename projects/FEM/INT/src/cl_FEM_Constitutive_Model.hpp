@@ -88,9 +88,9 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mdTractiondDof;
             moris::Cell< Matrix< DDRMat > > mdTractiondDv;
 
-            Matrix< DDRMat > mTestTraction;
-            moris::Cell< Matrix< DDRMat > > mdTestTractiondDof;
-            moris::Cell< Matrix< DDRMat > > mdTestTractiondDv;
+            moris::Cell< Matrix< DDRMat > > mTestTraction;
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDof;
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDv;
 
             Matrix< DDRMat > mStrain;
             Matrix< DDRMat > mDivStrain;
@@ -128,9 +128,9 @@ namespace moris
             moris::Cell< bool > mdTractiondDofEval;
             moris::Cell< bool > mdTractiondDvEval;
 
-            bool mTestTractionEval = true;
-            moris::Cell< bool > mdTestTractiondDofEval;
-            moris::Cell< bool > mdTestTractiondDvEval;
+            moris::Cell< bool > mTestTractionEval;
+            moris::Cell< moris::Cell< bool > > mdTestTractiondDofEval;
+            moris::Cell< moris::Cell< bool > > mdTestTractiondDvEval;
 
             bool mStrainEval = true;
             bool mDivStrainEval = true;
@@ -246,7 +246,7 @@ namespace moris
                 mFluxEval         = true;
                 mDivFluxEval      = true;
                 mTractionEval     = true;
-                mTestTractionEval = true;
+                mTestTractionEval.assign( mDofTypes.size(), true );
                 mStrainEval       = true;
                 mDivStrainEval    = true;
                 mTestStrainEval   = true;
@@ -257,7 +257,10 @@ namespace moris
                 mdFluxdDofEval.assign( tNumDofTypes, true );
                 mddivfluxduEval.assign( tNumDofTypes, true );
                 mdTractiondDofEval.assign( tNumDofTypes, true );
-                mdTestTractiondDofEval.assign( tNumDofTypes, true );
+                for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
+                {
+                    mdTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
+                }
                 mdStraindDofEval.assign( tNumDofTypes, true );
                 mddivstrainduEval.assign( tNumDofTypes, true );
                 mdConstdDofEval.assign( tNumDofTypes, true );
@@ -266,7 +269,10 @@ namespace moris
                 uint tNumDvTypes = mGlobalDvTypes.size();
                 mdFluxdDvEval.assign( tNumDvTypes, true );
                 mdTractiondDvEval.assign( tNumDvTypes, true );
-                mdTestTractiondDvEval.assign( tNumDvTypes, true );
+                for( uint iDirectDv = 0; iDirectDv < mDvTypes.size(); iDirectDv++ )
+                {
+                    mdTestTractiondDvEval( iDirectDv ).assign( tNumDvTypes, true );
+                }
                 mdStraindDvEval.assign( tNumDvTypes, true );
                 mdConstdDvEval.assign( tNumDvTypes, true );
 
@@ -552,21 +558,32 @@ namespace moris
 
                 // number of dof types
                 uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+                uint tNumDirectDofTypes = mDofTypes.size();
 
                 // set flag for evaluation
+                mTestTractionEval.resize( tNumDirectDofTypes, true );
                 mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
                 mddivfluxduEval.resize( tNumGlobalDofTypes, true );
                 mdTractiondDofEval.resize( tNumGlobalDofTypes, true );
-                mdTestTractiondDofEval.resize( tNumGlobalDofTypes, true );
+                mdTestTractiondDofEval.resize( tNumDirectDofTypes );
+                for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+                {
+                    mdTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
+                }
                 mdStraindDofEval.resize( tNumGlobalDofTypes, true );
                 mddivstrainduEval.resize( tNumGlobalDofTypes, true );
                 mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
                 // set storage for evaluation
+                mTestTraction.resize( tNumDirectDofTypes );
                 mdFluxdDof.resize( tNumGlobalDofTypes );
                 mddivfluxdu.resize( tNumGlobalDofTypes );
                 mdTractiondDof.resize( tNumGlobalDofTypes );
-                mdTestTractiondDof.resize( tNumGlobalDofTypes );
+                mdTestTractiondDof.resize( tNumDirectDofTypes );
+                for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+                {
+                    mdTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
+                }
                 mdStraindDof.resize( tNumGlobalDofTypes );
                 mddivstraindu.resize( tNumGlobalDofTypes );
                 mdConstdDof.resize( tNumGlobalDofTypes );
@@ -824,14 +841,22 @@ namespace moris
                 // set flag for evaluation
                 mdFluxdDvEval.assign( tNumGlobalDvTypes, true );
                 mdTractiondDvEval.assign( tNumGlobalDvTypes, true );
-                mdTestTractiondDvEval.assign( tNumGlobalDvTypes, true );
+                mdTestTractiondDvEval.resize( mDvTypes.size() );
+                for( uint iDirectDv = 0; iDirectDv < mDvTypes.size(); iDirectDv++ )
+                {
+                    mdTestTractiondDvEval( iDirectDv ).assign( tNumGlobalDvTypes, true );
+                }
                 mdStraindDvEval.assign( tNumGlobalDvTypes, true );
                 mdConstdDvEval.assign( tNumGlobalDvTypes, true );
 
                 // set storage for evaluation
                 mdFluxdDv.resize( tNumGlobalDvTypes );
                 mdTractiondDv.resize( tNumGlobalDvTypes );
-                mdTestTractiondDv.resize( tNumGlobalDvTypes );
+                mdTestTractiondDv.resize( mDvTypes.size() );
+                for( uint iDirectDv = 0; iDirectDv < mDvTypes.size(); iDirectDv++ )
+                {
+                    mdTestTractiondDv( iDirectDv ).resize( tNumGlobalDvTypes );
+                }
                 mdStraindDv.resize( tNumGlobalDvTypes );
                 mdConstdDv.resize( tNumGlobalDvTypes );
             };
@@ -1052,19 +1077,23 @@ namespace moris
              * @param[ in ]  aNormal       normal
              * @param[ out ] mTestTraction constitutive model test traction
              */
-            const Matrix< DDRMat > & testTraction( const Matrix< DDRMat > & aNormal )
+            const Matrix< DDRMat > & testTraction( const Matrix< DDRMat >             & aNormal,
+                                                   const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
             {
+                // get test dof type index
+                uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
                 // if the test traction was not evaluated
-                if( mTestTractionEval )
+                if( mTestTractionEval( tTestDofIndex ) )
                 {
                     // evaluate the test traction
-                    this->eval_testTraction( aNormal );
+                    this->eval_testTraction( aNormal, aTestDofTypes );
 
                     // set bool for evaluation
-                    mTestTractionEval = false;
+                    mTestTractionEval( tTestDofIndex ) = false;
                 }
                 // return the test traction value
-                return mTestTraction;
+                return mTestTraction( tTestDofIndex );
             }
 
 //------------------------------------------------------------------------------
@@ -1072,7 +1101,8 @@ namespace moris
              * evaluate the constitutive model test traction
              * @param[ in ]  aNormal normal
              */
-            virtual void eval_testTraction( const Matrix< DDRMat > & aNormal )
+            virtual void eval_testTraction( const Matrix< DDRMat >             & aNormal,
+                                            const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_testTraction - This function does nothing. " );
             }
@@ -1350,26 +1380,30 @@ namespace moris
              * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
              */
             const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
-                                                        const Matrix< DDRMat >             & aNormal )
+                                                        const Matrix< DDRMat >             & aNormal,
+                                                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
             {
                 // if aDofType is not an active dof type for the property
                 MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
+
+                // get the test dof index
+                uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
                 // get the dof index
                 uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
                 // if the derivative has not been evaluated yet
-                if( mdTestTractiondDofEval( tDofIndex ) )
+                if( mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) )
                 {
                     // evaluate the derivative
-                    this->eval_dTestTractiondDOF( aDofType, aNormal );
+                    this->eval_dTestTractiondDOF( aDofType, aNormal, aTestDofTypes );
 
                     // set bool for evaluation
-                    mdTestTractiondDofEval( tDofIndex ) = false;
+                    mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) = false;
                 }
 
                 // return the derivative
-                return mdTestTractiondDof( tDofIndex );
+                return mdTestTractiondDof( tTestDofIndex )( tDofIndex );
             }
 
 //------------------------------------------------------------------------------
@@ -1379,7 +1413,8 @@ namespace moris
              * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
              */
             virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                 const Matrix< DDRMat >             & aNormal )
+                                                 const Matrix< DDRMat >             & aNormal,
+                                                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
             }
@@ -1394,26 +1429,30 @@ namespace moris
              */
             const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
                                                         const Matrix< DDRMat >             & aNormal,
-                                                        const Matrix< DDRMat >             & aJump )
+                                                        const Matrix< DDRMat >             & aJump,
+                                                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
             {
                // if aDofType is not an active dof type for the property
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
+
+               // get the test dof index
+               uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
                // get the dof index
                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mdTestTractiondDofEval( tDofIndex ) )
+               if( mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) )
                {
                    // evaluate the derivative
-                   this->eval_dTestTractiondDOF( aDofType, aNormal, aJump );
+                   this->eval_dTestTractiondDOF( aDofType, aNormal, aJump, aTestDofTypes );
 
                    // set bool for evaluation
-                   mdTestTractiondDofEval( tDofIndex ) = false;
+                   mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) = false;
                }
 
                // return the derivative
-               return mdTestTractiondDof( tDofIndex );
+               return mdTestTractiondDof( tTestDofIndex )( tDofIndex );
             }
 
 //------------------------------------------------------------------------------
@@ -1425,7 +1464,8 @@ namespace moris
              */
             virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                  const Matrix< DDRMat >             & aNormal,
-                                                 const Matrix< DDRMat >             & aJump )
+                                                 const Matrix< DDRMat >             & aJump,
+                                                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
             }

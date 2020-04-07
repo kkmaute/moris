@@ -282,7 +282,6 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             // create the properties
             std::shared_ptr< fem::Property > tPropMasterYoungModulus = std::make_shared< fem::Property > ();
             tPropMasterYoungModulus->set_parameters( { {{ 1.0 }} } );
-            //tPropMasterYoungModulus->set_val_function( tFIConstValFunction_UTDisplGhost );
             tPropMasterYoungModulus->set_dof_type_list( { tDofTypes } );
             tPropMasterYoungModulus->set_val_function( tFIValFunction_UTDisplGhost );
             tPropMasterYoungModulus->set_dof_derivative_functions( { tFIDerFunction_UTDisplGhost } );
@@ -290,36 +289,18 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
+            std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+            tSPGhost->set_parameters( {{{ 1.0 }} });
+            tSPGhost->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
+
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_GHOST );
-
-            if ( iInterpOrder > 0 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-                tSP1->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
-                tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
-            }
-            if ( iInterpOrder > 1 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
-                tSP2->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
-                tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
-            }
-            if ( iInterpOrder > 2 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
-                tSP3->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
-                tIWG->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
-            }
-
             tIWG->set_residual_dof_type( tDofTypes );
             tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
             tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
+            tIWG->set_stabilization_parameter( tSPGhost, "GhostDispl" );
 
             // set IWG normal
             tIWG->set_normal( tNormal );
