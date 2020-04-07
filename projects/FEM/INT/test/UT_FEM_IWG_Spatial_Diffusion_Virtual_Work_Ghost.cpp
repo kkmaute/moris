@@ -271,7 +271,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tPropMasterConductivity->set_val_function( tConstValFunction_UTVWGhost );
 
             std::shared_ptr< fem::Property > tPropSlaveConductivity = std::make_shared< fem::Property > ();
-            tPropSlaveConductivity->set_parameters( { {{ 1.0 }} } );
+            tPropSlaveConductivity->set_parameters( { {{ 2.0 }} } );
             tPropSlaveConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropSlaveConductivity->set_val_function( tFIValFunction_UTVWGhost );
             tPropSlaveConductivity->set_dof_derivative_functions( { tFIDerFunction_UTVWGhost } );
@@ -279,15 +279,24 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso
+            = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
             tCMMasterDiffLinIso->set_space_dim( iSpaceDim );
 
-            std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+            std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso
+            = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMSlaveDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMSlaveDiffLinIso->set_property( tPropSlaveConductivity, "Conductivity" );
             tCMSlaveDiffLinIso->set_space_dim( iSpaceDim );
+
+            // define stabilization parameters
+            fem::SP_Factory tSPFactory;
+
+            std::shared_ptr< fem::Stabilization_Parameter > tSPGhostVW
+            = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
+            tSPGhostVW->set_parameters( { {{ 1.0 }} });
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -298,53 +307,42 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
             tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
             tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
-
-            // define stabilization parameters
-            fem::SP_Factory tSPFactory;
-            if ( iInterpOrder > 0 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
-                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-                tIWG->set_stabilization_parameter( tSP1, "GhostVWOrder1" );
-            }
+            tIWG->set_stabilization_parameter( tSPGhostVW, "GhostVWOrder" );
 
             // set the normal
             tIWG->set_normal( tNormal );
 
             // create and set the fem set for the IWG
             MSI::Equation_Set * tSet = new fem::Set();
-            tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+            tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
 
             // set size for the set EqnObjDofTypeList
-            tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+            tSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
             // set size and populate the set dof type map
-            tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // set size and populate the set master and slave dof type map
-            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-            tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+            tSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+            tSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 2 );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
-            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDof, (2*tNumDof)-1 } };
+            tSet->mResDofAssemblyMap.resize( 2 );
+            tSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
+            tSet->mResDofAssemblyMap( 1 ) = { { tNumDof, (2*tNumDof)-1 } };
 
             // set size and fill the set jacobian assembly map
-            tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
-            tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
-            tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
+            tSet->mJacDofAssemblyMap.resize( 2 );
+            tSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
+            tSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
 
             // set size and init the set residual and jacobian
-            tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
-            tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
-
-            // set requested residual dof type flag to true
-            tIWG->mResidualDofTypeRequested = true;
+            tSet->mResidual.resize( 1 );
+            tSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
+            tSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
 
             // build global property type list
             tIWG->build_global_dof_and_dv_type_list();
@@ -367,12 +365,17 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tSlaveFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
+            reinterpret_cast< fem::Set* >( tSet )->mMasterFIManager = &tMasterFIManager;
+            reinterpret_cast< fem::Set* >( tSet )->mSlaveFIManager  = &tSlaveFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tMasterFIManager );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+
+            // reset residual and jacobian
+            //------------------------------------------------------------------------------
+            tSet->mResidual( 0 ).fill( 0.0 );
+            tSet->mJacobian.fill( 0.0 );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------
@@ -382,19 +385,19 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
             // init the jacobian for IWG and FD evaluation
-            Matrix< DDRMat > tJacobians;
-            Matrix< DDRMat > tJacobiansFD;
+            Matrix< DDRMat > tJacobian;
+            Matrix< DDRMat > tJacobianFD;
 
             // check jacobian by FD
             bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
                                                                tEpsilon,
                                                                1.0,
-                                                               tJacobians,
-                                                               tJacobiansFD );
+                                                               tJacobian,
+                                                               tJacobianFD );
 
 //            // print for debug
-//            print( tJacobians,"tJacobians");
-//            print( tJacobiansFD,"tJacobiansFD");
+//            print( tJacobian,  "tJacobian");
+//            print( tJacobianFD,"tJacobianFD");
 
 //            // print the treated case
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
@@ -407,5 +410,4 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tSlaveFIs.clear();
         }
     }
-
 }/* END_TEST_CASE */

@@ -9,12 +9,12 @@ namespace moris
 {
     namespace opt
     {
-        std::shared_ptr<Problem> create_problem(ParameterList aParameterList)
+        std::shared_ptr<Problem> create_problem(ParameterList aProblemParameterList, std::shared_ptr<Criteria_Interface> aInterface)
         {
-            std::string tProblemType = aParameterList.get<std::string>("problem");
+            std::string tProblemType = aProblemParameterList.get<std::string>("problem");
             if (!tProblemType.compare("user_defined"))
             {
-                return std::make_shared<Problem_User_Defined>(aParameterList);
+                return std::make_shared<Problem_User_Defined>(aProblemParameterList, aInterface);
             }
             else
             {

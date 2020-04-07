@@ -11,6 +11,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                   //FEM/INT/src
+#include "fn_isfinite.hpp"
 
 namespace moris
 {
@@ -220,6 +221,26 @@ namespace moris
              // ask cluster to compute jacobian
              mFemCluster( 0 )->compute_jacobian();
 
+             // check that jacobian is finite
+             // FIXME
+             bool tIsFinite = true;
+             uint tNumRows = mSet->get_jacobian().n_rows();
+             uint tNumCols = mSet->get_jacobian().n_cols();
+             for( uint iRow = 0; iRow < tNumRows; iRow++ )
+             {
+                 for( uint iCol = 0; iCol < tNumCols; iCol++ )
+                 {
+                     Matrix< DDRMat> tValue = {{mSet->get_jacobian()( iRow, iCol )}};
+                     if( !isfinite( tValue ) )
+                     {
+                         tIsFinite = false;
+                     }
+                 }
+             }
+             if( !tIsFinite )
+             {
+                 std::cout<<"Interpolation_Element::compute_jacobian - non finite values in jacobian."<<std::endl;
+             }
          }
 
 //------------------------------------------------------------------------------

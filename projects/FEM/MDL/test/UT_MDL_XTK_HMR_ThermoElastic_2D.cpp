@@ -51,11 +51,16 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
+//FEM/VIS/src
+#include "cl_VIS_Factory.hpp"
+#include "cl_VIS_Visualization_Mesh.hpp"
+#include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_MDL_Model.hpp"
 
@@ -142,11 +147,12 @@ void tConstValFunction
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
-}////------------------------------------------------------------------------------
-//            /**
-//             * gets the lagrange interpolation order from the mesh
-//             */
-//            uint get_lagrange_order_from_mesh();
+}
+
+bool tSolverOutputCriteria_thermolast( moris::tsa::Time_Solver * )
+{
+    return true;
+}
 
 TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 {
@@ -364,15 +370,34 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
 
+        // create the IQIs
+        // --------------------------------------------------------------------------------------
+        fem::IQI_Factory tIQIFactory;
+
+        std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUX->set_output_type( vis::Output_Type::UX );
+        tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+        tIQIUX->set_output_type_index( 0 );
+
+        std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUY->set_output_type( vis::Output_Type::UY );
+        tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+        tIQIUY->set_output_type_index( 1 );
+
+        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+        tIQITEMP->set_output_type_index( 0 );
+
          //----------------------------------------------------------------------------------------------------------
          fem::Set_User_Info tSetBulk1;
          tSetBulk1.set_mesh_set_name( "HMR_dummy_n_p1" );
          tSetBulk1.set_IWGs( { tIWGBulkU_1, tIWGBulkTEMP_1 } );
+         tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQITEMP } );
 
          fem::Set_User_Info tSetDirichlet;
          tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
          tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
-
 
          // create a cell of set info
          moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
@@ -385,6 +410,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
                                                0,
                                                tSetInfo,
                                                0, false );
+
+        // define outputs
+        // --------------------------------------------------------------------------------------
+        vis::Output_Manager tOutputData;
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
+                                 "MDL_Thermoelastic_Coupled_Test_2D_Output.exo",
+                                 { "HMR_dummy_n_p1" },
+                                 { "UX", "UY", "TEMP" },
+                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
+                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::TEMP } );
+        tModel->set_output_manager( &tOutputData );
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
@@ -420,13 +458,14 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
+        tTimeSolver->set_output( 0, tSolverOutputCriteria_thermolast );
         tTimeSolver->solve();
 
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver->get_full_solution(tFullSolution);
 
-//            print(tFullSolution,"tFullSolution");
+        print(tFullSolution,"tFullSolution");
 
 //        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_thermoelastic_2D.e";
 //
@@ -800,11 +839,32 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
          tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
          tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
+
+         // create the IQIs
+         // --------------------------------------------------------------------------------------
+         fem::IQI_Factory tIQIFactory;
+
+         std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+         tIQIUX->set_output_type( vis::Output_Type::UX );
+         tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+         tIQIUX->set_output_type_index( 0 );
+
+         std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+         tIQIUY->set_output_type( vis::Output_Type::UY );
+         tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+         tIQIUY->set_output_type_index( 1 );
+
+         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+         tIQITEMP->set_output_type_index( 0 );
+
          //----------------------------------------------------------------------------------------------------------
 
          fem::Set_User_Info tSetBulk1;
          tSetBulk1.set_mesh_set_name( "HMR_dummy_n_p1" );
          tSetBulk1.set_IWGs( { tIWGBulkU_1, tIWGBulkTEMP_1 } );
+         tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQITEMP } );
 
          fem::Set_User_Info tSetDirichlet;
          tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
@@ -821,6 +881,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
                                                0,
                                                tSetInfo,
                                                0, false );
+
+        // define outputs
+        // --------------------------------------------------------------------------------------
+        vis::Output_Manager tOutputData;
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
+                                 "MDL_Thermoelastic_Staggered_Test_2D_Output.exo",
+                                 { "HMR_dummy_n_p1" },
+                                 { "UX", "UY", "TEMP" },
+                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
+                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::TEMP } );
+        tModel->set_output_manager( &tOutputData );
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
@@ -870,11 +943,10 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
 
         tSolverWarehouse.set_parameterlist( tParameterlist );
-
         tSolverWarehouse.initialize();
 
         tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
-
+        tTimeSolver->set_output( 0, tSolverOutputCriteria_thermolast );
         tTimeSolver->solve();
 
 //        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -956,61 +1028,11 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //        //------------------------------------------------------------------------------
 //        tTimeSolver.solve();
 
-        // output solution and meshes
-        // FIXME add with output is needed
-
-//        xtk::Output_Options tOutputOptions;
-//        tOutputOptions.mAddNodeSets = false;
-//        tOutputOptions.mAddSideSets = false;
-//        tOutputOptions.mAddClusters = false;
-//
-//        // add solution field to integration mesh
-//        std::string tIntegSolFieldNameUX = "UX";
-//        std::string tIntegSolFieldNameUY = "UY";
-//        std::string tIntegSolFieldNameTEMP = "TEMP";
-//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameTEMP};
-//
-//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//        // Write to Integration mesh for visualization
-//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-//        Matrix<DDRMat> tIntegSolTEMP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-//
-//        //    print(tIntegSolUX,"tIntegSolUX");
-//        //    print(tIntegSolUY,"tIntegSolUY");
-//
-//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-//        Matrix<DDRMat> tSTKIntegSolTEMP(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-//
-//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-//        {
-//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-//            tSTKIntegSolTEMP(i) = tIntegSolTEMP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-//        }
-//
-//        // add solution field to integration mesh
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameTEMP,EntityRank::NODE,tSTKIntegSolTEMP);
-//
-//        //    Matrix<DDRMat> tFullSol;
-//        //    tNonlinearSolver.get_full_solution(tFullSol);
-//        //
-//        //    print(tFullSol,"tFullSol");
-//
-//        std::string tMeshOutputFile = "./mdl_exo/hmr_xtk_thermoelastic_staggered.e";
-//
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver->get_full_solution(tFullSolution);
 
-        //    print(tFullSol,"tFullSol");
+        print(tFullSolution,"tFullSol");
 
         std::string tMorisRoot = std::getenv("MORISROOT");
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";

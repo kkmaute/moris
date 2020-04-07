@@ -46,7 +46,7 @@ namespace moris
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
 
-            print( mSet->get_QI(), "mSet->get_QI()");
+            //print( mSet->get_QI(), "mSet->get_QI()");
             // evaluate the QI
             mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }

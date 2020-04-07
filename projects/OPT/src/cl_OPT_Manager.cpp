@@ -1,6 +1,7 @@
 // Project header files
 #include "cl_OPT_Manager.hpp"
 #include "fn_OPT_create_problem.hpp"
+#include "fn_OPT_create_interface.hpp"
 
 // -----------------------------------------------------------------------------
 
@@ -11,13 +12,13 @@ namespace moris
         Manager::Manager(moris::Cell<moris::Cell<ParameterList>>& tParameterLists)
         {
             // Problem
-            mProblem = create_problem(tParameterLists(0)(0));
+            mProblem = create_problem(tParameterLists(0)(0), create_interface(tParameterLists(1)));
 
             // Algorithm Cell
-            uint tNumAlgorithms = tParameterLists(1).size();
+            uint tNumAlgorithms = tParameterLists(2).size();
             for (uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++)
             {
-                Algorithm_API tNewAlgorithm(tParameterLists(1)(tAlgorithmIndex));
+                Algorithm_API tNewAlgorithm(tParameterLists(2)(tAlgorithmIndex));
                 mAlgorithms.push_back(tNewAlgorithm);
             }
         }

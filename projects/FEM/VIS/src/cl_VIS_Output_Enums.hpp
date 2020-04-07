@@ -34,6 +34,7 @@ namespace vis
         VX,     //< X-Velocity
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
+        P,
         DOF, // Dof
         Analytic, // Analytic
         L2_ERROR_ANALYTIC, // L2 error for dof

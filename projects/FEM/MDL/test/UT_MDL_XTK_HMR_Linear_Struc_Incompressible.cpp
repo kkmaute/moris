@@ -3,20 +3,20 @@
 #include "cl_Star.hpp"
 #include "cl_Circle.hpp"
 #include "cl_Plane.hpp"
-
-#include "cl_XTK_Model.hpp"
-#include "cl_XTK_Enriched_Integration_Mesh.hpp"
-#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
+#include "HDF5_Tools.hpp"
+#include "cl_Matrix.hpp"        //LINALG
+#include "linalg_typedefs.hpp"
+#include "fn_equal_to.hpp"
+#include "fn_norm.hpp"
 
+//MTK/src
 #include "cl_MTK_Mesh_Manager.hpp"
-
-#include "cl_MTK_Vertex.hpp"    //MTK
+#include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
-
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
@@ -33,60 +33,62 @@
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
-
-#include "cl_Matrix.hpp"        //LINALG
-#include "linalg_typedefs.hpp"
-#include "fn_equal_to.hpp" // ALG/src
-
-#include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
-#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
-#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-
-#include "cl_MDL_Model.hpp"
-
-#include "cl_HMR_Mesh_Interpolation.hpp"
-#include "cl_HMR.hpp"
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Field.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-
-#include "cl_DLA_Solver_Factory.hpp"
-#include "cl_DLA_Solver_Interface.hpp"
-
-#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
-#include "cl_NLA_Nonlinear_Problem.hpp"
+//XTK/src
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+//FEM/INT/src
+#include "cl_FEM_NodeProxy.hpp"
+#include "cl_FEM_ElementProxy.hpp"
+#include "cl_FEM_Node_Base.hpp"
+#include "cl_FEM_Element_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_IQI_Factory.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_Set_User_Info.hpp"
+//FEM/MSI/src
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+//FEM/MDL/src
+#include "cl_MDL_Model.hpp"
+//FEM/VIS/src
+#include "cl_VIS_Factory.hpp"
+#include "cl_VIS_Visualization_Mesh.hpp"
+#include "cl_VIS_Output_Manager.hpp"
+//HMR/src
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Background_Mesh.hpp"
+#include "cl_HMR_BSpline_Mesh_Base.hpp"
+#include "cl_HMR_Element.hpp"
+#include "cl_HMR_Factory.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Parameters.hpp"
+//SOL/DLA/src
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
-
+//SOL/NLA/src
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
+//SOL/TSA/src
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+//SOL/src
 #include "cl_SOL_Warehouse.hpp"
-
-#include "HDF5_Tools.hpp"
-#include "fn_norm.hpp"
-
+//GEN/src
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
-
+//PRM/src
 #include "cl_PRM_HMR_Parameters.hpp"
-
-
 
 namespace moris
 {
@@ -162,6 +164,11 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
     return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
                     - (mRadius * mRadius);
+}
+
+bool tSolverOutputCriteria( moris::tsa::Time_Solver * )
+{
+    return true;
 }
 
 TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
@@ -318,6 +325,25 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::P}} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
+        // create the IQIs
+        // --------------------------------------------------------------------------------------
+        fem::IQI_Factory tIQIFactory;
+
+        std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUX->set_output_type( vis::Output_Type::UX );
+        tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+        tIQIUX->set_output_type_index( 0 );
+
+        std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUY->set_output_type( vis::Output_Type::UY );
+        tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+        tIQIUY->set_output_type_index( 1 );
+
+        std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIP->set_output_type( vis::Output_Type::P );
+        tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+        tIQIP->set_output_type_index( 0 );
+
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 
@@ -325,10 +351,12 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk1.set_IWGs( { tIWGBulk, tIWGBulkP } );
+        tSetBulk1.set_IQIs( { tIQIUX, tIQIUY, tIQIP } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk2.set_IWGs( { tIWGBulk, tIWGBulkP } );
+        tSetBulk2.set_IQIs( { tIQIUX, tIQIUY, tIQIP } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
@@ -350,6 +378,19 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
                                               0,
                                               tSetInfo,
                                               0, false );
+
+        // define outputs
+        // --------------------------------------------------------------------------------------
+        vis::Output_Manager tOutputData;
+        tOutputData.set_outputs( 0,
+                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 "./",
+                                 "MDL_XTK_HMR_Linear_Struc_Incompressible_Test_2D_Output.exo",
+                                 { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
+                                 { "UX", "UY", "P" },
+                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
+                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::P } );
+        tModel->set_output_manager( &tOutputData );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -417,49 +458,11 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tTimeSolver.set_dof_type_list( tDofTypesU );
         tTimeSolver.set_dof_type_list( tDofTypesP );
 
+        tTimeSolver.set_output( 0, tSolverOutputCriteria );
+
         //------------------------------------------------------------------------------
         tTimeSolver.solve();
 
-        // output solution and meshes
-        // FIXME add with output if needed
-
-//        xtk::Output_Options tOutputOptions;
-//        tOutputOptions.mAddNodeSets = false;
-//        tOutputOptions.mAddSideSets = true;
-//        tOutputOptions.mAddClusters = false;
-//
-//        // add solution field to integration mesh
-//        std::string tIntegSolFieldNameUX = "UX";
-//        std::string tIntegSolFieldNameUY = "UY";
-//        std::string tIntegSolFieldNameP = "P";
-//        //tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY};
-//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameP};
-//
-//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//        // Write to Integration mesh for visualization
-//        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-//        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-//        Matrix<DDRMat> tIntegSolP = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::P );
-//
-//        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-//        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-//        Matrix<DDRMat> tSTKIntegSolP(tIntegMesh1->get_num_entities(EntityRank::NODE), 1);
-//
-//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-//        {
-//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-//            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-//            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-//            tSTKIntegSolP(i) = tIntegSolP(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID, EntityRank::NODE));
-//        }
-//
-//        // add solution field to integration mesh
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX, EntityRank::NODE, tSTKIntegSolUX);
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY, EntityRank::NODE, tSTKIntegSolUY);
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameP, EntityRank::NODE, tSTKIntegSolP);
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-//
         // Start solution comparison
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
@@ -468,9 +471,9 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         std::string tMorisRoot = std::getenv("MORISROOT");
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_2d.hdf5";
 
-        //------------------------------------------------------------------------------
-        //    write solution ( uncomment this if you want to recreate solution files )
-        //------------------------------------------------------------------------------
+//        //------------------------------------------------------------------------------
+//        //    write solution ( uncomment this if you want to recreate solution files )
+//        //------------------------------------------------------------------------------
 //
 //        // create file
 //        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
@@ -507,6 +510,10 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         for( uint i = 0; i < tFullSolution.numel(); i++ )
         {
             tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
+            if( !tSolutionCheck )
+            {
+                std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+            }
         }
         CHECK( tSolutionCheck );
 
@@ -516,6 +523,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         delete tInterpolationMesh;
     }
 }
+
 TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 {
     if(par_size()<=1)

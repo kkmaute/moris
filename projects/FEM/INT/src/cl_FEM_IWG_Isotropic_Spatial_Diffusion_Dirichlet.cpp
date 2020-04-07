@@ -39,7 +39,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } )
             += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
-                 + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
+                 + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tJump ) * tWStar;
         }
 
@@ -72,7 +72,7 @@ namespace moris
             {
                 mSet->get_jacobian()( { tResStartRow, tResEndRow },
                                       { mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 1 ) } )
-                += (   mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFI->N()
+                += (   mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFI->N()
                      + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) * tWStar;
             }
 
@@ -93,7 +93,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tResStartRow,   tResEndRow }, { tDepStartIndex, tDepStopIndex } )
-                    += ( -1.0 * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
+                    += ( -1.0 * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
                          - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType ) ) * tWStar;
                 }
 
@@ -103,7 +103,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tResStartRow, tResEndRow }, { tDepStartIndex, tDepStopIndex } )
                     += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                         + mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ) * tWStar;
+                         + mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) ) * tWStar;
                 }
 
                 // if dependency on the dof type

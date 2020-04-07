@@ -6,7 +6,7 @@
 #define MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
 
 #include "cl_OPT_Problem.hpp"
-#include "cl_OPT_Interface.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
@@ -22,9 +22,10 @@ namespace moris
             /**
              * Constructor
              *
+             * @param aParameterList parameter list for this problem specifying the needed library
              * @param aInterface Interface class written for other module (e.g. GEN)
              */
-            Problem_User_Defined(ParameterList aParameterList);
+            Problem_User_Defined(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface);
 
             /**
              * Gets the constraint types
