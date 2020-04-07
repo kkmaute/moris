@@ -14,7 +14,7 @@ set(HEADERS
 	cl_OPT_Algorithm_Sweep.hpp
 	cl_OPT_Manager.hpp
 	cl_OPT_Problem.hpp
-	cl_OPT_Interface.hpp
+        cl_OPT_Criteria_Interface.hpp
 	cl_OPT_Interface_Manager.hpp
 	cl_OPT_Problem_user_Defined.hpp
 	cl_OPT_Interface_User_Defined.hpp

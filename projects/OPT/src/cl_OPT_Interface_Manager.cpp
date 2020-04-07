@@ -14,7 +14,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Interface_Manager::Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Interface>> aInterfaces) : mInterfaces(aInterfaces)
+        Interface_Manager::Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Criteria_Interface>> aInterfaces) : mInterfaces(aInterfaces)
         {
             // Set number of interfaces
             mNumInterfaces = aInterfaces.size();

@@ -5,7 +5,7 @@
 #ifndef MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
 #define MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
 
-#include "cl_OPT_Interface.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
@@ -13,7 +13,7 @@ namespace moris
 {
     namespace opt
     {
-        class Interface_User_Defined : public Interface
+        class Interface_User_Defined : public Criteria_Interface
         {
         private:
             Matrix<DDRMat> mADVs;

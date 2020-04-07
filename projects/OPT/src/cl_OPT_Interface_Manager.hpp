@@ -5,17 +5,17 @@
 #ifndef MORIS_CL_OPT_INTERFACE_MANAGER_HPP
 #define MORIS_CL_OPT_INTERFACE_MANAGER_HPP
 
-#include "cl_OPT_Interface.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
 
 namespace moris
 {
     namespace opt
     {
-        class Interface_Manager : public Interface
+        class Interface_Manager : public Criteria_Interface
         {
         private:
-            Cell<std::shared_ptr<Interface>> mInterfaces;
+            Cell<std::shared_ptr<Criteria_Interface>> mInterfaces;
             Matrix<DDUMat> mNumADVsPerInterface;
             Matrix<DDUMat> mNumCriteriaPerInterface;
             Matrix<DDSMat> mProcessorBoundaries;
@@ -30,7 +30,7 @@ namespace moris
             /**
              * Constructor
              */
-            Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Interface>> aInterfaces);
+            Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Criteria_Interface>> aInterfaces);
 
             /**
              * Destructor

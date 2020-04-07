@@ -2,8 +2,8 @@
 // Created by christopherson on 1/16/20.
 //
 
-#ifndef MORIS_CL_OPT_INTERFACE_HPP
-#define MORIS_CL_OPT_INTERFACE_HPP
+#ifndef MORIS_CL_OPT_CRITERIA_INTERFACE_HPP
+#define MORIS_CL_OPT_CRITERIA_INTERFACE_HPP
 
 #include "cl_Matrix.hpp"
 #include "cl_Param_List.hpp"
@@ -12,21 +12,21 @@ namespace moris
 {
     namespace opt
     {
-        class Interface
+        class Criteria_Interface
         {
         public:
 
             /**
              * Constructor
              */
-            Interface()
+            Criteria_Interface()
             {
             }
 
             /**
              * Destructor
              */
-            virtual ~Interface()
+            virtual ~Criteria_Interface()
             {
             }
 
@@ -53,4 +53,4 @@ namespace moris
     }   // namespace opt
 }   // namespace moris
 
-#endif //MORIS_CL_OPT_INTERFACE_HPP
+#endif //MORIS_CL_OPT_CRITERIA_INTERFACE_HPP

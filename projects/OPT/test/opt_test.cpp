@@ -4,7 +4,7 @@
 // MORIS project header files.
 #include "cl_PRM_OPT_Parameters.hpp"
 #include "cl_OPT_Manager.hpp"
-#include "cl_OPT_Interface.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "fn_OPT_create_interface.hpp"
 #include "../src/cl_OPT_Interface_User_Defined.hpp"
@@ -146,7 +146,7 @@ namespace moris
 
             SECTION( "interface" )
             {
-                if (par_size() == 4 or par_size() == 1)
+                if (par_size() == 4 or par_size() == 8)
                 {
                     // moris root
                     std::string tMorisRoot = std::getenv("MORISROOT");
@@ -178,7 +178,7 @@ namespace moris
                     tParameterLists(4).set("library", tMorisRoot + "projects/OPT/test/data/Interface_4.so");
 
                     // Create interface
-                    std::shared_ptr<Interface> tInterface = create_interface(tParameterLists);
+                    std::shared_ptr<Criteria_Interface> tInterface = create_interface(tParameterLists);
                     Matrix<DDRMat> tADVs;
                     Matrix<DDRMat> tLowerBounds;
                     Matrix<DDRMat> tUpperBounds;

@@ -12,7 +12,7 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<Interface> create_interface(Cell<ParameterList> aParameterLists)
+        std::shared_ptr<Criteria_Interface> create_interface(Cell<ParameterList> aParameterLists)
         {
             // Get number of interfaces
             uint tNumInterfaces = aParameterLists.size() - 1;
@@ -26,7 +26,7 @@ namespace moris
             // Multiple interfaces, create interface manager
             else
             {
-                Cell<std::shared_ptr<Interface>> tInterfaces(tNumInterfaces);
+                Cell<std::shared_ptr<Criteria_Interface>> tInterfaces(tNumInterfaces);
                 for (uint tInterfaceIndex = 0; tInterfaceIndex < tNumInterfaces; tInterfaceIndex++)
                 {
                     tInterfaces(tInterfaceIndex) = create_interface(aParameterLists(tInterfaceIndex + 1));
@@ -37,7 +37,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<Interface> create_interface(ParameterList aParameterList)
+        std::shared_ptr<Criteria_Interface> create_interface(ParameterList aParameterList)
         {
             std::string tInterfaceType = aParameterList.get<std::string>("type");
             if (!tInterfaceType.compare("user_defined"))
@@ -46,7 +46,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR(false, tInterfaceType.append(" is not recognized as a valid Interface type in fn_OPT_create_interface.").c_str());
+                MORIS_ERROR(false, tInterfaceType.append(" is not recognized as a valid Criteria_Interface type in fn_OPT_create_interface.").c_str());
                 return nullptr;
             }
         }

@@ -15,7 +15,7 @@ namespace moris
         // Public functions
         // -------------------------------------------------------------------------------------------------------------
 
-        Problem::Problem(ParameterList aParameterList, std::shared_ptr<Interface> aInterface)
+        Problem::Problem(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface)
         {
             // Set interface
             mInterface = aInterface;

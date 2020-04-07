@@ -71,8 +71,8 @@ namespace moris
             std::string tName(aVal.type().name());
             if (!tName.compare("PKc"))
             {
-                std::string tVal(boost::get<std::string>(aVal));
-                aVal = boost::get<std::string>(aVal);
+                std::string tVal(boost::get<const char*>(aVal));
+                aVal = tVal;
             }
             mParamMap.insert( { aKey, aVal } );
         }

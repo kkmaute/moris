@@ -19,7 +19,7 @@ namespace moris
          * @param aInterface std::shared_ptr<Interface> pointers to already-built interfaces
          * @return std::shared_ptr<Problem>
          */
-        std::shared_ptr<Problem> create_problem(ParameterList aProblemParameterList, std::shared_ptr<Interface> aInterface);
+        std::shared_ptr<Problem> create_problem(ParameterList aProblemParameterList, std::shared_ptr<Criteria_Interface> aInterface);
     }
 }
 
