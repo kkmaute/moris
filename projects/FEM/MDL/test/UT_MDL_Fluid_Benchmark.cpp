@@ -2387,8 +2387,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
 
         // Boundary Conditions
-        moris::real tRInVelocity  = 20.0; /* Inlet pressure  () */
-        moris::real tROutVelocity =  0.0; /* Outlet pressure () */
         moris::real tGammaNitsche = 1000.0;  /* Penalty for Dirichlet BC */
         moris::real tGammaGPmu   = 0.05;  /* Penalty for ghost viscosity */
         moris::real tGammaGPu    = 0.05;  /* Penalty for ghost velocity */
