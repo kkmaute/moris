@@ -11,60 +11,77 @@ namespace moris
     MPI_Comm
     get_comm()
     {
-        return gMorisComm.get_global_comm();
+        return gMorisComm.get_comm();
     }
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
+
+    void comm_split(int color, int key, const std::string& aCommName)
+    {
+        MPI_Comm aNewComm;
+        MPI_Comm_split(gMorisComm.get_comm(), color, key, &aNewComm);
+        gMorisComm.add_communicator(aNewComm, aCommName);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void comm_join()
+    {
+        MORIS_ERROR(gMorisComm.mActiveCommunicator > 0, "Cannot comm_join(), active communicator is already the global one.");
+        gMorisComm.remove_communicator(gMorisComm.mActiveCommunicator);
+        gMorisComm.mActiveCommunicator -= 1;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
 
     moris_id par_rank()
     {
 
         int tProcRank;
-        MPI_Comm_rank(gMorisComm.get_global_comm(), &tProcRank);
+        MPI_Comm_rank(gMorisComm.get_comm(), &tProcRank);
         return ( moris_id ) tProcRank;
     }
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     moris_id par_size()
     {
         int tProcSize;
-        MPI_Comm_size(gMorisComm.get_global_comm(), &tProcSize);
+        MPI_Comm_size(gMorisComm.get_comm(), &tProcSize);
         return ( moris_id ) tProcSize;
     }
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     void barrier(std::string aBarrierName)
     {
-        MPI_Barrier(gMorisComm.get_global_comm());
+        MPI_Barrier(gMorisComm.get_comm());
     }
 
-    //-----------------------------------------------------
-
+    //------------------------------------------------------------------------------------------------------------------
     void broadcast(uint & aMessage)
     {
         if(par_size() > 1)
         {
-            MPI_Bcast(&aMessage,1,MPI_UNSIGNED,0,gMorisComm.get_global_comm());
+            MPI_Bcast(&aMessage,1,MPI_UNSIGNED,0,gMorisComm.get_comm());
         }
     }
 
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     void broadcast(std::string & aMessage)
     {
         if(par_size() > 1)
         {
             char* cstr = strdup(aMessage.c_str());
-            MPI_Bcast(cstr,aMessage.length() ,MPI_CHAR,0,gMorisComm.get_global_comm());
+            MPI_Bcast(cstr,aMessage.length() ,MPI_CHAR,0,gMorisComm.get_comm());
             aMessage.assign(cstr);
             delete [] cstr;
         }
     }
 
-    //---------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     void
     begin_log_communication(enum CommunicationType    CommType)
@@ -72,7 +89,7 @@ namespace moris
 
 
         // Get count integer
-        //    short_uint tCount = gMorisComm.get_global_comm()Counter((short_uint) CommType,0);
+        //    short_uint tCount = gMorisComm.get_comm()Counter((short_uint) CommType,0);
 
         // Get integer corresponding to enum
         //    uint tEnumInt  = (uint)CommType;
@@ -82,13 +99,13 @@ namespace moris
         //MORIS_LOG_INFO<< "Begin Communication Type: "<< tEnumInt <<" Count:"<< tCount;
     }
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     void
     end_log_communication(enum CommunicationType    CommType)
     {
         // Get count integer
-        //    short_uint tCount = gMorisComm.get_global_comm()Counter((short_uint) CommType,0);
+        //    short_uint tCount = gMorisComm.get_comm()Counter((short_uint) CommType,0);
 
         // Get integer corresponding to enum
         //    uint tEnumInt  = (uint)CommType;
@@ -96,13 +113,13 @@ namespace moris
         //MORIS_LOG_INFO<< "======================================== \n";
 
         // Advance counter for this type of communication
-//        gMorisComm.get_global_comm()Counter((short_uint)CommType,0)++;
+//        gMorisComm.get_comm()Counter((short_uint)CommType,0)++;
     }
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     uint gather_value_and_bcast_max( uint aMessage )
     {
@@ -116,13 +133,13 @@ namespace moris
             int tMaxValue = 0;
             if(tProcRank == 0)
             {
-                MPI_Gather(&aMessageInt,1,MPI_INT,recvbuf,1,MPI_INT,0,gMorisComm.get_global_comm());
+                MPI_Gather(&aMessageInt,1,MPI_INT,recvbuf,1,MPI_INT,0,gMorisComm.get_comm());
                 tMaxValue = *std::max_element(recvbuf, recvbuf+tProcSize);
                 aMessage = (uint)tMaxValue;
             }
             if(tProcRank > 0)
             {
-                MPI_Gather(&aMessageInt,1,MPI_INT,recvbuf,1,MPI_INT,0,gMorisComm.get_global_comm());
+                MPI_Gather(&aMessageInt,1,MPI_INT,recvbuf,1,MPI_INT,0,gMorisComm.get_comm());
             }
 
             broadcast(aMessage);
@@ -131,7 +148,7 @@ namespace moris
         return aMessage;
     }
 
-    //-----------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
     void create_proc_cart( const uint              & aNumberOfDimensions,
                                  Matrix < DDUMat > & aProcDims,
                                  Matrix < DDUMat > & aProcCoords,
@@ -203,7 +220,7 @@ namespace moris
         // New communicator for cart and coordinates
         MPI_Comm tNewComm;
 
-        MPI_Cart_create( gMorisComm.get_global_comm(),
+        MPI_Cart_create( gMorisComm.get_comm(),
                          aNumberOfDimensions,
                          tDims,
                          tPeriods,

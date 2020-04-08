@@ -5,7 +5,7 @@
 #include "core.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_OPT_Interface.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
 
 namespace moris
@@ -16,7 +16,7 @@ namespace moris
         {
 
         private:
-            std::shared_ptr<Interface> mInterface;
+            std::shared_ptr<Criteria_Interface> mInterface;
 
             Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
             Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
@@ -43,9 +43,10 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aInterface Interface class written for other module (e.g. GEN)
+             * @param aParameterList Parameter list for constructing the problem
+             * @param aInterface Interface class written for other module
              */
-            Problem(ParameterList aParameterList);
+            Problem(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface);
 
             /**
              * Destructor

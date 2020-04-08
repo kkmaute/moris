@@ -20,6 +20,9 @@ namespace moris
     {
     public:
 
+        // index of active communicator
+        size_t mActiveCommunicator = 0;
+
         // Default constructor
         Comm_Manager(){};
 
@@ -27,7 +30,7 @@ namespace moris
         Comm_Manager(int *argc,
                      char ***argv);
 
-        /*
+        /**
         * Constructor which sets the communictor to the provided aComm. aComm in this case
         * should be the broadest communicator for MORIS.
         *
@@ -36,34 +39,44 @@ namespace moris
         Comm_Manager(MPI_Comm & aComm);
 
 
-        /*
+        /**
          * Default Destructor
          */
         ~Comm_Manager();
 
 
-        /*
+        /**
          * Initialize the communicator
          */
         void
         initialize(int *argc,
                    char ***argv);
 
-        /*
+        /**
          * Get the global communicator, this may not be necessarily MPI_COMM_WORLD.
          */
         MPI_Comm
         get_global_comm();
 
-        /*
+        /**
          * Returns the communicator at the given index
          * @param[in] aCommIndex - A communicator index
          */
         MPI_Comm
         get_comm(size_t aCommIndex);
 
+        /**
+         * Returns the communicator at the active index
+         */
+        MPI_Comm
+        get_comm();
 
-        /*
+        /**
+         * Removes the active comm and returns to one level up
+         */
+        void remove_communicator(size_t aCommIndex);
+
+        /**
          * Add a communictor with its name to the moris communicator pool
          * @param[in]  aNewComm - New Communicator to add
          * @param[in]  aCommName - Name of this communicator
@@ -71,16 +84,16 @@ namespace moris
          */
         size_t
         add_communicator(MPI_Comm & aNewComm,
-                         std::string & aCommName);
+                         const std::string& aCommName);
 
-        /*
+        /**
          * Finalizes the mpi
          */
         void
         finalize();
 
 
-        /*
+        /**
          * return the path of the running executable
          */
         const std::string &
@@ -93,6 +106,7 @@ namespace moris
 
         // path to running executable
         std::string mMorisExec;
+
     };
 
 }

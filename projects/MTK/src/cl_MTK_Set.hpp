@@ -140,7 +140,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            moris_index get_set_index( moris_index aIndex )
+            moris_index get_set_index(  )
             {
                 MORIS_ASSERT( mSetIndex != MORIS_INDEX_MAX, "Set::get_set_index(), Set index not set" );
                 return mSetIndex;

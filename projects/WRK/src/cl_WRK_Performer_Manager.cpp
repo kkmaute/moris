@@ -77,10 +77,7 @@ void Performer_Manager::initialize_performers()
 
     mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
 
-
 }
-
-//------------------------------------------------------------------------------
 
 void Performer_Manager::set_performer_cooperations()
 {
@@ -91,7 +88,6 @@ void Performer_Manager::set_performer_cooperations()
 
     mXTKPerformer( 0 )->set_geometry_engine( mGENPerformer( 0 ).get() );
     mXTKPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
-
 
 }
 

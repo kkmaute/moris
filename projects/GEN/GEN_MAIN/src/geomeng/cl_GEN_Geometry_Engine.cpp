@@ -720,7 +720,7 @@ GEN_Geometry_Engine::get_node_adv_indices_analytic()
 }
 
 //------------------------------------------------------------------------------
-
+// FIXME: this is out-dated and not used in the current implementation of the PDV interface
 moris::uint
 GEN_Geometry_Engine::get_num_design_variables() const
 {
@@ -730,7 +730,7 @@ GEN_Geometry_Engine::get_num_design_variables() const
 }
 
 //------------------------------------------------------------------------------
-
+// FIXME: this is out-dated and not used in the current implementation of the PDV interface
 moris::Matrix< moris::IndexMat >
 GEN_Geometry_Engine::get_node_adv_indices_discrete(moris::Matrix< moris::IndexMat > const & aEntityNodes)
 {
@@ -741,7 +741,7 @@ GEN_Geometry_Engine::get_node_adv_indices_discrete(moris::Matrix< moris::IndexMa
 }
 
 //------------------------------------------------------------------------------
-
+// FIXME: this is out-dated and not used in the current implementation of the PDV interface
 moris::size_t
 GEN_Geometry_Engine::get_num_design_vars_analytic()
 {

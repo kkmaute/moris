@@ -14,6 +14,8 @@
 
 #include "fn_Exec_load_user_library.hpp"
 
+#include "cl_GEN_Field.hpp"
+
 namespace moris
 {
 namespace ge
@@ -108,6 +110,11 @@ public:
      * **************************************************************************************
      */
 
+    virtual GEN_Field* get_field_pointer()
+    {
+        MORIS_ASSERT(false, "GEN_Geometry::get_field_pointer() - not implemented");
+        return new GEN_Field();
+    }
     /*
      * Given a node index and rank, provide the field value or minimum distance to a geometry feature
      * NOTE: THIS CURRENTLY REQUIRES THE BACKGROUND MESH AND GEOMETRY ARE COINCIDENT (NEEDS AN OBJECT THAT MAPS BETWEEN THE TWO)
@@ -116,7 +123,7 @@ public:
                 moris::moris_index     aEntityIndex,
                 enum moris::EntityRank aEntityRank) const
     {
-        std::cout<<" access_field_value_with_entity_index not implemented. This could be due to a geometry not being based on a mesh.";
+        MORIS_ASSERT(false, " access_field_value_with_entity_index not implemented. This could be due to a geometry not being based on a mesh.");
         return 0;
     }
 
