@@ -131,20 +131,13 @@ SET(SO_INCLUDES
 	${MORIS_PACKAGE_DIR}/PRM/src 
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
+    
 foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)
-	message(INFO " MORIS_${TPL}_INCLUDE_DIRS =  ${MORIS_${TPL}_INCLUDE_DIRS}")
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-message(INFO "SO_INCLUDES = ${SO_INCLUDES}" )
-    
-
-message(INFO, "MORIS_DEFINITIONS = ${MORIS_DEFINITIONS}")
-message(INFO,"CMAKE_LIBRARY_OUTPUT_DIRECTORY = ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
-	message(INFO,"${base_name}.cpp")
-	message(INFO,"${base_name}.so")
 	dynamic_link_input(${base_name} ${base_name}.cpp ${base_name}.so  ${SO_INCLUDES})
 endforeach()
 
