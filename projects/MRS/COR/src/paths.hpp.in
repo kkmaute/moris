@@ -1,0 +1,27 @@
+/*
+ * paths.hpp
+ *
+ *  Created on: Apr 7, 2020
+ *      Author: doble
+ */
+
+#ifndef PROJECTS_MRS_COR_SRC_PATHS_HPP_
+#define PROJECTS_MRS_COR_SRC_PATHS_HPP_
+
+namespace moris
+{
+
+// ge the library path
+std::string get_base_moris_dir()
+{
+    return "@PROJECT_SOURCE_DIR@/";
+}
+
+// get the build direct
+std::string get_moris_bin_dir()
+{
+    return "@CMAKE_BINARY_DIR@";
+}
+
+}
+#endif /* PROJECTS_MRS_COR_SRC_PATHS_HPP_ */

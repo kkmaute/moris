@@ -269,6 +269,11 @@ option(BUILD_XTK "Build the XTK executable." OFF)
 # Macros
 include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 
+# ------------------------------------------------------------------------
+## Dynamic link test function
+include(${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake)
+
+
 # -------------------------------------------------------------------------
 # Compiler ----------------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -511,6 +516,7 @@ endif()
 set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
     list(APPEND ARMADILLO_EIGEN "armadillo")
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_ARMA")	
 #     include(${MORIS_TPL_DIR}/armadillo.cmake)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")

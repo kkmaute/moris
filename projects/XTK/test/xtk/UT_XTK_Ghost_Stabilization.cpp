@@ -25,8 +25,8 @@ namespace xtk
 
 TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 {
-    if(par_size() == 1)
-    {
+//    if(par_size() == 1)
+//    {
     moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
     moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
     moris::ge::Plane<3> tPlane(tCenters,tNormals);
@@ -67,5 +67,5 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     }
 
 
-}
+//}
 }

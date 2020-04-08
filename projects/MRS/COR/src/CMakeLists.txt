@@ -7,12 +7,16 @@ set(HEADERS
     banner.hpp
     common.hpp
     typedefs.hpp )
-
+    
+configure_file( paths.hpp.in ${CMAKE_BINARY_DIR}/generated/paths.hpp )
+include_directories( ${CMAKE_BINARY_DIR}/generated/ ) # Make sure it can be included...
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # Core Library
 add_library(${COR}-lib INTERFACE)
 target_include_directories(${COR}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
 	$<INSTALL_INTERFACE:${${COR}_HEADER_INSTALL_DIR}> )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -94,6 +94,9 @@ private:
                                  Cell<Interpolation_Cell_Unzipped *> & aNonTrivialOwnedInterpCells,
                                  Cell<moris_id>                      & aEnrCellIds);
 
+    bool
+    verify_ghost_communication(Ghost_Setup_Data & aGhostSetupData);
+
 
     void
     declare_ghost_double_side_sets_in_mesh(Ghost_Setup_Data & aGhostSetupData);

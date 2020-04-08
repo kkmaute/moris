@@ -21,7 +21,7 @@ set(MAINS
 set(MAIN_INCLUDES
     ${COM}
     ${IOS}
-    ${WRK}-lib
+    ${WRK}
     ${LINALG}
         )
 
