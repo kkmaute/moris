@@ -39,7 +39,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } )
             += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
-                 + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump
+                 + mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tJump ) * tWStar;
         }
 
@@ -67,14 +67,14 @@ namespace moris
             // compute jump
             Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
 
-            // compute the jacobian for direct dof dependencies
-            if ( mResidualDofTypeRequested )
-            {
-                mSet->get_jacobian()( { tResStartRow, tResEndRow },
-                                      { mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 1 ) } )
-                += (   mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFI->N()
-                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) * tWStar;
-            }
+//            // compute the jacobian for direct dof dependencies
+//            if ( mResidualDofTypeRequested )
+//            {
+//                mSet->get_jacobian()( { tResStartRow, tResEndRow },
+//                                      { mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 1 ) } )
+//                += ( mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFI->N()
+//                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) * tWStar;
+//            }
 
             // compute the jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -88,12 +88,21 @@ namespace moris
                 uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tResDofIndex )( tDofDepIndex, 0 );
                 uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tResDofIndex )( tDofDepIndex, 1 );
 
+                // if dof type is residual dof type
+                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                {
+                    mSet->get_jacobian()( { tResStartRow,   tResEndRow },
+                                          { tDepStartIndex, tDepStopIndex } )
+                    += tWStar * (   mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFI->N()
+                                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) ;
+                }
+
                 // if dependency on the dof type
                 if ( mMasterProp( tDirichletIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tResStartRow,   tResEndRow }, { tDepStartIndex, tDepStopIndex } )
-                    += ( -1.0 * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
+                    += ( - mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
                          - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType ) ) * tWStar;
                 }
 
@@ -103,7 +112,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tResStartRow, tResEndRow }, { tDepStartIndex, tDepStopIndex } )
                     += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                         + mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) ) * tWStar;
+                         + mBeta * mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) ) * tWStar;
                 }
 
                 // if dependency on the dof type

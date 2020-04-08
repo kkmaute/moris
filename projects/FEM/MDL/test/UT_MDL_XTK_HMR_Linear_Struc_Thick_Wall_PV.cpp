@@ -487,7 +487,7 @@
 //                tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 //
 //
-//                std::shared_ptr< fem::IWG > tIWGDirichletX = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+//                std::shared_ptr< fem::IWG > tIWGDirichletX = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
 //                tIWGDirichletX->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
 //                tIWGDirichletX->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
 //                tIWGDirichletX->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -495,7 +495,7 @@
 //                tIWGDirichletX->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 //                tIWGDirichletX->set_property( tPropDirichletSelectX, "Select", mtk::Master_Slave::MASTER );
 //
-//                std::shared_ptr< fem::IWG > tIWGDirichletY = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+//                std::shared_ptr< fem::IWG > tIWGDirichletY = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
 //                tIWGDirichletY->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
 //                tIWGDirichletY->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
 //                tIWGDirichletY->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );

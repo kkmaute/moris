@@ -30,6 +30,9 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 
+            // sign for symmetric/unsymmetric Nitsche
+            sint mBeta;
+
             enum class IWG_Property_Type
             {
                 DIRICHLET,
@@ -53,7 +56,7 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche();
+            IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche( sint aBeta );
 
 //------------------------------------------------------------------------------
             /**
@@ -61,28 +64,28 @@ namespace moris
              */
             ~IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche(){};
 
-            //------------------------------------------------------------------------------
-                        /**
-                         * set property
-                         * @param[ in ] aProperty       a property pointer
-                         * @param[ in ] aPropertyString a string defining the property
-                         * @param[ in ] aIsMaster       an enum for master or slave
-                         */
-                        void set_property( std::shared_ptr< Property > aProperty,
-                                           std::string                 aPropertyString,
-                                           mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-                        {
-                            // check that aPropertyString makes sense
-                            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                                         "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::set_property - Unknown aPropertyString." );
+//------------------------------------------------------------------------------
+            /**
+             * set property
+             * @param[ in ] aProperty       a property pointer
+             * @param[ in ] aPropertyString a string defining the property
+             * @param[ in ] aIsMaster       an enum for master or slave
+             */
+            void set_property( std::shared_ptr< Property > aProperty,
+                               std::string                 aPropertyString,
+                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::set_property - Unknown aPropertyString." );
 
-                            // check no slave allowed
-                            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                                         "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::set_property - No slave allowed" );
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::set_property - No slave allowed" );
 
-                            // set the property in the property cell
-                            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-                        }
+                // set the property in the property cell
+                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            }
 
 //------------------------------------------------------------------------------
             /**

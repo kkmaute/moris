@@ -14,8 +14,11 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche()
+        IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche( sint aBeta )
         {
+            // set sign for symmetric/unsymmetric Nitsche
+            mBeta = aBeta;
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
@@ -27,8 +30,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE;
-
-            // FIXME add beta parameter?
         }
 
 //------------------------------------------------------------------------------
@@ -61,7 +62,7 @@ namespace moris
 
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            -= aWStar * ( trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
+            -= aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
         }
 
 //------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= aWStar * ( trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityFI->N() );
+                    -= aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityFI->N() );
                 }
 
                 // if imposed velocity property depends on dof type
@@ -122,7 +123,7 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tPropVelocity->dPropdDOF( tDofType ) );
+                    += aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -131,7 +132,7 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= aWStar * ( tCMFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
+                    -= aWStar * ( mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
                 }
             }
         }

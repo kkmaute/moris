@@ -111,7 +111,7 @@
 //
 //                // input a cell of IWG types to be created
 //                Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::SPATIALDIFF_BULK,
-//                                                       fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+//                                                       fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,
 //                                                       fem::IWG_Type::SPATIALDIFF_NEUMANN };
 //
 //                // number of IWGs to be created

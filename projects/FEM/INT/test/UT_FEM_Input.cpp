@@ -109,7 +109,7 @@ namespace moris
 //            // create parameter list for IWG 3
 //            tParameterList( 3 )( 2 ) = prm::create_IWG_parameter_list();
 //            tParameterList( 3 )( 2 ).set( "IWG_name",                   std::string("IWG3") );
-//            tParameterList( 3 )( 2 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET ) );
+//            tParameterList( 3 )( 2 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
 //            tParameterList( 3 )( 2 ).set( "dof_residual",               std::string("UX,UY,UZ") );
 //            tParameterList( 3 )( 2 ).set( "master_dof_dependencies",    std::string("UX,UY,UZ") );
 //            tParameterList( 3 )( 2 ).set( "master_constitutive_models", std::string("CM1,ElastLinIso") );

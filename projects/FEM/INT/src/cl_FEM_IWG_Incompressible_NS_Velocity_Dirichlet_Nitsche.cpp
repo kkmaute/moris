@@ -14,8 +14,11 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche()
+        IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche( sint aBeta )
         {
+            // set sign for symmetric/unsymmetric Nitsche
+            mBeta = aBeta;
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
@@ -66,15 +69,10 @@ namespace moris
            // compute the jump
            Matrix< DDRMat > tVelocityJump = tMasterFI->val() - tPropVelocity->val();
 
-//           std::cout<<"x"<<mMasterFIManager->get_IP_geometry_interpolator()->valx()( 0 )<<std::endl;
-//           std::cout<<"y"<<mMasterFIManager->get_IP_geometry_interpolator()->valx()( 1 )<<std::endl;
-//           print( mNormal, "normal" );
-//           std::cout<<"abc "<<mMasterFIManager->get_IP_geometry_interpolator()->valx()( 1 )<<" "<<tPropVelocity->val()( 0 )<<std::endl;
-
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += aWStar * ( - trans( tMasterFI->N() ) * tCMFluid->traction( mNormal )
-                          - trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump
+                          - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump
                           + tSPNitsche->val()( 0 ) * trans( tMasterFI->N() ) * tVelocityJump );
         }
 
@@ -129,7 +127,7 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( - trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tMasterFI->N()
+                    += aWStar * ( - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tMasterFI->N()
                                   + tSPNitsche->val()( 0 )  * trans( tMasterFI->N() ) * tMasterFI->N() );
                 }
 
@@ -149,7 +147,7 @@ namespace moris
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += aWStar * ( - trans( tMasterFI->N() ) * tCMFluid->dTractiondDOF( tDofType, mNormal )
-                                  - tCMFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
+                                  - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
                 }
 
                 // if stabilization parameter depends on the dof type

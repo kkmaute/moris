@@ -88,26 +88,31 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
-            SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet (Nitsche)
+            SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE, // spatial diffusion Dirichlet (Nitsche)
+            SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
             SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
             STRUC_LINEAR_BULK,     // linear elasticity bulk
-            STRUC_LINEAR_DIRICHLET,// linear elasticity Dirichlet (Nitsche)
+            STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
+            STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
             STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE,// linear elasticity Nitsche interface condition
             STRUC_LINEAR_GHOST,    // linear elasticity Ghost field based
             STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
             STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
-            STRUC_LINEAR_PRESSURE_DIRICHLET, // linear elasticity Dirichlet mixed formulation (Nitsche)
+            STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
+            STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_VELOCITY_BULK,
             INCOMPRESSIBLE_NS_PRESSURE_BULK,
             INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST,
             INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST,
             INCOMPRESSIBLE_NS_PRESSURE_GHOST,
-            INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE,
-            INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_IMPOSED_PRESSURE,
             END_IWG_TYPE
         };

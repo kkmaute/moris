@@ -38,7 +38,7 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp
-    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_INCOMPRESSIBLE_NS_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp

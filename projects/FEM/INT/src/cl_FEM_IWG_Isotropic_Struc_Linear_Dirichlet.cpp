@@ -12,8 +12,10 @@ namespace moris
     namespace fem
     {
 
-        IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
+        IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet( sint aBeta )
         {
+            // sign for symmetric/unsymmetric Nitsche
+            mBeta = aBeta;
 
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -80,7 +82,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
-                 + mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tJump
+                 + mBeta * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tJump
                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * aWStar;
 
         }
@@ -156,7 +158,7 @@ namespace moris
                     // compute the jacobian for direct dof dependencies
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += (   mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
+                    += (   mBeta * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
                          + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * aWStar;
                 }
 
@@ -166,13 +168,14 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= ( mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
+                    -= ( mBeta * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
                        + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )) * aWStar;
                 }
 
                 // if dependency on the dof type
                 if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
+                	// FIXME missing derivative with dTestTractiondDOF???
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )

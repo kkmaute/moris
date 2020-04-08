@@ -305,7 +305,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tIWGBulkP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY}, {MSI::Dof_Type::P }} );
         tIWGBulkP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::P}} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -313,7 +313,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletP = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletP = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletP->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGDirichletP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::P}} );
         tIWGDirichletP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
@@ -658,7 +658,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tIWGBulkP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ}, {MSI::Dof_Type::P }} );
         tIWGBulkP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }, { MSI::Dof_Type::P}} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -666,7 +666,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletP = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletP = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletP->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGDirichletP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }, { MSI::Dof_Type::P}} );
         tIWGDirichletP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
@@ -1055,7 +1055,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        tIWGBulkP->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ}, {MSI::Dof_Type::P }} );
 //        tIWGBulkP->set_constitutive_model( tCMStrucLinIsoDev, "ElastLinIso", mtk::Master_Slave::MASTER );
 //
-//        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+//        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
 //        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
 //        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }, { MSI::Dof_Type::P}} );
 //        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );

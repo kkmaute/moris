@@ -617,7 +617,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             tIWGNeumannTop->set_dof_type_list( { tResDofTypes } );
             tIWGNeumannTop->set_property( tPropNeumannTop, "Neumann", mtk::Master_Slave::MASTER );
             //------------------------------------------------------------------------------
-            std::shared_ptr< fem::IWG > tIWGDirichletFixedBottom = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+            std::shared_ptr< fem::IWG > tIWGDirichletFixedBottom = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGDirichletFixedBottom->set_residual_dof_type( tResDofTypes );
             tIWGDirichletFixedBottom->set_dof_type_list( { tResDofTypes } );
             tIWGDirichletFixedBottom->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
