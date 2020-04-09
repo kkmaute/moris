@@ -554,7 +554,7 @@ public:
      * get global map for IP nodes
      * @param[ out ] mIpGlobalPdvTypeMap a map from dv type to index
      */
-    Matrix< IndexMat > get_ip_global_map(  )
+    Matrix< IndexMat > get_ip_global_map()
     {
         return mIpGlobalPdvTypeMap;
     }
@@ -563,7 +563,7 @@ public:
      * get global map for IG nodes
      * @param[ out ] mIgGlobalPdvTypeMap a map from dv type to index
      */
-    Matrix< IndexMat > get_ig_global_map(  )
+    Matrix< IndexMat > get_ig_global_map()
     {
         return mIgGlobalPdvTypeMap;
     }

@@ -12,6 +12,7 @@ namespace moris
     namespace fem
     {
 
+//------------------------------------------------------------------------------
         IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet( sint aBeta )
         {
             // sign for symmetric/unsymmetric Nitsche
@@ -35,7 +36,6 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
-
         }
 
 //------------------------------------------------------------------------------
@@ -51,40 +51,48 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get field interpolator for given dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            // get field interpolator for residual dof type
+            Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get SP, CM and property indices
-            uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
-            uint tDirichletIndex   = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-            uint tNitscheIndex     = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
-
-            // selection matrix
-            Matrix< DDRMat > tM;
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
-            if ( mMasterProp( tSelectIndex ) == nullptr )
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tFI->get_dof_type().size();
+                uint tSpaceDim = tFIDispl->get_dof_type().size();
+
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
             else
             {
-                tM = mMasterProp( tSelectIndex )->val();
+                tM = tPropSelect->val();
             }
 
+            // get the imposed displacement property
+            std::shared_ptr< Property > tPropDirichlet
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+
+            // get CM for elasticity
+            std::shared_ptr< Constitutive_Model > tCMElasticity
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // get SP for Nitsche
+            std::shared_ptr< Stabilization_Parameter > tSPNitsche
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+
             // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
+            Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
-                 + mBeta * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tJump
-                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * aWStar;
-
+            += aWStar * ( - trans( tFIDispl->N() ) * tM * tCMElasticity->traction( mNormal )
+                          + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tJump
+                          + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tJump );
         }
 
 //------------------------------------------------------------------------------
@@ -100,48 +108,45 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            // get field interpolator for residual dof type
+            Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get SP, CM and property indices
-            uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
-            uint tDirichletIndex   = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-            uint tNitscheIndex     = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
-            // selection matrix
+            // set a default selection matrix if needed
             Matrix< DDRMat > tM;
-
-            // set a default selection matrix
-            if ( mMasterProp( tSelectIndex ) == nullptr )
+            if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tFI->get_dof_type().size();
+                uint tSpaceDim = tFIDispl->get_dof_type().size();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
             else
             {
-                tM = mMasterProp( tSelectIndex )->val();
+                tM = tPropSelect->val();
             }
 
-            // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
+            // get the imposed displacement property
+            std::shared_ptr< Property > tPropDirichlet
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
-//            // compute the jacobian for direct dof dependencies
-//            if ( mResidualDofTypeRequested )
-//            {
-//                // compute the jacobian for direct dof dependencies
-//                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-//                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-//                += (   mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
-//                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * aWStar;
-//            }
+            // get CM for elasticity
+            std::shared_ptr< Constitutive_Model > tCMElasticity
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // get SP for Nitsche
+            std::shared_ptr< Stabilization_Parameter > tSPNitsche
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+
+            // compute jump
+            Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
             // get number of dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
-
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
@@ -158,40 +163,39 @@ namespace moris
                     // compute the jacobian for direct dof dependencies
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += (   mBeta * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
-                         + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * aWStar;
+                    += aWStar * (   mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tFIDispl->N()
+                                  + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tFIDispl->N() );
                 }
 
                 // if dependency on the dof type
-                if ( mMasterProp( tDirichletIndex )->check_dof_dependency( tDofType ) )
+                if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= ( mBeta * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
-                       + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )) * aWStar;
+                    -= aWStar * (   mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
+                                  + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
-                if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
-                {
-                	// FIXME missing derivative with dTestTractiondDOF???
-                    // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                   -= aWStar * ( trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
-                }
-
-                // if dependency on the dof type
-                if ( mStabilizationParam( tNitscheIndex )->check_dof_dependency( tDofType ) )
+                if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += trans( tFI->N() ) * tM * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) * aWStar;
+                   += aWStar * ( - trans( tFIDispl->N() ) * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal )
+                                 + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType ) );
+                }
+
+                // if dependency on the dof type
+                if ( tSPNitsche->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution to jacobian
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * trans( tFIDispl->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType );
                 }
             }
-
         }
 
 //------------------------------------------------------------------------------

@@ -63,30 +63,9 @@ namespace moris
 //------------------------------------------------------------------------------
             /*
              * constructor
+             * @param[ in ] aBeta sint for symmetric/unsymmetric Nitsche
              */
-            IWG_Isotropic_Spatial_Diffusion_Dirichlet( sint aBeta )
-            {
-                // set sign for symmetric/unsymmetric Nitsche
-                mBeta = aBeta;
-
-                // set size for the property pointer cell
-                mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the property map
-                mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
-
-                // set size for the constitutive model pointer cell
-                mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-                // populate the constitutive map
-                mConstitutiveMap[ "DiffLinIso" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
-
-                // set size for the stabilization parameter pointer cell
-                mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-                // populate the stabilization map
-                mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
-            };
+            IWG_Isotropic_Spatial_Diffusion_Dirichlet( sint aBeta );
 
 //------------------------------------------------------------------------------
             /**

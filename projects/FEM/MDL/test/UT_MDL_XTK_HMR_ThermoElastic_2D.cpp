@@ -464,8 +464,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver->get_full_solution(tFullSolution);
-
-        print(tFullSolution,"tFullSolution");
+//        print(tFullSolution,"tFullSolution");
 
 //        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_thermoelastic_2D.e";
 //
@@ -1032,7 +1031,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver->get_full_solution(tFullSolution);
 
-        print(tFullSolution,"tFullSol");
+//        print(tFullSolution,"tFullSol");
 
         std::string tMorisRoot = std::getenv("MORISROOT");
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";

@@ -78,18 +78,26 @@ void Workflow::perform()
 
     if( true )
     {
-        tEnrIntegMesh.deactivate_empty_sets();
-        // Write mesh
-        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
-
-        // Write the fields
-        writer.set_time(0.0);
-        writer.close_file();
-
-//            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh();
-//            tIntegMesh1->create_output_mesh(tEnrIgMeshFileName);
-//            delete tIntegMesh1;
+//        tEnrIntegMesh.deactivate_empty_sets();
+//
+//        // Write mesh
+//        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
+//        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
+//
+//        // Write the fields
+//        writer.set_time(0.0);
+//        writer.close_file();
+//
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = false;
+//
+//        // output integration mesh
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = mPerformerManager->mXTKPerformer( 0 )->get_output_mesh( tOutputOptions );
+//        std::string tOutputFile = "./xtk_exo/xtk_temp.exo";
+//        tIntegMesh1->create_output_mesh( tOutputFile );
+//        delete tIntegMesh1;
     }
 
 

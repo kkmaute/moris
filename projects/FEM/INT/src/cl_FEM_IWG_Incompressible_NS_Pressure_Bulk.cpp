@@ -80,7 +80,6 @@ namespace moris
 
             // get the pressure FIs
             Field_Interpolator * tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
 
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP
@@ -106,6 +105,8 @@ namespace moris
                 // FIXME protect velocity dof type
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
+                    Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )

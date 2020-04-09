@@ -13,68 +13,98 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( real tWStar )
+    IWG_Isotropic_Spatial_Diffusion_Dirichlet::IWG_Isotropic_Spatial_Diffusion_Dirichlet( sint aBeta )
+    {
+        // set sign for symmetric/unsymmetric Nitsche
+        mBeta = aBeta;
+
+        // set size for the property pointer cell
+        mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+        // populate the property map
+        mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
+
+        // set size for the constitutive model pointer cell
+        mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+        // populate the constitutive map
+        mConstitutiveMap[ "DiffLinIso" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
+
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+
+        // populate the stabilization map
+        mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
+    }
+
+//------------------------------------------------------------------------------
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get index for a given dof type and indices for residual assembly
-            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tResStartRow = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
-            uint tResEndRow   = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+            // get master index for residual dof type, indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolatopr for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get SP, CM, property indices
-            uint tDirichletIndex  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
-            uint tNitscheIndex    = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+            // get imposed temperature property
+            std::shared_ptr< Property > tPropDirichlet
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+
+            // get the elasticity CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+
+            // get the elasticity CM
+            std::shared_ptr< Stabilization_Parameter > tSPNitsche
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
+            Matrix< DDRMat > tJump = tFI->val() - tPropDirichlet->val();
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tResStartRow, tResEndRow }, { 0, 0 } )
-            += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
-                 + mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tJump
-                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tJump ) * tWStar;
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+            += aWStar * ( - trans( tFI->N() ) * tCMDiffusion->traction( mNormal )
+                          + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tJump
+                          + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tJump );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get index for a given dof type and indices for residual assembly
-            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tResStartRow = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
-            uint tResEndRow   = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+            // get master index for residual dof type, indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get SP, CM, property indices
-            uint tDirichletIndex  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
-            uint tNitscheIndex    = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+            // get imposed temperature property
+            std::shared_ptr< Property > tPropDirichlet
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+
+            // get the elasticity CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+
+            // get the elasticity CM
+            std::shared_ptr< Stabilization_Parameter > tSPNitsche
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
-
-//            // compute the jacobian for direct dof dependencies
-//            if ( mResidualDofTypeRequested )
-//            {
-//                mSet->get_jacobian()( { tResStartRow, tResEndRow },
-//                                      { mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tResDofIndex )( tResDofIndex, 1 ) } )
-//                += ( mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFI->N()
-//                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) * tWStar;
-//            }
+            Matrix< DDRMat > tJump = tFI->val() - tPropDirichlet->val();
 
             // compute the jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -83,44 +113,47 @@ namespace moris
                 // get the dof type
                 Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // get the index for the dof type
-                sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tResDofIndex )( tDofDepIndex, 0 );
-                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tResDofIndex )( tDofDepIndex, 1 );
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if dof type is residual dof type
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
-                    mSet->get_jacobian()( { tResStartRow,   tResEndRow },
-                                          { tDepStartIndex, tDepStopIndex } )
-                    += tWStar * (   mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * tFI->N()
-                                  + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) ;
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * (   mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tFI->N()
+                                  + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) ;
                 }
 
                 // if dependency on the dof type
-                if ( mMasterProp( tDirichletIndex )->check_dof_dependency( tDofType ) )
+                if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tResStartRow,   tResEndRow }, { tDepStartIndex, tDepStopIndex } )
-                    += ( - mBeta * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal, mResidualDofType ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
-                         - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType ) ) * tWStar;
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * ( - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tPropDirichlet->dPropdDOF( tDofType )
+                                  - tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
-                if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
+                if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tResStartRow, tResEndRow }, { tDepStartIndex, tDepStopIndex } )
-                    += ( - trans( tFI->N() ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                         + mBeta * mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) ) * tWStar;
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * ( - trans( tFI->N() ) * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
+                                  + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) );
                 }
 
                 // if dependency on the dof type
-                if ( mStabilizationParam( tNitscheIndex )->check_dof_dependency( tDofType ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tResStartRow, tResEndRow }, { tDepStartIndex, tDepStopIndex } )
-                    += ( trans( tFI->N() ) * tJump( 0 ) * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * ( trans( tFI->N() ) * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
         }

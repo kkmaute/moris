@@ -172,19 +172,23 @@ namespace mdl
              * @param[ in ] aDvTypes list of dv types to fill
              */
             virtual void get_ip_requested_dv_types( Cell< enum GEN_DV > & aDvTypes ) = 0;
+
 //------------------------------------------------------------------------------
             /**
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
             virtual void get_ig_requested_dv_types( Cell< enum GEN_DV > & aDvTypes ) = 0;
-//------------------------------------------------------------------------------
-			
-			 virtual void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
-             {
-				 MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
-             };
 
+//------------------------------------------------------------------------------
+            /**
+             * set requested IQI type for sensitivity analysis
+             * @param[ in ] aRequestedIQIType
+             */
+            virtual void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
+            {
+                MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
+            };
 
         };
     }

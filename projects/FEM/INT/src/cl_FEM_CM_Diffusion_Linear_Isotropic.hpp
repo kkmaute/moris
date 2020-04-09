@@ -47,17 +47,7 @@ namespace moris
             /*
              * trivial constructor
              */
-            CM_Diffusion_Linear_Isotropic()
-            {
-                // set the property pointer cell size
-                mProperties.resize( static_cast< uint >( CM_Diffusion_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the property map
-                mPropertyMap[ "Conductivity" ] = CM_Diffusion_Linear_Isotropic::Property_Type::CONDUCTIVITY;
-
-                // FIXME populate dof map
-                mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
-            };
+            CM_Diffusion_Linear_Isotropic();
 
 //------------------------------------------------------------------------------
             /**
