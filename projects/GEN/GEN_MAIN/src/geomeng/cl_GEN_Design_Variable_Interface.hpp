@@ -27,6 +27,8 @@ namespace ge
         // assembly map for QI
         moris::Cell< moris::Cell< moris_index > > mQIAssemblyMap;
 
+        Matrix< DDSMat > mDummyMat;
+
     public:
 //------------------------------------------------------------------------------
         /**
@@ -239,6 +241,28 @@ namespace ge
                 = aPdvValues( iCol ).matrix_data();
             }
         }
+
+//------------------------------------------------------------------------------
+        /**
+         * return local to global dv map.
+         * ( this is a collection of all local parallel consistent Ids )
+         */
+        moris::Matrix< DDSMat > get_local_global_map()
+        {
+            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value - overload not implemented on GE side.");
+            return mDummyMat;
+        };
+
+//------------------------------------------------------------------------------
+        /**
+         * return owned local to global dv map.
+         * ( this is a collection of all owned local parallel consistent Ids )
+         */
+        moris::Matrix< DDSMat > get_owned_local_global_map()
+        {
+            MORIS_ASSERT(false, "Design_Variable_Interface::get_pdv_value - overload not implemented on GE side.");
+            return mDummyMat;
+        };
 
 //------------------------------------------------------------------------------
         /**

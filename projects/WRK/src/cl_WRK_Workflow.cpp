@@ -78,23 +78,23 @@ void Workflow::perform()
     // place the pair in mesh manager
     mPerformerManager->mMTKPerformer( 1 )->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
-//    tEnrIntegMesh.print();
+    tEnrIntegMesh.print();
 
-//    if(true)
-//    {
-//        tEnrIntegMesh.deactivate_empty_sets();
-//        // Write mesh
-//        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-//        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
-//
-//        // Write the fields
-//        writer.set_time(0.0);
-//        writer.close_file();
-//
-////            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh();
-////            tIntegMesh1->create_output_mesh(tEnrIgMeshFileName);
-////            delete tIntegMesh1;
-//    }
+    if(true)
+    {
+        tEnrIntegMesh.deactivate_empty_sets();
+        // Write mesh
+        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
+        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
+
+//            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh();
+//            tIntegMesh1->create_output_mesh(tEnrIgMeshFileName);
+//            delete tIntegMesh1;
+    }
 
 
 

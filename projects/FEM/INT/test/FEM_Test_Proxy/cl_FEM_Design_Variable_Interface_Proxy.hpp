@@ -254,6 +254,20 @@ public :
 	
     void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType );
 
+    moris::Matrix< DDSMat > get_local_global_map()
+    {
+        MORIS_ASSERT(false, "Design_Variable_Interface_Proxy::get_pdv_value - not implemented in the child class.");
+        return mMap;
+    };
+
+//------------------------------------------------------------------------------
+
+    moris::Matrix< DDSMat > get_owned_local_global_map()
+    {
+        MORIS_ASSERT(false, "Design_Variable_Interface_Proxy::get_pdv_value - not implemented in the child class.");
+        return mMap;
+    };
+
 };
 }
 }
