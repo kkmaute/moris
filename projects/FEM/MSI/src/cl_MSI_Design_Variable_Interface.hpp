@@ -41,6 +41,8 @@ namespace mdl
         protected:
                 mdl::Model * mModel = nullptr;
 
+                moris::Cell< moris::Cell< enum fem::IQI_Type > > mRequestedIQIType;
+
         public:
 
 //------------------------------------------------------------------------------
