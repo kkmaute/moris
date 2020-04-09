@@ -7,6 +7,10 @@
 
 #include "cl_GEN_Geometry_Engine.hpp"
 
+// HMR
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR.hpp"
+
 namespace moris
 {
 namespace ge
@@ -67,6 +71,18 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize( std::shared_ptr< Library_IO > aLibrary )
 {
+	mLibrary = aLibrary;
+
+	this->initialize_geometries_and_phase_table();
+}
+
+void GEN_Geometry_Engine::initialize()
+{
+	this->initialize_geometries_and_phase_table();
+}
+
+void GEN_Geometry_Engine::initialize_geometries_and_phase_table()
+{
     // initialize threshold for level sets
     mThresholdValue = 0.0;
 
@@ -89,8 +105,10 @@ void GEN_Geometry_Engine::initialize( std::shared_ptr< Library_IO > aLibrary )
     // loop over the geometry function names
     for( uint iFunc = 0; iFunc < tNumGeometry; iFunc++ )
     {
+    	MORIS_ERROR( mLibrary != nullptr, "GEN_Geometry_Engine::initialize_geometries_and_phase_table(), mLibrary not set");
+
         // read a geometry function from input
-        MORIS_GEN_FUNCTION tGeometry = aLibrary->load_gen_free_functions( tGeomFuncNames( iFunc ) );
+        MORIS_GEN_FUNCTION tGeometry = mLibrary->load_gen_free_functions( tGeomFuncNames( iFunc ) );
 
         // create a geometry pointer
         mGeometry( iFunc ) = new Analytic_Geometry( tGeometry );
@@ -702,7 +720,7 @@ GEN_Geometry_Engine::get_node_adv_indices_analytic()
 }
 
 //------------------------------------------------------------------------------
-
+// FIXME: this is out-dated and not used in the current implementation of the PDV interface
 moris::uint
 GEN_Geometry_Engine::get_num_design_variables() const
 {
@@ -712,7 +730,7 @@ GEN_Geometry_Engine::get_num_design_variables() const
 }
 
 //------------------------------------------------------------------------------
-
+// FIXME: this is out-dated and not used in the current implementation of the PDV interface
 moris::Matrix< moris::IndexMat >
 GEN_Geometry_Engine::get_node_adv_indices_discrete(moris::Matrix< moris::IndexMat > const & aEntityNodes)
 {
@@ -723,7 +741,7 @@ GEN_Geometry_Engine::get_node_adv_indices_discrete(moris::Matrix< moris::IndexMa
 }
 
 //------------------------------------------------------------------------------
-
+// FIXME: this is out-dated and not used in the current implementation of the PDV interface
 moris::size_t
 GEN_Geometry_Engine::get_num_design_vars_analytic()
 {
@@ -766,6 +784,48 @@ moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mes
     mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
 
     return mMesh_HMR.size()-1;
+}
+
+void GEN_Geometry_Engine::set_performer( std::shared_ptr< hmr::HMR > aMesh )
+{
+    mHMRPerformer.push_back( aMesh );
+}
+
+void GEN_Geometry_Engine::set_library( std::shared_ptr< Library_IO > aLibrary )
+{
+	mLibrary = aLibrary;
+}
+
+void GEN_Geometry_Engine::perform( )
+{
+    this->perform_refinement();
+}
+
+void GEN_Geometry_Engine::perform_refinement()
+{
+	uint tLagrangeMeshIndex = 0;
+
+    std::shared_ptr< moris::hmr::Mesh > tMesh = mHMRPerformer( 0 )->create_mesh( tLagrangeMeshIndex );
+
+    mMesh_HMR.push_back( tMesh );
+
+    mSpatialDim = tMesh->get_spatial_dim();
+
+    this->initialize();
+
+    for( sint Ik=0; Ik< mParameterList.get< moris::sint >( "number_HMR_refinments"); ++Ik )
+    {
+        moris::Cell< moris::Matrix< DDRMat > > tValues;
+
+        this->get_field_values_for_all_geometries( tValues );
+
+        for( uint Ik=0; Ik < tValues.size(); ++Ik )
+        {
+        	mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ik ), tLagrangeMeshIndex );
+        }
+
+        mHMRPerformer( 0 )->perform_refinement_based_on_working_pattern( 0, false );
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -959,6 +1019,34 @@ GEN_Geometry_Engine::interpolate_level_set_value_to_child_node_location( xtk::To
      aLevelSetValues = tBasisValues*moris::trans(tNodesLevelSetValues);
 
  }
+
+void GEN_Geometry_Engine::get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+                                          const moris_index                 aWhichMesh )
+{
+    //TODO: implement for the case of discrete geometries and a mesh manager (rather than just an HMR mesh)
+    uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
+
+    aAllFieldVals.resize( mGeometry.size() );
+
+    for ( uint Ik = 0; Ik< mGeometry.size(); Ik++ )
+    {
+        aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
+
+        for( uint iVert = 0; iVert <tNumVertices; iVert++)
+        {
+            Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
+
+            moris::real tVal = - MORIS_REAL_MAX;
+
+            Cell< moris::real > tTempConstCell = {{0}};
+
+            mGeometry( Ik )->eval( tVal, tCoord, tTempConstCell );
+
+            // FIXME will not work in parallel. Ind are not consistent because of aura
+            aAllFieldVals( Ik )( iVert ) = tVal;
+        }
+    }
+}
 //------------------------------------------------------------------------------
 }   // end ge namespace
 }   // end moris namespace

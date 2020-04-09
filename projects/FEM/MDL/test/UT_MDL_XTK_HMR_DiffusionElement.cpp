@@ -225,7 +225,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         tHMR.save_to_exodus( 0, "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -238,7 +238,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -258,7 +258,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+        tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -301,7 +301,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -417,6 +417,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         //    delete tInterpMesh1;
         delete tModel;
         delete tIntegMesh1;
+        delete tInterpMesh;
     }
 }
 
@@ -481,7 +482,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         tHMR.save_to_exodus( 0, "./mdl_exo/xtk_hmr_bar_plane_interp_l2_b2.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -494,7 +495,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -555,7 +556,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
          tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
          tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
          tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
          tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -613,8 +614,9 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          vis::Output_Manager tOutputData;
 
          tOutputData.set_outputs( 0,
-//                                  VIS_Mesh_Type::STANDARD,
+//                                         VIS_Mesh_Type::STANDARD,
                                   vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+        		         "./",
                                   "XTK_HMR_DIFF.exo",
                                   { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
                                   { "Temp" },
@@ -694,6 +696,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         // clean up
         delete tModel;
+        delete tInterpMesh;
     }
 }
 
@@ -766,7 +769,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
 //        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         // start timer
         tic tTimer_XTK;
@@ -782,7 +785,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -802,12 +805,12 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+        tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
 
         if(true)
         {
             // Write mesh
-            Writer_Exodus writer(tIntegMesh1);
+            moris::mtk::Writer_Exodus writer(tIntegMesh1);
             writer.write_mesh("", "./xtk_exo/xtk_multigrid.exo");
 
             // Write the fields
@@ -875,7 +878,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
 //        tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -939,6 +942,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD,
+                                 "./",
                                  "UT_MDL_Multigrid.exo",
                                  { "HMR_dummy" },
                                  { "Temperature" },
@@ -999,6 +1003,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         CHECK( equal_to( tSolution( 382, 0 ), 51.10764688788053, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+08 ) );
+
+        delete tInterpMesh;
     }
 }
 
@@ -1071,7 +1077,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
 
 //        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         // start timer
         tic tTimer_XTK;
@@ -1087,7 +1093,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -1146,6 +1152,8 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
         tSPDirichletNitsche->set_property( tPropConductivity2, "Material", mtk::Master_Slave::MASTER );
 
+        std::shared_ptr< fem::Stabilization_Parameter > tSPReciprocalVolume = tSPFactory.create_SP( fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -1155,7 +1163,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1170,21 +1178,26 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         // define the IQIs
         fem::IQI_Factory tIQIFactory;
 
-        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
-        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
-        tIQITEMP->set_output_type_index( 0 );
+//        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+//        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+//        tIQITEMP->set_output_type_index( 0 );
+
+        std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
+        tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
+        tIQIVolFraction->set_stabilization_parameter( tSPReciprocalVolume, "Reciprocal_total_vol" );
+
 
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk1.set_IWGs( { tIWGBulk1 } );
-        tSetBulk1.set_IQIs( { tIQITEMP } );
+        tSetBulk1.set_IQIs( { tIQIVolFraction } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk2.set_IWGs( { tIWGBulk1 } );
-        tSetBulk2.set_IQIs( { tIQITEMP } );
+        tSetBulk2.set_IQIs( { tIQIVolFraction } );
 
         fem::Set_User_Info tSetDirichlet1;
         tSetDirichlet1.set_mesh_set_name( "SideSet_1_n_p0" );
@@ -1219,6 +1232,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD,
+                                 "./",
                                  "UT_MDL_Multigrid.exo",
                                  { "HMR_dummy" },
                                  { "Temperature" },
@@ -1279,6 +1293,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         CHECK( equal_to( tSolution( 382, 0 ), 51.10764688788053, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+08 ) );
+        delete tInterpMesh;
     }
 }
 

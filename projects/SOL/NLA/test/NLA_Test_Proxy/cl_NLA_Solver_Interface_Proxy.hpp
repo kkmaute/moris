@@ -133,7 +133,7 @@ namespace NLA
 
         uint get_num_my_blocks(){return 1; };
 
-        uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements; };
+        uint get_num_equation_objects_on_set( uint aBlockInd){return mNumElements; };
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_operator(const uint             & aMyElementInd,

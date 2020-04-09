@@ -432,10 +432,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
         tHMR.finalize();
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
-
-        mtk::Mesh_Manager tMesh1;
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //------------------------------------------------------------------------------
         real tCrackX;
@@ -500,7 +497,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
 
         tXTKModel.mVerbose = false;
 
@@ -517,7 +514,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", "0_geomCheckNoFibers.exo");
 
             // Write the fields
@@ -620,7 +617,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             tIWGNeumannTop->set_dof_type_list( { tResDofTypes } );
             tIWGNeumannTop->set_property( tPropNeumannTop, "Neumann", mtk::Master_Slave::MASTER );
             //------------------------------------------------------------------------------
-            std::shared_ptr< fem::IWG > tIWGDirichletFixedBottom = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+            std::shared_ptr< fem::IWG > tIWGDirichletFixedBottom = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGDirichletFixedBottom->set_residual_dof_type( tResDofTypes );
             tIWGDirichletFixedBottom->set_dof_type_list( { tResDofTypes } );
             tIWGDirichletFixedBottom->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
@@ -708,6 +705,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
 
             tOutputData.set_outputs( 0,
                                      vis::VIS_Mesh_Type::STANDARD,
+                                     "./",
                                      "aaaaaaaaaa_outputCheck2D.e",
                                      { "HMR_dummy_n_p3", "HMR_dummy_c_p3" },
                                      { "UX", "UY", "J_INTEGRAL" },
@@ -814,6 +812,8 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             tTimeSolver.set_output( 0, tSolverOutputCriteriaThesis );
             //------------------------------------------------------------------------------
             tTimeSolver.solve();
+
+            delete tInterpMesh;
         }   // end full problem logic statement
 
     } // end par size statement
@@ -929,10 +929,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
 
         tFieldData( 0 ) = tGENGeometryEngine_temp.get_cylinder_vals( tMeshIndex, &tFibers, tNumberOfFibers );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpMesh );
-
-        mtk::Mesh_Manager tMesh1;
+        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         real tElapsedTime0 = tTimer0.toc<moris::chronos::milliseconds>().wall;
         tElapsedTime0 /= 1000;
@@ -964,7 +961,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
 
         tXTKModel.mVerbose = false;
 
@@ -981,7 +978,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // Write mesh
-            Writer_Exodus writer(&tEnrIntegMesh);
+            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
             writer.write_mesh("", "0_geomCheck.exo");
 
             // Write the fields
@@ -989,6 +986,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
 
             writer.close_file();
         }
+        delete tInterpMesh;
         //============================= end temporary ==========================================
     }   //end par_size() statement
 

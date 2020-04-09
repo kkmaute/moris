@@ -122,6 +122,7 @@ namespace moris
                     tProp->set_set_pointer( mSet );
                 }
             }
+
         }
 
 //------------------------------------------------------------------------------
@@ -814,8 +815,7 @@ namespace moris
             uint tNumSlaveDofType  = mRequestedSlaveGlobalDofTypes.size();
 
             // get the column index to assemble in residual
-            uint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )
-                                                       ( static_cast< uint >( mFEMIQIType ) );
+            sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
 
             // get num of rows for dQIdu
             uint tNumRows = 0;
@@ -981,8 +981,7 @@ namespace moris
                                   Matrix< DDRMat > & adQIduFD )
         {
             // get the column index to assemble in residual
-            uint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )
-                                                       ( static_cast< uint >( mFEMIQIType ) );
+            sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
 
             // compute dQIdDof with IQI
             this->compute_dQIdu( aWStar );

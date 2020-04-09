@@ -165,9 +165,6 @@ run_hmr_for_multi_mat_model_2d(hmr::HMR  &                    aHMR,
     }
 
     aHMR.finalize();
-
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = aHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
 }
 
 moris::real
@@ -242,8 +239,6 @@ run_hmr_for_multi_mat_model_3d(hmr::HMR  &                    aHMR,
     aFields(0)->evaluate_scalar_function( MultiMat3dCyl );
     aFields(1)->evaluate_scalar_function( MultiMat3dPlane );
     aHMR.finalize();
-
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = aHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 }
 
 TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE_BAR_HOLE_2D]")
@@ -282,7 +277,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
          run_hmr_for_multi_mat_model_2d(tHMR, tHMRFields);
 
 
-         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
          moris::ge::GEN_Geom_Field_HMR tCircleFieldAsGeom(tHMRFields(0));
          moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom2(tHMRFields(1));
@@ -291,7 +286,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+         xtk::Model           tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -423,7 +418,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -576,6 +571,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_bl_2_mat_l" + std::to_string(tLagrangeOrder) + "_b"+std::to_string(tBsplineOrder)+".e";
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD,
+                                 "./",
                                  tMeshOutputFile,
                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3",
                                    "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
@@ -710,6 +706,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         delete tModel;
+        delete tInterpMesh;
     }
 }
 
@@ -749,7 +746,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
          Cell<std::shared_ptr< moris::hmr::Field >> tHMRFields;
          run_hmr_for_multi_mat_model_3d(tHMR, tHMRFields);
 
-         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
          moris::ge::GEN_Geom_Field_HMR tCircleFieldAsGeom(tHMRFields(0));
          moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom2(tHMRFields(1));
@@ -758,7 +755,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
          size_t tModelDimension = 3;
          moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+         xtk::Model           tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -782,7 +779,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(9,"ghost_ss_3");
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_3", CellTopology::HEX8);
 
-        Writer_Exodus writer(&tEnrIgMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
         writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo");
 
         // Write the fields
@@ -920,7 +917,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1055,7 +1052,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 
@@ -1067,6 +1064,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         std::string tMeshOutputFile = "xtk_hmr_bar_plane_hole_3d_l" + std::to_string(tLagrangeOrder) + "_b"+std::to_string(tBsplineOrder)+".e";
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD,
+                                 "./",
                                  tMeshOutputFile,
                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3",
                                    "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
@@ -1188,6 +1186,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         delete tModel;
+        delete tInterpMesh;
 //        delete tIntegMesh1;
     }
 }

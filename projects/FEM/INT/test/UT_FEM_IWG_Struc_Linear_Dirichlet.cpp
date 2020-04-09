@@ -119,7 +119,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -311,7 +311,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement", "[IWG_Struc_Dirichlet_Mixed
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -515,7 +515,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -707,7 +707,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -903,7 +903,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1093,7 +1093,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1247,7 +1247,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
 TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet", "[moris],[fem],[IWG_Thermo_Elastic_Dirichlet]" )
 {
 //    // create an IWG Struc linear Dirichlet
-//    IWG_Isotropic_Struc_Linear_Dirichlet tIWG;
+//    IWG_Isotropic_STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE tIWG;
 //
 //    // set residual dof type
 //    tIWG.set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );

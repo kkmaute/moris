@@ -43,6 +43,8 @@ private:
 
     xtk::Model * mXTKModelPtr = nullptr;
 
+    moris_index mMeshIndex;
+
     moris::Cell< moris_index > mEnrichedBasisToBackgroundBasis;
 
     moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
@@ -152,13 +154,13 @@ public:
 #endif
 //------------------------------------------------------------------------------
 
-    void build_basis_exodus_information();
+    void build_basis_exodus_information(std::string aName);
 
 //------------------------------------------------------------------------------
 
 #ifdef DEBUG
 private:
-    moris::Cell< moris::Matrix< DDRMat > > mEnrichedBasisCoords;
+    moris::Matrix< DDRMat > mEnrichedBasisCoords;
 
     moris::Matrix< DDRMat >             mEnrichedBasisStatus;
 #endif

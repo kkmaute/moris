@@ -45,7 +45,7 @@ public :
 
     }
 //------------------------------------------------------------------------------
-    // empty constructor ( if using this, will need to call set_filed_data() and initialize() separately )
+    // empty constructor ( if using this, will need to call set_field_data() and/or initialize() separately )
     GEN_Field(){}
 //------------------------------------------------------------------------------
     // destructor
@@ -101,6 +101,12 @@ public :
     void set_field_data( moris::Matrix< DDRMat > aFieldData )
     {
         mFieldData = aFieldData;
+    }
+//------------------------------------------------------------------------------
+    void set_field_data_value( const uint        aValueIndex,
+                               const moris::real aValue )
+    {
+        mFieldData( aValueIndex ) = aValue;
     }
 //------------------------------------------------------------------------------
     moris::Matrix< DDRMat > get_all_field_data()

@@ -80,7 +80,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
+    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}},
+                                             { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
@@ -97,7 +98,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure", "[IWG_Struc_Dirichlet_Mixed]" )
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::P } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );

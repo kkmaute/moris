@@ -82,7 +82,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
          moris::hmr::Parameters tParameters;
 
-         tParameters.set_number_of_elements_per_dimension( { {2}, {1}} );
+         tParameters.set_number_of_elements_per_dimension( { {10}, {5}} );
          tParameters.set_domain_dimensions({ {2}, {1} });
          tParameters.set_domain_offset({ {-1.0}, {-0.5} });
          tParameters.set_bspline_truncation( true );
@@ -119,7 +119,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
          tField->evaluate_scalar_function( PlaneFuncXTKHMR2D );
 
-         for( uint k=0; k<1; ++k )
+         for( uint k=0; k<2; ++k )
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
@@ -135,7 +135,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
 //         tHMR.save_bsplines_to_vtk( "./xtk_exo/Bspline.vtk", 0, 0 );
 
-         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
          moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -144,7 +144,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
          size_t tModelDimension = 2;
          moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -157,17 +157,103 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         tXTKModel.construct_multigrid();
 
+        // get meshes
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh   & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
 
+        std::cout<<tEnrInterpMesh.get_num_basis( 0 )<<std::endl;
+        uint tNumBasis = tEnrInterpMesh.get_num_basis( 0);
 
-        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tHdf5FilePath = tMorisRoot + "/projects/XTK/test/xtk/data/Reference_Multigrid.hdf5";
 
+        //------------------------------------------------------------------------------
+        //    write solution ( uncomment this if you want to recreate solution files )
+        //------------------------------------------------------------------------------
 
-
-
-
-        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+//        // create file
+//        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
 //
-        // output to exodus file ----------------------------------------------------------
+//        // error handler
+//        herr_t tStatus = 0;
+//
+//        for( uint Ik = 0; Ik<tNumBasis; Ik++ )
+//        {
+//            std::string ChildBasisForCoarseBasis   = "ChildBasisForCoarseBasis_"   + std::to_string( Ik );
+//            std::string BasisWeightsForCoarseBasis = "BasisWeightsForCoarseBasis_" + std::to_string( Ik );
+//            std::string ParentBasisForFineBasis    = "ParentBasisForFineBasis_"    + std::to_string( Ik );
+//
+//            moris::Matrix< DDSMat > tMatInd     = tEnrInterpMesh.get_fine_basis_inds_of_basis( 0, Ik );
+//            moris::Matrix< DDRMat > tMatWeights = tEnrInterpMesh.get_fine_basis_weights_of_basis( 0, Ik );
+//            moris::Matrix< DDSMat > tMatFineToCoarseInd( tEnrInterpMesh.get_num_coarse_basis_of_basis( 0, Ik ),1);
+//
+//            for( uint Ii = 0; Ii<tEnrInterpMesh.get_num_coarse_basis_of_basis( 0, Ik ); Ii++ )
+//            {
+//            	tMatFineToCoarseInd( Ii )=tEnrInterpMesh.get_coarse_basis_index_of_basis( 0, Ik, Ii );
+//            }
+//
+//            // save data
+//            save_matrix_to_hdf5_file( tFileID, ChildBasisForCoarseBasis  , tMatInd            , tStatus );
+//            save_matrix_to_hdf5_file( tFileID, BasisWeightsForCoarseBasis, tMatWeights        , tStatus );
+//            save_matrix_to_hdf5_file( tFileID, ParentBasisForFineBasis   , tMatFineToCoarseInd, tStatus );
+//        }
+
+        //------------------------------------------------------------------------------
+        //    check solution
+        //------------------------------------------------------------------------------
+
+        // open file
+        hid_t tFileID = open_hdf5_file( tHdf5FilePath );
+
+        // error handler
+        herr_t tStatus = 0;
+
+        moris::Matrix< DDSMat > tMatIndRef;
+        moris::Matrix< DDRMat > tMatWeightsRef;
+        moris::Matrix< DDSMat > tMatFineToCoarseIndRef;
+
+        for( uint Ik = 0; Ik<tNumBasis; Ik++ )
+        {
+            std::string ChildBasisForCoarseBasis   = "ChildBasisForCoarseBasis_"   + std::to_string( Ik );
+            std::string BasisWeightsForCoarseBasis = "BasisWeightsForCoarseBasis_" + std::to_string( Ik );
+            std::string ParentBasisForFineBasis    = "ParentBasisForFineBasis_"    + std::to_string( Ik );
+
+            moris::Matrix< DDSMat > tMatInd     = tEnrInterpMesh.get_fine_basis_inds_of_basis( 0, Ik );
+            moris::Matrix< DDRMat > tMatWeights = tEnrInterpMesh.get_fine_basis_weights_of_basis( 0, Ik );
+            moris::Matrix< DDSMat > tMatFineToCoarseInd( tEnrInterpMesh.get_num_coarse_basis_of_basis( 0, Ik ),1);
+
+            for( uint Ii = 0; Ii<tEnrInterpMesh.get_num_coarse_basis_of_basis( 0, Ik ); Ii++ )
+            {
+            	tMatFineToCoarseInd( Ii )=tEnrInterpMesh.get_coarse_basis_index_of_basis( 0, Ik, Ii );
+            }
+
+            // read solution from file
+            load_matrix_from_hdf5_file( tFileID, ChildBasisForCoarseBasis  , tMatIndRef            , tStatus );
+            load_matrix_from_hdf5_file( tFileID, BasisWeightsForCoarseBasis, tMatWeightsRef        , tStatus );
+            load_matrix_from_hdf5_file( tFileID, ParentBasisForFineBasis   , tMatFineToCoarseIndRef, tStatus );
+
+            bool tCheck = true;
+            for( uint Ik = 0; Ik <tMatInd.numel(); Ik++)
+            {
+                if ( tMatInd(Ik) != tMatIndRef(Ik) ) { tCheck = false; }
+            }
+            for( uint Ik = 0; Ik <tMatWeights.numel(); Ik++)
+            {
+                if ( tMatWeights(Ik) != tMatWeightsRef(Ik) ) { tCheck = false; }
+            }
+            for( uint Ik = 0; Ik <tMatFineToCoarseInd.numel(); Ik++)
+            {
+                if ( tMatFineToCoarseInd(Ik) != tMatFineToCoarseIndRef(Ik) ) { tCheck = false; }
+            }
+            CHECK(tCheck);
+        }
+
+        // close file
+        close_hdf5_file( tFileID );
+        delete tInterpMesh;
+
+
+/*        // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
@@ -195,15 +281,15 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         // Write mesh
-        Writer_Exodus writer(&tEnrIgMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
         writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig_multigrid.exo");
 
         // Write the fields
         writer.set_time(0.0);
         writer.close_file();
 
-
         delete tIntegMesh1;
+*/
     }
 }
 

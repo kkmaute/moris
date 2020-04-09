@@ -21,6 +21,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 
 #include "cl_MTK_Mapper.hpp"
 namespace moris
@@ -122,41 +123,41 @@ namespace moris
             // step 2: create union meshes and mappers
             // - - - - - - - - - - - - - - - - - - - - - -
             mtk::Mesh_Manager tMeshManager;
-            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tUnionInterpMeshes;
-            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
-            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
-            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
+            Cell< Interpolation_Mesh_HMR * > tUnionInterpMeshes;
+            Cell< Integration_Mesh_HMR * >   tUnionIntegMeshes;
+            Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
+            Cell< Integration_Mesh_HMR * >   tInputIntegMeshes;
             Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
 
             for( uint m=0; m<tNumberOfMappers; ++m )
             {
                 //FIXME: CHANGE INTEGRATION MESHES TO DIRECTLY USE INTERPOLATION MESHES. (ELIMINATE DUPLICATE MESH CREATION)
                 // create interpolation mesh input
-                std::shared_ptr< Interpolation_Mesh_HMR > tInputInterpMesh = aHMR->create_interpolation_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern() );
+                Interpolation_Mesh_HMR * tInputInterpMesh = aHMR->create_interpolation_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern() );
 
                 // add to vector of input interpolation meshes
                 tInputInterpMeshes.push_back( tInputInterpMesh );
 
                 // create integration mesh input
-                std::shared_ptr< Integration_Mesh_HMR > tInputIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern(), *tInputInterpMesh );
+                Integration_Mesh_HMR * tInputIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern(), *tInputInterpMesh );
 
                 // add to vector of input integration meshes
                 tInputIntegMeshes.push_back( tInputIntegMesh );
 
                 // create interpolation mesh union
-                std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpMesh = aHMR->create_interpolation_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern() ) ;
+                Interpolation_Mesh_HMR * tUnionInterpMesh = aHMR->create_interpolation_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern() ) ;
 
                 // add to vector of union interpolation meshes
                 tUnionInterpMeshes.push_back( tUnionInterpMesh );
 
                 // create integration mesh union
-                std::shared_ptr< Integration_Mesh_HMR > tUnionIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern(), *tUnionInterpMesh );
+                Integration_Mesh_HMR * tUnionIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern(), *tUnionInterpMesh );
 
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
                 // add pairs to mesh manager
-                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
+                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m),tUnionIntegMeshes(m));
 
                 // create mapper
                 tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )

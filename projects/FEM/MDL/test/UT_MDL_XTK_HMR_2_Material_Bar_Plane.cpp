@@ -166,7 +166,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
 
@@ -175,7 +175,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -193,7 +193,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 //        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
 
         // Write mesh
-        Writer_Exodus writer(&tEnrIntegMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
         writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e");
 
         // Write the fields
@@ -278,7 +278,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -344,7 +344,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 
@@ -470,6 +470,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         //    delete tInterpMesh1;
         delete tModel;
+        delete tInterpMesh;
 //        delete tIntegMesh1;
     }
 }

@@ -19,13 +19,15 @@ include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 # Moris packages included for exe's
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 
-if(BUILD_HMR)
-	include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
-	include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
-	include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
-	include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
-	include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
-endif()
+#if(BUILD_HMR)
+include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
+#endif()
 
 # needs some tpls
 set(XTK_TPL_DEPENDENCIES

@@ -21,7 +21,7 @@ namespace ge
 class GEN_Geom_Field : public GEN_Geometry
 {
 private :
-    GEN_Field*      mField = nullptr;
+    GEN_Field* mField = nullptr;
 
 //------------------------------------------------------------------------------
 public :
@@ -43,6 +43,11 @@ public :
     {
         MORIS_ASSERT( mField != nullptr, "GEN_Geom_Field::evaluate_field_value_with_coordinate() - field pointer not set" );
         return mField->get_field_val_at_vertex( aEntityIndex );    // note: aEntityIndex corresponds to the node index in the phase table
+    }
+//------------------------------------------------------------------------------
+    GEN_Field* get_field_pointer()
+    {
+        return mField;
     }
 //------------------------------------------------------------------------------
 };

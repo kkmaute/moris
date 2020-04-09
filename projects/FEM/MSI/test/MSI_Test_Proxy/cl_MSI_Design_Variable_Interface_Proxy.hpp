@@ -15,6 +15,8 @@
 
 #include "cl_MSI_Design_Variable_Interface.hpp" // COM/src
 
+
+
 extern moris::Comm_Manager gMorisComm;
 
 namespace moris
@@ -32,8 +34,6 @@ private:
     moris::Matrix< DDSMat >        mMap;
     moris::Matrix< DDUMat >        mConstraintDofs;
     moris::map< GEN_DV, sint > mDvToIndexMap;
-
-    moris::Cell< moris::Cell< moris_index > > mQIAssemblyMap;
 
 public :
     Design_Variable_Interface_Proxy()
@@ -87,8 +87,6 @@ public :
         mMap( 6 ) = 6;
         mMap( 7 ) = 7;
 
-        // for IQI_Type::STRAIN_ENERGY and Phase_Type::PHASE0
-        mQIAssemblyMap = {{ -1, -1,  0, -1, -1}};
 
 //        // create map object
 //        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
@@ -254,10 +252,8 @@ public :
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
     }
 //------------------------------------------------------------------------------
-    moris::Cell< moris::Cell< moris_index > > & get_QI_assembly_map()
-    {
-        return mQIAssemblyMap;
-    }
+	
+    void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType );
 
 };
 }

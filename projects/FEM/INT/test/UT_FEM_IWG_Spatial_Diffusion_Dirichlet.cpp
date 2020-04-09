@@ -91,7 +91,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -264,7 +264,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -441,7 +441,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );

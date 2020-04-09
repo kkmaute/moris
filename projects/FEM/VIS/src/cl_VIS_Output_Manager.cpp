@@ -22,6 +22,7 @@ namespace moris
 
     void Output_Manager::set_outputs( const uint                              aOutputIndex,
                                       const enum VIS_Mesh_Type                aMeshType,
+                                      const std::string                     & aMeshPath,
                                       const std::string                     & aMeshName,
                                       const moris::Cell< std::string >      & aBlockNames,
                                       const moris::Cell< std::string >      & aFieldNames,
@@ -34,8 +35,8 @@ namespace moris
         // fill output data object
         tOutputData.mMeshIndex  = aOutputIndex;
         tOutputData.mMeshType   = aMeshType;
-        tOutputData.mOutputPath = std::getenv("MORISOUTPUT");
         tOutputData.mMeshName   = aMeshName;
+        tOutputData.mMeshPath   = aMeshPath;
         tOutputData.mSetNames   = aBlockNames;
         tOutputData.mFieldNames = aFieldNames;
         tOutputData.mFieldType  = aFieldType;
@@ -123,7 +124,7 @@ namespace moris
         mWriter.resize( mOutputData.size(), nullptr );
 
         // create writer for this mesh
-        mWriter( aVisMeshIndex ) = new Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+        mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -169,10 +170,10 @@ namespace moris
 //-----------------------------------------------------------------------------------------------------------
 
     void Output_Manager::write_mesh( const uint aVisMeshIndex,
-                                     const real tTime )
+                                     const real aTime )
     {
         // specify file path
-        std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mOutputPath;
+        std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
 
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
@@ -190,7 +191,7 @@ namespace moris
         this->add_global_fields( aVisMeshIndex );
 
         // write time to file
-        mWriter( aVisMeshIndex )->set_time( tTime );
+        mWriter( aVisMeshIndex )->set_time( aTime );
 
         // write standard outputs like IDs and Indices to file
         //this->write_mesh_indices( aVisMeshIndex );

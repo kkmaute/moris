@@ -131,12 +131,9 @@ namespace moris
 
             tHMR.finalize();
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+            hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             mtk::Mesh_Manager tMeshManager;
-
-//            uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
             //------------------------------------------------------------------------------
             //------------------------------------------------------------------------------
             Cell< enum GEN_DV > tPdvList(3);
@@ -176,7 +173,7 @@ namespace moris
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
-            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), &tGeometryEngine );
+            xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
@@ -194,7 +191,7 @@ namespace moris
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
                 // Write mesh
-                Writer_Exodus writer(&tEnrIntegMesh);
+                moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
                 writer.write_mesh("", "aaaaa_pdvGeomCheck.exo");
                 // Write the fields
                 writer.set_time(1.0);
@@ -330,7 +327,7 @@ namespace moris
             if (tOutputXTKMesh)
             {
                 // Write mesh
-                Writer_Exodus writer(&tEnrIntegMesh);
+                moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
                 writer.write_mesh("", "aaaaa_integrationMesh.exo");
                 // Write the fields
                 writer.set_time(0.0);
@@ -466,11 +463,9 @@ namespace moris
 
             tHMR.finalize();
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+            hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             mtk::Mesh_Manager tMeshManager;
-//            uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
             //------------------------------------------------------------------------------
             Cell< enum GEN_DV > tPdvList(2);
             tPdvList(0) = GEN_DV::DENSITY0;
@@ -501,7 +496,7 @@ namespace moris
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
-            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), &tGeometryEngine );
+            xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
@@ -519,7 +514,7 @@ namespace moris
                 xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
                 // Write mesh
-                Writer_Exodus writer(&tEnrIntegMesh);
+                moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
                 writer.write_mesh("", "aaaaa_pdvGeomCheck.exo");
                 // Write the fields
                 writer.set_time(1.0);

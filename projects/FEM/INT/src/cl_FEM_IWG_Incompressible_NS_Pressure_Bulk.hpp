@@ -33,6 +33,7 @@ namespace moris
             enum class IWG_Property_Type
             {
                 DENSITY,
+                GRAVITY,
                 MAX_ENUM
             };
 
@@ -161,6 +162,48 @@ namespace moris
              * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_dRdp( real aWStar );
+
+        private:
+//------------------------------------------------------------------------------
+            /**
+             * compute the residual strong form
+             * @param[ in ] aRM a matrix to fill with RM
+             */
+            void compute_residual_strong_form( Matrix< DDRMat > & aRM );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the residual strong form
+             * @param[ in ] aDofTypes a list of dof type wrt which
+             *                        the derivative is requested
+             * @param[ in ] aJM       a matrix to fill with dRMdDof
+             */
+            void compute_jacobian_strong_form( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                               Matrix< DDRMat >             & aJM );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the term uj vij
+             * @param[ in ] aujvij a matrix to fill with uj vij
+             */
+            void compute_ujvij( Matrix< DDRMat > & aujvij );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the term uj vij rm
+             * @param[ in ] aujvijrm a matrix to fill with uj vij rm
+             * @param[ in ] arm      provided strong form residual
+             */
+            void compute_ujvijrm( Matrix< DDRMat > & aujvijrm,
+                                  Matrix< DDRMat > & arm );
+
+//------------------------------------------------------------------------------
+            // FIXME provided directly by the field interpolator?
+            /**
+             * compute the term dnNdtn
+             * @param[ in ] adnNdtn a matrix to fill with dnNdtn
+             */
+            void compute_dnNdtn( Matrix< DDRMat > & adnNdtn );
 
 //------------------------------------------------------------------------------
         };

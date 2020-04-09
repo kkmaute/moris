@@ -32,6 +32,7 @@ namespace moris
     {
         ParameterList mMSIParameterList;
 
+        // Adof type interpolation index
         mMSIParameterList.insert( "UX"         , 0 );
         mMSIParameterList.insert( "UY"         , 0 );
         mMSIParameterList.insert( "UZ"         , 0 );
@@ -47,7 +48,13 @@ namespace moris
         mMSIParameterList.insert( "VY"         , 0 );
         mMSIParameterList.insert( "VZ"         , 0 );
         mMSIParameterList.insert( "P"          , 0 );
+
+        // General MSI parameters
+        mMSIParameterList.insert( "order_adofs_by_host", false );
+
+        // Geometric multigrid parameters
         mMSIParameterList.insert( "multigrid"  , false );
+        mMSIParameterList.insert( "level"      , 2 );
 
         return mMSIParameterList;
     }

@@ -167,7 +167,6 @@ void tConstValFunction_MDLCUT
             tCellsForGhost.mBlockSetTopo = CellTopology::HEX8;
             tMtkMeshSets.add_block_set(&tCellsForGhost);
 
-
             // Mesh data input structure
             moris::mtk::MtkMeshData tMeshDataInput(3);
 
@@ -305,6 +304,10 @@ void tConstValFunction_MDLCUT
             tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
             tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 
+            std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+            tSPGhost->set_parameters( {{{ 1.0 }} });
+            tSPGhost->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
@@ -314,7 +317,7 @@ void tConstValFunction_MDLCUT
             tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
             tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -330,28 +333,30 @@ void tConstValFunction_MDLCUT
             tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            uint iInterpOrder = 1;
-            if ( iInterpOrder > 0 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-                tSP1->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
-                tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
-            }
-            if ( iInterpOrder > 1 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
-                tSP2->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
-                tIWGGhost->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
-            }
-            if ( iInterpOrder > 2 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
-                tSP3->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
-                tIWGGhost->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
-            }
+            tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+
+//            uint iInterpOrder = 1;
+//            if ( iInterpOrder > 0 )
+//            {
+//                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
+//                tSP1->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
+//            }
+//            if ( iInterpOrder > 1 )
+//            {
+//                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
+//                tSP2->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tIWGGhost->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
+//            }
+//            if ( iInterpOrder > 2 )
+//            {
+//                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
+//                tSP3->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tIWGGhost->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
+//            }
 
             // define set info
             fem::Set_User_Info tSetBulk1;

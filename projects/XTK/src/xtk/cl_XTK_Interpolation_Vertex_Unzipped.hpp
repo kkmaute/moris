@@ -48,6 +48,11 @@ public:
     Vertex_Enrichment const * get_xtk_interpolation( const uint aOrder ) const ;
     mtk::Vertex const *       get_base_vertex(  ) const;
 
+    //------------------------------------------------------------------------------
+    void
+    add_vertex_interpolation(const uint aOrder,
+                             Vertex_Enrichment* aVertexInterp);
+
 private:
     // the parent vertex
     mtk::Vertex* mBaseInterpVertex;
@@ -57,8 +62,7 @@ private:
     moris_index mVertexOwner;
 
     // interpolation of vertex
-    uint mOrder; /* Order of the Vertex interpolation*/
-    Vertex_Enrichment* mInterpolation;
+    Cell<Vertex_Enrichment*> mInterpolation;
 
 };
 

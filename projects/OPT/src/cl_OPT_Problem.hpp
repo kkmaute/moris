@@ -5,7 +5,8 @@
 #include "core.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_OPT_Interface.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -15,32 +16,37 @@ namespace moris
         {
 
         private:
-            Interface* mInterface;
+            std::shared_ptr<Criteria_Interface> mInterface;
 
             Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
             Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
             Matrix<DDSMat> mConstraintTypes; // flags for types of constraints
-            Matrix<DDRMat> mObjectives; // objective values (typically just 1, supporting multi-objective for future implementation)
-            Matrix<DDRMat> mConstraints; // constraint values
-            Matrix<DDRMat> mObjectiveGradient; // Full gradient of the objectives with respect to the ADVs
-            Matrix<DDRMat> mConstraintGradient; // Full gradient of the constraints with respect to the ADVs
+            Matrix<DDRMat> mObjectives; // objectives (always 1)
+            Matrix<DDRMat> mConstraints; // constraints
+            Matrix<DDRMat> mObjectiveGradient; // full gradient of the objectives with respect to the ADVs
+            Matrix<DDRMat> mConstraintGradient; // full gradient of the constraints with respect to the ADVs
+            Matrix<DDRMat> mFiniteDifferenceEpsilons; // Epsilon for finite differencing
+
+            std::string mFiniteDifferenceType;
+            real mADVNormTolerance = 0.0;
 
         protected:
             Matrix<DDRMat> mADVs;    // Abstract Design Variable vector
             Matrix<DDRMat> mCriteria; // vector of criteria values
 
         public:
-            bool mUpdateObjectives = true;
-            bool mUpdateConstraints = true;
-            bool mUpdateObjectiveGradient = true;
-            bool mUpdateConstraintGradient = true;
+            bool mUpdateObjectives = true; // whether or not to compute new objectives when requested
+            bool mUpdateConstraints = true; // whether or not to compute new constraints when requested
+            bool mUpdateObjectiveGradients = true; // "                 " objective gradients
+            bool mUpdateConstraintGradients = true; // "                 " constraint gradients
 
             /**
              * Constructor
              *
-             * @param aInterface Interface class written for other module (e.g. GEN)
+             * @param aParameterList Parameter list for constructing the problem
+             * @param aInterface Interface class written for other module
              */
-            Problem(Interface* aInterface);
+            Problem(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface);
 
             /**
              * Destructor
@@ -60,7 +66,7 @@ namespace moris
              */
             uint get_num_objectives()
             {
-                return mObjectives.numel();
+                return this->get_objectives().numel();
             }
 
             /**
@@ -68,7 +74,7 @@ namespace moris
              */
             uint get_num_constraints()
             {
-                return mConstraints.numel();
+                return this->get_constraints().numel();
             }
 
             /**
@@ -93,6 +99,8 @@ namespace moris
 
             /**
              * Get the adv upper bounds
+             *
+             * @return vector of upper bounds
              */
             Matrix<DDRMat> get_upper_bounds()
             {
@@ -101,6 +109,8 @@ namespace moris
 
             /**
              * Get the adv lower bounds
+             *
+             * @return vector of lower bounds
              */
             Matrix<DDRMat> get_lower_bounds()
             {
@@ -114,22 +124,47 @@ namespace moris
 
             /**
              * Checks that the constraints are given in the correct order (equality constraints first)
+             *
+             * @return bool, if order is correct
              */
             bool check_constraint_order();
+
+            /**
+             * Gets the objective values
+             *
+             * @return vector of objectives
+             */
+            Matrix<DDRMat> get_objectives();
+
+            /**
+             * Gets the constraint values
+             *
+             * @return vector of constraints
+             */
+            Matrix<DDRMat> get_constraints();
 
             /**
              * Returns the objective gradient, and computes it if not already available.
              *
              * @return full derivative matrix d(objective)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_objective_gradient(); // TODO rename these
+            Matrix<DDRMat> get_objective_gradients();
 
             /**
              * Returns the constraint gradient, and computes it if not already available.
              *
              * @return full derivative matrix d(constraint)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_constraint_gradient();
+            Matrix<DDRMat> get_constraint_gradients();
+
+            /**
+             * Sets the type of finite differencing used for the objectives and an epsilon
+             *
+             * @param aType std::string defining type; forward, backward, central, or none
+             * @param (optional) aEpsilons vector of values for perturbing the ADVs
+             */
+            void set_finite_differencing(std::string aType, Matrix<DDRMat> aEpsilons);
+            void set_finite_differencing(std::string aType);
 
             /**
              * Modifies the optimization solution. Not currently implemented.
@@ -142,6 +177,15 @@ namespace moris
             void update_problem();
 
             /**
+             * Gets the constraint types
+             *
+             * @return vector of integers, 0 = equality constraint, 1 = inequality constraint
+             */
+            virtual Matrix<DDSMat> get_constraint_types() = 0;
+
+        private:
+
+            /**
              * Override the ADV values given by the interface. Optional.
              */
             virtual void override_advs()
@@ -150,64 +194,87 @@ namespace moris
             };
 
             /**
-             * Gets the constraint types
-             *
-             * @return vector of integers, 0 = equality constraint, 1 = inequality constraint
-             */
-            virtual Matrix<DDSMat> get_constraint_types() = 0;
-
-            /**
-             * Gets the objective values
+             * Calculates the objective value
              *
              * @return vector of objectives
              */
-            virtual Matrix<DDRMat> get_objectives() = 0;
+             virtual Matrix<DDRMat> compute_objectives() = 0;
 
             /**
-             * Gets the constraint values
+             * Calculates the constraint values
              *
              * @return vector of constraints
              */
-            virtual Matrix<DDRMat> get_constraints() = 0;
+            virtual Matrix<DDRMat> compute_constraints() = 0;
 
             /**
-             * Gets the derivative of the objectives with respect to the advs
+             * Calculates the derivative of the objectives with respect to the advs
              *
              * @return matrix d(objective)_i/d(adv)_j
              */
-            virtual Matrix<DDRMat> get_dobjective_dadv() = 0;
+            virtual Matrix<DDRMat> compute_dobjective_dadv() = 0;
 
             /**
-             * Gets the derivative of the constraints with respect to the advs
-             *
-             * @return matrix d(constraints)_i/d(adv)_j
-             */
-            virtual Matrix<DDRMat> get_dconstraint_dadv() = 0;
-
-            /**
-             * Gets the derivative of the objective with respect to the criteria.
+             * Calculates the derivative of the objective with respect to the criteria.
              *
              * @return matrix d(objective)_i/d(criteria)_j
              */
-            virtual Matrix<DDRMat> get_dobjective_dcriteria() = 0;
+            virtual Matrix<DDRMat> compute_dobjective_dcriteria() = 0;
 
             /**
-             * Gets the derivative of the constraints with respect to the criteria.
+             * Calculates the derivative of the constraints with respect to the advs
+             *
+             * @return matrix d(constraints)_i/d(adv)_j
+             */
+            virtual Matrix<DDRMat> compute_dconstraint_dadv() = 0;
+
+            /**
+             * Calculates the derivative of the constraints with respect to the criteria.
              *
              * @return matrix d(constraint)_i/d(criteria)_j
              */
-            virtual Matrix<DDRMat> get_dconstraint_dcriteria() = 0;
+            virtual Matrix<DDRMat> compute_dconstraint_dcriteria() = 0;
 
-        private:
+            /**
+             * Function pointer which computes the objective gradient in a user-specified way
+             */
+            void (Problem::*compute_objective_gradient)() = &Problem::compute_objective_gradient_analytical;
+
+            /**
+             * Function pointer which computes the constraint gradients in a user-specified way
+             */
+            void (Problem::*compute_constraint_gradient)() = &Problem::compute_constraint_gradient_analytical;
+
             /**
              * Assembles the objective gradient from the explicit and implicit gradient terms.
              */
-            void compute_objective_gradient();
+            void compute_objective_gradient_analytical();
 
             /**
              * Assembles the constraint gradient from the explicit and implicit gradient terms.
              */
-            void compute_constraint_gradient();
+            void compute_constraint_gradient_analytical();
+
+            /**
+             * Computes the objective gradient using forward or backward finite differencing
+             */
+            void compute_objective_gradient_fd_bias();
+
+            /**
+             * Computes the constraint gradient using forward or backward finite differencing
+             */
+            void compute_constraint_gradient_fd_bias();
+
+            /**
+             * Computes the objective gradient using central finite differencing
+             */
+            void compute_objective_gradient_fd_central();
+
+            /**
+             * Computes the constraint gradient using central finite differencing
+             */
+            void compute_constraint_gradient_fd_central();
+
         };
     }
 }

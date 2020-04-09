@@ -96,12 +96,26 @@ const std::string get_enum_str(enum EntityRank aCellTopoEnum)
         case EntityRank::EDGE     : return "EDGE"; break;
         case EntityRank::FACE     : return "FACE"; break;
         case EntityRank::ELEMENT  : return "ELEMENT"; break;
-        case EntityRank::BSPLINE: return "BSPLINE"; break;
+        case EntityRank::BSPLINE  : return "BSPLINE"; break;
         case EntityRank::BSPLINE_2: return "BSPLINE_2"; break;
         case EntityRank::BSPLINE_3: return "BSPLINE_3"; break;
         case EntityRank::INVALID  : return "INVALID"; break;
         default: return "Unrecognized Enum provided to get_enum_str";
     }
 }
+inline
+enum EntityRank get_entity_rank_from_str(std::string const & aString)
+{
+        if      (aString.compare("NODE"     ) == 0 || aString.compare("node"     ) == 0 ){ return EntityRank::NODE     ;}
+        else if (aString.compare("EDGE"     ) == 0 || aString.compare("edge"     ) == 0 ){ return EntityRank::EDGE     ;}
+        else if (aString.compare("FACE"     ) == 0 || aString.compare("face"     ) == 0 ){ return EntityRank::FACE     ;}
+        else if (aString.compare("ELEMENT"  ) == 0 || aString.compare("element"  ) == 0 ){ return EntityRank::ELEMENT  ;}
+        else if (aString.compare("BSPLINE"  ) == 0 || aString.compare("bspline"  ) == 0 ){ return EntityRank::BSPLINE  ;}
+        else if (aString.compare("BSPLINE_2") == 0 || aString.compare("bspline_2") == 0 ){ return EntityRank::BSPLINE_2;}
+        else if (aString.compare("BSPLINE_3") == 0 || aString.compare("bspline_3") == 0 ){ return EntityRank::BSPLINE_3;}
+        else if (aString.compare("INVALID"  ) == 0 || aString.compare("invalid"  ) == 0 ){ return EntityRank::INVALID  ;}
+        else{ MORIS_ERROR(0,"Invliad entity rank string"); return EntityRank::INVALID; };
 }
+}
+
 #endif /* MORIS_MESH_CL_MESH_ENUMS_HPP_ */

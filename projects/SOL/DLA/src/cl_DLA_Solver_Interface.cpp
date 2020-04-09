@@ -19,9 +19,9 @@ void Solver_Interface::build_graph( moris::Dist_Matrix * aMat )
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
-        moris::uint tNumEquationOnjOnBlock = this->get_num_my_elements_on_block( Ii );
+        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        for ( moris::uint Ik=0; Ik < tNumEquationOnjOnBlock; Ik++ )
+        for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
@@ -86,11 +86,11 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
     {
-        moris::uint tNumEquationOnjOnSet = this->get_num_my_elements_on_block( Ii );
+        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        this->initialize_block( Ii, true );
+        this->initialize_set( Ii, true );
 
-        for ( moris::uint Ik=0; Ik < tNumEquationOnjOnSet; Ik++ )
+        for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
@@ -134,11 +134,11 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
 //        std::cout<<"Block "<<Ii<<std::endl;
-        moris::uint tNumEquationOnjOnBlock = this->get_num_my_elements_on_block( Ii );
+        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        this->initialize_block( Ii, false );
+        this->initialize_set( Ii, false );
 
-        for ( moris::uint Ik=0; Ik < tNumEquationOnjOnBlock; Ik++ )
+        for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
@@ -161,11 +161,15 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
 
+//    aMat->save_matrix_to_matlab_file( "Matrix.dat");
+
+//    aMat->print();
+
 }
 
 //---------------------------------------------------------------------------------------------------------
 void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
-                                            moris::Dist_Vector   * aVectorRHS )
+                                            moris::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();
@@ -195,6 +199,61 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_assembly();
     aVectorRHS->vector_global_asembly();
+}
+
+void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
+                                                       const moris::real                       aThreshold  )       // FIXME find better name
+{
+    // Get number of Sets
+    moris::uint tNumSets = this->get_num_my_blocks();
+
+    uint tCounter = 0;
+
+    // Loop over all local elements to build matrix graph
+    for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
+    {
+    	// only check bulk sets
+        if( this->get_set_type( Ii ) == fem::Element_Type::BULK )
+        {
+            // get number of equations on set
+            moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
+
+            // resize adof id vector
+            aCriteriaIds.resize( aCriteriaIds.size() + tNumEquationObjectOnSet );
+
+            moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
+            tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::VOLUME_FRACTION );
+
+            this->set_requested_IQI_type( Ii, tRequestedIQITypes );
+
+            // initialize set
+            this->initialize_set( Ii, false );
+
+            // loop over equation objects on set
+            for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+            {
+                // calcuate criteria
+                this->calculate_criteria( Ii, Ik );
+
+                // get criteria
+                const moris::Cell< moris::Matrix< DDRMat> > & tCriteria = this->get_criteria( Ii );
+
+                // if criteria mets requirement
+                if( tCriteria( 0 )( 0 ) < aThreshold )
+                {
+                    // get adof ids of this equation object
+                    moris::Matrix< DDSMat > tMat;
+                    this->get_element_topology( Ii, Ik, tMat );
+
+                    // store ids in cell
+                    aCriteriaIds( tCounter++ ) = tMat;
+                }
+            }
+        }
+
+        // resize cell to number of triggered equation objects
+        aCriteriaIds.resize( tCounter );
+    }
 }
 
 

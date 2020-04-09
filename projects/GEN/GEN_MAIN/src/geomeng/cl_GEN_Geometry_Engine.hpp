@@ -26,6 +26,7 @@
 #include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Field.hpp"
+#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -47,9 +48,6 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
 
-// HMR
-#include "cl_HMR_Mesh.hpp"
-
 // Parsing tools for parameter list
 #include "fn_Exec_load_user_library.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -57,6 +55,11 @@
 
 namespace moris
 {
+namespace hmr
+{
+    class HMR;
+    class Mesh;
+}
 namespace ge
 {
 /*
@@ -123,6 +126,8 @@ private:    // ----------- member data ----------
 
     mtk::Mesh_Manager* mMesh;
 
+    moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
+
     moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
     bool mTypesSet      = false;
@@ -130,6 +135,8 @@ private:    // ----------- member data ----------
     moris::Cell< moris::moris_index > mIntegNodeIndices;
 
     ParameterList mParameterList;
+
+    std::shared_ptr< Library_IO > mLibrary = nullptr;
 
 public:
 
@@ -182,10 +189,15 @@ public:
 
 //------------------------------------------------------------------------------
     /**
-     * initialize
+     * this function initializes the geometry engine with the provided analytic functions from the input file
+     *
      * @param[ in ] aLibrary a pointer to library for reading inputs
      */
     void initialize( std::shared_ptr< Library_IO > aLibrary );
+
+    void initialize();
+
+    void initialize_geometries_and_phase_table();
 
 //------------------------------------------------------------------------------
     /**
@@ -390,7 +402,7 @@ public:
      */
     moris::size_t get_num_geometries();
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     /*
      * @brief Returns the number of phases
      */
@@ -410,26 +422,27 @@ public:
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::uint get_num_design_variables() const;
 
 //------------------------------------------------------------------------------
     /*
      * @brief Returns the ADV indices of the provided nodes
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
     ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
 
 //------------------------------------------------------------------------------
     /**
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::size_t get_num_design_vars_analytic();
 
@@ -453,6 +466,13 @@ public:
 
     moris_index register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh ); //FIXME: this needs to be deleted and the GE should only be able to register an mtk mesh pair
 
+    void set_performer( std::shared_ptr< hmr::HMR > aMesh );
+
+    void set_library( std::shared_ptr< Library_IO > aLibrary );
+
+    void perform( );
+
+    void perform_refinement( );
 //------------------------------------------------------------------------------
     /*
      * @brief function specific to fiber problem
@@ -499,46 +519,7 @@ public:
      * @brief fills a cell of MORIS matrices with the level-set values corresponding to each geometry
      */
     void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                              const moris_index                 aWhichMesh = 0 )
-    {
-        //TODO: implement for the case of discrete geometries and a mesh manager (rather than just an HMR mesh)
-        uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
-
-        aAllFieldVals.resize( mGeometry.size() );
-
-        for ( uint Ik = 0; Ik< mGeometry.size(); Ik++ )
-        {
-            aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
-
-            for( uint iVert = 0; iVert <tNumVertices; iVert++)
-            {
-                Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
-
-                moris::real tVal = - MORIS_REAL_MAX;
-
-                Cell< moris::real > tTempConstCell = {{0}};
-
-                mGeometry( Ik )->eval( tVal, tCoord, tTempConstCell );
-
-                // FIXME will not work in parallel. Ind are not consistent because of aura
-                aAllFieldVals( Ik )( iVert ) = tVal;
-            }
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                              const moris_index                 aWhichMesh = 0 );
 
 
 
@@ -552,49 +533,6 @@ public:
      * @param[ in ] aPdvType          list of dv types (material only)
      * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
      */
-//    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
-//                        const bool          aUsingGeometryDvs = true )
-//    {
-//        // copy the input dv type list
-//        moris::Cell< enum GEN_DV > tTempList = aPdvType;
-//
-//        // if geometry dv
-//        if(aUsingGeometryDvs)
-//        {
-//            // switch on space dimension
-//            switch(mSpatialDim)
-//            {
-//                // if 2D
-//                case(2):
-//                {
-//                    // add x, y coords to the dv type list
-//                    tTempList.push_back(GEN_DV::XCOORD);
-//                    tTempList.push_back(GEN_DV::YCOORD);
-//                    break;
-//                }
-//                // if 3D
-//                case(3):
-//                {
-//                    // add x, y, z coords to the dv type list
-//                    tTempList.push_back(GEN_DV::XCOORD);
-//                    tTempList.push_back(GEN_DV::YCOORD);
-//                    tTempList.push_back(GEN_DV::ZCOORD);
-//                    break;
-//                }
-//                default:
-//                {
-//                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-//                }
-//            }
-//        }
-//
-//        // set the set dv type flag to true
-//        mTypesSet = true;
-//
-//        // set the dv type list for the pdv host manager
-//        mPdvHostManager.set_pdv_types( tTempList );
-//    }
-
     void set_pdv_types( Cell< enum GEN_DV > aPdvType )
     {
         // set the set dv type flag to true

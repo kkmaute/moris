@@ -187,6 +187,10 @@ namespace moris
 
             this->create_requested_IWG_list();
 
+            this->create_requested_IQI_list();
+
+            this->create_requested_IQI_type_map();
+
             this->build_requested_IWG_dof_type_list( aIsResidual );
 
             // set fem set pointer to IWGs
@@ -1239,8 +1243,7 @@ namespace moris
         mRequestedIWGs.clear();
 
         // reserve max size for requested IWG list
-        //(i.e. as many as requested dof types)
-        mRequestedIWGs.reserve( tRequestedDofTypes.size() );
+        mRequestedIWGs.reserve( mIWGs.size() );
 
         // loop over the requested dof types
         for( MSI::Dof_Type tDofType : tRequestedDofTypes )
@@ -1253,7 +1256,6 @@ namespace moris
                 {
                     // add the IWg to the requested IWG list
                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
-                    break;
                 }
             }
         }
@@ -1268,10 +1270,9 @@ namespace moris
         mRequestedIQIs = mIQIs;
 
 //        // FIXME use when MSI/GEN interface supports this
+          // FIXME set requested types fomr GEN or SOL. do not use get function
 //        // get list of requested IQI types from OPT through the design variable interface
-//        moris::Cell < enum FEM::IQI_Type > tRequestedIQITypes
-//        = this->get_design_variable_interface()
-//              ->get_requested_IQI_types();
+//        moris::Cell < enum FEM::IQI_Type > mRequestedIQITypes;
 //
 //        // clear requested IQI list
 //        mRequestedIQIs.clear();
@@ -1497,23 +1498,25 @@ namespace moris
         if ( !mQIExist )
         {
            // get the dof types requested by the solver
-            moris::Cell < moris::Cell< moris_index > > tQIAssemblyMap
-            = this->get_QI_assembly_map();
+//            moris::Cell < moris::Cell< moris_index > > tQIAssemblyMap
+//            = this->get_QI_assembly_map();
+//
+//            // init QI counter
+//            uint tNumQI= 0;
+//
+//            // loop over the requested dof types
+//            for( uint Ik = 0; Ik < tQIAssemblyMap.size(); Ik++ )
+//            {
+//                for( uint Jk = 0; Jk < tQIAssemblyMap( Ik ).size(); Jk++ )
+//                {
+//                    if( tQIAssemblyMap( Ik )( Jk ) != -1 )
+//                    {
+//                        tNumQI++;
+//                    }
+//                }
+//            }
 
-            // init QI counter
-            uint tNumQI= 0;
-
-            // loop over the requested dof types
-            for( uint Ik = 0; Ik < tQIAssemblyMap.size(); Ik++ )
-            {
-                for( uint Jk = 0; Jk < tQIAssemblyMap( Ik ).size(); Jk++ )
-                {
-                    if( tQIAssemblyMap( Ik )( Jk ) != -1 )
-                    {
-                        tNumQI++;
-                    }
-                }
-            }
+                   uint tNumQI= 1;
 
             // set size for the list of QI values
             mQI.resize( tNumQI );

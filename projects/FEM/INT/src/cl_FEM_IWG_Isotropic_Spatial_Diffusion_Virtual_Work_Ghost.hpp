@@ -32,13 +32,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
 
             enum class IWG_Constitutive_Type
             {
@@ -51,7 +44,7 @@ namespace moris
 
             enum class IWG_Stabilization_Type
             {
-                GHOST_VW_1,
+                GHOST_VW,
                 MAX_ENUM
             };
 

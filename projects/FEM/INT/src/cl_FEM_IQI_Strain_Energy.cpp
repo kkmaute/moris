@@ -44,9 +44,9 @@ namespace moris
             uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
 
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )( static_cast< uint >( mFEMIQIType ) );
+            sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
 
-            print( mSet->get_QI(), "mSet->get_QI()");
+            //print( mSet->get_QI(), "mSet->get_QI()");
             // evaluate the QI
             mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }
@@ -55,7 +55,7 @@ namespace moris
         void IQI_Strain_Energy::compute_dQIdu( real aWStar )
         {
             // get the column index to assemble in residual
-            uint tQIIndex = mSet->get_QI_assembly_map()( static_cast< uint >( mIQIMatType ) )( static_cast< uint >( mFEMIQIType ) );
+            sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
 
             // get the requested dof types
             moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes

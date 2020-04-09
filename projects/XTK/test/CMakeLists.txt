@@ -15,6 +15,7 @@ set(TEST_SOURCES
 	xtk/UT_XTK_Enrichment.cpp
 	xtk/UT_XTK_Enrichment_2D.cpp
 	xtk/UT_XTK_Ghost_Stabilization.cpp
+	xtk/UT_XTK_Parameters.cpp
 	#xtk/cl_XTK_Multigrid.cpp
 	xtk/UT_XTK_Model.cpp
 	xtk/UT_XTK_Model_Parallel.cpp
@@ -88,6 +89,10 @@ set(TEST_DEPENDENCIES
 	${ALG}-lib
 	${MTK}-lib
 	${XTK}-lib
+	${MAP}-lib
+	${MDL}-lib
+	${INT}-lib
+    ${HMR}-lib
 	${GEN_MAIN}-lib
     ${MORIS_BASE_LIBS}
     )

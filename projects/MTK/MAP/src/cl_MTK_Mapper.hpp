@@ -13,9 +13,6 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
-#include "cl_MTK_Mapper_Node.hpp"
 
 namespace moris
 {
@@ -39,6 +36,15 @@ namespace moris
     namespace mdl
     {
         class Model;
+    }
+
+//------------------------------------------------------------------------------
+
+    namespace mtk
+    {
+        class Interpolation_Mesh;
+        class Integration_Mesh;
+        class Mesh_Manager;
     }
 
 //------------------------------------------------------------------------------

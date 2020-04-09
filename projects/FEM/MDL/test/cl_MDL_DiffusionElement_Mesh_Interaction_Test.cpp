@@ -148,7 +148,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -193,17 +193,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
                                                1,
                                                tSetInfo );
 
-        // define outputs
-        // --------------------------------------------------------------------------------------
-        vis::Output_Manager tOutputData;
-        tOutputData.set_outputs( 0,
-                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
-                                 "UT_Output_cube_with_side_sets.exo",
-                                 { "block_1" },
-                                 { "TEMP" },
-                                 { vis::Field_Type::NODAL },
-                                 { vis::Output_Type::TEMP } );
-        tModel->set_output_manager( &tOutputData );
+        //------------------------------------------------------------------------------
 
         //------------------------------------------------------------------------------
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
@@ -372,7 +362,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -557,12 +547,12 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0,*tInterpolationMesh);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0,*tInterpolationMesh);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get() );
+        tMeshManager.register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -605,7 +595,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -756,6 +746,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // clean up
         delete tModel;
+        delete tInterpolationMesh;
+        delete tIntegrationMesh;
 
     }/* if( par_size() */
 }
@@ -813,12 +805,12 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, *tInterpolationMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, *tInterpolationMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tInterpolationMesh.get(),tIntegrationMesh.get() );
+        tMeshManager.register_mesh_pair( tInterpolationMesh,tIntegrationMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -861,7 +853,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1024,6 +1016,10 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         // check bool is true
         REQUIRE( tCheckNodalSolution );
 
+        delete tIntegrationMesh;
+        delete tInterpolationMesh;
+
+
     }/* if( par_size() */
 }
 
@@ -1082,12 +1078,12 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tHMR.finalize();
 
         // construct a mesh manager for the fem
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, *tInterpolationMesh );
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, *tInterpolationMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
+        tMeshManager.register_mesh_pair(tInterpolationMesh,tIntegrationMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -1130,7 +1126,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche , "DirichletNitsche" );
@@ -1260,6 +1256,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         // clean up
         delete tModel;
+        delete tIntegrationMesh;
+        delete tInterpolationMesh;
 
     }/* if( par_size() */
 }

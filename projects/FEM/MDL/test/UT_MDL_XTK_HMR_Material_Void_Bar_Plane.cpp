@@ -153,7 +153,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_mat_void_ip.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
 
@@ -162,7 +162,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -181,7 +181,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
 
         // Write mesh
-        Writer_Exodus writer(&tEnrIntegMesh);
+        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
         writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e");
 
         // Write the fields
@@ -226,6 +226,10 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
         tSPDirichletNitsche->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
+        std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+        tSPGhost->set_parameters( {{{ 0.1 }} });
+        tSPGhost->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -235,7 +239,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -247,18 +251,11 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
-        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
-
-        // Ghost stabilization
         std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
         tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-        tSP1->set_parameters( {{{ 0.1 }}, {{ 1.0 }} });
-        tSP1->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
-        tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
+        tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -274,6 +271,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
+        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
         tSetNeumann.set_mesh_set_name( tInterfaceSideSetName );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
@@ -291,7 +289,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
                                                0, false );
 
@@ -419,6 +417,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         //    delete tInterpMesh1;
         delete tModel;
+        delete tInterpMesh;
 //        delete tIntegMesh1;
     }
 }
