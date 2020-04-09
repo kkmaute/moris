@@ -16,14 +16,9 @@
 // Define uint, real, etc.
 #include "typedefs.hpp"
 
-// needed?
-#include "IO_Tools.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"
-
-// Get access to processor count, Ids, etc.
-#include "cl_Communication_Tools.hpp" // COM/src
 
 
 namespace moris
@@ -38,6 +33,9 @@ class GlobalClock
     // indentation level indicating how far down the tree the trace is
     uint mIndentationLevel = 0;
 
+    // lists of currently active processes
+    Cell< uint > mCurrentFunctionID;
+
     // lists of currently active entities in tracing tree
     Cell< enum EntityBase > mCurrentEntity;
 
@@ -50,8 +48,11 @@ class GlobalClock
     // list of starting times for each active entity
     Cell< real > mTimeStamps;
 
-    // text file for outputting info
-    std::ofstream mGlobalLog;
+//    // text file for outputting info
+//    std::ofstream mGlobalLog;
+
+    // track number of function IDs
+    uint mMaxFunctionID = 0;
 
     //------------------------------------ PUPLIC --------------------------------------//
     public:
@@ -61,6 +62,11 @@ class GlobalClock
     // constructor
     GlobalClock()
     {
+        // initialize list of function IDs
+        mCurrentFunctionID.resize( 1 , mMaxFunctionID );
+//        mCurrentFunctionID = new Cell<uint> ( 1 , mMaxFunctionID );
+        // ^^ do this for all
+
         // initialize list of entities
         mCurrentEntity.resize( 1 , EntityBase::GlobalClock );
 
@@ -73,16 +79,14 @@ class GlobalClock
         // record starting time
         mTimeStamps.resize( 1 , (real) std::clock() );
 
-        // open text file
-        mGlobalLog.open("gClock.log");
+//        // open text file
+//        mGlobalLog.open("gClock.log");
 
-        // create header
-        this->print_header();
-        //mGlobalLog << "This is a header. \n Things like date of run, machine, code version, etc. go here. \n The following lines contain all information. \n \n";
-        //mGlobalLog << "Indentation Level ; Entity Type ; Entity Action | Output Specifier : Output Value | Output Specifier : Output Value | ... \n";
+//        // create header
+//        this->print_header();
 
-        // sign in global clock
-        this->log(OutputSpecifier::Signing, 1.0);
+//        // sign in global clock
+//        this->log(OutputSpecifier::SignIn, 1.0);
 
     };
 
@@ -98,71 +102,60 @@ class GlobalClock
             // set indentation level to zero
             mIndentationLevel = 0;
 
-            // sign out clock and report error
-            this->log3(OutputSpecifier::Signing, 0.0,
-                       OutputSpecifier::Time, ( (moris::real) std::clock() - mTimeStamps(mIndentationLevel) ) / CLOCKS_PER_SEC ,
-                       OutputSpecifier::Error, 1.0);
+//            // sign out clock and report error
+//            this->log2(OutputSpecifier::Error, 1.0 ,
+//                       OutputSpecifier::ElapsedTime, ( (moris::real) std::clock() - mTimeStamps(mIndentationLevel) ) / CLOCKS_PER_SEC );
 
         }
         else
         {
-            // sign out clock
-            this->log2(OutputSpecifier::Signing, 0.0,
-                       OutputSpecifier::Time, ( (moris::real) std::clock() - mTimeStamps(mIndentationLevel) ) / CLOCKS_PER_SEC );
+//            // sign out clock
+//            this->log(OutputSpecifier::ElapsedTime, ( (moris::real) std::clock() - mTimeStamps(mIndentationLevel) ) / CLOCKS_PER_SEC );
         }
 
         // footer
-        mGlobalLog << "CLOCK STOPPED.";
+        //mGlobalLog << "CLOCK STOPPED.";
 
         // close text file
-        mGlobalLog.close();
+//        mGlobalLog.close();
+
     };
 
 
     // -------------------------------------------------------------------------------- //
-    // logging operation for one output value
-    void log(enum OutputSpecifier aOutputSpecifier, real aOutputValue)
-    {
-        mGlobalLog << mIndentationLevel << "; "
-                  << get_enum_str(mCurrentEntity(mIndentationLevel)) << "; "
-                  << get_enum_str(mCurrentType(mIndentationLevel)) << "; "
-                  << get_enum_str(mCurrentAction(mIndentationLevel)) << " | "
-                  << get_enum_str(aOutputSpecifier) << "; "
-                  << aOutputValue << " | \n";
-    }
+//    // logging operation for one output value
+//    void log(enum OutputSpecifier aOutputSpecifier, real aOutputValue)
+//    {
+//        mGlobalLog << mIndentationLevel << ";"
+//                   << mCurrentFunctionID(mIndentationLevel) << ";"
+//                   << get_enum_str(mCurrentEntity(mIndentationLevel)) << ";"
+//                   << get_enum_str(mCurrentType(mIndentationLevel)) << ";"
+//                   << get_enum_str(mCurrentAction(mIndentationLevel)) << ";"
+//                   << get_enum_str(aOutputSpecifier) << ";"
+//                   << aOutputValue << "\n";
+//    }
 
 
-    // logging operation for two output values
-    void log2(enum OutputSpecifier aOutputSpecifier1, real aOutputValue1,
-              enum OutputSpecifier aOutputSpecifier2, real aOutputValue2)
-    {
-        mGlobalLog << mIndentationLevel << "; "
-                  << get_enum_str(mCurrentEntity(mIndentationLevel)) << "; "
-                  << get_enum_str(mCurrentType(mIndentationLevel)) << "; "
-                  << get_enum_str(mCurrentAction(mIndentationLevel)) << " | "
-                  << get_enum_str(aOutputSpecifier1) << "; "
-                  << aOutputValue1 << "; "
-                  << get_enum_str(aOutputSpecifier2) << "; "
-                  << aOutputValue2 << "| \n";
-    }
+//    // logging operation for two output values
+//    void log2(enum OutputSpecifier aOutputSpecifier1, real aOutputValue1,
+//              enum OutputSpecifier aOutputSpecifier2, real aOutputValue2)
+//    {
+//
+//        this->log(aOutputSpecifier1, aOutputValue1);
+//        this->log(aOutputSpecifier2, aOutputValue2);
+//
+//    }
 
 
-    // logging operation for three output values
-    void log3(enum OutputSpecifier aOutputSpecifier1, real aOutputValue1,
-              enum OutputSpecifier aOutputSpecifier2, real aOutputValue2,
-              enum OutputSpecifier aOutputSpecifier3, real aOutputValue3)
-    {
-        mGlobalLog << mIndentationLevel << "; "
-                  << get_enum_str(mCurrentEntity(mIndentationLevel)) << "; "
-                  << get_enum_str(mCurrentType(mIndentationLevel)) << "; "
-                  << get_enum_str(mCurrentAction(mIndentationLevel)) << " | "
-                  << get_enum_str(aOutputSpecifier1) << "; "
-                  << aOutputValue1 << "; "
-                  << get_enum_str(aOutputSpecifier2) << "; "
-                  << aOutputValue2 << "; "
-                  << get_enum_str(aOutputSpecifier3) << "; "
-                  << aOutputValue3 << " | \n";
-    }
+//    // logging operation for three output values
+//    void log3(enum OutputSpecifier aOutputSpecifier1, real aOutputValue1,
+//              enum OutputSpecifier aOutputSpecifier2, real aOutputValue2,
+//              enum OutputSpecifier aOutputSpecifier3, real aOutputValue3)
+//    {
+//        this->log(aOutputSpecifier1, aOutputValue1);
+//        this->log(aOutputSpecifier2, aOutputValue2);
+//        this->log(aOutputSpecifier3, aOutputValue3);
+//    }
 
     // -------------------------------------------------------------------------------- //
     // operation to start tracing new entity
@@ -170,6 +163,12 @@ class GlobalClock
     {
         // increment indentation level
         mIndentationLevel++;
+
+        // create new function ID
+        mMaxFunctionID++;
+
+        // assign function ID
+        mCurrentFunctionID.push_back(mMaxFunctionID);
 
         // save entity to list of active entities
         mCurrentEntity.push_back(aEntityBase);
@@ -180,11 +179,9 @@ class GlobalClock
         // save entity action to list of actions
         mCurrentAction.push_back(aEntityAction);
 
-        // log current position in code
-        this->log(OutputSpecifier::Signing, 1.0);
-
         // create time stamp for new entity
         mTimeStamps.push_back( (real) std::clock() );
+
     }
 
 
@@ -192,12 +189,11 @@ class GlobalClock
     // operation to stop tracing an entity
     void sign_out()
     {
-        // log current position in code
-        this->log2(OutputSpecifier::Signing, 0.0,
-                   OutputSpecifier::Time, ( (moris::real) std::clock() - mTimeStamps(mIndentationLevel) ) / CLOCKS_PER_SEC );
-
         // remove time stamp from list of active entities
         mTimeStamps.pop_back();
+
+        // remove function ID
+        mCurrentFunctionID.pop_back();
 
         // remove entity from list of active entities
         mCurrentEntity.pop_back();
@@ -212,71 +208,73 @@ class GlobalClock
         mIndentationLevel--;
     }
 
-    // -------------------------------------------------------------------------------- //
-    // operation to stop global clock
-    void stop()
-    {
-        this->~GlobalClock();
-    }
+//    // -------------------------------------------------------------------------------- //
+//    // operation to stop global clock
+//    void stop()
+//    {
+//        this->~GlobalClock();
+//    }
 
     // -------------------------------------------------------------------------------- //
-    // print header
-    void print_header()
-    {
-
-        mGlobalLog << "Output from global Clock. >>> \n";
-
-        // get date and time at runtime
-        time_t tTimeStamp = time(NULL);
-
-        // print info about test
-        mGlobalLog << "\n--- RUN ---\n";
-//        mGlobalLog << "Executable: " << argv[ 0 ] << " \n";
-//        mGlobalLog << "Arguments: ";
-//        for (int ia = 1; ia < argc; ++ia)
-//        {
-//            mGlobalLog << argv[ ia ] << "; ";
-//        }
-//        mGlobalLog << "Number of Processors used: " << ( int ) par_size() << " \n";
-        mGlobalLog << "Date of execution: " << ctime(&tTimeStamp) << " \n";
-
-
-        // print user information
-        mGlobalLog << "\n--- HOST ---\n";
-        mGlobalLog << "User: " << std::getenv( "USER" ) << "\n";
-        mGlobalLog << "Host: " << std::getenv( "HOSTNAME" ) << "\n";
-        mGlobalLog << "Operating System: " << std::getenv( "OSTYPE" ) << "\n";
-        mGlobalLog << "Host Type: " << std::getenv( "HOSTTYPE" ) << "\n";
-
-
-        // print build info
-        mGlobalLog << "\n--- BUILD ---\n";
-        mGlobalLog << "Build date: " << __DATE__ << "; " << __TIME__ << "\n";
-        mGlobalLog << "DEBUG: ";
-
-#if !defined(NDEBUG) || defined(DEBUG)
-        mGlobalLog << "ON\n";
-#endif
-#if defined(NDEBUG) || !defined(DEBUG)
-        mGlobalLog << "OFF\n";
-#endif
-
-        mGlobalLog << "Matrix Library: ";
-
-#ifdef MORIS_USE_ARMA
-                mGlobalLog << "ARMA \n";
-#endif
-#ifdef MORIS_USE_EIGEN
-        mGlobalLog << "Eigen \n";
-#endif
-
-
-        // Top row in table
-        mGlobalLog << "\n____________________________________________________________________________________________________________________________________\n";
-        mGlobalLog << "Indentation Level ; Entity ; Entity Type ; Entity Action | Output Specifier ; Output Value ; Output Specifier ; Output Value ; ... |\n";
-        mGlobalLog << "------------------------------------------------------------------------------------------------------------------------------------\n";
-
-    }
+//    // print header
+//    void print_header()
+//    {
+//
+//        mGlobalLog << ">>>";
+//
+//        // get date and time at runtime
+//        time_t tTimeStamp = time(NULL);
+//
+//        // print info about test
+//        mGlobalLog << "\n--- RUN ---\n";
+////        mGlobalLog << "Executable: " << argv[ 0 ] << " \n";
+////        mGlobalLog << "Arguments: ";
+////        for (int ia = 1; ia < argc; ++ia)
+////        {
+////            mGlobalLog << argv[ ia ] << "; ";
+////        }
+////        mGlobalLog << "Number of Processors used: " << ( int ) par_size() << " \n";
+//        mGlobalLog << "Date of execution: " << ctime(&tTimeStamp) ;
+//
+//
+//        // print user information
+//        mGlobalLog << "\n--- HOST ---\n";
+//        mGlobalLog << "User: " << std::getenv( "USER" ) << "\n";
+//        mGlobalLog << "Host: " << std::getenv( "HOSTNAME" ) << "\n";
+//        mGlobalLog << "Operating System: " << std::getenv( "OSTYPE" ) << "\n";
+//        mGlobalLog << "Host Type: " << std::getenv( "HOSTTYPE" ) << "\n";
+//
+//
+//        // print build info
+//        mGlobalLog << "\n--- BUILD ---\n";
+//        mGlobalLog << "Build date: " << __DATE__ << "; " << __TIME__ << "\n";
+//        mGlobalLog << "DEBUG: ";
+//
+//#if !defined(NDEBUG) || defined(DEBUG)
+//        mGlobalLog << "ON\n";
+//#endif
+//#if defined(NDEBUG) || !defined(DEBUG)
+//        mGlobalLog << "OFF\n";
+//#endif
+//
+//        mGlobalLog << "Matrix Library: ";
+//
+//#ifdef MORIS_USE_ARMA
+//        mGlobalLog << "ARMA \n";
+//#endif
+//#ifdef MORIS_USE_EIGEN
+//        mGlobalLog << "Eigen \n";
+//#endif
+//
+//        mGlobalLog << "<<<\n";
+//
+//
+////        // Top row in table
+////        mGlobalLog << "_________________________________________________________________________________________________________\n";
+////        mGlobalLog << "Indentation Level ; Function ID ; Entity ; Entity Type ; Entity Action ; Output Specifier ; Output Value \n";
+////        mGlobalLog << "---------------------------------------------------------------------------------------------------------\n";
+//
+//    }
 
     // -------------------------------------------------------------------------------- //
     }; // class GlobalClock

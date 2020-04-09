@@ -48,7 +48,6 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 
-
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 

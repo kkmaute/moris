@@ -6,6 +6,8 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Logger.hpp"
+#include "cl_GlobalClock.hpp" // MRS/IOS/src
+#include "cl_Tracer.hpp" // MRS/IOS/src
 
 #include "cl_Matrix.hpp" //LINALG/src
 #include "op_times.hpp" //LINALG/src

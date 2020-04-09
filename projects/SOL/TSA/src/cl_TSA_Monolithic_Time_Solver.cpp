@@ -36,7 +36,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     {
 
         // log number of time steps
-        gClock.log(OutputSpecifier::Steps, (real) (Ik+1) );
+//        gClock.log(OutputSpecifier::Step, (real) (Ik+1) );
 
         bool tBreaker = false;
         Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );

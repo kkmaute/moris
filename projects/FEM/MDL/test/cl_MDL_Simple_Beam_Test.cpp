@@ -49,6 +49,7 @@
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_PRM_HMR_Parameters.hpp" // paramter list for hmr mesh
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -61,6 +62,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -68,33 +70,26 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GlobalClock.hpp" // for testing global logging functions
-#include "cl_Tracer.hpp"
-
-//extern moris::GlobalClock gClock;
-
 namespace moris
 {
 namespace mdl
 {
 
 
-moris::Matrix< moris::DDRMat > tConstantValueFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                       moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                                       moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                                       fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tConstantValueFunction( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+                           moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                           moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return aCoeff( 0 );
+    aPropMatrix = aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tSelectValueFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                     moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                     moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                     moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+void tSelectValueFunction( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+                           moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                           moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    return {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
-            {                   0.0,    aParameters( 0 )( 1 ),                     0.0 },
-            {                   0.0,                      0.0,    aParameters( 0 )( 2 )}};
+    aPropMatrix = {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
+                  {                    0.0,    aParameters( 0 )( 1 ),                     0.0 },
+                  {                    0.0,                      0.0,    aParameters( 0 )( 2 )}};
 }
 
 
@@ -130,7 +125,7 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
     std::clock_t tTimeStampBeginSetup = std::clock();
 
     // create a list to write mesh parameters into (standard constructor used, list starts with default settings)
-    moris::ParameterList tParameters = moris::hmr::create_hmr_parameter_list();
+    moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
     // set parameters to create tensor-grid linear Lagrange mesh
     uint tLagrangeMeshIndex = 0;
@@ -138,15 +133,15 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
     switch (aSizeIndicator) {
 
     case 1:
-        tParameters.set( "number_of_elements_per_dimension", "200,  5,  5" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("200,  5,  5") );
         break;
 
     case 2:
-        tParameters.set( "number_of_elements_per_dimension", "400, 10, 10" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("400, 10, 10") );
         break;
 
     case 3:
-        tParameters.set( "number_of_elements_per_dimension", "600, 15, 15" );
+        tParameters.set( "number_of_elements_per_dimension", std::string("600, 15, 15") );
         break;
 
     default:
@@ -156,21 +151,21 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
 
 //    tParameters.set( "number_of_elements_per_dimension", "400,  10,  10" );
 
-    tParameters.set( "domain_dimensions",                "4.0, 0.1, 0.1" );
-    tParameters.set( "domain_offset",                    "0.0, 0.0, 0.0" );
+    tParameters.set( "domain_dimensions", std::string("4.0, 0.1, 0.1") );
+    tParameters.set( "domain_offset",     std::string("0.0, 0.0, 0.0") );
 
-    tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
+    tParameters.set( "domain_sidesets", std::string("1, 2, 3, 4, 5, 6") );
 
     tParameters.set( "truncate_bsplines",  1  );
-    tParameters.set(   "lagrange_orders", "1" );
-    tParameters.set(  "lagrange_pattern", "0" );
-    tParameters.set(    "bspline_orders", "1" );
-    tParameters.set(   "bspline_pattern", "0" );
+    tParameters.set(   "lagrange_orders", std::string("1") );
+    tParameters.set(  "lagrange_pattern", std::string("0") );
+    tParameters.set(    "bspline_orders", std::string("1") );
+    tParameters.set(   "bspline_pattern", std::string("0") );
 
-    tParameters.set( "lagrange_output_meshes", "0" );
-    tParameters.set(  "lagrange_input_meshes", "0" );
+    tParameters.set( "lagrange_output_meshes", std::string("0") );
+    tParameters.set(  "lagrange_input_meshes", std::string("0") );
 
-    tParameters.set( "lagrange_to_bspline", "0" );
+    tParameters.set( "lagrange_to_bspline", std::string("0") );
 
     tParameters.set( "use_multigrid", 0 );
 
@@ -344,7 +339,7 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
      dla::Solver_Factory  tSolverFactory;
-     std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolverFactory.create_solver( SolverType::AMESOS_IMPL );
+     std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolverFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
      //if needed, specify parameters for algorithm
 
@@ -384,8 +379,7 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
 
      tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
 
-     NLA::SOL_Warehouse tSolverWarehouse;
-     tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
+     sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
      tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
      tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
 
@@ -402,9 +396,6 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
 
      tTimeSolver.get_full_solution( tFinalSolution );
 
-     // destroy global clock
-     gClock.stop();
-
 } //End main_function
 
 
@@ -415,17 +406,17 @@ TEST_CASE( "LinElasticBeam_s", "[moris],[mdl],[LinElasticBeam_s]" )
     function_TEST_LinElastic_Beam(tSizeIndicator);
 }
 //--------------------------------------------------------------------------------------------------------------------//
-TEST_CASE( "LinElasticBeam_m", "[moris],[mdl],[LinElasticBeam_m]" )
-{
-    uint tSizeIndicator = 2;
-    function_TEST_LinElastic_Beam(tSizeIndicator);
-}
-//--------------------------------------------------------------------------------------------------------------------//
-TEST_CASE( "LinElasticBeam_l", "[moris],[mdl],[LinElasticBeam_l]" )
-{
-    uint tSizeIndicator = 3;
-    function_TEST_LinElastic_Beam(tSizeIndicator);
-}
+//TEST_CASE( "LinElasticBeam_m", "[moris],[mdl],[LinElasticBeam_m]" )
+//{
+//    uint tSizeIndicator = 2;
+//    function_TEST_LinElastic_Beam(tSizeIndicator);
+//}
+////--------------------------------------------------------------------------------------------------------------------//
+//TEST_CASE( "LinElasticBeam_l", "[moris],[mdl],[LinElasticBeam_l]" )
+//{
+//    uint tSizeIndicator = 3;
+//    function_TEST_LinElastic_Beam(tSizeIndicator);
+//}
 
 
 //--------------------------------------------------------------------------------------------------------------------//

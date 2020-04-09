@@ -17,9 +17,6 @@
 
 #include "cl_Logger.hpp"
 
-#include "cl_GlobalClock.hpp"
-extern moris::GlobalClock gClock;
-
 namespace moris
 {
     namespace NLA
@@ -39,7 +36,7 @@ namespace moris
 
         aResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2();
 
-        gClock.log2( OutputSpecifier::ResidualNorm, aResNorm, OutputSpecifier::SolutionNorm, solNorm );
+//        gClock.log2( OutputSpecifier::ResidualNorm, aResNorm, OutputSpecifier::SolutionNorm, solNorm );
 
         if ( aIt <= 1)
         {

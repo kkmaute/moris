@@ -87,7 +87,7 @@ using namespace dla;
             // Newton loop
             for ( moris::sint It = 1; It <= tMaxIts; ++It )
             {
-                gClock.log( OutputSpecifier::Iteration, (real) It );
+//                gClock.log( OutputSpecifier::Iteration, (real) It );
 
                 //get_nonlinear_problem()
                 clock_t tNewtonLoopStartTime = clock();

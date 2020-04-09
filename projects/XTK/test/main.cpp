@@ -22,9 +22,6 @@
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
-//#include "cl_GlobalClock.hpp" // MRS/IOS/src
-//#include "cl_Tracer.hpp" // MRS/IOS/src
-//moris::GlobalClock  gClock;
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
