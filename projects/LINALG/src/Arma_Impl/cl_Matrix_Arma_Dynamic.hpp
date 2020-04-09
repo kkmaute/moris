@@ -7,6 +7,7 @@
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
+#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 
 #include "typedefs.hpp"
