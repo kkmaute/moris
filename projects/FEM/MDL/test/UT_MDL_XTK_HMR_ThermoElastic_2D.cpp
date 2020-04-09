@@ -339,7 +339,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tIWGBulkU_2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletU->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichletU->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
@@ -363,7 +363,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
 //        tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletTEMP->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichletTEMP->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
@@ -809,7 +809,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tIWGBulkU_2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
          tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-         std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+         std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
          tIWGDirichletU->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
          tIWGDirichletU->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
          tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
@@ -833,7 +833,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
 //         tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-         std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+         std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
          tIWGDirichletTEMP->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
          tIWGDirichletTEMP->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
          tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
@@ -1171,7 +1171,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //                                                  moris::Cell< fem::Property_Type >( 0 ),
 //                                                  { fem::Constitutive_Type::STRUC_LIN_ISO } );
 //
-//      tDBCIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET,
+//      tDBCIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,
 //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
 //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
 //                                                 { fem::Property_Type::STRUC_DIRICHLET },

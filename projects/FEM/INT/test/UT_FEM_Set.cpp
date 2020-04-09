@@ -37,7 +37,7 @@ void tConstValFunction_UTFEMSET
 //
 //            // list of IWG types
 //            moris::Cell< fem::IWG_Type >  tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_BULK ,
-//                                                          fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+//                                                          fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,
 //                                                          fem::IWG_Type::HELMHOLTZ,
 //                                                          fem::IWG_Type::LSNORMAL };
 //

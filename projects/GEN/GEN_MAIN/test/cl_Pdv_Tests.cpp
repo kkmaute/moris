@@ -21,6 +21,7 @@
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Pdv_Host_Manager.hpp"
 
 // HMR includes ---------------------------------
 #include "cl_HMR.hpp"
@@ -38,12 +39,9 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
-#include "cl_MSI_Design_Variable_Interface.hpp"
-
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
-
 
 //------------------------------------------------------------------------------
 
@@ -52,7 +50,7 @@ namespace moris
     namespace ge
     {
 
-    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff )
+    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > > & aCoeff )
     {
         return aCoeff( 0 );
     }

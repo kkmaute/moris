@@ -175,7 +175,7 @@ namespace moris
             const moris::Cell< std::shared_ptr< fem::IQI > > & get_IQIs() const
             {
                 return mIQIs;
-              }
+            }
 
 //------------------------------------------------------------------------------
         };

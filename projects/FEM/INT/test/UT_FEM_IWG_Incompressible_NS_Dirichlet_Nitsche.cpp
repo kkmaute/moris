@@ -77,14 +77,14 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWGVelocity = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWGVelocity = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWGVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
     tIWGVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
     tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
-    std::shared_ptr< fem::IWG > tIWGPressure = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWGPressure = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWGPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
     tIWGPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
@@ -322,14 +322,14 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWGVelocity = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWGVelocity = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWGVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
     tIWGVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
     tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
-    std::shared_ptr< fem::IWG > tIWGPressure = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWGPressure = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWGPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
     tIWGPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );

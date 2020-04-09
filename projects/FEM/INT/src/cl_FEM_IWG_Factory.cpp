@@ -72,8 +72,11 @@ namespace moris
                 case ( IWG_Type::SPATIALDIFF_BULK ):
                     return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Bulk >();
 
-                case ( IWG_Type::SPATIALDIFF_DIRICHLET ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Dirichlet >();
+                case ( IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Dirichlet >( 1 );
+
+                case ( IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Dirichlet >( -1 );
 
                 case ( IWG_Type::SPATIALDIFF_NEUMANN ):
                     return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Neumann >();
@@ -90,8 +93,11 @@ namespace moris
                 case ( IWG_Type::STRUC_LINEAR_BULK ):
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Bulk >();
 
-                case ( IWG_Type::STRUC_LINEAR_DIRICHLET ):
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >();
+                case ( IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >( 1 );
+
+                case ( IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >( -1 );
 
                 case ( IWG_Type::STRUC_LINEAR_INTERFACE ):
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >();
@@ -108,8 +114,11 @@ namespace moris
                 case ( IWG_Type::STRUC_LINEAR_PRESSURE_BULK ):
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Pressure_Bulk >();
 
-                case ( IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET ):
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Pressure_Dirichlet >();
+                case ( IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Pressure_Dirichlet >( 1 );
+
+                case ( IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Pressure_Dirichlet >( -1 );
 
                 case ( IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ):
                     return std::make_shared< IWG_Incompressible_NS_Velocity_Bulk >();
@@ -126,11 +135,17 @@ namespace moris
                 case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST ):
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Ghost >();
 
-                case ( IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE ):
-                    return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >();
+                case ( IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >( 1 );
 
-                case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE ):
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >();
+                case ( IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( 1 );
+
+                case ( IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE ):
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( -1 );
 
                 case ( IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE ):
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();

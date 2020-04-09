@@ -264,7 +264,7 @@ namespace moris
                 tIWGBulk->set_dof_type_list( { tResDofTypes } );
                 tIWGBulk->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-                std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+                std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
                 tIWGDirichlet->set_residual_dof_type( tResDofTypes );
                 tIWGDirichlet->set_dof_type_list( { tResDofTypes } );
                 tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );

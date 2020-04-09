@@ -38,7 +38,7 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp
-    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_INCOMPRESSIBLE_NS_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
@@ -124,6 +124,7 @@ set(HEADERS
     cl_FEM_IQI_H1_Error_Analytic.hpp
     cl_FEM_IQI_H1_Semi_Error.hpp
     cl_FEM_IQI_J_Integral.hpp
+    cl_FEM_IQI_K1_SENT.hpp
     cl_FEM_IQI_Volume_Fraction.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
@@ -231,6 +232,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_H1_Error_Analytic.cpp
     cl_FEM_IQI_H1_Semi_Error.cpp
     cl_FEM_IQI_J_Integral.cpp
+    cl_FEM_IQI_K1_SENT.cpp
     cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp

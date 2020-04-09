@@ -51,7 +51,7 @@ using namespace fem;
 TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-3;
 
     // define a perturbation relative size
     real tPerturbation = 1E-4;
@@ -155,7 +155,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop over the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 2; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -371,11 +371,6 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tMasterFIManager );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
-
-            // reset residual and jacobian
-            //------------------------------------------------------------------------------
-            tSet->mResidual( 0 ).fill( 0.0 );
-            tSet->mJacobian.fill( 0.0 );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------

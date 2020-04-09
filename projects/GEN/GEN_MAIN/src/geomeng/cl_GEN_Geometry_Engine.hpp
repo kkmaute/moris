@@ -26,6 +26,7 @@
 #include "cl_GEN_Analytic_Geometry.hpp"
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Field.hpp"
+#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -188,7 +189,8 @@ public:
 
 //------------------------------------------------------------------------------
     /**
-     * initialize
+     * this function initializes the geometry engine with the provided analytic functions from the input file
+     *
      * @param[ in ] aLibrary a pointer to library for reading inputs
      */
     void initialize( std::shared_ptr< Library_IO > aLibrary );
@@ -400,7 +402,7 @@ public:
      */
     moris::size_t get_num_geometries();
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     /*
      * @brief Returns the number of phases
      */
@@ -420,26 +422,27 @@ public:
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
 //------------------------------------------------------------------------------
     /*
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::uint get_num_design_variables() const;
 
 //------------------------------------------------------------------------------
     /*
      * @brief Returns the ADV indices of the provided nodes
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
     ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
 
 //------------------------------------------------------------------------------
     /**
-     * ???
+     * this function need to be deleted as they are not used in the current PDV interface implementation !!!
      */
     moris::size_t get_num_design_vars_analytic();
 
@@ -530,49 +533,6 @@ public:
      * @param[ in ] aPdvType          list of dv types (material only)
      * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
      */
-//    void set_pdv_types( Cell< enum GEN_DV > aPdvType,
-//                        const bool          aUsingGeometryDvs = true )
-//    {
-//        // copy the input dv type list
-//        moris::Cell< enum GEN_DV > tTempList = aPdvType;
-//
-//        // if geometry dv
-//        if(aUsingGeometryDvs)
-//        {
-//            // switch on space dimension
-//            switch(mSpatialDim)
-//            {
-//                // if 2D
-//                case(2):
-//                {
-//                    // add x, y coords to the dv type list
-//                    tTempList.push_back(GEN_DV::XCOORD);
-//                    tTempList.push_back(GEN_DV::YCOORD);
-//                    break;
-//                }
-//                // if 3D
-//                case(3):
-//                {
-//                    // add x, y, z coords to the dv type list
-//                    tTempList.push_back(GEN_DV::XCOORD);
-//                    tTempList.push_back(GEN_DV::YCOORD);
-//                    tTempList.push_back(GEN_DV::ZCOORD);
-//                    break;
-//                }
-//                default:
-//                {
-//                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-//                }
-//            }
-//        }
-//
-//        // set the set dv type flag to true
-//        mTypesSet = true;
-//
-//        // set the dv type list for the pdv host manager
-//        mPdvHostManager.set_pdv_types( tTempList );
-//    }
-
     void set_pdv_types( Cell< enum GEN_DV > aPdvType )
     {
         // set the set dv type flag to true

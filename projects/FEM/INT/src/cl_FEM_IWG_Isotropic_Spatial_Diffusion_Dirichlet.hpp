@@ -30,6 +30,9 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 
+            // sign for symmetric/unsymmetric Nitsche
+            sint mBeta;
+
             enum class IWG_Property_Type
             {
                 DIRICHLET,
@@ -61,8 +64,11 @@ namespace moris
             /*
              * constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Dirichlet()
+            IWG_Isotropic_Spatial_Diffusion_Dirichlet( sint aBeta )
             {
+                // set sign for symmetric/unsymmetric Nitsche
+                mBeta = aBeta;
+
                 // set size for the property pointer cell
                 mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 

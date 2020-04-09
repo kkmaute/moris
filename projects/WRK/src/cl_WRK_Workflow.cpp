@@ -80,7 +80,8 @@ void Workflow::perform()
 
     tEnrIntegMesh.print();
 
-    if(true)
+
+    if( true )
     {
         tEnrIntegMesh.deactivate_empty_sets();
         // Write mesh

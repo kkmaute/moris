@@ -1739,6 +1739,15 @@ namespace moris
                                      real                          aPerturbation );
 
 //------------------------------------------------------------------------------
+            /*
+             * evaluates and returns the value of E' which is used in the evaluation of stress intensity factors
+             */
+            virtual moris::real get_e_prime(  )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::get_e_prime - This function does nothing. " );
+                return 0;
+            }
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

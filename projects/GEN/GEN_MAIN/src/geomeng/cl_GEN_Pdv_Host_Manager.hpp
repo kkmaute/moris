@@ -111,7 +111,7 @@ public:
 //------------------------------------------------------------------------------
     /**
      * initialize the list of pdv host
-     * @param[ in ] aTotalNumVertices number of vertices in IP mesh
+     * @param[ in ] aTotalNumVertices number of vertices in IG mesh
      */
     void initialize_ig_hosts( uint aTotalNumVertices )
     {

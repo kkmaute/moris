@@ -237,7 +237,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
@@ -451,8 +451,8 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        // create parameter list for IWG 2
 //        tParameterList( 3 )( 1 ) = prm::create_IWG_parameter_list();
-//        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET") );
-//        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET ) );
+//        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE") );
+//        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) );
 //        tParameterList( 3 )( 1 ).set( "dof_residual",               std::string("TEMP") );
 //        tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    std::string("TEMP") );
 //        tParameterList( 3 )( 1 ).set( "master_properties",          std::string("PropertyDirichlet,Dirichlet") );

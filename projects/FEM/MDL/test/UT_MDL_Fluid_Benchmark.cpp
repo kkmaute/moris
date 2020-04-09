@@ -165,7 +165,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
         moris::real tGammaGPmu   = 0.05;      /* Penalty for ghost viscosity */
         moris::real tGammaGPu    = 0.05;      /* Penalty for ghost velocity */
-        moris::real tGammaGPp    = 0.5;       /* Penalty for ghost pressure */
+        moris::real tGammaGPp    = 0.005;     /* Penalty for ghost pressure */
 
         // Mesh Setup
         moris::uint tNumX   = 200; /* Number of elements in x*/
@@ -173,11 +173,9 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         moris::uint tNumRef = 1;   /* Number of HMR refinements */
         moris::uint tOrder  = 1;   /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
+        size_t tModelDimension = 2;
+
         uint tLagrangeMeshIndex = 0;
-        std::string tPlaneBottomFieldName = "PlaneBottom";
-        std::string tPlaneTopFieldName    = "PlaneTop";
-        std::string tPlaneLeftFieldName   = "PlaneLeft";
-        std::string tPlaneRightFieldName  = "PlaneRight";
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
@@ -209,12 +207,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        //  create field
-        std::shared_ptr< moris::hmr::Field > tPlaneBottomField = tMesh->create_field( tPlaneBottomFieldName, tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tPlaneTopField    = tMesh->create_field( tPlaneTopFieldName,    tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tPlaneLeftField   = tMesh->create_field( tPlaneLeftFieldName,   tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tPlaneRightField  = tMesh->create_field( tPlaneRightFieldName,  tLagrangeMeshIndex );
-
         for( uint k = 0; k < tNumRef; k++ )
         {
             moris::ge::Plane< 2 > tPlane00( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
@@ -224,7 +216,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
             moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
+            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -235,7 +227,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
             Matrix< DDRMat > tFieldData3( tNumIPNodes,1 );
 
             tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
+            Matrix< DDRMat > tCoords( tNumIPNodes, tModelDimension );
             for( uint i = 0; i < tNumIPNodes; i++ )
             {
                 tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
@@ -274,7 +266,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         // If it changes the resulting bulk phase of the output mesh change.
         moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3 };
 
-        size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
@@ -390,7 +381,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGInletVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
@@ -398,14 +389,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGInletPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
         tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -413,7 +404,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -606,7 +597,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
         moris::real tGammaGPmu      = 0.05;   /* Penalty for ghost viscosity */
         moris::real tGammaGPu       = 0.05;   /* Penalty for ghost velocity */
-        moris::real tGammaGPp       = 0.5;    /* Penalty for ghost pressure */
+        moris::real tGammaGPp       = 0.005;  /* Penalty for ghost pressure */
 
         // Mesh Setup
         moris::uint tNumX   = 400; /* Number of elements in x*/
@@ -614,11 +605,9 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         moris::uint tNumRef = 1;   /* Number of HMR refinements */
         moris::uint tOrder  = 1;   /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
+        size_t tModelDimension = 2;
+
         uint tLagrangeMeshIndex = 0;
-        std::string tPlaneBottomFieldName = "PlaneBottom";
-        std::string tPlaneTopFieldName    = "PlaneTop";
-        std::string tPlaneLeftFieldName   = "PlaneLeft";
-        std::string tPlaneRightFieldName  = "PlaneRight";
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
@@ -650,12 +639,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        //  create field
-        std::shared_ptr< moris::hmr::Field > tPlaneBottomField = tMesh->create_field( tPlaneBottomFieldName, tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tPlaneTopField    = tMesh->create_field( tPlaneTopFieldName,    tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tPlaneLeftField   = tMesh->create_field( tPlaneLeftFieldName,   tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tPlaneRightField  = tMesh->create_field( tPlaneRightFieldName,  tLagrangeMeshIndex );
-
         for( uint k = 0; k < tNumRef; k++ )
         {
             moris::ge::Plane< 2 > tPlane00( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
@@ -665,7 +648,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
             moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
+            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -676,7 +659,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
             Matrix< DDRMat > tFieldData3( tNumIPNodes,1 );
 
             tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
+            Matrix< DDRMat > tCoords( tNumIPNodes, tModelDimension );
             for( uint i = 0; i < tNumIPNodes; i++ )
             {
                 tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
@@ -716,7 +699,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         // If it changes the resulting bulk phase of the output mesh change.
         moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3 };
 
-        size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
@@ -838,7 +820,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -846,7 +828,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -1042,7 +1024,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
 //        moris::real tGammaGPmu      = 0.05;   /* Penalty for ghost viscosity */
 //        moris::real tGammaGPu       = 0.05;   /* Penalty for ghost velocity */
-//        moris::real tGammaGPp       = 0.5;    /* Penalty for ghost pressure */
+//        moris::real tGammaGPp       = 0.005;    /* Penalty for ghost pressure */
 //
 //        // Mesh Setup
 //        moris::uint tNumX   = 25; /* Number of elements in x*/
@@ -1051,13 +1033,9 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        moris::uint tNumRef = 0;   /* Number of HMR refinements */
 //        moris::uint tOrder  = 1;   /* Lagrange Order and Bspline Order (forced to be same for this example) */
 //
+//        size_t tModelDimension = 3;
+//
 //        uint tLagrangeMeshIndex = 0;
-//        std::string tPlaneBottomFieldName = "PlaneBottom";
-//        std::string tPlaneTopFieldName    = "PlaneTop";
-//        std::string tPlaneBackFieldName   = "PlaneBack";
-//        std::string tPlaneFrontFieldName  = "PlaneFront";
-//        std::string tPlaneLeftFieldName   = "PlaneLeft";
-//        std::string tPlaneRightFieldName  = "PlaneRight";
 //
 //        ParameterList tParameters = prm::create_hmr_parameter_list();
 //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY) + "," + std::to_string(tNumZ));
@@ -1089,14 +1067,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //
 //        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 //
-//        //  create field
-//        std::shared_ptr< moris::hmr::Field > tPlaneBottomField = tMesh->create_field( tPlaneBottomFieldName, tLagrangeMeshIndex );
-//        std::shared_ptr< moris::hmr::Field > tPlaneTopField    = tMesh->create_field( tPlaneTopFieldName,    tLagrangeMeshIndex );
-//        std::shared_ptr< moris::hmr::Field > tPlaneBackField   = tMesh->create_field( tPlaneBackFieldName,   tLagrangeMeshIndex );
-//        std::shared_ptr< moris::hmr::Field > tPlaneFrontField  = tMesh->create_field( tPlaneFrontFieldName,  tLagrangeMeshIndex );
-//        std::shared_ptr< moris::hmr::Field > tPlaneLeftField   = tMesh->create_field( tPlaneLeftFieldName,   tLagrangeMeshIndex );
-//        std::shared_ptr< moris::hmr::Field > tPlaneRightField  = tMesh->create_field( tPlaneRightFieldName,  tLagrangeMeshIndex );
-//
 //        for( uint k = 0; k < tNumRef; k++ )
 //        {
 //            moris::ge::Plane< 3 > tPlane00( {{ 0.0, tPlaneBottom, 0.0 }}, {{ 0.0, 1.0, 0.0 }} );
@@ -1108,7 +1078,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
 //
 //            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-//            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
+//            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 //
@@ -1121,7 +1091,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //            Matrix< DDRMat > tFieldData5( tNumIPNodes,1 );
 //
 //            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-//            Matrix< DDRMat > tCoords( tNumIPNodes, 3 );
+//            Matrix< DDRMat > tCoords( tNumIPNodes, tModelDimension );
 //            for( uint i = 0; i < tNumIPNodes; i++ )
 //            {
 //                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
@@ -1167,7 +1137,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        // If it changes the resulting bulk phase of the output mesh change.
 //        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
 //
-//        size_t tModelDimension = 3;
 //        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
 //        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 //
@@ -1290,7 +1259,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 //
 //        std::shared_ptr< fem::IWG > tIWGFSVelocity
-//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
 //        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
 //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -1298,7 +1267,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 //
 //        std::shared_ptr< fem::IWG > tIWGFSPressure
-//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
 //        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
 //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -1635,7 +1604,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Con
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGInletVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
@@ -1643,7 +1612,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Con
         tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -1651,14 +1620,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Con
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGInletPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
         tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -1911,7 +1880,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Con
         tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -1919,7 +1888,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Con
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -2179,7 +2148,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_
         tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -2187,7 +2156,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -2418,12 +2387,10 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
 
         // Boundary Conditions
-        moris::real tRInVelocity  = 20.0; /* Inlet pressure  () */
-        moris::real tROutVelocity =  0.0; /* Outlet pressure () */
         moris::real tGammaNitsche = 1000.0;  /* Penalty for Dirichlet BC */
         moris::real tGammaGPmu   = 0.05;  /* Penalty for ghost viscosity */
         moris::real tGammaGPu    = 0.05;  /* Penalty for ghost velocity */
-        moris::real tGammaGPp    = 0.5;  /* Penalty for ghost pressure */
+        moris::real tGammaGPp    = 0.005;  /* Penalty for ghost pressure */
 
         moris::real tOmegaIn  = -5.0;
         moris::real tOmegaOut =  5.0;
@@ -2440,8 +2407,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::uint tOrder  = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         uint tLagrangeMeshIndex = 0;
-        std::string tOuterFieldName   = "Outercircle";
-        std::string tInnerFieldName   = "Innercircle";
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
@@ -2473,10 +2438,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        //  create field
-        std::shared_ptr< moris::hmr::Field > tOuterField = tMesh->create_field( tOuterFieldName, tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tInnerField = tMesh->create_field( tInnerFieldName, tLagrangeMeshIndex );
-
+        // loop over refinement
         for( uint k=0; k<tNumRef; ++k )
         {
             moris::ge::Circle tCircle0( tROut, tCenterPoint( 0 ), tCenterPoint( 1 ) );
@@ -2513,7 +2475,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
             tHMR.perform_refinement_based_on_working_pattern( 0, false );
         }
         tHMR.finalize();
-//        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
         = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
@@ -2643,7 +2604,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGDirichletVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGDirichletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGDirichletVelocity->set_property( tPropImposedVelocity, "Dirichlet" );
@@ -2651,7 +2612,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tIWGDirichletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGDirichletPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_NITSCHE );
+        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGDirichletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGDirichletPressure->set_property( tPropImposedVelocity, "Dirichlet" );
@@ -2798,7 +2759,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+        tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
 
         tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
@@ -2817,4 +2778,5 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         delete tModel;
     }
 }
+
 } /* end_moris_namespace */

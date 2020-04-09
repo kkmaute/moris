@@ -18,6 +18,7 @@
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_H1_Semi_Error.hpp"           //FEM/INT/src
 #include "cl_FEM_IQI_J_Integral.hpp"           //FEM/INT/src
+#include "cl_FEM_IQI_K1_SENT.hpp"                //FEM/INT/src
 #include "cl_FEM_IQI_Volume_Fraction.hpp"           //FEM/INT/src
 
 namespace moris
@@ -43,8 +44,10 @@ namespace moris
 
                 case ( IQI_Type::STRAIN_ENERGY ):
                     return std::make_shared< IQI_Strain_Energy >();
+
                 case( IQI_Type::STRESS):
                     return std::make_shared< IQI_Stress >();
+
                 case( IQI_Type::ANALYTIC):
                     return std::make_shared< IQI_Analytic >();
 
@@ -59,6 +62,9 @@ namespace moris
 
                 case ( IQI_Type::J_INTEGRAL ):
                     return std::make_shared< IQI_J_Integral >();
+
+                case ( IQI_Type::K1_SENT ):
+                    return std::make_shared< IQI_K1_SENT >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
