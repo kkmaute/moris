@@ -191,7 +191,7 @@
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
-/tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
+/tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE.hpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.hpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
@@ -934,7 +934,7 @@
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.cpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
-/tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
+/tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE.cpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.cpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
 /tmp/moris/projects/FEM/INT/src/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
@@ -975,7 +975,7 @@
 /tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
 /tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Spatial_Diffusion_Virtual_Work_Ghost.cpp
 /tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Struc_Linear_Bulk.cpp
-/tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
+/tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE.cpp
 /tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Struc_Linear_Ghost.cpp
 /tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Struc_Linear_Interface.cpp
 /tmp/moris/projects/FEM/INT/test/UT_FEM_IWG_Struc_Linear_Pressure_Bulk.cpp
