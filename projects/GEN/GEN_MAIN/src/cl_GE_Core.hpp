@@ -13,7 +13,6 @@
 #include "cl_GE_PDV_Info.hpp"
 
 #include "cl_Mesh_Enums.hpp"
-#include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
 

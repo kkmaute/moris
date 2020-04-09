@@ -265,33 +265,36 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
+            std::shared_ptr< fem::Stabilization_Parameter > tSP = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+            tSP->set_parameters( { {{ 1.0 }} });
+            tSP->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
-
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+            tIWG->set_stabilization_parameter( tSP, "GhostDispl" );
 
-            if ( iInterpOrder > 0 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP1->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
-                tSP1->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-                tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
-            }
-            if ( iInterpOrder > 1 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP2->set_parameters( { {{ 1.0 }}, {{ 2.0 }} });
-                tSP2->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-                tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
-            }
-            if ( iInterpOrder > 2 )
-            {
-                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
-                tSP3->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-                tIWG->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
-            }
+//            if ( iInterpOrder > 0 )
+//            {
+//                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//                tSP1->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
+//                tSP1->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
+//            }
+//            if ( iInterpOrder > 1 )
+//            {
+//                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//                tSP2->set_parameters( { {{ 1.0 }}, {{ 2.0 }} });
+//                tSP2->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
+//            }
+//            if ( iInterpOrder > 2 )
+//            {
+//                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
+//                tSP3->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tIWG->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
+//            }
 
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );

@@ -14,6 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace xtk
 {
@@ -47,6 +48,7 @@ class Library_IO;
 
     namespace wrk
     {
+        class Workflow;
 //------------------------------------------------------------------------------
 
         class Performer_Manager
@@ -59,6 +61,9 @@ class Library_IO;
             moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
             moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
             moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
+
+            friend class wrk::Workflow;
+
 
 //------------------------------------------------------------------------------
         public:
@@ -75,11 +80,9 @@ class Library_IO;
              */
             ~Performer_Manager(){};
 
-            void initialize();
+            void initialize_performers();
 
-            void perform_refinement();
-
-            void perform();
+            void set_performer_cooperations();
 
 //------------------------------------------------------------------------------
         };

@@ -32,6 +32,10 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
 
         PC mpc;
 
+        moris::Cell< KSP > tKSPBlock;
+
+        friend class Preconditioner_PETSc;
+
     protected:
 
     public:
@@ -56,7 +60,11 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
     moris::sint solve_linear_system(       Linear_Problem * aLinearSystem,
                                      const moris::sint      aIter );
 
+    void set_solver_analysis_options();
+
     void build_multigrid_preconditioner( Linear_Problem * aLinearSystem );
+
+    void build_schwarz_preconditioner( );
 
 //    void solve_eigenvalues(){};
 //

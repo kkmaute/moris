@@ -120,8 +120,7 @@ Cell_Info_Tri3::get_node_map_outward_normal(moris::uint aSideOrdinal) const
     }
 }
 // ----------------------------------------------------------------------------------
-moris::real
-Cell_Info_Tri3::compute_cell_size( moris::mtk::Cell const * aCell ) const
+moris::real Cell_Info_Tri3::compute_cell_size( moris::mtk::Cell const * aCell ) const
 {
     // cell coordinates
     moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
@@ -131,34 +130,19 @@ Cell_Info_Tri3::compute_cell_size( moris::mtk::Cell const * aCell ) const
     Matrix<DDRMat> tNodeCoords2 = tVertices(2)->get_coords();
 
     // Doing it this way insures we do not assume the structure of node coords
-    Matrix<DDRMat> tXHat(2,3);
-    tXHat(0,0) = tNodeCoords0(0);
-    tXHat(1,0) = tNodeCoords0(1);
-    tXHat(0,1) = tNodeCoords1(0);
-    tXHat(1,1) = tNodeCoords1(1);
-    tXHat(0,2) = tNodeCoords2(0);
-    tXHat(1,2) = tNodeCoords2(1);
+    Matrix< DDRMat > tMat( 3, 3, 1.0 );
+    tMat( 1,0 ) = tNodeCoords0( 0 );
+    tMat( 2,0 ) = tNodeCoords0( 1 );
+    tMat( 1,1 ) = tNodeCoords1( 0 );
+    tMat( 2,1 ) = tNodeCoords1( 1 );
+    tMat( 1,2 ) = tNodeCoords2( 0 );
+    tMat( 2,2 ) = tNodeCoords2( 1 );
 
+    moris::real tSurface = det( tMat ) / 2.0;
 
-    // populate output matrix
-    Matrix< DDRMat > tdNdXi(3,3);
-    tdNdXi( 0, 0 ) = 1.0;
-    tdNdXi( 0, 1 ) = 0.0;
-    tdNdXi( 0, 2 ) = 0.0;
+    MORIS_ASSERT( tSurface >= 0, " Cell_Info_Tri3::compute_cell_size(), triangle volume is <= zero!");
 
-    tdNdXi( 1, 0 ) = 0.0;
-    tdNdXi( 1, 1 ) = 1.0;
-    tdNdXi( 1, 2 ) = 0.0;
-
-    tdNdXi( 2, 0 ) = 0.0;
-    tdNdXi( 2, 1 ) = 0.0;
-    tdNdXi( 2, 2 ) = 1.0;
-
-    Matrix<DDRMat> tSpaceJT = tdNdXi * tXHat;
-
-    Matrix< DDRMat > tSpaceJt2( 3, 3, 1.0 );
-    tSpaceJt2({ 1, 2 },{ 0, 2 }) = trans( tSpaceJT );
-    return det( tSpaceJt2 ) / 2.0;
+    return tSurface;
 }
 // ----------------------------------------------------------------------------------
 moris::real

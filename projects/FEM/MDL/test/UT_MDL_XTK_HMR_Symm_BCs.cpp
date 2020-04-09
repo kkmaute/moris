@@ -168,7 +168,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 
         tHMR.finalize();
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         moris::ge::GEN_Phase_Table     tPhaseTable(1,  Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-         xtk::Model tXTKModel(2, tInterpolationMesh.get(), &tGeometryEngine);
+         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
         tXTKModel.mVerbose = false;
 
@@ -256,7 +256,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet_ss2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet_ss2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet_ss2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichlet_ss2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichlet_ss2->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -264,7 +264,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tIWGDirichlet_ss2->set_property( tPropDirichletUX_ss2, "Dirichlet", mtk::Master_Slave::MASTER );
         tIWGDirichlet_ss2->set_property( tPropDirichletUX_ss2_select, "Select", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletFixed_ss4 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletFixed_ss4 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletFixed_ss4->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichletFixed_ss4->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichletFixed_ss4->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -422,6 +422,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         // -----------------------------------------------------------
 //        delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 }   // end moris namespace

@@ -120,6 +120,12 @@ public:
     void
     set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh);
 
+    void
+    set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
+
+    void
+    initialize( moris::mtk::Interpolation_Mesh* aMesh );
+
     //--------------------------------------------------------------------------------
     // Operations
     //--------------------------------------------------------------------------------
@@ -401,6 +407,10 @@ private:
 
     // local to global subphase map
     std::unordered_map<moris::moris_id,moris::moris_index> mGlobalToLocalSubphaseMap;
+
+    std::shared_ptr< mtk::Mesh_Manager > mMTKPerformer = nullptr;
+
+    bool mInitializeCalled = false;
 
 
     // Private Functions

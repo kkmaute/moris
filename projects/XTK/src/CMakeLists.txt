@@ -170,6 +170,10 @@ set(LIB_DEPENDENCIES
 	${MTK}-lib
 	${ALG}-lib
 	${CHR}-lib
+	${INT}-lib
+	${MDL}-lib
+    ${MAP}-lib
+    ${HMR}-lib
     )
 
 # Set the output path for library
@@ -213,6 +217,10 @@ set(PLATO_EXE_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
     ${ALG}-lib
+    ${MAP}-lib
+    ${MDL}-lib
+    ${INT}-lib
+    ${GEN_MAIN}-lib
 	${MORIS_BASE_LIBS}
     )    
  
@@ -238,6 +246,10 @@ set(XTK_EXE_DEPENDENCIES
     ${COM}-lib
     ${IOS}-lib
     ${ALG}-lib
+    ${MAP}-lib
+    ${MDL}-lib
+    ${INT}-lib
+    ${GEN_MAIN}-lib
 	${MORIS_BASE_LIBS}
     )    
 
@@ -257,6 +269,10 @@ set(HOLE_EXE_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
     ${ALG}-lib
+    ${MAP}-lib
+    ${MDL}-lib
+    ${INT}-lib
+    ${GEN_MAIN}-lib
 	${MORIS_BASE_LIBS}
     )    
  
@@ -279,6 +295,7 @@ if(BUILD_HMR)
 	    ${NLA}-lib # for L2
 	    ${GEN_MAIN}-lib
 	    ${ALG}-lib
+	    ${MAP}-lib
 	    ${MORIS_BASE_LIBS}
 	    )    
 	 

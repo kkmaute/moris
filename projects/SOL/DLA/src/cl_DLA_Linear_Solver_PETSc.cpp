@@ -5,6 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
+#include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 
 #include <petscksp.h>
@@ -93,21 +94,34 @@ moris::sint Linear_Solver_PETSc::solve_linear_system( )
 moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aLinearSystem,
                                                       const moris::sint       aIter )
 {
+	mSolverInterface = aLinearSystem->get_solver_input();
 
     // Create KSP and PC
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
     KSPGetPC( mPetscKSPProblem, &mpc );
+    KSPSetOperators( mPetscKSPProblem, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
+    KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
+//    KSPSetFromOptions( mPetscKSPProblem );
+
+//    KSPSetUp( mPetscKSPProblem );
 
     this->set_solver_internal_parameters( );
 
     if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "mg") )
     {
-        this->build_multigrid_preconditioner( aLinearSystem );
-    }
+        // build preconditiner class
+        dla::Preconditioner_PETSc tPreconditioner( this );
 
-    KSPSetOperators( mPetscKSPProblem, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
-    KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
-    KSPSetFromOptions( mPetscKSPProblem );
+        tPreconditioner.build_multigrid_preconditioner( aLinearSystem );
+    }
+    if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "asm") )
+    {
+        // build preconditiner class
+        dla::Preconditioner_PETSc tPreconditioner( this );
+
+        // build schwarz preconditioner
+        tPreconditioner.build_schwarz_preconditioner();
+    }
 
 //    aLinearSystem->get_free_solver_LHS()->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
 //    aLinearSystem->get_free_solver_LHS()->print();
@@ -115,90 +129,41 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
     aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
 //    aLinearSystem->get_solver_RHS()->print();
 
+    this->set_solver_analysis_options();
+
+    KSPSetFromOptions( mPetscKSPProblem );
+    KSPSetUp( mPetscKSPProblem );
+
     // Solve System
     KSPSolve( mPetscKSPProblem, aLinearSystem->get_solver_RHS()->get_petsc_vector(), aLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
 
     // Output
-    //KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
+//    KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
     moris::sint Iter;
     KSPGetIterationNumber(mPetscKSPProblem, &Iter );
     std::cout<<Iter<<" Iterations"<<std::endl;
+
+
+    mSolverInterface = nullptr;
 
     return 0;
 }
 
 //----------------------------------------------------------------------------------------
-
-void Linear_Solver_PETSc::build_multigrid_preconditioner( Linear_Problem * aLinearSystem )
+void Linear_Solver_PETSc::set_solver_analysis_options()
 {
-	std::cout<<"---------build MG preconditioner-------------"<<std::endl;
-    // Build multigrid operators
-    aLinearSystem->get_solver_input()->build_multigrid_operators();
+    PetscViewer tViewer;
+    PetscViewerCreate( PETSC_COMM_WORLD, &tViewer );
+    PetscViewerSetType( tViewer, PETSCVIEWERASCII );
+    PetscViewerFileSetName( tViewer, "Residual_Norms.txt" );
 
-    // get multigrid operators
-    moris::Cell< Dist_Matrix * > tProlongationList = aLinearSystem->get_solver_input()->get_multigrid_operator_pointer()->get_prolongation_list();
+    PetscViewerAndFormat *tViewerAndFormat;
+    PetscViewerAndFormatCreate( tViewer, PETSC_VIEWER_DEFAULT, &tViewerAndFormat );
 
-    PetscInt tLevels = mParameterList.get< moris::sint >( "MultigridLevels" );
-
-    PCMGSetLevels( mpc, tLevels, NULL );
-    PCMGSetType( mpc, PC_MG_MULTIPLICATIVE );
-//    PCMGSetGalerkin( mpc, PC_MG_GALERKIN_BOTH );
-     PCMGSetGalerkin( mpc, PETSC_TRUE );
-
-    moris::Cell< Mat > tTransposeOperators( tProlongationList.size() );
-    for ( moris::uint Ik = 0; Ik < tProlongationList.size(); Ik++ )
-    {
-        MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &tTransposeOperators( Ik ) );
-    }
-
-    moris::sint tCounter = 0;
-    for ( moris::sint Ik = tLevels-1; Ik > 0; Ik-- )
-    {
-         PCMGSetInterpolation( mpc, Ik, tTransposeOperators( tCounter++ ) );
-    }
-
-    for ( moris::uint Ik = 0; Ik < tTransposeOperators.size(); Ik++ )
-    {
-        MatDestroy( &tTransposeOperators( Ik ) );
-    }
-//------------------------------------------
-     KSP tPetscKSPCoarseSolve;
-     PCMGGetCoarseSolve(mpc, &tPetscKSPCoarseSolve);
-     KSPSetType(tPetscKSPCoarseSolve,KSPRICHARDSON);
-     PetscInt maxitss=1000;
-     KSPSetTolerances( tPetscKSPCoarseSolve, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxitss );
-     PC cpc;
-     KSPGetPC(tPetscKSPCoarseSolve,&cpc);
-     PCSetType(cpc,PCLU);
-//----------------------------------------------------------------
-
-     for (PetscInt k=1;k<tLevels;k++)
-     {
-         KSP dkspDown;
-         PCMGGetSmootherDown(mpc,k,&dkspDown);
-         PC dpcDown;
-         KSPGetPC(dkspDown,&dpcDown);
-         KSPSetType(dkspDown,KSPGMRES);                                                       // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
-         moris::sint restart = 2;
-         KSPGMRESSetRestart(dkspDown,restart);
-         KSPSetTolerances(dkspDown,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT,restart);         // NOTE maxitr=restart;
-         PCSetType(dpcDown,PCJACOBI);                                                          // PCJACOBI, PCSOR for KSPCHEBYSHEV very good... Use KSPRICHARDSON for weighted Jacobi
-     }
-
-     for (PetscInt k=1;k<tLevels;k++)
-     {
-         KSP dkspUp;
-
-         PCMGGetSmootherUp(mpc,k,&dkspUp);
-         PC dpcUp;
-         KSPGetPC(dkspUp,&dpcUp);
-         KSPSetType(dkspUp,KSPGMRES);
-//            KSPSetType(dkspUp,KSPGMRES);                                                                 // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
-         moris::sint restart = 4;
-         KSPGMRESSetRestart(dkspUp,restart);
-         KSPSetTolerances(dkspUp,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT,restart);                     // NOTE maxitr=restart;
-         PCSetType(dpcUp,PCJACOBI);
-     }
+    KSPMonitorSet( mPetscKSPProblem,
+                   reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorTrueResidualNorm ),
+                   tViewerAndFormat,
+                   NULL );
 }
 
 //----------------------------------------------------------------------------------------

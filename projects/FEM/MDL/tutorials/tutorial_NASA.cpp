@@ -233,7 +233,7 @@ main( int    argc,
             {{ MSI::Dof_Type::TEMP }},
             {fem::Property_Type::TEMP_LOAD },
             { fem::Constitutive_Type::DIFF_LIN_ISO } );
-    tDBCIWG( 0 )  = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+    tDBCIWG( 0 )  = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,
             { MSI::Dof_Type::TEMP },
             {{ MSI::Dof_Type::TEMP }},
             { fem::Property_Type::TEMP_DIRICHLET },

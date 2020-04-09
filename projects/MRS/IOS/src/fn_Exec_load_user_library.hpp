@@ -45,6 +45,10 @@ namespace moris
         typedef Matrix<DDRMat> ( *MORIS_DDRMAT2_FUNCTION ) ( const moris::Matrix<DDRMat>&,
                                                              const moris::Matrix<DDRMat>& );
 
+        typedef void ( *MORIS_DDRMAT3_REF_FUNCTION ) (moris::Matrix<DDRMat>&,
+                                                                moris::Matrix<DDRMat>&,
+                                                                moris::Matrix<DDRMat>&);
+
         typedef Matrix<DDSMat> ( *MORIS_DDSMAT0_FUNCTION ) ( );
 
         typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
@@ -158,6 +162,26 @@ namespace moris
             {
                 MORIS_DDRMAT2_FUNCTION aUserFunction
                         = reinterpret_cast<MORIS_DDRMAT2_FUNCTION>
+                        ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                      + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            // -----------------------------------------------------------------------------
+
+            MORIS_DDRMAT3_REF_FUNCTION
+            load_ddrmat3_ref_function( const std::string & aFunctionName )
+            {
+                MORIS_DDRMAT3_REF_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_DDRMAT3_REF_FUNCTION>
                         ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

@@ -110,7 +110,8 @@ namespace moris
              * evaluate the constitutive model test traction
              * @param[ in ] aNormal   normal
              */
-            void eval_testTraction( const Matrix< DDRMat > & aNormal );
+            void eval_testTraction( const Matrix< DDRMat >             & aNormal,
+                                    const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
 //--------------------------------------------------------------------------------------------------------------
             /**
@@ -168,7 +169,8 @@ namespace moris
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                          const Matrix< DDRMat >             & aNormal,
-                                         const Matrix< DDRMat >             & aJump );
+                                         const Matrix< DDRMat >             & aJump,
+                                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
 //--------------------------------------------------------------------------------------------------------------
             /**
@@ -212,6 +214,11 @@ namespace moris
              */
             void set_model_type( Model_Type aModelType);
 
+//--------------------------------------------------------------------------------------------------------------
+            /*
+             * @brief returns the E prime values used in the computation of the Stress Intensity Factor(s)
+             */
+            moris::real get_e_prime(  );
 //--------------------------------------------------------------------------------------------------------------
         private:
 

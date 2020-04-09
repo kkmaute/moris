@@ -199,6 +199,16 @@ namespace moris
         // Set multigrid levels
         tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
 
+        // Schwarz preconditioner volume fraction threshold
+        tLinAlgorithmParameterList.insert( "MG_use_schwarz_smoother", false );
+
+        // Schwarz smoothing iterations
+        tLinAlgorithmParameterList.insert( "MG_schwarz_smoothing_iters", 1 );
+
+        // Schwarz preconditioner volume fraction threshold
+        tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
+
+
         return tLinAlgorithmParameterList;
     }
 

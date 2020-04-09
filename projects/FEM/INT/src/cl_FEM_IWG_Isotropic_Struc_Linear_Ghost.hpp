@@ -28,33 +28,16 @@ namespace moris
         class IWG_Isotropic_Struc_Linear_Ghost : public IWG
         {
 
-            // order of Shape functions
-            uint mOrder;
-
 //------------------------------------------------------------------------------
         public:
 
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
+            // interpolation order for residual dof type
+            uint mOrder;
 
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
-
-            enum class IWG_Constitutive_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
+            // stabilization type enums
             enum class IWG_Stabilization_Type
             {
-                GHOST_DISPL_1,
-                GHOST_DISPL_2,
-                GHOST_DISPL_3,
+                GHOST_DISPL,
                 MAX_ENUM
             };
 

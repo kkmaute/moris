@@ -170,6 +170,7 @@ namespace moris
             tSpaceJacobian = inv( tSpaceJacobian );
 
             // FIXME should not be here
+            mSpaceDim = mMasterFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
             this->set_function_pointers();
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j

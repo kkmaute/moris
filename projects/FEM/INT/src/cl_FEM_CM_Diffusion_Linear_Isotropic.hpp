@@ -109,7 +109,8 @@ namespace moris
              * @param[ in ] aNormal normal
              * test traction ( numDof x 1 )
              */
-            void eval_testTraction( const Matrix< DDRMat > & aNormal );
+            void eval_testTraction( const Matrix< DDRMat >             & aNormal,
+                                    const moris::Cell< MSI::Dof_Type > & aTestDofType );
 
 //------------------------------------------------------------------------------
             /**
@@ -158,7 +159,8 @@ namespace moris
              * dTestTractiondDOF ( numDof x numDerDof )
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                         const Matrix< DDRMat >             & aNormal );
+                                         const Matrix< DDRMat >             & aNormal,
+                                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
             /**
              * evaluate the constitutive model test traction derivative wrt to a dof type
@@ -168,7 +170,8 @@ namespace moris
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                          const Matrix< DDRMat >             & aNormal,
-                                         const Matrix< DDRMat >             & aJump );
+                                         const Matrix< DDRMat >             & aJump,
+                                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
 //------------------------------------------------------------------------------
             /**

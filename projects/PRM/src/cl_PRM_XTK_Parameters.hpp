@@ -38,11 +38,14 @@ namespace moris
 
         // enrichment and enrichment related parameters
         tParameterList.insert( "enrich", false );
-        tParameterList.insert( "basis_rank",std::string("node"));
+        tParameterList.insert( "basis_rank",std::string("node") );
         tParameterList.insert( "enrich_mesh_indices",std::string("0"));
 
         // ghost stabilization and ghost related parameters
         tParameterList.insert( "ghost_stab", false );
+
+        // multigrid
+        tParameterList.insert( "multigrid", false );
 
         return tParameterList;
     }

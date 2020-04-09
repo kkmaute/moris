@@ -41,6 +41,8 @@ namespace mdl
         protected:
                 mdl::Model * mModel = nullptr;
 
+                moris::Cell< moris::Cell< enum fem::IQI_Type > > mRequestedIQIType;
+
         public:
 
 //------------------------------------------------------------------------------
@@ -146,11 +148,17 @@ namespace mdl
 
 //------------------------------------------------------------------------------
             /**
-             * return local to global dv type map
+             * return local to global dv map.
+             * ( this is a collection of all local parallel consistent Ids )
              */
-            virtual moris::Matrix< DDSMat > get_ip_local_global_map() = 0;
+            virtual moris::Matrix< DDSMat > get_local_global_map() = 0;
 
-            virtual moris::Matrix< DDSMat > get_ig_local_global_map() = 0;
+//------------------------------------------------------------------------------
+            /**
+             * return owned local to global dv map.
+             * ( this is a collection of all owned local parallel consistent Ids )
+             */
+            virtual moris::Matrix< DDSMat > get_owned_local_global_map() = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -179,13 +187,14 @@ namespace mdl
              */
             virtual void get_ig_requested_dv_types( Cell< enum GEN_DV > & aDvTypes ) = 0;
 //------------------------------------------------------------------------------
-			
-			 virtual void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
+            /**
+             * set requested IQI types
+             * @param[ in ] aRequestedIQIType list of requested IQI type by type and color. ( outer Cell is color )
+             */
+             virtual void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
              {
-				 MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
+                 MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
              };
-
-
         };
     }
 }

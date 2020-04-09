@@ -141,11 +141,11 @@ TEST_CASE("GE_HMR_Interaction_00","[moris],[GE],[GE_HMR_Interaction]")
             // calculate T-Matrices etc
             tDatabase->finalize();
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 2,*tInterpMesh );
+            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+            moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 2,*tInterpMesh );
 
             mtk::Mesh_Manager tMesh;
-            uint tMeshIndex = tMesh.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
+            uint tMeshIndex = tMesh.register_mesh_pair( tInterpMesh, tIntegrationMesh );
 
             //--------------------------------------------------------------------------------------------------
 

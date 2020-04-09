@@ -16,6 +16,7 @@ set(HEADERS
     cl_DLA_Linear_System_Trilinos.hpp
     cl_DLA_Linear_System_PETSc.hpp
     cl_DLA_Linear_Solver_PETSc.hpp
+    cl_DLA_Preconditioner_PETSc.hpp
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
     cl_DLA_Linear_Solver_Algorithm.hpp
@@ -42,6 +43,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver_Aztec.cpp
     cl_DLA_Linear_Solver_Belos.cpp
     cl_DLA_Linear_Solver_PETSc.cpp
+    cl_DLA_Preconditioner_PETSc.cpp
     cl_DLA_Linear_System_Trilinos.cpp
     cl_DLA_Linear_System_PETSc.cpp
     cl_DLA_Linear_Solver.cpp

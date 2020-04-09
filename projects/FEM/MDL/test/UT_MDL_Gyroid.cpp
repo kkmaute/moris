@@ -274,7 +274,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -286,7 +286,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
 //        moris::ge::GEN_Geometry_Engine tGeometryEngine;
 
-        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
+        xtk::Model                  tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -408,7 +408,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
        tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-       std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+       std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -599,7 +599,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 //       tIntegMesh1->create_output_mesh(tMeshOutputFile);
 //
 //       delete tIntegMesh1;
-
+delete tInterpMesh;
 //    }
 }/* END_TEST_CASE */
 

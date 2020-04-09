@@ -170,7 +170,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         tHMR.save_to_exodus( 0, "./mdl_exo/mdl_input.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -183,7 +183,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(), &tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh, &tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = false;
 
@@ -203,7 +203,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+        tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
@@ -279,6 +279,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         // clean up
         delete tModel;
+        delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */
@@ -450,8 +451,8 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        // create parameter list for IWG 2
 //        tParameterList( 3 )( 1 ) = prm::create_IWG_parameter_list();
-//        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET") );
-//        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET ) );
+//        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE") );
+//        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) );
 //        tParameterList( 3 )( 1 ).set( "dof_residual",               std::string("TEMP") );
 //        tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    std::string("TEMP") );
 //        tParameterList( 3 )( 1 ).set( "master_properties",          std::string("PropertyDirichlet,Dirichlet") );

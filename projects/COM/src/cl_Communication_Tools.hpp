@@ -35,23 +35,47 @@ namespace moris
     //------------------------------------------------
     //  GENERAL MPI FUNCTIONS
 
+    /**
+     * Gets the current global communicator
+     *
+     * @return MPI_Comm, current global communicator
+     */
     MPI_Comm
     get_comm();
 
-    /*
+    /**
+     * Splits the current communicator
+     *
+     * @param color control of subset assignment
+     * @param key control of rank assignment
+     */
+    void comm_split(int color, int key, const std::string& aCommName);
+
+    /**
+     * Returns to global communicator
+     */
+    void comm_join();
+
+    /**
      * Returns the current processor rank
+     *
+     * @return moris_id, current processor rank
      */
     moris::moris_id
     par_rank();
 
-    /*
+    /**
      * Returns the size of the processor pool
+     *
+     * @return moris_id, size of the processor pool
      */
     moris::moris_id
     par_size();
 
-    /*
+    /**
      * Holds all processors
+     *
+     * @param aBarrierName string naming this barrier
      */
     void barrier(std::string aBarrierName = std::string(" "));
 

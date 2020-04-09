@@ -300,8 +300,8 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
 
     tFieldData( 0 ) = tGENGeometryEngine_temp.get_cylinder_vals( tMeshIndex, &tFibers, tNumberOfFibers );
 
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-    std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpMesh );
+    hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+    moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpMesh );
 
     mtk::Mesh_Manager tMesh1;
 
@@ -326,7 +326,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
     //------------------------------------------------------------------------------
-    xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+    xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
     tXTKModel.mVerbose = false;
 
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -480,7 +480,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         tIWGPlate->set_constitutive_model( tCMPlate, "ElastLinIso", mtk::Master_Slave::MASTER );
 
         //------------------------------------------------------------------------------
-        std::shared_ptr< fem::IWG > tIWGDirichletFixedUx = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletFixedUx = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletFixedUx->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
         tIWGDirichletFixedUx->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
         tIWGDirichletFixedUx->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
@@ -501,7 +501,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         tIWGFibers->set_constitutive_model( tCMFibers, "ElastLinIso", mtk::Master_Slave::MASTER );
 
         //------------------------------------------------------------------------------
-        std::shared_ptr< fem::IWG > tIWGDirichletFixedUy = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletFixedUy = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletFixedUy->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
         tIWGDirichletFixedUy->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
         tIWGDirichletFixedUy->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
@@ -510,7 +510,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         tIWGDirichletFixedUy->set_property( tPropDirichletUY_ss1_select, "Select", mtk::Master_Slave::MASTER );
 
         //------------------------------------------------------------------------------
-        std::shared_ptr< fem::IWG > tIWGDirichletFixedUz = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichletFixedUz = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichletFixedUz->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
         tIWGDirichletFixedUz->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
         tIWGDirichletFixedUz->set_stabilization_parameter( tSPDirichletNitscheBCs, "DirichletNitsche" );
@@ -841,6 +841,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
 
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
         delete tIntegMesh1;
+        delete tInterpMesh;
     }// end full problem if-statement
 }
 

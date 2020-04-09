@@ -104,9 +104,11 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_GE_Factory.cpp
+    cl_GE_PDV_Info.cpp
     
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp
+	geomeng/cl_GEN_Design_Variable_Interface.cpp
 	
 	property/cl_GEN_Property.cpp
 	
@@ -125,9 +127,6 @@ set(LIB_DEPENDENCIES
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
-
-
-
 
 # Create library
 add_library(${GEN_MAIN}-lib STATIC ${LIB_SOURCES})

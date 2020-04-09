@@ -172,7 +172,7 @@ namespace moris
 
             //                tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
             moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
@@ -182,7 +182,7 @@ namespace moris
             moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
             moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-            xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
             tXTKModel.mVerbose = false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -266,7 +266,7 @@ namespace moris
             tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
             tIWGBulk->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+            std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
             tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
             tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -412,6 +412,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
             tTimeSolver.solve();
+
+            delete tInterpMesh;
         }
     }
 
@@ -469,7 +471,7 @@ namespace moris
 
             //                tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
             moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
 
@@ -479,7 +481,7 @@ namespace moris
             moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
             moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
-            xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
             tXTKModel.mVerbose = false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -563,7 +565,7 @@ namespace moris
             tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
             tIWGBulk->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+            std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
             tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
             tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -703,6 +705,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
             tTimeSolver.solve();
+
+            delete tInterpMesh;
         }
     }
 

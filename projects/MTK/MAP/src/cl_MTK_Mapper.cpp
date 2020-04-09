@@ -11,6 +11,10 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Mapper_Node.hpp"
+
 #include "cl_MSI_Solver_Interface.hpp"
 
 #include "cl_SOL_Warehouse.hpp"

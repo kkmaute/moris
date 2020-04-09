@@ -21,6 +21,7 @@
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Pdv_Host_Manager.hpp"
 
 // HMR includes ---------------------------------
 #include "cl_HMR.hpp"
@@ -38,12 +39,9 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
-#include "cl_MSI_Design_Variable_Interface.hpp"
-
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
-
 
 //------------------------------------------------------------------------------
 
@@ -52,7 +50,7 @@ namespace moris
     namespace ge
     {
 
-    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff )
+    Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > > & aCoeff )
     {
         return aCoeff( 0 );
     }
@@ -131,12 +129,9 @@ namespace moris
 
             tHMR.finalize();
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+            hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             mtk::Mesh_Manager tMeshManager;
-
-//            uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
             //------------------------------------------------------------------------------
             //------------------------------------------------------------------------------
             Cell< enum GEN_DV > tPdvList(3);
@@ -176,7 +171,7 @@ namespace moris
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
-            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), &tGeometryEngine );
+            xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
@@ -466,11 +461,9 @@ namespace moris
 
             tHMR.finalize();
 
-            std::shared_ptr< hmr::Interpolation_Mesh_HMR >      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, *tInterpMesh );
+            hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             mtk::Mesh_Manager tMeshManager;
-//            uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
             //------------------------------------------------------------------------------
             Cell< enum GEN_DV > tPdvList(2);
             tPdvList(0) = GEN_DV::DENSITY0;
@@ -501,7 +494,7 @@ namespace moris
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
-            xtk::Model tXTKModel( tNumDims, tInterpMesh.get(), &tGeometryEngine );
+            xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };

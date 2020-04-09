@@ -122,7 +122,7 @@ namespace moris
 using namespace dla;
 using namespace NLA;
 
-TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
+TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
 {
 
     if(par_size() == 1)
@@ -189,7 +189,7 @@ TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
@@ -199,7 +199,7 @@ TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -292,7 +292,7 @@ TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
        tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
-       std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+       std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -316,11 +316,6 @@ TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
 
        // create the IQIs
        fem::IQI_Factory tIQIFactory;
-
-//       std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-//       tIQITEMP->set_output_type( vis::Output_Type::TEMP );
-//       tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
-//       tIQITEMP->set_output_type_index( 0 );
 
        std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
        tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
@@ -381,17 +376,17 @@ TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
        Solver_Interface *  tSolverInterface = tModel->get_solver_interface();
 
        // --------------------------------------------------------------------------------------
-       // Define outputs
-       vis::Output_Manager tOutputData;
-       tOutputData.set_outputs( 0,
-                                vis::VIS_Mesh_Type::STANDARD,
-                                "UT_MDL_FEM_Benchmark_Output.exo",
-                                { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
-                                { "Temperature" },
-                                { vis::Field_Type::NODAL },
-                                { vis::Output_Type::TEMP } );
-
-       tModel->set_output_manager( &tOutputData );
+//       // Define outputs
+//       vis::Output_Manager tOutputData;
+//       tOutputData.set_outputs( 0,
+//                                vis::VIS_Mesh_Type::STANDARD,
+//                                "UT_MDL_FEM_Benchmark_Output.exo",
+//                                { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
+//                                { "Temperature" },
+//                                { vis::Field_Type::NODAL },
+//                                { vis::Output_Type::TEMP } );
+//
+//       tModel->set_output_manager( &tOutputData );
 
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
@@ -451,7 +446,12 @@ TEST_CASE("MDL XFEM Meassure","[MDL_XFEM_MEASSURE]")
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
 
-       tSolverInterface->get_adof_ids_based_on_criteria();
+
+       moris::Cell< moris::Matrix< IdMat > >  aCriteriaIds;
+
+       tSolverInterface->get_adof_ids_based_on_criteria( aCriteriaIds, 0.1 );
+
+       delete tInterpMesh;
     }
 
 }/* END_TEST_CASE */

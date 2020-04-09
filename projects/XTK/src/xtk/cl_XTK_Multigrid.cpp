@@ -353,29 +353,31 @@ namespace xtk
 //    }
 //#endif
 
-#ifdef DEBUG
     void Multigrid::build_basis_exodus_information(std::string aName)
     {
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
 
-
         // get num enriched basis
         uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
 
+#ifdef DEBUG
         mEnrichedBasisCoords.set_size( tNumEnrichedBasis, mXTKModelPtr->get_spatial_dim() );
-        mEnrichedBasisLevel .set_size( tNumEnrichedBasis, 1 );
         mEnrichedBasisStatus.set_size( tNumEnrichedBasis, 1 );
+#endif
+        mEnrichedBasisLevel .set_size( tNumEnrichedBasis, 1 );
 
         for( uint Ik = 0; Ik < mNumBasis; Ik++ )
         {
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
             mEnrichedBasisLevel ( Ik ) = tInterpolationMesh.get_basis_level ( 0, tBackgroundIndex);
+#ifdef DEBUG
             mEnrichedBasisStatus( Ik ) = tInterpolationMesh.get_basis_status( 0, tBackgroundIndex);
             mEnrichedBasisCoords( {Ik, Ik}, {0, mXTKModelPtr->get_spatial_dim() - 1} ) = tInterpolationMesh.get_basis_coords( 0, tBackgroundIndex).matrix_data();
-
+#endif
         }
 
+#ifdef DEBUG
         // Create writer/file
         moris::mtk::Writer_Exodus tWriter;
         std::string tMorisRoot = std::getenv("MORISOUTPUT");
@@ -394,11 +396,9 @@ namespace xtk
 
         // Close file
         tWriter.close_file();
-
+#endif
 //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
-
-#endif
 }
 
 

@@ -288,7 +288,7 @@ using namespace tsa;
 
     void Time_Solver::initialize_sol_vec()
     {
-		// initialize solution vector with zero
+        // initialize solution vector with zero
         mFullVector->vec_put_scalar( 0.0 );
 
         // extract initialization string from parameterlist
@@ -316,13 +316,13 @@ using namespace tsa;
 
             if( tDofTypeAndValuePair( Ik ).size() == 2 )
             {
-				// replace inital values in solution vector
+                // replace inital values in solution vector
                 mFullVector->replace_global_values( tAdofIds,
                                                     tValues );
             }
             else if( tDofTypeAndValuePair( Ik ).size() == 3 )
             {
-				// get solution vector index
+                // get solution vector index
                 moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
 
                 // replace inital values in solution vector

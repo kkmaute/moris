@@ -259,7 +259,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
 
@@ -274,7 +274,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
           moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
           tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -346,7 +346,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -496,6 +496,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         // clean up
         //------------------------------------------------------------------------------
+        delete tInterpolationMesh;
         delete tIntegMesh1;
         delete tModel;
     }
@@ -604,7 +605,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
 
@@ -619,7 +620,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
           moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGENGeometryEngine0);
+          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
           tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -681,17 +682,21 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
         tSPDirichletNitsche->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-        tSPDisplGhost1->set_parameters( {{{ tGammaDisplGhost }}, {{ 1.0 }} });
-        tSPDisplGhost1->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+        tSPDisplGhost->set_parameters( {{{ tGammaDisplGhost }} });
+        tSPDisplGhost->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-        tSPDisplGhost2->set_parameters( {{{ tGammaDisplGhost }}, {{ 2.0 }} });
-        tSPDisplGhost2->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-        tSPDisplGhost3->set_parameters( {{{ tGammaDisplGhost }}, {{ 3.0 }} });
-        tSPDisplGhost3->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//        tSPDisplGhost1->set_parameters( {{{ tGammaDisplGhost }}, {{ 1.0 }} });
+//        tSPDisplGhost1->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//        tSPDisplGhost2->set_parameters( {{{ tGammaDisplGhost }}, {{ 2.0 }} });
+//        tSPDisplGhost2->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+//        tSPDisplGhost3->set_parameters( {{{ tGammaDisplGhost }}, {{ 3.0 }} });
+//        tSPDisplGhost3->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
         // create the IWGs
         // --------------------------------------------------------------------------------------
@@ -702,7 +707,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -718,7 +723,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-        tIWGGhost->set_stabilization_parameter( tSPDisplGhost1, "GhostDisplOrder1" );
+        tIWGGhost->set_stabilization_parameter( tSPDisplGhost, "GhostDispl" );
 
         // create the IQIs
         // --------------------------------------------------------------------------------------
@@ -869,6 +874,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         // clean up
         //------------------------------------------------------------------------------
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 
@@ -989,7 +995,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
@@ -1003,7 +1009,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         // specify decomposition method and cut mesh
@@ -1102,7 +1108,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1279,6 +1285,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         //------------------------------------------------------------------------------
         delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 
@@ -1398,7 +1405,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
@@ -1412,7 +1419,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh.get(), &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
         // specify decomposition method and cut mesh
@@ -1511,7 +1518,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1688,6 +1695,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         //------------------------------------------------------------------------------
         delete tIntegMesh1;
         delete tModel;
+        delete tInterpolationMesh;
     }
 }
 }

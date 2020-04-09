@@ -463,7 +463,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         std::cout<<"create mesh"<<std::endl;
 //        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
 
-        std::shared_ptr< Interpolation_Mesh_HMR > tMesh =  tHMR.create_interpolation_mesh( 3,
+        Interpolation_Mesh_HMR * tMesh =  tHMR.create_interpolation_mesh( 3,
                                                                                            0 );
 
         uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
@@ -504,7 +504,9 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             MORIS_ERROR( tStatus == 0, "HMR_T_Matrix_Perturb: Status returned != 0, Error in reading reference values");
 
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
+
         }
+        delete tMesh;
     }
 }
 
@@ -978,7 +980,7 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
             }
             tHMR.finalize();
 
-            std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             uint tNumNodes = tInterpolationMesh->get_num_nodes();
 
@@ -1021,7 +1023,7 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
             	}
             }
 
-
+            delete tInterpolationMesh;
         }
     }
 

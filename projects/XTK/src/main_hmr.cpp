@@ -128,7 +128,7 @@ main(
 
     tHMR.finalize();
 
-    std::shared_ptr< Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
+    Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
 
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
@@ -147,7 +147,7 @@ main(
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-    Model tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
+    Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
     tXTKModel.mSameMesh = true;
     tXTKModel.mVerbose  =  false;
 
@@ -172,6 +172,7 @@ main(
     std::string tMeshOutputFile = "./xtk_exo/xtk_hmr_output.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
     delete tCutMeshData;
+    delete tInterpMesh;
 //    delete tMeshData;
 
     //------------------------------------------------------------------------------

@@ -30,6 +30,9 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 
+            // sign for symmetric/unsymmetric Nitsche
+            sint mBeta;
+
             enum class IWG_Property_Type
             {
                 DIRICHLET,
@@ -62,7 +65,7 @@ namespace moris
             /*
              * constructor
              */
-            IWG_Isotropic_Struc_Linear_Dirichlet();
+            IWG_Isotropic_Struc_Linear_Dirichlet( sint aBeta );
 
 //------------------------------------------------------------------------------
             /**

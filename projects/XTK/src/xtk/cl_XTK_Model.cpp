@@ -91,7 +91,7 @@ Model::Model(uint aModelDimension,
     mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
 }
 
-Model::Model(moris::ParameterList const & aParameterList):
+Model::Model( moris::ParameterList const & aParameterList):
         mParameterList(aParameterList)
 {
     // flag this as a paramter list based run
@@ -106,6 +106,20 @@ Model::set_geometry_engine(moris::ge::GEN_Geometry_Engine* aGeometryEngine)
 
 void
 Model::set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh)
+{
+    this->initialize( aMesh );
+
+    mInitializeCalled = true;
+}
+
+void
+Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
+{
+	mMTKPerformer = aMTKPerformer;
+}
+
+void
+Model::initialize( moris::mtk::Interpolation_Mesh* aMesh )
 {
     mSameMesh           = false;
     mModelDimension     = aMesh->get_spatial_dim();
@@ -124,6 +138,16 @@ Model::set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh)
 void
 Model::perform()
 {
+    if( !mInitializeCalled )
+    {
+        MORIS_ERROR( mMTKPerformer != nullptr ,"xtk::Model::perform(), mMTKPerformer not set!");
+
+        //FIXME hardcodes to mesh pair index 0
+        moris::mtk::Interpolation_Mesh* tMesh = mMTKPerformer->get_interpolation_mesh( 0 );
+
+        this->initialize( tMesh );
+    }
+
     MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
     MORIS_ERROR(this->valid_parameters(),"Invalid parameters detected in XTK.");
 
@@ -147,6 +171,11 @@ Model::perform()
     {
         this->construct_face_oriented_ghost_penalization_cells();
     }
+
+    if(mParameterList.get<bool>("multigrid"))
+    {
+        this->construct_multigrid();
+    }
 }
 
 bool
@@ -161,6 +190,7 @@ Model::valid_parameters()
     bool tDecompose = mParameterList.get<bool>("decompose");
     bool tEnrich    = mParameterList.get<bool>("enrich");
     bool tGhost     = mParameterList.get<bool>("ghost_stab");
+    bool tMultigrid     = mParameterList.get<bool>("multigrid");
 
     if(tEnrich == true)
     {
@@ -170,6 +200,11 @@ Model::valid_parameters()
     if(tGhost == true)
     {
         MORIS_ERROR(tDecompose && tEnrich, "To perform ghost stabilization, decomposition and enrichment are also required.");
+    }
+
+    if(tMultigrid == true)
+    {
+        MORIS_ERROR(tDecompose && tEnrich, "To perform multigrid, decomposition and enrichment are also required.");
     }
 
     return true;
@@ -2956,11 +2991,8 @@ void Model::construct_multigrid()
 
     mMultigrid->create_coarse_to_fine_weights();
 
-    //mMultigrid->build_basis_exodus_information();
-#ifdef DEBUG
     std::string tName = "Enriched_bspline_1.exo";
     mMultigrid->build_basis_exodus_information(tName);
-#endif
 }
 
 // ----------------------------------------------------------------------------------

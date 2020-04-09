@@ -130,23 +130,24 @@ namespace moris
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model test flux
+             * evaluate the test flux
              */
             void eval_testFlux();
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model traction
+             * evaluate the traction
              * @param[ in ] aNormal normal
              */
             void eval_traction( const Matrix< DDRMat > & aNormal );
 
 //--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model test traction
+             * evaluate the test traction
              * @param[ in ] aNormal   normal
              */
-            void eval_testTraction( const Matrix< DDRMat > & aNormal );
+            void eval_testTraction( const Matrix< DDRMat > & aNormal,
+                                    const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
 //--------------------------------------------------------------------------------------------------------------
             /**
@@ -228,7 +229,8 @@ namespace moris
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                          const Matrix< DDRMat >             & aNormal,
-                                         const Matrix< DDRMat >             & aJump );
+                                         const Matrix< DDRMat >             & aJump,
+                                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
 //--------------------------------------------------------------------------------------------------------------
             /**
