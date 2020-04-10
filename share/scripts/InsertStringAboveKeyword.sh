@@ -13,6 +13,8 @@ echo " Example command line input: ~/codes/moris/projects '#include <armadillo>'
 echo ""
 echo " Script will create a backup of each modified file; the backup is named <file>.org"
 echo ""
+echo " To remove all backup files use: find <directory name> | grep '\.org' | xargs rm"
+echo ""
 echo "=============================================================="
 echo ""
 #
