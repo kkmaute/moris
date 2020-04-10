@@ -60,6 +60,7 @@ TEST_CASE("XTK Parameter List","[PARAM]")
     // set enrichment
     tXTKParams.set( "enrich", true );
     tXTKParams.set( "enrich_mesh_indices",std::string("0"));
+    tXTKParams.set( "high_to_low_dbl_side_sets",true);
 
     // set ghost
     tXTKParams.set( "ghost_stab", false );

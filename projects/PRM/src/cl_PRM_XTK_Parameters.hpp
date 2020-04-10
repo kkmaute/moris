@@ -54,6 +54,9 @@ namespace moris
 
         tParameterList.insert( "exodus_output_XTK_ig_mesh", false );
 
+        // enriched integration mesh options
+        tParameterList.insert( "high_to_low_dbl_side_sets", false );
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------

@@ -391,9 +391,6 @@ Enriched_Integration_Mesh::create_dbl_sided_interface_set(moris_index aMasterBul
     // get the other
     moris_index tOtherInterfaceIndex = this->get_dbl_side_set_index(aSlaveBulkPhaseIndex,aMasterBulkPhaseIndex);
 
-    std::cout<<"tInterfaceDblSideName = "<<tInterfaceDblSideName<<std::endl;
-    std::cout<<"tOtherInterfaceIndex = "<<tOtherInterfaceIndex<<std::endl;
-    std::cout<<"tDblSideSetOrds(0) = "<<tDblSideSetOrds(0)<<std::endl;
     // set the colors
     Matrix<IndexMat> tMasterColor = {{aMasterBulkPhaseIndex}};
     Matrix<IndexMat> tSlaveColor  = {{aSlaveBulkPhaseIndex}};
