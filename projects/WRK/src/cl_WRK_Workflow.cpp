@@ -31,10 +31,10 @@ void Workflow::perform()
     // uniform initial refinement
     mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
 
-    // perform refinement
+    // HMR refined by GE
     mPerformerManager->mGENPerformer( 0 )->perform();
 
-    // perform finalize HMR
+    // HMR finalize
     mPerformerManager->mHMRPerformer( 0 )->perform();
 
     //---------------------------------------------------------------------------------------

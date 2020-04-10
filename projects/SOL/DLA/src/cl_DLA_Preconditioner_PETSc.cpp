@@ -134,7 +134,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
          PCMGGetSmootherDown( mLinearSolverAlgoritm->mpc, tLevels-1, &dKSPFirstDown );
          PC dPCFirstDown;
          KSPGetPC( dKSPFirstDown, &dPCFirstDown );
-         KSPSetType( dKSPFirstDown, KSPRICHARDSON );
+         KSPSetType( dKSPFirstDown, KSPFGMRES );
          moris::sint restart = 1;
          KSPGMRESSetRestart( dKSPFirstDown, restart );
          KSPSetTolerances( dKSPFirstDown, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, tSchwarzSmoothingIters );
@@ -145,27 +145,6 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
          PCASMSetOverlap( dPCFirstDown, 0 );
 
          KSPSetOperators( dKSPFirstDown, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
-
-
-         //---------------------------------------------------------------
-
-         KSP dKSPFirstUp;
-         PCMGGetSmootherDown( mLinearSolverAlgoritm->mpc, tLevels-1, &dKSPFirstUp );
-         KSPGetPC( dKSPFirstUp, &dPCFirstDown );
-         KSPSetType( dKSPFirstUp, KSPRICHARDSON );
-//         moris::sint restart = 1;
-         KSPGMRESSetRestart( dKSPFirstUp, restart );
-         KSPSetTolerances( dKSPFirstUp, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, tSchwarzSmoothingIters );
-         PCSetType( dPCFirstDown, PCASM );
-
-         PCASMSetLocalType( dPCFirstDown, PC_COMPOSITE_MULTIPLICATIVE );
-         PCASMSetType( dPCFirstDown, PC_ASM_BASIC );
-         PCASMSetOverlap( dPCFirstDown, 0 );
-
-         KSPSetOperators( dKSPFirstUp, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
-
-
-         //---------------------------------------------------------------
 
 
          uint tNumBlocks = tCriteriaIds.size();
@@ -218,18 +197,6 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
          KSPGMRESSetRestart( dkspDown1, restart );
          KSPSetTolerances( dkspDown1, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, tMaxit );         // NOTE maxitr=restart;
          PCSetType( dpcDown, PCJACOBI );
-
-         //------------------------------------------------------------------------
-         KSP dkspUp;
-
-         PCMGGetSmootherUp( mLinearSolverAlgoritm->mpc,tLevels-1,&dkspUp);
-         PC dpcUp;
-         KSPGetPC(dkspUp,&dpcUp);
-         KSPSetType(dkspUp,KSPGMRES);
-//            KSPSetType(dkspUp,KSPGMRES);                                                                 // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
-         KSPGMRESSetRestart(dkspUp,restart);
-         KSPSetTolerances(dkspUp,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT,tMaxit);                     // NOTE maxitr=restart;
-         PCSetType(dpcUp,PCJACOBI);
      }
 
      //----------------------------------------------------------------
@@ -248,7 +215,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
          PCSetType( dpcDown, PCJACOBI );                                                          // PCJACOBI, PCSOR for KSPCHEBYSHEV very good... Use KSPRICHARDSON for weighted Jacobi
      }
 
-     for (PetscInt k=1;k<tLevels-1;k++)
+     for (PetscInt k=1;k<tLevels;k++)
      {
          KSP dkspUp;
 

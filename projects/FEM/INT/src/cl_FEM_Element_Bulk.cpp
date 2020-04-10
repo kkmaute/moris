@@ -134,7 +134,8 @@ namespace moris
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterCell->get_vertex_inds(),
                                                               { GEN_DV::XCOORD, GEN_DV::YCOORD },
-                                                              tPdvValueList, tIsActiveDv );//FIXME
+                                                              tPdvValueList,
+                                                              tIsActiveDv );//FIXME
 
             // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
             mSet->mDesignVariableInterface->reshape_pdv_values( tPdvValueList,

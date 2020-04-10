@@ -91,11 +91,11 @@ namespace moris
 
                  // compute master residual
                  mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                 +=   trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * aWStar;
+                 += aWStar * ( trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply );
 
                  // compute slave residual
                  mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                 += - trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply* aWStar;
+                 -= aWStar* ( trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply );
             }
         }
 
@@ -169,7 +169,6 @@ namespace moris
 
                 // premultiply common terms
                 Matrix< DDRMat > tPreMultiply = tSP->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix;
-
 
                 // loop over master dof
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )

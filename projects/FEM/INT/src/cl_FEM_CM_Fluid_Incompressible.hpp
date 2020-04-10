@@ -50,19 +50,7 @@ namespace moris
             /*
              * constructor
              */
-            CM_Fluid_Incompressible()
-            {
-                // set the property pointer cell size
-                mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the map
-                mPropertyMap[ "Density" ]   = CM_Property_Type::DENSITY;
-                mPropertyMap[ "Viscosity" ] = CM_Property_Type::VISCOSITY;
-
-                // populate the dof map (default)
-                mDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
-                mDofMap[ "Pressure" ] = MSI::Dof_Type::P;
-            };
+            CM_Fluid_Incompressible();
 
 //--------------------------------------------------------------------------------------------------------------
             /**

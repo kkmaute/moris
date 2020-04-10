@@ -1272,9 +1272,7 @@ namespace moris
 //        // FIXME use when MSI/GEN interface supports this
           // FIXME set requested types fomr GEN or SOL. do not use get function
 //        // get list of requested IQI types from OPT through the design variable interface
-//        moris::Cell < enum FEM::IQI_Type > tRequestedIQITypes
-//        = this->get_design_variable_interface()
-//              ->get_requested_IQI_types();
+//        moris::Cell < enum FEM::IQI_Type > mRequestedIQITypes;
 //
 //        // clear requested IQI list
 //        mRequestedIQIs.clear();

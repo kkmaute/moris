@@ -54,12 +54,11 @@ namespace moris
                 mRequestedIQITypeAssemblyMap( Ik ).resize( static_cast< sint >( fem::IQI_Type::END_IQI_TYPE ), gNoIndex );
             }
 
-            uint tCounter =0;
             for( uint Ik = 0; Ik < mRequestedIQITypes.size(); Ik++ )
             {
                 for( uint Ii = 0; Ii < mRequestedIQITypes( Ik ).size(); Ii++ )
                 {
-                    mRequestedIQITypeAssemblyMap( Ik )( static_cast< sint >( mRequestedIQITypes( Ik )( Ii ) ) ) = tCounter++;
+                    mRequestedIQITypeAssemblyMap( Ik )( static_cast< sint >( mRequestedIQITypes( Ik )( Ii ) ) ) = Ii;
                 }
             }
         }
