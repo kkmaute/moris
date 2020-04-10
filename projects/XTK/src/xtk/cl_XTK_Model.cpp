@@ -27,6 +27,7 @@
 #include "cl_MTK_Visualization_STK.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_Parsing_Tools.hpp"
 //#include "cl_XTK_Enrichment.hpp"
 using namespace moris;
@@ -113,9 +114,15 @@ Model::set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh)
 }
 
 void
-Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
+Model::set_input_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
 {
-	mMTKPerformer = aMTKPerformer;
+	mMTKInputPerformer = aMTKPerformer;
+}
+
+void
+Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
+{
+	mMTKOutputPerformer = aMTKPerformer;
 }
 
 void
@@ -140,16 +147,18 @@ Model::perform()
 {
     if( !mInitializeCalled )
     {
-        MORIS_ERROR( mMTKPerformer != nullptr ,"xtk::Model::perform(), mMTKPerformer not set!");
+        MORIS_ERROR( mMTKInputPerformer != nullptr ,"xtk::Model::perform(), mMTKInputPerformer not set!");
 
         //FIXME hardcodes to mesh pair index 0
-        moris::mtk::Interpolation_Mesh* tMesh = mMTKPerformer->get_interpolation_mesh( 0 );
+        moris::mtk::Interpolation_Mesh* tMesh = mMTKInputPerformer->get_interpolation_mesh( 0 );
 
         this->initialize( tMesh );
     }
 
     MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
     MORIS_ERROR(this->valid_parameters(),"Invalid parameters detected in XTK.");
+
+    mVerbose = mParameterList.get<bool>("verbose");
 
     if(mParameterList.get<bool>("decompose"))
     {
@@ -172,9 +181,34 @@ Model::perform()
         this->construct_face_oriented_ghost_penalization_cells();
     }
 
-    if(mParameterList.get<bool>("multigrid"))
+    if( mParameterList.get<bool>("multigrid") )
     {
         this->construct_multigrid();
+    }
+
+    // get meshes
+    xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = this->get_enriched_interp_mesh();
+    xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = this->get_enriched_integ_mesh();
+
+    // place the pair in mesh manager
+    mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
+
+    if( mParameterList.get<bool>("print_enriched_ig_mesh") )
+    {
+        tEnrIntegMesh.print();
+    }
+
+    if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
+    {
+        tEnrIntegMesh.deactivate_empty_sets();
+
+        // Write mesh
+        moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
+        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
+
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
     }
 }
 

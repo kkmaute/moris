@@ -7,7 +7,6 @@
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_LINSPACE_ARMA_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_LINSPACE_ARMA_HPP_
-#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 
 namespace moris

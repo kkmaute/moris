@@ -13,6 +13,21 @@ namespace moris
     {
 
 //--------------------------------------------------------------------------------------------------------------
+        CM_Fluid_Incompressible::CM_Fluid_Incompressible()
+        {
+            // set the property pointer cell size
+            mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the map
+            mPropertyMap[ "Density" ]   = CM_Property_Type::DENSITY;
+            mPropertyMap[ "Viscosity" ] = CM_Property_Type::VISCOSITY;
+
+            // populate the dof map (default)
+            mDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
+            mDofMap[ "Pressure" ] = MSI::Dof_Type::P;
+        }
+
+//--------------------------------------------------------------------------------------------------------------
         void CM_Fluid_Incompressible::set_function_pointers()
         {
             switch ( mSpaceDim )
@@ -174,7 +189,7 @@ namespace moris
             // if test traction wrt pressure
             if( aTestDofTypes( 0 ) == mDofMap["Pressure"] )
             {
-                // compute test traction wrt velocity
+                // compute test traction wrt pressure
                 mTestTraction( tTestDofIndex ) = tFlatNormal * this->dFluxdDOF( aTestDofTypes ) ;
             }
         }

@@ -65,10 +65,7 @@ namespace moris
             // get indices for SP, CM, properties
             uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
 
-            // compute the jacobian for direct IWG dof dependencies
-            // None
-
-            // compute the jacobian for indirect IWG dof dependencies through properties
+            // compute the jacobian for dof dependencies
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type

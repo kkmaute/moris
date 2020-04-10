@@ -47,6 +47,13 @@ namespace moris
         // multigrid
         tParameterList.insert( "multigrid", false );
 
+        // verbose - should be replaced by the severity level of the logger
+        tParameterList.insert( "verbose", false );
+
+        tParameterList.insert( "print_enriched_ig_mesh", false );
+
+        tParameterList.insert( "exodus_output_XTK_ig_mesh", false );
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------

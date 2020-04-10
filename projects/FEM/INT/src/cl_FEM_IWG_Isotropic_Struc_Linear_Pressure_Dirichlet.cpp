@@ -35,7 +35,6 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
-
         }
 
 //------------------------------------------------------------------------------
@@ -46,48 +45,48 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get index for given dof type, start and end indices for residual assembly
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+            // get master index for residual dof type (here pressure), indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for given dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            // FIXME protect dof type
+            Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
-            // get SP, CM and property indices
-            uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
-            uint tDirichletIndex   = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
-            // get CM for elasticity
-            moris::fem::CM_Struc_Linear_Isotropic* tLinearIso = static_cast <moris::fem::CM_Struc_Linear_Isotropic*> (mMasterCM(tElastLinIsoIndex).get());
-
-            // selection matrix
-            Matrix< DDRMat > tM;
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
-            if ( mMasterProp( tSelectIndex ) == nullptr )
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tFI->get_dof_type().size();
+                uint tSpaceDim = tFIDispl->get_dof_type().size();
+
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
             else
             {
-                tM = mMasterProp( tSelectIndex )->val();
+                tM = tPropSelect->val();
             }
 
-            // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
+            // get the imposed displacement property
+            std::shared_ptr< Property > tPropDirichlet
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
-            // flatten normal
-            Matrix< DDRMat > tFlattenedNormal(1, 1, 0.0);
-            tLinearIso->flatten_normal(mNormal, tFlattenedNormal);
+            // get CM for elasticity
+            std::shared_ptr< Constitutive_Model > tCMElasticity
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // compute displacement jump
+            Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
-            += mBeta * trans( tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )) * trans(tFlattenedNormal) * tM * tJump * aWStar;
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+            += aWStar * ( mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType ) ) * tM * tJump );
         }
 
 //------------------------------------------------------------------------------
@@ -98,45 +97,44 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get index for a given dof type
-            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tStartRow = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tEndRow   = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get master index for residual dof type (here pressure), indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            // get field interpolator for given dof type
+            // FIXME protect dof type
+            Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
-            // get SP, CM and property indices
-            uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
-            uint tDirichletIndex   = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
-            // get CM
-            moris::fem::CM_Struc_Linear_Isotropic* tLinearIso = static_cast <moris::fem::CM_Struc_Linear_Isotropic*> (mMasterCM(tElastLinIsoIndex).get());
-
-            // selection matrix
+            // set a default selection matrix if needed
             Matrix< DDRMat > tM;
-
-            // set a default selection matrix
-            if ( mMasterProp( tSelectIndex ) == nullptr )
+            if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tFI->get_dof_type().size();
+                uint tSpaceDim = tFIDispl->get_dof_type().size();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
             else
             {
-                tM = mMasterProp( tSelectIndex )->val();
+                tM = tPropSelect->val();
             }
 
-            // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
+            // get the imposed displacement property
+            std::shared_ptr< Property > tPropDirichlet
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
-            // flatten normal
-            Matrix< DDRMat > tFlattenedNormal(1, 1, 0.0);
-            tLinearIso->flatten_normal(mNormal, tFlattenedNormal);
+            // get CM for elasticity
+            std::shared_ptr< Constitutive_Model > tCMElasticity
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // compute jump
+            Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -152,19 +150,27 @@ namespace moris
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if direct dependency on the dof type
-                if ( tDofType(0) == MSI::Dof_Type::UX )
+                if ( tDofType( 0 ) == MSI::Dof_Type::UX )
                 {
-                    mSet->get_jacobian()( { tStartRow,            tEndRow },
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += mBeta * trans(tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )) * trans(tFlattenedNormal) * tM * tFI->N() * aWStar;
+                    += aWStar * ( mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType ) ) * tM * tFIDispl->N() );
                 }
 
-                // if property depends on dof type
-                if ( mMasterProp( tDirichletIndex )->check_dof_dependency( tDofType ) )
+                // if imposed displacement property depends on dof type
+                if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
-                    mSet->get_jacobian()( { tStartRow,            tEndRow },
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += mBeta * trans(tLinearIso->dFluxdDOF( moris::Cell<MSI::Dof_Type> (1, MSI::Dof_Type::P) )) * trans(tFlattenedNormal) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType ) * aWStar;
+                    += aWStar * ( mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType ) ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                }
+
+                // if elasticity CM depends on dof type
+                if( tCMElasticity->check_dof_dependency( tDofType ) )
+                {
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar * ( mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType ) );
                 }
             }
         }

@@ -29,7 +29,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( real tWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -41,28 +41,32 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get indices for SP, CM and property
-            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
-            uint tLoadIndex       = static_cast< uint >( IWG_Property_Type::LOAD );
+            // get body load property
+            std::shared_ptr< Property > tPropLoad
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
+
+            // get the elasticity CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->flux() * tWStar;
+            += aWStar * ( trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux() );
 
             // if body load
-            if ( mMasterProp( tLoadIndex ) != nullptr )
+            if ( tPropLoad != nullptr )
             {
                 // get field interpolator for a given dof type
                 Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // compute contribution of body load to residual
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
+                -= aWStar * ( trans( tFI->N() ) * tPropLoad->val()( 0 ) );
             }
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
@@ -74,16 +78,16 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-
             // get field interpolator for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get indices for SP, CM and property
-            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
-            uint tLoadIndex       = static_cast< uint >( IWG_Property_Type::LOAD );
+            // get body load property
+            std::shared_ptr< Property > tPropLoad
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
 
-            // compute the jacobian for direct dof dependencies
-            // Here no direct dependencies
+            // get the elasticity CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // compute the jacobian for indirect dof dependencies through properties and constitutive model
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -98,23 +102,23 @@ namespace moris
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if body load
-                if ( mMasterProp( tLoadIndex ) != nullptr )
+                if ( tPropLoad != nullptr )
                 {
                     // if property has dependency on the dof type
-                    if ( mMasterProp( tLoadIndex )->check_dof_dependency( tDofType ) )
+                    if ( tPropLoad->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDOF( tDofType ) * tWStar;
+                        -= aWStar * ( trans( tFI->N() ) * tPropLoad->dPropdDOF( tDofType ) );
                     }
                 }
 
                 // if constitutive model has dependency on the dof type
-                if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
+                if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += ( trans( mMasterCM( tDiffLinIsoIndex )->testStrain() ) * mMasterCM( tDiffLinIsoIndex )->dFluxdDOF( tDofType ) ) * tWStar;
+                    += aWStar * ( trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) );
                     // fixme add derivative of the test strain
                 }
             }

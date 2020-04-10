@@ -4,8 +4,7 @@
  *  Created on: Aug 27, 2018
  *      Author: doble
  */
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
+#include<armadillo>
 
 #include <catch.hpp>
 #include "fn_equal_to.hpp" //ALG

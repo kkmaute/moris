@@ -54,7 +54,6 @@ typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat; // F
 
 
 #else
-#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 typedef arma::uword             ncomp;     // native type of compare operators
 typedef arma::uword              nint;     // native type of compare operators

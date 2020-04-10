@@ -48,15 +48,6 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, SP_Property_Type > mPropertyMap;
 
-            // constitutive type for the SP
-            enum class SP_Constitutive_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
-
 //------------------------------------------------------------------------------
             /*
              * constructor

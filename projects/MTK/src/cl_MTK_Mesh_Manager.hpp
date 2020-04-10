@@ -23,16 +23,39 @@ namespace moris
       moris::Cell<Interpolation_Mesh*> mInterpolationMesh;
       moris::Cell<Integration_Mesh*>   mIntegrationMesh;
 
+      moris::Cell< bool >              mIsOwned;
+
   public:
 
       Mesh_Manager(){};
 
+      ~Mesh_Manager()
+      {
+         uint tCounter = 0;
+         for( bool tIsOwned : mIsOwned )
+         {
+             if( tIsOwned )
+             {
+                 delete mInterpolationMesh(tCounter);
+                 delete mIntegrationMesh(tCounter);
+             }
+             tCounter++;
+         }
+
+         mInterpolationMesh.clear();
+         mIntegrationMesh.clear();
+      };
+
       uint
       register_mesh_pair(Interpolation_Mesh* aInterpMesh,
-                         Integration_Mesh*   aIntegrationMesh)
+                         Integration_Mesh*   aIntegrationMesh,
+                         bool                aIsOwned = false )
       {
           mInterpolationMesh.push_back(aInterpMesh);
           mIntegrationMesh.push_back(aIntegrationMesh);
+
+          // set flag which tells if mesh is owned by manager. If it is owned it ha to be deleted
+          mIsOwned.push_back(aIsOwned);
 
           return mInterpolationMesh.size()-1;
       }

@@ -23,25 +23,28 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get index for residual dof type
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            // get master index for residual dof type (here displacement), indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get indices for SP, CM, properties
-            uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
+            // get load property
+            std::shared_ptr< Property > tPropNeumann
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-            += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() * tWStar;
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+            -= aWStar * ( trans( tFI->N() ) * tPropNeumann->val() );
         }
 
 //------------------------------------------------------------------------------
@@ -52,17 +55,17 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get index for the residual dof type
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            // get master index for residual dof type (here displacement), indices for assembly
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get indices for SP, CM, properties
-            uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
-
-            // compute the jacobian for direct IWG dof dependencies
-            // None
+            // get load property
+            std::shared_ptr< Property > tPropNeumann
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
 
             // compute the jacobian for indirect IWG dof dependencies through properties
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
@@ -70,16 +73,18 @@ namespace moris
                 // get dof type
                 Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // get index for the dof type
-                uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
+                // get the index for the dof type
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if dependency in the dof type
-                if ( mMasterProp( tNeumannIndex )->check_dof_dependency( tDofType ) )
+                if ( tPropNeumann->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                    += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->dPropdDOF( tDofType ) * tWStar;
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += - trans( tFI->N() ) * tPropNeumann->dPropdDOF( tDofType ) * tWStar;
                 }
             }
         }
