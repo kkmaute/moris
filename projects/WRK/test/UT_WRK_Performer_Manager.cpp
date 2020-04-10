@@ -17,20 +17,20 @@ using namespace moris;
 
 TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 {
-	if( par_size() == 1 )
-	{
-	    std::string tStringMoris = std::getenv( "MORISROOT" );
-	    std::string tString = tStringMoris + "/projects/FEM/MDL/test/data/Input_test.so";
-    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( tString );
+    if( par_size() == 1 )
+    {
+        std::string tStringMoris = std::getenv( "MORISROOT" );
+        std::string tString = tStringMoris + "/projects/FEM/MDL/test/data/Input_test.so";
+        std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( tString );
 
-	wrk::Performer_Manager tPerformerManager( tLibrary );
+        wrk::Performer_Manager tPerformerManager( tLibrary );
 
-	tPerformerManager.initialize_performers();
+        tPerformerManager.initialize_performers();
 
-	tPerformerManager.set_performer_cooperations();
+        tPerformerManager.set_performer_cooperations();
 
-	wrk::Workflow tWorkflow( &tPerformerManager );
+        wrk::Workflow tWorkflow( &tPerformerManager );
 
-	tWorkflow.perform();
+        tWorkflow.perform();
     }
 }

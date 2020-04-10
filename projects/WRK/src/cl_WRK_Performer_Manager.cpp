@@ -66,28 +66,50 @@ void Performer_Manager::initialize_performers()
     moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
     tXTKParameterListFunc( tXTKParameterList );
 
+    // create HMR performer
     mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ) );
 
+    // create MTK performer - will be used for HMR mesh
     mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
 
-    // Create GE with parameter list
+    // Create GE performer
     mGENPerformer( 0 ) = std::make_shared< ge::GEN_Geometry_Engine >( tGENParameterList(0)(0) );
 
+    // create MTK performer - will be used for XTK mesh
     mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
 
+    // create XTK performer
     mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+
+    // crreate MDL performer
+    mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mLibrary, 0 );
 
 }
 
 void Performer_Manager::set_performer_cooperations()
 {
-	mHMRPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
+    //---------------------------------------------------------------------------------------
+    //                               Set performer to HMR
+    //---------------------------------------------------------------------------------------
+    mHMRPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
 
+    //---------------------------------------------------------------------------------------
+    //                               Set performer to GE
+    //---------------------------------------------------------------------------------------
     mGENPerformer( 0 )->set_performer( mHMRPerformer( 0 ) );
     mGENPerformer( 0 )->set_library( mLibrary );
 
+    //---------------------------------------------------------------------------------------
+    //                               Set performer to XTK
+    //---------------------------------------------------------------------------------------
     mXTKPerformer( 0 )->set_geometry_engine( mGENPerformer( 0 ).get() );
-    mXTKPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
+    mXTKPerformer( 0 )->set_input_performer( mMTKPerformer( 0 ) );
+    mXTKPerformer( 0 )->set_output_performer( mMTKPerformer( 1 ) );
+
+    //---------------------------------------------------------------------------------------
+    //                               Set performer to MDL
+    //---------------------------------------------------------------------------------------
+    mMDLPerformer( 0 )->set_performer( mMTKPerformer( 1 ) );
 
 }
 
