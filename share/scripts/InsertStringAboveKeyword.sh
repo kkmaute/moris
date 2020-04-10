@@ -1,45 +1,55 @@
 #!/bin/sh
 #
 echo ""
+echo "=============================================================="
+echo ""
 echo " Script to insert line with user-defined text above a line that contains user-defined string"
 echo ""
 echo " Input: 1. directory name  - files in all subdirectory will be processed"
 echo "        2. key string      - key to indentify line above which new line with user-defined string is inserted"
 echo "        3. new line string - new string"
 echo ""
-echo " Example command line input: project '#include <armadillo>' '#define ARMA_ALLOW_FAKE_GCC'
+echo " Example command line input: ~/codes/moris/projects '#include <armadillo>' '#define ARMA_ALLOW_FAKE_GCC'"
+echo ""
+echo " Script will create a backup of each modified file; the backup is named <file>.org"
+echo ""
+echo "=============================================================="
 echo ""
 #
  
-if [ $1 ];then
+if [ "$1" ];then
     dir=$1
 else
-    echo "provide directory name"
+    echo " Error: no directory name provided"
+    echo ""
     exit
 fi
 
-if [ $2 ];then
+if [ "$2" ];then
     key=$2
 else
-    echo "no key string provided"
+    echo " Error no key string provided"
+    echo ""
     exit
 fi
 
-if [ $3 ];then
+if [ "$3" ];then
     newline=$3
 else
-    echo "no string for line to be inserted provided"
+    echo " Error: no string for line to be inserted provided"
+    echo ""
     exit
 fi
   
 echo ""
-echo "directory: $dir"
-echo "key:       $key"
-echo "new line:  $newline"
+echo " directory: $dir"
+echo " key:       $key"
+echo " new line:  $newline"
 
 echo ""
 echo " continue (y/n)"
 read ans
+echo ""
 
 if [ ! $ans = "y" ];then
    exit
@@ -55,6 +65,12 @@ find $dir | grep '\.cpp' | xargs grep "$key" > dudel
 find $dir | grep '\.hpp' | xargs grep "$key" >> dudel
  
 list=`cat dudel`
+
+if [ ! $list ];then
+   echo " no files matching key found"
+   echo ""
+   exit
+fi
  
 rm -f dudel
  
