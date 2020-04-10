@@ -571,7 +571,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     // create parameter list for IWG 13
     tParameterList( 3 )( 12 ) = prm::create_IWG_parameter_list();
     tParameterList( 3 )( 12 ).set( "IWG_name",                   std::string("IWGDirichletFixedSs2P3") );
-    tParameterList( 3 )( 12 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET ) );
+    tParameterList( 3 )( 12 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
     tParameterList( 3 )( 12 ).set( "dof_residual",               std::string("UX,UY") );
     tParameterList( 3 )( 12 ).set( "master_dof_dependencies",    std::string("UX,UY") );
     tParameterList( 3 )( 12 ).set( "master_properties",          std::string("PropDirichletFixed,Dirichlet;PropDirichletFixedSelect,Select") );
