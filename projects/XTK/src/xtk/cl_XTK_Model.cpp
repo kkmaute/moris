@@ -174,6 +174,22 @@ Model::perform()
         moris::string_to_mat(mParameterList.get< std::string >( "enrich_mesh_indices" ), tMeshIndexCell);
 
         this->perform_basis_enrichment(tBasisRank,tMeshIndexCell);
+
+        // if high to low double side sets need to be created
+        if(mParameterList.get<bool>("high_to_low_dbl_side_sets"))
+        {
+            for(moris::uint i = 0; i < mGeometryEngine->get_num_bulk_phase(); i++)
+            {
+                for(moris::uint j = 0; j < mGeometryEngine->get_num_bulk_phase(); j++)
+                {
+                    if(i > j)
+                    {
+                        mEnrichedIntegMesh(0)->create_dbl_sided_interface_set( i, j );
+                    }
+                }
+            }
+        }
+
     }
 
     if(mParameterList.get<bool>("ghost_stab"))
@@ -2982,22 +2998,6 @@ Model::perform_basis_enrichment_internal(enum EntityRank  const & aBasisRank,
 
     // perform the enrichment
     mEnrichment->perform_enrichment();
-
-    // if high to low double side sets need to be created
-    if(mParameterList.get<bool>("high_to_low_dbl_side_sets"))
-    {
-        for(moris::uint i = 0; i < mGeometryEngine->get_num_bulk_phase(); i++)
-        {
-            for(moris::uint j = 0; j < mGeometryEngine->get_num_bulk_phase(); j++)
-            {
-                if(i > j)
-                {
-                    mEnrichedIntegMesh(0)->create_dbl_sided_interface_set( i, j );
-                }
-            }
-        }
-    }
-
 
 }
 

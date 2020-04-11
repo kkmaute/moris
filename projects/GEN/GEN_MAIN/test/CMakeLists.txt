@@ -3,7 +3,7 @@
 
 # List source files
 set(TEST_SOURCES
-     ${CMAKE_BINARY_DIR}/projects/GEN/GEN_MAIN/test/test_main.cpp
+     test_main.cpp
     
   #  cl_Fiber_Problem.cpp
     cl_For_Thesis.cpp
