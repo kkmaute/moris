@@ -86,8 +86,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 # Set test name
 set(GEN_TEST ${GEN}-test)
 
-
-
 # Create executable
 add_executable(${GEN_TEST} ${TEST_SOURCES})
 target_link_libraries(${GEN_TEST} ${TEST_DEPENDENCIES})
@@ -138,7 +136,7 @@ foreach(TPL ${SO_TPLS})
 endforeach()
 
 foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
-	dynamic_link_input(${base_name} ${base_name}.cpp ${base_name}.so  ${SO_INCLUDES})
+    dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
 endforeach()
 
 
