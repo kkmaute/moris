@@ -46,11 +46,10 @@ namespace moris
             std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
             enum class IWG_Stabilization_Type
-                        {
-                            NITSCHE_INTERFACE,
-                            //SLAVE_WEIGHT_INTERFACE,
-                            MAX_ENUM
-                        };
+            {
+                NITSCHE_INTERFACE,
+                MAX_ENUM
+            };
 
             // Local string to constitutive enum map
             std::map< std::string, IWG_Stabilization_Type > mStabilizationMap; // whats that?
@@ -80,7 +79,9 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // FIXME check that property type makes sense?
+                // check that aPropertyString makes sense
+                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                             "IWG_Isotropic_Struc_Linear_Contact_Penalty::set_property - Unknown aPropertyString." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -97,7 +98,9 @@ namespace moris
                                          std::string                           aConstitutiveString,
                                          mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // FIXME check that constitutive string makes sense?
+                // check that aConstitutiveString makes sense
+                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                             "IWG_Isotropic_Struc_Linear_Contact_Penalty::set_constitutive_model - Unknown aConstitutiveString." );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -111,7 +114,9 @@ namespace moris
             void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                                               std::string                                aStabilizationString )
             {
-                // FIXME check that stabilization string makes sense?
+                // check that aConstitutiveString makes sense
+                MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
+                             "IWG_Isotropic_Struc_Linear_Contact_Penalty::set_stabilization_parameter - Unknown aStabilizationString." );
 
                 // set the stabilization parameter in the stabilization parameter cell
                 this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
@@ -120,25 +125,23 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian_and_residual( moris::Cell< Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >         & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 
 //------------------------------------------------------------------------------
