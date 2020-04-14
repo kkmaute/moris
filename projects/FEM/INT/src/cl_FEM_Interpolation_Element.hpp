@@ -24,8 +24,6 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
-#include "cl_FEM_Set.hpp"                   //FEM/INT/src
-
 
 namespace moris
 {
@@ -33,6 +31,8 @@ namespace moris
     {
     class Set;
     class Cluster;
+    class Field_Interpolation_Manager;
+
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -93,25 +93,7 @@ namespace moris
          * @param[ in ] aIndex   mesh index
          */
         void set_cluster( std::shared_ptr< fem::Cluster > aCluster,
-                          const uint                      aMeshIndex )
-        {
-            // if mesh index is 0 (i.e., forward analysis mesh, IG mesh)
-            if( aMeshIndex == 0 )
-            {
-                // fem cluster with index 0 should be set only once and shall not be changed
-                MORIS_ASSERT( !( mFemCluster.size() >= 1 ),
-                              "Interpolation_Element::set_cluster() - first fem cluster is already set");
-            }
-
-            // get max size for fem cluster list
-            sint tSize = std::max( ( sint )mFemCluster.size(), ( sint )aMeshIndex + 1 );
-
-            // resize fem cluster list
-            mFemCluster.resize( tSize );
-
-            // add the fem cluster to the list
-            mFemCluster( aMeshIndex ) = aCluster;
-        };
+                          const uint                      aMeshIndex );
 
 //------------------------------------------------------------------------------
         /**
@@ -177,43 +159,43 @@ namespace moris
             return mNodalWeakBCs;
         }
 
-//------------------------------------------------------------------------------
-        /**
-         * get the nodal pdof values on an element
-         * @param[ in ] aVertexIndex a vertex index
-         * @param[ in ] aDofType     a dof type
-         */
-        real get_element_nodal_pdof_value( moris_index   aVertexIndex,
-                                           moris::Cell< MSI::Dof_Type > aDofType )
-        {
-            // get pdofs values for the element
-            this->compute_my_pdof_values();
-
-            // get a specific dof type pdofs values
-            Matrix< DDRMat > tPdofValues;
-
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tPdofValues_Original;
-
-            this->get_my_pdof_values( aDofType, tPdofValues_Original );
-
-            // reshape tCoeffs into the order the cluster expects them
-            this->reshape_pdof_values( tPdofValues_Original( 0 ), tPdofValues );
-
-            // select the required nodal value
-            Matrix< IndexMat > tElemVerticesIndices = mMasterInterpolationCell->get_vertex_inds();
-            uint tElemNumOfVertices = mMasterInterpolationCell->get_number_of_vertices();
-
-            moris_index tVertexIndex = MORIS_INDEX_MAX;
-            for( uint i = 0; i < tElemNumOfVertices; i++ )
-            {
-                if ( tElemVerticesIndices( i ) == aVertexIndex )
-                {
-                    tVertexIndex =  i ;
-                    break;
-                }
-            }
-            return tPdofValues( tVertexIndex );
-        }
+////------------------------------------------------------------------------------
+//        /**
+//         * get the nodal pdof values on an element
+//         * @param[ in ] aVertexIndex a vertex index
+//         * @param[ in ] aDofType     a dof type
+//         */
+//        real get_element_nodal_pdof_value( moris_index   aVertexIndex,
+//                                           moris::Cell< MSI::Dof_Type > aDofType )
+//        {
+//            // get pdofs values for the element
+//            this->compute_my_pdof_values();
+//
+//            // get a specific dof type pdofs values
+//            Matrix< DDRMat > tPdofValues;
+//
+//            moris::Cell< moris::Cell< Matrix< DDRMat > > > tPdofValues_Original;
+//
+//            this->get_my_pdof_values( aDofType, tPdofValues_Original );
+//
+//            // reshape tCoeffs into the order the cluster expects them
+//            this->reshape_pdof_values( tPdofValues_Original( 0 ), tPdofValues );
+//
+//            // select the required nodal value
+//            Matrix< IndexMat > tElemVerticesIndices = mMasterInterpolationCell->get_vertex_inds();
+//            uint tElemNumOfVertices = mMasterInterpolationCell->get_number_of_vertices();
+//
+//            moris_index tVertexIndex = MORIS_INDEX_MAX;
+//            for( uint i = 0; i < tElemNumOfVertices; i++ )
+//            {
+//                if ( tElemVerticesIndices( i ) == aVertexIndex )
+//                {
+//                    tVertexIndex =  i ;
+//                    break;
+//                }
+//            }
+//            return tPdofValues( tVertexIndex );
+//        }
 
 //------------------------------------------------------------------------------
     protected:

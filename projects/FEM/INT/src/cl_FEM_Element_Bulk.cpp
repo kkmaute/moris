@@ -394,11 +394,11 @@ namespace moris
                             * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
-                mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 *( mSet->mSetGlobalValues ) += tQIValue( 0 ) * tWStar;
@@ -434,11 +434,11 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                 // reset the requested IQI
-                mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 // FIXME add up on shared node and divide or overwrite
@@ -483,11 +483,11 @@ namespace moris
                             * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
-                mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )

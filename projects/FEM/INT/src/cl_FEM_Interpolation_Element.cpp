@@ -11,6 +11,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                   //FEM/INT/src
+#include "cl_FEM_Set.hpp"                   //FEM/INT/src
+
 #include "fn_isfinite.hpp"
 
 namespace moris
@@ -70,6 +72,28 @@ namespace moris
                     mNodeObj( 1 )( iVertex ) = aNodes( tSlaveVertices( iVertex )->get_index() );
                 }
             }
+        }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::set_cluster( std::shared_ptr< fem::Cluster > aCluster,
+                                                 const uint                      aMeshIndex )
+        {
+            // if mesh index is 0 (i.e., forward analysis mesh, IG mesh)
+            if( aMeshIndex == 0 )
+            {
+                // fem cluster with index 0 should be set only once and shall not be changed
+                MORIS_ASSERT( !( mFemCluster.size() >= 1 ),
+                              "Interpolation_Element::set_cluster() - first fem cluster is already set");
+            }
+
+            // get max size for fem cluster list
+            sint tSize = std::max( ( sint )mFemCluster.size(), ( sint )aMeshIndex + 1 );
+
+            // resize fem cluster list
+            mFemCluster.resize( tSize );
+
+            // add the fem cluster to the list
+            mFemCluster( aMeshIndex ) = aCluster;
         }
 
 //------------------------------------------------------------------------------
@@ -386,7 +410,7 @@ namespace moris
              this->set_field_interpolators_coefficients();
 
              // FIXME should not be like this
-             mSet->get_requested_IQI( aOutputType )
+             mSet->get_IQI_for_vis( aOutputType )
                  ->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
 
              // set cluster for stabilization parameter
@@ -395,7 +419,7 @@ namespace moris
              if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
              {
                  // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                 mSet->get_requested_IQI( aOutputType )
+                 mSet->get_IQI_for_vis( aOutputType )
                      ->set_field_interpolator_manager( mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE ),
                                                        mtk::Master_Slave::SLAVE );
              }
@@ -426,11 +450,11 @@ namespace moris
                      mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                      // reset the requested IQI
-                     mSet->get_requested_IQI( aOutputType )->reset_eval_flags();
+                     mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
 
                      // compute quantity of interest at evaluation point
                      Matrix< DDRMat > tQIValue;
-                     mSet->get_requested_IQI( aOutputType )->compute_QI( tQIValue );
+                     mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
 
                      // fill in the nodal set values
                      ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 )

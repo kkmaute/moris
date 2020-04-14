@@ -21,6 +21,8 @@
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp"
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp"
+//Advection
+#include "cl_FEM_IWG_Advection_Bulk.hpp"
 //Elasticity
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"
@@ -89,6 +91,9 @@ namespace moris
 
                 case ( IWG_Type::SPATIALDIFF_VW_GHOST ):
                     return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost >();
+
+                case ( IWG_Type::ADVECTION_BULK ):
+                    return std::make_shared< IWG_Advection_Bulk >();
 
                 case ( IWG_Type::STRUC_LINEAR_BULK ):
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Bulk >();
