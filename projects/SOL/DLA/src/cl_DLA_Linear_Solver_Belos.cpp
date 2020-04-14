@@ -23,6 +23,10 @@
 using namespace moris;
 using namespace dla;
 
+Linear_Solver_Belos::Linear_Solver_Belos( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist )
+{
+}
+
 Linear_Solver_Belos::Linear_Solver_Belos( Linear_Problem * aLinearSystem )
 {
     // Set chosen solver options
@@ -45,8 +49,6 @@ void Linear_Solver_Belos::set_solver_parameters()
 {
     // ASSIGN DEFAULT PARAMETER VALUES
     // https://docs.trilinos.org/dev/packages/belos/doc/html/classBelos_1_1SolverFactory.html#ad86e61fb180a73c6dd5dbf458df6a86f
-	
-	
 
     // Determine which solver is used by string
     // options are: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
@@ -109,8 +111,8 @@ moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLi
 
     SolverFactory<double, Epetra_MultiVector,Epetra_Operator> factory;
     // Create the GMRES solver.
-//	std::string tSolverType = mParameterList.get< std::string >( "Solver Type" );
-    RCP<Belos::SolverManager<double, Epetra_MultiVector,Epetra_Operator> > solver =  factory.create ( "GMRES", mMyPl );
+	std::string tSolverType = mParameterList.get< std::string >( "Solver Type" );
+    RCP<Belos::SolverManager<double, Epetra_MultiVector,Epetra_Operator> > solver =  factory.create ( tSolverType, mMyPl );
 
     // Tell the solver what problem you want to solve.
     solver->setProblem (problem);

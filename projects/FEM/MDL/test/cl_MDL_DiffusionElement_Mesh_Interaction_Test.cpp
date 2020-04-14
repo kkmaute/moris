@@ -148,7 +148,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -362,7 +362,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -595,7 +595,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -853,7 +853,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -1126,7 +1126,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche , "DirichletNitsche" );

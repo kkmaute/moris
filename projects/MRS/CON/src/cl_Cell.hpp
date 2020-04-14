@@ -482,6 +482,7 @@ namespace moris
         std::cout<<std::endl;
     }
 
+    inline
     moris::Cell<char>
     string_to_char(moris::Cell<std::string>& strings)
     {

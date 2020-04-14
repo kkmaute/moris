@@ -162,6 +162,43 @@ namespace moris
         return tLinAlgorithmParameterList;
     }
 
+    //------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    ParameterList create_linear_algorithm_parameter_list_belos( )
+    {
+        ParameterList tLinAlgorithmParameterList;
+
+        enum moris::sol::SolverType tType = moris::sol::SolverType::BELOS_IMPL;
+
+        tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
+
+        // ASSIGN DEFAULT PARAMETER VALUES
+        // https://docs.trilinos.org/dev/packages/belos/doc/html/classBelos_1_1SolverFactory.html#ad86e61fb180a73c6dd5dbf458df6a86f
+
+        // Determine which solver is used by string
+        // options are: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
+        //              Pseudoblock TFQMR, Seed GMRES, Seed CG
+        tLinAlgorithmParameterList.insert( "Solver Type" ,  "GMRES" );
+
+        tLinAlgorithmParameterList.insert( "Verbosity" ,  INT_MAX );
+
+        tLinAlgorithmParameterList.insert( "Num Blocks", INT_MAX   );
+
+        tLinAlgorithmParameterList.insert( "Block Size", INT_MAX   );
+
+        // Allowable Belos solver iterations
+        tLinAlgorithmParameterList.insert( "Maximum Iterations" , INT_MAX );
+
+        // Allowable Belos solver iterations
+        tLinAlgorithmParameterList.insert( "Maximum Restarts" , INT_MAX );
+
+        // set convergence criteria
+        tLinAlgorithmParameterList.insert( "Convergence Tolerance" ,  1e-08 );
+
+        return tLinAlgorithmParameterList;
+    }
+
 //------------------------------------------------------------------------------
     // creates a parameter list with default inputs
     ParameterList create_linear_algorithm_parameter_list_petsc( )
@@ -379,6 +416,9 @@ ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::Sol
         break;
     case ( sol::SolverType::AMESOS_IMPL ):
         return create_linear_algorithm_parameter_list_amesos();
+        break;
+    case ( sol::SolverType::BELOS_IMPL ):
+        return create_linear_algorithm_parameter_list_belos();
         break;
     case ( sol::SolverType::PETSC ):
         return create_linear_algorithm_parameter_list_petsc( );

@@ -36,6 +36,8 @@ protected:
 public:
     Linear_Solver_Belos();
 
+    Linear_Solver_Belos( const moris::ParameterList aParameterlist );
+
     Linear_Solver_Belos( Linear_Problem * aLinearSystem  );
 
     ~Linear_Solver_Belos();

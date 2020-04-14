@@ -10,11 +10,12 @@
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
 
+#include "paths.hpp"
+
 #include "cl_GEN_Geometry_Engine.hpp"
 
 #include "cl_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
-
 
 //------------------------------------------------------------------------------
 
@@ -25,8 +26,7 @@ namespace ge
 //------------------------------------------------------------------------------
 TEST_CASE("property list test","[GE],[propListTest_00]")
 {
-    std::string tInputFilePath = std::getenv("MORISROOT");
-    tInputFilePath = tInputFilePath + "projects/GEN/GEN_MAIN/test/data/Input_test.so";
+    std::string tInputFilePath = moris::get_moris_bin_dir() + "/lib/libbenchmark04.so";
 
     std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
 
