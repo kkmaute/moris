@@ -60,12 +60,33 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
     tPropHeatCapacity->set_parameters( { {{ 2.0 }} } );
-    tPropHeatCapacity->set_val_function( tConstValFunction_Advection );
+    tPropHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropHeatCapacity->set_val_function( tFIValFunction_Advection );
     tPropHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 1.0 }} } );
+    tPropDensity->set_parameters( { {{ 10.0 }} } );
     tPropDensity->set_val_function( tConstValFunction_Advection );
+
+    std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+    tPropConductivity->set_parameters( { {{ 5.0 }} } );
+    tPropConductivity->set_val_function( tConstValFunction_Advection );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMDiffusion = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
+    tCMDiffusion->set_space_dim( 2 );
+
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG
+    = tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
+    tSPSUPG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }} );
+    tSPSUPG->set_property( tPropConductivity, "Conductivity", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -75,6 +96,8 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropDensity, "Density" );
     tIWG->set_property( tPropHeatCapacity, "HeatCapacity" );
+    tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
+    tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -214,6 +237,12 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
                                                 tJacobian,
                                                 tJacobianFD );
 
+//    // print for debug
+//    print( tJacobian({ 0, 7 }, { 0, 15 }), "tJacobian_TV" );
+//    print( tJacobianFD({ 0, 7 }, { 0, 15 }), "tJacobianFD_TV" );
+//    print( tJacobian({ 0, 7 }, { 16, 23 }), "tJacobian_TT" );
+//    print( tJacobianFD({ 0, 7 }, { 16, 23 }), "tJacobianFD_TT" );
+
     // require check is true
     REQUIRE( tCheckJacobian );
 
@@ -233,21 +262,44 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
     tPropHeatCapacity->set_parameters( { {{ 2.0 }} } );
-    tPropHeatCapacity->set_val_function( tConstValFunction_Advection );
+    tPropHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropHeatCapacity->set_val_function( tFIValFunction_Advection );
     tPropHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 1.0 }} } );
+    tPropDensity->set_parameters( { {{ 10.0 }} } );
     tPropDensity->set_val_function( tConstValFunction_Advection );
+
+    std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+    tPropConductivity->set_parameters( { {{ 5.0 }} } );
+    tPropConductivity->set_val_function( tConstValFunction_Advection );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMDiffusion = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
+    tCMDiffusion->set_space_dim( 3 );
+
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG
+    = tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
+    tSPSUPG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }} );
+    tSPSUPG->set_property( tPropConductivity, "Conductivity", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropDensity, "Density" );
     tIWG->set_property( tPropHeatCapacity, "HeatCapacity" );
+    tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
+    tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------

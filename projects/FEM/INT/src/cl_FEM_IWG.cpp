@@ -1187,15 +1187,24 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
             {
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
-                    tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
+                    // get absolute difference
+                    real tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
+
+                    // get relative difference
+                    real tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+
+                    // update check value
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
-//                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )
+//                    if( !( tAbsolute < aEpsilon ) )
 //                    {
 //                        std::cout<<"iiJac "<<iiJac<<std::endl;
 //                        std::cout<<"jjJac "<<jjJac<<std::endl;
 //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
 //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+//                        std::cout<<"Relative difference "<<tRelative<<std::endl;
 //                    }
                 }
             }
@@ -1252,8 +1261,14 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 // loop over the columns of jacobian
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
-                    // check component
-                    tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
+                    // get absolute difference
+                    real tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
+
+                    // get relative difference
+                    real tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+
+                    // update check value
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
 //                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )

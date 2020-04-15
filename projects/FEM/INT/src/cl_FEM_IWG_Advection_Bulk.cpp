@@ -58,10 +58,16 @@ namespace moris
             // get density property
             std::shared_ptr< Property > tPropDensity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            real tDensity = tPropDensity->val()( 0 );
 
             // get the heat capacity property
             std::shared_ptr< Property > tPropHeatCapacity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
+            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
+
+            // get the SUPG stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSPSUPG
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form
             Matrix< DDRMat > tRT;
@@ -69,9 +75,9 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar * (   tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 )
-                          * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) );
-                          //+ trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 ) * tSPSUPG->val()( 0 ) * tRT / ( tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) ) );
+            += aWStar
+             * (   tDensity * tHeatCapacity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 )
+                 + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) / ( tDensity * tHeatCapacity ) );
         }
 
 //------------------------------------------------------------------------------
@@ -97,10 +103,20 @@ namespace moris
             // get density property
             std::shared_ptr< Property > tPropDensity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            real tDensity = tPropDensity->val()( 0 );
 
             // get the heat capacity property
             std::shared_ptr< Property > tPropHeatCapacity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
+            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
+
+            // get the SUPG stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSPSUPG
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+
+            // compute the residual strong form
+            Matrix< DDRMat > tRT;
+            this->compute_residual_strong_form( tRT );
 
             // get number of master dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -122,8 +138,8 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * (   tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 )
-                                  * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 ) );
+                    += aWStar
+                     * ( tDensity * tHeatCapacity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 ) );
                 }
 
                 // if velocity dof type
@@ -133,9 +149,19 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * (   tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 )
-                                  * trans( tFITemp->N() ) * trans( tFITemp->gradx( 1 ) ) * tFIVelocity->N() );
+                    += aWStar
+                     * (   tDensity * tHeatCapacity * trans( tFITemp->N() ) * trans( tFITemp->gradx( 1 ) ) * tFIVelocity->N()
+                         + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) / ( tDensity * tHeatCapacity ) );
                 }
+
+                // compute the jacobian strong form
+                Matrix< DDRMat > tJT;
+                this->compute_jacobian_strong_form( tDofType, tJT );
+
+                // compute the jacobian contribution from strong form
+                mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                      { tMasterDepStartIndex, tMasterDepStopIndex } )
+                += aWStar * ( tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT / ( tDensity * tHeatCapacity ) );
 
                 // if density depends on dof type
                 if ( tPropDensity->check_dof_dependency( tDofType ) )
@@ -143,9 +169,9 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * (   tPropHeatCapacity->val()( 0 )
-                                  * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 )
-                                  * tPropDensity->dPropdDOF( tDofType ) );
+                    += aWStar
+                     * (   tHeatCapacity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropDensity->dPropdDOF( tDofType )
+                         - tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tPropDensity->dPropdDOF( tDofType ) / ( std::pow( tDensity, 2.0 ) * tHeatCapacity ) );
                 }
 
                 // if heat capacity depends on dof type
@@ -154,9 +180,19 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * (   tPropDensity->val()( 0 )
-                                  * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 )
-                                  * tPropHeatCapacity->dPropdDOF( tDofType ) );
+                    += aWStar
+                     * (   tDensity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropHeatCapacity->dPropdDOF( tDofType )
+                         - tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tPropHeatCapacity->dPropdDOF( tDofType ) / ( tDensity * std::pow( tHeatCapacity, 2.0 ) ) );
+                }
+
+                // if SUPG stabilization parameter depends on dof type
+                if( tSPSUPG->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution to jacobian
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    += aWStar
+                     * ( trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) / ( tDensity * tHeatCapacity ) );
                 }
             }
         }
@@ -186,16 +222,19 @@ namespace moris
             // get density property
             std::shared_ptr< Property > tPropDensity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            real tDensity = tPropDensity->val()( 0 );
 
             // get the heat capacity property
             std::shared_ptr< Property > tPropHeatCapacity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
+            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
 
             // get the heat capacity property
             std::shared_ptr< Constitutive_Model > tCMDiffusion
             = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            aRT = tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * ( tFITemp->gradt( 1 ) + trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) )
+            aRT = tDensity * tHeatCapacity * tFITemp->gradt( 1 )
+                + tDensity * tHeatCapacity * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 )
                 - tCMDiffusion->divflux();
         }
 
@@ -218,10 +257,12 @@ namespace moris
             // get density property
             std::shared_ptr< Property > tPropDensity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            real tDensity = tPropDensity->val()( 0 );
 
             // get the heat capacity property
             std::shared_ptr< Property > tPropHeatCapacity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
+            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
 
             // get the heat capacity property
             std::shared_ptr< Constitutive_Model > tCMDiffusion
@@ -231,33 +272,33 @@ namespace moris
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 aJT.matrix_data()
-                +=   tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * tFITemp->dnNdtn( 1 )
-                   + tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 );
+                +=   tDensity * tHeatCapacity * tFITemp->dnNdtn( 1 )
+                   + tDensity * tHeatCapacity * trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 );
             }
 
             // if derivative wrt to velocity dof type
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
                 aJT.matrix_data()
-                += tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * trans( tFIVelocity->N() ) * tFITemp->gradx( 1 );
+                += tDensity * tHeatCapacity * trans( tFITemp->gradx( 1 ) ) * tFIVelocity->N();
             }
 
             // if density depends on dof type
             if( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJT.matrix_data() += tPropHeatCapacity->val()( 0 )
-                                   * ( tFITemp->gradt( 1 ) + trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) )
-                                   * tPropDensity->dPropdDOF( aDofTypes );
+                aJT.matrix_data()
+                += tHeatCapacity * tFITemp->gradt( 1 ) * tPropDensity->dPropdDOF( aDofTypes )
+                 + tHeatCapacity * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropDensity->dPropdDOF( aDofTypes );
             }
 
             // if density depends on dof type
             if( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJT.matrix_data() += tPropDensity->val()( 0 )
-                                   * ( tFITemp->gradt( 1 ) + trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) )
-                                   * tPropHeatCapacity->dPropdDOF( aDofTypes );
+                aJT.matrix_data()
+                += tDensity * tFITemp->gradt( 1 ) * tPropHeatCapacity->dPropdDOF( aDofTypes )
+                 + tDensity * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropHeatCapacity->dPropdDOF( aDofTypes );
             }
 
             // if CM diffusion depends on dof type
@@ -266,6 +307,7 @@ namespace moris
                 // compute contribution to jacobian strong form
                 aJT.matrix_data() -= tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
             }
+
         }
 
 //------------------------------------------------------------------------------

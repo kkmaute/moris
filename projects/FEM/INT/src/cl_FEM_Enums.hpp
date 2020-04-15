@@ -178,6 +178,7 @@ namespace moris
             PRESSURE_GHOST,
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
+            SUPG_ADVECTION,
             END_STABILIZATION_TYPE
         };
 

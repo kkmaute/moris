@@ -62,7 +62,7 @@ namespace moris
              * Rem: mParameters( 0 ) - gamma penalty parameter
              *      mParameters( 1 ) - interpolation order
              */
-            SP_Ghost_Virtual_Work();
+            SP_Ghost_Virtual_Work(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -74,12 +74,7 @@ namespace moris
             /**
              * reset the cluster measures required for this SP
              */
-            void reset_cluster_measures()
-            {
-                // evaluate element size from the cluster
-                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                              mtk::Master_Slave::MASTER );
-            }
+            void reset_cluster_measures();
 
 //------------------------------------------------------------------------------
             /**

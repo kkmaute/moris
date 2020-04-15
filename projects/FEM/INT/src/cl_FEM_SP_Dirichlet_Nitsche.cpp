@@ -25,6 +25,14 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void SP_Dirichlet_Nitsche::reset_cluster_measures()
+        {
+            // evaluate element size from the cluster
+            mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                          mtk::Master_Slave::MASTER );
+        }
+
+//------------------------------------------------------------------------------
         void SP_Dirichlet_Nitsche::eval_SP()
         {
             // compute stabilization parameter value

@@ -1,24 +1,24 @@
 /*
- * cl_FEM_SP_Ghost_Displacement.hpp
+ * cl_FEM_SP_SUPG_Advection.hpp
  *
- *  Created on: Nov 15, 2019
+ *  Created on: Apr 14, 2020
  *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
-#define SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_SUPG_ADVECTION_HPP_
+#define SRC_FEM_CL_FEM_SP_SUPG_ADVECTION_HPP_
 
 #include <map>
-
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
-
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
-
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
+//MRS/CON/src
+#include "typedefs.hpp"
+#include "cl_Cell.hpp"
+//LINALG/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+//FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
+#include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Cluster.hpp"
 
 namespace moris
@@ -26,47 +26,54 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-        class SP_Ghost_Displacement : public Stabilization_Parameter
+    /*
+     * Stabilization parameter for SUPG stabilization on diffusion-advection
+     * tau_T =
+     * from Tezduyar & Osawa (2000)
+     */
+        class SP_SUPG_Advection : public Stabilization_Parameter
         {
 
 //------------------------------------------------------------------------------
         private:
 
-            // cluster measures
-            real mElementSize      = 1.0; // element size
 
         public:
 
             // property type for the SP
-            enum class SP_Property_Type
+            enum class Property_Type
             {
-                MATERIAL,
+                CONDUCTIVITY,
                 MAX_ENUM
             };
 
-            // Local string to property enum map
-            std::map< std::string, SP_Property_Type > mPropertyMap;
+            // local string to property enum map
+            std::map< std::string, Property_Type > mPropertyMap;
+
+            /*
+             * Rem: mParameters - no parameters needed
+             */
 
 //------------------------------------------------------------------------------
             /*
              * constructor
-             * Rem: mParameters( 0 ) - gamma penalty parameter
-             *      mParameters( 1 ) - interpolation order
              */
-            SP_Ghost_Displacement();
+            SP_SUPG_Advection();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~SP_Ghost_Displacement(){};
+            ~SP_SUPG_Advection(){};
 
 //------------------------------------------------------------------------------
             /**
              * reset the cluster measures required for this SP
              */
-            void reset_cluster_measures();
+            void reset_cluster_measures()
+            {
+                // No cluster measure needed
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -81,7 +88,7 @@ namespace moris
             {
                 // check that aPropertyString makes sense
                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "SP_Ghost_Displacement::set_property - Unknown aPropertyString." );
+                             "SP_SUPG_Advection::set_property - Unknown aPropertyString." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -89,15 +96,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter value
+             * evaluate the stabilization parameter value
              */
             void eval_SP();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter derivative wrt to a master dof type
+             * evaluate the stabilization parameter derivative wrt to a master dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dPPdMasterDOF ( 1 x numDerDof )
              */
             void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
@@ -105,11 +111,10 @@ namespace moris
             /**
              * evaluate the penalty parameter derivative wrt to a master dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             * dPPdMasterDV ( 1 x numDerDv )
              */
             void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
-                MORIS_ERROR( false, "SP_Ghost_Displacement::eval_dSPdMasterDV: not implemented." );
+                MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
             }
 
 //------------------------------------------------------------------------------
@@ -118,4 +123,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_VELOCITY_DIRICHLET_NITSCHE_HPP_ */

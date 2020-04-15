@@ -142,6 +142,7 @@ set(HEADERS
     cl_FEM_SP_Pressure_Ghost.hpp
     cl_FEM_SP_Time_Velocity_Ghost.hpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_SUPG_Advection.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -223,6 +224,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Pressure_Ghost.cpp
     cl_FEM_SP_Time_Velocity_Ghost.cpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
+    cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
