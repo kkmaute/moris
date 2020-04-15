@@ -381,13 +381,13 @@ void Query::skip_header()
     std::string tCurrentLine = "";
 
     // skip header and copy to file
-    uint tMaxHeaderLines = 1000;
     uint tLineCounter = 1;
     std::getline(mLogFileRead, tCurrentLine);
     while (tCurrentLine != LOGGER_HEADER_END)
     {
         std::getline(mLogFileRead, tCurrentLine);
-        MORIS_ASSERT( tLineCounter < tMaxHeaderLines, "query::skip_header: Header not found, check header markers." );
+        MORIS_ASSERT( tLineCounter < 1000, "query::skip_header: Header not found, check header markers." );
+        tLineCounter++;
     }
 
     // skip table header

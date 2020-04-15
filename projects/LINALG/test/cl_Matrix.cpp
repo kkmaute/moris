@@ -219,7 +219,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
     uint tDimX = rand() % 40 + 130;
     uint tDimY = rand() % 40 + 130;
 
-    uint tNumRepetitions = 1000000;
+    uint tNumRepetitions = 1000;
     real tSum = 0.0;
 
     moris::Matrix<DDRMat> tMorisMat(tDimX,tDimY);
