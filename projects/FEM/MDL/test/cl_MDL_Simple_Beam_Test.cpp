@@ -405,20 +405,35 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
 //--------------------------------------------------------------------------------------------------------------------//
 TEST_CASE( "LinElasticBeam_s", "[moris],[mdl],[LinElasticBeam_s]" )
 {
-    uint tSizeIndicator = 1;
-    function_TEST_LinElastic_Beam(tSizeIndicator);
+    uint p_size = moris::par_size();
+
+    if( p_size == 1 ) // specify it is a serial test only
+    {
+        uint tSizeIndicator = 1;
+        function_TEST_LinElastic_Beam(tSizeIndicator);
+    }
 }
 //--------------------------------------------------------------------------------------------------------------------//
 //TEST_CASE( "LinElasticBeam_m", "[moris],[mdl],[LinElasticBeam_m]" )
 //{
+//uint p_size = moris::par_size();
+//
+//if( p_size == 1 ) // specify it is a serial test only
+//{
 //    uint tSizeIndicator = 2;
 //    function_TEST_LinElastic_Beam(tSizeIndicator);
+//}
 //}
 ////--------------------------------------------------------------------------------------------------------------------//
 //TEST_CASE( "LinElasticBeam_l", "[moris],[mdl],[LinElasticBeam_l]" )
 //{
+//uint p_size = moris::par_size();
+//
+//if( p_size == 1 ) // specify it is a serial test only
+//{
 //    uint tSizeIndicator = 3;
 //    function_TEST_LinElastic_Beam(tSizeIndicator);
+//}
 //}
 
 
