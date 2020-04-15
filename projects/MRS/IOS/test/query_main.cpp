@@ -41,20 +41,21 @@ main(
 
 // ----------------------------------------------------- //
 
-//        // create query
-//        moris::ios::Query tQuery;
-//
-//        // initialize with userinput
-//        tQuery.run(tFileNameRead);
+        // create query
+        moris::ios::Query tQuery;
+
+        // initialize with userinput
+        tQuery.run(argc,argv);
 
 // ----------------------------------------------------- //
-    // Running Tests with catch
-    int result = Catch::Session().run( argc, argv );
+//    // Running Tests with catch
+//    int result = Catch::Session().run( argc, argv );
+// ----------------------------------------------------- //
 
     // finalize moris global communication manager
     gMorisComm.finalize();
 
-    return result;
+    return EXIT_SUCCESS;
 
 }
 

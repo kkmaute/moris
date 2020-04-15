@@ -35,7 +35,7 @@ namespace ios
 //-----------------------------------------------------------------------------------------------------------//
 
 // function to create tree log file
-void Query::tree_query(std::string aFileNameWrite)
+void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
 {
     // Prepare reading file ---------------------------------------------------------- //
 
@@ -53,9 +53,7 @@ void Query::tree_query(std::string aFileNameWrite)
 
 
     // Read and Copy Header ---------------------------------------------------------- //
-
     copy_header(& tLogFileWrite);
-
 
     // Create Tree ------------------------------------------------------------------- //
 
@@ -129,10 +127,18 @@ void Query::tree_query(std::string aFileNameWrite)
         }
 
 
+        // case: text output specifier and text is suppressed, don't do anything
+        else if ( (    (mOutputSpecifiers(iLine) == OutputSpecifier::FreeText)
+                    || (mOutputSpecifiers(iLine) == OutputSpecifier::InfoText)
+                    || (mOutputSpecifiers(iLine) == OutputSpecifier::DebugText) )
+                && aSuppressText )
+        {
+            // do nothing
+        }
+
         // case: any other output specifier
         else
         {
-            // set outputs to floating point numbers
 
             // write output type and value to file
             tLogFileWrite << create_empty_line( mIndentLevels(iLine) ) << "_"

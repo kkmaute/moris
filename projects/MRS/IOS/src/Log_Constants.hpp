@@ -11,7 +11,7 @@
 
 
 const moris::sint LOGGER_DEFAULT_SEVERITY_LEVEL = 3;
-const moris::uint LOGGER_DEFAULT_DIRECT_OUTPUT = 2;
+const moris::uint LOGGER_DEFAULT_DIRECT_OUTPUT = 1;
 const moris::uint LOGGER_FLOAT_PRECISION = 6;
 
 const std::string LOGGER_HEADER_BEGIN = ">>>>>";

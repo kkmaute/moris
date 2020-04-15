@@ -24,6 +24,8 @@
 #include "Log_Constants.hpp"
 #include "fn_stringify.hpp"
 
+#include "fn_assert.hpp"
+
 
 namespace moris
 {
@@ -37,51 +39,148 @@ namespace ios
 
 //-----------------------------------------------------------------------------------------------------------//
 // run queries just with user input
-//void Query::run(int  & argc, char * argv[] )
-//{
-//    // checks
-//    bool
-//
-//    // go through user arguments and look for flags
-//    for( int k=0; k<argc; ++k )
-//    {
-//        // user requests output log file
-//        if ( std::string( argv[ k ] ) == "--read" || std::string( argv[ k ] ) == "-rf" )
-//        {
-//            mStream.open( std::string( argv[ k+1 ] ) , std::ofstream::out );
-//            mWriteToAscii = true;
-//            //std::cout << "\n Logger: writing to: " << std::string( argv[ k+1 ] ) << "\n";
-//        }
-//
-//        // user sets severity level
-//        if ( std::string( argv[ k ] ) == "--write" || std::string( argv[ k ] ) == "-wf" )
-//        {
-//            mSeverityLevel = std::stoi( std::string( argv[ k+1 ] ) );
-//            //std::cout << "\n Logger: setting severity level to: " << std::stoi( std::string( argv[ k+1 ] ) ) << "\n";
-//        }
-//
-//        // user sets format for output to console
-//        if ( std::string( argv[ k ] ) == "--type" || std::string( argv[ k ] ) == "-et" )
-//        {
-//            uint Integer = std::stoi( std::string( argv[ k+1 ] ) );
-//            if ( (Integer == 1) || (Integer == 2) || (Integer == 3) )
-//                mDirectOutputFormat = Integer;
-//            else
-//                std::cout << "\n <MRS::IOS::cl_Logger::initialize()>: Unknown direct output format, using standard mode. \n";
-//        }
-//
-//    } // end for each input argument
-//}
+void Query::run(int  & argc, char * argv[] )
+{
+    // initialize
+    bool tReadFileIsDeclared = false;
+    bool tWriteFileIsDeclared = false;
+    bool tQueryTypeIsDeclared = false;
+    bool tUseTreeQuery = false;
+    bool tUseTableQuery = false;
+    bool tSuppressText = false;
+
+    std::string tFileNameRead = " ";
+    std::string tFileNameWrite = " ";
+
+    enum EntityBase   tEntityBase   =  EntityBase::Unknown;
+    enum EntityType   tEntityType   =  EntityType::Unknown;
+    enum EntityAction tEntityAction =  EntityAction ::Unknown;
+
+
+    // go through user arguments and look for flags
+    for( int k=0; k<argc; ++k )
+    {
+        // READ FILE
+        if ( std::string( argv[ k ] ) == "--read" || std::string( argv[ k ] ) == "-rf" )
+        {
+            tReadFileIsDeclared = true;
+            tFileNameRead =  std::string( argv[ k+1 ] );
+            std::cout << "Reading from: " << tFileNameRead << "\n";
+        }
+
+
+
+        // WRITE FILE
+        if ( std::string( argv[ k ] ) == "--write" || std::string( argv[ k ] ) == "-wf" )
+        {
+            tWriteFileIsDeclared = true;
+            tFileNameWrite =  std::string( argv[ k+1 ] );
+            std::cout << "Write to: " << tFileNameWrite << "\n";
+        }
+
+
+
+        // QUERY TYPE: TABLE
+        if ( std::string( argv[ k ] ) == "--table" || std::string( argv[ k ] ) == "-tb" )
+        {
+            tQueryTypeIsDeclared = true;
+            tUseTableQuery = true;
+            std::cout << "Selected query type: " << "Table" << "\n";
+
+            tEntityBase   =  get_entity_base_enum_from_str( std::string( argv[ k+1 ] ) );
+            tEntityType   =  get_entity_type_enum_from_str( std::string( argv[ k+2 ] ) );
+            tEntityAction =  get_entity_action_enum_from_str( std::string( argv[ k+3 ] ) );
+
+            if (   (tEntityBase   == EntityBase::Unknown)
+                || (tEntityType   == EntityType::Unknown)
+                || (tEntityAction == EntityAction::Unknown))
+            {
+                std::cout << "Error: Entity unknown.";
+                tQueryTypeIsDeclared = false;
+            }
+            else
+            {
+            std::cout << "Table query will look for instances of; " << get_enum_str(tEntityBase)
+                                                           << " - " << get_enum_str(tEntityType)
+                                                           << " - " << get_enum_str(tEntityAction) << "\n";
+            }
+
+        }
+
+
+        // QUERY TYPE: TREE
+        if ( std::string( argv[ k ] ) == "--tree" || std::string( argv[ k ] ) == "-tr" )
+        {
+            tQueryTypeIsDeclared = true;
+            tUseTreeQuery = true;
+            std::cout << "Selected query type: " << "Tree" << "\n";
+
+            if ( std::string( argv[ k+1 ] ) == "SupText" )
+            {
+                tSuppressText = true;
+                std::cout << "Text output will be removed from tree.\n";
+            }
+            else
+            {
+                tSuppressText = false;
+                std::cout << "Text output will be written to tree. \n";
+            }
+        }
+
+    } // end for each input argument
+
+
+    // check user input
+    if (!tReadFileIsDeclared)
+    {
+        std::cout << "Error: No .log file to read from provided. \n";
+        std::cout << "Use flag -rf with file name, e.g.: -rf path/to/file/Log.log \n";
+    }
+    if (!tWriteFileIsDeclared)
+    {
+        std::cout << "Error: File name for output file not provided. \n";
+        std::cout << "Use flag -wf with output file name, e.g.: -wf path/to/file/Out.log \n";
+    }
+    if (!tWriteFileIsDeclared)
+    {
+        std::cout << "Error: No query type or wrong arguments provided. \n";
+        std::cout << "Examples: \n";
+        std::cout << "-> To run a tree query with suppressed text output, enter:      --tree SupText \n";
+        std::cout << "-> To run a table query looking for non-linear solvers, enter:  --table NonLinearSolver Arbitrary Solve \n";
+    }
+
+
+    // initialize query
+    if (tReadFileIsDeclared)
+        this->initialize(tFileNameRead);
+
+    // run tree query
+    if (tUseTreeQuery && tQueryTypeIsDeclared)
+    {
+        this->tree_query(tFileNameWrite, tSuppressText);
+    }
+
+    // run table query
+    if (tUseTableQuery && tQueryTypeIsDeclared)
+    {
+        this->table_query(tFileNameWrite,
+                          tEntityBase, tEntityType, tEntityAction);
+    }
+
+
+}
 
 
 //-----------------------------------------------------------------------------------------------------------//
 // function copies table from log file into cell arrays fed into function, returns number of lines in table
 void Query::initialize(std::string aFileNameRead)
 {
+    std::cout << "Initializing query ... \n" << std::flush;
+
     // save file name
     mFileNameRead = aFileNameRead;
 
-    std::cout << "Reading info from file: " << mFileNameRead << " ... ";
+    std::cout << "Reading info from file: " << mFileNameRead << " ... " << std::flush;
 
     // read log file into memory
     mNumLines = this->extract_info_from_log_file();
@@ -101,7 +200,7 @@ void Query::initialize(std::string aFileNameRead)
                 "<MRS::IOS::cl_Query>: Read file could not be opened.");
     }
 
-    std::cout << "Done. \n";
+    std::cout << "Done. \n" << std::flush;
 
 }
 
@@ -282,10 +381,13 @@ void Query::skip_header()
     std::string tCurrentLine = "";
 
     // skip header and copy to file
+    uint tMaxHeaderLines = 1000;
+    uint tLineCounter = 1;
     std::getline(mLogFileRead, tCurrentLine);
-    while (tCurrentLine != LOGGER_HEADER_END )
+    while (tCurrentLine != LOGGER_HEADER_END)
     {
         std::getline(mLogFileRead, tCurrentLine);
+        MORIS_ASSERT( tLineCounter < tMaxHeaderLines, "query::skip_header: Header not found, check header markers." );
     }
 
     // skip table header

@@ -131,7 +131,9 @@ class Query
 
     void initialize(std::string aFileNameRead);
 
-    void tree_query(std::string aFileNameWrite);
+    void run(int  & argc, char * argv[] );
+
+    void tree_query(std::string aFileNameWrite, bool aSuppressText = true);
 
     void table_query(std::string aFileNameWrite,
                      enum EntityBase aEntityBase,
