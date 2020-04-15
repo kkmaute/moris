@@ -41,3 +41,42 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     endforeach()
 endif()
 
+
+## create dynamically linked .so files
+set(GEN_TEST_INPUT_FILE_BASE WRK_Input_1)
+
+set(SO_TPLS
+"trilinos"
+${ARMADILLO_EIGEN}
+)
+
+SET(SO_INCLUDES 
+	${Boost_INCLUDE_DIRS}
+	${Trilinos_INCLUDE_DIRS}
+	${MORIS_PACKAGE_DIR}/ALG/src
+	${MORIS_PACKAGE_DIR}/FEM/INT/src 
+	${MORIS_PACKAGE_DIR}/FEM/MSI/src 
+	${MORIS_PACKAGE_DIR}/FEM/VIS/src 
+	${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
+	${MORIS_PACKAGE_DIR}/SOL/DLA/src 
+	${MORIS_PACKAGE_DIR}/SOL/TSA/src
+	${MORIS_PACKAGE_DIR}/SOL/NLA/src 
+	${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src 
+	${MORIS_PACKAGE_DIR}/LINALG/src
+	${MORIS_PACKAGE_DIR}/LINALG/src/${LINALG_IMPLEMENTATION_INCLUDES}
+	${MORIS_PACKAGE_DIR}/COM/src 
+	${MORIS_PACKAGE_DIR}/MTK/src 
+	${MORIS_PACKAGE_DIR}/PRM/src 
+    ${MORIS_PACKAGE_DIR}/MRS/COR/src)
+    
+    
+foreach(TPL ${SO_TPLS})
+    string(TOUPPER ${TPL} TPL)
+    list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
+endforeach()
+
+foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
+    dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
+endforeach()
+
+
