@@ -1,10 +1,9 @@
 # Geometry Engine Tests ---------------------------------------------------
 # -------------------------------------------------------------------------
-    include_directories(GE_Test_Proxy)
 
 # List source files
 set(TEST_SOURCES
-    test_main.cpp
+     test_main.cpp
     
   #  cl_Fiber_Problem.cpp
     cl_For_Thesis.cpp
@@ -70,12 +69,16 @@ endforeach()
 set(TEST_DEPENDENCIES
     test-libs
     ${GEN_CORE}-lib
+    ${COR}-lib
     ${ALG}-lib
     ${GEN_MAIN}-lib
     ${INT}-lib
+    ${DLA}-lib
   # ${MTK}-lib  	
     ${MORIS_BASE_LIBS}
     )
+
+message(INFO "MORIS_BASE_LIBS = ${MORIS_BASE_LIBS}")
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -97,4 +100,44 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${GEN_TEST}>)
 	endforeach()
 endif()
+
+
+## create dynamically linked .so files
+set(GEN_TEST_INPUT_FILE_BASE benchmark04)
+
+set(SO_TPLS
+"trilinos"
+${ARMADILLO_EIGEN}
+)
+
+SET(SO_INCLUDES 
+	${Boost_INCLUDE_DIRS}
+	${Trilinos_INCLUDE_DIRS}
+	${MORIS_PACKAGE_DIR}/ALG/src
+	${MORIS_PACKAGE_DIR}/FEM/INT/src 
+	${MORIS_PACKAGE_DIR}/FEM/MSI/src 
+	${MORIS_PACKAGE_DIR}/FEM/VIS/src 
+	${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
+	${MORIS_PACKAGE_DIR}/SOL/DLA/src 
+	${MORIS_PACKAGE_DIR}/SOL/TSA/src
+	${MORIS_PACKAGE_DIR}/SOL/NLA/src 
+	${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src 
+	${MORIS_PACKAGE_DIR}/LINALG/src
+	${MORIS_PACKAGE_DIR}/LINALG/src/${LINALG_IMPLEMENTATION_INCLUDES}
+	${MORIS_PACKAGE_DIR}/COM/src 
+	${MORIS_PACKAGE_DIR}/MTK/src 
+	${MORIS_PACKAGE_DIR}/PRM/src 
+    ${MORIS_PACKAGE_DIR}/MRS/COR/src)
+    
+    
+foreach(TPL ${SO_TPLS})
+    string(TOUPPER ${TPL} TPL)
+    list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
+endforeach()
+
+foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
+    dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
+endforeach()
+
+
 

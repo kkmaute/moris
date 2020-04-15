@@ -5,6 +5,7 @@
  *      Author: doble
  */
 
+#include <memory>
 #include "catch.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
@@ -59,14 +60,19 @@ TEST_CASE("XTK Parameter List","[PARAM]")
     // set enrichment
     tXTKParams.set( "enrich", true );
     tXTKParams.set( "enrich_mesh_indices",std::string("0"));
+    tXTKParams.set( "high_to_low_dbl_side_sets",true);
 
     // set ghost
     tXTKParams.set( "ghost_stab", false );
+
+    std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
 
     Model tXTKModel(tXTKParams);
     tXTKModel.mVerbose = true;
     tXTKModel.set_geometry_engine(&tGeometryEngine);
     tXTKModel.set_mtk_background_mesh(tMeshData);
+    tXTKModel.set_output_performer(tMeshManager);
+
     tXTKModel.perform();
 
     // Access the Cut Mesh-------------------------------------------------------------

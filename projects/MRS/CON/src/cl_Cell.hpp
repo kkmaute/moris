@@ -470,7 +470,7 @@ namespace moris
     template< typename T >
     void
     print(Cell< T > const & aCell,
-          std::string aStr)
+          std::string aStr = "Cell")
     {
         std::cout<<"Cell Name: "<<aStr<<"\n";
         std::cout<<"Number of entries = "<<aCell.size()<<"\n";
@@ -483,6 +483,7 @@ namespace moris
     }
 
 
+    inline
     moris::Cell<char>
     string_to_char(moris::Cell<std::string>& strings);
 

@@ -140,12 +140,10 @@ class Library_IO;
 //------------------------------------------------------------------------------
             /**
              * constructor
-             * @param[ in ] aMeshManager   pointer to mesh info
              * @param[ in ] aBSplineIndex  ???
              * @param[ in ] aMeshPairIndex ???
              */
             Model(       std::shared_ptr< Library_IO > aLibrary,
-                         mtk::Mesh_Manager * aMeshManager,
                    const uint                aBSplineIndex,
                    const moris_index         aMeshPairIndex = 0 );
 
@@ -159,7 +157,22 @@ class Library_IO;
             /**
              * solve
              */
-            void solve();
+            void perform();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set MTK performer
+             * @param[ in ] aMTKPerformer the MTK mesh manager
+             */
+            void set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
+
+//------------------------------------------------------------------------------
+            /**
+             * initialize the set - build FEM, MSI, VIS and SOL
+             */
+            void initialize();
+
 
 //------------------------------------------------------------------------------
             /**

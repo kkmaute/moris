@@ -146,7 +146,7 @@ namespace moris
 
             MORIS_ERROR( mMTKPerformer != nullptr, "HMR::perform(), MTK performer not set!" );
 
-            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
+            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
         }
 
 // -----------------------------------------------------------------------------
