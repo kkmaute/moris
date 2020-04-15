@@ -3,6 +3,7 @@
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
+#include "paths.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
@@ -32,7 +33,7 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private
 
         SECTION("B-Spline Mesh test basis numbering")
         {
-            std::string tMorisRoot = std::getenv("MORISROOT");
+            std::string tMorisRoot = moris::get_base_moris_dir();
 
             // do this for first and second dimension
             for( uint tDimension=2; tDimension<=3; ++tDimension )

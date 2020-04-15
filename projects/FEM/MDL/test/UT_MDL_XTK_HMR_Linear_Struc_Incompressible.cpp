@@ -1,5 +1,6 @@
 
 #include "catch.hpp"
+#include "paths.hpp"
 #include "cl_Star.hpp"
 #include "cl_Circle.hpp"
 #include "cl_Plane.hpp"
@@ -468,7 +469,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         Matrix<DDRMat> tGoldSolution;
         tNonlinearSolverMain.get_full_solution(tFullSolution);
 
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_2d.hdf5";
 
 //        //------------------------------------------------------------------------------
@@ -870,7 +871,7 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
         Matrix<DDRMat> tGoldSolution;
         tNonlinearSolverMain.get_full_solution(tFullSolution);
 
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_3d.hdf5";
 
         //------------------------------------------------------------------------------
@@ -1265,7 +1266,7 @@ TEST_CASE("3D XTK HMR Incompressible staggered","[XTK_HMR_I_3D_staggered]")
 //        Matrix<DDRMat> tGoldSolution;
 //        tNonlinearSolverMain.get_full_solution(tFullSolution);
 //
-//        std::string tMorisRoot = std::getenv("MORISROOT");
+//        std::string tMorisRoot = moris::get_base_moris_dir();
 //        std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_3d.hdf5";
 //
 //        //------------------------------------------------------------------------------

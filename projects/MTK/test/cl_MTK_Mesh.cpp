@@ -7,6 +7,8 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
+
 // MTK includes
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
@@ -32,7 +34,7 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
     uint p_size = moris::par_size();
 
     // File prefix
-    std::string tMORISROOT = std::getenv("MORISROOT");
+    std::string tMORISROOT = moris::get_base_moris_dir();
 
     std::string tPrefix =  tMORISROOT +"projects/MTK/test/Test_Files/";
 
@@ -98,7 +100,7 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
     uint p_size = moris::par_size();
 
     // File prefix
-    std::string tMORISROOT = std::getenv("MORISROOT");
+    std::string tMORISROOT = moris::get_base_moris_dir();
     if( p_size == 1 ) // specify it is a serial test only
     {
         const std::string fileName2 = "generated:8x8x8";
@@ -361,7 +363,7 @@ TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET
     uint p_size = moris::par_size();
 
     // File prefix
-    std::string tMORISROOT = std::getenv("MORISROOT");
+    std::string tMORISROOT = moris::get_base_moris_dir();
     if( p_size == 1 ) // specify it is a serial test only
     {
         const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces

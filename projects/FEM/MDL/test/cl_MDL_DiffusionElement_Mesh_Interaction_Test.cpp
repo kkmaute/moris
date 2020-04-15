@@ -1,6 +1,7 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -88,7 +89,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
     if(par_size() == 1 )
     {
         // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-        std::string tPrefix = std::getenv("MORISROOT");
+        std::string tPrefix = moris::get_base_moris_dir();
         std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets.g";
 
         // Initialize field information container
@@ -303,7 +304,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 {
     if(par_size() == 1 )
     {
-        std::string tPrefix = std::getenv("MORISROOT");
+        std::string tPrefix = moris::get_base_moris_dir();
         std::string tMeshFileName = tPrefix + "projects/FEM/MDL/test/data/Block_7x8x9.g";
 
         // Initialize field information container

@@ -13,6 +13,7 @@
 //#include "cl_Geom_Field.hpp"
 //#include "cl_Plane.hpp"
 #include "typedefs.hpp"
+#include "paths.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -164,7 +165,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         std::cout<<tEnrInterpMesh.get_num_basis( 0 )<<std::endl;
         uint tNumBasis = tEnrInterpMesh.get_num_basis( 0);
 
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/XTK/test/xtk/data/Reference_Multigrid.hdf5";
 
         //------------------------------------------------------------------------------

@@ -7,6 +7,8 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
+
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -361,7 +363,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
      *  - bottom_crust
      */
     std::string tPrefix;
-    tPrefix = std::getenv("MORISROOT");
+    tPrefix = moris::get_base_moris_dir();
     std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
     moris::Cell<std::string> tFieldNames;
 

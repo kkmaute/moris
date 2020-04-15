@@ -9,6 +9,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "paths.hpp"
 
 // GE includes
 #include "cl_GE_Core.hpp"
@@ -133,12 +134,12 @@ main( int    argc,
      *
      * \code{.cpp}
      * std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
-     * tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+     * tObjectPath = moris::get_base_moris_dir() + tObjectPath;
      * \endcode
      */
     // get path for STL file to load
     std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
-    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+    tObjectPath = moris::get_base_moris_dir() + tObjectPath;
 //------------------------------------------------------------------------------
     /*!
      * <b> Step 3: create a SDF geometry representation type and initialize it </b>

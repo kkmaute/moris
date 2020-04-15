@@ -11,6 +11,7 @@
 #include "cl_FEM_Integrator.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator_Test_Polynomial.hpp" //FEM/INT/src
 
+#include "paths.hpp"
 using namespace moris;
 using namespace fem;
 
@@ -22,7 +23,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     const real tEpsilon = 1e-12;
 
     // define path of files
-    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tPrefix = moris::get_base_moris_dir();
     tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
 
 //------------------------------------------------------------------------------
