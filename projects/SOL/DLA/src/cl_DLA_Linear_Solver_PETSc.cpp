@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -94,7 +96,11 @@ moris::sint Linear_Solver_PETSc::solve_linear_system( )
 moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aLinearSystem,
                                                       const moris::sint       aIter )
 {
+
+    Tracer tTracer(EntityBase::LinearSolver, EntityType::PETSc, EntityAction::Solve);
+
 	mSolverInterface = aLinearSystem->get_solver_input();
+
 
     // Create KSP and PC
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );

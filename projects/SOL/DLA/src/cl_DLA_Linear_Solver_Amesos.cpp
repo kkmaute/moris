@@ -9,6 +9,8 @@
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
 
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -98,6 +100,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
 
 moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter )
 {
+    Tracer tTracer(EntityBase::LinearSolver, EntityType::Amesos, EntityAction::Solve);
+
     mLinearSystem = aLinearSystem;
 
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );

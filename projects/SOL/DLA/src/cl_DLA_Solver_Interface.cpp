@@ -158,12 +158,13 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
         aMat->matrix_global_assembly();
         this->free_block_memory( Ii );
     }
-    // global assembly to switch entries to the right proceccor
+    // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
 
 //    aMat->save_matrix_to_matlab_file( "Matrix.dat");
 
 //    aMat->print();
+
 }
 
 //---------------------------------------------------------------------------------------------------------

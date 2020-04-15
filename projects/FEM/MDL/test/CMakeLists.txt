@@ -6,6 +6,7 @@ include_directories(DLA_Test_Proxys)
 set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     cl_MDL_DiffusionElement_Cut_Mesh.cpp
+    cl_MDL_Simple_Beam_Test.cpp
     #UT_MDL_Mesh_Model_Helper.cpp
     UT_MDL_XTK_DiffusionElement.cpp
     UT_MDL_XTK_HMR_DiffusionElement.cpp

@@ -890,7 +890,7 @@ namespace moris
                 }
             }
 
-            MORIS_LOG_ERROR("Basis Id and ownership sanity check passed \n");
+            MORIS_LOG_ERROR("Basis Id and ownership sanity check passed.");
         }
 
 // -----------------------------------------------------------------------------

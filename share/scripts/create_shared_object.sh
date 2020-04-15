@@ -11,7 +11,15 @@ echo "        3. name of input file (without cpp suffix)"
 echo ""
 echo " Output: .so file"
 echo ""
-echo " Example: "create_shared_object_for_input_file.sh . build myinput 
+echo " Example: 
+echo ""
+echo " To create the shared objective file use:"
+echo ""
+echo " $MORISROOT/share/scripts/create_shared_object_for_input_file.sh . build myinput"
+echo ""
+echo " To run moris with this input file use:"
+echo ""
+echo " $MORISROOT/build/main/moris myinput.so 
 echo ""
 echo "=============================================================="
 echo ""
@@ -31,7 +39,7 @@ fi
 if [ "$1" ];then
     workdir=$1
     
-    if [ ! -d $workdir ];then
+    if [ ! -d "$workdir" ];then
        echo " Error: $workdir does not exist"
        echo ""
        exit
@@ -76,7 +84,7 @@ workdir=`pwd`
 
 mv $MORISROOT/projects/mains/input_file.cpp /tmp/.
 
-cp  $cppfile.cpp $MORISROOT/projects/mains/input_file.cpp
+cp $cppfile.cpp $MORISROOT/projects/mains/input_file.cpp
 
 touch $MORISROOT/projects/mains/input_file.cpp
 

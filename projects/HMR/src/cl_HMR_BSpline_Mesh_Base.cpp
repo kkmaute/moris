@@ -89,15 +89,39 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u.\n               Mesh has %lu  Elements and %lu basis in total.\n               Mesh uses %lu basis on proc.\n               Mesh has %lu active basis on proc.\n               Creation took %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u.",
                     proc_string().c_str(),
                     ( unsigned int )      mOrder,
-                    ( unsigned int )      mActivationPattern,
+                    ( unsigned int )      mActivationPattern);
+
+            MORIS_LOG_INFO( "Mesh has %lu  Elements and %lu basis in total.",
                     ( long unsigned int ) mNumberOfAllElementsOnProc,
-                    ( long unsigned int ) mNumberOfAllBasis,
-                    ( long unsigned int ) mNumberOfBasis,
-                    ( long unsigned int ) mNumberOfActiveBasisOnProc,
+                    ( long unsigned int ) mNumberOfAllBasis );
+
+            MORIS_LOG_INFO( "Mesh uses %lu basis on proc.",
+                    ( long unsigned int ) mNumberOfAllBasis );
+
+            MORIS_LOG_INFO( "Mesh has %lu active basis on proc.",
+                    ( long unsigned int ) mNumberOfActiveBasisOnProc );
+
+            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
+
+
+//            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u."
+//                            "Mesh has %lu  Elements and %lu basis in total."
+//                            "Mesh uses %lu basis on proc."
+//                            "Mesh has %lu active basis on proc."
+//                            "Creation took %5.3f seconds.",
+//                    proc_string().c_str(),
+//                    ( unsigned int )      mOrder,
+//                    ( unsigned int )      mActivationPattern,
+//                    ( long unsigned int ) mNumberOfAllElementsOnProc,
+//                    ( long unsigned int ) mNumberOfAllBasis,
+//                    ( long unsigned int ) mNumberOfBasis,
+//                    ( long unsigned int ) mNumberOfActiveBasisOnProc,
+//                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -327,16 +351,22 @@ namespace moris
 
            if ( aPassedTest )
            {
-               MORIS_LOG_INFO( "%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               All tests passed.\n\n",
-                       proc_string().c_str(),
+               MORIS_LOG_INFO( "%s Tested basis activation sanity.",
+                       proc_string().c_str() );
+               MORIS_LOG_INFO( "Test took %5.3f seconds.",
                        ( double ) tElapsedTime / 1000 );
+               MORIS_LOG_INFO( "All tests passed.");
+               MORIS_LOG_INFO( " " );
 
            }
            else
            {
-               MORIS_LOG_INFO("%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               AT LEAST ONE TEST FAILED.\n\n",
-                       proc_string().c_str(),
+               MORIS_LOG_INFO("%s Tested basis activation sanity.",
+                       proc_string().c_str() );
+               MORIS_LOG_INFO("Test took %5.3f seconds.",
                         ( double ) tElapsedTime / 1000 );
+               MORIS_LOG_INFO( "AT LEAST ONE TEST FAILED.");
+               MORIS_LOG_INFO( " " );
 
                    std::cout << "Test result: "
                              <<  tTestForStateContratiction << " "
@@ -344,6 +374,7 @@ namespace moris
                              << tHaveRefinedParent << " "
                              << tDeactiveTest << " "
                              << tRefinedHasActiveChild  << std::endl;
+
            }
 
             return aPassedTest;
@@ -888,11 +919,13 @@ namespace moris
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "%s Deleted %lu unused basis of %lu total on level %u.",
                         proc_string().c_str(),
                         ( long unsigned int ) tDeleteCount,
                         ( long unsigned int ) tNumberOfAllBasis,
-                        ( unsigned int )      aLevel,
+                        ( unsigned int )      aLevel);
+
+                MORIS_LOG_INFO( "Deleting took %5.3f seconds.",
                         ( double ) tElapsedTime / 1000 );
             }
         }
@@ -2492,10 +2525,15 @@ namespace moris
            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
            // print output
-           MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
-                   proc_string().c_str(),
-                   ( long unsigned int ) tNumberOfBasis,
+           MORIS_LOG_INFO( "%s Created VTK debug file.",
+                   proc_string().c_str() );
+
+           MORIS_LOG_INFO( "Mesh has %lu basis.",
+                   ( long unsigned int ) tNumberOfBasis );
+
+           MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                    ( double ) tElapsedTime / 1000 );
+           MORIS_LOG_INFO( " " );
         }
 //------------------------------------------------------------------------------
 

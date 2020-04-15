@@ -216,16 +216,16 @@ namespace ge
             }
             case(GeomType::DISCRETE):
             {
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
-                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the discrete geometry type                \n" );
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the discrete geometry type                " );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 break;
             }
             case(GeomType::SDF):
             {
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
-                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the SDF geometry type                     \n" );
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the SDF geometry type                     " );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 break;
             }
             default :
@@ -391,9 +391,9 @@ namespace ge
             case(GeomType::DISCRETE) :
             {
                 //fixme: implement finite differencing to compute derivatives for discrete class
-                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------\n" );
-                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for DISCRETE geom type, default values to zeros\n" );
-                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for DISCRETE geom type, default values to zeros" );
+                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------" );
                 Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {
@@ -404,9 +404,9 @@ namespace ge
             case(GeomType::SDF) :
             {
                 //fixme: not sure how getting the sensitivities from the SDF type will work (via raycast?)
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
-                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros\n" );
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {

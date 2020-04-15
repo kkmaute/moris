@@ -3,20 +3,38 @@
 
 # List header files
 set(HEADERS
+    cl_Tracer_Enums.hpp
+	cl_GlobalClock.hpp
+	cl_Tracer.hpp
     cl_Logger.hpp
+    cl_Query.hpp
 	cl_XML_Parser.hpp
 	fn_Parsing_Tools.hpp
 	fn_Exec_load_user_library.hpp
 	fn_Logger.hpp
+	fn_stringify.hpp
 	fn_to_stdio.hpp
 	HDF5_Tools.hpp
 	IO_Tools.hpp
 	ios.hpp
+	Log_Constants.hpp
 	)
+
+# List library source files
+set(LIB_SOURCES
+	cl_GlobalClock.cpp
+	cl_Logger.cpp
+    cl_Query.cpp
+    cl_Query_Table.cpp
+    cl_Query_Tree.cpp
+    cl_Tracer_Enums.cpp
+    cl_XML_Parser.cpp
+    )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target
-add_library(${IOS}-lib INTERFACE)
+#add_library(${IOS}-lib INTERFACE)
+add_library(${IOS}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${IOS}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${IOS}_HEADER_INSTALL_DIR}> )
