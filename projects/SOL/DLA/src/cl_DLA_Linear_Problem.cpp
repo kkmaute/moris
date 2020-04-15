@@ -11,8 +11,8 @@
 #include "cl_Stopwatch.hpp" //CHR/src
 
 // detailed logging package
-#include "cl_GlobalClock.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
 
 namespace moris
 {
@@ -63,7 +63,7 @@ namespace dla
         mSolverInterface->assemble_RHS( mVectorRHS, aFullSolutionVector );
 
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-        MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
 
         //mVectorRHS->print();
     }
@@ -84,7 +84,7 @@ namespace dla
         // stop timer
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-        MORIS_LOG_INFO( " Assembly of jacobianon processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " Assembly of jacobianon processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
 //----------------------------------------------------------------------------------------

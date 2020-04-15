@@ -22,7 +22,9 @@
 #include "cl_Communication_Tools.hpp"
 
 // Detailed Logging package
+#include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -87,7 +89,8 @@ using namespace dla;
             // Newton loop
             for ( moris::sint It = 1; It <= tMaxIts; ++It )
             {
-//                gClock.log( OutputSpecifier::Iteration, (real) It );
+//                gLogger.log_specific( OutputSpecifier::Iteration, It );
+                MORIS_LOG_SPEC( OutputSpecifier::Iteration, It );
 
                 //get_nonlinear_problem()
                 clock_t tNewtonLoopStartTime = clock();

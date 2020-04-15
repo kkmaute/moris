@@ -308,7 +308,7 @@ using namespace NLA;
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( " ... Previous nonlinear solve failed. Trying restart %i of %i\n", tTryRestartOnFailIt, tMaxNumLinRestarts);
+                MORIS_LOG( " ... Previous nonlinear solve failed. Trying restart %i of %i", tTryRestartOnFailIt, tMaxNumLinRestarts);
             }
 
             // Re-solve scaled linear system with current solution as an initial guess

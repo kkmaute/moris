@@ -17,10 +17,11 @@
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Logger.hpp" // MRS/IOS/src
-#include "cl_GlobalClock.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
+
+
 
 int
 main(

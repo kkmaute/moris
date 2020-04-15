@@ -79,7 +79,7 @@ namespace moris
                 real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.",
                                 ( unsigned int ) tNumIPNodes,
                                 ( double ) tElapsedTime / 1000 );
             }
@@ -151,7 +151,7 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
                         ( unsigned int ) mFemClusters.size(),
                         ( double ) tElapsedTime / 1000 );
             }
@@ -190,7 +190,7 @@ namespace moris
                 real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "FEM_Model: unpack FEM input in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "FEM_Model: unpack FEM input in %5.3f seconds.",
                                 ( double ) tElapsedTime / 1000 );
             }
 
@@ -218,7 +218,7 @@ namespace moris
                 real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP nodes in %5.3f seconds.",
                                 ( unsigned int ) tNumIPNodes,
                                 ( double ) tElapsedTime / 1000 );
             }
@@ -283,7 +283,7 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
                                 ( unsigned int ) mFemClusters.size(),
                                 ( double ) tElapsedTime / 1000 );
             }

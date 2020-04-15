@@ -9,17 +9,12 @@
 #include <cstring>
 #include <sstream>
 
-// include moris assert functions
-#include "fn_assert.hpp"
 
 // Define Cells
 #include "cl_Cell.hpp"
 
 // Define uint, real, etc.
 #include "typedefs.hpp"
-
-// needed?
-#include "IO_Tools.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"
@@ -54,7 +49,7 @@ class Query
     Cell<enum EntityType> mEntityTypes;
     Cell<enum EntityAction> mEntityActions;
     Cell<enum OutputSpecifier> mOutputSpecifiers;
-    Cell<real> mOutputValues;
+    Cell<std::string> mOutputValues;
 
     Cell<Cell<uint>> mInstanceStartEnd;
 
@@ -76,15 +71,50 @@ class Query
 
     void skip_header();
 
+    uint find_instances(Cell<uint> * aInstanceIDs,
+                        Cell<uint> * aInstanceIndents,
+                        enum EntityBase aEntityBase,
+                        enum EntityType aEntityType,
+                        enum EntityAction aEntityAction);
+
+    Cell<Cell<uint>> split_instances_into_iterations(uint aCurrentInstanceID);
+
+    void extract_iteration(      Cell<enum EntityBase> * aListOfEntityBases,
+                                 Cell<enum EntityType> * aListOfEntityTypes,
+                                 Cell<enum EntityAction> * aListOfEntityActions,
+                                 Cell<enum OutputSpecifier> * aListOfOutputSpecs,
+                                 Cell<std::string> * aListOfOutputValues,
+                           const Cell<Cell<uint>> aIterationStartEnd,
+                           const uint aIteration,
+                           const uint aCurrentInstanceID);
+
+    void merge_iteration_outputs( Cell<enum EntityBase>      * aRefListOfEntityBases,
+                                  Cell<enum EntityType>      * aRefListOfEntityTypes,
+                                  Cell<enum EntityAction>    * aRefListOfEntityActions,
+                                  Cell<enum OutputSpecifier> * aRefListOfOutputSpecs,
+                                  Cell<Cell<std::string>>    * aFullListOfOutputValues,
+
+                                  Cell<enum EntityBase>      aNewListOfEntityBases,
+                                  Cell<enum EntityType>      aNewListOfEntityTypes,
+                                  Cell<enum EntityAction>    aNewListOfEntityActions,
+                                  Cell<enum OutputSpecifier> aNewListOfOutputSpecs,
+                                  Cell<std::string>          aNewListOfOutputValues);
+
+    void insert_empty_column( Cell<Cell<std::string>> * aCellMatrix, uint aColumnIndex);
+
+    void write_instance_table_header(std::ofstream * aLogFileWrite,
+                                     Cell<enum EntityBase> aRefListOfEntityBases,
+                                     Cell<enum EntityType> aRefListOfEntityTypes,
+                                     Cell<enum EntityAction> aRefListOfEntityActions,
+                                     Cell<enum OutputSpecifier> aRefListOfOutputSpecs);
+
     //-----------------------------------------------------------------------------------------------------------//
     // PUBLIC CONSTRUCTOR / DESTRUCTOR
     //-----------------------------------------------------------------------------------------------------------//
     public:
 
-    Query(std::string aFileNameRead)
+    Query()
     {
-        // save file name
-        mFileNameRead = aFileNameRead;
     }
 
     ~Query()
@@ -99,7 +129,7 @@ class Query
     // PUBLIC METHODS
     //-----------------------------------------------------------------------------------------------------------//
 
-    void initialize();
+    void initialize(std::string aFileNameRead);
 
     void tree_query(std::string aFileNameWrite);
 

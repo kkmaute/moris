@@ -19,6 +19,7 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
 
 
 using namespace moris;
@@ -109,7 +110,7 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
-        MORIS_LOG_INFO( "Build linear problem with index %-5i \n", mNonlinearSolverManagerIndex );
+        MORIS_LOG_INFO( "Build linear problem with index %-5i", mNonlinearSolverManagerIndex );
 
         // create solver factory
         Solver_Factory  tSolFactory;

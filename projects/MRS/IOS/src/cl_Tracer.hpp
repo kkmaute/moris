@@ -34,14 +34,14 @@ class Tracer
     // constructor: perform sign in operation if called
     Tracer( enum moris::EntityBase aEntityBase, enum moris::EntityType aEntityType, enum moris::EntityAction aEntityAction )
     {
-//        gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
+        gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
     };
 
 
     // destructor: automatically perform sign out operation when tracer is destructed
     ~Tracer()
     {
-//        gLogger.sign_out();
+        gLogger.sign_out();
     };
 
 

@@ -77,7 +77,7 @@ namespace moris
             real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
                             ( double ) tElapsedTime / 1000 );
         }
 
@@ -142,7 +142,7 @@ namespace moris
             real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
                             ( double ) tElapsedTime / 1000 );
         }
 
@@ -209,7 +209,7 @@ namespace moris
             real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: unpack of the inputs in %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "Model: unpack of the inputs in %5.3f seconds.",
                             ( double ) tElapsedTime / 1000 );
         }
 
@@ -231,7 +231,7 @@ namespace moris
             real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
                             ( double ) tElapsedTime / 1000 );
         }
 
@@ -276,7 +276,7 @@ namespace moris
             real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
                             ( double ) tElapsedTime / 1000 );
         }
 
@@ -331,7 +331,7 @@ namespace moris
                 real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
                                 ( double ) tElapsedTime / 1000 );
             }
 
@@ -396,7 +396,7 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
                                 ( double ) tElapsedTime / 1000 );
             }
 

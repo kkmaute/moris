@@ -75,7 +75,7 @@ int main( int argc, char * argv[] )
 //------------------------------------------------------------------------------
 
     std::string tInputArg = std::string(argv[ 1 ]);
-    std::string tString = "Reading dynamically linked shared object " + tInputArg + ". \n";
+    std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
     MORIS_LOG( tString.c_str() );
 
     //dynamically linked file

@@ -13,8 +13,10 @@
 #include "cl_NLA_Nonlinear_Problem.hpp"
 
 // for detailed logging
-#include "cl_GlobalClock.hpp"
+#include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 
 using namespace moris;
 using namespace tsa;
@@ -36,7 +38,8 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     {
 
         // log number of time steps
-//        gClock.log(OutputSpecifier::Step, (real) (Ik+1) );
+        MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
+//        gLogger.log_specific(OutputSpecifier::Step, (Ik+1) );
 
         bool tBreaker = false;
         Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );

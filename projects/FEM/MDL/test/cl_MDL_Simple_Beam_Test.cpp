@@ -192,16 +192,19 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
     tHMR.finalize();
 
     // NO outputs
-    std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR >  tInterpolationMesh  = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//    std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR >  tInterpolationMesh  = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//
+//    // NO outputs
+//    std::shared_ptr< moris::hmr::Integration_Mesh_HMR >    tIntegrationMesh    = tHMR.create_integration_mesh( 1, 0,*tInterpolationMesh );
 
-    // NO outputs
-    std::shared_ptr< moris::hmr::Integration_Mesh_HMR >    tIntegrationMesh    = tHMR.create_integration_mesh( 1, 0,*tInterpolationMesh );
+    hmr::Interpolation_Mesh_HMR *      tInterpolationMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+    moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpolationMesh );
 
     // NO outputs
     // create Mesh Manager to be passed on to the Model/FEM
     moris::mtk::Mesh_Manager tMeshManager;
     // NO outputs
-    tMeshManager.register_mesh_pair( tInterpolationMesh.get(), tIntegrationMesh.get()); // the mesh mangager ist not able to deal with HMR
+    tMeshManager.register_mesh_pair( tInterpolationMesh, tIntegrationMesh); // the mesh mangager ist not able to deal with HMR
 
 
     /* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% */
@@ -275,7 +278,7 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
     tIWGBulk->set_constitutive_model( tConstitutiveModelMaterial, "ElastLinIso", mtk::Master_Slave::MASTER );
 
     // Dirichlet Boundary
-    std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+    std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
     tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
     tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
     tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitscheBC, "DirichletNitsche" );
@@ -331,7 +334,7 @@ void function_TEST_LinElastic_Beam(uint aSizeIndicator)
 
     // Output set up time
     moris::real tTimeForSetUp = (moris::real) ( clock() - tTimeStampBeginSetup ) / CLOCKS_PER_SEC;
-    MORIS_LOG_INFO( "Time to complete set up: %5.3f seconds. \n", ( double ) tTimeForSetUp );
+    MORIS_LOG_INFO( "Time to complete set up: %5.3f seconds.", ( double ) tTimeForSetUp );
 
 
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -459,18 +459,18 @@ namespace moris
                 // print output info
                 if ( par_rank() == 0 )
                 {
-                    MORIS_LOG_INFO( "--------------------------------------------------------------------------------\n" ) ;
+                    MORIS_LOG_INFO( "--------------------------------------------------------------------------------" ) ;
 
                     if ( par_size() == 1 )
                     {
-                        MORIS_LOG_INFO("  decomposing mesh over %u proc\n", ( unsigned int ) par_size() ) ;
+                        MORIS_LOG_INFO("  decomposing mesh over %u proc", ( unsigned int ) par_size() ) ;
                     }
                     else
                     {
-                        MORIS_LOG_INFO("  decomposing mesh over %u procs\n", ( unsigned int ) par_size() ) ;
+                        MORIS_LOG_INFO("  decomposing mesh over %u procs", ( unsigned int ) par_size() ) ;
                     }
-                    MORIS_LOG_INFO("--------------------------------------------------------------------------------\n" ) ;
-                    MORIS_LOG_INFO("\n" );
+                    MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
+                    MORIS_LOG_INFO( " " );
                 }
 
                 if ( gLogger.get_severity_level() < 1 )
@@ -575,7 +575,7 @@ namespace moris
                                 ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ],
                                 ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ] );
                     }
-                    MORIS_LOG_INFO("\n\n" );
+//                    MORIS_LOG_INFO("\n\n" );
                 }
 
                 // test if settings are OK

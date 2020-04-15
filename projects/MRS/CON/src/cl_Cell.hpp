@@ -9,7 +9,7 @@
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
-#include "assert.hpp"
+//#include "assert.hpp"
 
 namespace moris
 {
@@ -133,7 +133,7 @@ namespace moris
 #endif
         )
         {
-            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
+//            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
 #ifndef NDEBUG
             return( mCell.at( i_index ) );
 #else
@@ -155,7 +155,7 @@ namespace moris
 #endif
         )
         {
-            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
+//            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
 #ifndef NDEBUG
             return( mCell.at( i_index ) );
 #else
@@ -470,7 +470,7 @@ namespace moris
     template< typename T >
     void
     print(Cell< T > const & aCell,
-          std::string aStr = "Cell")
+          std::string aStr)
     {
         std::cout<<"Cell Name: "<<aStr<<"\n";
         std::cout<<"Number of entries = "<<aCell.size()<<"\n";
@@ -482,21 +482,9 @@ namespace moris
         std::cout<<std::endl;
     }
 
-    moris::Cell<char>
-    string_to_char(moris::Cell<std::string>& strings)
-    {
-        moris::Cell<char> cstrings;
-        cstrings.reserve(strings.size());
-        for(std::string s: strings)
-        {
-            for(size_t i = 0; i < strlen(s.c_str()); ++i)
-            {
-                cstrings.push_back(s.c_str()[i]);
-            }
-        }
 
-        return cstrings;
-    }
+    moris::Cell<char>
+    string_to_char(moris::Cell<std::string>& strings);
 
 }
 

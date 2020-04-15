@@ -14,7 +14,6 @@
 
 // ----------------------------------------------------------------------------
 
-
 TEST_CASE( "TreeQuery", "[moris],[ios],[query],[tree],[TreeQuery]")
 {
     // specify file to read
@@ -24,8 +23,8 @@ TEST_CASE( "TreeQuery", "[moris],[ios],[query],[tree],[TreeQuery]")
     std::string tFileNameWrite = "gClock_Tree.log";
 
     // create query
-    moris::ios::Query tQuery(tFileNameRead);
-    tQuery.initialize();
+    moris::ios::Query tQuery;
+    tQuery.initialize(tFileNameRead);
 
     // execute tree query
     tQuery.tree_query(tFileNameWrite);
@@ -41,8 +40,8 @@ TEST_CASE( "TimeSolverQuery", "[moris],[ios],[query],[table],[TimeSolverQuery]")
     std::string tFileNameWrite = "gClock_TimeSolver.log";
 
     // create query
-    moris::ios::Query tQuery(tFileNameRead);
-    tQuery.initialize();
+    moris::ios::Query tQuery;
+    tQuery.initialize(tFileNameRead);
 
     // execute table query for arbitrary time solvers,
     tQuery.table_query(tFileNameWrite,
@@ -60,8 +59,8 @@ TEST_CASE( "NonLinearSolverQuery", "[moris],[ios],[query],[table],[NonLinearSolv
     std::string tFileNameWrite = "gClock_NonLinearSolver.log";
 
     // create query
-    moris::ios::Query tQuery(tFileNameRead);
-    tQuery.initialize();
+    moris::ios::Query tQuery;
+    tQuery.initialize(tFileNameRead);
 
     // execute table query for arbitrary non-linear solvers
     tQuery.table_query(tFileNameWrite,
@@ -79,8 +78,8 @@ TEST_CASE( "NonLinearProblemQuery", "[moris],[ios],[query],[table],[NonLinearPro
     std::string tFileNameWrite = "gClock_NonLinearProblem.log";
 
     // create query
-    moris::ios::Query tQuery(tFileNameRead);
-    tQuery.initialize();
+    moris::ios::Query tQuery;
+    tQuery.initialize(tFileNameRead);
 
     // execute table query for arbitrary non-linear solvers
     tQuery.table_query(tFileNameWrite,

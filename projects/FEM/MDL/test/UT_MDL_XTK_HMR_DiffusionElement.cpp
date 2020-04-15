@@ -765,7 +765,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // stop timer
         real tElapsedTime = tTimer_HMR.toc<moris::chronos::milliseconds>().wall;
 
-        MORIS_LOG_INFO( " HMR took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " HMR took %5.3f seconds.", ( double ) tElapsedTime / 1000);
 
 //        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
@@ -1073,7 +1073,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         // stop timer
         real tElapsedTime = tTimer_HMR.toc<moris::chronos::milliseconds>().wall;
 
-        MORIS_LOG_INFO( " HMR took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " HMR took %5.3f seconds.", ( double ) tElapsedTime / 1000);
 
 //        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 

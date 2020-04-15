@@ -246,7 +246,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
         }
     }
 
-    MORIS_LOG_INFO( "Done. Random %i x %i - MORIS-matrix created.\n", tDimX, tDimY);
+    MORIS_LOG_INFO( "Done. Random %i x %i - MORIS-matrix created.", tDimX, tDimY);
 
 
     // time Moris Matrix summation --------------------------------------------------
@@ -262,7 +262,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
     }
 
     moris::real tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-    MORIS_LOG_INFO( "Time to add all members on %i %i x %i MORIS-matrices: %5.2f milliseconds. \n", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+    MORIS_LOG_INFO( "Time to add all members on %i %i x %i MORIS-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
 
 
     // time Arma Matrix summation --------------------------------------------------
@@ -283,7 +283,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
         }
     }
 
-    MORIS_LOG_INFO( "Done. Random %i x %i - ARMA-matrix created.\n", tDimX, tDimY);
+    MORIS_LOG_INFO( "Done. Random %i x %i - ARMA-matrix created.", tDimX, tDimY);
 
 
     tSum = 0.0;
@@ -300,7 +300,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
     }
 
     tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-    MORIS_LOG_INFO( "Time to add all members on %i %i x %i ARMA-matrices: %5.2f milliseconds. \n", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+    MORIS_LOG_INFO( "Time to add all members on %i %i x %i ARMA-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
 
 
 
@@ -318,7 +318,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
     }
 
     tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-    MORIS_LOG_INFO( "Time to 'plus-equal' %i %i x %i MORIS-matrices: %5.2f milliseconds. \n", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+    MORIS_LOG_INFO( "Time to 'plus-equal' %i %i x %i MORIS-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
 
 
     // time ARMA Matrix += - operations --------------------------------------------------
@@ -333,7 +333,7 @@ TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
     }
 
     tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-    MORIS_LOG_INFO( "Time to 'plus-equal' %i %i x %i ARMA-matrices: %5.2f milliseconds. \n", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+    MORIS_LOG_INFO( "Time to 'plus-equal' %i %i x %i ARMA-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
 
 }
 

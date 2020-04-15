@@ -12,15 +12,23 @@ set(HEADERS
 	fn_Parsing_Tools.hpp
 	fn_Exec_load_user_library.hpp
 	fn_Logger.hpp
+	fn_stringify.hpp
 	fn_to_stdio.hpp
 	HDF5_Tools.hpp
 	IO_Tools.hpp
 	ios.hpp
+	Log_Constants.hpp
 	)
 
 # List library source files
 set(LIB_SOURCES
+	cl_GlobalClock.cpp
+	cl_Logger.cpp
     cl_Query.cpp
+    cl_Query_Table.cpp
+    cl_Query_Tree.cpp
+    cl_Tracer_Enums.cpp
+    cl_XML_Parser.cpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
