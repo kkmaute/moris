@@ -15,12 +15,12 @@
 //#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
 //Diffusion
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp"
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp"
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp"
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp"
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp"
+#include "cl_FEM_IWG_Diffusion_Bulk.hpp"
+#include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_IWG_Diffusion_Neumann.hpp"
+#include "cl_FEM_IWG_Diffusion_Interface.hpp"
+#include "cl_FEM_IWG_Diffusion_Ghost.hpp"
+#include "cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp"
 //Advection
 #include "cl_FEM_IWG_Advection_Bulk.hpp"
 //Elasticity
@@ -72,25 +72,25 @@ namespace moris
 //                    return std::make_shared< IWG_Olsson_CLS_Bulk >();
 
                 case ( IWG_Type::SPATIALDIFF_BULK ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Bulk >();
+                    return std::make_shared< IWG_Diffusion_Bulk >();
 
                 case ( IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Dirichlet >( -1 );
+                    return std::make_shared< IWG_Diffusion_Dirichlet_Nitsche >( -1 );
 
                 case ( IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Dirichlet >( 1 );
+                    return std::make_shared< IWG_Diffusion_Dirichlet_Nitsche >( 1 );
 
                 case ( IWG_Type::SPATIALDIFF_NEUMANN ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Neumann >();
+                    return std::make_shared< IWG_Diffusion_Neumann >();
 
                 case ( IWG_Type::SPATIALDIFF_INTERFACE ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Interface >();
+                    return std::make_shared< IWG_Diffusion_Interface >();
 
                 case ( IWG_Type::SPATIALDIFF_GHOST ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Ghost >();
+                    return std::make_shared< IWG_Diffusion_Ghost >();
 
                 case ( IWG_Type::SPATIALDIFF_VW_GHOST ):
-                    return std::make_shared< IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost >();
+                    return std::make_shared< IWG_Diffusion_Virtual_Work_Ghost >();
 
                 case ( IWG_Type::ADVECTION_BULK ):
                     return std::make_shared< IWG_Advection_Bulk >();

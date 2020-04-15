@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp
+ * cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
  *
  *  Created on: Mar 22, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_Diffusion_Dirichlet_Nitsche_HPP_
+#define SRC_FEM_CL_FEM_IWG_Diffusion_Dirichlet_Nitsche_HPP_
 
 #include <map>
 
@@ -24,7 +24,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Dirichlet : public IWG
+        class IWG_Diffusion_Dirichlet_Nitsche : public IWG
         {
 
 //------------------------------------------------------------------------------
@@ -65,13 +65,13 @@ namespace moris
              * constructor
              * @param[ in ] aBeta sint for symmetric/unsymmetric Nitsche
              */
-            IWG_Isotropic_Spatial_Diffusion_Dirichlet( sint aBeta );
+            IWG_Diffusion_Dirichlet_Nitsche( sint aBeta );
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Dirichlet(){};
+            ~IWG_Diffusion_Dirichlet_Nitsche(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -86,11 +86,11 @@ namespace moris
             {
                 // check that aPropertyString makes sense
                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_property - Unknown aPropertyString." );
+                             "IWG_Diffusion_Dirichlet_Nitsche::set_property - Unknown aPropertyString." );
 
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_property - No slave allowed" );
+                             "IWG_Diffusion_Dirichlet_Nitsche::set_property - No slave allowed" );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -109,11 +109,11 @@ namespace moris
             {
                 // check that aConstitutiveString makes sense
                 MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_constitutive_model - Unknown aConstitutiveString." );
+                             "IWG_Diffusion_Dirichlet_Nitsche::set_constitutive_model - Unknown aConstitutiveString." );
 
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_property - No slave allowed" );
+                             "IWG_Diffusion_Dirichlet_Nitsche::set_property - No slave allowed" );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -130,7 +130,7 @@ namespace moris
             {
                 // check that aConstitutiveString makes sense
                 MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Dirichlet::set_stabilization_parameter - Unknown aStabilizationString." );
+                             "IWG_Diffusion_Dirichlet_Nitsche::set_stabilization_parameter - Unknown aStabilizationString." );
 
                 // set the stabilization parameter in the stabilization parameter cell
                 this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
@@ -139,24 +139,24 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * computes the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * computes the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * computes the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
+
 //------------------------------------------------------------------------------
             /**
              * compute the derivative of the residual wrt design variables
@@ -170,4 +170,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_Diffusion_Dirichlet_Nitsche_HPP_ */

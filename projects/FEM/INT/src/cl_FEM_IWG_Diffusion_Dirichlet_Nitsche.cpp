@@ -1,5 +1,5 @@
 
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp"
+#include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -13,7 +13,7 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-    IWG_Isotropic_Spatial_Diffusion_Dirichlet::IWG_Isotropic_Spatial_Diffusion_Dirichlet( sint aBeta )
+    IWG_Diffusion_Dirichlet_Nitsche::IWG_Diffusion_Dirichlet_Nitsche( sint aBeta )
     {
         // set sign for symmetric/unsymmetric Nitsche
         mBeta = aBeta;
@@ -28,7 +28,7 @@ namespace moris
         mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
         // populate the constitutive map
-        mConstitutiveMap[ "DiffLinIso" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
+        mConstitutiveMap[ "Diffusion" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
 
         // set size for the stabilization parameter pointer cell
         mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -38,7 +38,7 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( real aWStar )
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
@@ -76,7 +76,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( real aWStar )
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check field interpolators, properties, constitutive models
@@ -159,15 +159,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual( real aWStar )
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_dRdp( real aWStar )
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Nitsche::compute_dRdp - Not implemented.");
         }
 
 

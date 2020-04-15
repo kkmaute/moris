@@ -31,12 +31,12 @@ set(TEST_SOURCES
     UT_FEM_IWG.cpp
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp
-    UT_FEM_IWG_Spatial_Diffusion_Bulk.cpp
+    UT_FEM_IWG_Diffusion_Bulk.cpp
+    UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
     UT_FEM_IWG_Spatial_Diffusion_Ghost.cpp
     UT_FEM_IWG_Spatial_Diffusion_Virtual_Work_Ghost.cpp
-    UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Pressure_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp

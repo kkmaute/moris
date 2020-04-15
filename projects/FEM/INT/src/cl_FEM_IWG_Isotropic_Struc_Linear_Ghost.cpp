@@ -452,7 +452,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - order not supported." );
+                    MORIS_ERROR( false, "IWG_Diffusion_Ghost::get_normal_matrix - order not supported." );
                     break;
                 }
             }

@@ -305,8 +305,8 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
-            tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
+            tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
+            tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "Diffusion", mtk::Master_Slave::SLAVE );
             tIWG->set_stabilization_parameter( tSPGhostVW, "GhostVWOrder" );
 
             // set the normal

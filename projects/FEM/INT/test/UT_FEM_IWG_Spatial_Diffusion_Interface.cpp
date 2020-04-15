@@ -108,8 +108,8 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
     tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
     tIWG->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "Diffusion", mtk::Master_Slave::SLAVE );
 
     // set the normal
     //------------------------------------------------------------------------------

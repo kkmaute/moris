@@ -1,5 +1,5 @@
 
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"
+#include "cl_FEM_IWG_Diffusion_Ghost.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -12,7 +12,7 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        IWG_Isotropic_Spatial_Diffusion_Ghost::IWG_Isotropic_Spatial_Diffusion_Ghost()
+        IWG_Diffusion_Ghost::IWG_Diffusion_Ghost()
         {
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -22,7 +22,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( real aWStar )
+        void IWG_Diffusion_Ghost::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master and slave field interpolators
@@ -56,7 +56,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
                     break;
                 }
             }
@@ -100,7 +100,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian( real aWStar )
+        void IWG_Diffusion_Ghost::compute_jacobian( real aWStar )
         {
 
 #ifdef DEBUG
@@ -135,7 +135,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
                     break;
                 }
             }
@@ -243,19 +243,19 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual( real aWStar )
+        void IWG_Diffusion_Ghost::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, "IWG_Diffusion_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_dRdp( real aWStar )
+        void IWG_Diffusion_Ghost::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_dRdp - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Diffusion_Ghost::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------
-        Matrix< DDRMat > IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix ( uint aOrderGhost )
+        Matrix< DDRMat > IWG_Diffusion_Ghost::get_normal_matrix ( uint aOrderGhost )
         {
             // init the normal matrix
             Matrix< DDRMat > tNormalMatrix;
@@ -282,7 +282,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            MORIS_ERROR( false, "IWG_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
                             break;
                         }
                     }
@@ -330,7 +330,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            MORIS_ERROR( false, "IWG_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
                             break;
                         }
                     }
@@ -395,7 +395,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            MORIS_ERROR( false, "IWG_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
                             break;
                         }
                     }
@@ -404,7 +404,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - order not supported." );
+                    MORIS_ERROR( false, "IWG_Diffusion_Ghost::get_normal_matrix - order not supported." );
                     break;
                 }
             }

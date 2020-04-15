@@ -1,5 +1,5 @@
 
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp"
+#include "cl_FEM_IWG_Diffusion_Interface.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -11,14 +11,14 @@ namespace moris
 {
     namespace fem
     {
-        IWG_Isotropic_Spatial_Diffusion_Interface::IWG_Isotropic_Spatial_Diffusion_Interface()
+        IWG_Diffusion_Interface::IWG_Diffusion_Interface()
         {
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "DiffLinIso" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
+            mConstitutiveMap[ "Diffusion" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -30,7 +30,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_residual( real aWStar )
+        void IWG_Diffusion_Interface::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master and slave field interpolators
@@ -96,7 +96,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian( real aWStar )
+        void IWG_Diffusion_Interface::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master and slave field interpolators
@@ -309,15 +309,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian_and_residual( real aWStar )
+        void IWG_Diffusion_Interface::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian_and_residual - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Diffusion_Interface::compute_jacobian_and_residual - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_dRdp( real aWStar )
+        void IWG_Diffusion_Interface::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Interface::compute_dRdp - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Diffusion_Interface::compute_dRdp - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

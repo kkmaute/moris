@@ -1,5 +1,5 @@
 
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp"
+#include "cl_FEM_IWG_Diffusion_Neumann.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -13,7 +13,7 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        IWG_Isotropic_Spatial_Diffusion_Neumann::IWG_Isotropic_Spatial_Diffusion_Neumann()
+        IWG_Diffusion_Neumann::IWG_Diffusion_Neumann()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -23,7 +23,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( real tWStar )
+        void IWG_Diffusion_Neumann::compute_residual( real tWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties, constitutive models
@@ -47,7 +47,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( real aWStar )
+        void IWG_Diffusion_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties, constitutive models
@@ -87,15 +87,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( real aWStar )
+        void IWG_Diffusion_Neumann::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, " IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, " IWG_Diffusion_Neumann::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_dRdp( real aWStar )
+        void IWG_Diffusion_Neumann::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Neumann::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Diffusion_Neumann::compute_dRdp - Not implemented.");
         }
 
 //------------------------------------------------------------------------------
