@@ -197,16 +197,6 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
-            // output to exodus file ----------------------------------------------------------
-            Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = true;
-            tOutputOptions.mAddSideSets = true;
-
-            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-            std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_conformal.e";
-            tCutMeshData->create_output_mesh(tMeshOutputFile);
-
             // Access the Cut Mesh-------------------------------------------------------------
             Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
 
@@ -330,8 +320,6 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
                 }
             }
 
-
-            delete tCutMeshData;
             delete tMeshData;
         }
     }
