@@ -34,6 +34,8 @@ namespace moris
             {
                 DENSITY,
                 GRAVITY,
+                THERMAL_EXPANSION,
+                REF_TEMP,
                 MAX_ENUM
             };
 

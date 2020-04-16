@@ -142,7 +142,7 @@ namespace moris
             {
                 // compute dtau3du
                 tdTau3dDof.matrix_data()
-                += 0.25 * std::pow( tHugn, 2.0 ) * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tPropConductivity->val()( 0 ), 2.0 );
+                -= 0.25 * std::pow( tHugn, 2.0 ) * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tPropConductivity->val()( 0 ), 2.0 );
             }
 
             // add contribution

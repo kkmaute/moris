@@ -66,11 +66,15 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 10.0 }} } );
-    tPropDensity->set_val_function( tConstValFunction_Advection );
+    tPropDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropDensity->set_val_function( tFIValFunction_Advection );
+    tPropDensity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
 
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
     tPropConductivity->set_parameters( { {{ 5.0 }} } );
-    tPropConductivity->set_val_function( tConstValFunction_Advection );
+    tPropConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropConductivity->set_val_function( tFIValFunction_Advection );
+    tPropConductivity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -268,11 +272,15 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 10.0 }} } );
-    tPropDensity->set_val_function( tConstValFunction_Advection );
+    tPropDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropDensity->set_val_function( tFIValFunction_Advection );
+    tPropDensity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
 
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
     tPropConductivity->set_parameters( { {{ 5.0 }} } );
-    tPropConductivity->set_val_function( tConstValFunction_Advection );
+    tPropConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropConductivity->set_val_function( tFIValFunction_Advection );
+    tPropConductivity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
