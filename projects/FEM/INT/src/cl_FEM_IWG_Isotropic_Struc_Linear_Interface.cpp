@@ -30,7 +30,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Interface::compute_residual( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Interface::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master and slave field interpolators
@@ -81,13 +81,13 @@ namespace moris
 
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += tWStar * ( - trans( tFIMaster->N() ) * tTraction
+            += aWStar * ( - trans( tFIMaster->N() ) * tTraction
                           + tSPMasterWeight->val()( 0 ) * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump
                           + tSPNitsche->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) ;
 
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-            += tWStar * (   trans( tFISlave->N() ) * tTraction
+            += aWStar * (   trans( tFISlave->N() ) * tTraction
                           + tSPSlaveWeight->val()( 0 ) * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump
                           - tSPNitsche->val()( 0 ) * trans( tFISlave->N() ) * tJump );
         }
