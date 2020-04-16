@@ -7,6 +7,8 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
+
 // GE includes
 #include "cl_GE_Core.hpp"
 #include "cl_GE_Factory.hpp"
@@ -68,7 +70,7 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
 
         // get path for STL file to load
         std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
-        tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+        tObjectPath = moris::get_base_moris_dir() + tObjectPath;
     //------------------------------------------------------------------------------
 
         Ge_Factory tFactory;

@@ -6,6 +6,7 @@
  */
 
 #include "catch.hpp"
+#include "paths.hpp"
 #include "cl_Star.hpp"
 #include "cl_Circle.hpp"
 #include "cl_Plane.hpp"
@@ -470,7 +471,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //
 //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 //
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
         //------------------------------------------------------------------------------
@@ -604,7 +605,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //        mtk::Mesh_Manager tMeshManager;
 //        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 //
-//        std::string tInputFilePath = std::getenv("MORISROOT");
+//        std::string tInputFilePath = moris::get_base_moris_dir();
 //        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
 //
 //        // create a pointer to library for input reading
@@ -1033,7 +1034,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
 //        print(tFullSolution,"tFullSol");
 
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
         //------------------------------------------------------------------------------

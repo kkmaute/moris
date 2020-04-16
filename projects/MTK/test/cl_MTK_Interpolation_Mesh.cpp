@@ -9,6 +9,8 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
+
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_Mesh_Factory.hpp"
@@ -36,7 +38,7 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
     uint p_size = moris::par_size();
 
     // File prefix
-    std::string tMORISROOT = std::getenv("MORISROOT");
+    std::string tMORISROOT = moris::get_base_moris_dir();
     if( p_size == 1 ) // specify it is a serial test only
     {
         const std::string fileName2 = "generated:8x8x8";

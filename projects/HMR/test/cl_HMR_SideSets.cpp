@@ -1,4 +1,7 @@
 #include <catch.hpp>
+
+#include "paths.hpp"
+
 #include "cl_GE_Core.hpp"   //FIXME: needs to be replaced with current geometry engine implementation
 
 //------------------------------------------------------------------------------
@@ -45,7 +48,7 @@ using namespace hmr;
 TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 {
     // get root from environment
-    std::string tMorisRoot = std::getenv("MORISROOT");
+    std::string tMorisRoot = moris::get_base_moris_dir();
 
 //------------------------------------------------------------------------------
     if(  moris::par_size() == 1  ||  moris::par_size() == 2  || moris::par_size() == 4 )
@@ -326,7 +329,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numbered_aura]")
 {
     // get root from environment
-    std::string tMorisRoot = std::getenv("MORISROOT");
+    std::string tMorisRoot = moris::get_base_moris_dir();
 
 //------------------------------------------------------------------------------
     if(  moris::par_size() == 1  ||  moris::par_size() == 2  || moris::par_size() == 4 )

@@ -6,7 +6,7 @@
  */
 
 #include "catch.hpp"
-
+#include "paths.hpp"
 #include "cl_FEM_Model.hpp" //FEM/INT/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 //#include "fn_Parsing_Tools.hpp" //FEM/INT/src
@@ -139,7 +139,7 @@ namespace moris
 //
 //            //------------------------------------------------------------------------------
 //            // open input file
-//            std::string tMeshFilePath = std::getenv("MORISROOT");
+//            std::string tMeshFilePath = moris::get_base_moris_dir();
 //            tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
 //            std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
 //

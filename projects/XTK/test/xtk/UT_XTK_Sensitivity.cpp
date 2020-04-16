@@ -10,6 +10,7 @@
 #include <mpi.h>
 #include "catch.hpp"
 #include "cl_Logger.hpp"
+#include "paths.hpp"
 
 // XTKL: Linear Algebra Includes
 
@@ -79,7 +80,7 @@ namespace xtk
           for(size_t i = 0; i<3; i++)
           {
               std::string tPrefix;
-              tPrefix = std::getenv("MORISROOT");
+              tPrefix = moris::get_base_moris_dir();
               std::string tMeshFileName = tPrefix + "projects/XTK/test/test_exodus_files/single_tet_mesh.e";
               Cell<std::string> tScalarFieldNames = {"lsf"};
 

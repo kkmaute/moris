@@ -14,6 +14,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
+#include "paths.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -471,7 +472,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        //------------------------------------------------------------------------------
 //        // path for property function reading
-//        std::string tMeshFilePath = std::getenv("MORISROOT");
+//        std::string tMeshFilePath = moris::get_base_moris_dir();
 //        tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
 //        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
 //

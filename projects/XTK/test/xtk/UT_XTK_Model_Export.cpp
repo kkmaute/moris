@@ -10,6 +10,7 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
 //#include "cl_Sphere.hpp"
 #include "cl_XTK_Model.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
@@ -57,7 +58,7 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
      *  - top_crust
      *  - bottom_crust
      */
-    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tPrefix = moris::get_base_moris_dir();
     std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
     moris::Cell<std::string> tFieldNames;
 

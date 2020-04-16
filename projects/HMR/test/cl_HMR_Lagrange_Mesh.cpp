@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include "paths.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
@@ -262,7 +263,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             //tField->save_node_values_to_hdf5( "Node_Field_Values_lin.hdf5", false );
             Matrix< DDRMat > tNodalRefFieldValues;
 
-            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tPrefix = moris::get_base_moris_dir();
             std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/HMR_T_Matrix_Perturb-Reference_Values_Lin.hdf5";
 
             hid_t tFile    = open_hdf5_file( tMeshFileName );
@@ -374,7 +375,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
             //tField->save_node_values_to_hdf5( "Node_Field_Values.hdf5", false );
             Matrix< DDRMat > tNodalRefFieldValues;
 
-            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tPrefix = moris::get_base_moris_dir();
             std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/HMR_T_Matrix_Perturb-Reference_Values_Quad.hdf5";
 
             hid_t tFile    = open_hdf5_file( tMeshFileName );
@@ -488,7 +489,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 //            tField->save_node_values_to_hdf5( "Node_Field_Values_Qub.hdf5", false );
             Matrix< DDRMat > tNodalRefFieldValues;
 
-            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tPrefix = moris::get_base_moris_dir();
             std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/HMR_T_Matrix_Perturb-Reference_Values_Qub.hdf5";
 
             hid_t tFile    = open_hdf5_file( tMeshFileName );
