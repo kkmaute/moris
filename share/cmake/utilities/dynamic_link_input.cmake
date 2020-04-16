@@ -9,11 +9,6 @@ function(dynamic_link_input
 		 cpp_name 
 		 so_includes)
 
-message(INFO "target_name = ${target_name}")
-message(INFO "base_name = ${base_name}")
-message(INFO "cpp_name = ${cpp_name}")
-message(INFO "so_includes = ${so_includes}")
-
 set(SO_LIB_REQS
     ${HMR}-lib
     ${COM}-lib
