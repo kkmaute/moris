@@ -317,6 +317,10 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         moris::Cell< MSI::Equation_Set * > tSets
         = tModel->get_fem_model()->get_equation_sets();
 
+        // get the equation set from the model
+        std::shared_ptr< MSI::Equation_Model > tEquationModel
+        = tModel->get_fem_model();
+
         // get a working set
         MSI::Equation_Set* tWorkSet = tSets( 0 );
 
@@ -349,7 +353,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // set the solution vector
 //        tEquationObject( 0 )->mPdofValues = {{ 0},{0},{0},{0}};
-        tWorkEqObj->mSolVec = mVector;
+        tEquationModel->set_solution_vector( mVector);
 
         // set the time
         tWorkEqObj->set_time( { { 0 }, { 1 } } );
