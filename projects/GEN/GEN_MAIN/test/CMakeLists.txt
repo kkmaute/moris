@@ -4,24 +4,24 @@
 # List source files
 set(TEST_SOURCES
      test_main.cpp
-    
-  #  cl_Fiber_Problem.cpp
-    cl_For_Thesis.cpp
-    
-  # cl_GeSDFCore.cpp
-  # cl_GeSDFGen.cpp
-  # cl_GeTriangle.cpp
-  # cl_GE_test.cpp
-  
-    cl_General_Functionalities.cpp
-   # cl_Parameter_Sweep.cpp
-    cl_Pdv_Tests.cpp
-    
-    UT_Bounding_Box.cpp
-  #  UT_Finite_Difference_Checks.cpp
-    UT_GE_HMR_Interaction.cpp
-    UT_Pdv_Checks.cpp
-    UT_Parameter_List.cpp
+
+#    cl_Fiber_Problem.cpp
+#    cl_For_Thesis.cpp
+#
+#    cl_GeSDFCore.cpp
+#    cl_GeSDFGen.cpp
+#    cl_GeTriangle.cpp
+#    cl_GE_test.cpp
+#
+#    cl_General_Functionalities.cpp
+#    cl_Parameter_Sweep.cpp
+#    cl_Pdv_Tests.cpp
+#
+#    UT_Bounding_Box.cpp
+#    UT_Finite_Difference_Checks.cpp
+#    UT_GE_HMR_Interaction.cpp
+#    UT_Pdv_Checks.cpp
+	ut_Geometry.cpp
     
     
    # geometry_classes/cl_GE_test_analytic.cpp
@@ -74,8 +74,8 @@ set(TEST_DEPENDENCIES
     ${GEN_MAIN}-lib
     ${INT}-lib
     ${DLA}-lib
-  # ${MTK}-lib  	
     ${MORIS_BASE_LIBS}
+	${PRM}-lib
     )
 
 message(INFO "MORIS_BASE_LIBS = ${MORIS_BASE_LIBS}")

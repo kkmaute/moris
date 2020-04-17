@@ -7,8 +7,6 @@
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_PLANE_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_PLANE_HPP_
 
-
-
 #include "cl_GEN_Geometry.hpp"
 #include "cl_Matrix.hpp"
 
@@ -17,15 +15,32 @@ namespace moris
 namespace ge
 {
 template< moris::uint SpatialDim >
-class Plane : public GEN_Geometry
+class Plane : public Geometry
 {
 public:
     Plane(Matrix<moris::DDRMat> const & aCenters,
           Matrix<moris::DDRMat> const & aNormals):
-              mCenters(aCenters),
-              mNormals(aNormals)
+            Geometry(Matrix<DDRMat>(1, 1, 0.0))
     {
+        mCenters = aCenters;
+        mNormals = aNormals;
     }
+
+    //------------------------------------ these will be deleted/modified later ----------------------------------------
+    virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return 0;
+    }
+
+    virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return Matrix<DDRMat>(1, 1, 0.0);
+    }
+
+
+
+
+
 
     bool is_analytic() const
     {

@@ -28,7 +28,6 @@
 #include "cl_XTK_Enums.hpp"
 #include "cl_Sphere.hpp"
 #include "cl_Discrete_Level_Set.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
 #include "typedefs.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
 #include "fn_compute_xtk_model_volumes.hpp"

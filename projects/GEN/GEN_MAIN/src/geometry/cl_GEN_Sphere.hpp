@@ -17,21 +17,42 @@ namespace moris
 {
 namespace ge
 {
-class Sphere : public GEN_Geometry
+class Sphere : public Geometry
 {
 public:
-    Sphere(){}
 
-    Sphere(moris::real const & aRadius,
-           moris::real const & aXCenter,
-           moris::real const & aYCenter,
-           moris::real const & aZCenter) :
-            mRadius(aRadius),
-            mXCenter(aXCenter),
-            mYCenter(aYCenter),
-            mZCenter(aZCenter)
+    /**
+     * Constructor with only constant parameters
+     *
+     * @param aXCenter x-coordinate of the center of the sphere
+     * @param aYCenter y-coordiante of the center of the sphere
+     * @param aZCenter z-coordinate of the center of the sphere
+     * @param aRadius radius of the circle
+     */
+    Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius) : Geometry(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}))
     {
+        mXCenter = aXCenter;
+        mYCenter = aYCenter;
+        mZCenter = aZCenter;
+        mRadius = aRadius;
     }
+
+    //------------------------------------ these will be deleted/modified later ----------------------------------------
+    virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return 0;
+    }
+
+    virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return Matrix<DDRMat>(1, 1, 0.0);
+    }
+
+
+
+
+
+
 
     bool is_analytic() const
     {

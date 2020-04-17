@@ -225,7 +225,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         {
             moris::ge::Circle tCircle0( tROuter, tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle1( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::GEN_Geometry*> tGeomVec = { &tCircle0, &tCircle1 };
+            moris::Cell<moris::ge::Geometry*> tGeomVec = {&tCircle0, &tCircle1 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
@@ -267,7 +267,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         moris::ge::Circle tCircle3( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
 
         // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle2, &tCircle3 };
+        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tCircle2, &tCircle3 };
 
           size_t tModelDimension = 2;
           moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
@@ -571,7 +571,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         {
             moris::ge::Circle tCircle0( tROuter, tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle1( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::GEN_Geometry*> tGeomVec = { &tCircle0, &tCircle1 };
+            moris::Cell<moris::ge::Geometry*> tGeomVec = {&tCircle0, &tCircle1 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
@@ -613,7 +613,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         moris::ge::Circle tCircle3( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
 
         // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle2, &tCircle3 };
+        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tCircle2, &tCircle3 };
 
           size_t tModelDimension = 2;
           moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
@@ -958,7 +958,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
             moris::ge::Circle tCircle0( tROuter,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle1( tRMiddle, tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tCircle0, &tCircle1, &tCircle2 };
+            moris::Cell< moris::ge::Geometry* > tGeomVec = {&tCircle0, &tCircle1, &tCircle2 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
@@ -1004,7 +1004,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
 
         // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle0, &tCircle1, &tCircle2 };
+        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tCircle0, &tCircle1, &tCircle2 };
 
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
@@ -1368,7 +1368,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
             moris::ge::Circle tCircle0( tROuter,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle1( tRMiddle, tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tCircle0, &tCircle1, &tCircle2 };
+            moris::Cell< moris::ge::Geometry* > tGeomVec = {&tCircle0, &tCircle1, &tCircle2 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
@@ -1414,7 +1414,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
 
         // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle0, &tCircle1, &tCircle2 };
+        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tCircle0, &tCircle1, &tCircle2 };
 
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );

@@ -17,7 +17,7 @@ namespace moris
 {
 namespace ge
 {
-class Multi_Geometry : public GEN_Geometry
+class Multi_Geometry : public Geometry
 {
 public:
     Multi_Geometry(){}

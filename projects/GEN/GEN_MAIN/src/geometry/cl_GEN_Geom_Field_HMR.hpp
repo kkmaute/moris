@@ -17,16 +17,13 @@ namespace moris
 {
 namespace ge
 {
-class GEN_Geom_Field_HMR : public GEN_Geometry
+class GEN_Geom_Field_HMR : public Geometry
 {
 public:
-    GEN_Geom_Field_HMR()
+    GEN_Geom_Field_HMR( std::shared_ptr<moris::hmr::Field> aFieldPtr )
+            : Geometry(Matrix<DDRMat>(1, 1, 0.0)
     {
-    }
-
-    GEN_Geom_Field_HMR( std::shared_ptr<moris::hmr::Field> aFieldPtr ):
-        mField(aFieldPtr)
-    {
+        mField = aFieldPtr;
     }
 
     bool is_analytic() const

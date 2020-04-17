@@ -22,7 +22,7 @@ namespace moris
 namespace ge
 {
 
-class GEN_CylinderWithEndCaps : public GEN_Geometry
+class GEN_CylinderWithEndCaps : public Geometry
 {
 private:    // member data
     uint mNumberOfFibers;

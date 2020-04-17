@@ -28,24 +28,39 @@ namespace moris
 {
 namespace ge
 {
-class Discrete_Level_Set: public moris::ge::GEN_Geometry
+class Discrete_Level_Set: public moris::ge::Geometry
 {
 public:
-    Discrete_Level_Set()
-    {
-
-    }
-
 
     Discrete_Level_Set( moris::mtk::Interpolation_Mesh*  aMeshWithLevelSetFields,
                         moris::Cell<std::string> const & aFieldNames) :
-                            mNumLevelSets(aFieldNames.size()),
-                            mActiveLevelSetIndex(0),
-                            mLevelSetFieldNames(aFieldNames),
-                            mLevelSetMesh(aMeshWithLevelSetFields)
+                        Geometry(Matrix<DDRMat>(1, 1, 0.0))
     {
-
+        mNumLevelSets = aFieldNames.size();
+        mActiveLevelSetIndex = 0;
+        mLevelSetFieldNames = aFieldNames;
+        mLevelSetMesh = aMeshWithLevelSetFields;
     }
+
+    //------------------------------------ these will be deleted/modified later ----------------------------------------
+    virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return 0;
+    }
+
+    virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return Matrix<DDRMat>(1, 1, 0.0);
+    }
+
+
+
+
+
+
+
+
+
 
 
     bool is_analytic() const

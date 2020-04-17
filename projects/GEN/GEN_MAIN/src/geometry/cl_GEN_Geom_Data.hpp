@@ -16,7 +16,7 @@ namespace moris
 {
 namespace ge
 {
-class GEN_Geom_Data : public GEN_Geometry
+class GEN_Geom_Data : public Geometry
 {
 public:
     GEN_Geom_Data()

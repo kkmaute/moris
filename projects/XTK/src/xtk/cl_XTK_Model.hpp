@@ -22,10 +22,6 @@
 #include "cl_MTK_Fields_Info.hpp"
 #include "cl_Mesh_Factory.hpp"
 
-// XTKL: Geometry Engine Includes
-#include "cl_MGE_Geometry_Engine.hpp"
-#include "cl_MGE_Geometry_Object.hpp"
-
 // XTKL: Container includes
 #include "cl_Cell.hpp"
 
@@ -36,6 +32,7 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Decomposition_Data.hpp"
+#include "cl_Interpolaton.hpp"
 
 #include "cl_XTK_Output_Options.hpp"
 

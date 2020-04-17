@@ -7,7 +7,7 @@ set(${PRM}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
 	cl_PRM_FEM_Parameters.hpp
-	cl_PRM_GEN_Parameters.hpp
+        fn_PRM_GEN_Parameters.hpp
 	cl_PRM_HMR_Parameters.hpp
 	cl_PRM_MSI_Parameters.hpp
 	cl_PRM_OPT_Parameters.hpp

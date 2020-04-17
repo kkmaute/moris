@@ -1,12 +1,5 @@
-/*
- * cl_SphereBox.hpp
- *
- *  Created on: Aug 8, 2019
- *      Author: doble
- */
-#ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_BOX_HPP_
-#define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_BOX_HPP_
-
+#ifndef MORIS_CL_GEN_SPHERE_BOX_HPP
+#define MORIS_CL_GEN_SPHERE_BOX_HPP
 
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry.hpp"
@@ -15,26 +8,36 @@ namespace moris
 {
 namespace ge
 {
-class Sphere_Box : public GEN_Geometry
+class Sphere_Box : public Geometry
 {
 public:
-    Sphere_Box(){}
-
     Sphere_Box( moris::real aSX,
                 moris::real aSY,
                 moris::real aSZ,
                 moris::real aXCenter,
                 moris::real aYCenter,
                 moris::real aZCenter,
-                moris::real aNexp) :
-                mSX(aSX),
-                mSY(aSY),
-                mSZ(aSZ),
-                mXCenter(aXCenter),
-                mYCenter(aYCenter),
-                mZCenter(aZCenter),
-                mNexp(aNexp)
+                moris::real aNexp)
+                : Geometry(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aNexp}}))
     {
+        mSX = aSX;
+        mSY = aSY;
+        mSZ = aSZ;
+        mXCenter = aXCenter;
+        mYCenter = aYCenter;
+        mZCenter = aZCenter;
+        mNexp = aNexp;
+    }
+
+    //------------------------------------ these will be deleted/modified later ----------------------------------------
+    virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return 0;
+    }
+
+    virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return Matrix<DDRMat>(1, 1, 0.0);
     }
 
     bool is_analytic() const
@@ -109,4 +112,4 @@ private:
 }
 }
 
-#endif /* PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_BOX_HPP_ */
+#endif /* MORIS_CL_GEN_SPHERE_BOX_HPP */

@@ -34,9 +34,6 @@
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
 
-// Geometry Engine Includes
-#include "cl_MGE_Geometry_Engine.hpp"
-
 // general geometry engine class
 #include "cl_GEN_Geometry_Engine.hpp"
 
