@@ -370,9 +370,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // set the IWG fem set
         tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
-        // set requested residual dof type flag to true
-        tIWG->mResidualDofTypeRequested = true;
-
         // build global dof type list
         tIWG->get_global_dof_type_list();
         tIWG->get_global_dv_type_list();

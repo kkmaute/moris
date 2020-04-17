@@ -250,9 +250,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_2D", "[IWG_Incompressible_NS_Vel
     tIWG->mSet->mResidual( 0 ).set_size( 32, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 16, 32, 0.0 );
 
-    // set requested residual dof type flag to true
-    tIWG->mResidualDofTypeRequested = true;
-
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
@@ -492,9 +489,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_3D", "[IWG_Incompressible_NS_Vel
     tIWG->mSet->mResidual.resize( 1 );
     tIWG->mSet->mResidual( 0 ).set_size( 80, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 48, 80, 0.0 );
-
-    // set requested residual dof type flag to true
-    tIWG->mResidualDofTypeRequested = true;
 
     // build global dof type list
     tIWG->get_global_dof_type_list();

@@ -172,9 +172,6 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed_Pressure
     tIWG->mSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 4, 12, 0.0 );
 
-    // set requested residual dof type flag to true
-    tIWG->mResidualDofTypeRequested = true;
-
     // build global dof type list
     tIWG->get_global_dof_type_list();
 

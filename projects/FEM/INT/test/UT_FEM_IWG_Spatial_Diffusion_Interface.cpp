@@ -220,8 +220,6 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->mSet->mResidual( 0 ).set_size( 16, 1 , 0.0 );
     tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );
 
-    tIWG->mResidualDofTypeRequested = true;
-
     // build global dof type list
     tIWG->get_global_dof_type_list();
 

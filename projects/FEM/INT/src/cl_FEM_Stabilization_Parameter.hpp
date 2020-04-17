@@ -207,6 +207,9 @@ namespace moris
              {
                  // set an interpolation order
                  mOrder = aOrder;
+
+                 // reset evaluation flags
+                 this->reset_eval_flags();
              }
 
 //------------------------------------------------------------------------------
@@ -216,7 +219,7 @@ namespace moris
              */
              void set_normal( Matrix< DDRMat > aNormal )
              {
-                 // set a cluster
+                 // set normal
                  mNormal = aNormal;
              }
 

@@ -174,32 +174,32 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and populate the set master dof type map
-    tSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and fill the set residual assembly map
-    tSet->mResDofAssemblyMap.resize( 2 );
-    tSet->mResDofAssemblyMap( 0 ) = { { 0, 15 } };
-    tSet->mResDofAssemblyMap( 1 ) = { { 16, 23 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 15 } };
+    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 16, 23 } };
 
     // set size and fill the set jacobian assembly map
-    tSet->mJacDofAssemblyMap.resize( 2 );
-    tSet->mJacDofAssemblyMap( 0 ) = { { 0, 15 }, { 16, 23 } };
-    tSet->mJacDofAssemblyMap( 1 ) = { { 0, 15 }, { 16, 23 } };
+    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 15 }, { 16, 23 } };
+    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 15 }, { 16, 23 } };
 
     // set size and init the set residual and jacobian
-    tSet->mResidual.resize( 1 );
-    tSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
-    tSet->mJacobian.set_size( 24, 24, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 24, 24, 0.0 );
 
     // build global dof type list
     tIWG->get_global_dof_type_list();
@@ -218,7 +218,7 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set the interpolator manager to the set
-    reinterpret_cast< fem::Set* >( tSet )->mMasterFIManager = &tFIManager;
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);
@@ -384,32 +384,32 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and populate the set master dof type map
-    tSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and fill the set residual assembly map
-    tSet->mResDofAssemblyMap.resize( 2 );
-    tSet->mResDofAssemblyMap( 0 ) = { { 0, 47 } };
-    tSet->mResDofAssemblyMap( 1 ) = { { 48, 63 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 47 } };
+    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 48, 63 } };
 
     // set size and fill the set jacobian assembly map
-    tSet->mJacDofAssemblyMap.resize( 2 );
-    tSet->mJacDofAssemblyMap( 0 ) = { { 0, 47 }, { 48, 63 } };
-    tSet->mJacDofAssemblyMap( 1 ) = { { 0, 47 }, { 48, 63 } };
+    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 47 }, { 48, 63 } };
+    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 47 }, { 48, 63 } };
 
     // set size and init the set residual and jacobian
-    tSet->mResidual.resize( 1 );
-    tSet->mResidual( 0 ).set_size( 64, 1, 0.0 );
-    tSet->mJacobian.set_size( 64, 64, 0.0 );
+    tIWG->mSet->mResidual.resize( 1 );
+    tIWG->mSet->mResidual( 0 ).set_size( 64, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 64, 64, 0.0 );
 
     // build global dof type list
     tIWG->get_global_dof_type_list();
@@ -428,7 +428,7 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
     tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set the interpolator manager to the set
-    reinterpret_cast< fem::Set* >( tSet )->mMasterFIManager = &tFIManager;
+    tIWG->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager(&tFIManager);

@@ -13,75 +13,115 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsMaster                 an enum for master or slave
-             */
-            void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
-                                                      mtk::Master_Slave            aIsMaster )
+
+        void IWG::reset_eval_flags()
+        {
+            // reset properties
+            for ( std::shared_ptr< Property > tProp : mMasterProp )
             {
-                switch ( aIsMaster )
+                if ( tProp != nullptr )
                 {
-                    case ( mtk::Master_Slave::MASTER ) :
-                    {
-                        mMasterFIManager = aFieldInterpolatorManager;
-                        break;
-                    }
-
-                    case ( mtk::Master_Slave::SLAVE ) :
-                    {
-                        mSlaveFIManager = aFieldInterpolatorManager;
-                        break;
-                    }
-
-                    default :
-                    {
-                        MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
-                        break;
-                    }
-                }
-
-                // loop over the the SP
-                for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-                {
-                    if ( tSP != nullptr )
-                    {
-                        // set the field interpolator manager for the SP
-                        tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
-
-                        // set the fem set pointer for the SP
-                        tSP->set_set_pointer( mSet );
-                    }
-                }
-
-                // loop over the constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if ( tCM != nullptr )
-                    {
-                        // set the field interpolator manager for the CM
-                        tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
-
-                        // set the fem set pointe for the CM
-                        tCM->set_set_pointer( mSet );
-                    }
-                }
-
-                // loop over the properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if ( tProp != nullptr )
-                    {
-                        // set the field interpolator manager for the property
-                        tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
-
-                        // set the fem set pointer for the property
-                        tProp->set_set_pointer( mSet );
-                    }
+                    tProp->reset_eval_flags();
                 }
             }
+            for ( std::shared_ptr< Property > tProp : mSlaveProp )
+            {
+                if( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+
+            // reset constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+
+            // reset stabilization parameters
+            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            {
+                if( tSP != nullptr )
+                {
+                    tSP->reset_eval_flags();
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                  mtk::Master_Slave            aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    mMasterFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                case ( mtk::Master_Slave::SLAVE ) :
+                {
+                    mSlaveFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
+                    break;
+                }
+            }
+
+            // loop over the the SP
+            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
+            {
+                if ( tSP != nullptr )
+                {
+                    // set the field interpolator manager for the SP
+                    tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
+
+                    // set the fem set pointer for the SP
+                    tSP->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the constitutive models
+            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+            {
+                if ( tCM != nullptr )
+                {
+                    // set the field interpolator manager for the CM
+                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointe for the CM
+                    tCM->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the properties
+            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+            {
+                if ( tProp != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointer for the property
+                    tProp->set_set_pointer( mSet );
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
@@ -785,12 +825,6 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     break;
                 }
             }
-
-            // FIXME to be removed
-            if( mResidualDofType( 0 ) == tDofTypes )
-            {
-                mResidualDofTypeRequested = true;
-            }
         }
     }
 
@@ -1183,15 +1217,21 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
             //define a boolean for check
             bool tCheckJacobian = true;
 
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
             for( uint iiJac = 0; iiJac < aJacobians.n_rows(); iiJac++ )
             {
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
                     // get absolute difference
-                    real tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
+                    tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
 
                     // get relative difference
-                    real tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+                    tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
 
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
@@ -1255,6 +1295,12 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
             //define a boolean for check
             bool tCheckJacobian = true;
 
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
             // loop over the rows of jacobian
             for( uint iiJac = 0; iiJac < aJacobians.n_rows(); iiJac++ )
             {
@@ -1262,13 +1308,17 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
                     // get absolute difference
-                    real tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
+                    tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
 
                     // get relative difference
-                    real tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+                    tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+
+                    //
+                    bool tCheckAbsolute = ( tAbsolute < aEpsilon );
+                    bool tCheckRelative = ( tRelative < aEpsilon );
 
                     // update check value
-                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+                    tCheckJacobian = tCheckJacobian && ( tCheckAbsolute || tCheckRelative );
 
 //                    // for debug
 //                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )

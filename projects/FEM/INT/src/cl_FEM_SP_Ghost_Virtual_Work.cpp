@@ -3,12 +3,6 @@
 #include "cl_FEM_Cluster.hpp"              //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
-#include "op_div.hpp"
-
 namespace moris
 {
     namespace fem

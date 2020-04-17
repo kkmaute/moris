@@ -48,9 +48,6 @@ namespace moris
             // residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
 
-            // bool true if residual dof type requested
-            bool mResidualDofTypeRequested = false;
-
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
@@ -239,7 +236,6 @@ namespace moris
              */
             void free_memory()
             {
-                mResidualDofTypeRequested = false;
             }
 
 //------------------------------------------------------------------------------
@@ -731,49 +727,7 @@ namespace moris
             /**
              * reset evaluation flags
              */
-            void reset_eval_flags()
-            {
-                // reset properties
-                for ( std::shared_ptr< Property > tProp : mMasterProp )
-                {
-                    if ( tProp != nullptr )
-                    {
-                        tProp->reset_eval_flags();
-                    }
-                }
-                for ( std::shared_ptr< Property > tProp : mSlaveProp )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->reset_eval_flags();
-                    }
-                }
-
-                // reset constitutive models
-                for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->reset_eval_flags();
-                    }
-                }
-                for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->reset_eval_flags();
-                    }
-                }
-
-                // reset stabilization parameters
-                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                {
-                    if( tSP != nullptr )
-                    {
-                        tSP->reset_eval_flags();
-                    }
-                }
-            }
+            void reset_eval_flags();
 
 //------------------------------------------------------------------------------
             /**

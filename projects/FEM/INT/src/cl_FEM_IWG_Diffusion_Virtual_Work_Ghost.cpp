@@ -54,7 +54,9 @@ namespace moris
             Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
-            switch ( tMasterFI->get_space_interpolation_order() )
+            mtk::Interpolation_Order tInterpOrder = mtk::Interpolation_Order::UNDEFINED;
+            tInterpOrder = tMasterFI->get_space_interpolation_order();
+            switch ( tInterpOrder )
             {
                 case( mtk::Interpolation_Order::LINEAR ):
                 {
@@ -142,7 +144,8 @@ namespace moris
             Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
-            switch ( tMasterFI->get_space_interpolation_order() )
+            mtk::Interpolation_Order tInterpOrder = tMasterFI->get_space_interpolation_order();
+            switch ( tInterpOrder )
             {
                 case( mtk::Interpolation_Order::LINEAR ):
                 {

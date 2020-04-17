@@ -34,33 +34,14 @@ namespace moris
         private:
 
             // cluster measures for the SP
-            moris::real mElementSize;
+            moris::real mElementSize = 1.0;
 
         public:
-
-            // property type for the SP
-            enum class SP_Property_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to property enum map
-            std::map< std::string, SP_Property_Type > mPropertyMap;
-
-            // CM type for the SP
-            enum class SP_Constitutive_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
 
 //------------------------------------------------------------------------------
             /*
              * constructor
              * Rem: mParameters( 0 ) - gamma penalty parameter
-             *      mParameters( 1 ) - interpolation order
              */
             SP_Ghost_Virtual_Work(){};
 

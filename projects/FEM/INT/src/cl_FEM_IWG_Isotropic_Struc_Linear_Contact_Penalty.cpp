@@ -174,7 +174,7 @@ namespace moris
                 }
             }
 
-//            if ( tGap(0,0) <= 0 && mResidualDofTypeRequested )
+//            if ( tGap(0,0) <= 0 )
 //            {
 //                // compute the jacobian on slave side
 //                // slave slave

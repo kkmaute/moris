@@ -167,32 +167,32 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
     tIWGPressure->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tIWGVelocity->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
+    tIWGVelocity->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and populate the set master dof type map
-    tSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWGVelocity->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
     // set size and fill the set residual assembly map
-    tSet->mResDofAssemblyMap.resize( 2 );
-    tSet->mResDofAssemblyMap( 0 ) = { { 0, 15 } };
-    tSet->mResDofAssemblyMap( 1 ) = { { 16, 23 } };
+    tIWGVelocity->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, 15 } };
+    tIWGVelocity->mSet->mResDofAssemblyMap( 1 ) = { { 16, 23 } };
 
     // set size and fill the set jacobian assembly map
-    tSet->mJacDofAssemblyMap.resize( 2 );
-    tSet->mJacDofAssemblyMap( 0 ) = { { 0, 15 }, { 16, 23 } };
-    tSet->mJacDofAssemblyMap( 1 ) = { { 0, 15 }, { 16, 23 } };
+    tIWGVelocity->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWGVelocity->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 15 }, { 16, 23 } };
+    tIWGVelocity->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 15 }, { 16, 23 } };
 
     // set size and init the set residual and jacobian
-    tSet->mResidual.resize( 1 );
-    tSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
-    tSet->mJacobian.set_size( 24, 24, 0.0 );
+    tIWGVelocity->mSet->mResidual.resize( 1 );
+    tIWGVelocity->mSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
+    tIWGVelocity->mSet->mJacobian.set_size( 24, 24, 0.0 );
 
     // build global dof type list
     tIWGVelocity->get_global_dof_type_list();
@@ -213,7 +213,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
     tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set the interpolator manager to the set
-    reinterpret_cast< fem::Set* >( tSet )->mMasterFIManager = &tFIManager;
+    tIWGVelocity->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWGVelocity->set_field_interpolator_manager( &tFIManager );
@@ -222,8 +222,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
     // check evaluation of the residual/jacobian for IWG Velocity
     //------------------------------------------------------------------------------
     // reset residual and jacobian
-    tSet->mResidual( 0 ).fill( 0.0 );
-    tSet->mJacobian.fill( 0.0 );
+    tIWGVelocity->mSet->mResidual( 0 ).fill( 0.0 );
+    tIWGVelocity->mSet->mJacobian.fill( 0.0 );
 
     // evaluate the residual
     tIWGVelocity->compute_residual( 1.0 );
@@ -250,8 +250,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
     // check evaluation of the residual/jacobian for IWG Pressure
     //------------------------------------------------------------------------------
     // reset residual and jacobian
-    tSet->mResidual( 0 ).fill( 0.0 );
-    tSet->mJacobian.fill( 0.0 );
+    tIWGPressure->mSet->mResidual( 0 ).fill( 0.0 );
+    tIWGPressure->mSet->mJacobian.fill( 0.0 );
 
     // evaluate the residual
     tIWGVelocity->compute_residual( 1.0 );
@@ -416,32 +416,32 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
     tIWGPressure->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tIWGVelocity->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
+    tIWGVelocity->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and populate the set master dof type map
-    tSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
+    tIWGVelocity->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and fill the set residual assembly map
-    tSet->mResDofAssemblyMap.resize( 2 );
-    tSet->mResDofAssemblyMap( 0 ) = { { 0, 47 } };
-    tSet->mResDofAssemblyMap( 1 ) = { { 48, 63 } };
+    tIWGVelocity->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, 47 } };
+    tIWGVelocity->mSet->mResDofAssemblyMap( 1 ) = { { 48, 63 } };
 
     // set size and fill the set jacobian assembly map
-    tSet->mJacDofAssemblyMap.resize( 2 );
-    tSet->mJacDofAssemblyMap( 0 ) = { { 0, 47 }, { 48, 63 } };
-    tSet->mJacDofAssemblyMap( 1 ) = { { 0, 47 }, { 48, 63 } };
+    tIWGVelocity->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWGVelocity->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 47 }, { 48, 63 } };
+    tIWGVelocity->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 47 }, { 48, 63 } };
 
     // set size and init the set residual and jacobian
-    tSet->mResidual.resize( 1 );
-    tSet->mResidual( 0 ).set_size( 64, 1, 0.0 );
-    tSet->mJacobian.set_size( 64, 64, 0.0 );
+    tIWGVelocity->mSet->mResidual.resize( 1 );
+    tIWGVelocity->mSet->mResidual( 0 ).set_size( 64, 1, 0.0 );
+    tIWGVelocity->mSet->mJacobian.set_size( 64, 64, 0.0 );
 
     // build global dof type list
     tIWGVelocity->get_global_dof_type_list();
@@ -462,7 +462,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
     tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set the interpolator manager to the set
-    reinterpret_cast< fem::Set* >( tSet )->mMasterFIManager = &tFIManager;
+    tIWGVelocity->mSet->mMasterFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWGVelocity->set_field_interpolator_manager( &tFIManager );
@@ -471,8 +471,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
     // check evaluation of the residual/jacobian for IWG velocity
     //------------------------------------------------------------------------------
     // reset residual and jacobian
-    tSet->mResidual( 0 ).fill( 0.0 );
-    tSet->mJacobian.fill( 0.0 );
+    tIWGVelocity->mSet->mResidual( 0 ).fill( 0.0 );
+    tIWGVelocity->mSet->mJacobian.fill( 0.0 );
 
     // evaluate the residual
     tIWGVelocity->compute_residual( 1.0 );
@@ -494,8 +494,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
     // check evaluation of the residual/jacobian for IWG pressure
     //------------------------------------------------------------------------------
     // reset residual and jacobian
-    tSet->mResidual( 0 ).fill( 0.0 );
-    tSet->mJacobian.fill( 0.0 );
+    tIWGPressure->mSet->mResidual( 0 ).fill( 0.0 );
+    tIWGPressure->mSet->mJacobian.fill( 0.0 );
 
     // evaluate the residual
     tIWGPressure->compute_residual( 1.0 );
