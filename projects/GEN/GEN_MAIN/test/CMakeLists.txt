@@ -78,8 +78,6 @@ set(TEST_DEPENDENCIES
     ${MORIS_BASE_LIBS}
     )
 
-message(INFO "MORIS_BASE_LIBS = ${MORIS_BASE_LIBS}")
-
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
