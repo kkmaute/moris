@@ -85,6 +85,12 @@ namespace moris
              */
             void eval_testFlux();
 
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the divergence of the flux
+             */
+            void eval_divflux();
+
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model traction
@@ -109,6 +115,12 @@ namespace moris
              */
             void eval_strain();
 
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the divergence of the strain
+             */
+            void eval_divstrain();
+
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test strain
@@ -130,6 +142,12 @@ namespace moris
              * dFluxdDOF ( mSpaceDim x numDerDof )
              */
             void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the flux wrt dof type
+             */
+            void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -171,11 +189,15 @@ namespace moris
              */
             void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model matrix derivative wrt to a dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dConstdDOF ( 1 x numDerDof )
+             * evaluate the derivative of the divergence of the strain wrt dof type
+             */
+            void eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the divergence of the strain wrt dof type
              */
             void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
@@ -194,14 +216,6 @@ namespace moris
              * dStraindDV ( mSpaceDim x numDerDV )
              */
             void eval_dStraindDV( const moris::Cell< GEN_DV > & aDofTypes );
-
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the constitutive model matrix derivative wrt to a dv type
-             * @param[ in ] aDvTypes   a dv type wrt which the derivative is evaluated
-             * dConstdDV ( 1 x numDerDv )
-             */
-            void eval_dConstdDV( const moris::Cell< GEN_DV > & aDvTypes );
 
 //------------------------------------------------------------------------------
         };

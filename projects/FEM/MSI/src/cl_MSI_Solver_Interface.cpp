@@ -6,6 +6,7 @@
  */
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MDL_Model.hpp"
+#include "cl_MSI_Equation_Model.hpp"
 
 #include "cl_SOL_Dist_Vector.hpp"
 
@@ -46,6 +47,22 @@ namespace moris
                                                 const uint aTime )
     {
         mModel->output_solution( aOutputIndex, aTime );
+    }
+
+//------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_solution_vector( Dist_Vector * aSolutionVector )
+    {
+        mSolutionVector = aSolutionVector;
+        mMSI->mEquationModel->set_solution_vector( mSolutionVector );
+    }
+
+//------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+    {
+        mPrevSolutionVector = aSolutionVector;
+        mMSI->mEquationModel->set_solution_vector( mSolutionVector );
     }
 
 //-------------------------------------------------------------------------------------------------------

@@ -147,6 +147,9 @@ option(MORIS_USE_32BIT
 
 option(MORIS_HAVE_DEBUG
     "Use the debug version of the code." OFF )
+
+option(MORIS_USE_VALGRIND
+    "Use valgrind to run tests." OFF )
     
 option(USE_XTK "Have XTK Library" ON)	
 
@@ -731,10 +734,19 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	set(MORIS_TEST_PROCS 1 2 4)
 endif()
 
+if (MORIS_USE_VALGRIND)
+   set(VALGRIND "valgrind")
+   set(VALGRIND_OPTIONS "")
+else()
+   set(VALGRIND "")
+   set(VALGRIND_OPTIONS "")
+endif()
+
 # -------------------------------------------------------------------------
 # MORIS subpackages -------------------------------------------------------
 # -------------------------------------------------------------------------
 set(EXE_EXT ".exe")
+
 enable_testing()
 
 add_subdirectory(${SRC})

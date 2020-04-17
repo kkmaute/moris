@@ -132,32 +132,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * computes the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /*
-             * compute 'identity' matrix to define boundary conditions
-             */
-            void get_I( Matrix< DDRMat > & aI );
-//------------------------------------------------------------------------------
-            /*
-             * build jump vector
-             */
-            void build_jump( Matrix< DDRMat > & aJumpMat );
 //------------------------------------------------------------------------------
             /**
              * computes the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * computes the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 

@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
+ * cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
  *
- *  Created on: Sep 20, 2019
+ *  Created on: Oct 17, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_INTERFACE_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_INTERFACE_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_Diffusion_Virtual_Work_Ghost_HPP_
+#define SRC_FEM_CL_FEM_IWG_Diffusion_Virtual_Work_Ghost_HPP_
 
 #include <map>
 
@@ -25,17 +25,13 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Interface : public IWG
+        class IWG_Diffusion_Virtual_Work_Ghost : public IWG
         {
+            // order of Shape functions
+            uint mOrder;
 
+//------------------------------------------------------------------------------
         public:
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
 
             enum class IWG_Constitutive_Type
             {
@@ -48,9 +44,7 @@ namespace moris
 
             enum class IWG_Stabilization_Type
             {
-                NITSCHE_INTERFACE,
-                MASTER_WEIGHT_INTERFACE,
-                SLAVE_WEIGHT_INTERFACE,
+                GHOST_VW,
                 MAX_ENUM
             };
 
@@ -59,15 +53,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /*
-             * constructor
+             *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Interface();
+            IWG_Diffusion_Virtual_Work_Ghost();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Interface(){};
+            ~IWG_Diffusion_Virtual_Work_Ghost(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -82,7 +76,7 @@ namespace moris
             {
                 // check that aConstitutiveString makes sense
                 MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Interface::set_constitutive_model - Unknown aConstitutiveString." );
+                             "IWG_Diffusion_Virtual_Work_Ghost::set_constitutive_model - Unknown aConstitutiveString." );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -99,7 +93,7 @@ namespace moris
             {
                 // check that aConstitutiveString makes sense
                 MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Interface::set_stabilization_parameter - Unknown aStabilizationString." );
+                             "IWG_Diffusion_Virtual_Work_Ghost::set_stabilization_parameter - Unknown aStabilizationString." );
 
                 // set the stabilization parameter in the stabilization parameter cell
                 this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
@@ -108,22 +102,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 
@@ -135,9 +128,17 @@ namespace moris
             void compute_dRdp( real aWStar );
 
 //------------------------------------------------------------------------------
+            /**
+             * method to assemble "normal matrix" from normal vector needed for
+             * 2nd and 3rd order Ghost formulations
+             * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
+             */
+            Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_INTERFACE_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_Diffusion_Virtual_Work_Ghost_HPP_ */

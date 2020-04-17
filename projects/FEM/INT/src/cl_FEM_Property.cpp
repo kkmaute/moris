@@ -7,10 +7,62 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
+        void Property::set_parameters_and_functions( moris::Cell< moris::Matrix< DDRMat > > aParameters,
+                                                     PropertyFunc aValFunction,
+                                                     moris::Cell< PropertyFunc > aDofDerFunctions,
+                                                     moris::Cell< PropertyFunc > aDvDerFunctions )
+        {
+            mParameters      = aParameters;
+            mValFunction     = aValFunction;
+            mDofDerFunctions = aDofDerFunctions;
+            mDvDerFunctions  = aDvDerFunctions;
+
+            // set setting flag
+            mSetValFunction     = true;
+            mSetDofDerFunctions = true;
+            mSetDvDerFunctions  = true;
+        }
+
+//------------------------------------------------------------------------------
+        void Property::reset_eval_flags()
+        {
+            // reset the property value
+            mPropEval = true;
+
+            // reset the property derivatives wrt dof type
+            mPropDofDerEval.assign( mDofTypes.size(), true );
+
+            // reset the property derivatives wrt dv type
+            mPropDvDerEval.assign( mDvTypes.size(), true );
+        }
+
+//------------------------------------------------------------------------------
         void Property::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
         {
             // set field interpolator manager
             mFIManager = aFieldInterpolatorManager;
+        }
+
+//------------------------------------------------------------------------------
+        void Property::set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
+        {
+            // set dof type list
+            mDofTypes = aDofTypes;
+
+            // build dof type map
+            this->build_dof_type_map();
+
+            // number of dof types
+            uint tNumDofTypes = mDofTypes.size();
+
+            // set mDofDerFunctions size
+            mDofDerFunctions.assign( tNumDofTypes, nullptr );
+
+            // set mPropDofDerEval size
+            mPropDofDerEval.assign( tNumDofTypes, true );
+
+            // set mPropDofDer size
+            mPropDofDer.resize( tNumDofTypes );
         }
 
 //------------------------------------------------------------------------------
@@ -55,6 +107,28 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void Property::set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes )
+        {
+            // set dv type list
+            mDvTypes = aDvTypes;
+
+            // build a dv type map
+            this->build_dv_type_map();
+
+            // number of dv types
+            uint tNumDvTypes = mDvTypes.size();
+
+            // set mDvDerFunctions size
+            mDvDerFunctions.resize( tNumDvTypes, nullptr );
+
+            // set mPropDvDerEval size
+            mPropDvDerEval.assign( tNumDvTypes, true );
+
+            // set mPropdvDer size
+            mPropDvDer.resize( tNumDvTypes );
+        }
+
+//------------------------------------------------------------------------------
         void Property::build_dv_type_map()
         {
             // get number of dv types
@@ -96,6 +170,71 @@ namespace moris
             }
             // return bool for dependency
             return tDvDependency;
+        }
+
+//------------------------------------------------------------------------------
+        void Property::get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // init counter
+            uint tCounter = 0;
+
+            // loop over dof types
+            for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+            {
+                // update counter
+                tCounter += mDofTypes( iDOF ).size();
+            }
+
+            // reserve memory for dof type list
+            aDofTypes.reserve( tCounter );
+
+            // loop over dof types
+            for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+            {
+                // populate the dof type list
+                aDofTypes.append( mDofTypes( iDOF ) );
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Property::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                        moris::Cell< GEN_DV >  & aDvTypes )
+        {
+            // init counter
+            uint tDofCounter = 0;
+            uint tDvCounter  = 0;
+
+            // loop over dof types
+            for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
+            {
+                // update counter
+                tDofCounter += mDofTypes( iDof ).size();
+            }
+
+            // loop over dv types
+            for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
+            {
+                // update counter
+                tDvCounter += mDvTypes( iDv ).size();
+            }
+
+            // reserve memory for dof and dv type lists
+            aDofTypes.reserve( tDofCounter );
+            aDvTypes.reserve( tDvCounter );
+
+            // loop over dof types
+            for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
+            {
+                // populate the dof type list
+                aDofTypes.append( mDofTypes( iDof ) );
+            }
+
+            // loop over dv types
+            for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
+            {
+                // populate the dv type list
+                aDvTypes.append( mDvTypes( iDv ) );
+            }
         }
 
 //------------------------------------------------------------------------------

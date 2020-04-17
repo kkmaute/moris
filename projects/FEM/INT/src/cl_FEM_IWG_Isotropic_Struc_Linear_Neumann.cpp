@@ -48,7 +48,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
@@ -84,7 +84,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += - trans( tFI->N() ) * tPropNeumann->dPropdDOF( tDofType ) * tWStar;
+                    -= aWStar * ( trans( tFI->N() ) * tPropNeumann->dPropdDOF( tDofType ) );
                 }
             }
         }

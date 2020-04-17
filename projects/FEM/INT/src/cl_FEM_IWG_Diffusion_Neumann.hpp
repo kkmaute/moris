@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
+ * cl_FEM_IWG_Diffusion_Neumann.hpp
  *
  *  Created on: Mar 22, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_NEUMANN_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_NEUMANN_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_Diffusion_Neumann_HPP_
+#define SRC_FEM_CL_FEM_IWG_Diffusion_Neumann_HPP_
 
 #include <map>
 
@@ -25,7 +25,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Neumann : public IWG
+        class IWG_Diffusion_Neumann : public IWG
         {
 //------------------------------------------------------------------------------
         public:
@@ -38,33 +38,17 @@ namespace moris
             // Local string to property enum map
             std::map< std::string, IWG_Property_Type > mPropertyMap;
 
-            enum class IWG_Constitutive_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
-            enum class IWG_Stabilization_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
-
 //------------------------------------------------------------------------------
             /*
              * constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Neumann();
+            IWG_Diffusion_Neumann();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Neumann(){};
+            ~IWG_Diffusion_Neumann(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -79,11 +63,11 @@ namespace moris
             {
                 // check that aPropertyString makes sense
                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Neumann::set_property - Unknown aPropertyString." );
+                             "IWG_Diffusion_Neumann::set_property - Unknown aPropertyString." );
 
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Neumann::set_property - No slave allowed." );
+                             "IWG_Diffusion_Neumann::set_property - No slave allowed." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -123,4 +107,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_NEUMANN_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_Diffusion_Neumann_HPP_ */

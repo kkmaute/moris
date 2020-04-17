@@ -95,7 +95,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso" );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // set the normal
@@ -186,8 +186,6 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
-    tIWG->mResidualDofTypeRequested = true;
-
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
@@ -268,7 +266,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso" );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // set the normal
@@ -358,8 +356,6 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     tIWG->mSet->mResidual.resize( 1 );
     tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
-
-    tIWG->mResidualDofTypeRequested = true;
 
     // build global dof type list
     tIWG->get_global_dof_type_list();
@@ -445,7 +441,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso" );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // set the normal
@@ -535,8 +531,6 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
     tIWG->mSet->mResidual.resize( 1 );
     tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
-
-    tIWG->mResidualDofTypeRequested = true;
 
     // build global dof type list
     tIWG->get_global_dof_type_list();

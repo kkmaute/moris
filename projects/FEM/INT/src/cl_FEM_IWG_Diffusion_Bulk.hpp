@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp
+ * cl_FEM_IWG_Diffusion_Bulk.hpp
  *
  *  Created on: Mar 04, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_DIFFUSION_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_DIFFUSION_BULK_HPP_
 
 #include <map>
 #include "typedefs.hpp"                     //MRS/COR/src
@@ -23,7 +23,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Bulk : public IWG
+        class IWG_Diffusion_Bulk : public IWG
         {
 
 //------------------------------------------------------------------------------
@@ -31,7 +31,9 @@ namespace moris
 
             enum class IWG_Property_Type
             {
-                LOAD,
+                BODY_LOAD,
+                DENSITY,
+                HEAT_CAPACITY,
                 MAX_ENUM
             };
 
@@ -40,32 +42,24 @@ namespace moris
 
             enum class IWG_Constitutive_Type
             {
-                DIFF_LIN_ISO,
+                DIFFUSION,
                 MAX_ENUM
             };
 
             // Local string to constitutive enum map
             std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
-            enum class IWG_Stabilization_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
-
 //------------------------------------------------------------------------------
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Bulk();
+            IWG_Diffusion_Bulk();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Bulk(){};
+            ~IWG_Diffusion_Bulk(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -80,11 +74,11 @@ namespace moris
             {
                 // check that aPropertyString makes sense
                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - Unknown aPropertyString." );
+                             "IWG_Diffusion_Bulk::set_property - Unknown aPropertyString." );
 
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed." );
+                             "IWG_Diffusion_Bulk::set_property - No slave allowed." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -103,11 +97,11 @@ namespace moris
             {
                 // check that aConstitutiveString makes sense
                 MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
+                             "IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
 
                 // check no slave allowed
                 MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_constitutive_model - No slave allowed." );
+                             "IWG_Diffusion_Bulk::set_constitutive_model - No slave allowed." );
 
                 // set the constitutive model in the constitutive model cell
                 this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -116,24 +110,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r =
-             * @param[ in ] aResidual residual vector to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_residual( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j =
-             * @param[ in ] aJacobians list of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians list of jacobian matrices to fill
-             * @param[ in ] aResidual  residual vector to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 
@@ -150,4 +141,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_DIFFUSION_BULK_HPP_ */

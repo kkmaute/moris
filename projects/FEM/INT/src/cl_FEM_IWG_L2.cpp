@@ -70,20 +70,32 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            if( mResidualDofTypeRequested )
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
+            // loop over master dof type dependencies
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
-                // get the dof type indices for assembly
-                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
-                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+                // get the treated dof type
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // compute Jacobian
-                mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
-                += trans( tFI->N() ) * tFI->N() * aWStar;
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 1 );
 
-                // compute residual
-                mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
-                += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
-                 * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
+                // if residual dof type
+                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                {
+                    // compute Jacobian
+                    mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                    += aWStar * ( trans( tFI->N() ) * tFI->N() );
+
+                    // compute residual
+                    mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+                    += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                     * ( tFI->get_coeff() - mNodalWeakBCs );
+                }
             }
         }
 
@@ -106,20 +118,33 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            if( mResidualDofTypeRequested )
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
+            // loop over master dof type dependencies
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
-                // get the dof type indices for assembly
-                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
-                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+                // get the treated dof type
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // compute Jacobian
-                mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
-                += ( trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 1 );
 
-                // compute residual
-                mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
-                += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
-                 * ( tFI->get_coeff() - mNodalWeakBCs ) * aWStar;
+                // if residual dof type
+                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                {
+                    // compute Jacobian
+                    mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
+                                          { tDepStartIndex, tDepStopIndex } )
+                    += aWStar * ( trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) );
+
+                    // compute residual
+                    mSet->get_residual()(0)( { tResStartIndex, tResStopIndex }, { 0, 0 } )
+                    += mSet->get_jacobian()( { tResStartIndex, tResStopIndex }, { tDepStartIndex, tDepStopIndex } )
+                     * ( tFI->get_coeff() - mNodalWeakBCs );
+                }
             }
         }
 
@@ -148,16 +173,28 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            if( mResidualDofTypeRequested )
-            {
-                // get the dof type indices for assembly
-                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
-                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
-                // compute Jacobian
-                mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
-                                      { tDepStartIndex, tDepStopIndex } )
-                += trans( tFI->N() ) * tFI->N() * aWStar;
+            // loop over master dof type dependencies
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            {
+                // get the treated dof type
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 1 );
+
+                // if residual dof type
+                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                {
+                    // compute Jacobian
+                    mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
+                                          { tDepStartIndex, tDepStopIndex } )
+                    += trans( tFI->N() ) * tFI->N() * aWStar;
+                }
             }
         }
 
@@ -178,17 +215,29 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            if( mResidualDofTypeRequested )
-            {
-                // get the dof type indices for assembly
-                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 );
-                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 );
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
-                // compute Jacobian
-                mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
-                                      { tDepStartIndex, tDepStopIndex } )
-                += ( trans( tFI->N() ) * tFI->N()
-                + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+            // loop over master dof type dependencies
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            {
+                // get the treated dof type
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 0 );
+                uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofDepIndex, 1 );
+
+                // if residual dof type
+                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                {
+                    // compute Jacobian
+                    mSet->get_jacobian()( { tResStartIndex, tResStopIndex },
+                                          { tDepStartIndex, tDepStopIndex } )
+                    += ( trans( tFI->N() ) * tFI->N()
+                     + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+                }
             }
         }
 

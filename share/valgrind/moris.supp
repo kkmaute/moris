@@ -1,0 +1,28 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   ...
+   fun:_ZN5moris28load_matrix_from_binary_fileIN4arma3MatIdEEEEvRNS_6MatrixIT_EERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   ...
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr4
+   ...
+   fun:_ZN5moris28load_matrix_from_binary_fileIN4arma3MatIdEEEEvRNS_6MatrixIT_EERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   ...
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr2
+   ...
+   fun:_ZN5moris28load_matrix_from_binary_fileIN4arma3MatIdEEEEvRNS_6MatrixIT_EERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   ...
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:_Znwm
+   ...
+}

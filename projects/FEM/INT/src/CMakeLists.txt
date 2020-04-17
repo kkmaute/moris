@@ -27,12 +27,13 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
+    cl_FEM_IWG_Diffusion_Bulk.hpp
+    cl_FEM_IWG_Advection_Bulk.hpp
+    cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_Diffusion_Neumann.hpp
+    cl_FEM_IWG_Diffusion_Interface.hpp
+    cl_FEM_IWG_Diffusion_Ghost.hpp
+    cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
@@ -141,6 +142,7 @@ set(HEADERS
     cl_FEM_SP_Pressure_Ghost.hpp
     cl_FEM_SP_Time_Velocity_Ghost.hpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_SUPG_Advection.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -168,12 +170,13 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.cpp
+    cl_FEM_IWG_Diffusion_Bulk.cpp
+    cl_FEM_IWG_Advection_Bulk.cpp
+    cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
+    cl_FEM_IWG_Diffusion_Neumann.cpp
+    cl_FEM_IWG_Diffusion_Interface.cpp
+    cl_FEM_IWG_Diffusion_Ghost.cpp
+    cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.cpp
@@ -196,6 +199,7 @@ set(LIB_SOURCES
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Geometry_Interpolator.cpp
     cl_FEM_Field_Interpolator.cpp
+    cl_FEM_Field_Interpolator_Manager.cpp
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
@@ -220,6 +224,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Pressure_Ghost.cpp
     cl_FEM_SP_Time_Velocity_Ghost.cpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
+    cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp

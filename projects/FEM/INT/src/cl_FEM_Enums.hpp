@@ -88,6 +88,7 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
+            ADVECTION_BULK,
             SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE, // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
@@ -177,6 +178,7 @@ namespace moris
             PRESSURE_GHOST,
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
+            SUPG_ADVECTION,
             END_STABILIZATION_TYPE
         };
 

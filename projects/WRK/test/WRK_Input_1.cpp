@@ -206,7 +206,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( 3 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
     tParameterList( 3 )( 3 ).set( "dof_residual",               std::string("TEMP") );
     tParameterList( 3 )( 3 ).set( "master_dof_dependencies",    std::string("TEMP") );
-    tParameterList( 3 )( 3 ).set( "master_constitutive_models", std::string("CMDiffLinIso1,DiffLinIso") );
+    tParameterList( 3 )( 3 ).set( "master_constitutive_models", std::string("CMDiffLinIso1,Diffusion") );
     tParameterList( 3 )( 3 ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
     
     // create parameter list for IWG 5
@@ -215,7 +215,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( 4 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
     tParameterList( 3 )( 4 ).set( "dof_residual",               std::string("TEMP") );
     tParameterList( 3 )( 4 ).set( "master_dof_dependencies",    std::string("TEMP") );
-    tParameterList( 3 )( 4 ).set( "master_constitutive_models", std::string("CMDiffLinIso2,DiffLinIso") );
+    tParameterList( 3 )( 4 ).set( "master_constitutive_models", std::string("CMDiffLinIso2,Diffusion") );
     tParameterList( 3 )( 4 ).set( "mesh_set_names",             std::string("") );
 
     // create parameter list for IWG 6
@@ -225,7 +225,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( 5 ).set( "dof_residual",                    std::string("TEMP") );
     tParameterList( 3 )( 5 ).set( "master_dof_dependencies",         std::string("TEMP") );
     tParameterList( 3 )( 5 ).set( "master_properties",               std::string("PropDirichletTEMP,Dirichlet") );
-    tParameterList( 3 )( 5 ).set( "master_constitutive_models",      std::string("CMDiffLinIso2,DiffLinIso") );
+    tParameterList( 3 )( 5 ).set( "master_constitutive_models",      std::string("CMDiffLinIso2,Diffusion") );
     tParameterList( 3 )( 5 ).set( "stabilization_parameters",        std::string("SPDirichletNitscheTEMP,DirichletNitsche") );
     tParameterList( 3 )( 5 ).set( "mesh_set_names",                  std::string("SideSet_4_n_p1") );
     

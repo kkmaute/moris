@@ -24,6 +24,7 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
+            mPropertyMap[ "Select" ]    = IWG_Property_Type::SELECT;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -54,6 +55,25 @@ namespace moris
             // get the master field interpolator for the residual dof type
             Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get spatial dimension
+                uint tSpaceDim = tMasterFI->get_dof_type().size();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
+
             // get the imposed velocity property
             std::shared_ptr< Property > tPropVelocity
             = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
@@ -71,9 +91,9 @@ namespace moris
 
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar * ( - trans( tMasterFI->N() ) * tCMFluid->traction( mNormal )
-                          - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump
-                          + tSPNitsche->val()( 0 ) * trans( tMasterFI->N() ) * tVelocityJump );
+            += aWStar * ( - trans( tMasterFI->N() ) * tM *tCMFluid->traction( mNormal )
+                          - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
+                          + tSPNitsche->val()( 0 ) * trans( tMasterFI->N() ) * tM * tVelocityJump );
         }
 
 //------------------------------------------------------------------------------
@@ -91,6 +111,25 @@ namespace moris
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get spatial dimension
+                uint tSpaceDim = tMasterFI->get_dof_type().size();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
 
             // get the imposed velocity property
             std::shared_ptr< Property > tPropVelocity
@@ -127,8 +166,8 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tMasterFI->N()
-                                  + tSPNitsche->val()( 0 )  * trans( tMasterFI->N() ) * tMasterFI->N() );
+                    += aWStar * ( - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tMasterFI->N()
+                                  + tSPNitsche->val()( 0 )  * trans( tMasterFI->N() ) * tM * tMasterFI->N() );
                 }
 
                 // if imposed velocity depends on dof type
@@ -137,7 +176,7 @@ namespace moris
                     // add contribution from property to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= aWStar * ( tSPNitsche->val()( 0 ) * trans( tMasterFI->N() ) * tPropVelocity->dPropdDOF( tDofType ) );
+                    -= aWStar * ( tSPNitsche->val()( 0 ) * trans( tMasterFI->N() ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -146,8 +185,8 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( - trans( tMasterFI->N() ) * tCMFluid->dTractiondDOF( tDofType, mNormal )
-                                  - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
+                    += aWStar * ( - trans( tMasterFI->N() ) * tM * tCMFluid->dTractiondDOF( tDofType, mNormal )
+                                  - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
                 }
 
                 // if stabilization parameter depends on the dof type
@@ -156,7 +195,7 @@ namespace moris
                     // add contribution of SP to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( trans( tMasterFI->N() ) * tVelocityJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                    += aWStar * ( trans( tMasterFI->N() ) * tM * tVelocityJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
         }

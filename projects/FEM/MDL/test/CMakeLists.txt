@@ -96,7 +96,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${MDL_TEST_PROCS})
         set(MDL_PARALLEL_TEST ${MDL_TEST}-${PROCS}-procs)
         add_test(NAME ${MDL_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${MDL_TEST}>)
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${MDL_TEST}>)
     endforeach()
 endif()
 

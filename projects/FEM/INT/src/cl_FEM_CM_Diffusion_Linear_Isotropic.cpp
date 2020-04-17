@@ -6,6 +6,7 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
+#include "fn_sum.hpp"
 
 namespace moris
 {
@@ -16,10 +17,10 @@ namespace moris
         CM_Diffusion_Linear_Isotropic::CM_Diffusion_Linear_Isotropic()
         {
             // set the property pointer cell size
-            mProperties.resize( static_cast< uint >( CM_Diffusion_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
+            mProperties.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Conductivity" ] = CM_Diffusion_Linear_Isotropic::Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Conductivity" ] = Property_Type::CONDUCTIVITY;
 
             // populate dof map
             mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
@@ -28,9 +29,24 @@ namespace moris
 //------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic::eval_flux()
         {
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
             // compute flux
-            mFlux = this->constitutive()
+            mFlux = tPropConductivity->val()( 0 )
                   * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 );
+        }
+
+//------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_divflux()
+        {
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
+            // compute the divergence of the flux
+            mDivFlux = tPropConductivity->val() * this->divstrain();
         }
 
 //------------------------------------------------------------------------------
@@ -47,9 +63,13 @@ namespace moris
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
             // compute test traction
             mTestTraction( tTestDofIndex ) = trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
-                                           * this->constitutive() * aNormal;
+                                           * tPropConductivity->val()( 0 ) * aNormal;
         }
 
 //------------------------------------------------------------------------------
@@ -57,6 +77,17 @@ namespace moris
         {
             // compute strain
             mStrain = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 );
+        }
+
+//------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_divstrain()
+        {
+            // get the temperature gradient
+            Matrix< DDRMat > tTempGrad
+            = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 2 );
+
+            // evaluate the divergence of the strain
+            mDivStrain = sum( tTempGrad( { 0, mSpaceDim - 1 }, { 0, 0 } ) );
         }
 
 //------------------------------------------------------------------------------
@@ -86,11 +117,15 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ) = this->constitutive()
+                mdFluxdDof( tDofIndex ) = tPropConductivity->val()( 0 )
                                         * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
             }
             else
@@ -105,7 +140,64 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ).matrix_data()
                 += mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 )
-                 * mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->dPropdDOF( aDofTypes );
+                 * tPropConductivity->dPropdDOF( aDofTypes );
+            }
+        }
+
+//--------------------------------------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // set size for ddivflux/du
+            mddivfluxdu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
+            // if temperature dof
+            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
+            {
+                // fill ddivstrain/dv
+                mddivfluxdu( tDofIndex ).matrix_data() += tPropConductivity->val()( 0 ) * this->ddivstraindu( aDofTypes );
+            }
+
+            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
+            {
+                // fill ddivstrain/du
+                mddivfluxdu( tDofIndex ).matrix_data() += this->divstrain() * tPropConductivity->dPropdDOF( aDofTypes );
+            }
+        }
+
+//--------------------------------------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the dof type FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // set size for ddivstrain/du
+            mddivstraindu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
+            {
+                // get the 2nd order derivative of the shape functions d2Ndx2
+                Matrix< DDRMat > tTempd2Ndx2 = tFI->dnNdxn( 2 );
+
+                // fill ddivstrain/du
+                mddivstraindu( tDofIndex ) = tTempd2Ndx2.get_row( 0 ) + tTempd2Ndx2.get_row( 1 );
+
+                if( tTempd2Ndx2.n_rows() == 6 )
+                {
+                    mddivstraindu( tDofIndex ).matrix_data() += tTempd2Ndx2.get_row( 2 );
+                }
             }
         }
 
@@ -120,7 +212,7 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // compute derivative
-            mdTractiondDof( tDofIndex ) =  trans( aNormal ) * this->dFluxdDOF( aDofTypes );
+            mdTractiondDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes );
         }
 
 //------------------------------------------------------------------------------
@@ -137,10 +229,22 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
-            // compute derivative
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex )
-            = trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
-            * aNormal * this->dConstdDOF( aDofTypes );
+            // init the dTestTractiondDof
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
+                                                                       mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
+            // if conductivity depends on dof type
+            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
+            {
+                // add contribution
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data()
+                += trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
+                 * aNormal * tPropConductivity->dPropdDOF( aDofTypes );
+            }
         }
 
         void CM_Diffusion_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
@@ -157,10 +261,22 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
-            // compute derivative
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex )
-            = trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
-            * aNormal * this->dConstdDOF( aDofTypes );
+            // init the dTestTractiondDof
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
+                                                                       mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the conductivity property
+            std::shared_ptr< Property > tPropConductivity
+            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
+            // if conductivity depends on dof type
+            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
+            {
+                // add contribution
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data()
+                += trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
+                 * aNormal * tPropConductivity->dPropdDOF( aDofTypes );
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -215,12 +331,6 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_dStraindDV( const moris::Cell< GEN_DV > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented.");
-        }
-
-//------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dConstdDV( const moris::Cell< GEN_DV > & aDvTypes )
-        {
-            MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dConstdDV - This function is not implemented.");
         }
 
 //------------------------------------------------------------------------------

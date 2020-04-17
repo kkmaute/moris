@@ -49,14 +49,6 @@ namespace moris
             // Local string to constitutive enum map
             std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
-            enum class IWG_Stabilization_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
-
 //------------------------------------------------------------------------------
             /*
              * constructor
@@ -118,24 +110,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r =
-             * @param[ in ] aResidual residual vector to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j =
-             * @param[ in ] aJacobians list of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians list of jacobian matrices to fill
-             * @param[ in ] aResidual  residual vector to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 

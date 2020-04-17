@@ -69,9 +69,11 @@ class Dist_Vector;
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
+            //! actual pdof values
             moris::Cell< Matrix< DDRMat > > mPdofValues;
 
-            Dist_Vector * mSolVec = nullptr;
+            //! previous pdof values
+            moris::Cell< Matrix< DDRMat > > mPreviousPdofValues;
 
             moris::uint mEqnObjInd;
 
@@ -208,6 +210,14 @@ class Dist_Vector;
              */
             void compute_my_pdof_values( );
 
+            //-------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Compute function for the previous pdof values of this particular equation object
+             *
+             */
+            void compute_previous_pdof_values( );
+
 //-------------------------------------------------------------------------------------------------
 
             /**
@@ -223,6 +233,19 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            /**
+             * @brief Get function for the previous pdof values of this particular equation object.
+             * get_my_pdof_values() has to be called first to initialize.
+             * @param[in] aRequestedDofTypes      List of requested dof types
+             * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             * @param[ in ] aIsMaster             enum for master or slave
+             */
+            void get_previous_pdof_values( const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
+                                                 Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
+                                            const mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
+
+//-------------------------------------------------------------------------------------------------
+
             void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
                                             Matrix< DDRMat >         & aReshapedPdofValues );
 
@@ -232,13 +255,11 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
-                                       Dist_Vector      * aSolutionVector );
+            void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix );
 
 //-------------------------------------------------------------------------------------------------
 
-            void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS,
-                                            Dist_Vector              * aSolutionVector );
+            void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
 //-------------------------------------------------------------------------------------------------
 

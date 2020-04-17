@@ -131,12 +131,14 @@ namespace moris
                 {
                     // create a fem set
                     mFemSets( iSet ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
+                    mFemSets( iSet )->set_equation_model( this );
                 }
                 // if empty mesh set
                 else
                 {
                     // create an empty fem set
                     mFemSets( iSet ) = new fem::Set();
+                    mFemSets( iSet )->set_equation_model( this );
                 }
 
                 // collect equation objects associated with the set
@@ -262,12 +264,16 @@ namespace moris
                 {
                     // create new fem set
                     mFemSets( iSet ) = new fem::Set( this, tMeshSet, mSetInfo( iSet ), mIPNodes );
+
+                    mFemSets( iSet )->set_equation_model( this );
                 }
                 // if empty mesh set
                 else
                 {
                     // create an empty fem set
                     mFemSets( iSet ) = new fem::Set();
+
+                    mFemSets( iSet )->set_equation_model( this );
                 }
 
                 // collect equation objects associated with the set
@@ -582,12 +588,14 @@ namespace moris
                 mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set slave dof dependencies
+                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tSlaveDofTypes;
                 string_to_cell_of_cell( std::get< 0 >( tSPParameterList( iSP ).get< std::pair< std::string, std::string > >( "slave_dof_dependencies" ) ),
-                                        tDofTypes,
+                                        tSlaveDofTypes,
                                         aMSIDofTypeMap );
+                moris::Cell< std::string > tSlaveDofTypeNames;
                 string_to_cell( std::get< 1 >( tSPParameterList( iSP ).get< std::pair< std::string, std::string > >( "slave_dof_dependencies" ) ),
-                                tDofTypeNames );
-                mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, mtk::Master_Slave::SLAVE );
+                                tSlaveDofTypeNames );
+                mSPs( iSP )->set_dof_type_list( tSlaveDofTypes, tSlaveDofTypeNames, mtk::Master_Slave::SLAVE );
 
                 // set master dv dependencies
                 moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
@@ -600,12 +608,14 @@ namespace moris
                 mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames );
 
                 // set slave dof dependencies
+                moris::Cell< moris::Cell< GEN_DV > > tSlaveDvTypes;
                 string_to_cell_of_cell( std::get< 0 >( tSPParameterList( iSP ).get< std::pair< std::string, std::string > >( "slave_dv_dependencies" ) ),
-                                        tDvTypes,
+                                        tSlaveDvTypes,
                                         aDvTypeMap );
+                moris::Cell< std::string > tSlaveDvTypeNames;
                 string_to_cell( std::get< 1 >( tSPParameterList( iSP ).get< std::pair< std::string, std::string > >( "slave_dv_dependencies" ) ),
-                                tDvTypeNames );
-                mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, mtk::Master_Slave::SLAVE );
+                                tSlaveDvTypeNames );
+                mSPs( iSP )->set_dv_type_list( tSlaveDvTypes, tSlaveDvTypeNames, mtk::Master_Slave::SLAVE );
 
                 // set master properties
                 moris::Cell< moris::Cell< std::string > > tMasterPropertyNamesPair;
@@ -715,10 +725,11 @@ namespace moris
                 mIWGs( iIWG )->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
 
                 // set slave dof dependencies
+                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tSlaveDofTypes;
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "slave_dof_dependencies" ),
-                                        tDofTypes,
+                                        tSlaveDofTypes,
                                         aMSIDofTypeMap );
-                mIWGs( iIWG )->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
+                mIWGs( iIWG )->set_dof_type_list( tSlaveDofTypes, mtk::Master_Slave::SLAVE );
 
                 // set master dv dependencies
                 moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
@@ -728,10 +739,11 @@ namespace moris
                 mIWGs( iIWG )->set_dv_type_list( tDvTypes, mtk::Master_Slave::MASTER );
 
                 // set slave dv dependencies
+                moris::Cell< moris::Cell< GEN_DV > > tSlaveDvTypes;
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "slave_dv_dependencies" ),
-                                        tDvTypes,
+                                        tSlaveDvTypes,
                                         aDvTypeMap );
-                mIWGs( iIWG )->set_dv_type_list( tDvTypes, mtk::Master_Slave::SLAVE );
+                mIWGs( iIWG )->set_dv_type_list( tSlaveDvTypes, mtk::Master_Slave::SLAVE );
 
                 // set master properties
                 moris::Cell< moris::Cell< std::string > > tMasterPropertyNamesPair;

@@ -58,20 +58,20 @@ namespace moris
 
         void compute_residual()
         {
-            Matrix< DDRMat > tTMatrix;
-            this->build_PADofMap( tTMatrix );
-
-            moris::Cell< Matrix< DDRMat > > tMyValues;
-
-            mSolVec->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
-
-            for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
-            {
-                tMyValues( Ik ) = tTMatrix * tMyValues( Ik );
-            }
-
-            mElementBlock->mResidual.resize( 1 );
-            mElementBlock->mResidual( 0 ) = mFunction( tMyValues( 0 ), mEqnObjInd );
+//            Matrix< DDRMat > tTMatrix;
+//            this->build_PADofMap( tTMatrix );
+//
+//            moris::Cell< Matrix< DDRMat > > tMyValues;
+//
+//            mSolVec->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
+//
+//            for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+//            {
+//                tMyValues( Ik ) = tTMatrix * tMyValues( Ik );
+//            }
+//
+//            mElementBlock->mResidual.resize( 1 );
+//            mElementBlock->mResidual( 0 ) = mFunction( tMyValues( 0 ), mEqnObjInd );
         };
     };
 

@@ -344,13 +344,13 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -705,13 +705,13 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -1101,18 +1101,18 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulkB = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkB->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -1127,8 +1127,8 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
         tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
         tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::SLAVE );
 
         // create the IQIs
         //------------------------------------------------------------------------------
@@ -1511,18 +1511,18 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulkB = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkB->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -1537,8 +1537,8 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
         tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
         tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::SLAVE );
 
         // create the IQIs
         //------------------------------------------------------------------------------

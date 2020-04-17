@@ -14,6 +14,7 @@
 #include "cl_FEM_SP_Pressure_Ghost.hpp"
 #include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
 #include "cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_SP_SUPG_Advection.hpp"
 
 namespace moris
 {
@@ -63,6 +64,9 @@ namespace moris
 
                 case ( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ):
                     return std::make_shared< SP_Velocity_Dirichlet_Nitsche >();
+
+                case ( fem::Stabilization_Type::SUPG_ADVECTION ):
+                    return std::make_shared< SP_SUPG_Advection >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

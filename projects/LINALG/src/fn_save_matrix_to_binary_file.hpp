@@ -24,10 +24,9 @@ namespace moris
     void
     save_matrix_to_binary_file(
             const Matrix< Matrix_Type > & aMatrix,
-            const std::string                  & aFilePath )
+            const std::string           & aFilePath )
     {
         typedef typename Matrix< Matrix_Type >::Data_Type Type;
-
 
         // size of buffer in bit
         const uint tSizeOfBuffer = 512 * 1024 * 8;
@@ -61,7 +60,7 @@ namespace moris
         tFile.write( ( char* ) &tNumberOfCols, sizeof( uint ) );
 
         // create buffer
-        Type tBuffer[tNumberOfSamplesInBuffer];
+        std::vector< Type > tBuffer(tNumberOfSamplesInBuffer);
 
         // counter for buffer data
         uint tCount = 0;

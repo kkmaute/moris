@@ -21,6 +21,14 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void SP_Reciprocal_Total_Volume::reset_cluster_measures()
+        {
+            // evaluate cluster measures from the cluster
+            mMasterVolume     = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
+            mSlaveVolume      = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Master_Slave::SLAVE );
+        }
+
+//------------------------------------------------------------------------------
         void SP_Reciprocal_Total_Volume::eval_SP()
         {
             mPPVal.set_size( 1, 1 );

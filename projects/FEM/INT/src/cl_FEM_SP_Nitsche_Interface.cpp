@@ -24,6 +24,18 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void SP_Nitsche_Interface::reset_cluster_measures()
+        {
+            // evaluate cluster measures from the cluster
+            mMasterVolume     = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP,
+                                                                        mtk::Master_Slave::MASTER );
+            mSlaveVolume      = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP,
+                                                                        mtk::Master_Slave::SLAVE );
+            mInterfaceSurface = mCluster->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY,
+                                                                             mtk::Master_Slave::MASTER );
+        }
+
+//------------------------------------------------------------------------------
         void SP_Nitsche_Interface::eval_SP()
         {
             // compute stabilization parameter value
