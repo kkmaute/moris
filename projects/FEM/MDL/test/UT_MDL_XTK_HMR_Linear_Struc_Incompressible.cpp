@@ -86,7 +86,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 //PRM/src
 #include "cl_PRM_HMR_Parameters.hpp"
 
@@ -228,10 +228,11 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Circle tCircle( 0.4501, 0.0, 0.0 );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;
@@ -581,10 +582,11 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Sphere tSphere( 0.4501, 10.0, 0.0, 0.0 );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Sphere>(10.0, 0.0, 0.0, 0.4501);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere, tPhaseTable, 2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 

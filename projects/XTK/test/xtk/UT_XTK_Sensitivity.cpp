@@ -25,7 +25,6 @@
 #include "cl_Cell.hpp"
 
 #include "geometry/cl_Discrete_Level_Set.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_Mesh_Enums.hpp"
@@ -104,14 +103,17 @@ namespace xtk
 
 
               // set  up the geometry/geometry engine
-              moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,tScalarFieldNames);
-              moris::ge::GEN_Phase_Table        tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-              moris::ge::GEN_Geometry_Engine    tGEIn( tLevelSetMesh, tPhaseTable );
+              Cell<std::shared_ptr<ge::Geometry_Discrete>> tGeometry(1);
+              tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tScalarFieldNames(0)));
+
+              moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+              moris::ge::GEN_Geometry_Engine tGEIn(tGeometry, tPhaseTable,2);
               tGEIn.mComputeDxDp = true;
               tGEIn.mThresholdValue = 0.0;
+
               // Setup XTK Model -----------------------------
               size_t tModelDimension = 3;
-              Model tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),&tGEIn);
+              Model tXTKModel(tModelDimension,tMeshData,&tGEIn);
               tXTKModel.mSameMesh = true;
 
               //Specify your decomposition methods and start cutting

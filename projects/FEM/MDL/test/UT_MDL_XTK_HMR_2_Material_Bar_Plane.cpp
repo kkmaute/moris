@@ -74,8 +74,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 moris::real
 Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -168,12 +167,11 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom(tPlaneField);
-
-        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 
         size_t tModelDimension = 2;
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
         xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;

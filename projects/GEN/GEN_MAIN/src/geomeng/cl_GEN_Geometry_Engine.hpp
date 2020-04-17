@@ -139,13 +139,26 @@ namespace moris
             GEN_Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists);
 
             /**
-             * Constructor using explicitly created geometries and phase table
+             * Constructor using explicitly created analytic geometries and phase table
              *
              * @param[ in ] aGeometry cell of shared Geometry pointers
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
             GEN_Geometry_Engine(Cell< std::shared_ptr<Geometry_Analytic> >   aGeometry,
+                                Phase_Table                         aPhaseTable,
+                                uint                                aSpatialDim = 3,
+                                real                                aThresholdValue = 0.0,
+                                real                                aPerturbationValue = 1E-6);
+
+            /**
+             * Constructor using explicitly created discrete geometries and phase table
+             *
+             * @param[ in ] aGeometry cell of shared Geometry pointers
+             * @param[ in ] aPhaseTable phase table
+             * @param[ in ] aSpatialDim spatial dimensions
+             */
+            GEN_Geometry_Engine(Cell< std::shared_ptr<Geometry_Discrete> >   aGeometry,
                                 Phase_Table                         aPhaseTable,
                                 uint                                aSpatialDim = 3,
                                 real                                aThresholdValue = 0.0,

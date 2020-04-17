@@ -10,7 +10,6 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
 #include "cl_Sphere.hpp"
 #include "cl_MPI_Tools.hpp"
 #include "fn_trans.hpp"
@@ -536,9 +535,11 @@ TEST_CASE("Regular Subdivision Method Parallel","[REG_SUB_PARALLEL]")
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 2.0;
-    moris::ge::Sphere  tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+    tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+
+    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x2x4";
@@ -571,9 +572,11 @@ TEST_CASE("Regular Subdivision and Node Hierarchy Method Parallel","[CONF_PARALL
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 2.0;
-    moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+    tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+
+    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";

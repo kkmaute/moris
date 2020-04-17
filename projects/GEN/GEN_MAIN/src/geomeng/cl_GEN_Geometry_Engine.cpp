@@ -47,17 +47,33 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry_Analytic>>     aGeometry,
-        Phase_Table                                 aPhaseTable,
-                uint                                aSpatialDim,
-                real                                aThresholdValue,
-                real                                aPerturbationValue)
-                            : mThresholdValue(aThresholdValue),
-                              mPerturbationValue(aPerturbationValue),
-                              mSpatialDim(aSpatialDim),
-                              mActiveGeometryIndex(0),
-                              mGeometryAnalytic(aGeometry),
-                              mPhaseTable(aPhaseTable)
+        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry_Analytic>>   aGeometry,
+                                                 Phase_Table                                aPhaseTable,
+                                                 uint                                       aSpatialDim,
+                                                 real                                       aThresholdValue,
+                                                 real                                       aPerturbationValue)
+            : mThresholdValue(aThresholdValue),
+              mPerturbationValue(aPerturbationValue),
+              mSpatialDim(aSpatialDim),
+              mActiveGeometryIndex(0),
+              mGeometryAnalytic(aGeometry),
+              mPhaseTable(aPhaseTable)
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry_Discrete>>   aGeometry,
+                                                 Phase_Table                                aPhaseTable,
+                                                 uint                                       aSpatialDim,
+                                                 real                                       aThresholdValue,
+                                                 real                                       aPerturbationValue)
+            : mThresholdValue(aThresholdValue),
+              mPerturbationValue(aPerturbationValue),
+              mSpatialDim(aSpatialDim),
+              mActiveGeometryIndex(0),
+              mGeometryDiscrete(aGeometry),
+              mPhaseTable(aPhaseTable)
         {
         }
         
@@ -602,12 +618,19 @@ namespace moris
         
             return tPhaseOnOff;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris::size_t GEN_Geometry_Engine::get_num_geometries()
+        {
+            return mGeometryAnalytic.size() + mGeometryDiscrete.size();
+        }
         
         //--------------------------------------------------------------------------------------------------------------
         
         bool GEN_Geometry_Engine::is_geometry_analytic()
         {
-            return true; //ActiveGeometry().is_analytic();
+            return (mActiveGeometryIndex < mGeometryAnalytic.size());
         }
         
         //--------------------------------------------------------------------------------------------------------------
@@ -773,9 +796,19 @@ namespace moris
         Geometry_Analytic &
         GEN_Geometry_Engine::ActiveGeometry() const
         {
-            return (*mGeometryAnalytic(mActiveGeometryIndex));
+            uint tNumAnalyticGeometries = mGeometryAnalytic.size();
+            if (mActiveGeometryIndex < tNumAnalyticGeometries)
+            {
+                return (*mGeometryAnalytic(mActiveGeometryIndex));
+            }
+            else
+            {
+                return (*mGeometryAnalytic(mActiveGeometryIndex - tNumAnalyticGeometries));
+            }
         }
+
         //--------------------------------------------------------------------------------------------------------------
+
         bool
         GEN_Geometry_Engine::compute_intersection_info( moris::moris_index               const & aEntityIndex,
                                                         moris::Matrix< moris::IndexMat > const & aEntityNodeInds,

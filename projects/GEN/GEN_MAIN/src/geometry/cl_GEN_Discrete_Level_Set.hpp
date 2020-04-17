@@ -2,6 +2,7 @@
 #define MORIS_CL_GEN_DISCRETE_LEVEL_SET_HPP
 
 #include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
@@ -14,7 +15,7 @@ namespace moris
         private:
             size_t mActiveFieldIndex = 0;
             Cell<std::string> mFieldNames;
-            Interpolation_Mesh* mMesh;
+            moris::mtk::Interpolation_Mesh* mMesh;
             EntityRank mEntityRank;
 
         public:
@@ -25,7 +26,7 @@ namespace moris
              * @param aFieldNames Names of the fields
              */
             Discrete_Level_Set(moris::mtk::Interpolation_Mesh* aMeshWithLevelSetFields,
-                    moris::Cell<std::string> const & aFieldNames, aEntityRank = EntityRank::NODE);
+                    moris::Cell<std::string> const & aFieldNames, EntityRank aEntityRank = EntityRank::NODE);
 
             /**
              * Given an index, the discrete geometry needs to return a field value.

@@ -13,7 +13,7 @@ namespace moris
 
         Discrete_Level_Set::Discrete_Level_Set(moris::mtk::Interpolation_Mesh* aMesh,
                 moris::Cell<std::string> const & aFieldNames, EntityRank aEntityRank)
-                : Geometry_Discrete(Matrix<DDRMat>(1, 1, 0.0)),
+                : Geometry_Discrete(Matrix<DDRMat>(1, 1, 0.0))
         {
             mFieldNames = aFieldNames;
             mMesh = aMesh;
@@ -22,17 +22,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Discrete_Level_Set::evaluate_field_value(moris_index aEntityIndex);
+        real Discrete_Level_Set::evaluate_field_value(moris_index aEntityIndex)
         {
-            std::string tActiveFieldName = mLevelSetFieldNames(mActiveFieldIndex);
-            return mLevelSetMesh->get_entity_field_value_real_scalar({{aEntityIndex}}, tActiveFieldName, mEntityRank;
+            std::string tActiveFieldName = mFieldNames(mActiveFieldIndex);
+            return mMesh->get_entity_field_value_real_scalar({{aEntityIndex}}, tActiveFieldName, mEntityRank)(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Discrete_Level_Set::evaluate_sensitivity(moris_index aEntityIndex);
+        Matrix<DDRMat> Discrete_Level_Set::evaluate_sensitivity(moris_index aEntityIndex)
         {
-            MORIS_ERROR(false, "evaluate_sensitivity_dx_dp function is not implemented in level set mesh"); //TODO: Implement this function
+            MORIS_ERROR(false, "evaluate_sensitivity function is not implemented in level set mesh"); //TODO: Implement this function
 
             moris::Matrix< moris::DDRMat > tSensitivityDxDp(1,1,0);
             return tSensitivityDxDp;

@@ -20,10 +20,7 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              */
-            Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-            : Geometry_Analytic(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
-            {
-            }
+            Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters);
 
             /**
              * Constructor with only constant parameters
@@ -32,9 +29,7 @@ namespace moris
              * @param aYCenter y-coordiante of the center of the circle
              * @param aRadius radius of the circle
              */
-            Circle(real aXCenter, real aYCenter, real aRadius) : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
-            {
-            }
+            Circle(real aXCenter, real aYCenter, real aRadius);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

@@ -7,7 +7,6 @@
 //------------------------------------------------------------------------------
 
 // moris core includes
-#include "cl_GE_Core.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -27,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 // geometry engine
-//#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -35,14 +33,14 @@
 //------------------------------------------------------------------------------
 // XTK
 #include "cl_XTK_Model.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
 #include "xtk_typedefs.hpp"
 #include "cl_Geom_Field.hpp"
 #include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_Phase_Table.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
@@ -89,9 +87,9 @@ main(
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
 
-    moris::uint tBplineOrder = 1;
+//    moris::uint tBplineOrder = 1;
     moris::uint tLagrangeOrder = 1;
-    moris::uint tMyCoeff = 1;
+//    moris::uint tMyCoeff = 1;
 
     moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
@@ -133,14 +131,11 @@ main(
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
 
-    moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
-//    xtk::Geom_Field tFieldAsGeom2(tField2);
-
-        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
-
+    moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometryVector(1);
+    tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
     moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
 

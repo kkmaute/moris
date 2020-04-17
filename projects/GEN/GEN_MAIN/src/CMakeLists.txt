@@ -36,9 +36,9 @@ set(HEADERS
 	geometry/cl_GEN_Geometry_Discrete.hpp
 	geometry/cl_GEN_Circle.hpp
 #	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
-#	geometry/cl_GEN_Discrete_Level_Set.hpp
+	geometry/cl_GEN_Discrete_Level_Set.hpp
 #	geometry/cl_GEN_Geom_Data.hpp
-#	geometry/cl_GEN_Geom_Field_HMR.hpp
+	geometry/cl_GEN_Geometry_Field_HMR.hpp
 #	geometry/cl_GEN_Geom_Field.hpp
 #	geometry/cl_GEN_Sphere.hpp
 #	geometry/fn_bounding_box.hpp
@@ -104,11 +104,8 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
-    cl_GE_Factory.cpp
-    cl_GE_PDV_Info.cpp
-
 	additional/cl_GEN_Phase_Table.cpp
-    
+
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp
 
@@ -116,6 +113,8 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Geometry_Discrete.cpp
 	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Circle.cpp
+	geometry/cl_GEN_Plane.cpp
+	geometry/cl_GEN_Discrete_Level_Set.cpp
 	
 	property/cl_GEN_Property.cpp
 	
@@ -134,9 +133,6 @@ set(LIB_DEPENDENCIES
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
-
-
-
 
 # Create library
 add_library(${GEN_MAIN}-lib STATIC ${LIB_SOURCES})

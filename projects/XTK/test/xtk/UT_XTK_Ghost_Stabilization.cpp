@@ -13,11 +13,9 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Plane.hpp"
-//#include "cl_MGE_Geometry_Engine.hpp"
-//
-//#include "cl_Plane.hpp"
+
 #include "cl_Mesh_Factory.hpp"
 
 namespace xtk
@@ -29,10 +27,12 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     {
     moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
     moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
-    moris::ge::Plane<3> tPlane(tCenters,tNormals);
 
-    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+    Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+    tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
+
+    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x8|sideset:z";

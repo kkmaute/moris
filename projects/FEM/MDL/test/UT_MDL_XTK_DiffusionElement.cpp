@@ -94,10 +94,11 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
     {
         moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
         moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-        moris::ge::Plane<3> tPlane(tCenters,tNormals);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(1) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 
         moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         // Initialize field information container
         mtk::MtkFieldsInfo tFieldsInfo;
@@ -368,9 +369,12 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
     {
         Matrix<DDRMat> tCenter = {{1.0,1.0,3.51}};
         Matrix<DDRMat> tNorms  = {{0.0,0.0,1.0}};
-        ge::Plane<3> tPlane(tCenter,tNorms);
-        ge::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+
+        moris::Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometryVector(1);
+        tGeometryVector(0) = std::make_shared<moris::ge::Plane>(tCenter(0), tCenter(1), tCenter(2), tNorms(0), tNorms(1), tNorms(2));
+
+        ge::Phase_Table tPhaseTable (1,  ge::Phase_Table_Structure::EXP_BASE_2);
+        ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
 
         // Initialize field information container
         mtk::MtkFieldsInfo tFieldsInfo;

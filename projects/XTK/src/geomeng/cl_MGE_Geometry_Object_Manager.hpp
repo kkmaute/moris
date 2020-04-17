@@ -10,7 +10,6 @@
 
 #include <unordered_map>
 
-
 #include"cl_Matrix.hpp"
 
 namespace xtk

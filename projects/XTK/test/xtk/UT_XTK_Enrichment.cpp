@@ -96,10 +96,11 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
-        moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+        moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
 
-        moris::ge::GEN_Phase_Table     tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+        moris::ge::Phase_Table     tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;
@@ -227,10 +228,11 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
-        moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+        moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+        moris::ge::Phase_Table     tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;

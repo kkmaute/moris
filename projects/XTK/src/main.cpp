@@ -27,7 +27,6 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Output_Options.hpp"
 #include "cl_XTK_Enums.hpp"
-#include "cl_Discrete_Level_Set.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "typedefs.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
@@ -39,11 +38,6 @@
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Sphere_Box.hpp"
-
-//#include "cl_GEN_Geometry.hpp"
-//#include "cl_GEN_Plane.hpp"
-//#include "cl_GEN_Sphere.hpp"
-//#include "cl_GEN_Sphere_Box.hpp"
 
 // select namespaces
 using namespace moris;
@@ -70,7 +64,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
   enum Geometry_Type tGeomType = aXTKProblemParams.mGeometryType;
 
-  moris::ge::Geometry* tGeometry = nullptr;
+  moris::ge::Geometry_Analytic* tGeometry = nullptr;
   switch (tGeomType)
   {
     case Geometry_Type::SPHERE:
@@ -136,7 +130,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
         tNormals(2) = aXTKProblemParams.mRealGeomParams(tPos);
 
-        tGeometry = new moris::ge::Plane<3>(tCenters,tNormals);
+        tGeometry = new moris::ge::Plane(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 
         break;
     }
@@ -238,9 +232,9 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
          // setup the geometry
          //TODO: support multiple geometries
          tOpTimer = std::clock();
-         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry;
+         Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry;
          tGeometry.resize(1);
-         tGeometry(0) = std::shared_ptr<moris::ge::Geometry>(geometry_parse_factory(aXTKProblemParams));
+         tGeometry(0) = std::shared_ptr<moris::ge::Geometry_Analytic>(geometry_parse_factory(aXTKProblemParams));
          tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
           // setup the geometry engine

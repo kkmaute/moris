@@ -13,7 +13,8 @@ namespace moris
 
         enum class Phase_Table_Structure
         {
-            EXP_BASE_2
+            EXP_BASE_2,
+            INVALID
         };
 
         //--------------------------------------------------------------------------------------------------------------
@@ -33,9 +34,27 @@ namespace moris
              * @param aStructure Phase table structure
              * @param aPhaseNames (optional) Phase names
              */
-            Phase_Table(std::string aStructure, Cell<std::string> aPhaseNames);
+            Phase_Table(Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames);
 
         public:
+            /**
+             * Constructor with explicitly defined phase table
+             *
+             * @param aPhaseTable Explicit phase table
+             * @param aStructure Phase table structure
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(Matrix<IndexMat> aPhaseTable, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames = {});
+
+            /**
+             * Constructor for phase table built on structure
+             *
+             * @param aNumPhi Number of fields
+             * @param aStructure Phase table structure
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(uint aNumPhi, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames = {});
+
             /**
              * Constructor with explicitly defined phase table
              *
@@ -100,6 +119,14 @@ namespace moris
              * Set all of the phases to have default names (p_i)
              */
             void set_default_phase_names();
+
+            /**
+             * Gets the phase table structure enum from the corresponding string
+             *
+             * @param aStringStructure string defining the phase table structure
+             * @return Phase_Table_Structure enum
+             */
+            Phase_Table_Structure get_phase_table_structure(std::string aStringStructure);
 
         };
     }

@@ -74,9 +74,9 @@
 //GEN
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include <functional>
-#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field_HMR.hpp"
+#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
 {
@@ -209,14 +209,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 
         for( uint k = 0; k < tNumRef; k++ )
         {
-            moris::ge::Plane< 2 > tPlane00( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane01( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane02( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-            moris::ge::Plane< 2 > tPlane03( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
-            moris::Cell< moris::ge::Geometry_Analytic* > tGeomVec = {&tPlane00, &tPlane01, &tPlane02, &tPlane03 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+            tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+            tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+            tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+            tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+            moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::GEN_Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -257,17 +257,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Plane< 2 > tPlane0( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane1( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane2( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-        moris::ge::Plane< 2 > tPlane3( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+        tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+        tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+        tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+        tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-        // NOTE the order of this geometry vector is important.
-        // If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec0 = {&tPlane0, &tPlane1, &tPlane2, &tPlane3 };
-
-        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -641,14 +638,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         for( uint k = 0; k < tNumRef; k++ )
         {
-            moris::ge::Plane< 2 > tPlane00( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane01( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane02( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-            moris::ge::Plane< 2 > tPlane03( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
-            moris::Cell< moris::ge::Geometry_Analytic* > tGeomVec = {&tPlane00, &tPlane01, &tPlane02, &tPlane03 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+            tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+            tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+            tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+            tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+            moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::GEN_Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tModelDimension);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -690,17 +687,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Plane< 2 > tPlane0( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane1( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane2( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-        moris::ge::Plane< 2 > tPlane3( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+        tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+        tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+        tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+        tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-        // NOTE the order of this geometry vector is important.
-        // If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec0 = {&tPlane0, &tPlane1, &tPlane2, &tPlane3 };
-
-        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, tModelDimension);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -2441,12 +2435,12 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // loop over refinement
         for( uint k=0; k<tNumRef; ++k )
         {
-            moris::ge::Circle tCircle0( tROut, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle1( tRIn, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec = {&tCircle0, &tCircle1 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
+            tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+            moris::ge::Phase_Table     tPhaseTable( tGeometry.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable,2 );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -2481,15 +2475,13 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Circle tCircle2( tROut, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle3( tRIn, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec0 = {&tCircle2, &tCircle3 };
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(1);
+        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
+        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 
         size_t tModelDimension = 2;
-        moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );

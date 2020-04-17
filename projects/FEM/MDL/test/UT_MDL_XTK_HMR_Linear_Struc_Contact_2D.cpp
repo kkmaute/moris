@@ -72,7 +72,7 @@
 
 #include <functional>
 
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
 {
@@ -277,21 +277,19 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
-          moris::ge::GEN_Geom_Field_HMR tLeftPlaneForGE(tLeftField);
-          moris::ge::GEN_Geom_Field_HMR tRightPlaneForGE(tRightField);
-//          moris::ge::GEN_Geom_Field tMidPlaneForGE(tMidField);
-          moris::ge::GEN_Geom_Field_HMR tTopPlaneForGE(tTopField);
-          moris::ge::GEN_Geom_Field_HMR tBottomPlaneForGE(tBottomField);
 
-          // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-//          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tLeftPlaneForGE , & tRightPlaneForGE , &tTopPlaneForGE, &tBottomPlaneForGE, & tMidPlaneForGE};
-          moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tLeftPlaneForGE , & tRightPlaneForGE , &tTopPlaneForGE, &tBottomPlaneForGE};
+        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
+        moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometryVector(4);
+        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tLeftField);
+        tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tRightField);
+        tGeometryVector(2) = std::make_shared<moris::ge::Geometry_Field_HMR>(tTopField);
+        tGeometryVector(3) = std::make_shared<moris::ge::Geometry_Field_HMR>(tBottomField);
 
-          size_t tModelDimension = 2;
-          moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
-          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
-          tXTKModel.mVerbose = false;
+        size_t tModelDimension = 2;
+        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
+        tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};

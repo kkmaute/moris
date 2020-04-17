@@ -356,8 +356,8 @@
 //                std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 //
 //                //-----------------------------------------------------------------------------------------------
-//                moris::ge::GEN_Geom_Field_HMR tInnerCircleForGE(tInnerCircleField);
-//                moris::ge::GEN_Geom_Field_HMR tOuterCircleForGE(tOuterCircleField);
+//                moris::ge::Geometry_Field_HMR tInnerCircleForGE(tInnerCircleField);
+//                moris::ge::Geometry_Field_HMR tOuterCircleForGE(tOuterCircleField);
 //
 //                // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
 //                moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};

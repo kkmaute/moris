@@ -25,7 +25,6 @@
 #include "fn_verify_tet_topology.hpp"
 
 // XTKL: Geometry
-#include "cl_MGE_Geometry_Engine.hpp"
 #include "cl_Sphere.hpp"
 #include "geometry/cl_Plane.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
