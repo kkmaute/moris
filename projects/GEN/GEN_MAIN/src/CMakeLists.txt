@@ -30,7 +30,7 @@ set(HEADERS
 	geomeng/cl_GEN_Pdv.hpp
 	geomeng/cl_GEN_Pdv_Host.hpp
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
-	geomeng/fn_GEN_triangle_geometry.hpp
+	geomeng/fn_GEN_Triangle_Geometry.hpp
 
     geometry/cl_GEN_Geometry_Analytic.hpp
 	geometry/cl_GEN_Geometry_Discrete.hpp
@@ -45,21 +45,6 @@ set(HEADERS
 	geometry/fn_GEN_create_geometry.hpp
 	
 	property/cl_GEN_Property.hpp
-	
-#	cl_GE_Analytic.hpp
-#	cl_GE_Core.hpp
-#	cl_GE_Discrete.hpp
-#	cl_GE_Element.hpp
-#	cl_GE_Enums.hpp
-#	cl_GE_Factory.hpp
-#	cl_GE_Geometry_Library.hpp
-#	cl_GE_Geometry.hpp
-#	cl_GE_Intersection_Object_Line.hpp
-#	cl_GE_Intersection_Object.hpp
-#	cl_GE_Main.hpp
-#	cl_GE_Nodal_Info.hpp
-#	cl_GE_Node.hpp
-#	cl_GE_SDF.hpp
 	
     )
     

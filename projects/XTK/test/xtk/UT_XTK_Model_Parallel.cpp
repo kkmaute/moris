@@ -10,14 +10,11 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_Sphere.hpp"
 #include "cl_MPI_Tools.hpp"
 #include "fn_trans.hpp"
 #include "fn_all_true.hpp"
 #include "fn_sort.hpp"
 #include "op_equal_equal.hpp"
-
-
 #include "cl_GEN_Sphere.hpp"
 
 namespace xtk

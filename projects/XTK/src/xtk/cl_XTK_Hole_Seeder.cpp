@@ -6,8 +6,9 @@
  */
 
 #include "cl_XTK_Hole_Seeder.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_GEN_Sphere_Box.hpp"
 #include "cl_Cell.hpp"
-#include "cl_SphereBox.hpp"
 
 namespace xtk
 {
@@ -64,7 +65,7 @@ void
 Hole_Seeder::seed_field()
 {
     MORIS_ASSERT(mMTKMesh!=nullptr,"No mesh to seed holes on provided");
-    moris::uint tNumNodes = mMTKMesh->get_num_entities(EntityRank::NODE);
+    moris::uint tNumNodes = mMTKMesh->get_num_entities(moris::EntityRank::NODE);
     moris::Matrix< moris::DDRMat > tCoords(tNumNodes,3);
     moris::Matrix< moris::DDRMat > tCoordsX(tNumNodes,1);
     moris::Matrix< moris::DDRMat > tCoordsY(tNumNodes,1);
@@ -133,14 +134,14 @@ Hole_Seeder::seed_field()
         }
     }
     // construct spheres
-    moris::Cell<xtk::Sphere_Box> tSpheres(tNumSpheres);
+    moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> tSpheres(tNumSpheres);
     for(moris::uint i = 0; i <tNumSpheres; i++)
     {
-        tSpheres(i) = Sphere_Box(mRadiusX,mRadiusY,mRadiusZ,tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mNexp);
+        tSpheres(i) = std::make_shared<moris::ge::Sphere_Box>(mRadiusX,mRadiusY,mRadiusZ,tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mNexp);
     }
 
     // iterate through node to compute a level set value at each node
-    Cell<moris::Matrix<moris::DDRMat>> tSphereLSV(tNumNodes);
+    moris::Cell<moris::Matrix<moris::DDRMat>> tSphereLSV(tNumNodes);
 //    moris::real tNodeVal = 0;
     for(moris::uint i =0; i <tNumNodes; i++)
     {
@@ -149,7 +150,7 @@ Hole_Seeder::seed_field()
         // iterate through all spheres
         for(moris::uint iSphere =0; iSphere<tNumSpheres; iSphere++)
         {
-            tSphereLSV(i)(iSphere) = tSpheres(iSphere).evaluate_field_value_with_coordinate(i,tCoords);
+            tSphereLSV(i)(iSphere) = tSpheres(iSphere)->evaluate_field_value_with_coordinate(i,tCoords);
         }
 
         mSeededField(i) = tSphereLSV(i).min();

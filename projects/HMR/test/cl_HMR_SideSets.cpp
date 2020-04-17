@@ -1,5 +1,4 @@
 #include <catch.hpp>
-#include "cl_GE_Core.hpp"   //FIXME: needs to be replaced with current geometry engine implementation
 
 //------------------------------------------------------------------------------
 
@@ -20,7 +19,6 @@
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 
-
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_MTK_Mesh.hpp"
@@ -28,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 // geometry engine
-//#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Database.hpp"

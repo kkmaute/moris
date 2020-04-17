@@ -34,8 +34,6 @@
 // XTK
 #include "cl_XTK_Model.hpp"
 #include "xtk_typedefs.hpp"
-#include "cl_Geom_Field.hpp"
-#include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
 #include "cl_GEN_Geometry_Discrete.hpp"

@@ -1,9 +1,5 @@
 
 #include "catch.hpp"
-#include "cl_Star.hpp"
-#include "cl_Circle.hpp"
-#include "cl_Plane.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 #include "HDF5_Tools.hpp"
 #include "cl_Matrix.hpp"        //LINALG

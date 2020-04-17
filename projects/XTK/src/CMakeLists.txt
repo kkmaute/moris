@@ -8,29 +8,6 @@ set(${XTK}_VERSION ${MORIS_VERSION})
 set(HEADERS
     algorithms/fn_num_digits.hpp
     core/xtk_typedefs.hpp
-#    geomeng/cl_MGE_Enums.hpp
-#    geomeng/cl_MGE_Geometry_Engine.hpp
-#    geomeng/cl_MGE_Geometry_Object_Manager.hpp
-#    geomeng/cl_MGE_Geometry_Object.hpp
-#    geomeng/fn_Triangle_Geometry.hpp
-#    geometry/cl_Geometry.hpp
-#    geometry/cl_Plane.hpp
-#    geometry/cl_Composite_Fiber_Straight_1.hpp
-#    geometry/cl_Composite_Fiber_Straight_2.hpp
-#    geometry/cl_Composite_Fiber_Straight_3.hpp
-#    geometry/cl_Composite_Fiber_Wave_1.hpp
-#    geometry/cl_Composite_Fiber_Wave_2.hpp
-#    geometry/cl_Composite_Fiber_Wave_3.hpp
-#    geometry/cl_Composite_Fiber.hpp
-#    geometry/cl_Discrete_Level_Set.hpp
-#    geometry/cl_Gyroid.hpp
-#    geometry/cl_Multi_Cylinder.hpp
-#    geometry/cl_Multi_Geometry.hpp
-#    geometry/cl_Plane.hpp
-#    geometry/cl_Star.hpp
-#    geometry/cl_Sphere.hpp
-#    geometry/cl_SphereBox.hpp
-#    geometry/cl_Spiral.hpp
     ios/cl_Logger.hpp
     linalg/cl_XTK_Matrix_Base_Utilities.hpp
     tools/fn_verify_tet_topology.hpp
@@ -78,7 +55,7 @@ set(HEADERS
     xtk/cl_XTK_Mesh.hpp
     xtk/cl_XTK_Multigrid.hpp
     xtk/cl_XTK_Model.hpp
-    xtk/cl_XTK_Node.hpp
+#    xtk/cl_XTK_Node.hpp
     xtk/cl_XTK_Output_Options.hpp
     xtk/cl_XTK_Parallel_Mesh_Data.hpp
     xtk/cl_XTK_Paramfile.hpp

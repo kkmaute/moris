@@ -24,12 +24,6 @@
 #include "cl_Mesh_Enums.hpp"
 #include "fn_verify_tet_topology.hpp"
 
-// XTKL: Geometry
-#include "cl_Sphere.hpp"
-#include "geometry/cl_Plane.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
-
-
 // XTKL: Linear Algebra Includes
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 

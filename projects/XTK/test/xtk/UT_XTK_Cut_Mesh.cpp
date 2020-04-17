@@ -19,8 +19,6 @@
 
 #include "cl_Matrix.hpp"
 
-#include "cl_Gyroid.hpp"
-#include "cl_Sphere.hpp"
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

@@ -11,7 +11,6 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
 
@@ -62,9 +61,8 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Geometry_Analytic.hpp"
-
-#include "cl_Plane.hpp"
 
 
 #include "cl_PRM_HMR_Parameters.hpp"
@@ -143,20 +141,20 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         Matrix<moris::DDRMat> tLeftCenters = {{ (tCenterPoint(0) + 0.01)  - ( tBlockL / 2 ) * std::cos(tAngle) ,
                                                 (tCenterPoint(1) + 0.01) - tBlockH / 2 * std::sin(tAngle) }};
         Matrix<moris::DDRMat> tLeftNormal  = {{-std::cos(tAngle),-std::sin(tAngle)}};
-        xtk::Plane<2> tLeftPlane(tLeftCenters,tLeftNormal);
-        auto tLeftPlaneFP = [&tLeftPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tLeftPlane.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
+        moris::ge::Plane tLeftPlane(tLeftCenters(0), tLeftCenters(1), tLeftNormal(0), tLeftNormal(1));
+        auto tLeftPlaneFP = [&tLeftPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tLeftPlane.evaluate_field_value(aCoordinates); }; /*Lambda pointer for class */
 
         // Construct Right Plane
         Matrix<moris::DDRMat> tRightCenters = {{ (tCenterPoint(0) + 0.01)  + ( tBlockL / 2 ) * std::cos(tAngle) ,
                                                  (tCenterPoint(1) + 0.01) + tBlockH / 2 * std::sin(tAngle) }};
         Matrix<moris::DDRMat> tRightNormal  = {{std::cos(tAngle),std::sin(tAngle)}};
-        xtk::Plane<2> tRightPlane(tRightCenters,tRightNormal);
-        auto tRightPlaneFP = [&tRightPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tRightPlane.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
+        moris::ge::Plane tRightPlane(tRightCenters(0), tRightCenters(1), tRightNormal(0), tRightNormal(1));
+        auto tRightPlaneFP = [&tRightPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tRightPlane.evaluate_field_value(aCoordinates); }; /*Lambda pointer for class */
 
         // Construct Mid Plane
         Matrix<moris::DDRMat> tMidCenters = {{ tCenterPoint(0) , tCenterPoint(1)  }};
         Matrix<moris::DDRMat> tMidNormal  = {{std::cos(tAngle) - 1,1-std::sin(tAngle)}};
-        xtk::Plane<2> tMidPlane(tMidCenters,tMidNormal);
+        moris::ge::Plane tMidPlane(tMidCenters(0), tMidCenters(1), tMidNormal(0), tMidNormal(1));
 //        auto tMidPlaneFP = [&tMidPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tMidPlane.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda for class */
 
         // Construct Top Plane
@@ -164,8 +162,8 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         Matrix<moris::DDRMat> tTopCenters = {{(tCenterPoint(0) + 0.01) - tBlockH / 2 * std::sin(tAngle) ,
                                               (tCenterPoint(1) + 0.01) + tBlockH / 2 * std::cos(tAngle)}};
         Matrix<moris::DDRMat> tTopNormal  = {{std::cos(tAngle) - 1,1-std::sin(tAngle)}};
-        xtk::Plane<2> tTopPlane(tTopCenters,tTopNormal);
-        auto tTopPlaneFP = [&tTopPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tTopPlane.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda for class */
+        moris::ge::Plane tTopPlane(tTopCenters(0), tTopCenters(1), tTopNormal(0), tTopNormal(1));
+        auto tTopPlaneFP = [&tTopPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tTopPlane.evaluate_field_value(aCoordinates); }; /*Lambda for class */
 
         // Construct Bottom Plane
 //        Matrix<moris::DDRMat> tBottomCenters = {{0, tCenterPoint(1) + 0.01 - tBlockH / 2  }};
@@ -173,8 +171,8 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
                                                  (tCenterPoint(1) + 0.01) - tBlockH / 2 * std::cos(tAngle)}};
 
         Matrix<moris::DDRMat> tBottomNormal  = {{1 - std::cos(tAngle),std::sin(tAngle) - 1}};
-        xtk::Plane<2> tBottomPlane(tBottomCenters,tBottomNormal);
-        auto tBottomPlaneFP = [&tBottomPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tBottomPlane.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda for class */
+        moris::ge::Plane tBottomPlane(tBottomCenters(0), tBottomCenters(1), tBottomNormal(0), tBottomNormal(1));
+        auto tBottomPlaneFP = [&tBottomPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tBottomPlane.evaluate_field_value(aCoordinates); }; /*Lambda for class */
 
         if(tVerboseGeometry)
         {

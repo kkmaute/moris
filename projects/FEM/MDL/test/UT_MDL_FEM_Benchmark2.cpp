@@ -11,7 +11,6 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -68,8 +67,6 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-
-#include "cl_Plane.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 

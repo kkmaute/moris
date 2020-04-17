@@ -7,13 +7,11 @@
 
 #include "catch.hpp"
 
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp"
 #include "fn_norm.hpp"
-#include "cl_Plane.hpp"
 //PRM
 #include "cl_PRM_HMR_Parameters.hpp"
 #include "cl_PRM_SOL_Parameters.hpp"

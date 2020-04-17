@@ -26,7 +26,6 @@
 #include "fn_isvector.hpp"
 
 //XTK Includes:
-#include "cl_XTK_Node.hpp"
 #include "cl_XTK_External_Mesh_Data.hpp"
 #include "cl_XTK_Downward_Inheritance.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"

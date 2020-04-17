@@ -62,12 +62,8 @@ get_index_in_cell(Cell<std::string> & aLabels,
 moris::ge::Geometry_Analytic*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
-  enum Geometry_Type tGeomType = aXTKProblemParams.mGeometryType;
-
   moris::ge::Geometry_Analytic* tGeometry = nullptr;
-  switch (tGeomType)
-  {
-    case Geometry_Type::SPHERE:
+  if (aXTKProblemParams.mGeometryName == "sphere")
     {
       MORIS_ERROR( aXTKProblemParams.mRealGeomParams.size() == 4,"For a parsed sphere geometry there needs to be 4 parameters, r, xc, yc, zc");
       MORIS_ERROR( aXTKProblemParams.mRealGeomLabels.size() == 4,"For a parsed sphere geometry there needs to be 4 labels, r, xc, yc, zc");
@@ -95,10 +91,8 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 
       tGeometry = new moris::ge::Sphere(tR,tXc,tYc,tZc);
 
-      break;
-
     }
-    case Geometry_Type::PLANE:
+    else if (aXTKProblemParams.mGeometryName == "plane")
     {
         moris::Matrix<moris::DDRMat> tCenters(3,1);
         moris::Matrix<moris::DDRMat> tNormals(3,1);
@@ -131,11 +125,9 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tNormals(2) = aXTKProblemParams.mRealGeomParams(tPos);
 
         tGeometry = new moris::ge::Plane(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
-
-        break;
     }
 
-    case Geometry_Type::SPHERE_BOX:
+    else if (aXTKProblemParams.mGeometryName == "sphere_box")
     {
 
         std::string tStr = "sx";
@@ -168,13 +160,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         moris::real tNexp = aXTKProblemParams.mRealGeomParams(tPos);
 
         tGeometry = new moris::ge::Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
-
-        break;
     }
-
-    default:
-    MORIS_ERROR(0,"Geometry not setup in parser");
-  }
 
   return tGeometry;
 

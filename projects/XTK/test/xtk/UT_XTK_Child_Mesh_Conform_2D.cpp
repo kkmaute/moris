@@ -14,7 +14,7 @@
 
 #include "cl_XTK_Child_Mesh_Modification_Template.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
+#include "fn_GEN_Triangle_Geometry.hpp" // For surface normals
 #include "fn_equal_to.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"

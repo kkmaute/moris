@@ -10,7 +10,6 @@
 
 #include "cl_XML_Parser.hpp"
 #include "cl_Mesh_Enums.hpp"
-#include "cl_Geometry_Enums.hpp"
 #include "cl_XTK_Enums.hpp"
 
 #include <string>
@@ -28,7 +27,6 @@ public:
     XTK_Problem_Params():
     mInputMeshFile(""),
     mMeshType(MeshType::END_ENUM),
-    mGeometryType(Geometry_Type::INVALID),
     mRealGeomParams(0),
     mIntGeomParams(0),
     mSubdivisionMethods(0),
@@ -46,7 +44,6 @@ public:
     enum MeshType     mMeshType;
 
     // geometry
-    enum Geometry_Type mGeometryType;
     std::string        mGeometryName;
     Cell<real>         mRealGeomParams;
     Cell<std::string>  mRealGeomLabels;
@@ -200,31 +197,6 @@ private:
       {
         MORIS_ERROR(0,"Mesh str not recognized.");
         return MeshType::STK;
-      }
-    }
-
-    enum Geometry_Type
-    get_geometry_enum(std::string const & aGeometryStr)
-    {
-      if(aGeometryStr == "Sphere")
-      {
-        return Geometry_Type::SPHERE;
-      }
-
-      else if(aGeometryStr == "Plane")
-      {
-        return Geometry_Type::PLANE;
-      }
-
-      else if(aGeometryStr == "Sphere Box")
-      {
-        return Geometry_Type::SPHERE_BOX;
-      }
-
-      else
-      {
-        MORIS_ERROR(0,"Geometry str not recognized: %s.", aGeometryStr.c_str());
-        return Geometry_Type::INVALID;
       }
     }
 

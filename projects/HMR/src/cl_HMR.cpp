@@ -10,7 +10,6 @@
 
 #include "dlfcn.h"
 
-#include "cl_GE_Core.hpp"
 #include "typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
@@ -1782,7 +1781,7 @@ namespace moris
             uint tLagrangeOrder = aField->get_lagrange_order();
 
            // get order of Union Mesh
-            uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
+            //uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
 
             // create union mesh
             Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( aUnionOrder,

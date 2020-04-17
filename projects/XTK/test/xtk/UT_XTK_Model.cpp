@@ -19,7 +19,7 @@
 #include "cl_MTK_Visualization_STK.hpp"
 
 #include "cl_GEN_Sphere.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
+#include "fn_GEN_Triangle_Geometry.hpp" // For surface normals
 
 // Linalg includes
 #include "cl_Matrix.hpp"

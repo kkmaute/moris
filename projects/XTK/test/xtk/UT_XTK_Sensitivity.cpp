@@ -24,8 +24,6 @@
 #include "cl_XTK_Enums.hpp"
 #include "cl_Cell.hpp"
 
-#include "geometry/cl_Discrete_Level_Set.hpp"
-
 #include "cl_MTK_Mesh.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
