@@ -131,12 +131,14 @@ namespace moris
                 {
                     // create a fem set
                     mFemSets( iSet ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
+                    mFemSets( iSet )->set_equation_model( this );
                 }
                 // if empty mesh set
                 else
                 {
                     // create an empty fem set
                     mFemSets( iSet ) = new fem::Set();
+                    mFemSets( iSet )->set_equation_model( this );
                 }
 
                 // collect equation objects associated with the set
@@ -262,12 +264,16 @@ namespace moris
                 {
                     // create new fem set
                     mFemSets( iSet ) = new fem::Set( this, tMeshSet, mSetInfo( iSet ), mIPNodes );
+
+                    mFemSets( iSet )->set_equation_model( this );
                 }
                 // if empty mesh set
                 else
                 {
                     // create an empty fem set
                     mFemSets( iSet ) = new fem::Set();
+
+                    mFemSets( iSet )->set_equation_model( this );
                 }
 
                 // collect equation objects associated with the set

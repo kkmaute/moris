@@ -18,14 +18,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
     Model_Solver_Interface::Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
-                                                         std::shared_ptr< MSI::Equation_Model >            & aEquationModel,
+                                                         std::shared_ptr< MSI::Equation_Model >              aEquationModel,
                                                    const Matrix< IdMat >                                   & aCommTable,
                                                    const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                                    const moris::uint                                         aNumMaxAdofs,
                                                          mtk::Mesh                                         * aMesh ) : mMSIParameterList( aMSIParameterList ),
                                                                                                                        mEquationBlocks( aEquationModel->get_equation_sets() ),
                                                                                                                        mDofMgn( aCommTable, this ),
-                                                                                                                       mMesh( aMesh )
+                                                                                                                       mMesh( aMesh ),
+                                                                                                                       mEquationModel( aEquationModel )
     {
         this->create_equation_object_list();
 

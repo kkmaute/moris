@@ -98,9 +98,9 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );
 
-    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
-    mDummyFullVector->vec_put_scalar( 0.0 );
-    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
+//    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
+//    mDummyFullVector->vec_put_scalar( 0.0 );
+//    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
 
     mFullVector->vec_put_scalar( 0.0 );
 
