@@ -170,7 +170,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------

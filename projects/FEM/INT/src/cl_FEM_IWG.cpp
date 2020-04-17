@@ -1313,12 +1313,8 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     // get relative difference
                     tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
 
-                    //
-                    bool tCheckAbsolute = ( tAbsolute < aEpsilon );
-                    bool tCheckRelative = ( tRelative < aEpsilon );
-
                     // update check value
-                    tCheckJacobian = tCheckJacobian && ( tCheckAbsolute || tCheckRelative );
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
 //                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )

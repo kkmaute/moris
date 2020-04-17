@@ -150,7 +150,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
