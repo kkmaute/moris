@@ -7,7 +7,7 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry
+        class Geometry_Analytic
         {
         protected:
             Cell<real*> mGeometryVariables;
@@ -21,20 +21,20 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              */
-            Geometry(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters);
+            Geometry_Analytic(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters);
 
             /**
              * Constructor for only constant parameters
              *
              * @param aConstantParameters The parameters that define this geometry
              */
-            Geometry(Matrix<DDRMat> aConstantParameters);
+            Geometry_Analytic(Matrix<DDRMat> aConstantParameters);
 
         public:
             /**
              * Destructor
              */
-            ~Geometry()
+            ~Geometry_Analytic()
             {
             }
 
@@ -44,7 +44,7 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return distance to nearest function
              */
-            virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat>& aCoordinates) = 0;
+            virtual real evaluate_field_value(const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
              * Given a node coordinate @param[in] aCoordinates, the function returns a matrix of relevant node coordinates
@@ -53,7 +53,7 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return matrix of sensitivities
              */
-            virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat>& aCoordinates) = 0;
+            virtual Matrix<DDRMat> evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates) = 0;
 
         };
     }

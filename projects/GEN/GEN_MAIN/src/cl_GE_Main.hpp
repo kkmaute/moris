@@ -37,7 +37,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
 			// member variables
-			moris::Cell< Geometry* > 		mListOfGeoms;
+			moris::Cell< Geometry_Analytic* > 		mListOfGeoms;
 			moris::Cell< real > 			mThresholds;
 
 //------------------------------------------------------------------------------
@@ -59,8 +59,8 @@ namespace moris
 			 *  @param[in]  aThreshold              threshold value for current geometry LS function
 			 *
 			 */
-			void set_geometry( Geometry* & aGeomPointer,
-			                   real        aThreshold   = 0.0)
+			void set_geometry(Geometry_Analytic* & aGeomPointer,
+                              real        aThreshold   = 0.0)
 			{
 				mListOfGeoms.push_back( aGeomPointer );
 				mThresholds.push_back(aThreshold);

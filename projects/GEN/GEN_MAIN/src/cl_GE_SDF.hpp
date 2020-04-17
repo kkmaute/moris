@@ -24,7 +24,7 @@ namespace moris
 {
 namespace ge
 {
-	class SDF : public Geometry
+	class SDF : public Geometry_Analytic
 	{
 	public:
 	    /*

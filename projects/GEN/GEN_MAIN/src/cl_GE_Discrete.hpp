@@ -23,7 +23,7 @@ namespace moris
 {
 namespace ge
 {
-    class Discrete : public Geometry
+    class Discrete : public Geometry_Analytic
     {
         /*
          * note: this is taken from XTK's discrete geometry class, currently merging into a general Geometry Engine

@@ -74,7 +74,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
 
 moris::real

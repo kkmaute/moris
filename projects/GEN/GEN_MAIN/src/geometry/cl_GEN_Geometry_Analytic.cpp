@@ -1,4 +1,4 @@
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 namespace moris
 {
@@ -7,7 +7,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Geometry::Geometry(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
+        Geometry_Analytic::Geometry_Analytic(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
                 : mConstantParameters(aConstantParameters)
         {
             // Check that the number of geometry variables indices equals the number of ADV indices, resize geometry variables
@@ -37,7 +37,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Geometry::Geometry(Matrix<DDRMat> aConstantParameters)
+        Geometry_Analytic::Geometry_Analytic(Matrix<DDRMat> aConstantParameters)
                 : mConstantParameters(aConstantParameters)
         {
             // Resize geometry variables

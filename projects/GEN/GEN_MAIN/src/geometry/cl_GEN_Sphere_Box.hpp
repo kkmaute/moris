@@ -2,13 +2,13 @@
 #define MORIS_CL_GEN_SPHERE_BOX_HPP
 
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class Sphere_Box : public Geometry
+class Sphere_Box : public Geometry_Analytic
 {
 public:
     Sphere_Box( moris::real aSX,
@@ -18,7 +18,7 @@ public:
                 moris::real aYCenter,
                 moris::real aZCenter,
                 moris::real aNexp)
-                : Geometry(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aNexp}}))
+                : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aNexp}}))
     {
         mSX = aSX;
         mSY = aSY;

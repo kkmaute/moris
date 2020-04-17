@@ -85,7 +85,7 @@
 //GEN/src
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Sphere.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
 //PRM/src
 #include "cl_PRM_HMR_Parameters.hpp"

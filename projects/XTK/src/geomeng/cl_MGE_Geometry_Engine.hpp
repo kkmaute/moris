@@ -19,7 +19,7 @@
 #include "linalg_typedefs.hpp"
 
 // base class for geometry
-#include "cl_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 // MTK includes
 #include "cl_Mesh_Enums.hpp"
@@ -40,7 +40,7 @@
 #include "cl_Interpolaton.hpp"
 
 //XTKL: Geometry Engine Includes
-#include "cl_XTK_Phase_Table.hpp"
+#include "cl_GEN_Phase_Table.hpp"
 #include "cl_XTK_Pending_Node.hpp"
 
 //XTKL: Topology

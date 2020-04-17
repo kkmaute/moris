@@ -32,7 +32,7 @@ namespace ge
          * The constructor will require a {geom_rep,mesh} pair and will create the initial information table
          * (if told to) which can then be adjusted (e.g. if additional vertices are added).
          */
-        PDV_Info(std::shared_ptr< Geometry > & aGeomPointer,
+        PDV_Info(std::shared_ptr< Geometry_Analytic > & aGeomPointer,
                                   moris_index  aMyMeshIndex = 0,
                                   bool         aInitialize  = false ) :
                                       mMyGeomRep(aGeomPointer),
@@ -62,7 +62,7 @@ namespace ge
          * @param[in] aSubIndex    - index of the sub-geometry type within the given geometry pointer
          *
          */
-        void reinitialize_data_table( std::shared_ptr< Geometry > & aGeomPointer, moris_index aSubIndex )
+        void reinitialize_data_table(std::shared_ptr< Geometry_Analytic > & aGeomPointer, moris_index aSubIndex )
         {
             this->initialize_data_tables( aGeomPointer, aSubIndex );
         }
@@ -317,7 +317,7 @@ namespace ge
             return mMyGeomRep->get_field_val_at_coordinate( aPoint );
         }
         //------------------------------------------------------------------------------
-        std::shared_ptr< Geometry > get_my_geom_rep()
+        std::shared_ptr< Geometry_Analytic > get_my_geom_rep()
         {
             return mMyGeomRep;
         }
@@ -328,7 +328,7 @@ namespace ge
          * @brief create data tables and relationship between nodes and data
          *
          */
-        void initialize_data_tables( std::shared_ptr< Geometry > & aGeomPointer, moris_index aSubIndex )
+        void initialize_data_tables(std::shared_ptr< Geometry_Analytic > & aGeomPointer, moris_index aSubIndex )
         {
             uint tNumNodes = aGeomPointer->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_num_nodes();
             // build relations map
@@ -436,7 +436,7 @@ namespace ge
             MORIS_ASSERT(false, "ge::PDV_Info::create_nodal_normals_table() - not implemented...yet ");
         };
         //------------------------------------------------------------------------------
-        std::shared_ptr< Geometry > mMyGeomRep;
+        std::shared_ptr< Geometry_Analytic > mMyGeomRep;
         moris_index                 mMyMeshIndex;
 
         std::unordered_map< moris_index, moris_index > mMyMap; // (vertex index, row/cell index for data tables)

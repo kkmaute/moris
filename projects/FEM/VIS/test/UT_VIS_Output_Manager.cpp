@@ -47,8 +47,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 #include "cl_VIS_Factory.hpp"
 

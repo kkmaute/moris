@@ -24,7 +24,7 @@ namespace moris
 {
 namespace ge
 {
-class Geometry;
+class Geometry_Analytic;
 /*
  * @brief Define a simple geometric primitive, such as a line.
  *        A primitive can be passed into the geometry engine to ask if there is an intersection with it and
@@ -53,7 +53,7 @@ class Intersection_Object
         /*
          * @brief set the global coordinates and the time coordinates for the interpolators
          */
-        virtual void set_coords_and_param_point( std::shared_ptr< Geometry > & aGeomPointer,
+        virtual void set_coords_and_param_point( std::shared_ptr< Geometry_Analytic > & aGeomPointer,
                                                  Matrix<DDRMat> const & aGlobCoords,
                                                  Matrix<DDRMat> const & aTimeCoords,
                                                  Matrix<DDRMat> const & aFieldVals,     // LS field vals need to come from the geometry engine

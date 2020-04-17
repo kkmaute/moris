@@ -9,7 +9,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Circle::evaluate_field_value(const moris::Matrix<moris::DDRMat>& aCoordinates)
+        real Circle::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             Matrix<DDRMat> tCenter(2, 1);
@@ -24,7 +24,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat> Circle::evaluate_sensitivity(const moris::Matrix<moris::DDRMat>& aCoordinates)
+        Matrix<DDRMat> Circle::evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates)
         {
             // Initialize sensitivity matrix
             moris::Matrix< moris::DDRMat > tSensitivityDxDp(3, 2, 0.0);

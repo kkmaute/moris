@@ -38,7 +38,7 @@ namespace moris
     	     * @param[out] tGeomPointer - GE pointer to base class.
     	     *
     	     */
-    		std::shared_ptr< Geometry >
+    		std::shared_ptr< Geometry_Analytic >
     		set_geometry_type( const enum GeomType aGeomType = GeomType::ANALYTIC );
 
 

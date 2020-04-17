@@ -1,14 +1,14 @@
 #ifndef MORIS_CL_GEN_CIRCLE_HPP
 #define MORIS_CL_GEN_CIRCLE_HPP
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Circle : public Geometry
+        class Circle : public Geometry_Analytic
         {
         public:
 
@@ -21,7 +21,7 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              */
             Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-            : Geometry(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
+            : Geometry_Analytic(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
             {
             }
 
@@ -32,7 +32,7 @@ namespace moris
              * @param aYCenter y-coordiante of the center of the circle
              * @param aRadius radius of the circle
              */
-            Circle(real aXCenter, real aYCenter, real aRadius) : Geometry(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
+            Circle(real aXCenter, real aYCenter, real aRadius) : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
             {
             }
 
@@ -42,7 +42,7 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return distance to nearest function
              */
-            real evaluate_field_value(const moris::Matrix<moris::DDRMat>& aCoordinates);
+            real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate @param[in] aCoordinates, the function returns a matrix of relevant node coordinates
@@ -51,7 +51,7 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return matrix of sensitivities
              */
-            moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat>& aCoordinates);
+            Matrix<DDRMat> evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates);
 
         };
     }

@@ -11,10 +11,13 @@
 
 #include "cl_GEN_Geometry_Object.hpp"
 #include "cl_GEN_Geometry_Object_Manager.hpp"
+
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry_Discrete.hpp"
+
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Dv_Enums.hpp"
 
@@ -23,7 +26,8 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
 
-
+// MRS
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -55,25 +59,24 @@ namespace moris
                                               moris::Matrix< moris::DDRMat >  & aDxDp )
         {
 
-          MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-          MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-          moris::real const & tPhiA = aEdgeNodePhi(0,0);
-          moris::real const & tPhiB = aEdgeNodePhi(1,0);
+             MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
+             MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
+             moris::real const & tPhiA = aEdgeNodePhi(0,0);
+             moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
-          // Initialize
-          moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
+              // Initialize
+             moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
+             moris::Matrix< moris::DDRMat > tXb = aEdgeCoordinates.get_row(1);
 
-          moris::Matrix< moris::DDRMat > tXb = aEdgeCoordinates.get_row(1);
+             // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
+             moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+             moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+             moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
+             moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
 
-          // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
-          moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-          moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-          moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
-          moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
-
-          // Compute dx/dp
-          moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
-          aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
+              // Compute dx/dp
+             moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
+             aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
 
         }
 
@@ -83,8 +86,7 @@ namespace moris
 
         class GEN_Geometry_Engine
         {
-        public:     // ----------- member data ----------
-            // Options which the user can change (all are given defaults)
+        public:
             moris::real mThresholdValue;
             moris::real mPerturbationValue;
             bool mComputeDxDp = true; // FIXME change this?
@@ -96,7 +98,9 @@ namespace moris
 
             // Geometry
             moris::size_t mActiveGeometryIndex;
-            Cell< std::shared_ptr<Geometry> > mGeometry;
+            Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
+            Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
+            uint mNumGeometries;
 
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
@@ -141,7 +145,7 @@ namespace moris
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            GEN_Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
+            GEN_Geometry_Engine(Cell< std::shared_ptr<Geometry_Analytic> >   aGeometry,
                                 Phase_Table                         aPhaseTable,
                                 uint                                aSpatialDim = 3,
                                 real                                aThresholdValue = 0.0,
@@ -490,7 +494,7 @@ namespace moris
             void mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType );
 
         private:
-            Geometry & ActiveGeometry() const;
+            Geometry_Analytic & ActiveGeometry() const;
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object

@@ -41,7 +41,7 @@
 #include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"

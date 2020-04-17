@@ -35,7 +35,7 @@
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Sphere_Box.hpp"
@@ -65,7 +65,7 @@ get_index_in_cell(Cell<std::string> & aLabels,
 }
 
 
-moris::ge::Geometry*
+moris::ge::Geometry_Analytic*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
   enum Geometry_Type tGeomType = aXTKProblemParams.mGeometryType;

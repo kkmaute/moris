@@ -74,7 +74,7 @@
 #include "cl_SOL_Warehouse.hpp"
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Plane.hpp"
 
 namespace moris
@@ -96,7 +96,7 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
         moris::ge::Plane<3> tPlane(tCenters,tNormals);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
         moris::ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
         // Initialize field information container
@@ -369,7 +369,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         Matrix<DDRMat> tCenter = {{1.0,1.0,3.51}};
         Matrix<DDRMat> tNorms  = {{0.0,0.0,1.0}};
         ge::Plane<3> tPlane(tCenter,tNorms);
-        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        ge::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
         // Initialize field information container

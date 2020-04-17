@@ -11,13 +11,13 @@
 #include <cmath>
 
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class Sphere : public Geometry
+class Sphere : public Geometry_Analytic
 {
 public:
 
@@ -29,7 +29,7 @@ public:
      * @param aZCenter z-coordinate of the center of the sphere
      * @param aRadius radius of the circle
      */
-    Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius) : Geometry(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}))
+    Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius) : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}))
     {
         mXCenter = aXCenter;
         mYCenter = aYCenter;

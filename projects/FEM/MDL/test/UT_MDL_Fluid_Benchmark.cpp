@@ -213,7 +213,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
             moris::ge::Plane< 2 > tPlane01( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
             moris::ge::Plane< 2 > tPlane02( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
             moris::ge::Plane< 2 > tPlane03( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
-            moris::Cell< moris::ge::Geometry* > tGeomVec = {&tPlane00, &tPlane01, &tPlane02, &tPlane03 };
+            moris::Cell< moris::ge::Geometry_Analytic* > tGeomVec = {&tPlane00, &tPlane01, &tPlane02, &tPlane03 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
@@ -264,7 +264,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 
         // NOTE the order of this geometry vector is important.
         // If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tPlane0, &tPlane1, &tPlane2, &tPlane3 };
+        moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec0 = {&tPlane0, &tPlane1, &tPlane2, &tPlane3 };
 
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
@@ -645,7 +645,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
             moris::ge::Plane< 2 > tPlane01( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
             moris::ge::Plane< 2 > tPlane02( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
             moris::ge::Plane< 2 > tPlane03( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
-            moris::Cell< moris::ge::Geometry* > tGeomVec = {&tPlane00, &tPlane01, &tPlane02, &tPlane03 };
+            moris::Cell< moris::ge::Geometry_Analytic* > tGeomVec = {&tPlane00, &tPlane01, &tPlane02, &tPlane03 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
@@ -697,7 +697,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         // NOTE the order of this geometry vector is important.
         // If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tPlane0, &tPlane1, &tPlane2, &tPlane3 };
+        moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec0 = {&tPlane0, &tPlane1, &tPlane2, &tPlane3 };
 
         moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
@@ -2443,7 +2443,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         {
             moris::ge::Circle tCircle0( tROut, tCenterPoint( 0 ), tCenterPoint( 1 ) );
             moris::ge::Circle tCircle1( tRIn, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::Geometry*> tGeomVec = {&tCircle0, &tCircle1 };
+            moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec = {&tCircle0, &tCircle1 };
 
             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
@@ -2485,7 +2485,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::ge::Circle tCircle3( tRIn, tCenterPoint( 0 ), tCenterPoint( 1 ) );
 
         // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::Geometry*> tGeomVec0 = {&tCircle2, &tCircle3 };
+        moris::Cell<moris::ge::Geometry_Analytic*> tGeomVec0 = {&tCircle2, &tCircle3 };
 
         size_t tModelDimension = 2;
         moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );

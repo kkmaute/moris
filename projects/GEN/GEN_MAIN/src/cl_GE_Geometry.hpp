@@ -36,15 +36,15 @@ namespace moris
 {
 namespace ge
 {
-	class Geometry
+	class Geometry_Analytic
 	{
 
 	public:
-		Geometry( )
+		Geometry_Analytic( )
 	    {
 	    };
 
-		~Geometry(){};
+		~Geometry_Analytic(){};
 		/*
 		 * *****************************************************************************
 		 * ************************ ANALYTIC GEOMETRY FUNCTIONS ************************

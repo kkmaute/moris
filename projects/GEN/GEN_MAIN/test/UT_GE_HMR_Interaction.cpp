@@ -154,7 +154,7 @@ TEST_CASE("GE_HMR_Interaction_00","[moris],[GE],[GE_HMR_Interaction]")
             //------------------------------------------------------------------------------
 
             moris::ge::Ge_Factory tFactory;
-            std::shared_ptr< moris::ge::Geometry > tGeom = tFactory.set_geometry_type( moris::ge::GeomType::ANALYTIC );
+            std::shared_ptr< moris::ge::Geometry_Analytic > tGeom = tFactory.set_geometry_type(moris::ge::GeomType::ANALYTIC );
 
             tGeom->set_my_mesh( &tMesh );
 

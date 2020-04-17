@@ -14,9 +14,9 @@ namespace moris
         Ge_Factory::Ge_Factory(){}
         Ge_Factory::~Ge_Factory(){}
 
-        std::shared_ptr< Geometry > Ge_Factory::set_geometry_type( const enum GeomType aGeomType )
+        std::shared_ptr< Geometry_Analytic > Ge_Factory::set_geometry_type(const enum GeomType aGeomType )
         {
-            std::shared_ptr< Geometry > tGeomPointer = nullptr;
+            std::shared_ptr< Geometry_Analytic > tGeomPointer = nullptr;
             switch(aGeomType)
             {
             case(GeomType::ANALYTIC):

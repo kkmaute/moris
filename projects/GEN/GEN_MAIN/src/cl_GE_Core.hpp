@@ -52,7 +52,7 @@ namespace ge
              *
              *  @param[out] index to the set geometry in the list of geometries
              */
-            moris_index set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
+            moris_index set_geometry( std::shared_ptr< Geometry_Analytic > & aGeomPointer,
                                       moris_index                   aMyMeshIndex = 0,
                                       bool                          aInitialize  = false,
                                       real                          aThreshold   = 0.0 )
@@ -68,7 +68,7 @@ namespace ge
                 return mListOfGeoms.size()-1;
             }
             //------------------------------------------------------------------------------
-            std::shared_ptr< Geometry > get_geometry_pointer( moris_index aWhichGeometry )
+            std::shared_ptr< Geometry_Analytic > get_geometry_pointer(moris_index aWhichGeometry )
             {
                 return mListOfGeoms( aWhichGeometry );
             }
@@ -453,7 +453,7 @@ namespace ge
 //------------------------------------------------------------------------------
         private:
             // all corresponding information has the same index in each list (e.g. geom*(0) has corresponding threshold(0) and nodal information(0))
-            moris::Cell< std::shared_ptr< Geometry > > mListOfGeoms;
+            moris::Cell< std::shared_ptr< Geometry_Analytic > > mListOfGeoms;
             moris::Cell< real > mThresholds;
             moris::Cell< PDV_Info > mListOfPDVInfoObjects;
 

@@ -19,7 +19,7 @@ namespace moris
 {
 namespace ge
 {
-class Geometry;
+class Geometry_Analytic;
 
 class Intersection_Object_Line : public Intersection_Object
 {
@@ -119,7 +119,7 @@ public:
     //------------------------------------------------------------------------------
     //******************************* set functions ********************************
     //------------------------------------------------------------------------------
-    void set_coords_and_param_point( std::shared_ptr< Geometry > & aGeomPointer,
+    void set_coords_and_param_point( std::shared_ptr< Geometry_Analytic > & aGeomPointer,
                                      Matrix<DDRMat> const & aGlobCoords,
                                      Matrix<DDRMat> const & aTimeCoords,
                                      Matrix<DDRMat> const & aFieldVals,     // LS field vals need to come from the geometry engine?

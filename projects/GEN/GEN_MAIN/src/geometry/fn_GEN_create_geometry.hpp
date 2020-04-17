@@ -7,7 +7,7 @@
 
 #endif //MORIS_FN_CREATE_GEOMETRY_HPP
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_Param_List.hpp"
 
 namespace moris
@@ -21,6 +21,6 @@ namespace moris
          * @param aADVs Reference to the initial adv vector
          * @return Pointer to specific Geometry class
          */
-        std::shared_ptr<Geometry> create_geometry(ParameterList aGeometryParameterList, Matrix<DDRMat>& aADVs);
+        std::shared_ptr<Geometry_Analytic> create_geometry(ParameterList aGeometryParameterList, Matrix<DDRMat>& aADVs);
     }
 }

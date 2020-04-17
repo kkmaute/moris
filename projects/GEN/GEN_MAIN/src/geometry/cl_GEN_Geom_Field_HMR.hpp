@@ -11,17 +11,17 @@
 #include "cl_Matrix.hpp"
 #include "cl_HMR_Field.hpp"
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class GEN_Geom_Field_HMR : public Geometry
+class GEN_Geom_Field_HMR : public Geometry_Analytic
 {
 public:
     GEN_Geom_Field_HMR( std::shared_ptr<moris::hmr::Field> aFieldPtr )
-            : Geometry(Matrix<DDRMat>(1, 1, 0.0)
+            : Geometry_Analytic(Matrix<DDRMat>(1, 1, 0.0)
     {
         mField = aFieldPtr;
     }

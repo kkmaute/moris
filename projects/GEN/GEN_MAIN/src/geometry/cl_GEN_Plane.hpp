@@ -7,7 +7,7 @@
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_PLANE_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_PLANE_HPP_
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris
@@ -15,12 +15,12 @@ namespace moris
 namespace ge
 {
 template< moris::uint SpatialDim >
-class Plane : public Geometry
+class Plane : public Geometry_Analytic
 {
 public:
     Plane(Matrix<moris::DDRMat> const & aCenters,
           Matrix<moris::DDRMat> const & aNormals):
-            Geometry(Matrix<DDRMat>(1, 1, 0.0))
+            Geometry_Analytic(Matrix<DDRMat>(1, 1, 0.0))
     {
         mCenters = aCenters;
         mNormals = aNormals;

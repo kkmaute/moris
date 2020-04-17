@@ -34,7 +34,7 @@ namespace moris{
 //    typedef std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
 //                                              const moris::Cell< real >   aConstant ) > AnalyticFunctionDphiDp;
     //------------------------------------------------------------------------------
-		class Analytic : public Geometry
+		class Analytic : public Geometry_Analytic
 		{
 		public:
             /*

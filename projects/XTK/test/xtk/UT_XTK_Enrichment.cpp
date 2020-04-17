@@ -41,7 +41,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 #include "cl_GEN_Discrete_Level_Set.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Plane.hpp"
 
 namespace xtk

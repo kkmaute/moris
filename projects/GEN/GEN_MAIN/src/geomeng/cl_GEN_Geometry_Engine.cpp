@@ -36,18 +36,18 @@ namespace moris
             mPerturbationValue = aParameterLists(0)(0).get<real>("perturbation_value");
             mNumRefinements = aParameterLists(0)(0).get<uint>("HMR_refinements");
 
-            // Build geometry
-            uint tNumGeometry = aParameterLists(1).size();
-            mGeometry.resize(tNumGeometry);
+            // Build geometry (just analytic for right now)
+            mNumGeometries = aParameterLists(1).size();
+            mGeometryAnalytic.resize(mNumGeometries);
             for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
             {
-                mGeometry(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs);
+                mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs);
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry> >     aGeometry,
+        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry_Analytic>>     aGeometry,
         Phase_Table                                 aPhaseTable,
                 uint                                aSpatialDim,
                 real                                aThresholdValue,
@@ -56,7 +56,7 @@ namespace moris
                               mPerturbationValue(aPerturbationValue),
                               mSpatialDim(aSpatialDim),
                               mActiveGeometryIndex(0),
-                              mGeometry(aGeometry),
+                              mGeometryAnalytic(aGeometry),
                               mPhaseTable(aPhaseTable)
         {
         }
@@ -66,7 +66,7 @@ namespace moris
         void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
         {
             // Allocate space
-            mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes,mGeometry.size(),0);
+            mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes, mNumGeometries, 0);
         
             // Allocate geometry object
             Cell< GEN_Geometry_Object > tGeometryObjects( aNumNodes );
@@ -92,11 +92,11 @@ namespace moris
         
             // Loop through each geometry and then each node and compute the level set field value
             // add value to phase value matrix
-            for (moris::size_t j = 0; j < get_num_geometries(); j++)
+            for (moris::size_t j = 0; j < mNumGeometries; j++)
             {
                 for (moris::size_t i = 0; i < tNumNodes; i++)
                 {
-                    mNodePhaseVals(i, j) = mGeometry(j)->evaluate_field_value(aNodeCoords.get_row(i));
+                    mNodePhaseVals(i, j) = mGeometryAnalytic(j)->evaluate_field_value(aNodeCoords.get_row(i));
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace moris
             moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
         
             // add space to the node phase value table
-            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, mGeometry.size());
+            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, mGeometryAnalytic.size());
         
             Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
         
@@ -132,10 +132,10 @@ namespace moris
             }
         
             // Compute and store level set value of this node for each new node
-            for(moris::size_t j = 0; j<get_num_geometries(); j++)
+            for(moris::size_t j = 0; j < mNumGeometries; j++)
             {
         
-                for(moris::size_t i = 0; i<tNumNewNodes; i++ )
+                for(moris::size_t i = 0; i < tNumNewNodes; i++ )
                 {
                     // Ask the pending node about its parent
                     // This information is needed to know what to interpolate based on
@@ -164,7 +164,7 @@ namespace moris
             moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
         
             // add space to the node phase value table
-            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, mGeometry.size());
+            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, mNumGeometries);
         
             Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
         
@@ -185,7 +185,7 @@ namespace moris
                 mGeometryObjectManager.store_geometry_objects(tNodeIndex,tGeometryObjects);
             }
         
-            for(moris::size_t j = 0; j<get_num_geometries(); j++)
+            for(moris::size_t j = 0; j < mNumGeometries; j++)
             {
         
                 for(moris::size_t i = 0; i<tNumNewNodes; i++ )
@@ -522,14 +522,14 @@ namespace moris
         {
             // 0 for neg 1 for pos
             moris::real tNodePhaseValue = 0;
-            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, mGeometry.size());
+            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, mGeometryAnalytic.size());
         
             for(moris::size_t i = 0; i<aNodeIndex.n_cols(); i++)
             {
                 GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex(0,i));
                 moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
-                for(moris::size_t iG = 0; iG < mGeometry.size(); iG++)
+                for(moris::size_t iG = 0; iG < mNumGeometries; iG++)
                 {
                     tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex, iG);
         
@@ -555,12 +555,12 @@ namespace moris
         {
             // 0 for neg 1 for pos
             moris::real tNodePhaseValue = 0;
-            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, mGeometry.size());
+            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, mNumGeometries);
         
             GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
-            for(moris::size_t iG = 0; iG < mGeometry.size(); iG++)
+            for(moris::size_t iG = 0; iG < mNumGeometries; iG++)
             {
                 tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex,iG);
         
@@ -612,13 +612,6 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::size_t GEN_Geometry_Engine::get_num_geometries()
-        {
-            return mGeometry.size();
-        }
-        
-        //--------------------------------------------------------------------------------------------------------------
-        
         moris::size_t GEN_Geometry_Engine::get_num_bulk_phase()
         {
             return mPhaseTable.get_num_phases();
@@ -635,7 +628,7 @@ namespace moris
         
         void GEN_Geometry_Engine::advance_geometry_index()
         {
-            MORIS_ASSERT(mActiveGeometryIndex<get_num_geometries(),"Trying to advance past the number of geometries in the geometry engine");
+            MORIS_ASSERT(mActiveGeometryIndex < mNumGeometries, "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
         }
         
@@ -777,10 +770,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         // private functions
         //--------------------------------------------------------------------------------------------------------------
-        Geometry &
+        Geometry_Analytic &
         GEN_Geometry_Engine::ActiveGeometry() const
         {
-            return (*mGeometry(mActiveGeometryIndex));
+            return (*mGeometryAnalytic(mActiveGeometryIndex));
         }
         //--------------------------------------------------------------------------------------------------------------
         bool
@@ -934,9 +927,9 @@ namespace moris
             //TODO: implement for the case of discrete geometries and a mesh manager (rather than just an HMR mesh)
             uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
         
-            aAllFieldVals.resize( mGeometry.size() );
+            aAllFieldVals.resize(mNumGeometries);
         
-            for ( uint Ik = 0; Ik< mGeometry.size(); Ik++ )
+            for ( uint Ik = 0; Ik < mNumGeometries; Ik++ )
             {
                 aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
         
@@ -948,7 +941,7 @@ namespace moris
         
                     Cell< moris::real > tTempConstCell = {{0}};
         
-                    tVal = mGeometry( Ik )->evaluate_field_value(tCoord);
+                    tVal = mGeometryAnalytic(Ik)->evaluate_field_value(tCoord);
         
                     // FIXME will not work in parallel. Ind are not consistent because of aura
                     aAllFieldVals( Ik )( iVert ) = tVal;
@@ -1213,7 +1206,6 @@ namespace moris
                 {
                     mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_ig_global_map() );
                 }
-
             }
         }
 

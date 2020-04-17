@@ -10,7 +10,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Field.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -18,7 +18,7 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry_Field : public Geometry
+        class Geometry_Field : public Geometry_Analytic
         {
         private :
             GEN_Field* mField = nullptr;

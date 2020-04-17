@@ -11,7 +11,7 @@ namespace moris
 {
     namespace ge
     {
-        std::shared_ptr<Geometry> create_geometry(ParameterList aGeometryParameterList, Matrix<DDRMat>& aADVs)
+        std::shared_ptr<Geometry_Analytic> create_geometry(ParameterList aGeometryParameterList, Matrix<DDRMat>& aADVs)
         {
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
