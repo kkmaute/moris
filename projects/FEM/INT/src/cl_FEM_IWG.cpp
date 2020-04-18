@@ -14,6 +14,56 @@ namespace moris
     namespace fem
     {
 
+//------------------------------------------------------------------------------
+        void IWG::print_names()
+        {
+            std::cout<<"----------"<<std::endl;
+            std::cout<<"IWG: "<<mName<<std::endl;
+
+            // properties
+            for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+            {
+                if( mMasterProp( iProp ) != nullptr )
+                {
+                    std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
+                }
+            }
+            for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+            {
+                if( mSlaveProp( iProp ) != nullptr )
+                {
+                    std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
+                }
+            }
+
+            // CM
+            for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+            {
+                if( mMasterCM( iCM ) != nullptr )
+                {
+                    std::cout<<"Master CM:       "<<mMasterCM( iCM )->get_name()<<std::endl;
+                }
+            }
+            for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+            {
+                if( mSlaveCM( iCM ) != nullptr )
+                {
+                    std::cout<<"Slave CM:        "<<mSlaveCM( iCM )->get_name()<<std::endl;
+                }
+            }
+
+            // SP
+            for( uint iSP = 0; iSP < mStabilizationParam.size(); iSP++ )
+            {
+                if( mStabilizationParam( iSP ) != nullptr )
+                {
+                    std::cout<<"SP:              "<<mStabilizationParam( iSP )->get_name()<<std::endl;
+                }
+            }
+            std::cout<<"----------"<<std::endl;
+        }
+
+//------------------------------------------------------------------------------
         void IWG::reset_eval_flags()
         {
             // reset properties
@@ -889,6 +939,90 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
         }
 
 //------------------------------------------------------------------------------
+        moris::Cell< moris::Cell< MSI::Dof_Type > > &
+        IWG::get_global_dof_type_list( mtk::Master_Slave aIsMaster )
+        {
+            // if the global list was not yet built
+            if( mGlobalDofBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_dof_and_dv_type_list();
+
+                // update build flag
+                mGlobalDofBuild = false;
+                mGlobalDvBuild  = false;
+            }
+
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case( mtk::Master_Slave::MASTER ):
+                {
+                    // return master global dof type list
+                    return mMasterGlobalDofTypes;
+                    break;
+                }
+                // if slave
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    // return slave global dof type list
+                    return mSlaveGlobalDofTypes;
+                    break;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_global_dof_type_list - can only be master or slave." );
+                    return mMasterGlobalDofTypes;
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        moris::Cell< moris::Cell< GEN_DV > > &
+        IWG::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
+        {
+            // if the global list was not yet built
+            if( mGlobalDvBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_dof_and_dv_type_list();
+
+                // update build flag
+                mGlobalDofBuild = false;
+                mGlobalDvBuild  = false;
+            }
+
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case( mtk::Master_Slave::MASTER ):
+                {
+                    // return master global dof type list
+                    return mMasterGlobalDvTypes;
+                    break;
+                }
+                // if slave
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    // return slave global dof type list
+                    return mSlaveGlobalDvTypes;
+                    break;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
+                    return mMasterGlobalDvTypes;
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         void IWG::compute_jacobian_FD( real               aWStar,
                                        real               aPerturbation,
                                        Matrix< DDRMat > & aJacobiansFD )
@@ -1237,10 +1371,9 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
-//                    if( !( tAbsolute < aEpsilon ) )
+//                    if( !( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) )
 //                    {
-//                        std::cout<<"iiJac "<<iiJac<<std::endl;
-//                        std::cout<<"jjJac "<<jjJac<<std::endl;
+//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
 //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
 //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
 //                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
@@ -1316,14 +1449,15 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-//                    // for debug
-//                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )
-//                    {
-//                        std::cout<<"iiJac "<<iiJac<<std::endl;
-//                        std::cout<<"jjJac "<<jjJac<<std::endl;
-//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
-//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
-//                    }
+                    // for debug
+                    if( !( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) )
+                    {
+                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
+                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
+                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+                        std::cout<<"Relative difference "<<tRelative<<std::endl;
+                    }
                 }
             }
 
