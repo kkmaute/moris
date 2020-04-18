@@ -380,6 +380,7 @@ namespace moris
             ad3NdXi3.set_size( 4, 16 );
 
             // 0th Node: (0,0)
+            //ad3NdXi3( 1,  0 ) =           0;   // FIXME: Lise add correct term and uncomment
             ad3NdXi3( 1,  0 ) =    a0*dddb0;
             ad3NdXi3( 2,  0 ) =  dda0*  db0;
             ad3NdXi3( 3,  0 ) =   da0* ddb0;
