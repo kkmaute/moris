@@ -69,10 +69,16 @@ int main( int argc, char * argv[] )
     gLogger.initialize( 2 );
     moris::print_banner( argc, argv );
 
-//------------------------------------------------------------------------------
-//  The main executable is just for developing and testing.
-//  Please do not push this file to git.
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //  The main executable is just for developing and testing.
+    //  Please do not push this file to git.
+    //------------------------------------------------------------------------------
+
+    if (argc < 2)
+    {
+        std::cout << "\n Error: input file required\n" << "\n";
+        return -1;
+    }
 
     std::string tInputArg = std::string(argv[ 1 ]);
     std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
@@ -90,9 +96,8 @@ int main( int argc, char * argv[] )
         {
             wrk::Workflow tWorkflow( &tPerformerManager );
 
-        tWorkflow.perform();
+            tWorkflow.perform();
         }
-
     }
 
     // finalize MORIS global communication manager
