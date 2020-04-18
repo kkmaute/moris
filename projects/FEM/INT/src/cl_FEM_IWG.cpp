@@ -1295,12 +1295,6 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
             //define a boolean for check
             bool tCheckJacobian = true;
 
-            // define a real for absolute difference
-            real tAbsolute = 0.0;
-
-            // define a real for relative difference
-            real tRelative = 0.0;
-
             // loop over the rows of jacobian
             for( uint iiJac = 0; iiJac < aJacobians.n_rows(); iiJac++ )
             {
@@ -1308,10 +1302,10 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
                     // get absolute difference
-                    tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
+                    real tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
 
                     // get relative difference
-                    tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+                    real tRelative = tAbsolute / aJacobiansFD( iiJac, jjJac );
 
                     //
                     bool tCheckAbsolute = ( tAbsolute < aEpsilon );
