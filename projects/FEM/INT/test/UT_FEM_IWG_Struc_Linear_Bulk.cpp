@@ -192,10 +192,7 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     tIWG->mSet->mResidual.resize( 1 );
     tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
-    
-    // set requested residual dof type flag to true
-    tIWG->mResidualDofTypeRequested = true;
-    
+
     // build global dof type list
     tIWG->get_global_dof_type_list();
     
@@ -384,9 +381,6 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Disp
     tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 12, 0.0 );
 
-    // set requested residual dof type flag to true
-    tIWG->mResidualDofTypeRequested = true;
-
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
@@ -562,9 +556,6 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     tIWG->mSet->mResidual.resize( 1 );
     tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
-    
-    // set requested residual dof type flag to true
-    tIWG->mResidualDofTypeRequested = true;
     
     // build global dof type list
     tIWG->get_global_dof_type_list();

@@ -9,7 +9,7 @@
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
-#include "assert.hpp"
+//#include "assert.hpp"
 
 namespace moris
 {
@@ -133,7 +133,7 @@ namespace moris
 #endif
         )
         {
-            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
+//            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
 #ifndef NDEBUG
             return( mCell.at( i_index ) );
 #else
@@ -155,7 +155,7 @@ namespace moris
 #endif
         )
         {
-            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
+//            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
 #ifndef NDEBUG
             return( mCell.at( i_index ) );
 #else
@@ -482,22 +482,10 @@ namespace moris
         std::cout<<std::endl;
     }
 
+
     inline
     moris::Cell<char>
-    string_to_char(moris::Cell<std::string>& strings)
-    {
-        moris::Cell<char> cstrings;
-        cstrings.reserve(strings.size());
-        for(std::string s: strings)
-        {
-            for(size_t i = 0; i < strlen(s.c_str()); ++i)
-            {
-                cstrings.push_back(s.c_str()[i]);
-            }
-        }
-
-        return cstrings;
-    }
+    string_to_char(moris::Cell<std::string>& strings);
 
 }
 

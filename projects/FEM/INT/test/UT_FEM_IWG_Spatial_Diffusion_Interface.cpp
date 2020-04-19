@@ -108,8 +108,8 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
     tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
     tIWG->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "Diffusion", mtk::Master_Slave::SLAVE );
 
     // set the normal
     //------------------------------------------------------------------------------
@@ -219,8 +219,6 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->mSet->mResidual.resize( 1 );
     tIWG->mSet->mResidual( 0 ).set_size( 16, 1 , 0.0 );
     tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );
-
-    tIWG->mResidualDofTypeRequested = true;
 
     // build global dof type list
     tIWG->get_global_dof_type_list();

@@ -89,7 +89,7 @@ void Time_Solver_Algorithm::finalize()
 
         uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-        MORIS_LOG_INFO( "Creating main time solver system with %-5i dofs.\n", mSolverInterface->get_my_local_global_overlapping_map().numel() );
+        MORIS_LOG_INFO( "Creating main time solver system with %-5i dofs.", mSolverInterface->get_my_local_global_overlapping_map().numel() );
 
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 

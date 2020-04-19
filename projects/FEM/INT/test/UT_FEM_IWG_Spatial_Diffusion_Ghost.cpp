@@ -44,10 +44,10 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 {
 
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -55,7 +55,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
         // set geometry inputs
         //------------------------------------------------------------------------------
         // create geometry type
-        mtk::Geometry_Type tGeometryType;
+        mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
         // create space coeff xHat
         Matrix< DDRMat > tXHat;
@@ -148,7 +148,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             arma::Mat< double > tSlaveMatrix;
 
             // get number of dof
-            int tNumDof;
+            int tNumDof = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -273,29 +273,6 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             fem::IWG_Factory tIWGFactory;
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
             tIWG->set_stabilization_parameter( tSP, "GhostDispl" );
-
-//            if ( iInterpOrder > 0 )
-//            {
-//                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-//                tSP1->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
-//                tSP1->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-//                tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
-//            }
-//            if ( iInterpOrder > 1 )
-//            {
-//                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-//                tSP2->set_parameters( { {{ 1.0 }}, {{ 2.0 }} });
-//                tSP2->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-//                tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
-//            }
-//            if ( iInterpOrder > 2 )
-//            {
-//                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-//                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
-//                tSP3->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-//                tIWG->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
-//            }
-
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
@@ -305,7 +282,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 
             // create and set the fem set for the IWG
             MSI::Equation_Set * tSet = new fem::Set();
-            tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+            tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
             // set size for the set EqnObjDofTypeList
             tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
@@ -334,9 +311,6 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             tIWG->mSet->mResidual.resize( 1 );
             tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
             tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
-
-            // set requested residual dof type flag to true
-            tIWG->mResidualDofTypeRequested = true;
 
             // build global property type list
             tIWG->build_global_dof_and_dv_type_list();

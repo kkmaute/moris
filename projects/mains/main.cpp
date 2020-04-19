@@ -49,7 +49,6 @@
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow.hpp"
 
-
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
@@ -70,13 +69,19 @@ int main( int argc, char * argv[] )
     gLogger.initialize( 2 );
     moris::print_banner( argc, argv );
 
-//------------------------------------------------------------------------------
-//  The main executable is just for developing and testing.
-//  Please do not push this file to git.
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //  The main executable is just for developing and testing.
+    //  Please do not push this file to git.
+    //------------------------------------------------------------------------------
+
+    if (argc < 2)
+    {
+        std::cout << "\n Error: input file required\n" << "\n";
+        return -1;
+    }
 
     std::string tInputArg = std::string(argv[ 1 ]);
-    std::string tString = "Reading dynamically linked shared object " + tInputArg + ". \n";
+    std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
     MORIS_LOG( tString.c_str() );
 
     //dynamically linked file
@@ -91,9 +96,8 @@ int main( int argc, char * argv[] )
         {
             wrk::Workflow tWorkflow( &tPerformerManager );
 
-        tWorkflow.perform();
+            tWorkflow.perform();
         }
-
     }
 
     // finalize MORIS global communication manager

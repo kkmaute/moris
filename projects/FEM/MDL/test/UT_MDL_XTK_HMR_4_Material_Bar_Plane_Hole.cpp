@@ -407,20 +407,20 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -435,8 +435,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface1->set_stabilization_parameter( tSPNitscheInterface1, "NitscheInterface" );
         tIWGInterface1->set_stabilization_parameter( tSPMasterWeightInterface1, "MasterWeightInterface" );
         tIWGInterface1->set_stabilization_parameter( tSPSlaveWeightInterface1, "SlaveWeightInterface" );
-        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2bis, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2bis, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -445,8 +445,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface2->set_stabilization_parameter( tSPNitscheInterface2, "NitscheInterface" );
         tIWGInterface2->set_stabilization_parameter( tSPMasterWeightInterface2, "MasterWeightInterface" );
         tIWGInterface2->set_stabilization_parameter( tSPSlaveWeightInterface2, "SlaveWeightInterface" );
-        tIWGInterface2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface2->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface2->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -455,8 +455,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface3->set_stabilization_parameter( tSPNitscheInterface3, "NitscheInterface" );
         tIWGInterface3->set_stabilization_parameter( tSPMasterWeightInterface3, "MasterWeightInterface" );
         tIWGInterface3->set_stabilization_parameter( tSPSlaveWeightInterface3, "SlaveWeightInterface" );
-        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1bis, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1bis, "Diffusion", mtk::Master_Slave::SLAVE );
 
         // create the IQIs
         fem::IQI_Factory tIQIFactory;
@@ -906,20 +906,20 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -934,8 +934,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface1->set_stabilization_parameter( tSPNitscheInterface1, "NitscheInterface" );
         tIWGInterface1->set_stabilization_parameter( tSPMasterWeightInterface1, "MasterWeightInterface" );
         tIWGInterface1->set_stabilization_parameter( tSPSlaveWeightInterface1, "SlaveWeightInterface" );
-        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2bis, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface1->set_constitutive_model( tCMDiffLinIso2bis, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -944,8 +944,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface2->set_stabilization_parameter( tSPNitscheInterface2, "NitscheInterface" );
         tIWGInterface2->set_stabilization_parameter( tSPMasterWeightInterface2, "MasterWeightInterface" );
         tIWGInterface2->set_stabilization_parameter( tSPSlaveWeightInterface2, "SlaveWeightInterface" );
-        tIWGInterface2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface2->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface2->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -954,8 +954,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface3->set_stabilization_parameter( tSPNitscheInterface3, "NitscheInterface" );
         tIWGInterface3->set_stabilization_parameter( tSPMasterWeightInterface3, "MasterWeightInterface" );
         tIWGInterface3->set_stabilization_parameter( tSPSlaveWeightInterface3, "SlaveWeightInterface" );
-        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1bis, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface3->set_constitutive_model( tCMDiffLinIso1bis, "Diffusion", mtk::Master_Slave::SLAVE );
 
         // create a list of active block-sets
         std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);

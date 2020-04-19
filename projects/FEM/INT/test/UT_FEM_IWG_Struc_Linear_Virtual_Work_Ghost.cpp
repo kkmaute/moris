@@ -161,7 +161,7 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
             arma::Mat< double > tSlaveMatrix;
 
             // number of dof
-            int tNumDof;
+            int tNumDof = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -347,9 +347,6 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
             tIWG->mSet->mResidual.resize( 1 );
             tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
             tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
-
-            // set requested residual dof type flag to true
-            tIWG->mResidualDofTypeRequested = true;
 
             // build global property type list
             tIWG->build_global_dof_and_dv_type_list();

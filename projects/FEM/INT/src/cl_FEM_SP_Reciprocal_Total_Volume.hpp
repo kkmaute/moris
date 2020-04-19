@@ -72,15 +72,7 @@ namespace moris
             /**
              * reset the cluster measures required for this SP
              */
-            void reset_cluster_measures()
-            {
-                // evaluate cluster measures from the cluster
-                mMasterVolume     = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
-                mSlaveVolume      = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Master_Slave::SLAVE );
-
-//                std::cout<<"mInterfaceSurface "<<mInterfaceSurface<<std::endl;
-//                std::cout<<"mInterfaceSurface in FEM "<<mCluster->compute_volume()<<std::endl;
-            }
+            void reset_cluster_measures();
 
 //------------------------------------------------------------------------------
             /**
@@ -95,7 +87,7 @@ namespace moris
             {
                 // check that aPropertyString makes sense
                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "SP_Nitsche_Interface::set_property - Unknown aPropertyString." );
+                             "SP_Reciprocal_Total_Volume::set_property - Unknown aPropertyString." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -131,7 +123,7 @@ namespace moris
              */
             void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
             {
-                MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdMasterDV: not implemented." );
+                MORIS_ERROR( false, "SP_Reciprocal_Total_Volume::eval_dSPdMasterDV: not implemented." );
             }
 
 //------------------------------------------------------------------------------
@@ -142,7 +134,7 @@ namespace moris
              */
              void eval_dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes )
              {
-                 MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdSlaveDV: not implemented." );
+                 MORIS_ERROR( false, "SP_Reciprocal_Total_Volume::eval_dSPdSlaveDV: not implemented." );
              }
 //------------------------------------------------------------------------------
         };

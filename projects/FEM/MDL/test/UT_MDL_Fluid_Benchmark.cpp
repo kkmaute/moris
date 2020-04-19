@@ -99,9 +99,6 @@ void InletVelocityFunc_MDLFluidBench
     // get position in space
     real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
 
-//    std::cout<<"x"<<aFIManager->get_IP_geometry_interpolator()->valx()( 0 )<<std::endl;
-//    std::cout<<"y"<<aFIManager->get_IP_geometry_interpolator()->valx()( 1 )<<std::endl;
-
     // set size for aPropMatrix
     aPropMatrix.set_size( 2, 1, 0.0 );
 
@@ -987,8 +984,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
     }
 }
 
-//-------------------------------------------------------------------------------------
-// Fully working test, but costly so commented.
+////-------------------------------------------------------------------------------------
+//// Fully working test, but costly so commented.
 //TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_3D]")
 //{
 //    if( par_size() <= 1 )
@@ -1462,138 +1459,839 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //    }
 //}
 
-//-------------------------------------------------------------------------------------
-TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Conform_Inlet_Velocity]")
-{
-    if( par_size() <= 1 )
-    {
-        // Geometry Parameters
-        moris::real tDomainLX      = 5.0; /* Length of full domain in x (m) */
-        moris::real tDomainLY      = 1.0; /* Length of full domain in y (m) */
-        moris::real tChannelRadius = 0.5; /* channel radius  (m) */
+////-------------------------------------------------------------------------------------
+//TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Conform_Inlet_Velocity]")
+//{
+//    if( par_size() <= 1 )
+//    {
+//        // Geometry Parameters
+//        moris::real tDomainLX      = 5.0; /* Length of full domain in x (m) */
+//        moris::real tDomainLY      = 1.0; /* Length of full domain in y (m) */
+//        moris::real tChannelRadius = 0.5; /* channel radius  (m) */
+//
+//        //Material Parameters
+//        moris::real tFluidDensity   = 1.0; /* Fluid density   () */
+//        moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
+//
+//        // Boundary Conditions
+//        moris::real tInletPressure  = 20.0; /* Inlet pressure  () */
+//        moris::real tOutletPressure =  0.0; /* Outlet pressure () */
+//        moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
+//
+//        // Mesh Setup
+//        moris::uint tNumX   = 200; /* Number of elements in x*/
+//        moris::uint tNumY   = 40; /* Number of elements in y*/
+//        moris::uint tNumRef = 0;    /* Number of HMR refinements */
+//        moris::uint tOrder  = 1;    /* Lagrange Order and Bspline Order (forced to be same for this example) */
+//
+//        uint tLagrangeMeshIndex = 0;
+//
+//        ParameterList tParameters = prm::create_hmr_parameter_list();
+//        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
+//        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
+//        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
+//        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+//        tParameters.set( "lagrange_output_meshes", std::string("0") );
+//
+//        tParameters.set( "lagrange_orders", std::string("1") );
+//        tParameters.set( "lagrange_pattern", std::string("0") );
+//        tParameters.set( "bspline_orders", std::string("1") );
+//        tParameters.set( "bspline_pattern", std::string("0") );
+//
+//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "refinement_buffer", 3 );
+//        tParameters.set( "staircase_buffer", 3 );
+//        tParameters.set( "initial_refinement", 0 );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//        tParameters.set( "severity_level", 2 );
+//        tParameters.set( "use_number_aura", 0 );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        //initial refinement
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//        tHMR.finalize();
+//
+//        // construct a mesh manager for the fem
+//        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
+//        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//        moris::hmr::Integration_Mesh_HMR *   tIGMesh
+//        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
+//
+//       // place the pair in mesh manager
+//       mtk::Mesh_Manager tMeshManager;
+//       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
+//
+//        // create for fem
+//        // --------------------------------------------------------------------------------------
+//        // create the properties
+//        std::shared_ptr< fem::Property > tPropFluidDensity = std::make_shared< fem::Property >();
+//        tPropFluidDensity->set_parameters( { {{ tFluidDensity }} } );
+//        tPropFluidDensity->set_val_function( ConstFuncVal_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropFluidViscosity = std::make_shared< fem::Property >();
+//        tPropFluidViscosity->set_parameters( { {{ tFluidViscosity }} } );
+//        tPropFluidViscosity->set_val_function( ConstFuncVal_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropInletVelocity = std::make_shared< fem::Property >();
+//        tPropInletVelocity->set_parameters( { {{ tChannelRadius }}, {{ 0.0 }} } );
+//        tPropInletVelocity->set_val_function( InletVelocityFunc_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropFSVelocity = std::make_shared< fem::Property >();
+//        tPropFSVelocity->set_val_function( FSVelocityFunc_MDLFluidBench );
+//
+//        // create constitutive models
+//        fem::CM_Factory tCMFactory;
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMFluid
+//        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+//        tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
+//        tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
+//        tCMFluid->set_property( tPropFluidDensity, "Density" );
+//        tCMFluid->set_space_dim( 2 );
+//
+//        // define stabilization parameters
+//        fem::SP_Factory tSPFactory;
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
+//        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+//        tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
+//        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+//        tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+//
+//        // define the IWGs
+//        fem::IWG_Factory tIWGFactory;
+//
+//        std::shared_ptr< fem::IWG > tIWGVelocityBulk
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+//        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
+//        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+//
+//        std::shared_ptr< fem::IWG > tIWGPressureBulk
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+//        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
+//        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+//
+//        std::shared_ptr< fem::IWG > tIWGInletVelocity
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
+//        tIWGInletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
+//
+//        std::shared_ptr< fem::IWG > tIWGFSVelocity
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
+//        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
+//
+//        std::shared_ptr< fem::IWG > tIWGInletPressure
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
+//        tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//
+//        std::shared_ptr< fem::IWG > tIWGFSPressure
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
+//        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//
+//        // create the IQIs
+//        // --------------------------------------------------------------------------------------
+//        fem::IQI_Factory tIQIFactory;
+//
+//        std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVX->set_output_type( vis::Output_Type::VX );
+//        tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+//        tIQIVX->set_output_type_index( 0 );
+//
+//        std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVY->set_output_type( vis::Output_Type::VY );
+//        tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+//        tIQIVY->set_output_type_index( 1 );
+//
+//        std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIP->set_output_type( vis::Output_Type::P );
+//        tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+//        tIQIP->set_output_type_index( 0 );
+//
+//        // create set info
+//        // --------------------------------------------------------------------------------------
+//        fem::Set_User_Info tSetBulk;
+//        tSetBulk.set_mesh_set_name( "HMR_dummy" );
+//        tSetBulk.set_IWGs( { tIWGVelocityBulk, tIWGPressureBulk } );
+//        tSetBulk.set_IQIs( { tIQIVX, tIQIVY, tIQIP } );
+//
+//        // Fluid/solid velocity bottom
+//        fem::Set_User_Info tSetFSBottom;
+//        tSetFSBottom.set_mesh_index( 3 );
+//        tSetFSBottom.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Fluid/solid velocity top
+//        fem::Set_User_Info tSetFSTop;
+//        tSetFSTop.set_mesh_index( 1 );
+//        tSetFSTop.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Inlet velocity
+//        fem::Set_User_Info tSetInlet;
+//        tSetInlet.set_mesh_index( 4 );
+//        tSetInlet.set_IWGs( { tIWGInletVelocity, tIWGInletPressure } );
+//
+//        // create a cell of set info
+//        moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+//        tSetInfo( 0 ) = tSetBulk;
+//        tSetInfo( 1 ) = tSetInlet;
+//        tSetInfo( 2 ) = tSetFSBottom;
+//        tSetInfo( 3 ) = tSetFSTop;
+//
+//        // create model
+//        // --------------------------------------------------------------------------------------
+//        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+//                                              0,
+//                                              tSetInfo,
+//                                              0, false );
+//
+//        // define outputs
+//        // --------------------------------------------------------------------------------------
+//        vis::Output_Manager tOutputData;
+//        tOutputData.set_outputs( 0,
+//                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+//                                 "./",
+//                                 "MDL_Fluid_Benchmark_Conform_Inlet_Velocity_Output.exo",
+//                                 { "HMR_dummy" },
+//                                 { "VX", "VY", "P" },
+//                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
+//                                 { vis::Output_Type::VX,  vis::Output_Type::VY, vis::Output_Type::P } );
+//        tModel->set_output_manager( &tOutputData );
+//
+//        // create linear solver and algorithm
+//        // --------------------------------------------------------------------------------------
+//        moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+//        for( uint Ik = 0; Ik < 7; Ik ++)
+//        {
+//            tSOLParameterlist( Ik ).resize(1);
+//        }
+//
+//        tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+//
+//        tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+//
+//        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+//
+//        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+//        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+//
+//        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+//
+//        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+//        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
+//        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+//
+//        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+//
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        tSolverWarehouse.set_parameterlist( tSOLParameterlist );
+//        tSolverWarehouse.initialize();
+//
+//        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+//        tTimeSolver->set_output( 0, tSolverOutputCriteria_MDLFluidBench );
+//        tTimeSolver->solve();
+//
+//        // clean up
+//        //------------------------------------------------------------------------------
+//        delete tModel;
+//        delete tIPMesh;
+//        delete tIGMesh;
+//    }
+//}
 
-        //Material Parameters
-        moris::real tFluidDensity   = 1.0; /* Fluid density   () */
-        moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
+////-------------------------------------------------------------------------------------
+//TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Conform_Inlet_Pressure]")
+//{
+//    if( par_size() <= 1 )
+//    {
+//        // Geometry Parameters
+//        moris::real tDomainLX      = 5.0; /* Length of full domain in x (m) */
+//        moris::real tDomainLY      = 1.0; /* Length of full domain in y (m) */
+//
+//        //Material Parameters
+//        moris::real tFluidDensity   = 1.0; /* Fluid density   () */
+//        moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
+//
+//        // Boundary Conditions
+//        moris::real tInletPressure  = 20.0; /* Inlet pressure  () */
+//        moris::real tOutletPressure =  0.0; /* Outlet pressure () */
+//        moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
+//
+//        // Mesh Setup
+//        moris::uint tNumX   = 200; /* Number of elements in x*/
+//        moris::uint tNumY   = 40; /* Number of elements in y*/
+//        moris::uint tNumRef = 0;    /* Number of HMR refinements */
+//        moris::uint tOrder  = 1;    /* Lagrange Order and Bspline Order (forced to be same for this example) */
+//
+//        uint tLagrangeMeshIndex = 0;
+//
+//        ParameterList tParameters = prm::create_hmr_parameter_list();
+//        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
+//        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
+//        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
+//        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+//        tParameters.set( "lagrange_output_meshes", std::string("0") );
+//
+//        tParameters.set( "lagrange_orders", std::string("1") );
+//        tParameters.set( "lagrange_pattern", std::string("0") );
+//        tParameters.set( "bspline_orders", std::string("1") );
+//        tParameters.set( "bspline_pattern", std::string("0") );
+//
+//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "refinement_buffer", 3 );
+//        tParameters.set( "staircase_buffer", 3 );
+//        tParameters.set( "initial_refinement", 0 );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//        tParameters.set( "severity_level", 2 );
+//        tParameters.set( "use_number_aura", 0 );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        //initial refinement
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//        tHMR.finalize();
+//
+//        // construct a mesh manager for the fem
+//        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
+//        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//        moris::hmr::Integration_Mesh_HMR *   tIGMesh
+//        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
+//
+//       // place the pair in mesh manager
+//       mtk::Mesh_Manager tMeshManager;
+//       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
+//
+//        // create for fem
+//        // --------------------------------------------------------------------------------------
+//        // create the properties
+//        std::shared_ptr< fem::Property > tPropFluidDensity = std::make_shared< fem::Property >();
+//        tPropFluidDensity->set_parameters( { {{ tFluidDensity }} } );
+//        tPropFluidDensity->set_val_function( ConstFuncVal_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropFluidViscosity = std::make_shared< fem::Property >();
+//        tPropFluidViscosity->set_parameters( { {{ tFluidViscosity }} } );
+//        tPropFluidViscosity->set_val_function( ConstFuncVal_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropFSVelocity = std::make_shared< fem::Property >();
+//        tPropFSVelocity->set_val_function( FSVelocityFunc_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropInletPressure = std::make_shared< fem::Property >();
+//        tPropInletPressure->set_parameters( { {{ tInletPressure }} } );
+//        tPropInletPressure->set_val_function( InletPressureFunc_MDLFluidBench );
+//
+//        // create constitutive models
+//        fem::CM_Factory tCMFactory;
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMFluid
+//        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+//        tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
+//        tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
+//        tCMFluid->set_property( tPropFluidDensity, "Density" );
+//        tCMFluid->set_space_dim( 2 );
+//
+//        // define stabilization parameters
+//        fem::SP_Factory tSPFactory;
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
+//        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+//        tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
+//        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+//        tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+//
+//        // define the IWGs
+//        fem::IWG_Factory tIWGFactory;
+//
+//        std::shared_ptr< fem::IWG > tIWGVelocityBulk
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+//        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
+//        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+//
+//        std::shared_ptr< fem::IWG > tIWGPressureBulk
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+//        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
+//        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
+//        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+//
+//        std::shared_ptr< fem::IWG > tIWGInletPressure
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
+//        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
+//
+//        std::shared_ptr< fem::IWG > tIWGFSVelocity
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
+//        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
+//
+//        std::shared_ptr< fem::IWG > tIWGFSPressure
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
+//        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
+//        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//
+//        // create the IQIs
+//        // --------------------------------------------------------------------------------------
+//        fem::IQI_Factory tIQIFactory;
+//
+//        std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVX->set_output_type( vis::Output_Type::VX );
+//        tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+//        tIQIVX->set_output_type_index( 0 );
+//
+//        std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVY->set_output_type( vis::Output_Type::VY );
+//        tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+//        tIQIVY->set_output_type_index( 1 );
+//
+//        std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIP->set_output_type( vis::Output_Type::P );
+//        tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+//        tIQIP->set_output_type_index( 0 );
+//
+//        // create set info
+//        // --------------------------------------------------------------------------------------
+//        fem::Set_User_Info tSetBulk;
+//        tSetBulk.set_mesh_set_name( "HMR_dummy" );
+//        tSetBulk.set_IWGs( { tIWGVelocityBulk, tIWGPressureBulk } );
+//        tSetBulk.set_IQIs( { tIQIVX, tIQIVY, tIQIP } );
+//
+//        // Fluid/solid velocity bottom
+//        fem::Set_User_Info tSetFSBottom;
+//        tSetFSBottom.set_mesh_index( 3 );
+//        tSetFSBottom.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Fluid/solid velocity top
+//        fem::Set_User_Info tSetFSTop;
+//        tSetFSTop.set_mesh_index( 1 );
+//        tSetFSTop.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Inlet velocity
+//        fem::Set_User_Info tSetInlet;
+//        tSetInlet.set_mesh_index( 4 );
+//        tSetInlet.set_IWGs( { tIWGInletPressure } );
+//
+//        // create a cell of set info
+//        moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+//        tSetInfo( 0 ) = tSetBulk;
+//        tSetInfo( 1 ) = tSetInlet;
+//        tSetInfo( 2 ) = tSetFSBottom;
+//        tSetInfo( 3 ) = tSetFSTop;
+//
+//        // create model
+//        // --------------------------------------------------------------------------------------
+//        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+//                                              0,
+//                                              tSetInfo,
+//                                              0, false );
+//
+//        // define outputs
+//        // --------------------------------------------------------------------------------------
+//        vis::Output_Manager tOutputData;
+//        tOutputData.set_outputs( 0,
+//                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+//                                 "./",
+//                                 "MDL_Fluid_Benchmark_Conform_Inlet_Pressure_Output.exo",
+//                                 { "HMR_dummy" },
+//                                 { "VX", "VY", "P" },
+//                                 { vis::Field_Type::NODAL,
+//                                   vis::Field_Type::NODAL,
+//                                   vis::Field_Type::NODAL },
+//                                 { vis::Output_Type::VX,
+//                                   vis::Output_Type::VY,
+//                                   vis::Output_Type::P } );
+//        tModel->set_output_manager( &tOutputData );
+//
+//        // create linear solver and algorithm
+//        // --------------------------------------------------------------------------------------
+//        moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+//        for( uint Ik = 0; Ik < 7; Ik ++)
+//        {
+//            tSOLParameterlist( Ik ).resize(1);
+//        }
+//
+//        tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+//
+//        tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+//
+//        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+//
+//        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+//        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+//
+//        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+//
+//        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+//        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
+//        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+//
+//        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+//
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        tSolverWarehouse.set_parameterlist( tSOLParameterlist );
+//        tSolverWarehouse.initialize();
+//
+//        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+//        tTimeSolver->set_output( 0, tSolverOutputCriteria_MDLFluidBench );
+//        tTimeSolver->solve();
+//
+//        // clean up
+//        //------------------------------------------------------------------------------
+//        delete tModel;
+//        delete tIPMesh;
+//        delete tIGMesh;
+//    }
+//}
 
-        // Boundary Conditions
-        moris::real tInletPressure  = 20.0; /* Inlet pressure  () */
-        moris::real tOutletPressure =  0.0; /* Outlet pressure () */
-        moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
+////-------------------------------------------------------------------------------------
+//TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D]")
+//{
+//    if( par_size() <= 1 )
+//    {
+//        // Geometry Parameters
+//        moris::real tDomainLX      = 5.0; /* Length of full domain in x (m) */
+//        moris::real tDomainLY      = 1.0; /* Length of full domain in y (m) */
+//        moris::real tDomainLZ      = 1.0; /* Length of full domain in z (m) */
+//
+//        //Material Parameters
+//        moris::real tFluidDensity   = 1.0; /* Fluid density   () */
+//        moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
+//
+//        // Boundary Conditions
+//        moris::real tInletPressure  = 20.0; /* Inlet pressure  () */
+//        moris::real tOutletPressure =  0.0; /* Outlet pressure () */
+//        moris::real tGammaNitsche   = 1000.0; /* Penalty for Dirichlet BC */
+//
+//        // Mesh Setup
+//        moris::uint tNumX   = 50; /* Number of elements in x*/
+//        moris::uint tNumY   = 10; /* Number of elements in y*/
+//        moris::uint tNumZ   = 10; /* Number of elements in z*/
+//        moris::uint tNumRef = 0;    /* Number of HMR refinements */
+//        moris::uint tOrder  = 1;    /* Lagrange Order and Bspline Order (forced to be same for this example) */
+//
+//        uint tLagrangeMeshIndex = 0;
+//
+//        ParameterList tParameters = prm::create_hmr_parameter_list();
+//        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY) + "," + std::to_string(tNumZ));
+//        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) + "," + std::to_string(tDomainLZ) );
+//        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) + "," + std::to_string(-tDomainLZ/2) );
+//        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5,6") );
+//        tParameters.set( "lagrange_output_meshes", std::string("0") );
+//
+//        tParameters.set( "lagrange_orders", std::string("1") );
+//        tParameters.set( "lagrange_pattern", std::string("0") );
+//        tParameters.set( "bspline_orders", std::string("1") );
+//        tParameters.set( "bspline_pattern", std::string("0") );
+//
+//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "refinement_buffer", 3 );
+//        tParameters.set( "staircase_buffer", 3 );
+//        tParameters.set( "initial_refinement", 0 );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//        tParameters.set( "severity_level", 2 );
+//        tParameters.set( "use_number_aura", 0 );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        //initial refinement
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//        tHMR.finalize();
+//
+//        // construct a mesh manager for the fem
+//        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
+//        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//        moris::hmr::Integration_Mesh_HMR *   tIGMesh
+//        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
+//
+//        // create for fem
+//        // --------------------------------------------------------------------------------------
+//        // create the properties
+//        std::shared_ptr< fem::Property > tPropFluidDensity = std::make_shared< fem::Property >();
+//        tPropFluidDensity->set_parameters( { {{ tFluidDensity }} } );
+//        tPropFluidDensity->set_val_function( ConstFuncVal_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropFluidViscosity = std::make_shared< fem::Property >();
+//        tPropFluidViscosity->set_parameters( { {{ tFluidViscosity }} } );
+//        tPropFluidViscosity->set_val_function( ConstFuncVal_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropFSVelocity = std::make_shared< fem::Property >();
+//        tPropFSVelocity->set_val_function( FSVelocityFunc_MDLFluidBench );
+//
+//        std::shared_ptr< fem::Property > tPropInletPressure = std::make_shared< fem::Property >();
+//        tPropInletPressure->set_parameters( { {{ tInletPressure }} } );
+//        tPropInletPressure->set_val_function( InletPressureFunc_MDLFluidBench );
+//
+//        // create constitutive models
+//        fem::CM_Factory tCMFactory;
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMFluid
+//        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+//        tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }} );
+//        tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
+//        tCMFluid->set_property( tPropFluidDensity, "Density" );
+//        tCMFluid->set_space_dim( 3 );
+//
+//        // define stabilization parameters
+//        fem::SP_Factory tSPFactory;
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
+//        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+//        tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+//        tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
+//        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+//        tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+//        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+//
+//        // define the IWGs
+//        fem::IWG_Factory tIWGFactory;
+//
+//        std::shared_ptr< fem::IWG > tIWGVelocityBulk
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+//        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
+//        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+//
+//        std::shared_ptr< fem::IWG > tIWGPressureBulk
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+//        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+//        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
+//        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+//
+//        std::shared_ptr< fem::IWG > tIWGInletPressure
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
+//        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
+//
+//        std::shared_ptr< fem::IWG > tIWGFSVelocity
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+//        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+//        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
+//        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//        tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
+//
+//        std::shared_ptr< fem::IWG > tIWGFSPressure
+//        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+//        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+//        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+//        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
+//        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
+//
+//        // create the IQIs
+//        // --------------------------------------------------------------------------------------
+//        fem::IQI_Factory tIQIFactory;
+//
+//        std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVX->set_output_type( vis::Output_Type::VX );
+//        tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+//        tIQIVX->set_output_type_index( 0 );
+//
+//        std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVY->set_output_type( vis::Output_Type::VY );
+//        tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+//        tIQIVY->set_output_type_index( 1 );
+//
+//        std::shared_ptr< fem::IQI > tIQIVZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIVZ->set_output_type( vis::Output_Type::VZ );
+//        tIQIVZ->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+//        tIQIVZ->set_output_type_index( 2 );
+//
+//        std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+//        tIQIP->set_output_type( vis::Output_Type::P );
+//        tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+//        tIQIP->set_output_type_index( 0 );
+//
+//        // create set info
+//        // --------------------------------------------------------------------------------------
+//        fem::Set_User_Info tSetBulk;
+//        tSetBulk.set_mesh_set_name( "HMR_dummy" );
+//        tSetBulk.set_IWGs( { tIWGVelocityBulk, tIWGPressureBulk } );
+//        tSetBulk.set_IQIs( { tIQIVX, tIQIVY, tIQIVZ, tIQIP } );
+//
+//        // Fluid/solid velocity bottom
+//        fem::Set_User_Info tSetFSBottom;
+//        tSetFSBottom.set_mesh_index( 3 );
+//        tSetFSBottom.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Fluid/solid velocity top
+//        fem::Set_User_Info tSetFSTop;
+//        tSetFSTop.set_mesh_index( 1 );
+//        tSetFSTop.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Fluid/solid velocity top
+//        fem::Set_User_Info tSetFSBack;
+//        tSetFSBack.set_mesh_index( 5 );
+//        tSetFSBack.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Fluid/solid velocity top
+//        fem::Set_User_Info tSetFSFront;
+//        tSetFSFront.set_mesh_index( 6 );
+//        tSetFSFront.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
+//
+//        // Inlet velocity
+//        fem::Set_User_Info tSetInlet;
+//        tSetInlet.set_mesh_index( 4 );
+//        tSetInlet.set_IWGs( { tIWGInletPressure } );
+//
+//        // create a cell of set info
+//        moris::Cell< fem::Set_User_Info > tSetInfo( 6 );
+//        tSetInfo( 0 ) = tSetBulk;
+//        tSetInfo( 1 ) = tSetInlet;
+//        tSetInfo( 2 ) = tSetFSBottom;
+//        tSetInfo( 3 ) = tSetFSTop;
+//        tSetInfo( 4 ) = tSetFSBack;
+//        tSetInfo( 5 ) = tSetFSFront;
+//
+//        // create model
+//        // --------------------------------------------------------------------------------------
+//        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+//                                              0,
+//                                              tSetInfo,
+//                                              0, false );
+//
+//        // define outputs
+//        // --------------------------------------------------------------------------------------
+//        vis::Output_Manager tOutputData;
+//        tOutputData.set_outputs( 0,
+//                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+//                                 "./",
+//                                 "MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D_Output.exo",
+//                                 { "HMR_dummy" },
+//                                 { "VX", "VY", "VZ", "P" },
+//                                 { vis::Field_Type::NODAL,
+//                                   vis::Field_Type::NODAL,
+//                                   vis::Field_Type::NODAL,
+//                                   vis::Field_Type::NODAL },
+//                                 { vis::Output_Type::VX,
+//                                   vis::Output_Type::VY,
+//                                   vis::Output_Type::VZ,
+//                                   vis::Output_Type::P } );
+//        tModel->set_output_manager( &tOutputData );
+//
+//        // --------------------------------------------------------------------------------------
+//        // define linear solver and algorithm
+//        dla::Solver_Factory  tSolFactory;
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
+//        = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+//
+//        dla::Linear_Solver tLinSolver;
+//
+//        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+//
+//        // create linear solver and algorithm
+//        // --------------------------------------------------------------------------------------
+//        moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+//        for( uint Ik = 0; Ik < 7; Ik ++)
+//        {
+//            tSOLParameterlist( Ik ).resize(1);
+//        }
+//
+//        tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+//
+//        tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+//
+//        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+//
+//        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+//        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY,VZ;P") );
+//
+//        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+//
+//        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+//        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY,VZ;P") );
+//        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;VZ,0.0;P,0.0") );
+//
+//        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+//
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//        tSolverWarehouse.set_parameterlist( tSOLParameterlist );
+//        tSolverWarehouse.initialize();
+//
+//        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+//        tTimeSolver->set_output( 0, tSolverOutputCriteria_MDLFluidBench );
+//        tTimeSolver->solve();
+//
+//        // clean up
+//        //------------------------------------------------------------------------------
+//        delete tModel;
+//        delete tIPMesh;
+//        delete tIGMesh;
+//    }
+//}
 
-        // Mesh Setup
-        moris::uint tNumX   = 200; /* Number of elements in x*/
-        moris::uint tNumY   = 40; /* Number of elements in y*/
-        moris::uint tNumRef = 0;    /* Number of HMR refinements */
-        moris::uint tOrder  = 1;    /* Lagrange Order and Bspline Order (forced to be same for this example) */
-
-        uint tLagrangeMeshIndex = 0;
-
-        ParameterList tParameters = prm::create_hmr_parameter_list();
-        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
-        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
-        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
-
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
-
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
-
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
-
-        tParameters.set( "use_multigrid", 0 );
-        tParameters.set( "severity_level", 2 );
-        tParameters.set( "use_number_aura", 0 );
-
-        hmr::HMR tHMR( tParameters );
-
-        //initial refinement
-        tHMR.perform_initial_refinement( 0 );
-
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-        tHMR.finalize();
-
-        // construct a mesh manager for the fem
-        moris::hmr::Interpolation_Mesh_HMR * tIPMesh
-        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        moris::hmr::Integration_Mesh_HMR *   tIGMesh
-        = tHMR.create_integration_mesh( 1, 0, *tIPMesh );
-
-       // place the pair in mesh manager
-       mtk::Mesh_Manager tMeshManager;
-       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
-
-        // create for fem
-        // --------------------------------------------------------------------------------------
-        // create the properties
-        std::shared_ptr< fem::Property > tPropFluidDensity = std::make_shared< fem::Property >();
-        tPropFluidDensity->set_parameters( { {{ tFluidDensity }} } );
-        tPropFluidDensity->set_val_function( ConstFuncVal_MDLFluidBench );
-
-        std::shared_ptr< fem::Property > tPropFluidViscosity = std::make_shared< fem::Property >();
-        tPropFluidViscosity->set_parameters( { {{ tFluidViscosity }} } );
-        tPropFluidViscosity->set_val_function( ConstFuncVal_MDLFluidBench );
-
-        std::shared_ptr< fem::Property > tPropInletVelocity = std::make_shared< fem::Property >();
-        tPropInletVelocity->set_parameters( { {{ tChannelRadius }}, {{ 0.0 }} } );
-        tPropInletVelocity->set_val_function( InletVelocityFunc_MDLFluidBench );
-
-        std::shared_ptr< fem::Property > tPropFSVelocity = std::make_shared< fem::Property >();
-        tPropFSVelocity->set_val_function( FSVelocityFunc_MDLFluidBench );
-
-        // create constitutive models
-        fem::CM_Factory tCMFactory;
-
-        std::shared_ptr< fem::Constitutive_Model > tCMFluid
-        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-        tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
-        tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
-        tCMFluid->set_property( tPropFluidDensity, "Density" );
-        tCMFluid->set_space_dim( 2 );
-
-        // define stabilization parameters
-        fem::SP_Factory tSPFactory;
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
-        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-        tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-        tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-        tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPIncFlow->set_parameters( { {{ 36.0 }} } );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
-        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-        tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
-        tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
-
-        // define the IWGs
-        fem::IWG_Factory tIWGFactory;
-
-        std::shared_ptr< fem::IWG > tIWGVelocityBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
-        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
-        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
-
-        std::shared_ptr< fem::IWG > tIWGPressureBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
-        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
-        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
-
+<<<<<<< HEAD
         std::shared_ptr< fem::IWG > tIWGInletVelocity
         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );

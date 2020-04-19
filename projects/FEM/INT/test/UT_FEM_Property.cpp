@@ -192,8 +192,8 @@ namespace moris
             Matrix< DDRMat > tPropertyDerivative = tProperty.dPropdDOF( { MSI::Dof_Type::TEMP } );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 2.0 ) );
 
-            // clean up
-            tFieldInterpolator.clear();
+//            // clean up
+//            tFieldInterpolator.clear();
 
         }/* TEST CASE */
 
@@ -317,8 +317,8 @@ namespace moris
             tPropertyDerivative = tProperty.dPropdDOF( {MSI::Dof_Type::UX} );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
-            // clean up
-            tFieldInterpolator.clear();
+//            // clean up
+//            tFieldInterpolator.clear();
 
         }/* TEST_CASE */
 
@@ -479,10 +479,10 @@ namespace moris
             tPropertyDerivative = tProperty.dPropdDV( {GEN_DV::LS2 } );
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
-            // clean up
-            // delete field interpolators
-            tDofFI.clear();
-            tDvFI.clear();
+//            // clean up
+//            // delete field interpolators
+//            tDofFI.clear();
+//            tDvFI.clear();
 
         }/* TEST_CASE */
 

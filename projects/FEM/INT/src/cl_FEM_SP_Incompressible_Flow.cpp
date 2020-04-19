@@ -17,6 +17,21 @@ namespace moris
     {
 
 //--------------------------------------------------------------------------------------------------------------
+        SP_Incompressible_Flow::SP_Incompressible_Flow()
+        {
+            // set the property pointer cell size
+            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the map
+            mPropertyMap[ "Density" ]   = Property_Type::DENSITY;
+            mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
+
+            // populate the dof map (default)
+            mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
+            mMasterDofMap[ "Pressure" ] = MSI::Dof_Type::P;
+        }
+
+//--------------------------------------------------------------------------------------------------------------
         void SP_Incompressible_Flow::set_function_pointers()
         {
             // switch on space dimensions

@@ -55,6 +55,8 @@ namespace moris
 
             MSI::MSI_Solver_Interface * mSolverInterface;
 
+            std::shared_ptr< MSI::Equation_Model > mEquationModel = nullptr;
+
             friend class MSI_Solver_Interface;
             friend class Multigrid;
 
@@ -121,7 +123,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
-                                     std::shared_ptr< MSI::Equation_Model >            & aEquationModel,
+                                     std::shared_ptr< MSI::Equation_Model >              aEquationModel,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs,

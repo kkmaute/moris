@@ -678,12 +678,15 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( "%s United patterns %lu and %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "%s United patterns %lu and %lu to %lu.",
                     proc_string().c_str(),
                     ( long unsigned int ) aSourceA,
                     ( long unsigned int ) aSourceB,
-                    ( long unsigned int ) aTarget,
+                    ( long unsigned int ) aTarget);
+
+            MORIS_LOG_INFO( "Calculation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000  );
+            MORIS_LOG_INFO( " " );
         }
 
 // -----------------------------------------------------------------------------
@@ -703,11 +706,14 @@ namespace moris
            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
            // print output
-           MORIS_LOG_INFO("%s Copied pattern %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+           MORIS_LOG_INFO("%s Copied pattern %lu to %lu.",
                    proc_string().c_str(),
                    ( long unsigned int ) aSource,
-                   ( long unsigned int ) aTarget,
+                   ( long unsigned int ) aTarget);
+
+           MORIS_LOG_INFO( "Calculation took %5.3f seconds.",
                    ( double ) tElapsedTime / 1000);
+           MORIS_LOG_INFO( " " );
         }
 
 // -----------------------------------------------------------------------------
@@ -1144,7 +1150,7 @@ namespace moris
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "%s passed entity ID test, testing took %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "%s passed entity ID test, testing took %5.3f seconds.",
                         proc_string().c_str(), ( double ) tElapsedTime / 1000 );
             }
         }

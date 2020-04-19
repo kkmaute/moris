@@ -28,6 +28,9 @@
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 
+#include "cl_GlobalClock.hpp" // MRS/IOS/src
+#include "cl_Tracer.hpp" // MRS/IOS/src
+
 //------------------------------------------------------------------------------
 using namespace moris;
 using namespace ge;

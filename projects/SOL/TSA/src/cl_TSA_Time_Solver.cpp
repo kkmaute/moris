@@ -21,6 +21,9 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 
+// Detailed Logging package
+//#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace tsa;
 
@@ -257,6 +260,8 @@ using namespace tsa;
 
     void Time_Solver::solve()
     {
+        //Tracer tTracer(EntityBase::TimeSolver, EntityType::Unknown, EntityAction::Solve);
+
         mIsMasterTimeSolver = true;
 
         // get solver interface

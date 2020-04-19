@@ -15,11 +15,17 @@ set(HEADERS
     cl_Tuple.hpp
     containers.hpp
     fn_zip.hpp )
+    
+# List library source files
+set(LIB_SOURCES
+	cl_Cell.cpp
+    )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Containers Library
 
-add_library(${CON}-lib INTERFACE)
+#add_library(${CON}-lib INTERFACE)
+add_library(${CON}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${CON}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${CON}_HEADER_INSTALL_DIR}> )

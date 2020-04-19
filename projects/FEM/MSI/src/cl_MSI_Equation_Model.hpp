@@ -16,7 +16,7 @@
 
 namespace moris
 {
-
+    class Dist_Vector;
 //------------------------------------------------------------------------------
 
     namespace MSI
@@ -41,6 +41,9 @@ namespace moris
 
             // map from mesh set indices to fem set indices
             map< moris_index, moris_index >   mMeshSetToFemSetMap;
+
+            Dist_Vector * mSolutionVector = nullptr;
+            Dist_Vector * mPrevSolutionVector = nullptr;
 
 //------------------------------------------------------------------------------
         public:
@@ -91,6 +94,46 @@ namespace moris
             virtual void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface )
             {
                 MORIS_ERROR( false, "Equation_Model::finalize_equation_sets - not implemented for base class." );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set solution vector
+             * @param[ in ] aSolutionVector distributed solution vector
+             */
+            void set_solution_vector( Dist_Vector * aSolutionVector )
+            {
+                mSolutionVector = aSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get solution vector
+             * @param[ out ] aSolutionVector distributed solution vector
+             */
+            Dist_Vector * get_solution_vector()
+            {
+                return mSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set previous solution vector
+             * @param[ in ] aSolutionVector previous distributed solution vector
+             */
+            void set_previous_solution_vector( Dist_Vector * aSolutionVector )
+            {
+                mPrevSolutionVector = aSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+            Dist_Vector * get_previous_solution_vector()
+            {
+                return mPrevSolutionVector;
             }
 
 //------------------------------------------------------------------------------

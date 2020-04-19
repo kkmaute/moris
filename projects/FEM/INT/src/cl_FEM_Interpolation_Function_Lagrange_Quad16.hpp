@@ -327,7 +327,6 @@ namespace moris
         Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
                                                                                                                      Matrix< DDRMat > & ad3NdXi3 ) const
         {
-
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
@@ -376,10 +375,10 @@ namespace moris
             real dddb2 = - 162.0 * 0.0625;
             real dddb3 =    54.0 * 0.0625;
 
-
             ad3NdXi3.set_size( 4, 16 );
 
             // 0th Node: (0,0)
+            ad3NdXi3( 0,  0 ) = ddda0*   b0;
             ad3NdXi3( 1,  0 ) =    a0*dddb0;
             ad3NdXi3( 2,  0 ) =  dda0*  db0;
             ad3NdXi3( 3,  0 ) =   da0* ddb0;
@@ -473,7 +472,6 @@ namespace moris
             ad3NdXi3( 1, 15 ) =    a1*dddb2;
             ad3NdXi3( 2, 15 ) =  dda1*  db2;
             ad3NdXi3( 3, 15 ) =   da1* ddb2;
-
         }
 
 

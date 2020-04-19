@@ -22,31 +22,14 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
-
             enum class IWG_Constitutive_Type
             {
                 ELAST_LIN_ISO,
-                ELAST_LIN_ISO_PRESSURE,
                 MAX_ENUM
             };
 
             // Local string to constitutive enum map
             std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
-            enum class IWG_Stabilization_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
 //------------------------------------------------------------------------------
             /*
@@ -86,24 +69,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r =
-             * @param[ in ] aResidual residual vector to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j =
-             * @param[ in ] aJacobians list of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians list of jacobian matrices to fill
-             * @param[ in ] aResidual  residual vector to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 

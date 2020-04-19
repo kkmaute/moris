@@ -3,6 +3,7 @@
 #include "catch.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "paths.hpp"
 
 #include "op_times.hpp"
 #include "op_equal_equal.hpp"
@@ -19,9 +20,9 @@ TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 {
     if( par_size() == 1 )
     {
-        std::string tStringMoris = std::getenv( "MORISROOT" );
-        std::string tString = tStringMoris + "/projects/FEM/MDL/test/data/Input_test.so";
-        std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( tString );
+        std::string tInputFilePath = moris::get_moris_bin_dir() + "/lib/libWRK_Input_1.so";
+
+        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
 
         wrk::Performer_Manager tPerformerManager( tLibrary );
 

@@ -24,7 +24,7 @@ namespace moris
 TEST_CASE("moris::save_and_load_binary_file",
           "[linalgebra],[save_and_load_binary_file]")
 {
-
+        // set size of test matrix
         uint tNumberOfRows = 640;
         uint tNumberOfCols = 480;
 

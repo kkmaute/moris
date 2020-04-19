@@ -189,8 +189,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[moris],[fem],[IWG_Incompres
             arma::Mat< double > tSlavePressureMatrix;
 
             // get number of dof
-            int tNumDof;
-            int tNumPDof;
+            int tNumDof = 0;
+            int tNumPDof = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -337,50 +337,50 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[moris],[fem],[IWG_Incompres
             // create and set the fem set for the IWG
             MSI::Equation_Set * tSet = new fem::Set();
 
-            // set size for the set EqnObjDofTypeList
-            tSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-
-            // set size and populate the set dof type map
-            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-
-            // set size and populate the set master and slave dof type map
-            tSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-            tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-            tSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-            tSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-
-            // set size and fill the set residual assembly map
-            tSet->mResDofAssemblyMap.resize( 4 );
-            tSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
-            tSet->mResDofAssemblyMap( 1 ) = { { tNumDof, tNumPDof + tNumDof - 1 } };
-            tSet->mResDofAssemblyMap( 2 ) = { { tNumPDof + tNumDof, ( 2 * tNumDof ) + tNumDof - 1 } };
-            tSet->mResDofAssemblyMap( 3 ) = { { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumPDof + tNumDof ) ) - 1 } };
-
-            // set size and fill the set jacobian assembly map
-            tSet->mJacDofAssemblyMap.resize( 4 );
-            tSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },
-                                              { tNumDof, tNumDof + tNumPDof - 1 },
-                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
-                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
-            tSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },
-                                              { tNumDof, tNumDof + tNumPDof - 1 },
-                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
-                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
-            tSet->mJacDofAssemblyMap( 2 ) = { { 0, tNumDof-1 },
-                                              { tNumDof, tNumDof + tNumPDof - 1 },
-                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
-                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
-            tSet->mJacDofAssemblyMap( 3 ) = { { 0, tNumDof-1 },
-                                              { tNumDof, tNumDof + tNumPDof - 1 },
-                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
-                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
-
             // set pointer for IWG
             tIWGPressure->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+
+            // set size for the set EqnObjDofTypeList
+            tIWGPressure->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+            // set size and populate the set dof type map
+            tIWGPressure->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWGPressure->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWGPressure->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+
+            // set size and populate the set master and slave dof type map
+            tIWGPressure->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWGPressure->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+            tIWGPressure->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWGPressure->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+
+            // set size and fill the set residual assembly map
+            tIWGPressure->mSet->mResDofAssemblyMap.resize( 4 );
+            tIWGPressure->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
+            tIWGPressure->mSet->mResDofAssemblyMap( 1 ) = { { tNumDof, tNumPDof + tNumDof - 1 } };
+            tIWGPressure->mSet->mResDofAssemblyMap( 2 ) = { { tNumPDof + tNumDof, ( 2 * tNumDof ) + tNumDof - 1 } };
+            tIWGPressure->mSet->mResDofAssemblyMap( 3 ) = { { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumPDof + tNumDof ) ) - 1 } };
+
+            // set size and fill the set jacobian assembly map
+            tIWGPressure->mSet->mJacDofAssemblyMap.resize( 4 );
+            tIWGPressure->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },
+                                              { tNumDof, tNumDof + tNumPDof - 1 },
+                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
+                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
+            tIWGPressure->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },
+                                              { tNumDof, tNumDof + tNumPDof - 1 },
+                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
+                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
+            tIWGPressure->mSet->mJacDofAssemblyMap( 2 ) = { { 0, tNumDof-1 },
+                                              { tNumDof, tNumDof + tNumPDof - 1 },
+                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
+                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
+            tIWGPressure->mSet->mJacDofAssemblyMap( 3 ) = { { 0, tNumDof-1 },
+                                              { tNumDof, tNumDof + tNumPDof - 1 },
+                                              { tNumDof + tNumPDof, ( 2 * tNumDof ) + tNumPDof - 1 },
+                                              { ( 2 * tNumDof ) + tNumPDof, ( 2 * ( tNumDof + tNumPDof ) ) - 1 } };
 
             // set IWG normal
             tIWGPressure->set_normal( tNormal );
@@ -406,8 +406,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[moris],[fem],[IWG_Incompres
             tSlaveFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            reinterpret_cast< fem::Set* >( tSet )->mMasterFIManager = &tMasterFIManager;
-            reinterpret_cast< fem::Set* >( tSet )->mSlaveFIManager  = &tSlaveFIManager;
+            tIWGPressure->mSet->mMasterFIManager = &tMasterFIManager;
+            tIWGPressure->mSet->mSlaveFIManager  = &tSlaveFIManager;
 
             // set IWG field interpolator manager
             tIWGPressure->set_field_interpolator_manager( &tMasterFIManager );
@@ -415,9 +415,9 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[moris],[fem],[IWG_Incompres
 
             // reset residual and jacobian
             //------------------------------------------------------------------------------
-            tSet->mResidual.resize( 1 );
-            tSet->mResidual( 0 ).set_size( 2 * ( tNumPDof + tNumDof ), 1 , 0.0 );
-            tSet->mJacobian.set_size( 2 * ( tNumPDof + tNumDof ), 2 * ( tNumPDof + tNumDof ), 0.0 );
+            tIWGPressure->mSet->mResidual.resize( 1 );
+            tIWGPressure->mSet->mResidual( 0 ).set_size( 2 * ( tNumPDof + tNumDof ), 1 , 0.0 );
+            tIWGPressure->mSet->mJacobian.set_size( 2 * ( tNumPDof + tNumDof ), 2 * ( tNumPDof + tNumDof ), 0.0 );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------
@@ -446,7 +446,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[moris],[fem],[IWG_Incompres
 
 //            // print the treated case
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
-
 
             // clean up
             tMasterFIs.clear();

@@ -210,5 +210,133 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
 
     }
 }
+
+TEST_CASE( "matrix_access", "[moris],[matrix_access]" )
+{
+
+    // Initialize random matrix size
+    srand (time(NULL));
+    uint tDimX = rand() % 40 + 130;
+    uint tDimY = rand() % 40 + 130;
+
+    uint tNumRepetitions = 1000;
+    real tSum = 0.0;
+
+    moris::Matrix<DDRMat> tMorisMat(tDimX,tDimY);
+    arma::Mat<double> tArmaMat(tDimX,tDimY);
+
+    uint tRandNumerator = 1;
+    uint tRandDenominator = 1;
+    real tRandNumber = 0.0;
+
+    MORIS_LOG_INFO( "Start create random MORIS-Matrix.....");
+
+    for ( uint ii = 0; ii < tDimX; ii++ ){
+        for ( uint jj = 0; jj < tDimY; jj++ ){
+
+            // create a random number
+            srand (time(NULL));
+            tRandNumerator = rand() % 10 + 1;
+            tRandDenominator = rand() % 10 + 1;
+            tRandNumber = (moris::real) tRandNumerator / (moris::real) tRandDenominator;
+
+            // copy random number to matrix
+            tMorisMat(ii,jj) = tRandNumber;
+            tArmaMat(ii,jj)  = tRandNumber;
+        }
+    }
+
+    MORIS_LOG_INFO( "Done. Random %i x %i - MORIS-matrix created.", tDimX, tDimY);
+
+
+    // time Moris Matrix summation --------------------------------------------------
+    std::clock_t tTimeStamp = std::clock();
+
+    for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+    {
+        for ( uint ii = 0; ii < tDimX; ii++ ){
+            for ( uint jj = 0; jj < tDimY; jj++ ){
+                tSum += tMorisMat(ii,jj);
+            }
+        }
+    }
+
+    moris::real tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+    MORIS_LOG_INFO( "Time to add all members on %i %i x %i MORIS-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+
+
+    // time Arma Matrix summation --------------------------------------------------
+
+    MORIS_LOG_INFO( "Start create random ARMA-Matrix.....");
+
+    for ( uint ii = 0; ii < tDimX; ii++ ){
+        for ( uint jj = 0; jj < tDimY; jj++ ){
+
+            // create a random number
+            srand (time(NULL));
+            tRandNumerator = rand() % 10 + 1;
+            tRandDenominator = rand() % 10 + 1;
+            tRandNumber = (moris::real) tRandNumerator / (moris::real) tRandDenominator;
+
+            // copy random number to matrix
+            tArmaMat(ii,jj)  = tRandNumber;
+        }
+    }
+
+    MORIS_LOG_INFO( "Done. Random %i x %i - ARMA-matrix created.", tDimX, tDimY);
+
+
+    tSum = 0.0;
+
+    tTimeStamp = std::clock();
+
+    for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+    {
+        for ( uint ii = 0; ii < tDimX; ii++ ){
+            for ( uint jj = 0; jj < tDimY; jj++ ){
+                tSum += tArmaMat(ii,jj);
+            }
+        }
+    }
+
+    tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+    MORIS_LOG_INFO( "Time to add all members on %i %i x %i ARMA-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+
+
+
+    tNumRepetitions = 1000000;
+
+    // time Moris Matrix += - operations --------------------------------------------------
+    moris::Matrix<DDRMat> tResultMatMoris = tMorisMat;
+
+    tTimeStamp = std::clock();
+
+    for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+    {
+//        tResultMatMoris = tResultMatMoris + tMorisMat;
+//        tResultMatMoris += tMorisMat;
+    }
+
+    tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+    MORIS_LOG_INFO( "Time to 'plus-equal' %i %i x %i MORIS-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+
+
+    // time ARMA Matrix += - operations --------------------------------------------------
+    arma::Mat<double> tResultMatArma = tArmaMat;
+
+    tTimeStamp = std::clock();
+
+    for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+    {
+//        tResultMatArma = tResultMatArma + tArmaMat;
+//        tResultMatArma += tArmaMat;
+    }
+
+    tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+    MORIS_LOG_INFO( "Time to 'plus-equal' %i %i x %i ARMA-matrices: %5.2f milliseconds.", tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation );
+
+}
+
+
 }
 

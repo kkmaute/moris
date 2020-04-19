@@ -117,7 +117,7 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
             // Compute current solution vector norm
             moris::real tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
-            MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. \n",
+            MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
                                    tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm);
         }
 
@@ -132,8 +132,9 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
     {
         if( par_rank() == 0)
         {
-            MORIS_LOG( "\n Linear Solver status absolute value = %i\n", tErrorStatus );
-            MORIS_LOG( "Linear Solver did not exit with status 0!\n" );
+            MORIS_LOG( " " );
+            MORIS_LOG( "Linear Solver status absolute value = %i", tErrorStatus );
+            MORIS_LOG( "Linear Solver did not exit with status 0!" );
         }
     }
 
@@ -141,7 +142,7 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
 
     if( par_rank() == 0)
     {
-        MORIS_LOG_INFO( " Solve of linear system took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " Solve of linear system took %5.3f seconds.", ( double ) tElapsedTime / 1000);
     }
 }
 

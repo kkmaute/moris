@@ -10,6 +10,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "typedefs.hpp"
+#include "paths.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -230,7 +231,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
-        tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
@@ -466,7 +467,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        //------------------------------------------------------------------------------
 //        // path for property function reading
-//        std::string tMeshFilePath = std::getenv("MORISROOT");
+//        std::string tMeshFilePath = moris::get_base_moris_dir();
 //        tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
 //        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
 //

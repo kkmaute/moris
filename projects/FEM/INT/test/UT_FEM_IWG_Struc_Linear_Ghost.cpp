@@ -56,9 +56,8 @@ using namespace fem;
 // for LINEAR, QUADRATIC and CUBIC interpolation order
 TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 {
-
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-3;
 
     // define a perturbation relative size
     real tPerturbation = 1E-4;
@@ -171,7 +170,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -183,7 +182,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             arma::Mat< double > tSlaveMatrix;
 
             // get number of dof
-            int tNumDof;
+            int tNumDof = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -336,9 +335,6 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             tIWG->mSet->mResidual.resize( 1 );
             tIWG->mSet->mResidual( 0 ).set_size( 2*tNumDof, 1 , 0.0 );
             tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
-
-            // set requested residual dof type flag to true
-            tIWG->mResidualDofTypeRequested = true;
 
             // build global property type list
             tIWG->build_global_dof_and_dv_type_list();

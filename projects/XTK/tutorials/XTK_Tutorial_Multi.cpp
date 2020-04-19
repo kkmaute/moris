@@ -8,6 +8,7 @@
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Logger.hpp" // MRS/IOS/src
+#include "paths.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -80,12 +81,12 @@ main( int    argc,
      * XTKROOT is a convenient  environment variable specifying a directory where
      * some commonly used meshes are stored. It does not need to be used in general.
      * \code{.cpp}
-     * std::string tPrefix = std::getenv("MORISROOT");
+     * std::string tPrefix = moris::get_base_moris_dir();
      * std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
      * \endcode
      *
      */
-    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tPrefix = moris::get_base_moris_dir();
     std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
 
     std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;

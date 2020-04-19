@@ -56,17 +56,7 @@ namespace moris
             /*
              * constructor
              */
-            SP_Convective_Ghost()
-            {
-                // set the property pointer cell size
-                mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the map
-                mPropertyMap[ "Density" ] = Property_Type::DENSITY;
-
-                // populate the dof map (default)
-                mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
-            }
+            SP_Convective_Ghost();
 
 //------------------------------------------------------------------------------
             /**
@@ -78,12 +68,7 @@ namespace moris
             /**
              * reset the cluster measures required for this SP
              */
-            void reset_cluster_measures()
-            {
-                // evaluate element size from the cluster
-                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                              mtk::Master_Slave::MASTER );
-            }
+            void reset_cluster_measures();
 
 //------------------------------------------------------------------------------
             /**

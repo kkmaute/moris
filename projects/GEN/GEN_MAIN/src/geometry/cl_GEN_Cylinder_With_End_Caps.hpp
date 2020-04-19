@@ -12,6 +12,7 @@
 #include "cl_GEN_Geometry_Analytic.hpp"
 #include "fn_bounding_box.hpp"
 #include "HDF5_Tools.hpp"
+#include "paths.hpp"
 
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
@@ -300,12 +301,12 @@ private:    // private functions
 
         if ( mFibersForThesis )
         {
-            tMorisRoot = std::getenv("MORISROOT");     // get root from environment
+            tMorisRoot = moris::get_base_moris_dir();     // get root from environment
             tHdf5FilePath = tMorisRoot + "/projects/GEN/GEN_MAIN/test/hdf5_files/fibersForThesis.hdf5" ;
         }
         else
         {
-            tMorisRoot = std::getenv("MORISROOT");     // get root from environment
+            tMorisRoot = moris::get_base_moris_dir();     // get root from environment
             tHdf5FilePath = tMorisRoot + "/projects/GEN/GEN_MAIN/test/hdf5_files/allFibers.hdf5" ;
         }
 

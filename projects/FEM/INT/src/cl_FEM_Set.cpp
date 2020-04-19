@@ -534,6 +534,68 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+    void Set::create_unique_dof_and_dv_type_maps()
+    {
+        // dof types
+        //------------------------------------------------------------------------------
+        // Create temporary dof type list
+        moris::Cell< enum MSI::Dof_Type > tDofType = get_unique_dof_type_list();
+
+        //Get number of unique adofs of this equation object
+        moris::uint tNumUniqueDofTypes = tDofType.size();
+
+        // Get maximal dof type enum number
+        moris::sint tMaxDofTypeEnumNumber = 0;
+
+        // Loop over all pdof types to get the highest enum index
+        for ( moris::uint Ii = 0; Ii < tNumUniqueDofTypes; Ii++ )
+        {
+            tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( tDofType( Ii ) ) );
+        }
+
+        // +1 because c++ is 0 based
+        tMaxDofTypeEnumNumber++;
+
+        // Set size of mapping matrix
+        mUniqueDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
+
+        // Loop over all pdof types to create the mapping matrix
+        for ( moris::uint Ii = 0; Ii < tNumUniqueDofTypes; Ii++ )
+        {
+            mUniqueDofTypeMap( static_cast< int >( tDofType( Ii ) ), 0 ) = Ii;
+        }
+
+        // dv types
+        //------------------------------------------------------------------------------
+        // Create temporary dv type list
+        moris::Cell< enum GEN_DV > tDvType = get_unique_dv_type_list();
+
+        //Get number of unique dvs of this equation object
+        moris::uint tNumUniqueDvTypes = tDvType.size();
+
+        // Get maximal dv type enum number
+        moris::sint tMaxDvTypeEnumNumber = 0;
+
+        // Loop over all dv types to get the highest enum index
+        for ( moris::uint Ii = 0; Ii < tNumUniqueDvTypes; Ii++ )
+        {
+            tMaxDvTypeEnumNumber = std::max( tMaxDvTypeEnumNumber, static_cast< int >( tDvType( Ii ) ) );
+        }
+
+        // +1 because c++ is 0 based
+        tMaxDvTypeEnumNumber++;
+
+        // Set size of mapping matrix
+        mUniqueDvTypeMap.set_size( tMaxDvTypeEnumNumber, 1, -1 );
+
+        // Loop over all dv types to create the mapping matrix
+        for ( moris::uint Ii = 0; Ii < tNumUniqueDvTypes; Ii++ )
+        {
+            mUniqueDvTypeMap( static_cast< int >( tDvType( Ii ) ), 0 ) = Ii;
+        }
+    }
+
+//------------------------------------------------------------------------------
     void Set::create_dof_and_dv_type_maps()
     {
         // get number of master dof types
@@ -706,6 +768,29 @@ namespace moris
                 }
             }
         }
+    }
+
+//------------------------------------------------------------------------------
+    std::shared_ptr< IQI > Set::get_IQI_for_vis( enum vis::Output_Type aOutputType )
+    {
+        // FIXME use a map
+
+        // init the IQI pointer for return
+        std::shared_ptr< IQI > tIQI = nullptr;
+
+        // select the IQI based on type
+        for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
+        {
+            // if the output type is the same as the IQI
+            if ( aOutputType == mIQIs( iIQI )->get_IQI_type() )
+            {
+                // fill the return pointer to the IQI
+                tIQI = mIQIs( iIQI );
+            }
+        }
+
+        // return the selected IQI
+        return tIQI;
     }
 
 //------------------------------------------------------------------------------

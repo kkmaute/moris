@@ -24,6 +24,14 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void SP_Ghost_Displacement::reset_cluster_measures()
+        {
+            // evaluate element size from the cluster
+            mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                          mtk::Master_Slave::MASTER );
+        }
+
+//------------------------------------------------------------------------------
         void SP_Ghost_Displacement::eval_SP()
         {
             // compute stabilization parameter value

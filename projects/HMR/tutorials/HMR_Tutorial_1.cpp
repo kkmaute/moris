@@ -5,6 +5,8 @@
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
 #include "cl_Logger.hpp"
+#include "cl_GlobalClock.hpp" // MRS/IOS/src
+#include "cl_Tracer.hpp" // MRS/IOS/src
 
 //------------------------------------------------------------------------------
 // from linalg
@@ -33,6 +35,7 @@ using namespace hmr;
 
 //------------------------------------------------------------------------------
 // create communicator
+
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 

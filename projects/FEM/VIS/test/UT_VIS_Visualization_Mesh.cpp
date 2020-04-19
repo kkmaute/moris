@@ -154,7 +154,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 //                mtk::Mesh * tVisMesh = tVisFactory.create_visualization_mesh();
 //
 //                Writer_Exodus writer(tVisMesh);
-//                std::string tPrefix = std::getenv("MORISROOT");
+//                std::string tPrefix = moris::get_base_moris_dir();
 //                std::string tMeshFilePath = tPrefix + "build";
 //                writer.write_mesh(tMeshFilePath, "Vis_Mesh_2.exo");
 //

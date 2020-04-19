@@ -61,14 +61,7 @@ namespace moris
             /*
              * constructor
              */
-            SP_Viscous_Ghost()
-            {
-                // set the property pointer cell size
-                mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the map
-                mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
-            }
+            SP_Viscous_Ghost();
 
 //------------------------------------------------------------------------------
             /**

@@ -237,11 +237,21 @@ namespace moris
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
         // print output
-        MORIS_LOG_INFO( "%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
-                proc_string().c_str(),
+//        MORIS_LOG_INFO( "%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+//                proc_string().c_str(),
+//                ( long unsigned int ) tNumberOfElements,
+//                ( long unsigned int ) tNumberOfNodes,
+//                ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( "%s Created MTK output object.",
+                proc_string().c_str());
+        MORIS_LOG_INFO( "Mesh has %lu elements and %lu nodes.",
                 ( long unsigned int ) tNumberOfElements,
-                ( long unsigned int ) tNumberOfNodes,
+                ( long unsigned int ) tNumberOfNodes);
+        MORIS_LOG_INFO(  "Creation took %5.3f seconds.",
                 ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " " );
+
+
     }
 
 // ----------------------------------------------------------------------------
@@ -268,10 +278,16 @@ namespace moris
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
         // print output
-        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
+//        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
+//                proc_string().c_str(),
+//                aFilePath.c_str(),
+//                ( double ) tElapsedTime / 1000 );
+        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.",
                 proc_string().c_str(),
-                aFilePath.c_str(),
+                aFilePath.c_str());
+        MORIS_LOG_INFO( "Writing took %5.3f seconds.",
                 ( double ) tElapsedTime / 1000 );
+        MORIS_LOG_INFO( " " );
     }
 
 // ----------------------------------------------------------------------------

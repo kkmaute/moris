@@ -16,6 +16,9 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 
+// Detailed Logging package
+//#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace NLA;
 
@@ -240,6 +243,8 @@ using namespace NLA;
 
     void Nonlinear_Solver::solve( Dist_Vector * aFullVector )
     {
+        //Tracer tTracer(EntityBase::NonLinearSolver, EntityType::Unknown, EntityAction::Solve);
+
         mSolverInput = mSolverWarehouse->get_solver_interface() ;
 
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
@@ -303,7 +308,7 @@ using namespace NLA;
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( " ... Previous nonlinear solve failed. Trying restart %i of %i\n", tTryRestartOnFailIt, tMaxNumLinRestarts);
+                MORIS_LOG( " ... Previous nonlinear solve failed. Trying restart %i of %i", tTryRestartOnFailIt, tMaxNumLinRestarts);
             }
 
             // Re-solve scaled linear system with current solution as an initial guess

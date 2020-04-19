@@ -745,16 +745,21 @@ namespace moris
            // print output
            if ( tNumberOfElements == 1)
            {
-               MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.\n               Refined 1 element, took %5.3f seconds.\n\n",
-                       proc_string().c_str(),
+               MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.",
+                       proc_string().c_str());
+               MORIS_LOG_INFO( "Refined 1 element, took %5.3f seconds.",
                        ( double ) tElapsedTime / 1000);
+               MORIS_LOG_INFO( " " );
            }
            else
            {
-               MORIS_LOG_INFO("%s Performed hierarchical mesh refinement.\n               Refined %lu elements, took %5.3f seconds.\n\n",
-                       proc_string().c_str(),
+               MORIS_LOG_INFO("%s Performed hierarchical mesh refinement.",
+                       proc_string().c_str());
+
+               MORIS_LOG_INFO("Refined %lu elements, took %5.3f seconds.",
                        ( long unsigned int ) tNumberOfElements,
                        ( double ) tElapsedTime / 1000);
+               MORIS_LOG_INFO( " " );
            }
 
 
@@ -1146,10 +1151,11 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO("%s Updated neighbors for active or refined elements.\n               Took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
-                    //( long unsigned int ) tCount,
+            MORIS_LOG_INFO("%s Updated neighbors for active or refined elements.",
+                    proc_string().c_str());
+            MORIS_LOG_INFO("Took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 
 //--------------------------------------------------------------------------------
@@ -1512,18 +1518,25 @@ namespace moris
                 // print output
                 if ( tElementCounter == 1)
                 {
-                    MORIS_LOG_INFO("%s Created staircase buffer of width %u.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
+                    MORIS_LOG_INFO("%s Created staircase buffer of width %u.",
                             proc_string().c_str(),
-                            ( unsigned int ) mBufferSize,
+                            ( unsigned int ) mBufferSize);
+
+                    MORIS_LOG_INFO("Flagged 1 additional element for refinement, took %5.3f seconds.",
                             ( double ) tElapsedTime / 1000);
+                    MORIS_LOG_INFO( " " );
+
                 }
                 else
                 {
-                    MORIS_LOG_INFO("%s Created staircase buffer  of width %u.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
+                    MORIS_LOG_INFO("%s Created staircase buffer  of width %u.",
                             proc_string().c_str(),
-                            ( unsigned int ) mBufferSize,
+                            ( unsigned int ) mBufferSize);
+
+                    MORIS_LOG_INFO("Flagged %lu additional elements for refinement,took %5.3f seconds.",
                             ( long unsigned int ) tElementCounter,
                             ( double ) tElapsedTime / 1000 );
+                    MORIS_LOG_INFO( " " );
                 }
             }
         }
@@ -1859,11 +1872,16 @@ namespace moris
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
+                MORIS_LOG_INFO( "%s Created VTK debug file.",
+                        proc_string().c_str());
+
+                MORIS_LOG_INFO( "Mesh has %lu Elements and %lu Nodes.",
                         ( long unsigned int ) tNumberOfElements,
-                        ( long unsigned int ) tNumberOfNodes,
+                        ( long unsigned int ) tNumberOfNodes );
+
+                MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                         ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( " " );
             }
         }
 
@@ -1961,9 +1979,11 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO("%s Cloned refinement pattern.\n               Cloning took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
+            MORIS_LOG_INFO("%s Cloned refinement pattern.",
+                    proc_string().c_str());
+            MORIS_LOG_INFO("Cloning took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
 
         }
 
@@ -2121,9 +2141,11 @@ namespace moris
            // stop timer
            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-           MORIS_LOG_INFO( "%s Created Faces on Background Mesh.\n               Creation %5.3f seconds.\n\n",
-                   proc_string().c_str(),
+           MORIS_LOG_INFO( "%s Created Faces on Background Mesh.",
+                   proc_string().c_str());
+           MORIS_LOG_INFO( "Creation %5.3f seconds.",
                    ( double ) tElapsedTime / 1000 );
+           MORIS_LOG_INFO( " " );
 
         }
 
@@ -2161,9 +2183,11 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( "%s Created Faces and Edges on Background Mesh.\n               Creation %5.3f seconds.\n\n",
-                    proc_string().c_str(),
+            MORIS_LOG_INFO( "%s Created Faces and Edges on Background Mesh.",
+                    proc_string().c_str() );
+            MORIS_LOG_INFO( "Creation %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 
 // -----------------------------------------------------------------------------

@@ -93,14 +93,7 @@ moris::real PlaneVisTest(const moris::Matrix< moris::DDRMat > & aPoint )
     return (mNx*(aPoint(0)-mXC) + mNy*(aPoint(1)-mYC));
 }
 
-//Matrix< DDRMat > tConstValFunction_MDLDIFF
-//( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-//  moris::fem::Field_Interpolator_Manager *         aFIManager )
-//{
-//    return aParameters( 0 );
-//}
-
-void tConstValFunction_MDLDIFF
+void tConstValFunction_VISOutputManager
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -201,19 +194,19 @@ namespace moris
             // create the properties
             std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
             tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
-            tPropMasterEMod->set_val_function( tConstValFunction_MDLDIFF );
+            tPropMasterEMod->set_val_function( tConstValFunction_VISOutputManager );
 
             std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property > ();
             tPropMasterNu->set_parameters( { {{ 0.3 }} } );
-            tPropMasterNu->set_val_function( tConstValFunction_MDLDIFF );
+            tPropMasterNu->set_val_function( tConstValFunction_VISOutputManager );
 
             std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property > ();
             tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }} } );
-            tPropDirichlet->set_val_function( tConstValFunction_MDLDIFF );
+            tPropDirichlet->set_val_function( tConstValFunction_VISOutputManager );
 
             std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
             tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }}} );
-            tPropNeumann->set_val_function( tConstValFunction_MDLDIFF );
+            tPropNeumann->set_val_function( tConstValFunction_VISOutputManager );
 
             // define constitutive models
             fem::CM_Factory tCMFactory;
@@ -499,31 +492,38 @@ namespace moris
             // create the properties
             std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
             tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
-            tPropMasterEMod->set_val_function( tConstValFunction_MDLDIFF );
+            tPropMasterEMod->set_val_function( tConstValFunction_VISOutputManager );
 
             std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property > ();
             tPropMasterNu->set_parameters( { {{ 0.3 }} } );
-            tPropMasterNu->set_val_function( tConstValFunction_MDLDIFF );
+            tPropMasterNu->set_val_function( tConstValFunction_VISOutputManager );
 
             std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property > ();
             tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }} } );
-            tPropDirichlet->set_val_function( tConstValFunction_MDLDIFF );
+            tPropDirichlet->set_val_function( tConstValFunction_VISOutputManager );
 
             std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
             tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }}} );
-            tPropNeumann->set_val_function( tConstValFunction_MDLDIFF );
+            tPropNeumann->set_val_function( tConstValFunction_VISOutputManager );
 
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso
+            = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
             tCMMasterElastLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
             tCMMasterElastLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
             tCMMasterElastLinIso->set_property( tPropMasterNu, "PoissonRatio" );
             tCMMasterElastLinIso->set_space_dim( 2 );
 
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso_bis = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-            tCMMasterElastLinIso_bis->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+//            std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso_bis = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+//            tCMMasterElastLinIso_bis->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+//            tCMMasterElastLinIso_bis->set_property( tPropMasterEMod, "YoungsModulus" );
+//            tCMMasterElastLinIso_bis->set_property( tPropMasterNu, "PoissonRatio" );
+//            tCMMasterElastLinIso_bis->set_space_dim( 2 );
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso_bis
+            = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+            tCMMasterElastLinIso_bis->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
             tCMMasterElastLinIso_bis->set_property( tPropMasterEMod, "YoungsModulus" );
             tCMMasterElastLinIso_bis->set_property( tPropMasterNu, "PoissonRatio" );
             tCMMasterElastLinIso_bis->set_space_dim( 2 );

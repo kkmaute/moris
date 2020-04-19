@@ -178,10 +178,6 @@ namespace moris
             Matrix< DDRMat > tConst = tCMMasterDiffLinIso->constitutive();
             //print( tConst, "tConst");
 
-            // evaluate the constitutive model constitutive matrix derivative
-            Matrix< DDRMat > tdConstdDOF = tCMMasterDiffLinIso->dConstdDOF( { MSI::Dof_Type::TEMP } );
-            //print( tdConstdDOF, "tdConstdDOF" );
-
             // check traction---------------------------------------------------------------
             //------------------------------------------------------------------------------
             // define a normal

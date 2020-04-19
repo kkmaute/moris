@@ -34,6 +34,9 @@
 #include "Teuchos_RCPDecl.hpp"
 #include "Teuchos_ParameterList.hpp"
 
+// detailed logging
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -238,6 +241,8 @@ void Linear_Solver_Aztec::set_solver_parameters()
 
 moris::sint Linear_Solver_Aztec::solve_linear_system( )
 {
+    Tracer tTracer(EntityBase::LinearSolver, EntityType::Aztec, EntityAction::Solve);
+
     moris::sint error = 0;
     // Set all Aztec options
     this->set_solver_internal_parameters();

@@ -7,6 +7,8 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
+
 // implementations to test
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -40,7 +42,7 @@ TEST_CASE("MTK Side","[MTK],[MTK_Side]")
 {
     if(par_size() ==1)
     {
-        std::string tPrefix = std::getenv("MORISROOT");
+        std::string tPrefix = moris::get_base_moris_dir();
         std::string tMeshFileName = tPrefix + "projects/FEM/MDL/test/data/2_Blocks_1x2x1.g";
 
         moris::mtk::Scalar_Field_Info<DDRMat> tNodeField;

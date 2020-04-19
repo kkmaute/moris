@@ -178,7 +178,7 @@ namespace moris
         // get file name
         std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
 
-        std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +". \n";
+        std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
 
         MORIS_LOG( tMassage.c_str() );
 

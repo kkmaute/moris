@@ -16,6 +16,8 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
 
 namespace moris
 {
@@ -35,18 +37,22 @@ namespace moris
         moris::real solNorm = tNonLinSolver->mNonlinearProblem->get_full_vector()->vec_norm2();
 
         aResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2();
+
+        MORIS_LOG_SPEC( OutputSpecifier::ResidualNorm, aResNorm );
+        MORIS_LOG_SPEC( OutputSpecifier::SolutionNorm, solNorm );
+
         if ( aIt <= 1)
         {
             aRefNorm = aResNorm;
-            MORIS_LOG( "--------------------------------------------------------------------------------\n");
-            MORIS_LOG( " Newton ... refNorm for pseudo-time step is %+1.15e\n", aRefNorm );
-            MORIS_LOG( "--------------------------------------------------------------------------------\n" );
+            MORIS_LOG( "--------------------------------------------------------------------------------");
+            MORIS_LOG( " Newton ... refNorm for pseudo-time step is %+1.15e", aRefNorm );
+            MORIS_LOG( "--------------------------------------------------------------------------------" );
 
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  |  SolVecNorm             ||  LinAsmTime  |  NewItrTime\n" );
+                MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  |  SolVecNorm             ||  LinAsmTime  |  NewItrTime" );
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", 1, aResNorm, 0.0, solNorm );
-                MORIS_LOG( "|  %9.4e  |  %9.4e \n", aAssemblyTime, 0.0 );
+                MORIS_LOG( "|  %9.4e  |  %9.4e ", aAssemblyTime, 0.0 );
             }
         }
 
@@ -60,7 +66,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, ( aResNorm/aRefNorm ), solNorm );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResDrop < %6.1e)\n", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
+                MORIS_LOG( "|  %-10.4e  |  (NlinResDrop < %6.1e)", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
             }
 
             tIsConverged = true;
@@ -70,7 +76,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, (aResNorm/aRefNorm), solNorm );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResNorm < %6.1e)\n", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
+                MORIS_LOG( "|  %-10.4e  |  (NlinResNorm < %6.1e)", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
             }
 
             tIsConverged = true;
@@ -81,7 +87,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, ( aResNorm/aRefNorm ), solNorm );
-                MORIS_LOG( "|  %-10.4e  |  (MaxResNormDrop > %6.1e)\n", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
+                MORIS_LOG( "|  %-10.4e  |  (MaxResNormDrop > %6.1e)", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
             }
 
             tIsConverged = false;
@@ -97,7 +103,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, (aResNorm/aRefNorm), solNorm  );
-                MORIS_LOG( "|  %9.4e  |  %9.4e \n", aAssemblyTime, aSolvTime );
+                MORIS_LOG( "|  %9.4e  |  %9.4e ", aAssemblyTime, aSolvTime );
             }
         }
 
@@ -117,15 +123,15 @@ namespace moris
         if ( aIt <= 1)
         {
             aRefNorm = aResNorm;
-            MORIS_LOG( "--------------------------------------------------------------------------------\n");
-            MORIS_LOG( " NLBGS ... refNorm for pseudo-time step is %+1.15e\n", aRefNorm );
-            MORIS_LOG( "--------------------------------------------------------------------------------\n" );
+            MORIS_LOG( "--------------------------------------------------------------------------------");
+            MORIS_LOG( " NLBGS ... refNorm for pseudo-time step is %+1.15e", aRefNorm );
+            MORIS_LOG( "--------------------------------------------------------------------------------" );
 
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  ||  NewItrTime\n" );
+                MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  ||  NewItrTime" );
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", 1, aResNorm, 0.0 );
-                MORIS_LOG( "|  %9.4e \n",  0.0 );
+                MORIS_LOG( "|  %9.4e ",  0.0 );
             }
         }
 
@@ -139,7 +145,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, ( aResNorm/aRefNorm ) );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResDrop < %6.1e)\n", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
+                MORIS_LOG( "|  %-10.4e  |  (NlinResDrop < %6.1e)", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
             }
 
             tIsConverged = true;
@@ -149,7 +155,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, (aResNorm/aRefNorm) );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResNorm < %6.1e)\n", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
+                MORIS_LOG( "|  %-10.4e  |  (NlinResNorm < %6.1e)", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
             }
 
             tIsConverged = true;
@@ -160,7 +166,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, ( aResNorm/aRefNorm ) );
-                MORIS_LOG( "|  %-10.4e  |  (MaxResNormDrop > %6.1e)\n", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
+                MORIS_LOG( "|  %-10.4e  |  (MaxResNormDrop > %6.1e)", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
             }
 
             tIsConverged = false;
@@ -176,7 +182,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, (aResNorm/aRefNorm) );
-                MORIS_LOG( "|  %9.4e  |  %9.4e \n", aSolvTime, aSolvTime );
+                MORIS_LOG( "|  %9.4e  |  %9.4e ", aSolvTime, aSolvTime );
             }
         }
 
