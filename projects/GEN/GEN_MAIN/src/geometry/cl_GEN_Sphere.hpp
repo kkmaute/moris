@@ -38,14 +38,14 @@ public:
     }
 
     //------------------------------------ these will be deleted/modified later ----------------------------------------
-    virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
     {
-        return 0;
+        return evaluate_field_value_with_coordinate(0, aCoordinates);
     }
 
-    virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
     {
-        return Matrix<DDRMat>(1, 1, 0.0);
+        return evaluate_sensitivity_dphi_dp_with_coordinate(0, aCoordinates);
     }
 
 

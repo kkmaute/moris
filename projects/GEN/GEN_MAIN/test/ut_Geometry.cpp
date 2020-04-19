@@ -41,7 +41,7 @@ namespace moris
             std::shared_ptr<Geometry_Analytic> tCircle2 = create_geometry(tParameterLists(1)(1), tADVs);
 
             // Check field values
-            Matrix<DDRMat> tCoordinates(2, 1);
+            Matrix<DDRMat> tCoordinates(1, 2);
             tCoordinates(0) = 0.0;
             tCoordinates(1) = 0.0;
             CHECK(tCircle1->evaluate_field_value(tCoordinates) == 0.0);

@@ -25,12 +25,12 @@ namespace moris
         real Circle::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
-            Matrix<DDRMat> tCenter(2, 1);
+            Matrix<DDRMat> tCenter(1, 2);
             tCenter(0) = *(mGeometryVariables(0));
             tCenter(1) = *(mGeometryVariables(1));
 
             // Evaluate field
-            moris::real tFunctionValue = norm( aCoordinates - tCenter ) - *(mGeometryVariables(2));
+            moris::real tFunctionValue = norm(aCoordinates - tCenter) - *(mGeometryVariables(2));
             
             return tFunctionValue;
         }

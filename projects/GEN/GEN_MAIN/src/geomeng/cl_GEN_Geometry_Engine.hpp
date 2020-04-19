@@ -89,7 +89,7 @@ namespace moris
         public:
             moris::real mThresholdValue;
             moris::real mPerturbationValue;
-            bool mComputeDxDp = true; // FIXME change this?
+            bool mComputeDxDp = false; // FIXME change this?
             moris::uint mSpatialDim;
 
         private:
@@ -100,7 +100,6 @@ namespace moris
             moris::size_t mActiveGeometryIndex;
             Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
             Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
-            uint mNumGeometries;
 
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
@@ -335,10 +334,7 @@ namespace moris
              * @brief Provided the inside and out phase values for an entity, return the phase index
              */
             moris::moris_index
-            get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff)
-            {
-                return mPhaseTable.get_phase_index(aElemOnOff);
-            }
+            get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff);
 
             /**
              * @brief Returns whether a node is inside or outside wrt to a given geometry index
@@ -507,7 +503,23 @@ namespace moris
             void mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType );
 
         private:
-            Geometry_Analytic & ActiveGeometry() const;
+            /**
+             * Get the index of analytic geometry
+             *
+             * @param aGlobalGeometryIndex Global geometry index (active geometry)
+             * @return Index for the analytic geometry cell
+             */
+            size_t analytic_geometry_index(size_t aGlobalGeometryIndex);
+
+            /**
+             * Get the index of discrete geometry
+             *
+             * @param aGlobalGeometryIndex Global geometry index (active geometry)
+             * @return Index for the discrete geometry cell
+             */
+            size_t discrete_geometry_index(size_t aGlobalGeometryIndex);
+
+
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object

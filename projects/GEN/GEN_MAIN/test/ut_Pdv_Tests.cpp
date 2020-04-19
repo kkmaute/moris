@@ -125,8 +125,9 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         tPropertyList1(0) = tConstDensityProp1;
         //------------------------------------------------------------------------------
 
-        moris::ge::GEN_Geometry_Engine  tGeometryEngine;
-        tGeometryEngine.mSpatialDim = 2;
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(0);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine  tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         //------------------------------------------------------------------------------
         tGeometryEngine.register_mesh( &tMeshManager );

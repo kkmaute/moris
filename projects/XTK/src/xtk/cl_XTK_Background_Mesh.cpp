@@ -477,7 +477,6 @@ Background_Mesh::get_selected_node_coordinates_loc_inds(moris::Matrix< moris::In
         if (mExternalMeshData.is_external_entity(aNodeIndices(n), tEntityRank))
         {
             moris::Matrix< moris::DDRMat > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
-
             tSelectedNodesCoords.set_row(n,tNodeCoords);
         }
 

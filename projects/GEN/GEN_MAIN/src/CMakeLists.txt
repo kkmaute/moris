@@ -39,7 +39,7 @@ set(HEADERS
 	geometry/cl_GEN_Discrete_Level_Set.hpp
 #	geometry/cl_GEN_Geom_Data.hpp
 	geometry/cl_GEN_Geometry_Field_HMR.hpp
-#	geometry/cl_GEN_Geom_Field.hpp
+	geometry/cl_GEN_Geometry_Field.hpp
 #	geometry/cl_GEN_Sphere.hpp
 #	geometry/fn_bounding_box.hpp
 	geometry/fn_GEN_create_geometry.hpp

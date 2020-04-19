@@ -10,7 +10,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Field.hpp"
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry_Discrete.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -18,7 +18,7 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry_Field : public Geometry_Analytic
+        class Geometry_Field : public Geometry_Discrete
         {
         private :
             GEN_Field* mField = nullptr;
@@ -26,24 +26,45 @@ namespace moris
         //------------------------------------------------------------------------------
         public :
 
-            ~Geometry_Field(){}
-        //------------------------------------------------------------------------------
-            bool is_analytic() const
+            Geometry_Field(GEN_Field* aField)
+            : Geometry_Discrete(Matrix<DDRMat>(1, 1, 0.0))
             {
-                return false;
+                mField = aField;
             }
-        //------------------------------------------------------------------------------
-            virtual moris::real access_field_value_with_entity_index( moris::moris_index     aEntityIndex,
-                                                                      enum moris::EntityRank aEntityRank ) const
+
+            ~Geometry_Field(){}
+
+            /**
+             * Given an index, the discrete geometry needs to return a field value.
+             *
+             * @param aEntityIndex the index of the field value
+             * @return field value at the specified index
+             */
+            real evaluate_field_value(moris_index aEntityIndex)
             {
                 MORIS_ASSERT( mField != nullptr, "GEN_Geom_Field::evaluate_field_value_with_coordinate() - field pointer not set" );
                 return mField->get_field_val_at_vertex( aEntityIndex );    // note: aEntityIndex corresponds to the node index in the phase table
             }
+
+            /**
+             * Given an index, the discrete geometry needs to return sensitivites with respect to the field value
+             *
+             * @param aEntityIndex the index of the field value
+             * @return matrix of sensitivities
+             */
+            virtual Matrix<DDRMat> evaluate_sensitivity(moris_index aEntityIndex)
+            {
+                MORIS_ERROR(false, "Sensitivity not implemented for Geometry_Field.");
+                return Matrix<DDRMat>(1, 1, 0.0);
+            }
+
         //------------------------------------------------------------------------------
+
             GEN_Field* get_field_pointer()
             {
                 return mField;
             }
+
         //------------------------------------------------------------------------------
         };
 

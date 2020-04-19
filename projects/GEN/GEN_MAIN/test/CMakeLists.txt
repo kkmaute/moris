@@ -3,30 +3,21 @@
 
 # List source files
 set(TEST_SOURCES
-     test_main.cpp
+	test_main.cpp
 
-#    cl_Fiber_Problem.cpp
+	ut_General_Functionalities.cpp
+	ut_Parameter_Sweep.cpp
+	ut_Pdv_Tests.cpp
+	ut_Bounding_Box.cpp
+	ut_Geometry.cpp
+
+#    cl_Fiber_Problem.cpp TODO definitely will be removed
 #    cl_For_Thesis.cpp
 #
-#    cl_GeSDFCore.cpp
+#    cl_GeSDFCore.cpp TODO Possibly reimplement but with new GE
 #    cl_GeSDFGen.cpp
 #    cl_GeTriangle.cpp
 #    cl_GE_test.cpp
-#
-#    cl_General_Functionalities.cpp
-#    cl_Parameter_Sweep.cpp
-#    cl_Pdv_Tests.cpp
-#
-#    UT_Bounding_Box.cpp
-#    UT_Finite_Difference_Checks.cpp
-#    UT_GE_HMR_Interaction.cpp
-#    UT_Pdv_Checks.cpp
-	ut_Geometry.cpp
-    
-    
-   # geometry_classes/cl_GE_test_analytic.cpp
-   # geometry_classes/cl_GE_test_discrete.cpp
-   # geometry_classes/cl_GE_test_sdf.cpp
     )
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
@@ -73,8 +64,9 @@ set(TEST_DEPENDENCIES
     ${ALG}-lib
     ${GEN_MAIN}-lib
     ${INT}-lib
-    ${DLA}-lib
-    ${MORIS_BASE_LIBS}
+    ${SOL_CORE}-lib
+	${HMR}-lib
+	${MORIS_BASE_LIBS}
 	${PRM}-lib
     )
 

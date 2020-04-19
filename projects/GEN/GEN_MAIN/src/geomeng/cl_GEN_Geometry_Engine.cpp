@@ -37,8 +37,7 @@ namespace moris
             mNumRefinements = aParameterLists(0)(0).get<uint>("HMR_refinements");
 
             // Build geometry (just analytic for right now)
-            mNumGeometries = aParameterLists(1).size();
-            mGeometryAnalytic.resize(mNumGeometries);
+            mGeometryAnalytic.resize(this->get_num_geometries());
             for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
             {
                 mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs);
@@ -82,7 +81,7 @@ namespace moris
         void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
         {
             // Allocate space
-            mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes, mNumGeometries, 0);
+            mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes, this->get_num_geometries(), 0);
         
             // Allocate geometry object
             Cell< GEN_Geometry_Object > tGeometryObjects( aNumNodes );
@@ -104,15 +103,26 @@ namespace moris
         void GEN_Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix< moris::DDRMat > const & aNodeCoords )
         {
             // Allocate space
-            moris::size_t tNumNodes = aNodeCoords.n_rows();
+            size_t tNumNodes = aNodeCoords.n_rows();
+            uint tNumAnalyticGeometries = mGeometryAnalytic.size();
         
             // Loop through each geometry and then each node and compute the level set field value
             // add value to phase value matrix
-            for (moris::size_t j = 0; j < mNumGeometries; j++)
+            for (moris::size_t tGeometryIndex = 0; tGeometryIndex < tNumAnalyticGeometries; tGeometryIndex++) // Analytic
             {
-                for (moris::size_t i = 0; i < tNumNodes; i++)
+                for (moris::size_t tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
                 {
-                    mNodePhaseVals(i, j) = mGeometryAnalytic(j)->evaluate_field_value(aNodeCoords.get_row(i));
+                    mNodePhaseVals(tNodeIndex, tGeometryIndex) =
+                            mGeometryAnalytic(this->analytic_geometry_index(tGeometryIndex))->evaluate_field_value(aNodeCoords.get_row(tNodeIndex));
+                }
+            }
+
+            for (moris::size_t tGeometryIndex = tNumAnalyticGeometries; tGeometryIndex < this->get_num_geometries(); tGeometryIndex++) // Discrete
+            {
+                for (moris::size_t tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
+                {
+                    mNodePhaseVals(tNodeIndex, tGeometryIndex) =
+                            mGeometryDiscrete(this->discrete_geometry_index(tGeometryIndex))->evaluate_field_value(tNodeIndex);
                 }
             }
         }
@@ -127,7 +137,7 @@ namespace moris
             moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
         
             // add space to the node phase value table
-            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, mGeometryAnalytic.size());
+            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, this->get_num_geometries());
         
             Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
         
@@ -148,7 +158,7 @@ namespace moris
             }
         
             // Compute and store level set value of this node for each new node
-            for(moris::size_t j = 0; j < mNumGeometries; j++)
+            for(moris::size_t j = 0; j < this->get_num_geometries(); j++)
             {
         
                 for(moris::size_t i = 0; i < tNumNewNodes; i++ )
@@ -180,7 +190,7 @@ namespace moris
             moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
         
             // add space to the node phase value table
-            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, mNumGeometries);
+            mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, this->get_num_geometries());
         
             Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
         
@@ -201,7 +211,7 @@ namespace moris
                 mGeometryObjectManager.store_geometry_objects(tNodeIndex,tGeometryObjects);
             }
         
-            for(moris::size_t j = 0; j < mNumGeometries; j++)
+            for(moris::size_t j = 0; j < this->get_num_geometries(); j++)
             {
         
                 for(moris::size_t i = 0; i<tNumNewNodes; i++ )
@@ -386,39 +396,39 @@ namespace moris
         {
         
             moris::size_t tNumNodeVars = aEntityNodeVars.n_rows();
-            MORIS_ASSERT(tNumNodeVars == 2,"Currently compute_dx_dp_finite_difference has only been tested on edges");
-            aDxDp.resize(2,3);
+            MORIS_ASSERT(tNumNodeVars == 2, "Currently compute_dx_dp_finite_difference has only been tested on edges");
+            aDxDp.resize(2, 3);
         
-            moris::real tPerturbationLen = 2*aPerturbationVal;
+            moris::real tPerturbationLen = 2 * aPerturbationVal;
             moris::real tScale   = 1/tPerturbationLen;
-            Cell<moris::real>  tPerturbationSign = {1,-1};
+            Cell<moris::real>  tPerturbationSign = {1, -1};
         
-            moris::Matrix< moris::DDRMat >       tDxDp(1,3);
-            moris::Matrix< moris::DDRMat >       tPerturbedLocalCoordinate(1,1);
-            Cell<moris::Matrix< moris::DDRMat >> tPerturbedGlobCoordinates = {moris::Matrix< moris::DDRMat >(1,3),
-                                                                     moris::Matrix< moris::DDRMat >(1,3)};
+            moris::Matrix< moris::DDRMat >       tDxDp(1, 3);
+            moris::Matrix< moris::DDRMat >       tPerturbedLocalCoordinate(1, 1);
+            Cell<moris::Matrix< moris::DDRMat >> tPerturbedGlobCoordinates = {moris::Matrix< moris::DDRMat >(1, 3),
+                                                                     moris::Matrix< moris::DDRMat >(1, 3)};
             // Loop over all the nodes and perturb up and down
-            for(moris::size_t i = 0; i<tNumNodeVars; i++)
+            for(moris::size_t i = 0; i < tNumNodeVars; i++)
             {
                 // Perturb up and down
-                for(moris::size_t j = 0; j<2; j++)
+                for(moris::size_t j = 0; j < 2; j++)
                 {
         
-                    moris::real tPerturb = tPerturbationSign(j)*aPerturbationVal;
+                    moris::real tPerturb = tPerturbationSign(j) * aPerturbationVal;
                     // Perturb
-                    aEntityNodeVars(i,0) = aEntityNodeVars(i,0) + tPerturb;
+                    aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) + tPerturb;
         
                     // Locate perturbed interface
                     get_intersection_location(mThresholdValue, aPerturbationVal, aGlobalNodeCoordinates, aEntityNodeVars, aEntityNodeIndices, tPerturbedLocalCoordinate, tPerturbedGlobCoordinates(j),false, true);
         
                     // Reverse perturb
-                    aEntityNodeVars(i,0) = aEntityNodeVars(i,0) - tPerturb;
+                    aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) - tPerturb;
         
                 }
         
-                tDxDp.matrix_data() = tScale*(tPerturbedGlobCoordinates(1).matrix_data() - tPerturbedGlobCoordinates(0).matrix_data());
+                tDxDp.matrix_data() = tScale * (tPerturbedGlobCoordinates(1).matrix_data() - tPerturbedGlobCoordinates(0).matrix_data());
         
-                replace_row(0,tDxDp,i,aDxDp);
+                replace_row(0, tDxDp, i, aDxDp);
         
         
             }
@@ -435,14 +445,11 @@ namespace moris
         {
             moris::size_t tNumNodes = aEntityNodeIndices.n_cols();
         
-            MORIS_ASSERT(tNumNodes == 2,"Currently, this function is only supported on edges");
+            MORIS_ASSERT(tNumNodes == 2, "Currently, compute_dx_dp_for_an_intersection is only supported on edges");
         
             // Initialize
             moris::Cell< moris::Matrix< moris::DDRMat > > tDPhiiDp(2);// = { moris::Matrix< moris::DDRMat >(0,0), moris::Matrix< moris::DDRMat >(0,0) };
-        
-        
             uint tDim = aGlobalNodeCoordinates.n_cols();
-        
             moris::Matrix< moris::DDRMat > tEntityNodeCoordinates( tNumNodes,tDim );
         
             // Assemble the entity local coordinates
@@ -450,21 +457,25 @@ namespace moris
             replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityNodeCoordinates);
         
             // Get information from a analytic geometry
-            aADVIndices = get_node_adv_indices_analytic();
-            for(moris::size_t i = 0; i < tNumNodes; i++)
+            if (mActiveGeometryIndex < mGeometryAnalytic.size())
             {
-                tDPhiiDp(i) = ActiveGeometry().evaluate_sensitivity(aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)));
+                aADVIndices = get_node_adv_indices_analytic();
+                for(moris::size_t i = 0; i < tNumNodes; i++)
+                {
+                    tDPhiiDp(i) = mGeometryAnalytic(this->analytic_geometry_index(mActiveGeometryIndex))
+                            ->evaluate_sensitivity(aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)));
+                }
+
+                compute_dx_dp_with_linear_basis( tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp );
             }
 
-            compute_dx_dp_with_linear_basis( tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp );
-        
-//            // Get information from a discrete geometry
-//            moris::real tPerturbationLength = 0.005;
-//            else
-//            {
-//                aADVIndices = get_node_adv_indices_discrete( aEntityNodeIndices );
-//                compute_dx_dp_finite_difference( tPerturbationLength, aGlobalNodeCoordinates, tEntityNodeCoordinates, aIntersectionLclCoordinate,aEntityNodeIndices,aEntityNodeVars, aDxDp );
-//            }
+            // Get information from a discrete geometry
+            else
+            {
+                aADVIndices = aEntityNodeIndices; // FIXME I don't undestand what noah originally intended
+                compute_dx_dp_finite_difference( mPerturbationValue, aGlobalNodeCoordinates, tEntityNodeCoordinates,
+                        aIntersectionLclCoordinate, aEntityNodeIndices, aEntityNodeVars, aDxDp );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -538,14 +549,14 @@ namespace moris
         {
             // 0 for neg 1 for pos
             moris::real tNodePhaseValue = 0;
-            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, mGeometryAnalytic.size());
+            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, this->get_num_geometries());
         
             for(moris::size_t i = 0; i<aNodeIndex.n_cols(); i++)
             {
                 GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex(0,i));
                 moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
-                for(moris::size_t iG = 0; iG < mNumGeometries; iG++)
+                for(moris::size_t iG = 0; iG < this->get_num_geometries(); iG++)
                 {
                     tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex, iG);
         
@@ -571,12 +582,12 @@ namespace moris
         {
             // 0 for neg 1 for pos
             moris::real tNodePhaseValue = 0;
-            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, mNumGeometries);
+            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, this->get_num_geometries());
         
             GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
-            for(moris::size_t iG = 0; iG < mNumGeometries; iG++)
+            for(moris::size_t iG = 0; iG < this->get_num_geometries(); iG++)
             {
                 tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex,iG);
         
@@ -592,6 +603,14 @@ namespace moris
                 }
             }
             aNodePhaseIndex = mPhaseTable.get_phase_index(tPhaseOnOff);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris::moris_index
+        GEN_Geometry_Engine::get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff)
+        {
+            return mPhaseTable.get_phase_index(aElemOnOff);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -651,7 +670,7 @@ namespace moris
         
         void GEN_Geometry_Engine::advance_geometry_index()
         {
-            MORIS_ASSERT(mActiveGeometryIndex < mNumGeometries, "Trying to advance past the number of geometries in the geometry engine");
+            MORIS_ASSERT(mActiveGeometryIndex < this->get_num_geometries(), "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
         }
         
@@ -793,18 +812,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         // private functions
         //--------------------------------------------------------------------------------------------------------------
-        Geometry_Analytic &
-        GEN_Geometry_Engine::ActiveGeometry() const
+
+        size_t GEN_Geometry_Engine::analytic_geometry_index(size_t aGlobalGeometryIndex)
         {
-            uint tNumAnalyticGeometries = mGeometryAnalytic.size();
-            if (mActiveGeometryIndex < tNumAnalyticGeometries)
-            {
-                return (*mGeometryAnalytic(mActiveGeometryIndex));
-            }
-            else
-            {
-                return (*mGeometryAnalytic(mActiveGeometryIndex - tNumAnalyticGeometries));
-            }
+            return aGlobalGeometryIndex;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        size_t GEN_Geometry_Engine::discrete_geometry_index(size_t aGlobalGeometryIndex)
+        {
+            return aGlobalGeometryIndex - mGeometryAnalytic.size();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -957,27 +975,31 @@ namespace moris
         void GEN_Geometry_Engine::get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                                   const moris_index                 aWhichMesh )
         {
-            //TODO: implement for the case of discrete geometries and a mesh manager (rather than just an HMR mesh)
+            //TODO: implement for a mesh manager (rather than just an HMR mesh)
             uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
         
-            aAllFieldVals.resize(mNumGeometries);
-        
-            for ( uint Ik = 0; Ik < mNumGeometries; Ik++ )
+            aAllFieldVals.resize(this->get_num_geometries());
+
+            // Analytic
+            for ( uint Ik = 0; Ik < mGeometryAnalytic.size(); Ik++ )
             {
                 aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
-        
                 for( uint iVert = 0; iVert <tNumVertices; iVert++)
                 {
                     Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
-        
-                    moris::real tVal = - MORIS_REAL_MAX;
-        
-                    Cell< moris::real > tTempConstCell = {{0}};
-        
-                    tVal = mGeometryAnalytic(Ik)->evaluate_field_value(tCoord);
+                    aAllFieldVals( Ik )( iVert ) = mGeometryAnalytic(this->analytic_geometry_index(Ik))->evaluate_field_value(tCoord);
         
                     // FIXME will not work in parallel. Ind are not consistent because of aura
-                    aAllFieldVals( Ik )( iVert ) = tVal;
+                }
+            }
+
+            // Discrete
+            for ( uint Ik = mGeometryAnalytic.size(); Ik < this->get_num_geometries(); Ik++ )
+            {
+                aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
+                for( uint iVert = 0; iVert <tNumVertices; iVert++)
+                {
+                    aAllFieldVals( Ik )( iVert ) = mGeometryDiscrete(this->discrete_geometry_index(Ik))->evaluate_field_value(iVert);
                 }
             }
         }

@@ -14,8 +14,6 @@
 #include "cl_GEN_Enums.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
-#include "cl_GEN_Field_User_Defined.hpp"
-
 #include "cl_GEN_Geometry_Engine.hpp"
 
 #include "cl_GEN_Sphere.hpp"
@@ -137,9 +135,9 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
             tAllCoords.set_row( i,tIntegMesh->get_node_coordinate(i) );
         }
 
-        real tXcenter = 5.0;
-        real tYcenter = 5.0;
-        real tZcenter = 5.0;
+        real tXCenter = 5.0;
+        real tYCenter = 5.0;
+        real tZCenter = 5.0;
 
         Matrix< DDRMat > tAllRadii{{ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 }};
         //------------------------------------------------------------------------------
@@ -147,10 +145,11 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
         {
             real tRadius  = tAllRadii(iIter);
 
-            moris::ge::Sphere tSphere( tRadius, tXcenter, tYcenter, tZcenter );
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-            moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tSphere, tPhaseTable );
+            moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable );
 
             tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
             for( uint i=0; i<tNumNodes; i++ )
@@ -214,11 +213,11 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
 
         tHMR.finalize();
 
-        hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+        moris::mtk::Interpolation_Mesh*      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
         //------------------------------------------------------------------------------
-        real tXcenter = 0.0;
-        real tYcenter = 0.0;
-        real tZcenter = 0.0;
+        real tXCenter = 0.0;
+        real tYCenter = 0.0;
+        real tZCenter = 0.0;
 
 //        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
 //                                     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9 }};
@@ -229,11 +228,12 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
         for(uint iIter=0; iIter<tNumIters; iIter++)    // loop over radii values
         {
             real tRadius  = tAllRadii(iIter);
-            moris::ge::Sphere tSphere( tRadius, tXcenter, tYcenter, tZcenter );
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-            moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tSphere, tPhaseTable, tModelDimension );
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh.get(), &tGENGeometryEngine );
+            moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
+            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
             tXTKModel.mVerbose = false;
 
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};

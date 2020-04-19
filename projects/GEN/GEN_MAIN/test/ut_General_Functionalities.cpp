@@ -13,9 +13,8 @@
 // GE include -----------------------------------
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Field.hpp"
-#include "cl_GEN_Geom_Field.hpp"
+#include "cl_GEN_Geometry_Field.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "cl_GEN_Geom_Field.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
 // HMR includes ---------------------------------
@@ -131,11 +130,10 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
         GEN_Field tField( tFieldProperty );
         tField.initialize( &tMesh );
 
-        GEN_Geom_Field tGeomField( &tField );
+        Cell<std::shared_ptr<ge::Geometry_Discrete>> tGeometryVector(1);
+        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field>(&tField);
 
-        moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tGeomField };
-
-        moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table      tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
         moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
         //=================== manual calls to GE (w/out XTK model) =============================
         tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumVertices );
@@ -219,13 +217,12 @@ TEST_CASE("general_test_01","[GE],[sensitivity_check_01]")
         mtk::Mesh_Manager tMeshManager;
         uint tMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
         //------------------------------------------------------------------------------
-        real tRadius  = 0.6;
-        real tXcenter = 0;
-        real tYcenter = 0;
-        moris::ge::Circle tCircle( tRadius, tXcenter, tYcenter );
+        real tRadius = 0.6;
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, tRadius);
 
-        moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tNumDim );
+        moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tNumDim );
 
         //=================== manual calls to GE (w/out XTK model) =============================
         uint tNumNodes = tInterpMesh->get_num_nodes();
@@ -378,13 +375,11 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, "output_sensitivityCheck_02.g" );
         //------------------------------------------------------------------------------
-        real tRadius  = 0.6;
-        real tXcenter = 0;
-        real tYcenter = 0;
-        moris::ge::Circle tCircle( tRadius, tXcenter, tYcenter );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.6);
 
-        moris::ge::GEN_Phase_Table      tPhaseTable( 1,  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tCircle, tPhaseTable, tModelDimension );
+        moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
