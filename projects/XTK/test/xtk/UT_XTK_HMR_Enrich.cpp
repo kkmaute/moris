@@ -5,22 +5,10 @@
  *      Author: doble
  */
 
-
-
-
-/*
- * UT_XTK_HMR_2D.cpp
- *
- *  Created on: Sep 10, 2019
- *      Author: doble
- */
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
-
 #include "typedefs.hpp"
-
 #include "cl_MTK_Mesh_Manager.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -39,8 +27,6 @@
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 
-
-
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
@@ -52,7 +38,6 @@
 #include "cl_PRM_HMR_Parameters.hpp"
 
 #include "cl_GEN_Geometry_Field_HMR.hpp"
-
 #include "fn_norm.hpp"
 
 namespace xtk
@@ -290,7 +275,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tCircleField);
         tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 
@@ -401,7 +386,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tCircleField);
         tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 

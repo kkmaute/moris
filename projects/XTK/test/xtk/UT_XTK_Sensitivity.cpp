@@ -105,7 +105,7 @@ namespace xtk
               tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tScalarFieldNames(0)));
 
               moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-              moris::ge::GEN_Geometry_Engine tGEIn(tGeometry, tPhaseTable,2);
+              moris::ge::GEN_Geometry_Engine tGEIn(tGeometry, tPhaseTable, 3);
               tGEIn.mComputeDxDp = true;
               tGEIn.mThresholdValue = 0.0;
 

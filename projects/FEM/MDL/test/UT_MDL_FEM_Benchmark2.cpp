@@ -219,12 +219,12 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         for( uint k=0; k<tNumRef; ++k )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(2);
             tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
             tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
             moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable);
+            moris::ge::GEN_Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -259,7 +259,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(1);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(2);
         tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
@@ -563,7 +563,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
 
         for( uint k=0; k<tNumRef; ++k )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeomVec(1);
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeomVec(2);
             tGeomVec(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
             tGeomVec(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
@@ -603,7 +603,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(1);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(2);
         tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
@@ -947,7 +947,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         // refine
         for( uint k = 0; k < tNumRef; ++k )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(3);
             tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
             tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
             tGeometry(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
@@ -991,7 +991,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(1);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(3);
         tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
         tGeometry0(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
@@ -1355,7 +1355,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         // refine
         for( uint k = 0; k < tNumRef; ++k )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(3);
             tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
             tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
             tGeometry(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
@@ -1399,7 +1399,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(1);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(3);
         tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
         tGeometry0(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);

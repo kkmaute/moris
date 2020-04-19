@@ -35,7 +35,7 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
@@ -120,7 +120,7 @@ TEST_CASE("2D Conformal Subdivision","[CM_2D_LIN]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
@@ -190,7 +190,7 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
@@ -286,7 +286,7 @@ TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
