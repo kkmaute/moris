@@ -100,7 +100,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
 
         moris::ge::Phase_Table     tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;
@@ -232,7 +232,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
 
         moris::ge::Phase_Table     tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;

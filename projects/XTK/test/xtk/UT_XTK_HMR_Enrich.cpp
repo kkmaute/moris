@@ -143,7 +143,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
@@ -281,7 +281,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
@@ -392,7 +392,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 

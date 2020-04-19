@@ -34,7 +34,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
             moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:Z";

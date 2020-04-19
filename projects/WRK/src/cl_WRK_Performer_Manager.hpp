@@ -35,7 +35,7 @@ class Library_IO;
     }
     namespace ge
     {
-       class GEN_Geometry_Engine;
+       class Geometry_Engine;
     }
     namespace mdl
     {
@@ -56,7 +56,7 @@ class Library_IO;
             std::shared_ptr< Library_IO > mLibrary;
 
             moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
-            moris::Cell< std::shared_ptr< ge::GEN_Geometry_Engine > >  mGENPerformer;
+            moris::Cell< std::shared_ptr< ge::Geometry_Engine > >      mGENPerformer;
             moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
             moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
             moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;

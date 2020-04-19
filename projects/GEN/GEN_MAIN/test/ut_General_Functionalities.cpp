@@ -134,7 +134,7 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field>(&tField);
 
         moris::ge::Phase_Table      tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
+        moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
         //=================== manual calls to GE (w/out XTK model) =============================
         tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumVertices );
 
@@ -222,7 +222,7 @@ TEST_CASE("general_test_01","[GE],[sensitivity_check_01]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, tRadius);
 
         moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tNumDim );
+        moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tNumDim );
 
         //=================== manual calls to GE (w/out XTK model) =============================
         uint tNumNodes = tInterpMesh->get_num_nodes();
@@ -379,7 +379,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.6);
 
         moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
+        moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );

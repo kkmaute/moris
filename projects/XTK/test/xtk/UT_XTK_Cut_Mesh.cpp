@@ -158,7 +158,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
     tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
@@ -220,7 +220,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
@@ -279,7 +279,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
 
         /*
          * Specify Mesh Inputs

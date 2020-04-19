@@ -209,7 +209,7 @@ namespace moris
             tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
             moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -257,7 +257,7 @@ namespace moris
         tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
         moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
+        moris::ge::Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -638,7 +638,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
             tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
             moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -687,7 +687,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
         moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
+        moris::ge::Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -1065,7 +1065,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
 //
 //            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-//            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+//            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 //
@@ -1125,7 +1125,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
 //
 //        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-//        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+//        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 //
 //        // --------------------------------------------------------------------------------------
 //        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
@@ -2432,7 +2432,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //            moris::Cell<moris::ge::GEN_Geometry*> tGeomVec = { &tCircle0, &tCircle1 };
 //
 //            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-//            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+//            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 //
@@ -2475,7 +2475,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //
 //        size_t tModelDimension = 2;
 //        moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
-//        moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+//        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 //
 //        // --------------------------------------------------------------------------------------
 //        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );

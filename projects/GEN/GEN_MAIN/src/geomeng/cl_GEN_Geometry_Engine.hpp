@@ -1,5 +1,5 @@
-#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_GEOMETRY_ENGINE_HPP_
-#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_GEOMETRY_ENGINE_HPP_
+#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
+#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 
 // GE
 #include "cl_GEN_Basis_Function.hpp"
@@ -84,7 +84,7 @@ namespace moris
         // GEOMETRY ENGINE
         //--------------------------------------------------------------------------------------------------------------
 
-        class GEN_Geometry_Engine
+        class Geometry_Engine
         {
         public:
             moris::uint mSpatialDim;
@@ -141,7 +141,7 @@ namespace moris
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              */
-            GEN_Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists);
+            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists);
 
             /**
              * Constructor using explicitly created analytic geometries and phase table
@@ -150,7 +150,7 @@ namespace moris
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            GEN_Geometry_Engine(Cell< std::shared_ptr<Geometry_Analytic> >   aGeometry,
+            Geometry_Engine(Cell< std::shared_ptr<Geometry_Analytic> >   aGeometry,
                                 Phase_Table                         aPhaseTable,
                                 uint                                aSpatialDim = 3,
                                 real                                aThresholdValue = 0.0,
@@ -163,7 +163,7 @@ namespace moris
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            GEN_Geometry_Engine(Cell< std::shared_ptr<Geometry_Discrete> >   aGeometry,
+            Geometry_Engine(Cell< std::shared_ptr<Geometry_Discrete> >   aGeometry,
                                 Phase_Table                         aPhaseTable,
                                 uint                                aSpatialDim = 3,
                                 real                                aThresholdValue = 0.0,
@@ -172,7 +172,7 @@ namespace moris
             /**
              * Destructor
              */
-            ~GEN_Geometry_Engine()
+            ~Geometry_Engine()
             {
             }
 
@@ -586,4 +586,4 @@ namespace moris
     }
 }
 
-#endif /* PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_GEOMETRY_ENGINE_HPP_ */
+#endif /* PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_ */

@@ -171,7 +171,7 @@ collect_child_elements_and_maps(Model & aModel,
 {
     // data structures
     Cut_Mesh & tCutMesh = aModel.get_cut_mesh();
-    moris::ge::GEN_Geometry_Engine* tGeometryEngine = aModel.get_geom_engine();
+    moris::ge::Geometry_Engine* tGeometryEngine = aModel.get_geom_engine();
     Background_Mesh & tBackgroundMesh = aModel.get_background_mesh();
 
     // Children element nodes connected to elements
@@ -536,7 +536,7 @@ TEST_CASE("Regular Subdivision Method Parallel","[REG_SUB_PARALLEL]")
     tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x2x4";
@@ -573,7 +573,7 @@ TEST_CASE("Regular Subdivision and Node Hierarchy Method Parallel","[CONF_PARALL
     tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";

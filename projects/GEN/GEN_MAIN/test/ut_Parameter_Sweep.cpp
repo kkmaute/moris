@@ -149,7 +149,7 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
             moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable );
+            moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable );
 
             tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
             for( uint i=0; i<tNumNodes; i++ )
@@ -232,7 +232,7 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
             moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
+            moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
             xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
             tXTKModel.mVerbose = false;
 

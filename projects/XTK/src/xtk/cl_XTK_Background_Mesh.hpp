@@ -46,7 +46,7 @@ public:
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData);
 
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                    moris::ge::GEN_Geometry_Engine* aGeometryEngine);
+                    moris::ge::Geometry_Engine* aGeometryEngine);
 
     ~Background_Mesh();
     /*!

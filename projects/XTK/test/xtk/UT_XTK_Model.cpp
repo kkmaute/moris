@@ -60,7 +60,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
         tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x1";
@@ -184,7 +184,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
             moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4";
@@ -351,7 +351,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     tGeometryEngine.mThresholdValue = 0.0;
     tGeometryEngine.mComputeDxDp = false;

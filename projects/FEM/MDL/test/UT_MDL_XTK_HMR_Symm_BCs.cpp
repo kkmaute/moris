@@ -170,7 +170,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(-100.0, -100.0, 0.001);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
          xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 

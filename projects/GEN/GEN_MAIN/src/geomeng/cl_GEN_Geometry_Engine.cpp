@@ -24,7 +24,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        GEN_Geometry_Engine::GEN_Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists) :
+        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists) :
         // User options
         mSpatialDim(aParameterLists(0)(0).get<uint>("spatial_dimensions")),
         mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
@@ -52,7 +52,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry_Analytic>>   aGeometry,
+        Geometry_Engine::Geometry_Engine(Cell<std::shared_ptr<Geometry_Analytic>>   aGeometry,
                                                  Phase_Table                                aPhaseTable,
                                                  uint                                       aSpatialDim,
                                                  real                                       aThresholdValue,
@@ -68,7 +68,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        GEN_Geometry_Engine::GEN_Geometry_Engine(Cell<std::shared_ptr<Geometry_Discrete>>   aGeometry,
+        Geometry_Engine::Geometry_Engine(Cell<std::shared_ptr<Geometry_Discrete>>   aGeometry,
                                                  Phase_Table                                aPhaseTable,
                                                  uint                                       aSpatialDim,
                                                  real                                       aThresholdValue,
@@ -84,35 +84,35 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
+        void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             mADVs = aNewADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat>& GEN_Geometry_Engine::get_advs()
+        Matrix<DDRMat>& Geometry_Engine::get_advs()
         {
             return mADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat>& GEN_Geometry_Engine::get_lower_bounds()
+        Matrix<DDRMat>& Geometry_Engine::get_lower_bounds()
         {
             return mLowerBounds;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat>& GEN_Geometry_Engine::get_upper_bounds()
+        Matrix<DDRMat>& Geometry_Engine::get_upper_bounds()
         {
             return mUpperBounds;
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
+        void Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
         {
             // Allocate space
             mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes, this->get_num_geometries(), 0);
@@ -134,7 +134,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix< moris::DDRMat > const & aNodeCoords )
+        void Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix< moris::DDRMat > const & aNodeCoords )
         {
             // Allocate space
             size_t tNumNodes = aNodeCoords.n_rows();
@@ -163,7 +163,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::associate_new_nodes_with_geometry_object( Cell<Pending_Node> & aNewNodes,
+        void Geometry_Engine::associate_new_nodes_with_geometry_object( Cell<Pending_Node> & aNewNodes,
                                                                             bool                 aInterfaceNodes )
         {
             // Allocate space
@@ -213,7 +213,7 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::create_new_node_geometry_objects( Cell< moris_index >  const & aNewNodeIndices,
+        void Geometry_Engine::create_new_node_geometry_objects( Cell< moris_index >  const & aNewNodeIndices,
                                                                     bool                         aStoreParentTopo,
                                                                     Cell<xtk::Topology*> const & aParentTopo,
                                                                     Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
@@ -263,7 +263,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
+        void Geometry_Engine::link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
                                                                                Matrix< IndexMat > const & aNodesIndicesToLink )
         {
             // Assert lengths match
@@ -283,7 +283,7 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::is_intersected( moris::Matrix< moris::DDRMat > const &   aNodeCoords,
+        void Geometry_Engine::is_intersected( moris::Matrix< moris::DDRMat > const &   aNodeCoords,
                                                   moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
                                                   moris::size_t                            aCheckType,
                                                   Cell< GEN_Geometry_Object > &            aGeometryObjects )
@@ -317,7 +317,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
+        void Geometry_Engine::compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
                                                                  Matrix< DDRMat >   const & aNodeCoords,
                                                                  moris_index                aGeomIndex,
                                                                  bool               const   aGlbCoord )
@@ -377,7 +377,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::get_intersection_location( moris::real const &                      aIsocontourThreshold,
+        void Geometry_Engine::get_intersection_location( moris::real const &                      aIsocontourThreshold,
                                                              moris::real const &                      aPerturbationThreshold,
                                                              moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
                                                              moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
@@ -420,7 +420,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
+        void Geometry_Engine::compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
                                                                    moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
                                                                    moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
                                                                    moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
@@ -470,7 +470,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+        void Geometry_Engine::compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
                                                                      moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
                                                                      moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
                                                                      moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
@@ -515,7 +515,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         GEN_Geometry_Object &
-        GEN_Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex)
+        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex)
         {
            return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
         }
@@ -523,14 +523,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         GEN_Geometry_Object const &
-        GEN_Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex) const
+        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex) const
         {
            return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::size_t GEN_Geometry_Engine::get_num_phases()
+        moris::size_t Geometry_Engine::get_num_phases()
         {
             return mPhaseTable.get_num_phases();
         }
@@ -538,7 +538,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         moris::moris_index
-        GEN_Geometry_Engine::get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
+        Geometry_Engine::get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
                                                                          moris::moris_index aGeometryIndex )
         {
             return mPhaseTable.get_phase_sign_of_given_phase_and_geometry( aPhaseIndex,aGeometryIndex );
@@ -547,7 +547,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         moris::real
-        GEN_Geometry_Engine::get_entity_phase_val( moris::size_t const & aNodeIndex,
+        Geometry_Engine::get_entity_phase_val( moris::size_t const & aNodeIndex,
                                                    moris::size_t const & aGeomIndex )
         {
             GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
@@ -561,7 +561,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         moris::Matrix< moris::DDRMat > const &
-        GEN_Geometry_Engine::get_node_dx_dp( moris::size_t const & aNodeIndex ) const
+        Geometry_Engine::get_node_dx_dp( moris::size_t const & aNodeIndex ) const
         {
             GEN_Geometry_Object const & tNodesGeoObj = get_geometry_object( aNodeIndex );
             return tNodesGeoObj.get_sensitivity_dx_dp();
@@ -570,7 +570,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         moris::Matrix< moris::IndexMat > const &
-        GEN_Geometry_Engine::get_node_adv_indices( moris::size_t const & aNodeIndex ) const
+        Geometry_Engine::get_node_adv_indices( moris::size_t const & aNodeIndex ) const
         {
             GEN_Geometry_Object const & tNodesGeoObj = get_geometry_object( aNodeIndex );
             return tNodesGeoObj.get_node_adv_indices();
@@ -578,7 +578,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::get_phase_index( moris::Matrix< moris::DDSTMat > const & aNodeIndex,
+        void Geometry_Engine::get_phase_index( moris::Matrix< moris::DDSTMat > const & aNodeIndex,
                                                    moris::Matrix< moris::DDSTMat > & aNodePhaseIndex )
         {
             // 0 for neg 1 for pos
@@ -611,7 +611,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::get_phase_index( moris::moris_index const & aNodeIndex,
+        void Geometry_Engine::get_phase_index( moris::moris_index const & aNodeIndex,
                                                    moris::size_t & aNodePhaseIndex )
         {
             // 0 for neg 1 for pos
@@ -642,7 +642,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         moris::moris_index
-        GEN_Geometry_Engine::get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff)
+        Geometry_Engine::get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff)
         {
             return mPhaseTable.get_phase_index(aElemOnOff);
         }
@@ -650,7 +650,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         moris::size_t
-        GEN_Geometry_Engine::get_node_phase_index_wrt_a_geometry( moris::size_t aNodeIndex,
+        Geometry_Engine::get_node_phase_index_wrt_a_geometry( moris::size_t aNodeIndex,
                                                                   moris::size_t aGeometryIndex )
         {
             GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
@@ -674,35 +674,35 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::size_t GEN_Geometry_Engine::get_num_geometries()
+        moris::size_t Geometry_Engine::get_num_geometries()
         {
             return mGeometryAnalytic.size() + mGeometryDiscrete.size();
         }
         
         //--------------------------------------------------------------------------------------------------------------
         
-        bool GEN_Geometry_Engine::is_geometry_analytic()
+        bool Geometry_Engine::is_geometry_analytic()
         {
             return (mActiveGeometryIndex < mGeometryAnalytic.size());
         }
         
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::size_t GEN_Geometry_Engine::get_num_bulk_phase()
+        moris::size_t Geometry_Engine::get_num_bulk_phase()
         {
             return mPhaseTable.get_num_phases();
         }
         
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::size_t GEN_Geometry_Engine::get_active_geometry_index()
+        moris::size_t Geometry_Engine::get_active_geometry_index()
         {
             return mActiveGeometryIndex;
         }
         
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::advance_geometry_index()
+        void Geometry_Engine::advance_geometry_index()
         {
             MORIS_ASSERT(mActiveGeometryIndex < this->get_num_geometries(), "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
@@ -711,7 +711,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         moris::Matrix< moris::IndexMat >
-        GEN_Geometry_Engine::get_node_adv_indices_analytic()
+        Geometry_Engine::get_node_adv_indices_analytic()
         {
             moris::size_t tNumDVS = get_num_design_variables();
             moris::Matrix< moris::IndexMat > tMatrix(1,tNumDVS);
@@ -724,28 +724,28 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::size_t GEN_Geometry_Engine::get_num_design_variables()
+        moris::size_t Geometry_Engine::get_num_design_variables()
         {
             return mADVs.length();
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Pdv_Host_Manager* GEN_Geometry_Engine::get_pdv_host_manager(  )
+        Pdv_Host_Manager* Geometry_Engine::get_pdv_host_manager(  )
         {
             return &mPdvHostManager;
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Geometry_Object_Manager* GEN_Geometry_Engine::get_all_geom_obj()
+        Geometry_Object_Manager* Geometry_Engine::get_all_geom_obj()
         {
             return &mGeometryObjectManager;
         }
         
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
+        void Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
         {
             mMesh = aMesh;
         
@@ -754,7 +754,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
+        moris_index Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
         {
             mMesh_HMR.push_back( aMesh );
         
@@ -765,7 +765,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< hmr::HMR > aHMR )   //FIXME: same as above
+        moris_index Geometry_Engine::register_mesh( std::shared_ptr< hmr::HMR > aHMR )   //FIXME: same as above
         {
             mHMRPerformer.push_back(aHMR);
             mMesh_HMR.push_back( aHMR->create_mesh(0) );
@@ -777,14 +777,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::perform( )
+        void Geometry_Engine::perform( )
         {
             this->perform_refinement();
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::perform_refinement()
+        void Geometry_Engine::perform_refinement()
         {
             for( uint Ik = 0; Ik < mNumRefinements; ++Ik )
             {
@@ -803,7 +803,7 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        //Matrix< DDRMat > GEN_Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
+        //Matrix< DDRMat > Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
         //                                                         GEN_CylinderWithEndCaps* aFiber,
         //                                                         uint aNumberOfFibers )  //FIXME this is currently only setup to work with an HMR member mesh
         //{
@@ -847,14 +847,14 @@ namespace moris
         // private functions
         //--------------------------------------------------------------------------------------------------------------
 
-        size_t GEN_Geometry_Engine::analytic_geometry_index(size_t aGlobalGeometryIndex)
+        size_t Geometry_Engine::analytic_geometry_index(size_t aGlobalGeometryIndex)
         {
             return aGlobalGeometryIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        size_t GEN_Geometry_Engine::discrete_geometry_index(size_t aGlobalGeometryIndex)
+        size_t Geometry_Engine::discrete_geometry_index(size_t aGlobalGeometryIndex)
         {
             return aGlobalGeometryIndex - mGeometryAnalytic.size();
         }
@@ -862,7 +862,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         bool
-        GEN_Geometry_Engine::compute_intersection_info( moris::moris_index               const & aEntityIndex,
+        Geometry_Engine::compute_intersection_info( moris::moris_index               const & aEntityIndex,
                                                         moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
                                                         moris::Matrix< moris::DDRMat >   const & aNodeCoords,
                                                         moris::size_t const &                    aCheckType,
@@ -971,7 +971,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        GEN_Geometry_Engine::interpolate_level_set_value_to_child_node_location( xtk::Topology const & aParentTopology,
+        Geometry_Engine::interpolate_level_set_value_to_child_node_location( xtk::Topology const & aParentTopology,
                                                                                  moris::size_t const &                  aGeometryIndex,
                                                                                  moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                                                  moris::Matrix< moris::DDRMat >       & aLevelSetValues  )
@@ -1006,7 +1006,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void GEN_Geometry_Engine::get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+        void Geometry_Engine::get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
                                                   const moris_index                 aWhichMesh )
         {
             //TODO: implement for a mesh manager (rather than just an HMR mesh)
@@ -1040,7 +1040,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::set_pdv_types( Cell< enum GEN_DV > aPdvType )
+        void Geometry_Engine::set_pdv_types( Cell< enum GEN_DV > aPdvType )
         {
             // set the set dv type flag to true
             mTypesSet = true;
@@ -1051,10 +1051,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::initialize_interp_pdv_host_list(moris_index aWhichMesh)
+        void Geometry_Engine::initialize_interp_pdv_host_list(moris_index aWhichMesh)
         {
             // check if the dv type list was set
-            MORIS_ASSERT( mTypesSet, "GEN_Geometry_Engine::initialize_interp_pdv_host_list() - set_pdv_types() must be called before this function." );
+            MORIS_ASSERT( mTypesSet, "Geometry_Engine::initialize_interp_pdv_host_list() - set_pdv_types() must be called before this function." );
 
             // get number of vertices on the IP mesh
             uint tTotalNumVertices = mMesh->get_interpolation_mesh(aWhichMesh)->get_num_nodes();
@@ -1065,7 +1065,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::assign_ip_hosts_by_set_name( std::string                  aSetName,
+        void Geometry_Engine::assign_ip_hosts_by_set_name( std::string                  aSetName,
                                                                std::shared_ptr< GEN_Field > aFieldPointer,
                                                                enum GEN_DV                  aPdvType,
                                                                moris_index                  aWhichMesh)
@@ -1111,7 +1111,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
+        void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
                                                               std::shared_ptr< GEN_Property > aPropertyPointer,
                                                               enum GEN_DV                     aPdvType,
                                                               moris_index                     aWhichMesh)
@@ -1154,7 +1154,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::assign_ip_hosts_by_set_index(moris_index                  aSetIndex,
+        void Geometry_Engine::assign_ip_hosts_by_set_index(moris_index                  aSetIndex,
                                                                std::shared_ptr< GEN_Field > aFieldPointer,
                                                                enum GEN_DV                  aPdvType,
                                                                moris_index                  aWhichMesh)
@@ -1200,7 +1200,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
+        void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
                                                                 std::shared_ptr< GEN_Property > aPropertyPointer,
                                                                 enum GEN_DV                     aPdvType,
                                                                 moris_index                     aWhichMesh)
@@ -1243,7 +1243,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::initialize_integ_pdv_host_list(moris_index aWhichMesh)
+        void Geometry_Engine::initialize_integ_pdv_host_list(moris_index aWhichMesh)
         {
             moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
 
@@ -1264,7 +1264,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false,"GEN_Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
+                    MORIS_ERROR( false,"Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
                 }
             }
 
@@ -1277,7 +1277,7 @@ namespace moris
             mPdvHostManager.initialize_ig_hosts( tTotalNumVertices );
 
             // check to make sure there are IG nodes to put hosts on
-            MORIS_ASSERT( mIntegNodeIndices.size() != 0, "GEN_Geometry_Engine::initialize_integ_pdv_host_list() - no integration node indices stored, has the XTK model performed decomposition already?" );
+            MORIS_ASSERT( mIntegNodeIndices.size() != 0, "Geometry_Engine::initialize_integ_pdv_host_list() - no integration node indices stored, has the XTK model performed decomposition already?" );
 
             uint tNumIndices = mIntegNodeIndices.size();
 
@@ -1300,7 +1300,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void GEN_Geometry_Engine::mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType )
+        void Geometry_Engine::mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType )
         {
             mPdvHostManager.mark_ig_pdv_as_unchanging( aPdvType );
         }

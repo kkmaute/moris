@@ -229,7 +229,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
 //          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
 //          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
           // setup the XTK model
           Model tXTKModel(3,tMeshData,&tGeometryEngine);

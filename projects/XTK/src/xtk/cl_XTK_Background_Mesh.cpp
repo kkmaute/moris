@@ -30,7 +30,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
 
 // ----------------------------------------------------------------------------------
 Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                                 moris::ge::GEN_Geometry_Engine* aGeometryEngine):
+                                 moris::ge::Geometry_Engine* aGeometryEngine):
     mMeshData(aMeshData),
     mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
