@@ -28,9 +28,13 @@ set(SO_LIB_REQS
 add_library(${target_name} SHARED ${cpp_name})
 
 target_include_directories(${target_name} PRIVATE ${SO_INCLUDES})    
+
 target_link_libraries(${target_name} ${SO_LIB_REQS})
+
 target_compile_definitions(${target_name} INTERFACE ${MORIS_DEFINITIONS})                          
-set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${base_name})
+
+set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${base_name}
+                                                PREFIX      ""          )
 
 endfunction()
 
