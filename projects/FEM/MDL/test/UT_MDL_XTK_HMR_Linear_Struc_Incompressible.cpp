@@ -801,22 +801,14 @@ TEST_CASE("3D XTK HMR Incompressible","[XTK_HMR_I_3D]")
 //        //------------------------------------------------------------------------------
 //        tTimeSolver.solve();
 //
-<<<<<<< HEAD
-//        // output solution and meshes
-//        // FIXME add using ouptput if needed
-=======
-        // Start solution comparison
-        Matrix<DDRMat> tFullSolution;
-        Matrix<DDRMat> tGoldSolution;
-        tNonlinearSolverMain.get_full_solution(tFullSolution);
+//        // Start solution comparison
+//        Matrix<DDRMat> tFullSolution;
+//        Matrix<DDRMat> tGoldSolution;
+//        tNonlinearSolverMain.get_full_solution(tFullSolution);
+//
+//        std::string tMorisRoot = moris::get_base_moris_dir();
+//        std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_3d.hdf5";
 
-        std::string tMorisRoot = moris::get_base_moris_dir();
-        std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_3d.hdf5";
-
-        //------------------------------------------------------------------------------
-        //    write solution ( uncomment this if you want to recreate solution files )
-        //------------------------------------------------------------------------------
->>>>>>> 94bc53d0f9965d4eed5cfa8ae0df05bdfc7c3860
 //
 ////        xtk::Output_Options tOutputOptions;
 ////        tOutputOptions.mAddNodeSets = false;

@@ -13,7 +13,7 @@
 #include "cl_PRM_SOL_Parameters.hpp"
 #include "cl_PRM_VIS_Parameters.hpp"
 #include "cl_PRM_HMR_Parameters.hpp"
-#include "cl_PRM_GEN_Parameters.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_PRM_XTK_Parameters.hpp"
 
 
