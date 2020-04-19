@@ -24,18 +24,24 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        GEN_Geometry_Engine::GEN_Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists)
-        : mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
-        mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
-                ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
-                : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
-        {
-            // Get user options
-            mSpatialDim = aParameterLists(0)(0).get<uint>("spatial_dimensions");
-            mThresholdValue = aParameterLists(0)(0).get<real>("threshold_value");
-            mPerturbationValue = aParameterLists(0)(0).get<real>("perturbation_value");
-            mNumRefinements = aParameterLists(0)(0).get<uint>("HMR_refinements");
+        GEN_Geometry_Engine::GEN_Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists) :
+        // User options
+        mSpatialDim(aParameterLists(0)(0).get<uint>("spatial_dimensions")),
+        mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
+        mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
+        mNumRefinements(aParameterLists(0)(0).get<uint>("HMR_refinements")),
 
+        // ADVs
+        mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
+        mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
+        mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
+
+        // Phase table
+        mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
+              ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
+              : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
+
+        {
             // Build geometry (just analytic for right now)
             mGeometryAnalytic.resize(this->get_num_geometries());
             for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
@@ -51,9 +57,9 @@ namespace moris
                                                  uint                                       aSpatialDim,
                                                  real                                       aThresholdValue,
                                                  real                                       aPerturbationValue)
-            : mThresholdValue(aThresholdValue),
+            : mSpatialDim(aSpatialDim),
+              mThresholdValue(aThresholdValue),
               mPerturbationValue(aPerturbationValue),
-              mSpatialDim(aSpatialDim),
               mActiveGeometryIndex(0),
               mGeometryAnalytic(aGeometry),
               mPhaseTable(aPhaseTable)
@@ -67,15 +73,43 @@ namespace moris
                                                  uint                                       aSpatialDim,
                                                  real                                       aThresholdValue,
                                                  real                                       aPerturbationValue)
-            : mThresholdValue(aThresholdValue),
+            : mSpatialDim(aSpatialDim),
+              mThresholdValue(aThresholdValue),
               mPerturbationValue(aPerturbationValue),
-              mSpatialDim(aSpatialDim),
               mActiveGeometryIndex(0),
               mGeometryDiscrete(aGeometry),
               mPhaseTable(aPhaseTable)
         {
         }
         
+        //--------------------------------------------------------------------------------------------------------------
+
+        void GEN_Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
+        {
+            mADVs = aNewADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat>& GEN_Geometry_Engine::get_advs()
+        {
+            return mADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat>& GEN_Geometry_Engine::get_lower_bounds()
+        {
+            return mLowerBounds;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat>& GEN_Geometry_Engine::get_upper_bounds()
+        {
+            return mUpperBounds;
+        }
+
         //--------------------------------------------------------------------------------------------------------------
         
         void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)

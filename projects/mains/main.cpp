@@ -96,7 +96,8 @@ int main( int argc, char * argv[] )
         {
             wrk::Workflow tWorkflow( &tPerformerManager );
 
-            tWorkflow.perform();
+            Matrix<DDRMat> tADVs(1, 1, 0.0);
+            tWorkflow.get_criteria(tADVs);
         }
     }
 

@@ -32,6 +32,7 @@ TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 
         wrk::Workflow tWorkflow( &tPerformerManager );
 
-        tWorkflow.perform();
+        Matrix<DDRMat> tADVs(1, 1, 0.0);
+        tWorkflow.get_criteria(tADVs);
     }
 }

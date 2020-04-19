@@ -8,6 +8,7 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HPP_
 
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
 
@@ -51,7 +52,7 @@ class Library_IO;
     class Performer_Manager;
 //------------------------------------------------------------------------------
 
-        class Workflow
+        class Workflow : public opt::Criteria_Interface
         {
         private:
             wrk::Performer_Manager * mPerformerManager;
@@ -70,9 +71,24 @@ class Library_IO;
              */
             ~Workflow(){};
 
-            void initialize();
+            /**
+             * Initializes the vectors of ADV values, lower bounds, and upper bounds
+             */
+            void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
 
-            void perform();
+            /**
+             * Gets the criteria values given a new set of ADVs
+             *
+             * @return vector of criteria
+             */
+            Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs);
+
+            /**
+             * Gets the derivative of the criteria with respect to the advs
+             *
+             * @return matrix d(criteria)_i/d(adv)_j
+             */
+            Matrix<DDRMat> get_dcriteria_dadv();
 
 //------------------------------------------------------------------------------
         };

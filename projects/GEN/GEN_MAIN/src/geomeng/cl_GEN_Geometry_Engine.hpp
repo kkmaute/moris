@@ -87,14 +87,20 @@ namespace moris
         class GEN_Geometry_Engine
         {
         public:
+            moris::uint mSpatialDim;
             moris::real mThresholdValue;
             moris::real mPerturbationValue;
             bool mComputeDxDp = false; // FIXME change this?
-            moris::uint mSpatialDim;
 
         private:
+
+            // HMR refinements
+            uint mNumRefinements;
+
             // ADVs
             Matrix<DDRMat> mADVs;
+            Matrix<DDRMat> mLowerBounds;
+            Matrix<DDRMat> mUpperBounds;
 
             // Geometry
             moris::size_t mActiveGeometryIndex;
@@ -118,7 +124,7 @@ namespace moris
             mtk::Mesh_Manager* mMesh;
             moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
             moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
-            uint mNumRefinements;
+
 
             // Library
 //            Library_IO mLibrary;
@@ -169,6 +175,34 @@ namespace moris
             ~GEN_Geometry_Engine()
             {
             }
+
+            /**
+             * Sets new advs for the geometry engine
+             *
+             * @param aNewADVs vector of new advs to use
+             */
+            void set_advs(Matrix<DDRMat> aNewADVs);
+
+            /**
+             * Gets the advs from the geometry engine
+             *
+             * @return vector of advs
+             */
+            Matrix<DDRMat>& get_advs();
+
+            /**
+             * Gets the lower bounds from the geometry engine
+             *
+             * @return vector of lower bounds
+             */
+            Matrix<DDRMat>& get_lower_bounds();
+
+            /**
+             * Gets the upper bounds from the geometry engine
+             *
+             * @return vector of upper bounds
+             */
+            Matrix<DDRMat>& get_upper_bounds();
 
             /**
              * @brief Initial allocation of geometry objects,
