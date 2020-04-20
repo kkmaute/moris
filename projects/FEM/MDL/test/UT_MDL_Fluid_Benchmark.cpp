@@ -143,6 +143,7 @@ bool tSolverOutputCriteria_MDLFluidBench( moris::tsa::Time_Solver * )
 //-------------------------------------------------------------------------------------
 TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Immersed_Inlet_Velocity]")
 {
+
     if( par_size() <= 1 )
     {
         // Geometry Parameters
@@ -575,6 +576,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 //-------------------------------------------------------------------------------------
 TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Immersed_Inlet_Pressure]")
 {
+
     if( par_size() <= 1 )
     {
         // Geometry Parameters
@@ -1474,6 +1476,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //-------------------------------------------------------------------------------------
 TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Conform_Inlet_Velocity]")
 {
+
     if( par_size() <= 1 )
     {
         // Geometry Parameters
@@ -1745,6 +1748,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Velocity","[MDL_Fluid_Benchmark_Con
 //-------------------------------------------------------------------------------------
 TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Conform_Inlet_Pressure]")
 {
+
     if( par_size() <= 1 )
     {
         // Geometry Parameters
@@ -2011,6 +2015,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure","[MDL_Fluid_Benchmark_Con
 
 TEST_CASE("MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D","[MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D]")
 {
+
     if( par_size() <= 1 )
     {
         // Geometry Parameters
@@ -2372,6 +2377,7 @@ void AnalyticdVelocitydxFunc_MDLFluidBench
 
 TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial_Couette_Flow]")
 {
+
     if(par_size()<=1)
     {
         // Geometry Parameters

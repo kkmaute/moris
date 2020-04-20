@@ -77,6 +77,7 @@
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
+
 namespace moris
 {
 
@@ -90,6 +91,7 @@ void tConstValFunction_MDL_XTK
 
 TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 {
+
     if(par_size() == 1)
     {
         moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};

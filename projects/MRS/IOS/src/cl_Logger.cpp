@@ -66,6 +66,16 @@ void Logger::initialize( int  & argc, char * argv[] )
         }
 
     } // end for each input argument
+
+    // print header
+    this->print_header();
+
+    // log start of Global Clock to file
+    if( mWriteToAscii )
+    {
+        // formated output to log file
+        this->log_to_file( OutputSpecifier::SignIn, 1.0);
+    }
 }
 
 
@@ -217,7 +227,7 @@ void Logger::print_header()
     //        }
     //        mStream << "Number of Processors used: " << ( int ) par_size() << " \n";
     mStream << "Date of execution: " << ctime(&tTimeStamp) ;
-    mStream << "Severity Level: " << mSeverityLevel << " /n";
+    mStream << "Severity Level: " << mSeverityLevel << " \n";
 
 
     // print user information

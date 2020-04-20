@@ -66,6 +66,10 @@
 
 #include "fn_norm.hpp"
 
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
+
 namespace moris
 {
 namespace mdl

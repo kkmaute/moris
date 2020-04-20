@@ -31,6 +31,7 @@ const std::string get_enum_str(enum EntityBase aEntityBase)
     case EntityBase::GlobalClock:       return "GlobalClock";
     case EntityBase::MSI:               return "MSI";
     case EntityBase::Mesh:              return "Mesh";
+    case EntityBase::TEST_CASE:         return "TEST_CASE";
 
     default:
 //        MORIS_ASSERT(false, "Invalid EntityBase Enum provided.");
@@ -50,6 +51,7 @@ const enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
     else if (aEnumString == "GlobalClock")      return EntityBase::GlobalClock;
     else if (aEnumString == "MSI")              return EntityBase::MSI;
     else if (aEnumString == "Mesh")             return EntityBase::Mesh;
+    else if (aEnumString == "TEST_CASE")        return EntityBase::TEST_CASE;
 
     else
     {
@@ -130,6 +132,7 @@ const std::string get_enum_str(enum EntityAction aEntityAction)
     case EntityAction::AssembleResidual:    return "AssembleResidual";
     case EntityAction::AssembleJacAndRes:   return "AssembleJacAndRes";
     case EntityAction::AssembleRHS:         return "AssembleRHS";
+    case EntityAction::Run:                 return "Run";
 
     default:
 //        MORIS_ASSERT(false, "Invalid EntityAction Enum provided.");
@@ -151,6 +154,7 @@ const enum EntityAction get_entity_action_enum_from_str(std::string aEnumString)
     else if (aEnumString == "AssembleResidual")   return EntityAction::AssembleResidual;
     else if (aEnumString == "AssembleJacAndRes")  return EntityAction::AssembleJacAndRes;
     else if (aEnumString == "AssembleRHS")        return EntityAction::AssembleRHS;
+    else if (aEnumString == "Run")                return EntityAction::Run;
 
     else
     {
@@ -181,6 +185,10 @@ const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier)
     case OutputSpecifier::Step:         return "Step";
     case OutputSpecifier::Restart:      return "Restart";
     case OutputSpecifier::FreeText:     return "FreeText";
+    case OutputSpecifier::InfoText:     return "InfoText";
+    case OutputSpecifier::DebugText:    return "DebugText";
+    case OutputSpecifier::Warning:      return "Warning";
+
 
     default:
 //        MORIS_ASSERT(false, "Invalid OutputSpecifier Enum provided.");

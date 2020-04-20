@@ -20,7 +20,8 @@ enum class EntityBase {
     BlockSet,
     GlobalClock,
     MSI,
-    Mesh
+    Mesh,
+    TEST_CASE
 };
 
 // copy string
@@ -64,7 +65,8 @@ enum class EntityAction {
     AssembleJacobian,
     AssembleResidual,
     AssembleJacAndRes,
-    AssembleRHS
+    AssembleRHS,
+    Run
 };
 
 // copy string
