@@ -12,6 +12,7 @@
 
 #include "typedefs.hpp"
 #include "IO_Tools.hpp"
+//#include "/build/generated/paths.hpp"
 
 // for the global clock
 #include "cl_GlobalClock.hpp" // MRS/IOS/src
@@ -241,6 +242,8 @@ void Logger::print_header()
     // print build info
     mStream << "\n--- BUILD ---\n";
     mStream << "Build date: " << __DATE__ << "; " << __TIME__ << "\n";
+//    mStream << "Git branch: " << get_moris_git_branch() << "\n";
+//    mStream << "Git hash: " << get_moris_git_hash() << "\n";
     mStream << "DEBUG: ";
 
 #if !defined(NDEBUG) || defined(DEBUG)
