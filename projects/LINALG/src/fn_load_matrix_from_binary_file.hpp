@@ -25,7 +25,7 @@ namespace moris
     void
     load_matrix_from_binary_file(
             Matrix< Matrix_Type > & aMatrix,
-            const std::string            & aFilePath )
+            const std::string     & aFilePath )
     {
         typedef typename Matrix< Matrix_Type >::Data_Type Type;
 
@@ -64,7 +64,7 @@ namespace moris
         aMatrix.set_size( tNumberOfRows, tNumberOfCols );
 
         // create buffer
-        Type tBuffer[ tNumberOfSamplesInBuffer ];
+        std::vector<Type> tBuffer( tNumberOfSamplesInBuffer );
 
         // row index
         uint i = 0;
@@ -96,7 +96,6 @@ namespace moris
                 }
             }
         }
-
 
         // read final incomplete block
         uint tNumberOfSamples = tNumberOfRows*tNumberOfCols % tNumberOfSamplesInBuffer ;

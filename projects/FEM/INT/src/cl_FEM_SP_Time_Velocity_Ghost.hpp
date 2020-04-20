@@ -61,14 +61,7 @@ namespace moris
             /*
              * constructor
              */
-            SP_Time_Velocity_Ghost()
-            {
-                // set the property pointer cell size
-                mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the map
-                mPropertyMap[ "Density" ] = Property_Type::DENSITY;
-            }
+            SP_Time_Velocity_Ghost();
 
 //------------------------------------------------------------------------------
             /**

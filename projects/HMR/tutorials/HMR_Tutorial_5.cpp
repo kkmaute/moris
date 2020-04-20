@@ -9,6 +9,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "paths.hpp"
 #include "cl_Logger.hpp"
 #include "cl_GlobalClock.hpp" // MRS/IOS/src
 #include "cl_Tracer.hpp" // MRS/IOS/src
@@ -79,7 +80,7 @@ main(
 //
 ////------------------------------------------------------------------------------
 //    // get path for STL file to load
-//    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+//    tObjectPath = moris::get_base_moris_dir() + tObjectPath;
 //
 //    // create SDF generator
 //    sdf::SDF_Generator tSdfGen( tObjectPath );

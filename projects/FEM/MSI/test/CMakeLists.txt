@@ -45,7 +45,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${MSI_TEST_PROCS})
         set(MSI_PARALLEL_TEST ${MSI_TEST}-${PROCS}-procs)
         add_test(NAME ${MSI_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${MSI_TEST}>)
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${MSI_TEST}>)
     endforeach()
 endif()
 

@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "cl_GE_Core.hpp"   //FIXME: needs to be replaced with current geometry engine implementation
+#include "paths.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -20,7 +20,6 @@
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 
-
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_MTK_Mesh.hpp"
@@ -28,7 +27,6 @@
 //------------------------------------------------------------------------------
 
 // geometry engine
-//#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Database.hpp"
@@ -45,7 +43,7 @@ using namespace hmr;
 TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 {
     // get root from environment
-    std::string tMorisRoot = std::getenv("MORISROOT");
+    std::string tMorisRoot = moris::get_base_moris_dir();
 
 //------------------------------------------------------------------------------
     if(  moris::par_size() == 1  ||  moris::par_size() == 2  || moris::par_size() == 4 )
@@ -326,7 +324,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numbered_aura]")
 {
     // get root from environment
-    std::string tMorisRoot = std::getenv("MORISROOT");
+    std::string tMorisRoot = moris::get_base_moris_dir();
 
 //------------------------------------------------------------------------------
     if(  moris::par_size() == 1  ||  moris::par_size() == 2  || moris::par_size() == 4 )

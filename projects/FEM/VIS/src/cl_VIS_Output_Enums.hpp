@@ -68,6 +68,7 @@ namespace vis
         tVisOutputTypeMap["VX"]                = vis::Output_Type::VX;
         tVisOutputTypeMap["VY"]                = vis::Output_Type::VY;
         tVisOutputTypeMap["VZ"]                = vis::Output_Type::VZ;
+        tVisOutputTypeMap["P"]                 = vis::Output_Type::P;
         tVisOutputTypeMap["DOF"]               = vis::Output_Type::DOF;
         tVisOutputTypeMap["L2_ERROR_ANALYTIC"] = vis::Output_Type::L2_ERROR_ANALYTIC;
         tVisOutputTypeMap["H1_ERROR_ANALYTIC"] = vis::Output_Type::H1_ERROR_ANALYTIC;

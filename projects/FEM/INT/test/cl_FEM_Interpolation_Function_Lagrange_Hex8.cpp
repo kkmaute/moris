@@ -1,6 +1,7 @@
 #include <catch.hpp>
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "paths.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_save_matrix_to_binary_file.hpp" //LNA/src
@@ -22,7 +23,7 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
 //------------------------------------------------------------------------------
 
         // step 1: load MATLAB precomputed data from binary files
-        std::string tPrefix = std::getenv("MORISROOT");
+        std::string tPrefix = moris::get_base_moris_dir();
         tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
 
         // load point coordinates from file

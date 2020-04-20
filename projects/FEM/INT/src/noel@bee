@@ -1,5 +1,5 @@
 
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp"
+#include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
@@ -11,14 +11,14 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Isotropic_Spatial_Diffusion_Dirichlet::IWG_Isotropic_Spatial_Diffusion_Dirichlet()
+        IWG_Diffusion_Dirichlet_Nitsche::IWG_Diffusion_Dirichlet_Nitsche()
         {
             // FIXME set a penalty
             mGamma = 1.0;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
@@ -39,7 +39,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
@@ -85,10 +85,10 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+        void IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - Not implemeted." );
+            MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian_and_residual - Not implemeted." );
         }
 
 //------------------------------------------------------------------------------

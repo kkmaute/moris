@@ -39,7 +39,7 @@ const std::string get_enum_str(enum EntityBase aEntityBase)
     }
 }
 
-const enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
+enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
 {
     if      (aEnumString == "Unknown")          return EntityBase::Unknown;
     else if (aEnumString == "LinearSolver")     return EntityBase::LinearSolver;
@@ -89,7 +89,7 @@ const std::string get_enum_str(enum EntityType aEntityType)
     }
 }
 
-const enum EntityType get_entity_type_enum_from_str(std::string aEnumString)
+enum EntityType get_entity_type_enum_from_str(std::string aEnumString)
 {
     if      (aEnumString == "Unknown")      return EntityType::Unknown;
     else if (aEnumString == "Arbitrary")    return EntityType::Arbitrary;
@@ -140,7 +140,7 @@ const std::string get_enum_str(enum EntityAction aEntityAction)
     }
 }
 
-const enum EntityAction get_entity_action_enum_from_str(std::string aEnumString)
+enum EntityAction get_entity_action_enum_from_str(std::string aEnumString)
 {
     if      (aEnumString == "Unknown")            return EntityAction::Unknown;
     else if (aEnumString == "Arbitrary")          return EntityAction::Arbitrary;
@@ -197,7 +197,7 @@ const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier)
 }
 
 
-const enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString)
+enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString)
 {
     if      (aEnumString == "Unknown")      return OutputSpecifier::Unknown;
     else if (aEnumString == "ResidualNorm") return OutputSpecifier::ResidualNorm;

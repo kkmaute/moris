@@ -34,13 +34,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
-
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
 
             enum class IWG_Constitutive_Type
             {
@@ -111,22 +104,21 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_residual(  real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_jacobian_and_residual( real aWStar );
 
@@ -136,6 +128,9 @@ namespace moris
              * @param[ in ] aWStar weight associated to the evaluation point
              */
             void compute_dRdp( real aWStar );
+
+//------------------------------------------------------------------------------
+        private:
 
 //------------------------------------------------------------------------------
             /**

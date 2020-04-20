@@ -32,27 +32,27 @@ set(TEST_SOURCES
     )
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
-set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
-    "core"                                                                                                                                                                                                                                                                     
-    "geomeng"                                                                                                                                                                                                                                                                  
-    "geometry"                                                                                                                                                                                                                                                                 
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
-    "xtk"                                                                                                                                                                                                                                                                      
-    )                                                                                                                                                                                                                                                                          
+set(XTK_INCLUDES
+    "assert"
+    "containers"
+    "core"
+    "geomeng"
+    "geometry"
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
+    "xtk"
+)
 
-# Include depedency directories                                                                                                                                                                                                                                                
+# Include depedency directories
 foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})             
 endforeach()   
 
 # List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
+set(GEN_MAIN_INCLUDES                                                                
     "additional"
     "geomeng"
     "geometry"
@@ -66,9 +66,9 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
-	${MTK}-lib
-	${ALG}-lib
+    test-libs
+    ${MTK}-lib
+    ${ALG}-lib
     ${INT}-lib
     ${HMR}-lib
     ${SDF}-lib
@@ -96,7 +96,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${MDL_TEST_PROCS})
         set(MDL_PARALLEL_TEST ${MDL_TEST}-${PROCS}-procs)
         add_test(NAME ${MDL_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${MDL_TEST}>)
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${MDL_TEST}>)
     endforeach()
 endif()
 

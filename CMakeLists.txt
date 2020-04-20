@@ -147,6 +147,12 @@ option(MORIS_USE_32BIT
 
 option(MORIS_HAVE_DEBUG
     "Use the debug version of the code." OFF )
+
+option(MORIS_USE_VALGRIND
+    "Use valgrind to run tests." OFF )
+    
+option(MORIS_USE_MATRIX_FILL
+    "Fill matrices by default with NANs or MaxValues." OFF )
     
 option(USE_XTK "Have XTK Library" ON)	
 
@@ -273,6 +279,13 @@ include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 ## Dynamic link test function
 include(${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake)
 
+# ------------------------------------------------------------------------
+# Add git revision
+# https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
+
+list(APPEND CMAKE_MODULE_PATH "${MORIS_CMAKE_DIR}/utilities//")
+include(GetGitRevisionDescription)
+get_git_head_revision(MORIS_GIT_BRANCH MORIS_GIT_HASH)
 
 # -------------------------------------------------------------------------
 # Compiler ----------------------------------------------------------------
@@ -328,6 +341,11 @@ if (MORIS_HAVE_DEBUG)
 else()
     list(APPEND MORIS_DEFINITIONS "-DNDEBUG")
 endif()
+
+if (MORIS_USE_MATRIX_FILL)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMATRIX_FILL ")
+endif()
+
 
 # # Performace test flags
 # if (HAVE_PERF_MAT)
@@ -724,10 +742,19 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	set(MORIS_TEST_PROCS 1 2 4)
 endif()
 
+if (MORIS_USE_VALGRIND)
+   set(VALGRIND "valgrind")
+   set(VALGRIND_OPTIONS "")
+else()
+   set(VALGRIND "")
+   set(VALGRIND_OPTIONS "")
+endif()
+
 # -------------------------------------------------------------------------
 # MORIS subpackages -------------------------------------------------------
 # -------------------------------------------------------------------------
 set(EXE_EXT ".exe")
+
 enable_testing()
 
 add_subdirectory(${SRC})

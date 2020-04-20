@@ -173,7 +173,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
             arma::Mat< double > tSlaveMatrix;
 
             // get number of dof
-            int tNumDof;
+            int tNumDof = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -330,32 +330,32 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
             // create and set the fem set for the IWG
             MSI::Equation_Set * tSet = new fem::Set();
 
-            // set size for the set EqnObjDofTypeList
-            tSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-
-            // set size and populate the set dof type map
-            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            reinterpret_cast< fem::Set* >( tSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-
-            // set size and populate the set master and slave dof type map
-            tSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-            tSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-
-            // set size and fill the set residual assembly map
-            tSet->mResDofAssemblyMap.resize( 2 );
-            tSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
-            tSet->mResDofAssemblyMap( 1 ) = { { tNumDof, ( 2 * tNumDof )-1 } };
-
-            // set size and fill the set jacobian assembly map
-            tSet->mJacDofAssemblyMap.resize( 2 );
-            tSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },{ tNumDof, ( 2 * tNumDof )-1 } };
-            tSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, ( 2 * tNumDof )-1 } };
-
             // set pointer for IWG
             tIWGViscous->set_set_pointer( static_cast< fem::Set* >( tSet ) );
             tIWGConvective->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+
+            // set size for the set EqnObjDofTypeList
+            tIWGViscous->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+            // set size and populate the set dof type map
+            tIWGViscous->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWGViscous->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+
+            // set size and populate the set master and slave dof type map
+            tIWGViscous->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWGViscous->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWGViscous->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWGViscous->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+
+            // set size and fill the set residual assembly map
+            tIWGViscous->mSet->mResDofAssemblyMap.resize( 2 );
+            tIWGViscous->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
+            tIWGViscous->mSet->mResDofAssemblyMap( 1 ) = { { tNumDof, ( 2 * tNumDof )-1 } };
+
+            // set size and fill the set jacobian assembly map
+            tIWGViscous->mSet->mJacDofAssemblyMap.resize( 2 );
+            tIWGViscous->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },{ tNumDof, ( 2 * tNumDof )-1 } };
+            tIWGViscous->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, ( 2 * tNumDof )-1 } };
 
             // set IWG normal
             tIWGViscous->set_normal( tNormal );
@@ -392,9 +392,9 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
 
             // reset residual and jacobian
             //------------------------------------------------------------------------------
-            tSet->mResidual.resize( 1 );
-            tSet->mResidual( 0 ).set_size( 2 * tNumDof, 1 , 0.0 );
-            tSet->mJacobian.set_size( 2 * tNumDof, 2 * tNumDof, 0.0 );
+            tIWGViscous->mSet->mResidual.resize( 1 );
+            tIWGViscous->mSet->mResidual( 0 ).set_size( 2 * tNumDof, 1 , 0.0 );
+            tIWGViscous->mSet->mJacobian.set_size( 2 * tNumDof, 2 * tNumDof, 0.0 );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------
@@ -423,9 +423,9 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
 
             // reset residual and jacobian
             //------------------------------------------------------------------------------
-            tSet->mResidual.resize( 1 );
-            tSet->mResidual( 0 ).set_size( 2 * tNumDof, 1 , 0.0 );
-            tSet->mJacobian.set_size( 2 * tNumDof, 2 * tNumDof, 0.0 );
+            tIWGConvective->mSet->mResidual.resize( 1 );
+            tIWGConvective->mSet->mResidual( 0 ).set_size( 2 * tNumDof, 1 , 0.0 );
+            tIWGConvective->mSet->mJacobian.set_size( 2 * tNumDof, 2 * tNumDof, 0.0 );
 
             // check evaluation of the residual
             //------------------------------------------------------------------------------

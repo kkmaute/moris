@@ -11,15 +11,15 @@ echo "        3. name of input file (without cpp suffix)"
 echo ""
 echo " Output: .so file"
 echo ""
-echo " Example: 
+echo " Example: "
 echo ""
 echo " To create the shared objective file use:"
 echo ""
-echo " $MORISROOT/share/scripts/create_shared_object_for_input_file.sh . build myinput"
+echo " $MORISROOT/share/scripts/create_shared_object.sh . build myinput"
 echo ""
 echo " To run moris with this input file use:"
 echo ""
-echo " $MORISROOT/build/main/moris myinput.so 
+echo " $MORISROOT/build/main/moris myinput.so "
 echo ""
 echo "=============================================================="
 echo ""
@@ -94,7 +94,7 @@ make shared_object_file
 
 cd $workdir
 
-mv $MORISROOT/$builddir/lib/libinput_file.so $cppfile.so
+mv $MORISROOT/$builddir/lib/input_file.so $cppfile.so
 
 rm $MORISROOT/projects/mains/input_file.cpp
 

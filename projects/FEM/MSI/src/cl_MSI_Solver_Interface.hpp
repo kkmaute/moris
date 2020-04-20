@@ -66,10 +66,11 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
-            void set_solution_vector( Dist_Vector * aSolutionVector )
-            {
-                mSolutionVector = aSolutionVector;
-            }
+            void set_solution_vector( Dist_Vector * aSolutionVector );
+
+//------------------------------------------------------------------------------
+
+            void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
 
 //------------------------------------------------------------------------------
 
@@ -98,12 +99,6 @@ namespace mdl
 
             void write_solution_to_hdf5_file( const char* aFilename );
 
-//------------------------------------------------------------------------------
-
-            void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
-            {
-                mPrevSolutionVector = aSolutionVector;
-            }
 //------------------------------------------------------------------------------
 
             void set_time( const Matrix< DDRMat> & aTime )
@@ -256,7 +251,7 @@ namespace mdl
                                                       Matrix< DDRMat > & aElementMatrix )
              {
                  mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
-                 mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix, mSolutionVector );
+                 mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix );
              };
 
 //------------------------------------------------------------------------------
@@ -266,7 +261,7 @@ namespace mdl
                                                       Matrix< DDRMat > & aElementMatrix )
              {
                  mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
-                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix, mSolutionVector );
+                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix );
              };
 
 //------------------------------------------------------------------------------
@@ -296,11 +291,11 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
-             void get_equation_object_rhs( const moris::uint              & aMyElementInd,
+             void get_equation_object_rhs( const moris::uint      & aMyElementInd,
                                          Cell< Matrix< DDRMat > > & aElementRHS )
              {
                      mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
-                     mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
+                     mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS );
              };
 
 //------------------------------------------------------------------------------
@@ -311,7 +306,7 @@ namespace mdl
              {
 
                      mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
-                     mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
+                     mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS );
              };
 
 //------------------------------------------------------------------------------

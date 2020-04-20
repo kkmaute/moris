@@ -5,14 +5,10 @@
  *      Author: sonne
  */
 #include "catch.hpp"
-#include "cl_Star.hpp"
-#include "cl_Circle.hpp"
-#include "cl_Plane.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -84,8 +80,6 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
@@ -172,10 +166,11 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Circle tCircle( 0.001, -100.0, -100.0 );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(-100.0, -100.0, 0.001);
 
-        moris::ge::GEN_Phase_Table     tPhaseTable(1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
          xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 

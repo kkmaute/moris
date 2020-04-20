@@ -59,19 +59,7 @@ namespace moris
             /*
              * constructor
              */
-            SP_Incompressible_Flow()
-            {
-                // set the property pointer cell size
-                mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the map
-                mPropertyMap[ "Density" ]   = Property_Type::DENSITY;
-                mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
-
-                // populate the dof map (default)
-                mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
-                mMasterDofMap[ "Pressure" ] = MSI::Dof_Type::P;
-            }
+            SP_Incompressible_Flow();
 
 //------------------------------------------------------------------------------
             /**
@@ -85,9 +73,7 @@ namespace moris
              */
             void reset_cluster_measures()
             {
-//                // evaluate element size from the cluster
-//                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-//                                                                              mtk::Master_Slave::MASTER );
+                // No cluster measure
             }
 
 //------------------------------------------------------------------------------

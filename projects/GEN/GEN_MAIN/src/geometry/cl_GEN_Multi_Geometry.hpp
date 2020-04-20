@@ -11,13 +11,13 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class Multi_Geometry : public GEN_Geometry
+class Multi_Geometry : public Geometry_Analytic
 {
 public:
     Multi_Geometry(){}

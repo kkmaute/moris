@@ -21,6 +21,20 @@ class Matrix<Eigen::Matrix<Type, 3, 3>>
 private:
     Eigen::Matrix<Type,3,3> mMatrix;
 
+    void fill_with_NANs()
+      {
+  #ifdef MATRIX_FILL
+          if (std::numeric_limits<Data_Type>::has_quiet_NaN)
+          {
+              mMatrix.fill( std::numeric_limits<Data_Type>::quiet_NaN() );
+          }
+          else
+          {
+              mMatrix.fill( std::numeric_limits<Data_Type>::max() );
+          }
+  #endif
+      }
+
 public:
     typedef Type Data_Type;
 
@@ -31,6 +45,8 @@ public:
     {
         MORIS_ASSERT( aNumRows == 3, "Number of rows has to be 3 for 3x3 vector");
         MORIS_ASSERT( aNumCols == 3, "Number of cols has to be 3 for 3x3 vector");
+
+        this->fill_with_NANs();
     }
 
     // template constructor

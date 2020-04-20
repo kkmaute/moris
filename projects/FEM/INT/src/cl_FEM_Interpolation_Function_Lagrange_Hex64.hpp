@@ -1118,6 +1118,7 @@ namespace moris
             // do evaluation
             ad3NdXi3.set_size( 10, 64 );
             // 1st node: (0,0,0)
+            ad3NdXi3( 0,  0 ) = ddda0*b0*c0;
             ad3NdXi3( 1,  0 ) = a0*dddb0*c0;
             ad3NdXi3( 2,  0 ) = a0*b0*dddc0;
             ad3NdXi3( 3,  0 ) = dda0*db0*c0;

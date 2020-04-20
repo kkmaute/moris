@@ -57,6 +57,7 @@ set(LIB_DEPENDENCIES
     #${GEN}-lib
     ${GEN_MAIN}-lib
     ${MDL}-lib
+    ${OPT}-lib
     #${SOL_CORE}-lib
     #${NLA}-lib
     #${TLA}-lib

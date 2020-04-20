@@ -6,14 +6,11 @@
  */
 
 #include "catch.hpp"
-#include "cl_Star.hpp"
-#include "cl_Circle.hpp"
-#include "cl_Plane.hpp"
 
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
+#include "paths.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -61,7 +58,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
 
@@ -172,13 +169,12 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
-
-        moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
@@ -235,7 +231,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
-        tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
@@ -347,13 +343,13 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 //
-//        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
+//        moris::ge::Geometry_Field_HMR tFieldAsGeom(tField);
 //
 //        moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 //
 //        // Tell the geometry engine about the discrete field mesh and how to interpret phases
 //        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-//        ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+//        ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 //
 //        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
 //        size_t tModelDimension = 3;
@@ -471,7 +467,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        //------------------------------------------------------------------------------
 //        // path for property function reading
-//        std::string tMeshFilePath = std::getenv("MORISROOT");
+//        std::string tMeshFilePath = moris::get_base_moris_dir();
 //        tMeshFilePath = tMeshFilePath + "projects/FEM/INT/test/data/FEM_input_test.so";
 //        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tMeshFilePath );
 //

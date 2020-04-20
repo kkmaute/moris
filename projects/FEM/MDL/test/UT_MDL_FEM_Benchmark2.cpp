@@ -11,7 +11,6 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -68,15 +67,12 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry.hpp"
-
-#include "cl_Plane.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
 #include <functional>
 
-#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field_HMR.hpp"
+#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
 {
@@ -223,12 +219,12 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         for( uint k=0; k<tNumRef; ++k )
         {
-            moris::ge::Circle tCircle0( tROuter, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle1( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::GEN_Geometry*> tGeomVec = { &tCircle0, &tCircle1 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(2);
+            tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+            tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -263,15 +259,13 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Circle tCircle2( tROuter, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle3( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle2, &tCircle3 };
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(2);
+        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
           size_t tModelDimension = 2;
-          moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
-          moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+          moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+          moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
           xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
@@ -344,13 +338,13 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -569,12 +563,12 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
 
         for( uint k=0; k<tNumRef; ++k )
         {
-            moris::ge::Circle tCircle0( tROuter, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle1( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::GEN_Geometry*> tGeomVec = { &tCircle0, &tCircle1 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeomVec(2);
+            tGeomVec(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+            tGeomVec(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+            moris::ge::Phase_Table     tPhaseTable( tGeomVec.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -609,15 +603,13 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Circle tCircle2( tROuter, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle3( tRInner, tCenterPoint( 0 ), tCenterPoint( 1 ) );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(2);
+        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle2, &tCircle3 };
-
-          size_t tModelDimension = 2;
-          moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
-          moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        size_t tModelDimension = 2;
+        moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
 
           // --------------------------------------------------------------------------------------
           xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
@@ -705,13 +697,13 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -955,13 +947,13 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         // refine
         for( uint k = 0; k < tNumRef; ++k )
         {
-            moris::ge::Circle tCircle0( tROuter,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle1( tRMiddle, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tCircle0, &tCircle1, &tCircle2 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(3);
+            tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+            tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
+            tGeometry(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+            moris::ge::Phase_Table     tPhaseTable( tGeometry.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable,2 );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -999,16 +991,14 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
-        moris::ge::Circle tCircle0( tROuter,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle1( tRMiddle, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle0, &tCircle1, &tCircle2 };
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(3);
+        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
+        tGeometry0(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
         size_t tModelDimension = 2;
-        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table     tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
@@ -1101,18 +1091,18 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulkB = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkB->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -1127,8 +1117,8 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
         tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
         tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::SLAVE );
 
         // create the IQIs
         //------------------------------------------------------------------------------
@@ -1365,13 +1355,13 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         // refine
         for( uint k = 0; k < tNumRef; ++k )
         {
-            moris::ge::Circle tCircle0( tROuter,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle1( tRMiddle, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tCircle0, &tCircle1, &tCircle2 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(3);
+            tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+            tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
+            tGeometry(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+            moris::ge::Phase_Table     tPhaseTable( tGeometry.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable,2 );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -1409,16 +1399,14 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
 
         // create xtk mesh
         //-----------------------------------------------------------------------------------------------
-        moris::ge::Circle tCircle0( tROuter,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle1( tRMiddle, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle2( tRInner,  tCenterPoint( 0 ), tCenterPoint( 1 ) );
-
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle0, &tCircle1, &tCircle2 };
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(3);
+        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
+        tGeometry0(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
         size_t tModelDimension = 2;
-        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table     tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
         tXTKModel.mVerbose = true;
 
@@ -1511,18 +1499,18 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulkB = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulkB->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkB->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -1537,8 +1525,8 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
         tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
         tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "DiffLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
+        tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::SLAVE );
 
         // create the IQIs
         //------------------------------------------------------------------------------

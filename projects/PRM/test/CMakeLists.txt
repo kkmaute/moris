@@ -37,7 +37,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${PRM_TEST_PROCS})
         set(PRM_PARALLEL_TEST ${PRM_TEST}-${PROCS}-procs)
         add_test(NAME ${PRM_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${PRM_TEST}>)
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${PRM_TEST}>)
     endforeach()
 endif()
 

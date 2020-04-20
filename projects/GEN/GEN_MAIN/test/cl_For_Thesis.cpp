@@ -400,7 +400,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             moris::Cell< moris::ge::GEN_Geometry* > tTempGeometryVector = { &tCrack };
 
             moris::ge::GEN_Phase_Table     tTempPhaseTable( tTempGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tTempGeometryEngine( tTempGeometryVector, tTempPhaseTable, tModelDimension );
+            moris::ge::Geometry_Engine tTempGeometryEngine( tTempGeometryVector, tTempPhaseTable, tModelDimension );
 
             moris_index tMeshIndex = tTempGeometryEngine.register_mesh( tMesh );
 
@@ -494,7 +494,7 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
         moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = { &tCrack };
 
         moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
+        moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
@@ -906,7 +906,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
             moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tFibers };
 
             moris::ge::GEN_Phase_Table         tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine     tGENGeometryEngine( tGeometryVector,tPhaseTable,3 );
+            moris::ge::Geometry_Engine     tGENGeometryEngine( tGeometryVector,tPhaseTable,3 );
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -923,7 +923,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector_temp = {&tFibers};
 
         moris::ge::GEN_Phase_Table         tPhaseTable_temp( tGeometryVector_temp.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine     tGENGeometryEngine_temp( tGeometryVector_temp, tPhaseTable_temp, 3 );
+        moris::ge::Geometry_Engine     tGENGeometryEngine_temp( tGeometryVector_temp, tPhaseTable_temp, 3 );
 
         moris_index tMeshIndex = tGENGeometryEngine_temp.register_mesh( tMesh );
 
@@ -958,7 +958,7 @@ TEST_CASE("experiments for thesis", "[GE],[thesis_00]")
 
         size_t tModelDimension = 3;
         moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
+        moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometryVector, tPhaseTable, tModelDimension );
 
         //------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );

@@ -3,6 +3,7 @@
 
 // core
 #include "typedefs.hpp"
+#include "paths.hpp"
 
 // comm
 #include "cl_Communication_Manager.hpp" // COM/src
@@ -33,7 +34,7 @@ TEST_CASE(
     if( par_size() == 1 )
     {
         // get root from environment
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
 
         // determine path for object file
         std::string tObjectPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/tetrahedron.obj" ;

@@ -1,19 +1,16 @@
-/*
- * UT_MDL_Fluid_Benchmark.cpp
- *
- *  Created on: Mar 28, 2020
- *      Author: noel
- */
+/* UT_MDL_Fluid_Benchmark.cpp
+*
+*  Created on: Mar 28, 2020
+*      Author: noel
+*/
 
 #include "catch.hpp"
 
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp"
 #include "fn_norm.hpp"
-#include "cl_Plane.hpp"
 //PRM
 #include "cl_PRM_HMR_Parameters.hpp"
 #include "cl_PRM_SOL_Parameters.hpp"
@@ -74,21 +71,20 @@
 //GEN
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_Geometry.hpp"
 #include <functional>
-#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
 {
 
 //-------------------------------------------------------------------------------------
-void ConstFuncVal_MDLFluidBench
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
+    void ConstFuncVal_MDLFluidBench
+            ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+              moris::fem::Field_Interpolator_Manager         * aFIManager )
+    {
+        aPropMatrix = aParameters( 0 );
+    }
 
 void InletVelocityFunc_MDLFluidBench
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,

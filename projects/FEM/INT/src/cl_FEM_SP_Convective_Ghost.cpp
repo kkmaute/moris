@@ -8,6 +8,28 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+        SP_Convective_Ghost::SP_Convective_Ghost()
+        {
+            // set the property pointer cell size
+            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the map
+            mPropertyMap[ "Density" ] = Property_Type::DENSITY;
+
+            // populate the dof map (default)
+            mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
+        }
+
+//------------------------------------------------------------------------------
+        void SP_Convective_Ghost::reset_cluster_measures()
+        {
+            // evaluate element size from the cluster
+            mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                          mtk::Master_Slave::MASTER );
+        }
+
 //------------------------------------------------------------------------------
         void SP_Convective_Ghost::eval_SP()
         {

@@ -8,29 +8,6 @@ set(${XTK}_VERSION ${MORIS_VERSION})
 set(HEADERS
     algorithms/fn_num_digits.hpp
     core/xtk_typedefs.hpp
-    geomeng/cl_MGE_Enums.hpp
-    geomeng/cl_MGE_Geometry_Engine.hpp
-    geomeng/cl_MGE_Geometry_Object_Manager.hpp
-    geomeng/cl_MGE_Geometry_Object.hpp
-    geomeng/fn_Triangle_Geometry.hpp
-    geometry/cl_Geometry.hpp
-    geometry/cl_Plane.hpp
-    geometry/cl_Composite_Fiber_Straight_1.hpp
-    geometry/cl_Composite_Fiber_Straight_2.hpp
-    geometry/cl_Composite_Fiber_Straight_3.hpp
-    geometry/cl_Composite_Fiber_Wave_1.hpp
-    geometry/cl_Composite_Fiber_Wave_2.hpp
-    geometry/cl_Composite_Fiber_Wave_3.hpp
-    geometry/cl_Composite_Fiber.hpp
-    geometry/cl_Discrete_Level_Set.hpp
-    geometry/cl_Gyroid.hpp
-    geometry/cl_Multi_Cylinder.hpp
-    geometry/cl_Multi_Geometry.hpp
-    geometry/cl_Plane.hpp
-    geometry/cl_Star.hpp
-    geometry/cl_Sphere.hpp
-    geometry/cl_SphereBox.hpp
-    geometry/cl_Spiral.hpp
     ios/cl_Logger.hpp
     linalg/cl_XTK_Matrix_Base_Utilities.hpp
     tools/fn_verify_tet_topology.hpp
@@ -78,7 +55,7 @@ set(HEADERS
     xtk/cl_XTK_Mesh.hpp
     xtk/cl_XTK_Multigrid.hpp
     xtk/cl_XTK_Model.hpp
-    xtk/cl_XTK_Node.hpp
+#    xtk/cl_XTK_Node.hpp
     xtk/cl_XTK_Output_Options.hpp
     xtk/cl_XTK_Parallel_Mesh_Data.hpp
     xtk/cl_XTK_Paramfile.hpp
@@ -201,35 +178,6 @@ foreach(TPL ${XTK_TPL_DEPENDENCIES})
     target_compile_definitions(${XTK}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#############################################################################
-# Create executable for plato CDFEM
-#############################################################################
-# XTK Executable
-# List source files
-set(PLATO_EXE_SOURCES
-        main_plato.cpp)
-
-# List executable dependencies
-set(PLATO_EXE_DEPENDENCIES
-    ${XTK}-lib
-    ${MTK}-lib
-    ${COM}-lib
-    ${ALG}-lib
-    ${MAP}-lib
-    ${MDL}-lib
-    ${INT}-lib
-    ${GEN_MAIN}-lib
-	${MORIS_BASE_LIBS}
-    )    
- 
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-
-add_executable(XTK_PLATO ${PLATO_EXE_SOURCES})
-target_link_libraries(XTK_PLATO PRIVATE ${PLATO_EXE_DEPENDENCIES})
-set_target_properties(XTK_PLATO PROPERTIES OUTPUT_NAME XTK_Plato.exe )
 
 
 #############################################################################
@@ -363,7 +311,7 @@ install(TARGETS ${XTK}-lib
     EXPORT ${XTK}Targets )
 
 # Install executables
-install(TARGETS XTK_PLATO XTK_HOLE_SEED XTK_EXE
+install(TARGETS XTK_HOLE_SEED XTK_EXE
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
     
