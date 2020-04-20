@@ -11,6 +11,8 @@
 #include <string>         // std::string
 #include <locale>         // std::locale, std::tolower
 
+#include <iostream>
+
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CON/src
@@ -30,12 +32,14 @@ namespace moris
     inline
     std::string proc_string()
     {
-        std::string tString = "              ";
+//        std::string tString = "              ";
+        std::string tString = "#";
 
         if( par_size() > 1 )
         {
             uint tMyRank = par_rank();
-            tString = "  proc " + std::to_string( tMyRank );
+
+            tString = " proc " + std::to_string( tMyRank );
 
             if ( tMyRank < 10 )
             {
