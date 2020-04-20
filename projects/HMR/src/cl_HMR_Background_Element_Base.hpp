@@ -68,7 +68,7 @@ namespace moris
             bool                        mPaddingFlag  = false;
 
             //! Tells if the element has children.
-            //! Not neccesarily identical to mRefinedFlag.
+            //! Not necessarily identical to mRefinedFlag.
             bool                        mChildrenFlag = false;
 
             //! Tells if an element is flagged for refinement
@@ -76,14 +76,14 @@ namespace moris
 
 
             //! global index in whole domain ( all procs), depends on pattern ( only active elements )
-            //! acces using get_hmr_index( const uint aPattern )
+            //! access using get_hmr_index( const uint aPattern )
             //! same as get_id() - 1
-            luint                       mDomainIndex[ gNumberOfPatterns ];
+            Cell<luint>                 mDomainIndex;
 
             //! index in memory, set by collect_all_elements from background mesh
             luint                       mMemoryIndex;
 
-            //! minumum refinement level, special feature
+            //! minimum refinement level, special feature
             uint                        mMinRefinementLevel = 0;
 
 //--------------------------------------------------------------------------------
@@ -107,6 +107,9 @@ namespace moris
 
                 // reset the refined flag for this element on pattern 0
                 mRefinedFlags.reset( aActivePattern );
+
+                // initialize mDomainIndex with max values to catch errors
+                mDomainIndex.assign(gNumberOfPatterns, std::numeric_limits<luint>::max());
             }
 
 //--------------------------------------------------------------------------------
@@ -837,7 +840,7 @@ namespace moris
              */
             void set_domain_index( const uint& aPattern, const luint & aIndex )
             {
-                mDomainIndex[ aPattern ] = aIndex;
+                mDomainIndex(aPattern) = aIndex;
             }
 
 //-------------------------------------------------------------------------------
@@ -849,7 +852,7 @@ namespace moris
              */
             luint get_hmr_index( const uint & aPattern )
             {
-               return mDomainIndex[ aPattern ];
+               return mDomainIndex( aPattern );
             }
 
 //-------------------------------------------------------------------------------

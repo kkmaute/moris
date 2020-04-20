@@ -432,7 +432,7 @@ namespace moris
             {
                 // print header
                 std::fprintf( stdout, "\n Neighbors of Element %lu ( ID: %lu, mem:  %lu, child: %u ): \n\n",
-                              ( long unsigned int ) mDomainIndex,
+                              ( long unsigned int ) mDomainIndex(aPattern),
                               ( long unsigned int ) mDomainID,
                               ( long unsigned int ) mMemoryIndex,
                               ( unsigned int )      this->get_child_index() );
