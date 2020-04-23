@@ -88,143 +88,123 @@ LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("XTK HMR Test","[XTK_HMR]")
 {
-//    if(par_size() == 1)
-//    {
-//        std::string tFieldName = "Cylinder";
-//
-//        moris::uint tLagrangeMeshIndex = 0;
-//        moris::uint tBSplineMeshIndex = 0;
-//
-//        moris::hmr::Parameters tParameters;
-//
-//        tParameters.set_number_of_elements_per_dimension( { {4}, {4}, {4} } );
-//        tParameters.set_domain_dimensions({ {2}, {2}, {4} });
-//        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
-//        tParameters.set_side_sets({ {5}, {6} });
-//
-//
-//        tParameters.set_bspline_truncation( true );
-//
-//        tParameters.set_lagrange_orders  ( { {1} });
-//        tParameters.set_lagrange_patterns( { {0} });
-//
-//        tParameters.set_bspline_orders   ( { {1} } );
-//        tParameters.set_bspline_patterns ( { {0} } );
-//
-//        tParameters.set_output_meshes( { {0} } );
-//        //        tParameters.set_lagrange_input_mesh( { { 0 } } );
-//
-//        tParameters.set_staircase_buffer( 1 );
-//
-//        tParameters.set_initial_refinement( 0 );
-//
-//        tParameters.set_number_aura( true );
-//
-//        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-//        tLagrangeToBSplineMesh( 0 ) = { {0} };
-//
-//        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-//
-//        // create the HMR object by passing the settings to the constructor
-//        moris::hmr::HMR tHMR( tParameters );
-//
-//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-//
-//        // create field
-//        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-//
-//        tField->evaluate_scalar_function( LevelSetSphereCylinder );
-//
-//        for( uint k=0; k<3; ++k )
-//        {
-//            tHMR.flag_surface_elements_on_working_pattern( tField );
-//            tHMR.perform_refinement_based_on_working_pattern(0 );
-//
-//            tField->evaluate_scalar_function( LevelSetSphereCylinder );
-//        }
-//
-//        tHMR.finalize();
-//
-//        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_ghost_interp.e" );
-//
-//        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-//
-//        hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
-//
-//        for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
-//        {
-//            if(! (tLMB->mFacets(i) == nullptr) )
-//            {
-//                hmr::Element * tMaster = tLMB->mFacets(i)->get_hmr_master();
-//                hmr::Element * tSlave  = tLMB->mFacets(i)->get_hmr_slave();
-//
-//                if(! (tMaster == nullptr) && ! (tSlave == nullptr)  )
-//                {
-//                    moris_id tMasterId = tMaster->get_index();
-//                    moris_id tSlaveId  = tSlave->get_index();
-//
-//                    if(tMasterId != MORIS_INDEX_MAX)
-//                    {
-//                        tMasterId = tMasterId + 1;
-//                    }
-//
-//                    if(tSlaveId != MORIS_INDEX_MAX)
-//                    {
-//                        tSlaveId = tSlaveId + 1;
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//
-//
-//
-//
-//
-//        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
-//
-//        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
-//
-//        // Tell the geometry engine about the discrete field mesh and how to interpret phases
-//        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-//        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
-//
-//        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-//        size_t tModelDimension = 3;
-//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-//        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-//        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose  =  false;
-//
-//        // Do the cutting
-//        tXTKModel.decompose(tDecompositionMethods);
-//
-//        // Perform the enrichment
-//        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
-//
-//        // perform ghost stabilization
-////        tXTKModel.construct_face_oriented_ghost_penalization_cells();
-//
-//
-//        xtk::Output_Options tOutputOptions;
-//        tOutputOptions.mAddNodeSets = false;
-//        tOutputOptions.mAddSideSets = true;
-//        tOutputOptions.mAddClusters = false;
-//
-//        // add solution field to integration mesh
-//        std::string tIntegSolFieldName = "solution";
-//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-//
-//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//
-//        std::string tOutputFile = "./xtk_exo/xtk_hmr_cut.exo";
-//        tIntegMesh1->create_output_mesh(tOutputFile);
-//
-//        delete tIntegMesh1;
-//        delete tInterpMesh;
-//    }
+    if(par_size() == 1)
+    {
+        //iterate through linear quadratic cubic
+        for( moris::uint iOrder = 1; iOrder < 4; iOrder ++)
+        {
+
+            std::string tFieldName = "Cylinder";
+
+            moris::uint tLagrangeMeshIndex = 0;
+            moris::uint tBSplineMeshIndex = 0;
+
+            moris::hmr::Parameters tParameters;
+
+            tParameters.set_number_of_elements_per_dimension( { {4}, {4}, {4} } );
+            tParameters.set_domain_dimensions({ {2}, {2}, {4} });
+            tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
+            tParameters.set_side_sets({ {5}, {6} });
+
+
+            tParameters.set_bspline_truncation( true );
+
+            tParameters.set_lagrange_orders  ( { {iOrder} });
+            tParameters.set_lagrange_patterns( { {0} });
+
+            tParameters.set_bspline_orders   ( { {iOrder} } );
+            tParameters.set_bspline_patterns ( { {0} } );
+
+            tParameters.set_output_meshes( { {0} } );
+            //        tParameters.set_lagrange_input_mesh( { { 0 } } );
+
+            tParameters.set_staircase_buffer( 1 );
+
+            tParameters.set_initial_refinement( 0 );
+
+            tParameters.set_number_aura( true );
+
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+            // create the HMR object by passing the settings to the constructor
+            moris::hmr::HMR tHMR( tParameters );
+
+            std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+            // create field
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+
+            tField->evaluate_scalar_function( LevelSetSphereCylinder );
+
+            for( uint k=0; k<1; ++k )
+            {
+                tHMR.flag_surface_elements_on_working_pattern( tField );
+                tHMR.perform_refinement_based_on_working_pattern(0 );
+
+                tField->evaluate_scalar_function( LevelSetSphereCylinder );
+            }
+
+            tHMR.finalize();
+
+            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+            hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
+
+            for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
+            {
+                if(! (tLMB->mFacets(i) == nullptr) )
+                {
+                    hmr::Element * tMaster = tLMB->mFacets(i)->get_hmr_master();
+                    hmr::Element * tSlave  = tLMB->mFacets(i)->get_hmr_slave();
+
+                    if(! (tMaster == nullptr) && ! (tSlave == nullptr)  )
+                    {
+                        moris_id tMasterId = tMaster->get_index();
+                        moris_id tSlaveId  = tSlave->get_index();
+
+                        if(tMasterId != MORIS_INDEX_MAX)
+                        {
+                            tMasterId = tMasterId + 1;
+                        }
+
+                        if(tSlaveId != MORIS_INDEX_MAX)
+                        {
+                            tSlaveId = tSlaveId + 1;
+                        }
+                    }
+                }
+            }
+
+            moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
+
+            moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+
+            // Tell the geometry engine about the discrete field mesh and how to interpret phases
+            moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+
+            // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
+            size_t tModelDimension = 3;
+            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+            tXTKModel.mSameMesh = true;
+            tXTKModel.mVerbose  =  false;
+
+            // Do the cutting
+            tXTKModel.decompose(tDecompositionMethods);
+
+            // Perform the enrichment
+            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+
+            // perform ghost stabilization
+//            tXTKModel.construct_face_oriented_ghost_penalization_cells();
+
+            delete tInterpMesh;
+        }
+    }
 }
 }
 

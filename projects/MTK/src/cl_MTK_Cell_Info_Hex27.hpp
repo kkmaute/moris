@@ -57,6 +57,12 @@ public:
     moris::Matrix<moris::IndexMat>
     get_node_to_facet_map(moris::uint aSideOrdinal) const;
     //-----------------------------------------------------------------------------
+    moris::Matrix<moris::IndexMat>
+    get_geometric_node_to_facet_map() const;
+    //-----------------------------------------------------------------------------
+    moris::Matrix<moris::IndexMat>
+    get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const;
+    //-----------------------------------------------------------------------------
     moris::uint
     get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
     //-----------------------------------------------------------------------------
@@ -70,6 +76,9 @@ public:
     compute_cell_side_size( moris::mtk::Cell const * aCell ,
                             moris_index const & aSideOrd) const;
     // ----------------------------------------------------------------------------------
+    void
+    eval_N( const Matrix< DDRMat > & aXi,
+                  Matrix< DDRMat > & aNXi ) const;
 
 };
 }

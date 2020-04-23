@@ -68,7 +68,7 @@ TEST_CASE("XTK Parameter List","[PARAM]")
     std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
 
     Model tXTKModel(tXTKParams);
-    tXTKModel.mVerbose = true;
+    tXTKModel.mVerbose = false;
     tXTKModel.set_geometry_engine(&tGeometryEngine);
     tXTKModel.set_mtk_background_mesh(tMeshData);
     tXTKModel.set_output_performer(tMeshManager);

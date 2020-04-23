@@ -1,12 +1,11 @@
 /*
- * cl_MTK_Cell_Info_Quad9.cpp
+ * cl_MTK_Cell_Info_Quad16.cpp
  *
- *  Created on: Sep 26, 2019
+ *  Created on: Apr 23, 2020
  *      Author: doble
  */
 
-
-#include "cl_MTK_Cell_Info_Quad9.hpp"
+#include "cl_MTK_Cell_Info_Quad16.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -23,70 +22,73 @@ namespace moris
     {
         // ----------------------------------------------------------------------------------
         enum Geometry_Type
-        Cell_Info_Quad9::get_cell_geometry() const
+        Cell_Info_Quad16::get_cell_geometry() const
         {
             return Geometry_Type::QUAD;
         }
         // ----------------------------------------------------------------------------------
         enum Interpolation_Order
-        Cell_Info_Quad9::get_cell_interpolation_order() const
+        Cell_Info_Quad16::get_cell_interpolation_order() const
         {
-            return Interpolation_Order::QUADRATIC;
+            return Interpolation_Order::CUBIC;
         }
         // ----------------------------------------------------------------------------------
         uint
-        Cell_Info_Quad9::get_num_verts() const
+        Cell_Info_Quad16::get_num_verts() const
         {
             return 9;
         }
         // ----------------------------------------------------------------------------------
         uint
-        Cell_Info_Quad9::get_num_facets() const
+        Cell_Info_Quad16::get_num_facets() const
         {
             return 4;
         }
         // ----------------------------------------------------------------------------------
         uint
-        Cell_Info_Quad9::get_num_verts_per_facet() const
+        Cell_Info_Quad16::get_num_verts_per_facet() const
         {
             return 3;
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_to_face_map() const
+        Cell_Info_Quad16::get_node_to_face_map() const
         {
             MORIS_ERROR(0,"Elements have no faces in 2D. Check the MTK mesh class to get nodes connected to an element.");
             return moris::Matrix<moris::IndexMat>(0,0);
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_to_edge_map() const
+        Cell_Info_Quad16::get_node_to_edge_map() const
         {
-            return {{0,1,4}, {1,2,5}, {2,3,6}, {3,0,7}};
+            return { { 0, 1,  4,  5 },
+                     { 1, 2,  6,  7 },
+                     { 2, 3,  8,  9 },
+                     { 3, 0, 10, 11 } };
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_to_facet_map() const
+        Cell_Info_Quad16::get_node_to_facet_map() const
         {
             return this->get_node_to_edge_map();
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_to_face_map(moris::uint aSideOrdinal) const
+        Cell_Info_Quad16::get_node_to_face_map(moris::uint aSideOrdinal) const
         {
             MORIS_ERROR(0,"Elements have no faces in 2D. Check the MTK mesh class to get nodes connected to an element.");
             return moris::Matrix<moris::IndexMat>(0,0);
         }
 
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_geometric_node_to_facet_map() const
+        Cell_Info_Quad16::get_geometric_node_to_facet_map() const
         {
             Cell_Info_Quad4 tQuad4;
             return tQuad4.get_node_to_facet_map();
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
+        Cell_Info_Quad16::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
         {
             Cell_Info_Quad4 tQuad4;
             return tQuad4.get_node_to_facet_map(aSideOrdinal);
@@ -94,14 +96,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_to_edge_map(moris::uint aEdgeOrdinal) const
+        Cell_Info_Quad16::get_node_to_edge_map(moris::uint aEdgeOrdinal) const
         {
             switch (aEdgeOrdinal)
             {
-                case(0):{ return {{0,1,4}}; break; }
-                case(1):{ return {{1,2,5}}; break; }
-                case(2):{ return {{2,3,6}}; break; }
-                case(3):{ return {{3,0,7}}; break; }
+                case(0):{ return {{ 0, 1,  4,  5 }}; break; }
+                case(1):{ return {{ 1, 2,  6,  7 }}; break; }
+                case(2):{ return {{ 2, 3,  8,  9 }}; break; }
+                case(3):{ return {{ 3, 0, 10, 11 }}; break; }
                 default:
                 {
                     MORIS_ASSERT(0,"Invalid edge ordinal specified");
@@ -112,13 +114,13 @@ namespace moris
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_to_facet_map(moris::uint aSideOrdinal) const
+        Cell_Info_Quad16::get_node_to_facet_map(moris::uint aSideOrdinal) const
         {
             return this->get_node_to_edge_map(aSideOrdinal);
         }
         // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
-        Cell_Info_Quad9::get_node_map_outward_normal(moris::uint aSideOrdinal) const
+        Cell_Info_Quad16::get_node_map_outward_normal(moris::uint aSideOrdinal) const
         {
             switch (aSideOrdinal)
             {
@@ -136,7 +138,7 @@ namespace moris
         }
         // ----------------------------------------------------------------------------------
         moris::uint
-        Cell_Info_Quad9::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
+        Cell_Info_Quad16::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
         {
             switch (aSideOrdinal)
             {
@@ -154,7 +156,7 @@ namespace moris
         }
         // ----------------------------------------------------------------------------------
         Matrix<DDRMat>
-        Cell_Info_Quad9::get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const
+        Cell_Info_Quad16::get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const
         {
             switch (aSideOrdinal)
             {
@@ -172,7 +174,7 @@ namespace moris
         }
         // ----------------------------------------------------------------------------------
         moris::real
-        Cell_Info_Quad9::compute_cell_size( moris::mtk::Cell const * aCell ) const
+        Cell_Info_Quad16::compute_cell_size( moris::mtk::Cell const * aCell ) const
         {
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
 
@@ -186,7 +188,7 @@ namespace moris
         }
         // ----------------------------------------------------------------------------------
         moris::real
-        Cell_Info_Quad9::compute_cell_side_size( moris::mtk::Cell const * aCell ,
+        Cell_Info_Quad16::compute_cell_side_size( moris::mtk::Cell const * aCell ,
                 moris_index const & aSideOrd) const
         {
             moris::Cell< mtk::Vertex const* > tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
@@ -198,36 +200,50 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         void
-        Cell_Info_Quad9::eval_N( const Matrix< DDRMat > & aXi,
+        Cell_Info_Quad16::eval_N( const Matrix< DDRMat > & aXi,
                                        Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD9 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             real  xi = aXi( 0 );
             real eta = aXi( 1 );
 
-            // often used constants
-            real    c = xi * eta * 0.25;
-            real  xi2 = std::pow(  xi, 2 );
-            real eta2 = std::pow( eta, 2 );
+            real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 )*0.0625;
+            real a1 =  ( 9.0 - xi * ( 27.0 + xi*( 9.0 - 27.0*xi ) ) )*0.0625;
+            real a2 =  ( 9.0 + xi * ( 27.0 - xi*( 9.0 + 27.0*xi ) ) )*0.0625;
+            real a3 = ( -xi*( 1.0 - 9.0 * xi * ( 1.0 + xi ) ) - 1.0 )*0.0625;
 
-            // populate output matrix
-            aNXi.set_size( 1, 9 );
-            aNXi( 0 ) = ( c * ( eta - 1.0 ) * (xi - 1.0) );
-            aNXi( 1 ) = ( c * ( eta - 1.0 ) * (xi + 1.0) );
-            aNXi( 2 ) = ( c * ( eta + 1.0 ) * (xi + 1.0) );
-            aNXi( 3 ) = ( c * ( eta + 1.0 ) * (xi - 1.0) );
-            aNXi( 4 ) = ( eta * ( 1.0 - xi2 ) * ( eta - 1.0 ) ) * 0.5;
-            aNXi( 5 ) = ( xi * ( 1.0 - eta2)*( xi + 1.0 ) )*0.5;
-            aNXi( 6 ) = ( eta * (1.0 - xi2)*( eta + 1.0 ) )*0.5;
-            aNXi( 7 ) = ( xi*( 1.0 - eta2 )*( xi - 1.0 ) )*0.5;
-            aNXi( 8 ) = ( eta2 - 1.0 )*( xi2 - 1.0 );
+            real b0 =  ( eta*( 1.0 + 9.0 * eta * ( 1.0 - eta ) ) - 1.0 )*0.0625;
+            real b1 =  ( 9.0 - eta * ( 27.0 + eta*( 9.0 - 27.0*eta ) ) )*0.0625;
+            real b2 =  ( 9.0 + eta * ( 27.0 - eta*( 9.0 + 27.0*eta ) ) )*0.0625;
+            real b3 = ( -eta*( 1.0 - 9.0 * eta * ( 1.0 + eta ) ) - 1.0 )*0.0625;
+
+            // populate matrix with values
+            aNXi.set_size(1,16);
+            aNXi(  0 ) = a0*b0;
+            aNXi(  1 ) = a3*b0;
+            aNXi(  2 ) = a3*b3;
+            aNXi(  3 ) = a0*b3;
+            aNXi(  4 ) = a1*b0;
+            aNXi(  5 ) = a2*b0;
+            aNXi(  6 ) = a3*b1;
+            aNXi(  7 ) = a3*b2;
+            aNXi(  8 ) = a2*b3;
+            aNXi(  9 ) = a1*b3;
+            aNXi( 10 ) = a0*b2;
+            aNXi( 11 ) = a0*b1;
+            aNXi( 12 ) = a1*b1;
+            aNXi( 13 ) = a2*b1;
+            aNXi( 14 ) = a2*b2;
+            aNXi( 15 ) = a1*b2;
         }
 
     }
 }
+
+
+
 
 
