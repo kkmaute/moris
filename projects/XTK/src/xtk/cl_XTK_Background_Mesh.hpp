@@ -26,16 +26,12 @@
 #include "fn_isvector.hpp"
 
 //XTK Includes:
-#include "cl_XTK_Node.hpp"
 #include "cl_XTK_External_Mesh_Data.hpp"
 #include "cl_XTK_Downward_Inheritance.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Cell_CM.hpp"
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
-
-// Geometry Engine Includes
-#include "cl_MGE_Geometry_Engine.hpp"
 
 // general geometry engine class
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -50,7 +46,7 @@ public:
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData);
 
     Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                    moris::ge::GEN_Geometry_Engine* aGeometryEngine);
+                    moris::ge::Geometry_Engine* aGeometryEngine);
 
     ~Background_Mesh();
     /*!

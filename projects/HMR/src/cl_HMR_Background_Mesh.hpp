@@ -8,6 +8,8 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
 
+#include <string>
+
 #include "cl_HMR_Background_Edge.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp" //HMR/src
@@ -554,28 +556,39 @@ namespace moris
 
                     if ( tNumberOfDimensions == 1 )
                     {
-                        MORIS_LOG_INFO("%s owns i domain ", tString.c_str() ) ;
+//                        MORIS_LOG_INFO("%s owns i domain ", tString.c_str() ) ;
+                        tString += " owns i domain ";
+
                     }
                     else if ( tNumberOfDimensions == 2 )
                     {
-                        MORIS_LOG_INFO("%s owns i-j domain ", tString.c_str()  ) ;
+//                        MORIS_LOG_INFO("%s owns i-j domain ", tString.c_str()  ) ;
+                        tString += " owns i-j domain ";
                     }
                     else if( tNumberOfDimensions == 3 )
                     {
-                        MORIS_LOG_INFO("%s owns i-j-k domain ", tString.c_str() ) ;
+//                        MORIS_LOG_INFO("%s owns i-j-k domain ", tString.c_str() ) ;
+                        tString += " owns i-j-k domain ";
                     }
 
+
                     // print ijk domain
-                    MORIS_LOG_INFO("%lu-%lu",
-                            ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ],
-                            ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ] );
+//                    MORIS_LOG_INFO("%lu-%lu",
+//                            ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ],
+//                            ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ] );
+
+                    std::string tLogString = std::to_string(( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ]);
+                    tLogString += "-" + std::to_string( ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ]);
+
                     for ( uint k=1; k<N; ++k )
                     {
-                        MORIS_LOG_INFO(", %lu-%lu ",
-                                ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ],
-                                ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ] );
+//                        MORIS_LOG_INFO(", %lu-%lu ",
+//                                ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ],
+//                                ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ] );
+                        tLogString += ", " + std::to_string( ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ]);
+                        tLogString += "-" + std::to_string( ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ]);
                     }
-//                    MORIS_LOG_INFO("\n\n" );
+                    MORIS_LOG_INFO("%s: %s",tString.c_str(), tLogString.c_str());
                 }
 
                 // test if settings are OK

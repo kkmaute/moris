@@ -41,7 +41,6 @@
 
 //#include "cl_Profiler.hpp" //profiler header
 //#include <Eigen/Dense>
-//#include <armadillo>
 #include "cl_Logger.hpp" // MRS/IOS/src
 
 #include "fn_Exec_load_user_library.hpp"
@@ -69,10 +68,16 @@ int main( int argc, char * argv[] )
     gLogger.initialize( 2 );
     moris::print_banner( argc, argv );
 
-//------------------------------------------------------------------------------
-//  The main executable is just for developing and testing.
-//  Please do not push this file to git.
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //  The main executable is just for developing and testing.
+    //  Please do not push this file to git.
+    //------------------------------------------------------------------------------
+
+    if (argc < 2)
+    {
+        std::cout << "\n Error: input file required\n" << "\n";
+        return -1;
+    }
 
     std::string tInputArg = std::string(argv[ 1 ]);
     std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
@@ -90,9 +95,9 @@ int main( int argc, char * argv[] )
         {
             wrk::Workflow tWorkflow( &tPerformerManager );
 
-        tWorkflow.perform();
+            Matrix<DDRMat> tADVs(1, 1, 0.0);
+            tWorkflow.get_criteria(tADVs);
         }
-
     }
 
     // finalize MORIS global communication manager

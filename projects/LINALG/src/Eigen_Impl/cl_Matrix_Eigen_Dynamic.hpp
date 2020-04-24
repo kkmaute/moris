@@ -21,6 +21,20 @@ class Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
 private:
     Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> mMatrix;
 
+    void fill_with_NANs()
+     {
+ #ifdef MATRIX_FILL
+         if (std::numeric_limits<Data_Type>::has_quiet_NaN)
+         {
+             mMatrix.fill( std::numeric_limits<Data_Type>::quiet_NaN() );
+         }
+         else
+         {
+             mMatrix.fill( std::numeric_limits<Data_Type>::max() );
+         }
+ #endif
+     }
+
 public:
     typedef Type Data_Type;
 
@@ -33,7 +47,7 @@ public:
             size_t const & aNumCols):
                 mMatrix(aNumRows,aNumCols)
     {
-
+        this->fill_with_NANs();
     }
 
     // template constructor
@@ -47,7 +61,7 @@ public:
     Matrix( size_t const & aNumEl):
                 mMatrix(aNumEl,1)
     {
-
+        this->fill_with_NANs();
     }
 
     // template constructor
@@ -119,6 +133,8 @@ public:
              const size_t & aNumCols)
     {
         mMatrix.resize( aNumRows, aNumCols );
+
+        this->fill_with_NANs();
     }
 
     void

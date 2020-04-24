@@ -66,6 +66,8 @@
 
 #include "fn_norm.hpp"
 
+
+
 moris::real LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     return norm( aPoint ) - 0.5;
@@ -86,6 +88,7 @@ void tConstValFunction_MDLDIFF
 
 TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
 {
+
     if(par_size() == 1 )
     {
         // Create a 3D mesh of HEX8 using MTK ------------------------------------------
@@ -302,6 +305,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
 
 TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 {
+
     if(par_size() == 1 )
     {
         std::string tPrefix = moris::get_base_moris_dir();
@@ -495,6 +499,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 //-------------------------------------------------------------------------------------------------------
 TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 {
+
     if( par_size() == 2 )
     {
         //------------------------------------------------------------------------------
@@ -755,6 +760,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
 TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 {
+
     if( (par_size() == 1) || (par_size() == 2) )
     {
         //------------------------------------------------------------------------------
@@ -1028,6 +1034,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
 TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x4x4]" )
 {
+
     if( par_size() == 1 )
     {
         //------------------------------------------------------------------------------

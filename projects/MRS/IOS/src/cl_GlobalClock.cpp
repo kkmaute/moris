@@ -48,19 +48,19 @@ namespace moris
     GlobalClock::~GlobalClock()
     {
 
-        // log last line
-        if (mIndentationLevel != 0)
-        {
-            // set indentation level to zero
-            mIndentationLevel = 0;
-
-            // report error
-            std::cout << "Global Clock prematurely stopped.";
-        }
-        else
-        {
-            // do nothing
-        }
+//        // log last line
+//        if (mIndentationLevel != 0)
+//        {
+//            // set indentation level to zero
+//            mIndentationLevel = 0;
+//
+//            // report error
+//            std::cout << "Global Clock prematurely stopped.";
+//        }
+//        else
+//        {
+//            // do nothing
+//        }
 
     }
 

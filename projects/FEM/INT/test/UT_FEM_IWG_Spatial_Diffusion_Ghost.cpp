@@ -44,10 +44,10 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 {
 
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -77,7 +77,6 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat.set_size( 4, 2 , 0.0 );
                 tXHat = {{ 0.0, 0.0 },
                          { 1.0, 0.0 },
                          { 1.0, 1.0 },
@@ -100,7 +99,6 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat.set_size( 8, 3 , 0.0 );
                 tXHat = {{ 0.0, 0.0, 0.0 },
                          { 1.0, 0.0, 0.0 },
                          { 1.0, 1.0, 0.0 },
@@ -150,7 +148,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------

@@ -51,10 +51,10 @@ using namespace fem;
 TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-3;
+    real tEpsilon = 1.0E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1.0E-4;
 
     // loop over the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )

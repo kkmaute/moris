@@ -28,26 +28,17 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Output_Options.hpp"
 #include "cl_XTK_Enums.hpp"
-#include "cl_Sphere.hpp"
-#include "cl_SphereBox.hpp"
-#include "cl_Plane.hpp"
-#include "cl_Discrete_Level_Set.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
 #include "typedefs.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Sphere_Box.hpp"
-
-//#include "cl_GEN_Geometry.hpp"
-//#include "cl_GEN_Plane.hpp"
-//#include "cl_GEN_Sphere.hpp"
-//#include "cl_GEN_Sphere_Box.hpp"
 
 // select namespaces
 using namespace moris;
@@ -69,15 +60,11 @@ get_index_in_cell(Cell<std::string> & aLabels,
 }
 
 
-moris::ge::GEN_Geometry*
+moris::ge::Geometry_Analytic*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
-  enum Geometry_Type tGeomType = aXTKProblemParams.mGeometryType;
-
-  moris::ge::GEN_Geometry* tGeometry = nullptr;
-  switch (tGeomType)
-  {
-    case Geometry_Type::SPHERE:
+  moris::ge::Geometry_Analytic* tGeometry = nullptr;
+  if (aXTKProblemParams.mGeometryName == "sphere")
     {
       MORIS_ERROR( aXTKProblemParams.mRealGeomParams.size() == 4,"For a parsed sphere geometry there needs to be 4 parameters, r, xc, yc, zc");
       MORIS_ERROR( aXTKProblemParams.mRealGeomLabels.size() == 4,"For a parsed sphere geometry there needs to be 4 labels, r, xc, yc, zc");
@@ -105,10 +92,8 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 
       tGeometry = new moris::ge::Sphere(tR,tXc,tYc,tZc);
 
-      break;
-
     }
-    case Geometry_Type::PLANE:
+    else if (aXTKProblemParams.mGeometryName == "plane")
     {
         moris::Matrix<moris::DDRMat> tCenters(3,1);
         moris::Matrix<moris::DDRMat> tNormals(3,1);
@@ -140,12 +125,10 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
         tNormals(2) = aXTKProblemParams.mRealGeomParams(tPos);
 
-        tGeometry = new moris::ge::Plane<3>(tCenters,tNormals);
-
-        break;
+        tGeometry = new moris::ge::Plane(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
     }
 
-    case Geometry_Type::SPHERE_BOX:
+    else if (aXTKProblemParams.mGeometryName == "sphere_box")
     {
 
         std::string tStr = "sx";
@@ -178,13 +161,7 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         moris::real tNexp = aXTKProblemParams.mRealGeomParams(tPos);
 
         tGeometry = new moris::ge::Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
-
-        break;
     }
-
-    default:
-    MORIS_ERROR(0,"Geometry not setup in parser");
-  }
 
   return tGeometry;
 
@@ -242,15 +219,17 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
          // setup the geometry
          //TODO: support multiple geometries
          tOpTimer = std::clock();
-         moris::ge::GEN_Geometry* tGeometry = geometry_parse_factory(aXTKProblemParams);
+         Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry;
+         tGeometry.resize(1);
+         tGeometry(0) = std::shared_ptr<moris::ge::Geometry_Analytic>(geometry_parse_factory(aXTKProblemParams));
          tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
           // setup the geometry engine
           //TODO: support multiple geometries, and different phase tables
 //          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
 //          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
           // setup the XTK model
           Model tXTKModel(3,tMeshData,&tGeometryEngine);
@@ -392,7 +371,6 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           std::cout<<"Data Output Time:    "<<tWriteData<<" ms."<<std::endl;
          }
          delete tMeshData;
-         delete tGeometry;
 }
 
 int

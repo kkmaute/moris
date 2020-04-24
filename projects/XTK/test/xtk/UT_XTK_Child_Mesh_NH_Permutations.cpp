@@ -18,14 +18,14 @@
 #include "fn_local_child_mesh_flood_fill.hpp"
 #include "fn_verify_tet_topology.hpp"
 #include "cl_MTK_Cell_Info_Tet4.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 #include "fn_equal_to.hpp"
-
 
 #include <chrono>
 #include <thread>
 #include <iostream>
 #include "xtk/cl_XTK_Child_Mesh.hpp"
+
+#include "fn_GEN_Triangle_Geometry.hpp"
 
 
 namespace xtk
@@ -615,7 +615,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             setup_node_coordinates_3_node(tEdgeL,tEdgeM,tEdgeH,tNodeCoords);
 
             // Compute base tet volume
-            real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+            real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
 
             // Compute base element surface normals (parent faces)
@@ -630,7 +630,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
                 moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row(iF);
 
                 moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-                compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+                ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tParentFaceNormals.set_column(iF,tFaceNormal);
             }
@@ -672,7 +672,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             CHECK(tValidTopo);
 
             // verify volume is conserved
-            real tTotalChildVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
+            real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
 
             CHECK(approximate(tTetVol,tTotalChildVol));
 
@@ -691,7 +691,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
                 moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row(iF);
 
                 moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-                compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+                ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tFaceNormals.set_column(iF,tFaceNormal);
             }
@@ -798,7 +798,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             moris::Matrix< moris::DDRMat > tNodeCoords;
             setup_node_coordinates_4_node(tEdgeL,tEdgeML,tEdgeMH,tEdgeH,tNodeCoords);
             // Compute base tet volume
-            real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+            real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
 
             // Compute base element surface normals (parent faces)
@@ -813,7 +813,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
                 moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row(iF);
 
                 moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-                compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+                ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tParentFaceNormals.set_column(iF,tFaceNormal);
             }
@@ -856,7 +856,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             CHECK(tValidTopo);
 
             // verify volume is conserved
-            real tTotalChildVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
+            real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
 
             CHECK(approximate(tTetVol,tTotalChildVol));
 
@@ -875,7 +875,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
                 moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row(iF);
 
                 moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-                compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+                ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tFaceNormals.set_column(iF,tFaceNormal);
             }
@@ -963,7 +963,7 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         setup_node_coordinates_bisected(iEdge,tNodeCoords);
 
         // Compute base tet volume
-        real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+        real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
 
         // Compute base element surface normals (parent faces)
@@ -978,7 +978,7 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
             moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row(iF);
 
             moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-            compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+            ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
             tParentFaceNormals.set_column(iF,tFaceNormal);
         }
@@ -1019,7 +1019,7 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         CHECK(tValidTopo);
 
         // verify volume is conserved
-        real tTotalChildVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
+        real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
 
         CHECK(approximate(tTetVol,tTotalChildVol));
 
@@ -1038,7 +1038,7 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
             moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row(iF);
 
             moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-            compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+            ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
             tFaceNormals.set_column(iF,tFaceNormal);
         }
@@ -1133,7 +1133,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         setup_node_coordinates_2_node(tEdgeL,tEdgeH,tNodeCoords);
 
         // Compute base tet volume
-        real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+        real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
         // Compute base element surface normals (parent faces)
         moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
         size_t tNumParentFaces = tParentFaceToNode.n_rows();
@@ -1146,7 +1146,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
             moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row(iF);
 
             moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-            compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+            ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
             tParentFaceNormals.set_column(iF,tFaceNormal);
         }
@@ -1187,7 +1187,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         CHECK(tValidTopo);
 
         // verify volume is conserved
-        real tTotalChildVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
+        real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
 
         CHECK(approximate(tTetVol,tTotalChildVol));
 
@@ -1206,7 +1206,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
             moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row(iF);
 
             moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
-            compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
+            ge::compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
             tFaceNormals.set_column(iF,tFaceNormal);
         }
@@ -1330,7 +1330,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
 //                // ------------------------------------------------
 //
 //                // Compute base tet volume
-//                real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+//                real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 //
 //                // Compute base element surface normals (parent faces)
 //                moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
@@ -1430,7 +1430,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
 //                CHECK(tValidTopo);
 //
 //                // verify volume is conserved
-//                real tTotalChildVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+//                real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 //                CHECK(approximate(tTetVol,tTotalChildVol));
 //
 //

@@ -20,7 +20,7 @@ TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 {
     if( par_size() == 1 )
     {
-        std::string tInputFilePath = moris::get_moris_bin_dir() + "/lib/libWRK_Input_1.so";
+        std::string tInputFilePath = moris::get_moris_bin_dir() + "/lib/WRK_Input_1.so";
 
         std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
 
@@ -32,6 +32,7 @@ TEST_CASE( "WRK_Test ", "[moris],[WRK_Test]" )
 
         wrk::Workflow tWorkflow( &tPerformerManager );
 
-        tWorkflow.perform();
+        Matrix<DDRMat> tADVs(1, 1, 0.0);
+        tWorkflow.get_criteria(tADVs);
     }
 }

@@ -6,14 +6,10 @@
  */
 
 #include "catch.hpp"
-#include "cl_Star.hpp"
-#include "cl_Circle.hpp"
-#include "cl_Plane.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -85,8 +81,8 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
@@ -228,13 +224,11 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Circle tCircle( 0.2501, 0.0, 0.0 );
-//        moris::Matrix<moris::DDRMat> tCenters = {{ 0.151,0.1 }};
-//        moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//        xtk::Plane<2> tPlane(tCenters,tNormals);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.2501);
 
-        moris::ge::GEN_Phase_Table     tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
          xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
@@ -473,320 +467,293 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
     }
 }
 
-TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
+TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]") // FIXME
 {
-    if(par_size()<=1)
-    {
-        uint tLagrangeMeshIndex = 0;
-        std::string tFieldName = "Cylinder";
-
-        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
-
-        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2"));
-        tParameters.set( "domain_dimensions", std::string("2, 2, 2") );
-        tParameters.set( "domain_offset", std::string("-1.0, -1.0, -1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5, 6") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
-
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern",std::string( "0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
-
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
-
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
-
-        tParameters.set( "use_multigrid", 0 );
-        tParameters.set( "severity_level", 2 );
-
-        hmr::HMR tHMR( tParameters );
-
-        //initial refinement
-        tHMR.perform_initial_refinement( 0 );
-
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        //  create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
-        tField->evaluate_scalar_function( LvlSetCircle_2D );
-
-//       for( uint k=0; k<2; ++k )
-//       {
-//           tHMR.flag_surface_elements_on_working_pattern( tField );
-//           tHMR.perform_refinement_based_on_working_pattern( 0 );
+//    if(par_size()<=1)
+//    {
+//        uint tLagrangeMeshIndex = 0;
+//        std::string tFieldName = "Cylinder";
 //
-//           tField->evaluate_scalar_function( LvlSetCircle_2D );
-//       }
-
-        tHMR.finalize();
-
-        tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_3d.e" );
-
-        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
-
-        moris::ge::Circle tCircle( 0.2501, 100.0, 0.0 );
-//        moris::Matrix<moris::DDRMat> tCenters = {{ 0.151,0.1 }};
-//        moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//        xtk::Plane<2> tPlane(tCenters,tNormals);
-
-        moris::ge::GEN_Phase_Table     tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 3);
-
-         xtk::Model tXTKModel(3, tInterpolationMesh, &tGeometryEngine);
-
-        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
-        tXTKModel.decompose(tDecompositionMethods);
-
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
-
-        // get meshes
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-        // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
-
-        //------------------------------------------------------------------------------
-        // create the properties
-        std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
-        tPropEMod1->set_parameters( { {{ 1.0 }} } );
-        tPropEMod1->set_val_function( tConstValFunction );
-
-        std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
-        tPropEMod2->set_parameters( { {{ 1.0 }} } );
-        tPropEMod2->set_val_function( tConstValFunction );
-
-        std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
-        tPropNu->set_parameters( { {{ 0.3 }} } );
-        tPropNu->set_val_function( tConstValFunction );
-
-        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }, { 0.0 }} } );
-        tPropDirichlet->set_val_function( tConstValFunction );
-
-        std::shared_ptr< fem::Property > tPropDirichlet2 = std::make_shared< fem::Property >();
-        tPropDirichlet2->set_parameters( { {{ 1.0, 1.0, 1.0 }} } );
-        tPropDirichlet2->set_val_function( tMValFunction_3D );
-
-        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }, { 0.0 }}} );
-        tPropNeumann->set_val_function( tConstValFunction );
-
-        // define constitutive models
-        fem::CM_Factory tCMFactory;
-
-        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-        tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-        tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
-        tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso1->set_space_dim( 3 );
-
-        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-        tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-        tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
-        tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso2->set_space_dim( 3 );
-
-        // define stabilization parameters
-        fem::SP_Factory tSPFactory;
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-        tSPDirichletNitsche->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
-        tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
-        tSPNitscheInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::MASTER );
-        tSPNitscheInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-        tSPMasterWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::MASTER );
-        tSPMasterWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-        tSPSlaveWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::MASTER );
-        tSPSlaveWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::SLAVE );
-
-        // define the IWGs
-        fem::IWG_Factory tIWGFactory;
-
-        std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
-        tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
-        tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
-        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
-        tIWGBulk2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
-        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
-        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
-        tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
-        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
-
-        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
-        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }},mtk::Master_Slave::SLAVE );
-        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
-        tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::SLAVE );
-
-        // create a list of active block-sets
-        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
-        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
-
-        //        // create a list of active block-sets
-        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("block_1_c_p0"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p0"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_c_p1"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("block_1_n_p1"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_4_n_p0"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name("surface_2_n_p1"),
-        ////                                                tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
-        //
-        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_4_n_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name("SideSet_2_n_p1"),
-        //                                                  tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName)};
-
-        // define set info
-        fem::Set_User_Info tSetBulk1;
-        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
-        tSetBulk1.set_IWGs( { tIWGBulk2 } );
-
-        fem::Set_User_Info tSetBulk2;
-        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
-        tSetBulk2.set_IWGs( { tIWGBulk2 } );
-
-        fem::Set_User_Info tSetBulk3;
-        tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
-        tSetBulk3.set_IWGs( { tIWGBulk1 } );
-
-        fem::Set_User_Info tSetBulk4;
-        tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
-        tSetBulk4.set_IWGs( { tIWGBulk1 } );
-
-        fem::Set_User_Info tSetDirichlet;
-        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
-        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
-
-        fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
-        tSetNeumann.set_IWGs( { tIWGNeumann } );
-
-        fem::Set_User_Info tSetInterface;
-        tSetInterface.set_mesh_set_name( tDblInterfaceSideSetName );
-        tSetInterface.set_IWGs( { tIWGInterface } );
-
-        // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
-        tSetInfo( 0 ) = tSetBulk1;
-        tSetInfo( 1 ) = tSetBulk2;
-        tSetInfo( 2 ) = tSetBulk3;
-        tSetInfo( 3 ) = tSetBulk4;
-        tSetInfo( 4 ) = tSetDirichlet;
-        tSetInfo( 5 ) = tSetNeumann;
-        tSetInfo( 6 ) = tSetInterface;
-
-        // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                              0,
-                                              tSetInfo,
-                                              0, false );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 1: create linear solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 3 );
-        tDofTypesU( 0 ) = MSI::Dof_Type::UX;
-        tDofTypesU( 1 ) = MSI::Dof_Type::UY;
-        tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
-
-        dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
-
-        dla::Linear_Solver tLinSolver;
-        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 2: create nonlinear solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        NLA::Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
-
-        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
-        //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
-
-        NLA::Nonlinear_Solver tNonlinearSolverMain;
-        tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
-
-        tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
-
-        // Create solver database
-        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
-
-        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 3: create time Solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        tsa::Time_Solver_Factory tTimeSolverFactory;
-        std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
-
-        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolverMain );
-
-        tsa::Time_Solver tTimeSolver;
-        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
-        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
-
-        tTimeSolver.set_dof_type_list( tDofTypesU );
-
-        //------------------------------------------------------------------------------
-        tTimeSolver.solve();
-
-        // output solution and meshes
-        // FIXME if needed
-
-        delete tModel;
-        delete tInterpolationMesh;
-    }
+//        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2"));
+//        tParameters.set( "domain_dimensions", std::string("2, 2, 2") );
+//        tParameters.set( "domain_offset", std::string("-1.0, -1.0, -1.0") );
+//        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5, 6") );
+//        tParameters.set( "lagrange_output_meshes", std::string("0") );
+//
+//        tParameters.set( "lagrange_orders", std::string("1") );
+//        tParameters.set( "lagrange_pattern",std::string( "0") );
+//        tParameters.set( "bspline_orders", std::string("1") );
+//        tParameters.set( "bspline_pattern", std::string("0") );
+//
+//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "refinement_buffer", 3 );
+//        tParameters.set( "staircase_buffer", 3 );
+//        tParameters.set( "initial_refinement", 0 );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//        tParameters.set( "severity_level", 2 );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        //initial refinement
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//
+//        //  create field
+//        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+//
+//        tField->evaluate_scalar_function( LvlSetCircle_2D );
+//
+//        tHMR.finalize();
+//
+//        tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_3d.e" );
+//
+//        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+//
+//        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+//        tGeometry(0) = std::make_shared<moris::ge::Circle>(100.0, 0.0, 0.2501);
+//
+//        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+//        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 3);
+//
+//         xtk::Model tXTKModel(3, tInterpolationMesh, &tGeometryEngine);
+//
+//        //Specify decomposition Method and Cut Mesh ---------------------------------------
+//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+//        tXTKModel.decompose(tDecompositionMethods);
+//
+//        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+//
+//        // get meshes
+//        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+//        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+//
+//        //------------------------------------------------------------------------------
+//        // create the properties
+//        std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
+//        tPropEMod1->set_parameters( { {{ 1.0 }} } );
+//        tPropEMod1->set_val_function( tConstValFunction );
+//
+//        std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
+//        tPropEMod2->set_parameters( { {{ 1.0 }} } );
+//        tPropEMod2->set_val_function( tConstValFunction );
+//
+//        std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
+//        tPropNu->set_parameters( { {{ 0.3 }} } );
+//        tPropNu->set_val_function( tConstValFunction );
+//
+//        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+//        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }, { 0.0 }} } );
+//        tPropDirichlet->set_val_function( tConstValFunction );
+//
+//        std::shared_ptr< fem::Property > tPropDirichlet2 = std::make_shared< fem::Property >();
+//        tPropDirichlet2->set_parameters( { {{ 1.0, 1.0, 1.0 }} } );
+//        tPropDirichlet2->set_val_function( tMValFunction_3D );
+//
+//        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+//        tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }, { 0.0 }}} );
+//        tPropNeumann->set_val_function( tConstValFunction );
+//
+//        // define constitutive models
+//        fem::CM_Factory tCMFactory;
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+//        tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+//        tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
+//        tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
+//        tCMStrucLinIso1->set_space_dim( 3 );
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+//        tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+//        tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
+//        tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
+//        tCMStrucLinIso2->set_space_dim( 3 );
+//
+//        // define stabilization parameters
+//        fem::SP_Factory tSPFactory;
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+//        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+//        tSPDirichletNitsche->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+//        tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+//        tSPNitscheInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::MASTER );
+//        tSPNitscheInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::SLAVE );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+//        tSPMasterWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::MASTER );
+//        tSPMasterWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::SLAVE );
+//
+//        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+//        tSPSlaveWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::MASTER );
+//        tSPSlaveWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::SLAVE );
+//
+//        // define the IWGs
+//        fem::IWG_Factory tIWGFactory;
+//
+//        std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+//        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
+//        tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
+//        tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+//        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
+//        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
+//        tIWGBulk2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
+//        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
+//        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
+//        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+//        tIWGDirichlet->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+//        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
+//        tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+//        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
+//        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
+//        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+//
+//        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+//        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
+//        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
+//        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }},mtk::Master_Slave::SLAVE );
+//        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
+//        tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
+//        tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
+//        tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+//        tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::SLAVE );
+//
+//        // create a list of active block-sets
+//        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
+//        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
+//
+//        // define set info
+//        fem::Set_User_Info tSetBulk1;
+//        tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
+//        tSetBulk1.set_IWGs( { tIWGBulk2 } );
+//
+//        fem::Set_User_Info tSetBulk2;
+//        tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
+//        tSetBulk2.set_IWGs( { tIWGBulk2 } );
+//
+//        fem::Set_User_Info tSetBulk3;
+//        tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
+//        tSetBulk3.set_IWGs( { tIWGBulk1 } );
+//
+//        fem::Set_User_Info tSetBulk4;
+//        tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
+//        tSetBulk4.set_IWGs( { tIWGBulk1 } );
+//
+//        fem::Set_User_Info tSetDirichlet;
+//        tSetDirichlet.set_mesh_set_name( "SideSet_4_n_p1" );
+//        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+//
+//        fem::Set_User_Info tSetNeumann;
+//        tSetNeumann.set_mesh_set_name( "SideSet_2_n_p1" );
+//        tSetNeumann.set_IWGs( { tIWGNeumann } );
+//
+//        fem::Set_User_Info tSetInterface;
+//        tSetInterface.set_mesh_set_name( tDblInterfaceSideSetName );
+//        tSetInterface.set_IWGs( { tIWGInterface } );
+//
+//        // create a cell of set info
+//        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+//        tSetInfo( 0 ) = tSetBulk1;
+//        tSetInfo( 1 ) = tSetBulk2;
+//        tSetInfo( 2 ) = tSetBulk3;
+//        tSetInfo( 3 ) = tSetBulk4;
+//        tSetInfo( 4 ) = tSetDirichlet;
+//        tSetInfo( 5 ) = tSetNeumann;
+//        tSetInfo( 6 ) = tSetInterface;
+//
+//        // create model
+//        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+//                                              0,
+//                                              tSetInfo,
+//                                              0, false );
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        // STEP 1: create linear solver and algorithm
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 3 );
+//        tDofTypesU( 0 ) = MSI::Dof_Type::UX;
+//        tDofTypesU( 1 ) = MSI::Dof_Type::UY;
+//        tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
+//
+//        dla::Solver_Factory  tSolFactory;
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+//
+//        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+//        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+//        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
+//        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
+//        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
+//        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
+//        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//
+//        dla::Linear_Solver tLinSolver;
+//        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        // STEP 2: create nonlinear solver and algorithm
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
+//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
+//        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+//
+//        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+//        //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
+//
+//        NLA::Nonlinear_Solver tNonlinearSolverMain;
+//        tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+//
+//
+//        tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
+//
+//        // Create solver database
+//        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//
+//        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        // STEP 3: create time Solver and algorithm
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        tsa::Time_Solver_Factory tTimeSolverFactory;
+//        std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+//
+//        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolverMain );
+//
+//        tsa::Time_Solver tTimeSolver;
+//        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+//        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+//
+//        tTimeSolver.set_dof_type_list( tDofTypesU );
+//
+//        //------------------------------------------------------------------------------
+//        tTimeSolver.solve();
+//
+//        // output solution and meshes
+//        // FIXME if needed
+//
+//        delete tModel;
+//        delete tInterpolationMesh;
+//    }
 }
 
 TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
@@ -845,10 +812,11 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Circle tCircle( 0.4501, 0.0, 0.0 );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
@@ -1157,10 +1125,11 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Circle tCircle( 0.4501, 0.0, 0.0 );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
@@ -1426,7 +1395,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 //
 //      moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
-//      moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
+//      moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
 //      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
 //      tXTKModel.mVerbose = false;
 //

@@ -94,7 +94,7 @@ make shared_object_file
 
 cd $workdir
 
-mv $MORISROOT/$builddir/lib/libinput_file.so $cppfile.so
+mv $MORISROOT/$builddir/lib/input_file.so $cppfile.so
 
 rm $MORISROOT/projects/mains/input_file.cpp
 

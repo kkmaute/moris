@@ -151,6 +151,9 @@ option(MORIS_HAVE_DEBUG
 option(MORIS_USE_VALGRIND
     "Use valgrind to run tests." OFF )
     
+option(MORIS_USE_MATRIX_FILL
+    "Fill matrices by default with NANs or MaxValues." OFF )
+    
 option(USE_XTK "Have XTK Library" ON)	
 
 option(MORIS_HAVE_SYMBOLIC
@@ -338,6 +341,11 @@ if (MORIS_HAVE_DEBUG)
 else()
     list(APPEND MORIS_DEFINITIONS "-DNDEBUG")
 endif()
+
+if (MORIS_USE_MATRIX_FILL)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMATRIX_FILL ")
+endif()
+
 
 # # Performace test flags
 # if (HAVE_PERF_MAT)

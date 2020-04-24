@@ -12,6 +12,7 @@
 
 #include "typedefs.hpp"
 #include "IO_Tools.hpp"
+#include "paths.hpp"
 
 // for the global clock
 #include "cl_GlobalClock.hpp" // MRS/IOS/src
@@ -66,6 +67,16 @@ void Logger::initialize( int  & argc, char * argv[] )
         }
 
     } // end for each input argument
+
+    // print header
+    this->print_header();
+
+    // log start of Global Clock to file
+    if( mWriteToAscii )
+    {
+        // formated output to log file
+        this->log_to_file( OutputSpecifier::SignIn, 1.0);
+    }
 }
 
 
@@ -217,7 +228,7 @@ void Logger::print_header()
     //        }
     //        mStream << "Number of Processors used: " << ( int ) par_size() << " \n";
     mStream << "Date of execution: " << ctime(&tTimeStamp) ;
-    mStream << "Severity Level: " << mSeverityLevel << " /n";
+    mStream << "Severity Level: " << mSeverityLevel << " \n";
 
 
     // print user information
@@ -231,6 +242,8 @@ void Logger::print_header()
     // print build info
     mStream << "\n--- BUILD ---\n";
     mStream << "Build date: " << __DATE__ << "; " << __TIME__ << "\n";
+    mStream << "Git branch: " << get_moris_git_branch() << "\n";
+    mStream << "Git hash: " << get_moris_git_hash() << "\n";
     mStream << "DEBUG: ";
 
 #if !defined(NDEBUG) || defined(DEBUG)
