@@ -91,6 +91,7 @@ namespace MSI
         // field interpolator manager pointers
         Field_Interpolator_Manager * mMasterFIManager = nullptr;
         Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
+        Field_Interpolator_Manager * mMasterPreviousFIManager = nullptr;
 
         // cell of pointers to IWG objects
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
@@ -118,7 +119,10 @@ namespace MSI
         moris::Cell< uint >                    mMtkIgCellOnSet;
 
         bool mIsResidual = false;
-        bool mIsForward = true;
+        bool mIsForward  = true;
+
+        // bool for time continuity
+        bool mTimeContinuity = false;
 
         friend class MSI::Equation_Object;
         friend class Cluster;
@@ -216,6 +220,16 @@ namespace MSI
         moris::Cell< mtk::Cluster const* > const & get_clusters_on_set() const
         {
             return mMeshClusterList;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get bool for time continuity
+         * param[ out ] mTimeContinuity bool true if time continuity
+         */
+        bool get_time_continuity() const
+        {
+            return mTimeContinuity;
         }
 
 //------------------------------------------------------------------------------
@@ -470,6 +484,27 @@ namespace MSI
                 {
                     MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master or slave.");
                     return mMasterFIManager;
+                }
+            }
+        };
+
+//------------------------------------------------------------------------------
+        /**
+         * get the field interpolator manager for previous time step
+         * @param[ in ]  aIsMaster an enum for master or slave
+         * @param[ out ] mFIManger a field interpolator manager pointer
+         */
+        Field_Interpolator_Manager * get_field_interpolator_manager_previous_time( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                    return mMasterPreviousFIManager;
+
+                default :
+                {
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master.");
+                    return mMasterPreviousFIManager;
                 }
             }
         };
