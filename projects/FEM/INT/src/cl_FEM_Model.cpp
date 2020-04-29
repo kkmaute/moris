@@ -121,7 +121,8 @@ namespace moris
                 }
 
                 // fill the mesh set index to fem set index map
-                mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
+                //mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
+                mMeshSetToFemSetMap[ std::make_pair( tMeshSetIndex, aSetInfo( iSet ).get_time_continuity() ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
@@ -248,13 +249,14 @@ namespace moris
             for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
             {
                 // get the mesh set name
-                std::string tMeshSetName = mSetInfo( iSet).get_mesh_set_name();
+                std::string tMeshSetName = mSetInfo( iSet ).get_mesh_set_name();
 
                 // get the mesh set index from its name
                 moris_index tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
 
                 // fill the mesh set index to fem set index map
-                mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
+                //mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
+                mMeshSetToFemSetMap[ std::make_pair( tMeshSetIndex, mSetInfo( iSet ).get_time_continuity() ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
@@ -933,7 +935,7 @@ namespace moris
             moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // create a map of the set
-            std::map< std::string, uint > tMeshtoFemSet;
+            std::map< std::pair< std::string, bool >, uint > tMeshtoFemSet;
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
@@ -942,20 +944,28 @@ namespace moris
                 moris::Cell< std::string > tMeshSetNames;
                 string_to_cell( tIWGParameterList( iIWG ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
 
+                // get the time continuity flag from the IWG parameter list
+                bool tTimeContinuity = tIWGParameterList( iIWG ).get< bool >( "time_continuity" );
+
                 // loop over the mesh set names
                 for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
                 {
                     // check if the mesh set name already in map
-                    if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
+                    //if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
+                    if( tMeshtoFemSet.find( std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ) == tMeshtoFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
+                        //tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
+                        tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
 
                         // set its mesh set name
                         aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+
+                        // set its time continuity flag
+                        aSetUserInfo.set_time_continuity( tTimeContinuity );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -966,7 +976,8 @@ namespace moris
                     else
                     {
                         // set the IWG
-                        mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IWG( mIWGs( iIWG ) );
+                        mSetInfo( tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] ).set_IWG( mIWGs( iIWG ) );
+                        //mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IWG( mIWGs( iIWG ) );
                     }
                 }
             }
@@ -978,20 +989,28 @@ namespace moris
                 moris::Cell< std::string > tMeshSetNames;
                 string_to_cell( tIQIParameterList( iIQI ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
 
+                // get the time continuity flag from the IWG parameter list
+                bool tTimeContinuity = tIQIParameterList( iIQI ).get< bool >( "time_continuity" );
+
                 // loop over the mesh set names
                 for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
                 {
                     // if the mesh set name not in map
-                    if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
+                    //if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
+                    if( tMeshtoFemSet.find( std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ) == tMeshtoFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
+                        //tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
+                        tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
 
                         // set its mesh set name
                         aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+
+                        // set its time continuity flag
+                        aSetUserInfo.set_time_continuity( tTimeContinuity );
 
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );
@@ -1002,7 +1021,8 @@ namespace moris
                     else
                     {
                         // set the IQI
-                        mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IQI( mIQIs( iIQI ) );
+                        mSetInfo( tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] ).set_IQI( mIQIs( iIQI ) );
+                        //mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IQI( mIQIs( iIQI ) );
                     }
                 }
             }
