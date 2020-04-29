@@ -148,7 +148,6 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
     KSPSetFromOptions( mPetscKSPProblem );
     KSPSetUp( mPetscKSPProblem );
 
-    std::cout<<" ---- solve ---"<<std::endl;
     // Solve System
     KSPSolve( mPetscKSPProblem, aLinearSystem->get_solver_RHS()->get_petsc_vector(), aLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
 
