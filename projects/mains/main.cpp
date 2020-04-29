@@ -41,7 +41,6 @@
 
 //#include "cl_Profiler.hpp" //profiler header
 //#include <Eigen/Dense>
-//#include <armadillo>
 #include "cl_Logger.hpp" // MRS/IOS/src
 
 #include "fn_Exec_load_user_library.hpp"
@@ -96,7 +95,8 @@ int main( int argc, char * argv[] )
         {
             wrk::Workflow tWorkflow( &tPerformerManager );
 
-            tWorkflow.perform();
+            Matrix<DDRMat> tADVs(1, 1, 0.0);
+            tWorkflow.get_criteria(tADVs);
         }
     }
 

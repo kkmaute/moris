@@ -149,7 +149,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         size_t tModelDimension = 3;
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;

@@ -20,14 +20,15 @@ enum class EntityBase {
     BlockSet,
     GlobalClock,
     MSI,
-    Mesh
+    Mesh,
+    TEST_CASE
 };
 
 // copy string
 //inline
 const std::string get_enum_str(enum EntityBase aEntityBase);
 
-const enum EntityBase get_entity_base_enum_from_str(std::string aEnumString);
+enum EntityBase get_entity_base_enum_from_str(std::string aEnumString);
 
 // define Types ---------------------------------------------------------------------------
 enum class EntityType {
@@ -49,7 +50,7 @@ enum class EntityType {
 //inline
 const std::string get_enum_str(enum EntityType aEntityType);
 
-const enum EntityType get_entity_type_enum_from_str(std::string aEnumString);
+enum EntityType get_entity_type_enum_from_str(std::string aEnumString);
 
 // define Actions ---------------------------------------------------------------------------
 enum class EntityAction {
@@ -64,14 +65,15 @@ enum class EntityAction {
     AssembleJacobian,
     AssembleResidual,
     AssembleJacAndRes,
-    AssembleRHS
+    AssembleRHS,
+    Run
 };
 
 // copy string
 //inline
 const std::string get_enum_str(enum EntityAction aEntityAction);
 
-const enum EntityAction get_entity_action_enum_from_str(std::string aEnumString);
+enum EntityAction get_entity_action_enum_from_str(std::string aEnumString);
 
 // define Outputs ---------------------------------------------------------------------------
 enum class OutputSpecifier {
@@ -97,7 +99,7 @@ enum class OutputSpecifier {
 const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier);
 
 
-const enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString);
+enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString);
 
 
 } // namespace moris

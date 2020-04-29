@@ -55,8 +55,32 @@ namespace moris
 
         ~Logger()
         {
+
+            // report error if prematurely stopped
+            if (mGlobalClock.mIndentationLevel != 0)
+            {
+                // set indentation level to zero
+                mGlobalClock.mIndentationLevel = 0;
+
+                // report error
+                std::cout << "Global clock & logger prematurely stopped.";
+
+                if( mWriteToAscii )
+                {
+                    // log current position in code
+                    this->log_to_file_error("Global clock & logger prematurely stopped.");
+                }
+
+            }
+
+
             if( mWriteToAscii )
             {
+
+                // log runtime of clock
+                this->log_to_file(OutputSpecifier::ElapsedTime,
+                        ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
+
                 //close file
                 mStream.close();
             }
@@ -96,6 +120,13 @@ namespace moris
 
             // print header
             this->print_header();
+
+            // log start of Global Clock to file
+            if( mWriteToAscii )
+            {
+                // formated output to log file
+                this->log_to_file( OutputSpecifier::SignIn, 1.0);
+            }
        };
 
         void set_severity_level( const moris::sint aSverityLevel )
@@ -161,7 +192,8 @@ namespace moris
             std::string tString = print_log( aArgs ... );
 
             // switch based on OutputFormat provided
-            if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+//            if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+            if (mDirectOutputFormat == 3)
             {
                 std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Info: " << tString << " \n";
             }

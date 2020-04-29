@@ -9,7 +9,7 @@
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_CYLINDER_WITH_END_CAPS_HPP_
 
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 #include "fn_bounding_box.hpp"
 #include "HDF5_Tools.hpp"
 #include "paths.hpp"
@@ -23,7 +23,7 @@ namespace moris
 namespace ge
 {
 
-class GEN_CylinderWithEndCaps : public GEN_Geometry
+class GEN_CylinderWithEndCaps : public Geometry_Analytic
 {
 private:    // member data
     uint mNumberOfFibers;

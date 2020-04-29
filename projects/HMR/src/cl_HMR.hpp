@@ -8,12 +8,9 @@
 #ifndef SRC_HMR_CL_HMR_HPP_
 #define SRC_HMR_CL_HMR_HPP_
 
-#include "cl_HMR_Database.hpp"     //HMR/src
+//#include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Field_Param.hpp"
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Mesh_Interpolation.hpp"
-#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 namespace moris
 {
@@ -24,6 +21,10 @@ namespace mtk
     namespace hmr
     {
         class Field;
+        class Database;
+        class Mesh;
+        class Interpolation_Mesh_HMR;
+        class Integration_Mesh_HMR;
 // -----------------------------------------------------------------------------
         /**
          * \brief the main class of HMR
@@ -251,10 +252,7 @@ namespace mtk
             /**
              * set activation pattern
              */
-            void set_activation_pattern( const uint & aActivationPattern )
-            {
-                this->get_database()->set_activation_pattern( aActivationPattern );
-            };
+            void set_activation_pattern( const uint & aActivationPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -333,10 +331,7 @@ namespace mtk
             /**
              * Flag an element for refinement. Needed for Testing.
              */
-            void flag_element( const moris_index aElementIndex )
-            {
-                mDatabase->flag_element( aElementIndex );
-            }
+            void flag_element( const moris_index aElementIndex );
 
 // -----------------------------------------------------------------------------
 

@@ -11,9 +11,7 @@
 #include "cl_XTK_Model.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry.hpp"
-//#include "cl_Circle.hpp"
-//#include "cl_MGE_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 using namespace moris;
 
@@ -33,10 +31,11 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
         real tRadius = 0.7;
         real tXCenter = 1.0;
         real tYCenter = 1.0;
-        moris::ge::Circle tLevelsetCircle(tRadius, tXCenter, tYCenter);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetCircle,tPhaseTable,2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
@@ -117,10 +116,11 @@ TEST_CASE("2D Conformal Subdivision","[CM_2D_LIN]")
         real tRadius = 0.7;
         real tXCenter = 1.0;
         real tYCenter = 1.0;
-        moris::ge::Circle tLevelsetCircle(tRadius, tXCenter, tYCenter);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetCircle,tPhaseTable,2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
@@ -186,10 +186,11 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
         real tRadius = 0.7;
         real tXCenter = 1.0;
         real tYCenter = 1.0;
-        moris::ge::Circle tLevelsetCircle(tRadius, tXCenter, tYCenter);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetCircle,tPhaseTable,2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test
@@ -281,10 +282,11 @@ TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
         real tRadius = 0.7;
         real tXCenter = 1.0;
         real tYCenter = 1.0;
-        moris::ge::Circle tLevelsetCircle(tRadius, tXCenter, tYCenter);
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
-        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetCircle,tPhaseTable,2);
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Create Mesh ---------------------------------
         // Generate data for test

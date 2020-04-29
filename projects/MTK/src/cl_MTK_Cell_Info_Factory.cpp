@@ -10,7 +10,7 @@
 #include "cl_MTK_Cell_Info_Tri3.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "cl_MTK_Cell_Info_Quad9.hpp"
-//#include "cl_MTK_Quad9_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Quad16.hpp"
 #include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell_Info_Hex27.hpp"
@@ -86,6 +86,7 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
             {
                 case(Interpolation_Order::LINEAR):   {  tConn = new Cell_Info_Quad4(); break; }
                 case(Interpolation_Order::QUADRATIC):{  tConn = new Cell_Info_Quad9(); break; }
+                case(Interpolation_Order::CUBIC):    {  tConn = new Cell_Info_Quad16(); break; }
                 //            case(Interpolation_Order::CUBIC):{  break; }
                 default:{MORIS_ERROR(0,"Invalid quad interpolation order"); break; }
             }

@@ -25,6 +25,8 @@
 // HMR includes ---------------------------------
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 
 // MTK includes ---------------------------------
 #include "cl_Mesh_Enums.hpp"
@@ -171,7 +173,7 @@ namespace moris
             moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tSphere };
 
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
             xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
@@ -309,7 +311,7 @@ namespace moris
             moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tCircle };
 
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
             xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
@@ -494,7 +496,7 @@ namespace moris
             moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { &tSphere };
 
             moris::ge::GEN_Phase_Table      tPhaseTable( tGeometryVector.size(), Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tNumDims );
 
             xtk::Model tXTKModel( tNumDims, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;

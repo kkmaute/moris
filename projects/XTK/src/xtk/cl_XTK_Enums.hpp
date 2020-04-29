@@ -74,10 +74,4 @@ enum class Topology_Type
 
 };
 
-enum class Phase_Table_Structure
-{
-    EXP_BASE_2
-};
-
-
 #endif /* SRC_XTK_CL_XTK_ENUMS_HPP_ */

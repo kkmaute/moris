@@ -8,7 +8,6 @@
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
-#include "cl_Sphere.hpp"
 
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"

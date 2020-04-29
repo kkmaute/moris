@@ -1,19 +1,16 @@
-/*
- * UT_MDL_Fluid_Benchmark.cpp
- *
- *  Created on: Mar 28, 2020
- *      Author: noel
- */
+/* UT_MDL_Fluid_Benchmark.cpp
+*
+*  Created on: Mar 28, 2020
+*      Author: noel
+*/
 
 #include "catch.hpp"
 
-#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp"
 #include "fn_norm.hpp"
-#include "cl_Plane.hpp"
 //PRM
 #include "cl_PRM_HMR_Parameters.hpp"
 #include "cl_PRM_SOL_Parameters.hpp"
@@ -33,6 +30,7 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 //HMR/src
 #include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Factory.hpp"
@@ -74,72 +72,71 @@
 //GEN
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_Geometry.hpp"
 #include <functional>
-#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
 {
 
 //-------------------------------------------------------------------------------------
-void ConstFuncVal_MDLFluidBench
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
+    void ConstFuncVal_MDLFluidBench
+            ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+              moris::fem::Field_Interpolator_Manager         * aFIManager )
+    {
+        aPropMatrix = aParameters( 0 );
+    }
 
-void InletVelocityFunc_MDLFluidBench
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    // unpack parameters
-    real tRadiusChannel = aParameters( 0 )( 0 );
-    real tYChannel      = aParameters( 1 )( 0 );
+    void InletVelocityFunc_MDLFluidBench
+            ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+              moris::fem::Field_Interpolator_Manager         * aFIManager )
+    {
+        // unpack parameters
+        real tRadiusChannel = aParameters( 0 )( 0 );
+        real tYChannel      = aParameters( 1 )( 0 );
 
-    // get position in space
-    real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
+        // get position in space
+        real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
 
-    // set size for aPropMatrix
-    aPropMatrix.set_size( 2, 1, 0.0 );
+        // set size for aPropMatrix
+        aPropMatrix.set_size( 2, 1, 0.0 );
 
-    // velocity along x direction
-    aPropMatrix( 0 ) = - ( tY - ( tYChannel + tRadiusChannel ) )
-                       * ( tY - ( tYChannel - tRadiusChannel ) ) / ( 2.0 * std::pow( tRadiusChannel, 2.0 ) );
-}
+        // velocity along x direction
+        aPropMatrix( 0 ) = - ( tY - ( tYChannel + tRadiusChannel ) )
+                           * ( tY - ( tYChannel - tRadiusChannel ) ) / ( 2.0 * std::pow( tRadiusChannel, 2.0 ) );
+    }
 
-void FSVelocityFunc_MDLFluidBench
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    // get space dim
-    uint tSpaceDim = aFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
+    void FSVelocityFunc_MDLFluidBench
+            ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+              moris::fem::Field_Interpolator_Manager         * aFIManager )
+    {
+        // get space dim
+        uint tSpaceDim = aFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
 
-    // set size for aPropMatrix
-    aPropMatrix.set_size( tSpaceDim, 1, 0.0 );
-}
+        // set size for aPropMatrix
+        aPropMatrix.set_size( tSpaceDim, 1, 0.0 );
+    }
 
-void InletPressureFunc_MDLFluidBench
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    // set size for aPropMatrix
-    aPropMatrix.set_size( 1, 1, aParameters( 0 )( 0 ) );
-}
+    void InletPressureFunc_MDLFluidBench
+            ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+              moris::fem::Field_Interpolator_Manager         * aFIManager )
+    {
+        // set size for aPropMatrix
+        aPropMatrix.set_size( 1, 1, aParameters( 0 )( 0 ) );
+    }
 
 
-bool tSolverOutputCriteria_MDLFluidBench( moris::tsa::Time_Solver * )
-{
-    return true;
-}
+    bool tSolverOutputCriteria_MDLFluidBench( moris::tsa::Time_Solver * )
+    {
+        return true;
+    }
 
 //-------------------------------------------------------------------------------------
-TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Immersed_Inlet_Velocity]")
-{
+    TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Immersed_Inlet_Velocity]")
+    {
     if( par_size() <= 1 )
     {
         // Geometry Parameters
@@ -206,14 +203,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
 
         for( uint k = 0; k < tNumRef; k++ )
         {
-            moris::ge::Plane< 2 > tPlane00( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane01( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane02( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-            moris::ge::Plane< 2 > tPlane03( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
-            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+            tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+            tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+            tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+            tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+            moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -250,21 +247,18 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tHMR.finalize();
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
-        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+                = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Plane< 2 > tPlane0( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane1( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane2( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-        moris::ge::Plane< 2 > tPlane3( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+        tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+        tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+        tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+        tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-        // NOTE the order of this geometry vector is important.
-        // If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3 };
-
-        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -317,7 +311,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMFluid
-        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+                = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
         tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
         tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
         tCMFluid->set_property( tPropFluidDensity, "Density" );
@@ -327,32 +321,32 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         fem::SP_Factory tSPFactory;
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
-        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+                = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
-        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+                = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
+                = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
         tSPViscousGhost->set_parameters( {{{ tGammaGPmu }} });
         tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
+                = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
         tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPConvectiveGhost->set_parameters( {{{ tGammaGPu }} });
         tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
+                = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
         tSPPressureGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPPressureGhost->set_parameters( { {{ tGammaGPp }}, {{ 1.0 }} });
         tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
@@ -362,7 +356,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWGVelocityBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
         tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -370,7 +364,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGPressureBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
         tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -378,7 +372,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGInletVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
@@ -386,14 +380,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGInletPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
         tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -401,28 +395,28 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
         tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
         std::shared_ptr< fem::IWG > tIWGGPViscous
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
         tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
         tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
         tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "ViscousGhost" );
 
         std::shared_ptr< fem::IWG > tIWGGPConvective
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
         tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
         tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
         tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "ConvectiveGhost" );
 
         std::shared_ptr< fem::IWG > tIWGGPPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
         tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
@@ -499,13 +493,13 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Velocity","[MDL_Fluid_Benchmark_Im
         // --------------------------------------------------------------------------------------
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
-                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
-                                 "./",
-                                 "MDL_Fluid_Benchmark_Immersed_Inlet_Velocity_Output.exo",
-                                 { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
-                                 { "VX", "VY", "P" },
-                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                 { vis::Output_Type::VX,  vis::Output_Type::VY, vis::Output_Type::P } );
+        vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+        "./",
+        "MDL_Fluid_Benchmark_Immersed_Inlet_Velocity_Output.exo",
+        { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
+        { "VX", "VY", "P" },
+        { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
+        { vis::Output_Type::VX,  vis::Output_Type::VY, vis::Output_Type::P } );
         tModel->set_output_manager( &tOutputData );
 
         // create linear solver and algorithm
@@ -618,14 +612,14 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         for( uint k = 0; k < tNumRef; k++ )
         {
-            moris::ge::Plane< 2 > tPlane00( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane01( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-            moris::ge::Plane< 2 > tPlane02( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-            moris::ge::Plane< 2 > tPlane03( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
-            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+            tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+            tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+            tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+            tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+            moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
@@ -660,24 +654,21 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
             tHMR.perform_refinement_based_on_working_pattern( 0, false );
         }
         tHMR.finalize();
-//        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
+        //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
-        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+                = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Plane< 2 > tPlane0( {{ 0.0, tPlaneBottom }}, {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane1( {{ 0.0, tPlaneTop }},    {{ 0.0, 1.0 }} );
-        moris::ge::Plane< 2 > tPlane2( {{ tPlaneLeft, 0.0 }},   {{ 1.0, 0.0 }} );
-        moris::ge::Plane< 2 > tPlane3( {{ tPlaneRight, 0.0 }},  {{ 1.0, 0.0 }} );
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+        tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
+        tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
+        tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
+        tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
-        // NOTE the order of this geometry vector is important.
-        // If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3 };
-
-        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -730,7 +721,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         fem::CM_Factory tCMFactory;
 
         std::shared_ptr< fem::Constitutive_Model > tCMFluid
-        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+                = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
         tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
         tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
         tCMFluid->set_property( tPropFluidDensity, "Density" );
@@ -740,32 +731,32 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         fem::SP_Factory tSPFactory;
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
-        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+                = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
-        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+                = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
+                = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
         tSPViscousGhost->set_parameters( {{{ tGammaGPmu }} });
         tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
+                = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
         tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPConvectiveGhost->set_parameters( {{{ tGammaGPu }} });
         tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
+                = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
         tSPPressureGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPPressureGhost->set_parameters( { {{ tGammaGPp }}, {{ 1.0 }} });
         tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
@@ -775,7 +766,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWGVelocityBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
         tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -783,7 +774,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGPressureBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
         tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -791,13 +782,13 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGInletPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
         tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
         std::shared_ptr< fem::IWG > tIWGFSVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
@@ -805,28 +796,28 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
         tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
         std::shared_ptr< fem::IWG > tIWGGPViscous
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
         tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
         tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
         tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "ViscousGhost" );
 
         std::shared_ptr< fem::IWG > tIWGGPConvective
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
         tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
         tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
         tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "ConvectiveGhost" );
 
         std::shared_ptr< fem::IWG > tIWGGPPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
         tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
@@ -903,13 +894,13 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         // --------------------------------------------------------------------------------------
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
-                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
-                                 "./",
-                                 "MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_Output.exo",
-                                 { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
-                                 { "VX", "VY", "P" },
-                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                 { vis::Output_Type::VX,  vis::Output_Type::VY, vis::Output_Type::P } );
+        vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+        "./",
+        "MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_Output.exo",
+        { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
+        { "VX", "VY", "P" },
+        { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
+        { vis::Output_Type::VX,  vis::Output_Type::VY, vis::Output_Type::P } );
         tModel->set_output_manager( &tOutputData );
 
         // create linear solver and algorithm
@@ -1035,7 +1026,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //            moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
 //
 //            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-//            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+//            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 //
@@ -1095,7 +1086,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
 //
 //        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-//        moris::ge::GEN_Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+//        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
 //
 //        // --------------------------------------------------------------------------------------
 //        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
@@ -2364,14 +2355,15 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // loop over refinement
         for( uint k=0; k<tNumRef; ++k )
         {
-            moris::ge::Circle tCircle0( tROut, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::ge::Circle tCircle1( tRIn, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-            moris::Cell<moris::ge::GEN_Geometry*> tGeomVec = { &tCircle0, &tCircle1 };
+            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(2);
+            tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
+            tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 
-            moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::GEN_Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable,2 );
+            size_t tModelDimension = 2;
+            moris::ge::Phase_Table         tPhaseTable( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+            moris::ge::Geometry_Engine     tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            //moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix<DDRMat> tFieldData( tNumIPNodes,1 );
@@ -2404,15 +2396,13 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         //-----------------------------------------------------------------------------------------------
 
-        moris::ge::Circle tCircle2( tROut, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-        moris::ge::Circle tCircle3( tRIn, tCenterPoint( 0 ), tCenterPoint( 1 ) );
-
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tCircle2, &tCircle3 };
+        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(2);
+        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
+        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 
         size_t tModelDimension = 2;
-        moris::ge::GEN_Phase_Table         tPhaseTable0( tGeomVec0.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine     tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+        moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );

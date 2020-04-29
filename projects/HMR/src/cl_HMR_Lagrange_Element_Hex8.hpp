@@ -127,7 +127,14 @@ namespace moris
             tVerticesOnSide(3) = tVertices(tNodeOrdsOnSide(3));
             return tVerticesOnSide;
         }
+// ----------------------------------------------------------------------------
 
+        template<>
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< 3, 8 >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            return this->get_vertices_on_side_ordinal(aSideOrdinal);
+        }
 // ----------------------------------------------------------------------------
 
         template<>

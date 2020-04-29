@@ -398,6 +398,8 @@ ParameterList create_time_solver_parameter_list()
 
     tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , std::string("") );
 
+    tTimeParameterList.insert( "TSA_Output_Time" , 0.0 );
+
     return tTimeParameterList;
 }
 

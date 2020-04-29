@@ -68,7 +68,7 @@ Model::~Model()
  */
 Model::Model(uint aModelDimension,
              moris::mtk::Interpolation_Mesh* aMeshData,
-             moris::ge::GEN_Geometry_Engine* aGeometryEngine,
+             moris::ge::Geometry_Engine* aGeometryEngine,
              bool aLinkGeometryOnConstruction ) :
                                           mSameMesh(false),
                                           mModelDimension(aModelDimension),
@@ -100,7 +100,7 @@ Model::Model( moris::ParameterList const & aParameterList):
 }
 
 void
-Model::set_geometry_engine(moris::ge::GEN_Geometry_Engine* aGeometryEngine)
+Model::set_geometry_engine(moris::ge::Geometry_Engine* aGeometryEngine)
 {
     mGeometryEngine = aGeometryEngine;
 }

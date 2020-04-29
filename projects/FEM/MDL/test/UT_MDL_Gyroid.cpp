@@ -282,9 +282,9 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         size_t tModelDimension = 3;
         moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::GEN_Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
-//        moris::ge::GEN_Geometry_Engine tGeometryEngine;
+//        moris::ge::Geometry_Engine tGeometryEngine;
 
         xtk::Model                  tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;

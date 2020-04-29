@@ -1533,7 +1533,7 @@ namespace moris
                             proc_string().c_str(),
                             ( unsigned int ) mBufferSize);
 
-                    MORIS_LOG_INFO("Flagged %lu additional elements for refinement,took %5.3f seconds.",
+                    MORIS_LOG_INFO("Flagged %lu additional elements for refinement, took %5.3f seconds.",
                             ( long unsigned int ) tElementCounter,
                             ( double ) tElapsedTime / 1000 );
                     MORIS_LOG_INFO( " " );

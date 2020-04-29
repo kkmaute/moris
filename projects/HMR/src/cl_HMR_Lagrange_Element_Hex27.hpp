@@ -218,6 +218,22 @@ namespace moris
             tVerticesOnSide(8) = tVertices(tNodeOrdsOnSide(8));
             return tVerticesOnSide;
         }
+        // ----------------------------------------------------------------------------
+
+        template<>
+        moris::Cell<moris::mtk::Vertex const *> Lagrange_Element< 3, 27 >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
+            moris::mtk::Cell_Info_Hex27 tConn;
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_geometric_node_to_facet_map(aSideOrdinal);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(4);
+            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+            tVerticesOnSide(3) = tVertices(tNodeOrdsOnSide(3));
+            return tVerticesOnSide;
+        }
 
 // ----------------------------------------------------------------------------
 

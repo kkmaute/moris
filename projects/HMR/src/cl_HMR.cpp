@@ -10,7 +10,6 @@
 
 #include "dlfcn.h"
 
-#include "cl_GE_Core.hpp"
 #include "typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
@@ -20,7 +19,11 @@
 #include "fn_eye.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
 
+#include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
@@ -631,6 +634,13 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        void HMR::set_activation_pattern( const uint & aActivationPattern )
+        {
+            this->get_database()->set_activation_pattern( aActivationPattern );
+        }
+
+// -----------------------------------------------------------------------------
+
         std::shared_ptr< Mesh > HMR::create_mesh()
         {
             MORIS_ERROR(false,"create_mesh() not changed yet" );
@@ -738,6 +748,13 @@ namespace moris
 
             // return the pointer
             return mFields( tFieldIndex );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::flag_element( const moris_index aElementIndex )
+        {
+            mDatabase->flag_element( aElementIndex );
         }
 
 // -----------------------------------------------------------------------------
@@ -1788,7 +1805,7 @@ namespace moris
             uint tLagrangeOrder = aField->get_lagrange_order();
 
            // get order of Union Mesh
-            uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
+            //uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
 
             // create union mesh
             Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( aUnionOrder,

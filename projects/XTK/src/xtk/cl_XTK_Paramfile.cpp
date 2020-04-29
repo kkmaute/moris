@@ -109,7 +109,6 @@ Paramfile::parse_xtk_problem_geometry(moris::uint aProblemIndex)
     std::string & tKey = tFirst( k );
     if (tKey == "geometry_type")
     {
-      mXTKProblems(aProblemIndex).mGeometryType = this->get_geometry_enum(tSecond(k));
       mXTKProblems(aProblemIndex).mGeometryName = tSecond(k);
     }
     else if (tKey == "real_parameters")

@@ -30,35 +30,21 @@ set(HEADERS
 	geomeng/cl_GEN_Pdv.hpp
 	geomeng/cl_GEN_Pdv_Host.hpp
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
-	geomeng/fn_GEN_triangle_geometry.hpp
-	
-	geometry/cl_GEN_Analytic_Geometry.hpp
+	geomeng/fn_GEN_Triangle_Geometry.hpp
+
+    geometry/cl_GEN_Geometry_Analytic.hpp
+	geometry/cl_GEN_Geometry_Discrete.hpp
 	geometry/cl_GEN_Circle.hpp
-	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
+#	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
 	geometry/cl_GEN_Discrete_Level_Set.hpp
-	geometry/cl_GEN_Geometry.hpp
-	geometry/cl_GEN_Geom_Data.hpp
-	geometry/cl_GEN_Geom_Field_HMR.hpp
-	geometry/cl_GEN_Geom_Field.hpp
-	geometry/cl_GEN_Sphere.hpp
-	geometry/fn_bounding_box.hpp
+#	geometry/cl_GEN_Geom_Data.hpp
+	geometry/cl_GEN_Geometry_Field_HMR.hpp
+	geometry/cl_GEN_Geometry_Field.hpp
+#	geometry/cl_GEN_Sphere.hpp
+#	geometry/fn_bounding_box.hpp
+	geometry/fn_GEN_create_geometry.hpp
 	
 	property/cl_GEN_Property.hpp
-	
-	cl_GE_Analytic.hpp
-	cl_GE_Core.hpp
-	cl_GE_Discrete.hpp
-	cl_GE_Element.hpp
-	cl_GE_Enums.hpp
-	cl_GE_Factory.hpp
-	cl_GE_Geometry_Library.hpp
-	cl_GE_Geometry.hpp
-	cl_GE_Intersection_Object_Line.hpp
-	cl_GE_Intersection_Object.hpp
-	cl_GE_Main.hpp
-	cl_GE_Nodal_Info.hpp
-	cl_GE_Node.hpp
-	cl_GE_SDF.hpp
 	
     )
     
@@ -80,34 +66,40 @@ endforeach()
 # include_directories(${MORIS_PACKAGE_DIR}/GEN/src/include)
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
-set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
-    "core"                                                                                                                                                                                                                                                                     
-    "geomeng"                                                                                                                                                                                                                                                                  
-    "geometry"                                                                                                                                                                                                                                                                 
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
-    "xtk"                                                                                                                                                                                                                                                                      
-    )    
-    
-# Include depedency directories                                                                                                                                                                                                                                                
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
-endforeach()   
+set(XTK_INCLUDES
+    "assert"
+    "containers"
+    "core"
+    "geomeng"
+    "geometry"
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
+    "xtk"
+    )
+
+# Include depedency directories
+foreach(XTK_INCLUDE ${XTK_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
+endforeach()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 
 # List library source files
 set(LIB_SOURCES
-    cl_GE_Factory.cpp
-    cl_GE_PDV_Info.cpp
-    
+	additional/cl_GEN_Phase_Table.cpp
+
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp
+
+    geometry/cl_GEN_Geometry_Analytic.cpp
+	geometry/cl_GEN_Geometry_Discrete.cpp
+	geometry/fn_GEN_create_geometry.cpp
+	geometry/cl_GEN_Circle.cpp
+	geometry/cl_GEN_Plane.cpp
+	geometry/cl_GEN_Discrete_Level_Set.cpp
 	
 	property/cl_GEN_Property.cpp
 	
@@ -126,9 +118,6 @@ set(LIB_DEPENDENCIES
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
-
-
-
 
 # Create library
 add_library(${GEN_MAIN}-lib STATIC ${LIB_SOURCES})

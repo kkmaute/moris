@@ -16,7 +16,7 @@
 
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
 #include "xtk/cl_XTK_Child_Mesh.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp"
+#include "fn_GEN_Triangle_Geometry.hpp"
 #include "topology/cl_XTK_Quad_4_Topology.hpp"
 
 #include "fn_verify_tri_topology.hpp"
