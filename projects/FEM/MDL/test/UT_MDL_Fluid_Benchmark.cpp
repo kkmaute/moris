@@ -33,6 +33,7 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 //HMR/src
 #include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Factory.hpp"

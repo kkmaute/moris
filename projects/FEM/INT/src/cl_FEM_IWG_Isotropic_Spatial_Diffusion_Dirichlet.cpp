@@ -23,6 +23,7 @@ namespace moris
 
         // populate the property map
         mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
+        mPropertyMap[ "Select" ]    = IWG_Property_Type::SELECT;
 
         // set size for the constitutive model pointer cell
         mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -53,6 +54,25 @@ namespace moris
             // get field interpolatopr for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get spatial dimension
+                uint tSpaceDim = tFI->get_dof_type().size();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
+
             // get imposed temperature property
             std::shared_ptr< Property > tPropDirichlet
             = mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
@@ -70,9 +90,9 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar * ( - trans( tFI->N() ) * tCMDiffusion->traction( mNormal )
-                          + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tJump
-                          + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tJump );
+            += aWStar * ( - trans( tFI->N() ) * tM * tCMDiffusion->traction( mNormal )
+                          + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tJump
+                          + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tJump );
         }
 
 //------------------------------------------------------------------------------
@@ -90,6 +110,25 @@ namespace moris
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect
+            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get spatial dimension
+                uint tSpaceDim = tFI->get_dof_type().size();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
 
             // get imposed temperature property
             std::shared_ptr< Property > tPropDirichlet
@@ -123,8 +162,8 @@ namespace moris
                 {
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * (   mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tFI->N()
-                                  + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tFI->N() ) ;
+                    += aWStar * (   mBeta *tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
+                                  + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) ;
                 }
 
                 // if dependency on the dof type
@@ -133,8 +172,8 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tPropDirichlet->dPropdDOF( tDofType )
-                                  - tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tPropDirichlet->dPropdDOF( tDofType ) );
+                    += aWStar * ( - mBeta  * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
+                                  - tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
@@ -143,8 +182,8 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( - trans( tFI->N() ) * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
-                                  + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump( 0 ) );
+                    += aWStar * ( - trans( tFI->N() ) * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
+                                  + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tM( 0 ) * tJump( 0 ) );
                 }
 
                 // if dependency on the dof type
@@ -153,7 +192,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( trans( tFI->N() ) * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                    += aWStar * ( trans( tFI->N() ) * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
         }

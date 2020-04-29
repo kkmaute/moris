@@ -7,6 +7,7 @@
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
+#include "cl_HMR_Mesh.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell_Info_Hex27.hpp"
 #include "cl_MTK_Cell_Info_Hex64.hpp"

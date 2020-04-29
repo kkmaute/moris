@@ -36,6 +36,7 @@ namespace moris
             enum class IWG_Property_Type
             {
                 DIRICHLET,
+                SELECT,
                 MAX_ENUM
             };
 

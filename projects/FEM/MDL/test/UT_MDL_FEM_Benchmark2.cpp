@@ -42,6 +42,7 @@
 #include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src

@@ -1004,6 +1004,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+08 ) );
 
+
         delete tInterpMesh;
     }
 }
@@ -1252,7 +1253,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
       tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
       tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
       tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
-      tParameterlist( 0 )(0).set( "ILUFill", 3 );
+      tParameterlist( 0 )(0).set( "ILUFill", 0 );
       tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
 
       tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();

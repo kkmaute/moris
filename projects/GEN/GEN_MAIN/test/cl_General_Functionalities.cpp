@@ -20,6 +20,9 @@
 
 // HMR includes ---------------------------------
 #include "cl_HMR.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Field.hpp"
 
 // MTK includes ---------------------------------

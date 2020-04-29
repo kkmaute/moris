@@ -23,6 +23,8 @@
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 
 //------------------------------------------------------------------------------
 

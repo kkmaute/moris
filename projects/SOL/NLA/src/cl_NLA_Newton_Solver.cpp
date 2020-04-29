@@ -99,6 +99,7 @@ using namespace dla;
                 }
                 else
                 {
+
                     mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It );
                 }
 

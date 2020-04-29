@@ -15,6 +15,7 @@
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src/
 #include "cl_SOL_Dist_Vector.hpp" // DLA/src/
 #include "cl_SOL_Dist_Matrix.hpp" // DLA/src/
+#include "cl_MatrixPETSc.hpp" // DLA/src/
 
 namespace moris
 {
@@ -274,6 +275,52 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     delete ( tMap );
     delete ( tVectorDiagonal );
     delete ( tMat );
+    }
+}
+
+TEST_CASE("Get Matrix Values","[Get_Matrix_Values],[DistLinAlg]")
+{
+    // Determine process rank
+    size_t size = par_size();
+
+    if (size == 1)
+    {
+        PetscInitializeNoArguments();
+        // Create pointer to sparse matrix
+        Dist_Matrix * tMat = new moris::Matrix_PETSc( 4, 4 );
+
+        Matrix< DDSMat > tElementIds = { { 0, 1, 2, 3 } };
+
+        // Fill element matrices into global matrix
+        Matrix< DDRMat > tElementMatrix = { { 0,  1, 2,  3  },
+                                            { 4,  5, 6,  7  },
+                                            { 8,  9, 10, 11 },
+                                            { 12, 13, 14, 15 } };
+
+        tMat->fill_matrix_row( tElementMatrix, tElementIds, tElementIds );
+
+        // Call Global Asemby to ship information between processes
+        tMat->matrix_global_assembly();
+
+        //Get matrix values
+        Matrix< DDSMat > tRequestedIds = { { 1, 2, 3 } };
+        Matrix< DDRMat > tValues( 3, 3, 0.0 );
+
+        tMat->get_matrix_values( tRequestedIds, tValues );
+
+        CHECK( equal_to( tValues( 0, 0 ), 5) );
+        CHECK( equal_to( tValues( 0, 1 ), 6) );
+        CHECK( equal_to( tValues( 0, 2 ), 7) );
+        CHECK( equal_to( tValues( 1, 0 ), 9) );
+        CHECK( equal_to( tValues( 1, 1 ), 10) );
+        CHECK( equal_to( tValues( 1, 2 ), 11) );
+        CHECK( equal_to( tValues( 2, 0 ), 13) );
+        CHECK( equal_to( tValues( 2, 1 ), 14) );
+        CHECK( equal_to( tValues( 2, 2 ), 15) );
+
+        delete ( tMat );
+
+        PetscFinalize();
     }
 }
 }

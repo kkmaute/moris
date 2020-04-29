@@ -1,6 +1,4 @@
 #include <catch.hpp>
-#include "cl_GE_Core.hpp"   //FIXME: needs to be replaced with current geometry engine implementation
-
 //------------------------------------------------------------------------------
 
 // moris core includes

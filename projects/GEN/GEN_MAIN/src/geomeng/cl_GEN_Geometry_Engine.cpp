@@ -71,14 +71,14 @@ void GEN_Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(
 //------------------------------------------------------------------------------
 void GEN_Geometry_Engine::initialize( std::shared_ptr< Library_IO > aLibrary )
 {
-	mLibrary = aLibrary;
+    mLibrary = aLibrary;
 
-	this->initialize_geometries_and_phase_table();
+    this->initialize_geometries_and_phase_table();
 }
 
 void GEN_Geometry_Engine::initialize()
 {
-	this->initialize_geometries_and_phase_table();
+    this->initialize_geometries_and_phase_table();
 }
 
 void GEN_Geometry_Engine::initialize_geometries_and_phase_table()
@@ -105,7 +105,7 @@ void GEN_Geometry_Engine::initialize_geometries_and_phase_table()
     // loop over the geometry function names
     for( uint iFunc = 0; iFunc < tNumGeometry; iFunc++ )
     {
-    	MORIS_ERROR( mLibrary != nullptr, "GEN_Geometry_Engine::initialize_geometries_and_phase_table(), mLibrary not set");
+        MORIS_ERROR( mLibrary != nullptr, "GEN_Geometry_Engine::initialize_geometries_and_phase_table(), mLibrary not set");
 
         // read a geometry function from input
         MORIS_GEN_FUNCTION tGeometry = mLibrary->load_gen_free_functions( tGeomFuncNames( iFunc ) );
@@ -134,25 +134,25 @@ void GEN_Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix
         // Analytic
         if(tAnalyticFlag)
         {
-        	bool tAnalyticFuncPointer = mGeometry(j)->is_func_pointer();
+            bool tAnalyticFuncPointer = mGeometry(j)->is_func_pointer();
 
-        	if(tAnalyticFuncPointer)
-        	{
-        		for(moris::size_t i = 0; i<tNumNodes; i++ )
-        		{
-        			Cell< real > tDummy(0);	// TODO: need to get these constants from the input file?
-        			real tTempLSVal;
-        			mGeometry(j)->eval( tTempLSVal, aNodeCoords.get_row( i ), tDummy );
-        			mNodePhaseVals(i,j) = tTempLSVal;
-        		}
-        	}
-        	else
-        	{
-        		for(moris::size_t i = 0; i<tNumNodes; i++ )
-        		{
-        			mNodePhaseVals(i,j) = mGeometry(j)->evaluate_field_value_with_coordinate(i,aNodeCoords);
-        		}
-        	}
+            if(tAnalyticFuncPointer)
+            {
+                for(moris::size_t i = 0; i<tNumNodes; i++ )
+                {
+                    Cell< real > tDummy(0);    // TODO: need to get these constants from the input file?
+                    real tTempLSVal;
+                    mGeometry(j)->eval( tTempLSVal, aNodeCoords.get_row( i ), tDummy );
+                    mNodePhaseVals(i,j) = tTempLSVal;
+                }
+            }
+            else
+            {
+                for(moris::size_t i = 0; i<tNumNodes; i++ )
+                {
+                    mNodePhaseVals(i,j) = mGeometry(j)->evaluate_field_value_with_coordinate(i,aNodeCoords);
+                }
+            }
         }
 
         // Discrete
@@ -774,7 +774,7 @@ void GEN_Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
 {
     mMesh = aMesh;
 
-    mSpatialDim = mMesh->get_interpolation_mesh( 0 )->get_spatial_dim();	// assuming there is only one pair in the manager
+    mSpatialDim = mMesh->get_interpolation_mesh( 0 )->get_spatial_dim();    // assuming there is only one pair in the manager
 }
 
 moris_index GEN_Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
@@ -793,7 +793,7 @@ void GEN_Geometry_Engine::set_performer( std::shared_ptr< hmr::HMR > aMesh )
 
 void GEN_Geometry_Engine::set_library( std::shared_ptr< Library_IO > aLibrary )
 {
-	mLibrary = aLibrary;
+    mLibrary = aLibrary;
 }
 
 void GEN_Geometry_Engine::perform( )
@@ -803,7 +803,17 @@ void GEN_Geometry_Engine::perform( )
 
 void GEN_Geometry_Engine::perform_refinement()
 {
-	uint tLagrangeMeshIndex = 0;
+//    std::string tString = mParameterList.get< std::string >( "user_defined_refinement_function");
+
+//    MORIS_USER_DEFINED_REFINEMENT_FUNCTION tUserDefinedFunc = nullptr;
+//
+//    if( tString.size() > 1 )
+//    {
+//        // read a geometry function from input
+//    	tUserDefinedFunc = mLibrary->load_user_defined_refinement_functions( tString );
+//    }
+
+    uint tLagrangeMeshIndex = 0;
 
     std::shared_ptr< moris::hmr::Mesh > tMesh = mHMRPerformer( 0 )->create_mesh( tLagrangeMeshIndex );
 
@@ -821,8 +831,16 @@ void GEN_Geometry_Engine::perform_refinement()
 
         for( uint Ik=0; Ik < tValues.size(); ++Ik )
         {
-        	mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ik ), tLagrangeMeshIndex );
-        }
+//            if( tString.size() > 1 )
+//            {
+//                mHMRPerformer( 0 )->user_defined_flagging( tUserDefinedFunc, tValues, mParameterList, 0 );
+//            }
+//            else
+//            {
+                mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ik ), tLagrangeMeshIndex );
+
+            }
+//        }
 
         mHMRPerformer( 0 )->perform_refinement_based_on_working_pattern( 0, false );
     }

@@ -33,6 +33,11 @@ namespace moris
         class Field_Interpolator_Manager;
     }
 
+    namespace hmr
+    {
+        class Element;
+    }
+
 // -----------------------------------------------------------------------------
 
         /**
@@ -62,6 +67,10 @@ namespace moris
         typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
                                                     moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                     moris::fem::Field_Interpolator_Manager        * aFIManager );
+                                                    
+        typedef sint  ( *MORIS_USER_DEFINED_REFINEMENT_FUNCTION ) (       hmr::Element             * aElement,
+                                                                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                                                                          ParameterList            & aParameters );
 
 // -----------------------------------------------------------------------------
 
@@ -280,6 +289,26 @@ namespace moris
             {
                 MORIS_SOL_CRITERIA_FUNC aUserFunction
                     = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION
+            load_user_defined_refinement_functions( const std::string & aFunctionName )
+            {
+                MORIS_USER_DEFINED_REFINEMENT_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_USER_DEFINED_REFINEMENT_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

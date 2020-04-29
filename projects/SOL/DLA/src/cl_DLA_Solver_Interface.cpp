@@ -29,6 +29,7 @@ void Solver_Interface::build_graph( moris::Dist_Matrix * aMat )
             aMat->build_graph( tElementTopology.length(), tElementTopology );
         }
     }
+
 //    aMat->print();
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_assembly();
@@ -162,6 +163,7 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
     aMat->matrix_global_assembly();
 
 //    aMat->save_matrix_to_matlab_file( "Matrix.dat");
+//    std::cout<<"-----------------Matrix output finished---------------------"<<std::endl;
 
 //    aMat->print();
 }
@@ -207,6 +209,7 @@ void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matri
     moris::uint tNumSets = this->get_num_my_blocks();
 
     uint tCounter = 0;
+    moris::real tMinVolVraction = 1.0;
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
@@ -247,6 +250,8 @@ void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matri
                     // store ids in cell
                     aCriteriaIds( tCounter++ ) = tMat;
                 }
+
+                tMinVolVraction = std::min( tMinVolVraction, tCriteria( 0 )( 0 ) );
             }
         }
 

@@ -59,6 +59,7 @@ namespace hmr
 {
     class HMR;
     class Mesh;
+    class Element;
 }
 namespace ge
 {

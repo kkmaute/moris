@@ -1,6 +1,7 @@
 #include <catch.hpp>
 
 #include "cl_HMR.hpp"
+#include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src

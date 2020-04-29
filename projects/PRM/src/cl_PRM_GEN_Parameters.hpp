@@ -34,6 +34,8 @@ namespace moris
 
         tParameterList.insert( "number_HMR_refinments", 0 );
 
+        tParameterList.insert( "user_defined_refinement_function", " " );
+
         return tParameterList;
     }
 
