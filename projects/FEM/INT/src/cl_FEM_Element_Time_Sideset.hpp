@@ -26,8 +26,6 @@ namespace moris
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
-//        // a member list of time side ordinals
-//        moris::Cell< moris_index > mListOfTimeOrdinals;
 
 //------------------------------------------------------------------------------
     public:
@@ -45,6 +43,7 @@ namespace moris
                               Set              * aSet,
                               Cluster          * aCluster,
                               moris::moris_index aCellIndexInCluster );
+
 //------------------------------------------------------------------------------
         /**
          * destructor
