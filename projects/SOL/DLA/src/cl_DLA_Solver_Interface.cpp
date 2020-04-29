@@ -68,6 +68,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
     // global assembly to switch entries to the right proceccor
     aVectorRHS->vector_global_asembly();
     aMat->matrix_global_assembly();
+
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -163,6 +164,7 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
 
 //    aMat->save_matrix_to_matlab_file( "Matrix.dat");
 
+//    std::cout<<"Assembled Jacobian Vector"<<std::endl;
 //    aMat->print();
 
 }
