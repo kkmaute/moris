@@ -18,6 +18,10 @@
 
 #include "cl_Communication_Tools.hpp"
 
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
+
 using namespace moris;
 using namespace NLA;
 using namespace dla;
@@ -94,9 +98,9 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );
 
-    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
-    mDummyFullVector->vec_put_scalar( 0.0 );
-    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
+//    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
+//    mDummyFullVector->vec_put_scalar( 0.0 );
+//    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
 
     mFullVector->vec_put_scalar( 0.0 );
 
@@ -106,7 +110,7 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
-        MORIS_LOG_INFO( "Build linear problem with index %-5i \n", mNonlinearSolverManagerIndex );
+        MORIS_LOG_INFO( "Build linear problem with index %-5i", mNonlinearSolverManagerIndex );
 
         // create solver factory
         Solver_Factory  tSolFactory;
@@ -164,6 +168,8 @@ void Nonlinear_Problem::delete_pointers()
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
                                                   const sint aNonLinearIt )
 {
+    Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
+
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
 
@@ -181,6 +187,8 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
                                                   const sint aNonLinearIt,
                                                   const sint aRestart )
 {
+    Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
+
     delete( mFullVector );
 
     // Build Matrix vector factory

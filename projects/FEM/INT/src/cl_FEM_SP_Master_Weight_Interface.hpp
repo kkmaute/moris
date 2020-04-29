@@ -75,12 +75,7 @@ namespace moris
             /**
              * reset the cluster measures required for this SP
              */
-            void reset_cluster_measures()
-            {
-                // evaluate cluster measures from the cluster
-                mMasterVolume = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Master_Slave::MASTER );
-                mSlaveVolume  = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Master_Slave::SLAVE );
-            }
+            void reset_cluster_measures();
 
 //------------------------------------------------------------------------------
             /**

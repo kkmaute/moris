@@ -73,11 +73,11 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
                     break;
                 }
             }
-            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
+            MORIS_ERROR( mOrder <= 1, "IWG_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
 
             // get indices for SP, CM and properties
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
@@ -150,12 +150,12 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
                     break;
                 }
             }
 
-            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
+            MORIS_ERROR( mOrder <= 1, "IWG_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
 
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

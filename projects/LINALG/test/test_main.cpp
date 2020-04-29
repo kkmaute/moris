@@ -21,6 +21,8 @@
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
+
+
 int
 main(
         int    argc,
@@ -38,9 +40,7 @@ main(
     // finalize moris global communication manager
     gMorisComm.finalize();
 
-
     return result;
-
 }
 
 

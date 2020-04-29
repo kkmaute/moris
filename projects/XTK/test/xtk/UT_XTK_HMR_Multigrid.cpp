@@ -10,9 +10,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
-//#include "cl_Geom_Field.hpp"
-//#include "cl_Plane.hpp"
 #include "typedefs.hpp"
+#include "HDF5_Tools.hpp"
+#include "paths.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -31,8 +31,6 @@
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 
-
-
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
@@ -43,8 +41,8 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geom_Field_HMR.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Discrete.hpp"
 #include "cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"
@@ -137,13 +135,12 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
-
-         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
          size_t tModelDimension = 2;
-         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
@@ -164,7 +161,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         std::cout<<tEnrInterpMesh.get_num_basis( 0 )<<std::endl;
         uint tNumBasis = tEnrInterpMesh.get_num_basis( 0);
 
-        std::string tMorisRoot = std::getenv("MORISROOT");
+        std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/XTK/test/xtk/data/Reference_Multigrid.hdf5";
 
         //------------------------------------------------------------------------------

@@ -101,8 +101,8 @@ namespace moris
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Master_Slave::SLAVE );
         //tIWG->set_dv_type_list( {{ GEN_DV::DENSITY0 }, {GEN_DV::LS1 }}, mtk::Master_Slave::MASTER );
         //tIWG->set_dv_type_list( {{GEN_DV::LS1 }}, mtk::Master_Slave::SLAVE );
-        tIWG->set_constitutive_model( tCMMaster1, "DiffLinIso", mtk::Master_Slave::MASTER );
-        //tIWG->set_constitutive_model( tCMSlave1, "DiffLinIso", mtk::Master_Slave::SLAVE );
+        tIWG->set_constitutive_model( tCMMaster1, "Diffusion", mtk::Master_Slave::MASTER );
+        //tIWG->set_constitutive_model( tCMSlave1, "Diffusion", mtk::Master_Slave::SLAVE );
         tIWG->set_property( tPropMaster1, "Load", mtk::Master_Slave::MASTER );
         //tIWG->set_property( tPropSlave1, "Load", mtk::Master_Slave::SLAVE );
 

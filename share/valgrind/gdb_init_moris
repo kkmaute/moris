@@ -1,0 +1,3 @@
+target remote | /usr/bin/vgdb
+set sysroot /
+define run

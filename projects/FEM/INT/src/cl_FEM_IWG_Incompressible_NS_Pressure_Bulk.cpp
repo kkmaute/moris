@@ -17,8 +17,10 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Density" ] = IWG_Property_Type::DENSITY;
-            mPropertyMap[ "Gravity" ] = IWG_Property_Type::GRAVITY;
+            mPropertyMap[ "Density" ]          = IWG_Property_Type::DENSITY;
+            mPropertyMap[ "Gravity" ]          = IWG_Property_Type::GRAVITY;
+            mPropertyMap[ "ThermalExpansion" ] = IWG_Property_Type::THERMAL_EXPANSION;
+            mPropertyMap[ "ReferenceTemp" ]    = IWG_Property_Type::REF_TEMP;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -165,6 +167,8 @@ namespace moris
             // get the density and gravity properties
             std::shared_ptr< Property > tDensityProp = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
             std::shared_ptr< Property > tGravityProp = mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            std::shared_ptr< Property > tThermalExpProp = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            std::shared_ptr< Property > tRefTempProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM
@@ -186,7 +190,20 @@ namespace moris
             if ( tGravityProp != nullptr )
             {
                 // add gravity to residual strong form
-                aRM.matrix_data() -= tDensity * tGravityProp->val();
+                aRM.matrix_data() += tDensity * tGravityProp->val();
+
+                // if thermal expansion and reference temperature
+                if( tThermalExpProp != nullptr && tRefTempProp != nullptr )
+                {
+                    // get the temperature field interpolator
+                    // FIXME protect FI
+                    Field_Interpolator * tTempFI
+                    = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+
+                    // add contribution to residual
+                    aRM.matrix_data()
+                    -= tDensity * tGravityProp->val() * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() );
+                }
             }
         }
 
@@ -206,6 +223,8 @@ namespace moris
             // get the density and gravity properties
             std::shared_ptr< Property > tDensityProp = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
             std::shared_ptr< Property > tGravityProp = mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            std::shared_ptr< Property > tThermalExpProp = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            std::shared_ptr< Property > tRefTempProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM
@@ -240,14 +259,14 @@ namespace moris
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJM.matrix_data() += tVelocityFI->gradt( 1 ) * tDensityProp->dPropdDOF( aDofTypes )
-                                   + trans( tVelocityFI->val() ) * tVelocityFI->gradx( 1 ) * tDensityProp->dPropdDOF( aDofTypes );
+                aJM.matrix_data() += trans( tVelocityFI->gradt( 1 ) ) * tDensityProp->dPropdDOF( aDofTypes )
+                                   + trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
             }
 
             // if CM depends on dof type
             if( tIncFluidCM->check_dof_dependency( aDofTypes ) )
             {
-                // compute contribution to jacobian strong form
+                // add contribution to jacobian
                 aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
             }
 
@@ -257,8 +276,65 @@ namespace moris
                 // if gravity depends on dof type
                 if( tGravityProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add gravity to residual strong form
-                    aJM.matrix_data() -= tDensity * tGravityProp->dPropdDOF( aDofTypes ).matrix_data();
+                    // add contribution to jacobian
+                    aJM.matrix_data() += tDensity * tGravityProp->dPropdDOF( aDofTypes ).matrix_data();
+                }
+
+                // if density depends on dof type
+                if( tDensityProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to jacobian
+                    aJM.matrix_data() += tGravityProp->val() * tDensityProp->dPropdDOF( aDofTypes );
+                }
+
+                // if thermal expansion and reference temperature
+                if( tThermalExpProp != nullptr && tRefTempProp != nullptr )
+                {
+                    // get the temperature field interpolator
+                    // FIXME protect FI
+                    Field_Interpolator * tTempFI
+                    = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+
+                    // if dof type is temperature
+                    if( aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
+                    {
+                        // add contribution to jacobian
+                        aJM.matrix_data() -= tDensity * tGravityProp->val() * tThermalExpProp->val() * tTempFI->N();
+                    }
+
+                    // if thermal expansion property depends on dof type
+                    if( tThermalExpProp->check_dof_dependency( aDofTypes ) )
+                    {
+                        // add contribution to jacobian
+                        aJM.matrix_data() -= tDensity * tGravityProp->val()
+                                           * ( tTempFI->val() - tRefTempProp->val() ) * tThermalExpProp->dPropdDOF( aDofTypes );
+                    }
+
+                    // if reference temperature property depends on dof type
+                    if( tRefTempProp->check_dof_dependency( aDofTypes ) )
+                    {
+                        // add contribution to jacobian
+                        aJM.matrix_data() += tDensity * tGravityProp->val()
+                                           * tThermalExpProp->val() * tRefTempProp->dPropdDOF( aDofTypes );
+                    }
+
+                    // if gravity property has dependency on the dof type
+                    if ( tGravityProp->check_dof_dependency( aDofTypes ) )
+                    {
+                        // compute the jacobian
+                        aJM.matrix_data() -= tDensity
+                                           * tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
+                                           * tGravityProp->dPropdDOF( aDofTypes );
+                    }
+
+                    // if density depends on dof type
+                    if( tDensityProp->check_dof_dependency( aDofTypes ) )
+                    {
+                        // add density contribution to residual strong form
+                        aJM.matrix_data() -= tGravityProp->val()
+                                           * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() )
+                                           * tDensityProp->dPropdDOF( aDofTypes );
+                    }
                 }
             }
         }

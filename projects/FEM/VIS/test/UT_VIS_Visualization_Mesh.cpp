@@ -35,10 +35,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geom_Field_HMR.hpp"
+#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "cl_VIS_Factory.hpp"
 
@@ -122,13 +121,13 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 
                 hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-                moris::ge::GEN_Geom_Field_HMR tPlaneFieldAsGeom( tPlaneField );
+                moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometryVector(1);
+                tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 
-                moris::Cell< moris::ge::GEN_Geometry* > tGeometryVector = {&tPlaneFieldAsGeom};
 
                 size_t tModelDimension = 2;
-                moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-                moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+                moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+                moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;
@@ -155,7 +154,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 //                mtk::Mesh * tVisMesh = tVisFactory.create_visualization_mesh();
 //
 //                Writer_Exodus writer(tVisMesh);
-//                std::string tPrefix = std::getenv("MORISROOT");
+//                std::string tPrefix = moris::get_base_moris_dir();
 //                std::string tMeshFilePath = tPrefix + "build";
 //                writer.write_mesh(tMeshFilePath, "Vis_Mesh_2.exo");
 //

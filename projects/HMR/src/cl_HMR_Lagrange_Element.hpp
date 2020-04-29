@@ -367,6 +367,13 @@ namespace moris
 //------------------------------------------------------------------------------
 
            /*!
+            * Returns the corner or geometric vertices on a given side ordinal
+            */
+           moris::Cell<moris::mtk::Vertex const *> get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+
+//------------------------------------------------------------------------------
+
+           /*!
             * Returns the outward normal on a side ordinal
             */
            moris::Matrix<moris::DDRMat> compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
@@ -551,6 +558,14 @@ namespace moris
         template< uint N, uint D >
         moris::Cell<moris::mtk::Vertex const *>
         Lagrange_Element< N, D >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
+            return moris::Cell<moris::mtk::Vertex const *>(0);
+        }
+//------------------------------------------------------------------------------
+        template< uint N, uint D >
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< N, D >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
             MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
             return moris::Cell<moris::mtk::Vertex const *>(0);

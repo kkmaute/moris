@@ -24,6 +24,16 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void SP_Master_Weight_Interface::reset_cluster_measures()
+        {
+            // evaluate cluster measures from the cluster
+            mMasterVolume = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP,
+                                                                    mtk::Master_Slave::MASTER );
+            mSlaveVolume  = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP,
+                                                                    mtk::Master_Slave::SLAVE );
+        }
+
+//------------------------------------------------------------------------------
         void SP_Master_Weight_Interface::eval_SP()
         {
             // compute stabilization parameter value

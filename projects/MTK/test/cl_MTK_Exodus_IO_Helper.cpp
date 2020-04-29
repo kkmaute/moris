@@ -8,6 +8,8 @@
 
 #include "cl_MTK_Exodus_IO_Helper.hpp"
 
+#include "paths.hpp"
+
 namespace moris
 {
 namespace mtk
@@ -18,7 +20,7 @@ TEST_CASE("Parallel Exodus IO Helper","[EXO_IO_2P]")
     if(par_size() == 2)
     {
         // TODO: use an existing exo file
-        std::string tPrefix = std::getenv("MORISROOT");
+        std::string tPrefix = moris::get_base_moris_dir();
         std::string tFileOutput = tPrefix + "projects/MTK/test/Test_Files/mtk_2_proc_test.exo";
 
         // File with element cmap

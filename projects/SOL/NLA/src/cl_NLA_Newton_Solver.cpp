@@ -21,6 +21,11 @@
 
 #include "cl_Communication_Tools.hpp"
 
+// Detailed Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 using namespace moris;
 using namespace NLA;
 using namespace dla;
@@ -64,6 +69,8 @@ using namespace dla;
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
     {
+        Tracer tTracer(EntityBase::NonLinearSolver, EntityType::Newton, EntityAction::Solve);
+
         mNonlinearProblem = aNonlinearProblem;
 
         moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
@@ -82,7 +89,10 @@ using namespace dla;
             // Newton loop
             for ( moris::sint It = 1; It <= tMaxIts; ++It )
             {
-                  //get_nonlinear_problem()
+//                gLogger.log_specific( OutputSpecifier::Iteration, It );
+                MORIS_LOG_SPEC( OutputSpecifier::Iteration, It );
+
+                //get_nonlinear_problem()
                 clock_t tNewtonLoopStartTime = clock();
                 clock_t tStartAssemblyTime = clock();
 

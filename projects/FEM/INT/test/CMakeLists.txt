@@ -31,7 +31,8 @@ set(TEST_SOURCES
     UT_FEM_IWG.cpp
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp
-    UT_FEM_IWG_Spatial_Diffusion_Bulk.cpp
+    UT_FEM_IWG_Diffusion_Bulk.cpp
+    UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
     UT_FEM_IWG_Spatial_Diffusion_Ghost.cpp
@@ -55,7 +56,7 @@ set(TEST_SOURCES
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
+    test-libs
     ${INT}-lib
     ${ALG}-lib
     ${PRM}-lib
@@ -79,6 +80,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${INT_TEST_PROCS})
 		set(INT_PARALLEL_TEST ${INT_TEST}-${PROCS}-procs)
 		add_test(NAME ${INT_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${INT_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${INT_TEST}>)
 	endforeach()
 endif()

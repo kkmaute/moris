@@ -16,7 +16,6 @@
 #include "cl_Mesh_Enums.hpp"
 
 #include "cl_Matrix.hpp"
-#include "cl_MGE_Geometry_Object.hpp"
 
 namespace xtk
 {

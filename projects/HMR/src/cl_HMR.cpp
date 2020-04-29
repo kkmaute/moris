@@ -273,9 +273,15 @@ namespace moris
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                MORIS_LOG_INFO( "%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
+//                MORIS_LOG_INFO( "%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
+//                        proc_string().c_str(),
+//                        ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( "%s Renumbering of Lagrange mesh.",
+                        proc_string().c_str() );
+                MORIS_LOG_INFO( "Took %5.3f seconds.",
                         ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( " " );
+
             }
 
             // add order to path
@@ -1798,8 +1804,8 @@ namespace moris
             // grab orders of meshes
             uint tLagrangeOrder = aField->get_lagrange_order();
 
-//           // get order of Union Mesh
-//            uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
+           // get order of Union Mesh
+            //uint tOrder = std::max( tLagrangeOrder, aUnionOrder );
 
             // create union mesh
             Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( aUnionOrder,

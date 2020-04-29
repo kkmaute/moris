@@ -13,75 +13,165 @@ namespace moris
 {
     namespace fem
     {
+
 //------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsMaster                 an enum for master or slave
-             */
-            void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
-                                                      mtk::Master_Slave            aIsMaster )
+        void IWG::print_names()
+        {
+            std::cout<<"----------"<<std::endl;
+            std::cout<<"IWG: "<<mName<<std::endl;
+
+            // properties
+            for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
             {
-                switch ( aIsMaster )
+                if( mMasterProp( iProp ) != nullptr )
                 {
-                    case ( mtk::Master_Slave::MASTER ) :
-                    {
-                        mMasterFIManager = aFieldInterpolatorManager;
-                        break;
-                    }
-
-                    case ( mtk::Master_Slave::SLAVE ) :
-                    {
-                        mSlaveFIManager = aFieldInterpolatorManager;
-                        break;
-                    }
-
-                    default :
-                    {
-                        MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
-                        break;
-                    }
-                }
-
-                // loop over the the SP
-                for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-                {
-                    if ( tSP != nullptr )
-                    {
-                        // set the field interpolator manager for the SP
-                        tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
-
-                        // set the fem set pointer for the SP
-                        tSP->set_set_pointer( mSet );
-                    }
-                }
-
-                // loop over the constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if ( tCM != nullptr )
-                    {
-                        // set the field interpolator manager for the CM
-                        tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
-
-                        // set the fem set pointe for the CM
-                        tCM->set_set_pointer( mSet );
-                    }
-                }
-
-                // loop over the properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if ( tProp != nullptr )
-                    {
-                        // set the field interpolator manager for the property
-                        tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
-
-                        // set the fem set pointer for the property
-                        tProp->set_set_pointer( mSet );
-                    }
+                    std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
                 }
             }
+            for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+            {
+                if( mSlaveProp( iProp ) != nullptr )
+                {
+                    std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
+                }
+            }
+
+            // CM
+            for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+            {
+                if( mMasterCM( iCM ) != nullptr )
+                {
+                    std::cout<<"Master CM:       "<<mMasterCM( iCM )->get_name()<<std::endl;
+                }
+            }
+            for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+            {
+                if( mSlaveCM( iCM ) != nullptr )
+                {
+                    std::cout<<"Slave CM:        "<<mSlaveCM( iCM )->get_name()<<std::endl;
+                }
+            }
+
+            // SP
+            for( uint iSP = 0; iSP < mStabilizationParam.size(); iSP++ )
+            {
+                if( mStabilizationParam( iSP ) != nullptr )
+                {
+                    std::cout<<"SP:              "<<mStabilizationParam( iSP )->get_name()<<std::endl;
+                }
+            }
+            std::cout<<"----------"<<std::endl;
+        }
+
+//------------------------------------------------------------------------------
+        void IWG::reset_eval_flags()
+        {
+            // reset properties
+            for ( std::shared_ptr< Property > tProp : mMasterProp )
+            {
+                if ( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Property > tProp : mSlaveProp )
+            {
+                if( tProp != nullptr )
+                {
+                    tProp->reset_eval_flags();
+                }
+            }
+
+            // reset constitutive models
+            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            {
+                if( tCM != nullptr )
+                {
+                    tCM->reset_eval_flags();
+                }
+            }
+
+            // reset stabilization parameters
+            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            {
+                if( tSP != nullptr )
+                {
+                    tSP->reset_eval_flags();
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void IWG::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                  mtk::Master_Slave            aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    mMasterFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                case ( mtk::Master_Slave::SLAVE ) :
+                {
+                    mSlaveFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
+                    break;
+                }
+            }
+
+            // loop over the the SP
+            for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
+            {
+                if ( tSP != nullptr )
+                {
+                    // set the field interpolator manager for the SP
+                    tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ), aIsMaster );
+
+                    // set the fem set pointer for the SP
+                    tSP->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the constitutive models
+            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+            {
+                if ( tCM != nullptr )
+                {
+                    // set the field interpolator manager for the CM
+                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointe for the CM
+                    tCM->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the properties
+            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+            {
+                if ( tProp != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointer for the property
+                    tProp->set_set_pointer( mSet );
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
@@ -785,12 +875,6 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     break;
                 }
             }
-
-            // FIXME to be removed
-            if( mResidualDofType( 0 ) == tDofTypes )
-            {
-                mResidualDofTypeRequested = true;
-            }
         }
     }
 
@@ -849,6 +933,90 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 default :
                 {
                     MORIS_ERROR( false, "IWG::check_field_interpolators - can only be master or slave." );
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        moris::Cell< moris::Cell< MSI::Dof_Type > > &
+        IWG::get_global_dof_type_list( mtk::Master_Slave aIsMaster )
+        {
+            // if the global list was not yet built
+            if( mGlobalDofBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_dof_and_dv_type_list();
+
+                // update build flag
+                mGlobalDofBuild = false;
+                mGlobalDvBuild  = false;
+            }
+
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case( mtk::Master_Slave::MASTER ):
+                {
+                    // return master global dof type list
+                    return mMasterGlobalDofTypes;
+                    break;
+                }
+                // if slave
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    // return slave global dof type list
+                    return mSlaveGlobalDofTypes;
+                    break;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_global_dof_type_list - can only be master or slave." );
+                    return mMasterGlobalDofTypes;
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        moris::Cell< moris::Cell< GEN_DV > > &
+        IWG::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
+        {
+            // if the global list was not yet built
+            if( mGlobalDvBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_dof_and_dv_type_list();
+
+                // update build flag
+                mGlobalDofBuild = false;
+                mGlobalDvBuild  = false;
+            }
+
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case( mtk::Master_Slave::MASTER ):
+                {
+                    // return master global dof type list
+                    return mMasterGlobalDvTypes;
+                    break;
+                }
+                // if slave
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    // return slave global dof type list
+                    return mSlaveGlobalDvTypes;
+                    break;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
+                    return mMasterGlobalDvTypes;
                     break;
                 }
             }
@@ -1183,19 +1351,33 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
             //define a boolean for check
             bool tCheckJacobian = true;
 
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
             for( uint iiJac = 0; iiJac < aJacobians.n_rows(); iiJac++ )
             {
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
-                    tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
+                    // get absolute difference
+                    tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
+
+                    // get relative difference
+                    tRelative = std::abs( ( aJacobiansFD( iiJac, jjJac ) - aJacobians( iiJac, jjJac ) ) / aJacobiansFD( iiJac, jjJac ) );
+
+                    // update check value
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
-//                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )
+//                    if( !( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) )
 //                    {
-//                        std::cout<<"iiJac "<<iiJac<<std::endl;
-//                        std::cout<<"jjJac "<<jjJac<<std::endl;
+//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
 //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
 //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+//                        std::cout<<"Relative difference "<<tRelative<<std::endl;
 //                    }
                 }
             }
@@ -1252,17 +1434,24 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 // loop over the columns of jacobian
                 for( uint jjJac = 0; jjJac < aJacobians.n_cols(); jjJac++ )
                 {
-                    // check component
-                    tCheckJacobian = tCheckJacobian && ( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon );
+                    // get absolute difference
+                    real tAbsolute = std::abs( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) );
 
-//                    // for debug
-//                    if( !( aJacobians( iiJac, jjJac ) - aJacobiansFD( iiJac, jjJac ) < aEpsilon ) )
-//                    {
-//                        std::cout<<"iiJac "<<iiJac<<std::endl;
-//                        std::cout<<"jjJac "<<jjJac<<std::endl;
-//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
-//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
-//                    }
+                    // get relative difference
+                    real tRelative = tAbsolute / aJacobiansFD( iiJac, jjJac );
+
+                    // update check value
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+
+                    // for debug
+                    if( !( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) )
+                    {
+                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
+                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
+                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+                        std::cout<<"Relative difference "<<tRelative<<std::endl;
+                    }
                 }
             }
 

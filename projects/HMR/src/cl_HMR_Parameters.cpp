@@ -301,41 +301,41 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG_INFO( "\n" );
-                MORIS_LOG_INFO( "--------------------------------------------------------------------------------\n" ) ;
-                MORIS_LOG_INFO( "  user defined settings\n" ) ;
-                MORIS_LOG_INFO( "--------------------------------------------------------------------------------\n" ) ;
-                MORIS_LOG_INFO( "\n" );
+                MORIS_LOG_INFO( " " );
+                MORIS_LOG_INFO( "-------------------------------------------------------------------------------- " ) ;
+                MORIS_LOG_INFO( "  user defined settings " ) ;
+                MORIS_LOG_INFO( "-------------------------------------------------------------------------------- " ) ;
+                MORIS_LOG_INFO( " " );
                 if ( mNumberOfElementsPerDimension.length() == 1 )
                 {
-                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu\n",
+                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ) );
                 }
                 else if (  mNumberOfElementsPerDimension.length() == 2 )
                 {
-                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu x %lu\n",
+                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu x %lu ",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 1 ) );
                 }
                 else if (  mNumberOfElementsPerDimension.length() == 3 )
                 {
-                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu x %lu x %lu\n",
+                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu x %lu x %lu ",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 1 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 2 )
                     );
                 }
-                MORIS_LOG_INFO(      "  refinement buffer............. : %lu\n", ( long unsigned int ) mRefinementBuffer );
-                MORIS_LOG_INFO(      "  staircase buffer.............. : %lu\n", ( long unsigned int ) mStaircaseBuffer );
-                MORIS_LOG_INFO(      "  max polynomial ............... : %lu\n", ( long unsigned int ) mMaxPolynomial );
-                MORIS_LOG_INFO(  "\n" );
-                MORIS_LOG_INFO(  "--------------------------------------------------------------------------------\n" ) ;
-                MORIS_LOG_INFO(  "  automatically defined settings\n" ) ;
-                MORIS_LOG_INFO(  "--------------------------------------------------------------------------------\n" ) ;
-                MORIS_LOG_INFO(  "\n" );
-                MORIS_LOG_INFO(      "  dimension .................... : %u\n", ( unsigned int ) this->get_number_of_dimensions() );
-                MORIS_LOG_INFO(      "  padding size ................. : %lu\n", ( long unsigned int ) this->get_padding_size() );
-                MORIS_LOG_INFO(  "\n");
+                MORIS_LOG_INFO(      "  refinement buffer............. : %lu", ( long unsigned int ) mRefinementBuffer );
+                MORIS_LOG_INFO(      "  staircase buffer.............. : %lu", ( long unsigned int ) mStaircaseBuffer );
+                MORIS_LOG_INFO(      "  max polynomial ............... : %lu", ( long unsigned int ) mMaxPolynomial );
+                MORIS_LOG_INFO(  " " );
+                MORIS_LOG_INFO(  "--------------------------------------------------------------------------------" ) ;
+                MORIS_LOG_INFO(  "  automatically defined settings" ) ;
+                MORIS_LOG_INFO(  "--------------------------------------------------------------------------------" ) ;
+                MORIS_LOG_INFO(  " " );
+                MORIS_LOG_INFO(      "  dimension .................... : %u", ( unsigned int ) this->get_number_of_dimensions() );
+                MORIS_LOG_INFO(      "  padding size ................. : %lu", ( long unsigned int ) this->get_padding_size() );
+                MORIS_LOG_INFO(  " ");
             }
         }
 

@@ -52,30 +52,30 @@ namespace assert
            std::string const & check,
            std::runtime_error const & exception )
     {
-        MORIS_LOG_ERROR ( "*** ---------------------------------------------------------------------------\n");
-        MORIS_LOG_ERROR ( "*** \n"                                                                           );
-        MORIS_LOG_ERROR ( "*** Moris encountered an error. If you are not able to resolve this issue\n"      );
-        MORIS_LOG_ERROR ( "*** using the information listed below, you can ask for help at\n"                );
-        MORIS_LOG_ERROR ( "***\n"                                                                            );
-        MORIS_LOG_ERROR ( "***     kurt.maute@colorado.edu\n"                                                );
-        MORIS_LOG_ERROR ( "***\n"                                                                            );
-        MORIS_LOG_ERROR ( "*** Remember to include the error message listed below and, if possible,\n"       );
-        MORIS_LOG_ERROR ( "*** include a *minimal* running example to reproduce the error.\n"                );
-        MORIS_LOG_ERROR ( "***\n"                                                                            );
-        MORIS_LOG_ERROR ( "*** ---------------------------------------------------------------------------\n");
-        MORIS_LOG_ERROR ( "***\n"                                                                            );
-        MORIS_LOG_ERROR ( "*** Error:   Unable to "); MORIS_LOG_ERROR( task.c_str() ); MORIS_LOG_ERROR (".\n");
-        MORIS_LOG_ERROR ( "*** Reason:  ");           MORIS_LOG_ERROR( check.c_str()); MORIS_LOG_ERROR ("\n");
+        MORIS_LOG_ERROR ( "*** ---------------------------------------------------------------------------");
+        MORIS_LOG_ERROR ( "*** "                                                                           );
+        MORIS_LOG_ERROR ( "*** Moris encountered an error. If you are not able to resolve this issue"      );
+        MORIS_LOG_ERROR ( "*** using the information listed below, you can ask for help at"                );
+        MORIS_LOG_ERROR ( "***"                                                                            );
+        MORIS_LOG_ERROR ( "***     kurt.maute@colorado.edu"                                                );
+        MORIS_LOG_ERROR ( "***"                                                                            );
+        MORIS_LOG_ERROR ( "*** Remember to include the error message listed below and, if possible,"       );
+        MORIS_LOG_ERROR ( "*** include a *minimal* running example to reproduce the error."                );
+        MORIS_LOG_ERROR ( "***"                                                                            );
+        MORIS_LOG_ERROR ( "*** ---------------------------------------------------------------------------");
+        MORIS_LOG_ERROR ( "***"                                                                            );
+        MORIS_LOG_ERROR ( "*** Error:   Unable to "); MORIS_LOG_ERROR( task.c_str() ); MORIS_LOG_ERROR (".");
+        MORIS_LOG_ERROR ( "*** Reason:  ");           MORIS_LOG_ERROR( check.c_str()); MORIS_LOG_ERROR ("");
         std::istringstream exception_msg( exception.what() );
         std::string exception_line;
         while ( std::getline( exception_msg, exception_line ) )
         {
-            MORIS_LOG_ERROR("***          "); MORIS_LOG_ERROR(exception_line.c_str()); MORIS_LOG_ERROR("\n");
+            MORIS_LOG_ERROR("***          "); MORIS_LOG_ERROR(exception_line.c_str()); //MORIS_LOG_ERROR("\n");
         }
-        MORIS_LOG_ERROR( "*** Where:   This error was encountered inside "); MORIS_LOG_ERROR( location.c_str() ); MORIS_LOG_ERROR(".\n");
-        MORIS_LOG_ERROR( "***  Version: 1.0\n");
-        MORIS_LOG_ERROR( "***\n");
-        MORIS_LOG_ERROR( "*** ---------------------------------------------------------------------------\n");
+        MORIS_LOG_ERROR( "*** Where:   This error was encountered inside "); MORIS_LOG_ERROR( location.c_str() ); //MORIS_LOG_ERROR(".\n");
+        MORIS_LOG_ERROR( "***  Version: 1.0");
+        MORIS_LOG_ERROR( "***");
+        MORIS_LOG_ERROR( "*** ---------------------------------------------------------------------------");
         throw exception;
     }
 

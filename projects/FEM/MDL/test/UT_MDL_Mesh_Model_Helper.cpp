@@ -1,6 +1,8 @@
 
 #include "catch.hpp"
 
+#include "paths.hpp"
+
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -42,7 +44,7 @@ namespace moris
 
             if( p_size == 1 ) // specify it is a serial test only
             {
-                std::string tPrefix = std::getenv("MORISROOT");
+                std::string tPrefix = moris::get_base_moris_dir();
                 std::string tMeshFileName = tPrefix + "projects/FEM/MDL/test/data/2_Blocks_1x2x1.g";
                 std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
 

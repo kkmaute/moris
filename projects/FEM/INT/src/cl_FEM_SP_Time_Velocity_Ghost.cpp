@@ -8,6 +8,17 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+        SP_Time_Velocity_Ghost::SP_Time_Velocity_Ghost()
+        {
+            // set the property pointer cell size
+            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the map
+            mPropertyMap[ "Density" ] = Property_Type::DENSITY;
+        }
+
 //------------------------------------------------------------------------------
         void SP_Time_Velocity_Ghost::eval_SP()
         {

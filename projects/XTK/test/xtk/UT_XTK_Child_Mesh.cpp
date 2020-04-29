@@ -16,8 +16,7 @@
 
 
 // DEBUGGING UTILITY INCLUDES
-#include "geomeng/fn_Triangle_Geometry.hpp"
-
+#include "fn_GEN_Triangle_Geometry.hpp"
 
 namespace xtk
 {
@@ -114,7 +113,7 @@ TEST_CASE("Regular Subdivision to NH Transition","[RS_NH]")
      * Compute child element volumes
      */
     moris::Matrix< moris::IndexMat > const & tElemNode = tChildMesh.get_element_to_node();
-    real tTotalChildVol = compute_volume_for_multiple_tets(tNodeCoords,tElemNode);
+    real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tElemNode);
     CHECK(tTotalChildVol==Approx(1.0));
 }
 }

@@ -132,7 +132,7 @@ namespace moris
 
                 this->delete_pointers( aVisMeshIndex );
 
-                MORIS_LOG( " Finished writing output. \n ");
+                MORIS_LOG( " Finished writing output. ");
             }
 
 //-----------------------------------------------------------------------------------------------------------

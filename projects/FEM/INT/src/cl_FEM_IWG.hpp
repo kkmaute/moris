@@ -48,9 +48,6 @@ namespace moris
             // residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
 
-            // bool true if residual dof type requested
-            bool mResidualDofTypeRequested = false;
-
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
@@ -132,53 +129,7 @@ namespace moris
             /**
              * print name
              */
-            void print_names()
-            {
-                std::cout<<"----------"<<std::endl;
-                std::cout<<"IWG: "<<mName<<std::endl;
-
-                // properties
-                for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
-                {
-                    if( mMasterProp( iProp ) != nullptr )
-                    {
-                        std::cout<<"Master property: "<<mMasterProp( iProp )->get_name()<<std::endl;
-                    }
-                }
-                for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
-                {
-                    if( mSlaveProp( iProp ) != nullptr )
-                    {
-                        std::cout<<"Slave property:  "<<mSlaveProp( iProp )->get_name()<<std::endl;
-                    }
-                }
-
-                // CM
-                for( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
-                {
-                    if( mMasterCM( iCM ) != nullptr )
-                    {
-                        std::cout<<"Master CM:       "<<mMasterCM( iCM )->get_name()<<std::endl;
-                    }
-                }
-                for( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
-                {
-                    if( mSlaveCM( iCM ) != nullptr )
-                    {
-                        std::cout<<"Slave CM:        "<<mSlaveCM( iCM )->get_name()<<std::endl;
-                    }
-                }
-
-                // SP
-                for( uint iSP = 0; iSP < mStabilizationParam.size(); iSP++ )
-                {
-                    if( mStabilizationParam( iSP ) != nullptr )
-                    {
-                        std::cout<<"SP:              "<<mStabilizationParam( iSP )->get_name()<<std::endl;
-                    }
-                }
-                std::cout<<"----------"<<std::endl;
-            }
+            void print_names();
 
 //------------------------------------------------------------------------------
             /*
@@ -239,7 +190,6 @@ namespace moris
              */
             void free_memory()
             {
-                mResidualDofTypeRequested = false;
             }
 
 //------------------------------------------------------------------------------
@@ -537,7 +487,6 @@ namespace moris
               * create a global dof type list including
               * IWG, property, constitutive and stabilization dependencies
               */
-//             void build_global_dof_type_list();
              void build_global_dof_and_dv_type_list();
 
 //------------------------------------------------------------------------------
@@ -546,7 +495,6 @@ namespace moris
               * IWG, property, constitutive and stabilization dependencies
               * for both master and slave
               */
-//             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >        & aDofTypes );
              void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                    moris::Cell< GEN_DV >        & aDvTypes );
 
@@ -556,45 +504,8 @@ namespace moris
                * @param[ in ]  aIsMaster       enum master or slave
                * @param[ out ] mGlobalDofTypes global list of group of dof types
                */
-              moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-              {
-                  // if the global list was not yet built
-                  if( mGlobalDofBuild )
-                  {
-                      // build the stabilization parameter global dof type list
-                      this->build_global_dof_and_dv_type_list();
-
-                      // update build flag
-                      mGlobalDofBuild = false;
-                      mGlobalDvBuild  = false;
-                  }
-
-                  // switch on master/slave
-                  switch( aIsMaster )
-                  {
-                      // if master
-                      case( mtk::Master_Slave::MASTER ):
-                      {
-                          // return master global dof type list
-                          return mMasterGlobalDofTypes;
-                          break;
-                      }
-                      // if slave
-                      case( mtk::Master_Slave::SLAVE ):
-                      {
-                          // return slave global dof type list
-                          return mSlaveGlobalDofTypes;
-                          break;
-                      }
-                      // if none
-                      default:
-                      {
-                          MORIS_ASSERT( false, "IWG::get_global_dof_type_list - can only be master or slave." );
-                          return mMasterGlobalDofTypes;
-                          break;
-                      }
-                  }
-              };
+              moris::Cell< moris::Cell< MSI::Dof_Type > > &
+              get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
               /**
@@ -602,45 +513,8 @@ namespace moris
                * @param[ in ]  aIsMaster       enum master or slave
                * @param[ out ] mGlobalDvTypes global list of group of dv types
                */
-              moris::Cell< moris::Cell< GEN_DV > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-              {
-                  // if the global list was not yet built
-                  if( mGlobalDvBuild )
-                  {
-                      // build the stabilization parameter global dof type list
-                      this->build_global_dof_and_dv_type_list();
-
-                      // update build flag
-                      mGlobalDofBuild = false;
-                      mGlobalDvBuild  = false;
-                  }
-
-                  // switch on master/slave
-                  switch( aIsMaster )
-                  {
-                      // if master
-                      case( mtk::Master_Slave::MASTER ):
-                      {
-                          // return master global dof type list
-                          return mMasterGlobalDvTypes;
-                          break;
-                      }
-                      // if slave
-                      case( mtk::Master_Slave::SLAVE ):
-                      {
-                          // return slave global dof type list
-                          return mSlaveGlobalDvTypes;
-                          break;
-                      }
-                      // if none
-                      default:
-                      {
-                          MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
-                          return mMasterGlobalDvTypes;
-                          break;
-                      }
-                  }
-              };
+              moris::Cell< moris::Cell< GEN_DV > > &
+              get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -731,49 +605,7 @@ namespace moris
             /**
              * reset evaluation flags
              */
-            void reset_eval_flags()
-            {
-                // reset properties
-                for ( std::shared_ptr< Property > tProp : mMasterProp )
-                {
-                    if ( tProp != nullptr )
-                    {
-                        tProp->reset_eval_flags();
-                    }
-                }
-                for ( std::shared_ptr< Property > tProp : mSlaveProp )
-                {
-                    if( tProp != nullptr )
-                    {
-                        tProp->reset_eval_flags();
-                    }
-                }
-
-                // reset constitutive models
-                for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->reset_eval_flags();
-                    }
-                }
-                for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCM->reset_eval_flags();
-                    }
-                }
-
-                // reset stabilization parameters
-                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                {
-                    if( tSP != nullptr )
-                    {
-                        tSP->reset_eval_flags();
-                    }
-                }
-            }
+            void reset_eval_flags();
 
 //------------------------------------------------------------------------------
             /**

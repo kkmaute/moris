@@ -809,7 +809,7 @@ namespace moris
                 {
                     MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
 
-                    MORIS_LOG_INFO( "-------------------------------------------------------------------------------\n%s Select activation pattern %u.\n-------------------------------------------------------------------------------\n",
+                    MORIS_LOG_INFO( "%s Select activation pattern %u.",
                              proc_string().c_str(),
                              ( unsigned int ) aPattern );
 

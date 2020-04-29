@@ -73,7 +73,7 @@ void Performer_Manager::initialize_performers()
     mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
 
     // Create GE performer
-    mGENPerformer( 0 ) = std::make_shared< ge::GEN_Geometry_Engine >( tGENParameterList(0)(0) );
+    mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList );
 
     // create MTK performer - will be used for XTK mesh
     mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -96,8 +96,7 @@ void Performer_Manager::set_performer_cooperations()
     //---------------------------------------------------------------------------------------
     //                               Set performer to GE
     //---------------------------------------------------------------------------------------
-    mGENPerformer( 0 )->set_performer( mHMRPerformer( 0 ) );
-    mGENPerformer( 0 )->set_library( mLibrary );
+    mGENPerformer( 0 )->register_mesh( mHMRPerformer( 0 ) );
 
     //---------------------------------------------------------------------------------------
     //                               Set performer to XTK

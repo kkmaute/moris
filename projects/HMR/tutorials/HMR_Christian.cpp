@@ -49,6 +49,8 @@
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR_Paramfile.hpp"
 #include "cl_Logger.hpp"
+#include "cl_GlobalClock.hpp" // MRS/IOS/src
+#include "cl_Tracer.hpp" // MRS/IOS/src
 
 //------------------------------------------------------------------------------
 
@@ -58,6 +60,7 @@ using namespace hmr;
 
 //------------------------------------------------------------------------------
 // create communicator
+
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 //------------------------------------------------------------------------------

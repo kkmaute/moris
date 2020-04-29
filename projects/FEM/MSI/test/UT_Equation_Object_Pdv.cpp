@@ -272,7 +272,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
         tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
         // define an IQI
@@ -317,6 +317,10 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         moris::Cell< MSI::Equation_Set * > tSets
         = tModel->get_fem_model()->get_equation_sets();
 
+        // get the equation set from the model
+        std::shared_ptr< MSI::Equation_Model > tEquationModel
+        = tModel->get_fem_model();
+
         // get a working set
         MSI::Equation_Set* tWorkSet = tSets( 0 );
 
@@ -349,7 +353,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // set the solution vector
 //        tEquationObject( 0 )->mPdofValues = {{ 0},{0},{0},{0}};
-        tWorkEqObj->mSolVec = mVector;
+        tEquationModel->set_solution_vector( mVector);
 
         // set the time
         tWorkEqObj->set_time( { { 0 }, { 1 } } );
@@ -365,9 +369,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         //------------------------------------------------------------------------------
         // set the IWG fem set
         tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
-
-        // set requested residual dof type flag to true
-        tIWG->mResidualDofTypeRequested = true;
 
         // build global dof type list
         tIWG->get_global_dof_type_list();

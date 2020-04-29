@@ -9,6 +9,7 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_OP_MINUS_ARMA_HPP_
 
 #include "cl_Matrix.hpp"
+#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 
 

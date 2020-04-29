@@ -25,11 +25,10 @@
 #include "fn_local_child_mesh_flood_fill.hpp"
 #include "topology/cl_XTK_Hexahedron_8_Topology.hpp"
 
-
 // DEBUGGING UTILITY INCLUDES
 #include "tools/fn_tet_volume.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 #include "fn_verify_tet_topology.hpp"
+#include "fn_GEN_Triangle_Geometry.hpp"
 
 namespace xtk
 {
@@ -144,7 +143,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 
     // Check the volume
     moris::Matrix< moris::IndexMat > const & tElemToNode = tRegSubChildMesh.get_element_to_node();
-    real tVolume = compute_volume_for_multiple_tets(tNodeCoords,tElemToNode);
+    real tVolume = moris::ge::compute_volume_for_multiple_tets(tNodeCoords,tElemToNode);
     CHECK(approximate(tVolume,1.0));
 
 

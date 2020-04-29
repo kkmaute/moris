@@ -11,6 +11,7 @@
 
 
 #include "cl_Matrix.hpp"
+#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 
 

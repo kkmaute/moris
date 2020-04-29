@@ -7,6 +7,7 @@
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
+#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 
 #include "typedefs.hpp"
@@ -25,6 +26,20 @@ class Matrix<arma::Mat<Type>>
 private:
     arma::Mat<Type> mMatrix;
 
+    void fill_with_NANs()
+    {
+#ifdef MATRIX_FILL
+        if (std::numeric_limits<Data_Type>::has_quiet_NaN)
+        {
+            mMatrix.fill( std::numeric_limits<Data_Type>::quiet_NaN() );
+        }
+        else
+        {
+            mMatrix.fill( std::numeric_limits<Data_Type>::max() );
+        }
+#endif
+    }
+
 public:
     typedef Type                      Data_Type;
 
@@ -41,13 +56,13 @@ public:
             size_t const & aNumCols):
                 mMatrix(aNumRows,aNumCols)
     {
-
+        this->fill_with_NANs();
     }
 
     Matrix( size_t const & aNumEl):
                 mMatrix(aNumEl,1)
     {
-
+        this->fill_with_NANs();
     }
 
     // template constructor
@@ -106,6 +121,8 @@ public:
            const size_t & aNumCols)
     {
         mMatrix.set_size(aNumRows, aNumCols);
+
+        this->fill_with_NANs();
     }
 
     void
@@ -463,14 +480,7 @@ public:
     {
         return mMatrix.end();
     }
-
-
-
 };
 }
-
-
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_ */

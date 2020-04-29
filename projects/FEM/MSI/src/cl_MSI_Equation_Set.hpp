@@ -35,6 +35,7 @@ namespace moris
     class Model_Solver_Interface;
     class Equation_Object;
     class Design_Variable_Interface;
+    class Equation_Model;
     enum class Dof_Type;
 
     //------------------------------------------------------------------------------
@@ -109,6 +110,8 @@ namespace moris
 
         uint tNumRHS = 1;
 
+        MSI::Equation_Model * mEquationModel = nullptr;
+
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
         friend class Element_Sideset;
@@ -128,6 +131,13 @@ namespace moris
          * trivial destructor
          */
         virtual ~Equation_Set(){};
+
+//------------------------------------------------------------------------------
+
+        void set_equation_model(  MSI::Equation_Model * aEquationModel )
+        {
+            mEquationModel = aEquationModel;
+        }
 
 //------------------------------------------------------------------------------
         /**

@@ -8,6 +8,17 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+        SP_Viscous_Ghost::SP_Viscous_Ghost()
+        {
+            // set the property pointer cell size
+            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the map
+            mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
+        }
+
 //------------------------------------------------------------------------------
         void SP_Viscous_Ghost::eval_SP()
         {

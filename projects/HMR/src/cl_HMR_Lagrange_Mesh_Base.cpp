@@ -83,13 +83,18 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "%s Created Lagrange mesh of order %u on pattern %u.",
                     proc_string().c_str(),
                     ( unsigned int ) mOrder,
-                    ( unsigned int ) mActivationPattern,
+                    ( unsigned int ) mActivationPattern);
+
+            MORIS_LOG_INFO( "Mesh has %lu active and refined elements and %lu nodes.",
                     ( long unsigned int ) this->get_number_of_elements(),
-                    ( long unsigned int ) this->get_number_of_nodes_on_proc(),
+                    ( long unsigned int ) this->get_number_of_nodes_on_proc());
+
+            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 
 // ----------------------------------------------------------------------------
@@ -1232,10 +1237,12 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "%s Created GMSH File: %s\n               Writing took %5.3f seconds.\n\n",
+            MORIS_LOG_INFO( "%s Created GMSH File: %s",
                     proc_string().c_str(),
-                    tFilePath.c_str(),
+                    tFilePath.c_str() );
+            MORIS_LOG_INFO( "Writing took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
 
         }
 
@@ -1542,11 +1549,16 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu active and refined Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
+            MORIS_LOG_INFO( "%s Created VTK debug file.",
+                    proc_string().c_str());
+
+            MORIS_LOG_INFO( "Mesh has %lu active and refined Elements and %lu Nodes.",
                     ( long unsigned int ) tNumberOfElements,
-                    ( long unsigned int ) tNumberOfNodes,
+                    ( long unsigned int ) tNumberOfNodes );
+
+            MORIS_LOG_INFO("Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 
 //------------------------------------------------------------------------------
@@ -1857,9 +1869,12 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( "%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
-                    proc_string().c_str(),
+            MORIS_LOG_INFO( "%s Created Faces for Lagrange Mesh.",
+                    proc_string().c_str());
+
+            MORIS_LOG_INFO( "Creation %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 //------------------------------------------------------------------------------
 
@@ -2050,9 +2065,13 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( "%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
-                    proc_string().c_str(),
+            MORIS_LOG_INFO( "%s Created Edges for Lagrange Mesh.",
+                    proc_string().c_str());
+
+            MORIS_LOG_INFO( "Creation %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+
+            MORIS_LOG_INFO( " " );
         }
 
 //------------------------------------------------------------------------------
@@ -3419,10 +3438,17 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( "%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
+//            MORIS_LOG_INFO( "%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
+//                    proc_string().c_str(),
+//                    tFilePath.c_str(),
+//                    ( double ) tElapsedTime / 1000 );
+
+            MORIS_LOG_INFO( "%s Saved coefficients to binary file:  %s.",
                     proc_string().c_str(),
-                    tFilePath.c_str(),
+                    tFilePath.c_str());
+            MORIS_LOG_INFO( "Saving took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 
 //------------------------------------------------------------------------------
@@ -3471,11 +3497,19 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
+//            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
+//                    proc_string().c_str(),
+//                    ( unsigned int ) mOrder,
+//                    ( unsigned int ) mActivationPattern,
+//                    ( double ) tElapsedTime / 1000 );
+
+            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.",
                     proc_string().c_str(),
                     ( unsigned int ) mOrder,
-                    ( unsigned int ) mActivationPattern,
+                    ( unsigned int ) mActivationPattern );
+            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
         }
 
 //------------------------------------------------------------------------------

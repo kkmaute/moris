@@ -1,5 +1,7 @@
 #include <catch.hpp>
 
+#include "paths.hpp"
+
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
@@ -154,7 +156,7 @@ TEST_CASE("HMR_Field_IO_EXO","[moris],[hmr],[HMR_Field_IO_Exo]")
     {
         for( moris::uint tOrder=1; tOrder<=1; tOrder++ )
         {
-            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tPrefix = moris::get_base_moris_dir();
             std::string tMeshFileName = tPrefix + "projects/HMR/test/data/hmr_Input_Mesh_Data_1.hdf5";
 
             moris::hmr::HMR tHMR( tMeshFileName );
@@ -258,7 +260,7 @@ TEST_CASE("HMR_Field_IO_HDF","[moris],[hmr],[HMR_Field_IO_HDF]")
             // calculate T-Matrices etc
             tDatabase->finalize();
 
-             std::string tPrefix = std::getenv("MORISROOT");
+             std::string tPrefix = moris::get_base_moris_dir();
 
              std::string tFieldFileName = tPrefix + "projects/HMR/test/data/hmr_Field_IO_Test.hdf5";
 

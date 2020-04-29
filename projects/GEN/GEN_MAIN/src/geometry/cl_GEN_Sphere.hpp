@@ -11,27 +11,48 @@
 #include <cmath>
 
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Geometry_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class Sphere : public GEN_Geometry
+class Sphere : public Geometry_Analytic
 {
 public:
-    Sphere(){}
 
-    Sphere(moris::real const & aRadius,
-           moris::real const & aXCenter,
-           moris::real const & aYCenter,
-           moris::real const & aZCenter) :
-            mRadius(aRadius),
-            mXCenter(aXCenter),
-            mYCenter(aYCenter),
-            mZCenter(aZCenter)
+    /**
+     * Constructor with only constant parameters
+     *
+     * @param aXCenter x-coordinate of the center of the sphere
+     * @param aYCenter y-coordiante of the center of the sphere
+     * @param aZCenter z-coordinate of the center of the sphere
+     * @param aRadius radius of the circle
+     */
+    Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius) : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}))
     {
+        mXCenter = aXCenter;
+        mYCenter = aYCenter;
+        mZCenter = aZCenter;
+        mRadius = aRadius;
     }
+
+    //------------------------------------ these will be deleted/modified later ----------------------------------------
+    real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return evaluate_field_value_with_coordinate(0, aCoordinates);
+    }
+
+    moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    {
+        return evaluate_sensitivity_dphi_dp_with_coordinate(0, aCoordinates);
+    }
+
+
+
+
+
+
 
     bool is_analytic() const
     {

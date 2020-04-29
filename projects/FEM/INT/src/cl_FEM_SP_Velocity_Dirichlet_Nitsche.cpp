@@ -8,6 +8,21 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+        SP_Velocity_Dirichlet_Nitsche::SP_Velocity_Dirichlet_Nitsche()
+        {
+            // set the property pointer cell size
+            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the map
+            mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
+            mPropertyMap[ "Density" ]   = Property_Type::DENSITY;
+
+            // populate the dof map (default)
+            mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
+        }
+
 //------------------------------------------------------------------------------
         void SP_Velocity_Dirichlet_Nitsche::eval_SP()
         {

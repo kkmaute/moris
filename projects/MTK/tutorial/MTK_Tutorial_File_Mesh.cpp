@@ -8,6 +8,7 @@
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
+#include "paths.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -62,11 +63,11 @@ main( int    argc,
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Exodus Mesh"
      *
      * \code{.cpp}
-     *   std::string tPrefix = std::getenv("MORISROOT");
+     *   std::string tPrefix = moris::get_base_moris_dir();
      *   std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
      * \endcode
      */
-    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tPrefix = moris::get_base_moris_dir();
     std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
 
     std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;

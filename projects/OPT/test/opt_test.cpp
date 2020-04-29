@@ -9,7 +9,7 @@
 #include "fn_OPT_create_interface.hpp"
 #include "../src/cl_OPT_Interface_User_Defined.hpp"
 #include "cl_Communication_Tools.hpp"
-
+#include "paths.hpp"
 namespace moris
 {
     namespace opt
@@ -22,7 +22,7 @@ namespace moris
             SECTION("GCMMA")
             {
                 // moris root
-                std::string tMorisRoot = std::getenv("MORISROOT");
+                std::string tMorisRoot = moris::get_base_moris_dir();
 
                 // Set up default parameter lists
                 moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
@@ -54,7 +54,7 @@ namespace moris
             SECTION("SQP")
             {
                 // moris root
-                std::string tMorisRoot = std::getenv("MORISROOT");
+                std::string tMorisRoot = moris::get_base_moris_dir();
 
                 // Set up default parameter lists
                 moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
@@ -115,7 +115,7 @@ namespace moris
             SECTION( "sweep" )
             {
                 // moris root
-                std::string tMorisRoot = std::getenv("MORISROOT");
+                std::string tMorisRoot = moris::get_base_moris_dir();
                 std::string tMorisOutput = std::getenv("MORISOUTPUT");
 
                 // Set up default parameter lists
@@ -149,7 +149,7 @@ namespace moris
                 if (par_size() == 4 or par_size() == 8)
                 {
                     // moris root
-                    std::string tMorisRoot = std::getenv("MORISROOT");
+                    std::string tMorisRoot = moris::get_base_moris_dir();
 
                     // Set up default interface parameter lists
                     moris::Cell<ParameterList> tParameterLists(5);

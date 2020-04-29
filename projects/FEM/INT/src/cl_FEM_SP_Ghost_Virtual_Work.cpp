@@ -3,24 +3,24 @@
 #include "cl_FEM_Cluster.hpp"              //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
-#include "op_div.hpp"
-
 namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-        SP_Ghost_Virtual_Work::SP_Ghost_Virtual_Work(){}
 
 //------------------------------------------------------------------------------
         void SP_Ghost_Virtual_Work::eval_SP()
         {
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2 * ( mOrder - 1 ) + 1 );
+        }
+
+//------------------------------------------------------------------------------
+        void SP_Ghost_Virtual_Work::reset_cluster_measures()
+        {
+            // evaluate element size from the cluster
+            mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                          mtk::Master_Slave::MASTER );
         }
 
 //------------------------------------------------------------------------------

@@ -23,6 +23,9 @@
 #include "cl_MSI_Multigrid.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Equation_Model.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_PRM_MSI_Parameters.hpp"
 
@@ -42,9 +45,6 @@
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
-#include "cl_MSI_Solver_Interface.hpp"
-#include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -178,7 +178,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // create equation objects
         tElements.reserve( tNumberOfElements );
 
-        Cell< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
+        Cell< MSI::Equation_Set * > tElementBlocks(1,nullptr);
+
+        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< MSI::Equation_Model >();
 
         // init the fem set counter
         moris::uint tFemSetCounter = 0;
@@ -195,12 +197,17 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                                              tSetInfo( tFemSetCounter ),
                                                              tNodes );
 
+            tElementBlocks( tFemSetCounter )->set_equation_model( tEquationModel.get() );
+
             // collect equation objects associated with the block-set
             tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
 
             // update fem set counter
             tFemSetCounter++;
         }
+
+        Cell< MSI::Equation_Set * > & tEquationSet = tEquationModel->get_equation_sets();
+        tEquationSet = tElementBlocks;
 
 //        // ask mesh about number of elements on proc
 //        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
@@ -226,7 +233,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tMSIParameters.set( "multigrid", true );
 
         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
-                                                                                     tElementBlocks,
+                                                                                     tEquationModel,
                                                                                      tInterpolationMesh->get_communication_table(),
                                                                                      tCoefficientsMap,
                                                                                      tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),

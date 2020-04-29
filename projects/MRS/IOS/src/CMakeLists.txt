@@ -3,37 +3,68 @@
 
 # List header files
 set(HEADERS
+    cl_Tracer_Enums.hpp
+	cl_GlobalClock.hpp
+	cl_Tracer.hpp
     cl_Logger.hpp
+    cl_Query.hpp
 	cl_XML_Parser.hpp
 	fn_Parsing_Tools.hpp
 	fn_Exec_load_user_library.hpp
 	fn_Logger.hpp
+	fn_stringify.hpp
 	fn_to_stdio.hpp
 	HDF5_Tools.hpp
 	IO_Tools.hpp
 	ios.hpp
+	Log_Constants.hpp
 	)
+
+# List library source files
+set(LIB_SOURCES
+	cl_GlobalClock.cpp
+	cl_Logger.cpp
+    cl_Query.cpp
+    cl_Query_Table.cpp
+    cl_Query_Tree.cpp
+    cl_Tracer_Enums.cpp
+    cl_XML_Parser.cpp
+    )
+
+
+# List library dependencies
+set(LIB_DEPENDENCIES
+    ${COR}-lib
+     )
+
+# Set the output path for library
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target
-add_library(${IOS}-lib INTERFACE)
+#add_library(${IOS}-lib INTERFACE)
+add_library(${IOS}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${IOS}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${IOS}_HEADER_INSTALL_DIR}> )
+
+target_link_libraries(${IOS}-lib PUBLIC ${LIB_DEPENDENCIES})
 
 foreach(TPL ${IOS_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${IOS}-lib
-    	INTERFACE ${MORIS}::${tpl})
+    	PUBLIC ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${IOS}-lib
-    	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
     #target_link_libraries(${IOS}-lib
     #	INTERFACE ${MORIS_${TPL}_LIBRARIES})
     target_compile_definitions(${IOS}-lib
-    	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

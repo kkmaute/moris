@@ -22,10 +22,6 @@
 #include "cl_MTK_Fields_Info.hpp"
 #include "cl_Mesh_Factory.hpp"
 
-// XTKL: Geometry Engine Includes
-#include "cl_MGE_Geometry_Engine.hpp"
-#include "cl_MGE_Geometry_Object.hpp"
-
 // XTKL: Container includes
 #include "cl_Cell.hpp"
 
@@ -36,6 +32,7 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Decomposition_Data.hpp"
+#include "cl_Interpolaton.hpp"
 
 #include "cl_XTK_Output_Options.hpp"
 
@@ -104,7 +101,7 @@ public:
      */
     Model(uint aModelDimension,
           moris::mtk::Interpolation_Mesh* aMeshData,
-          moris::ge::GEN_Geometry_Engine* aGeometryEngine,
+          moris::ge::Geometry_Engine* aGeometryEngine,
           bool aLinkGeometryOnConstruction = true);
 
     Model(moris::ParameterList const & aParameterList);
@@ -115,7 +112,7 @@ public:
     ~Model();
 
     void
-    set_geometry_engine(moris::ge::GEN_Geometry_Engine* aGeometryEngine);
+    set_geometry_engine(moris::ge::Geometry_Engine* aGeometryEngine);
 
     void
     set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh);
@@ -232,7 +229,7 @@ public:
     Cut_Mesh const &        get_cut_mesh() const        { return mCutMesh; }
     Background_Mesh &       get_background_mesh()       { return mBackgroundMesh; }
     Background_Mesh const & get_background_mesh() const { return mBackgroundMesh; }
-    moris::ge::GEN_Geometry_Engine*       get_geom_engine()           { return mGeometryEngine; }
+    moris::ge::Geometry_Engine*       get_geom_engine()           { return mGeometryEngine; }
 
     // ----------------------------------------------------------------------------------
     // Outputting functions
@@ -371,7 +368,7 @@ protected:
     Background_Mesh                    mBackgroundMesh;
     Cut_Mesh                           mCutMesh;
 
-    moris::ge::GEN_Geometry_Engine*     mGeometryEngine;
+    moris::ge::Geometry_Engine*     mGeometryEngine;
 
     Enrichment*                        mEnrichment;
     Ghost_Stabilization*               mGhostStabilization;
