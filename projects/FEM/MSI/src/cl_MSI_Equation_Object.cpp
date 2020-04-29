@@ -742,6 +742,25 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
+    void Equation_Object::set_time( Matrix< DDRMat > & aTime )
+    {
+        return mEquationSet->mEquationModel->set_time( aTime );
+    }
+
+            Matrix< DDRMat > & Equation_Object::get_time()
+            {
+                //return mTime ;
+                return mEquationSet->mEquationModel->get_time();
+            }
+
+//-------------------------------------------------------------------------------------------------
+
+            Matrix< DDRMat > & Equation_Object::get_previous_time()
+            {
+                return mEquationSet->mEquationModel->get_previous_time();
+            }
+
+//-------------------------------------------------------------------------------------------------
 
 //    void Equation_Object::get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
 //                                                    Cell< Matrix< DDRMat > >     & aRequestedPdofValues )
