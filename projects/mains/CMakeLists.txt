@@ -51,12 +51,9 @@ set(MAIN_DEPENDENCIES
 # Create and link main executables
 foreach(MAIN ${MAINS})
     string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
-    add_executable(${EXE_NAME} ${MAIN})
-    target_link_libraries(${EXE_NAME} ${MAIN_DEPENDENCIES})
-    list(APPEND MAIN_EXECUTABLES ${EXE_NAME})
-    #add_executable(moris ${MAIN})
-    #target_link_libraries(moris ${MAIN_DEPENDENCIES})
-    #list(APPEND MAIN_EXECUTABLES moris)
+    add_executable(moris ${MAIN})
+    target_link_libraries(moris ${MAIN_DEPENDENCIES})
+    list(APPEND MAIN_EXECUTABLES moris)
 endforeach()
 
 # Install executables
