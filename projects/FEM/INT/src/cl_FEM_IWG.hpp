@@ -67,6 +67,7 @@ namespace moris
             // master and slave field interpolator managers
             Field_Interpolator_Manager * mMasterFIManager = nullptr;
             Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
+            Field_Interpolator_Manager * mMasterPreviousFIManager  = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< GEN_DV > > mMasterDvTypes;
@@ -159,6 +160,15 @@ namespace moris
              */
             void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
                                                  mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /*
+             * set field interpolator manager for previous time step
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ] aIsMaster                 an enum for master or slave
+             */
+            void set_field_interpolator_manager_previous_time( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                               mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /*
