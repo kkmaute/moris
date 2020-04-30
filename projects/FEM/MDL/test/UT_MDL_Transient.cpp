@@ -280,7 +280,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
 
        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
        tTimeSolverAlgorithm->set_param("TSA_Num_Time_Steps")   = 10;
-       tTimeSolverAlgorithm->set_param("TSA_Time_Frame")       = 1.0;
+       tTimeSolverAlgorithm->set_param("TSA_Time_Frame")       = 0.5;
 
        tsa::Time_Solver tTimeSolver;
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );

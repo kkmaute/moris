@@ -29,7 +29,7 @@ main(
 
     // Severity level 0 - all outputs
 //    gLogger.initialize(0);
-    gLogger.initialize("gLogger.log", 1, 1);
+    gLogger.initialize("gLogger.log", 2, 1);
 
     // Run Tests
     int result = Catch::Session().run( argc, argv );

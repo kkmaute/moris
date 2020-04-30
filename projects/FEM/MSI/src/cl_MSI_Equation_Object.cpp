@@ -167,12 +167,20 @@ namespace moris
 
         for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
         {
+            moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
+
             // Loop over all pdof hosts and get their number of (free) pdofs
-            for ( moris::uint Ik=0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+            for ( moris::uint Ij=0; Ij < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ij++ )
             {
-                for ( moris::uint Ii=0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+                // Loop over all time levels for this dof type
+                for ( moris::uint Ii = 0; Ii < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list()( Ij ).size(); Ii++ )
                 {
-                    mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+                    for ( moris::uint Ik=0; Ik < tNumMyPdofHosts; Ik++ )
+                    {
+//                        mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+                        // Append all time levels of this pdof type
+                        mFreePdofList( Ia )( Ij ).push_back( ( mMyPdofHosts( Ia )( Ik )->get_pdof_hosts_pdof_list() )( Ij )( Ii ) );
+                    }
                 }
             }
         }
@@ -496,12 +504,12 @@ namespace moris
         this->build_PADofMap_1( tTMatrix );
 
 //        print( tTMatrix,"tTMatrix");
-//        print( mEquationSet->get_jacobian(),"tJacobian");
+        print( mEquationSet->get_jacobian(),"tJacobian");
 
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationSet->get_jacobian() * tTMatrix;
 
-//        print(aEqnObjMatrix,"aEqnObjMatrix");
+        print(aEqnObjMatrix,"aEqnObjMatrix");
 
     }
 
