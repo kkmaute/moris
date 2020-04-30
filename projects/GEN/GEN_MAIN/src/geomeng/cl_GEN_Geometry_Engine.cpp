@@ -20,7 +20,6 @@ namespace moris
 {
     namespace ge
     {
-
         //--------------------------------------------------------------------------------------------------------------
         
         Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :

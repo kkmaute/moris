@@ -62,7 +62,23 @@ namespace moris
     void MSI_Solver_Interface::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
     {
         mPrevSolutionVector = aSolutionVector;
-        mMSI->mEquationModel->set_solution_vector( mSolutionVector );
+        mMSI->mEquationModel->set_previous_solution_vector( mPrevSolutionVector );
+    }
+
+//------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_time( const Matrix< DDRMat> & aTime )
+    {
+        mTime = aTime;
+        mMSI->mEquationModel->set_time( mTime );
+    }
+
+//------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_previous_time( const Matrix< DDRMat> & aTime )
+    {
+        mPrevTime = aTime;
+        mMSI->mEquationModel->set_previous_time( mPrevTime );
     }
 
 //-------------------------------------------------------------------------------------------------------

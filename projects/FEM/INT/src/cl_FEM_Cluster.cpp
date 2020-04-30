@@ -43,6 +43,7 @@ namespace moris
             switch ( mElementType )
             {
                 case ( fem::Element_Type::BULK ):
+                case ( fem::Element_Type::TIME_SIDESET ):
                 {
                     // loop over the IG cells
                     for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
@@ -251,7 +252,7 @@ namespace moris
         ( moris::moris_index aPrimaryCellIndexInCluster )
         {
             // check that bulk cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
+            MORIS_ASSERT( mElementType == fem::Element_Type::BULK || mElementType == fem::Element_Type::TIME_SIDESET,
                           "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
 
             // check that the mesh cluster was set

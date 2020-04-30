@@ -12,6 +12,7 @@ set(TEST_SOURCES
     cl_MSI_Model_Solver_Interface_Test.cpp
     cl_MSI_Multigrid.cpp
     UT_Equation_Object_Pdv.cpp
+    #UT_MSI_Element_Time_Sideset.cpp
     MSI_Test_Proxy/cl_MSI_Design_Variable_Interface_Proxy.cpp
     cl_MSI_SpaceTime_Test.cpp
 

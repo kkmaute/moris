@@ -49,6 +49,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Velocity_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
+    UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_Input.cpp
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
@@ -56,7 +57,7 @@ set(TEST_SOURCES
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
+    test-libs
     ${INT}-lib
     ${ALG}-lib
     ${PRM}-lib

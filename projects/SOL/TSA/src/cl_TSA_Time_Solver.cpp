@@ -232,7 +232,9 @@ using namespace tsa;
             {
                 MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
 
-                mSolverInterface->initiate_output( mOutputIndices( tCounter ), 0.0 );
+                moris::real tTime = mParameterListTimeSolver.get< moris::real >("TSA_Output_Time");
+
+                mSolverInterface->initiate_output( mOutputIndices( tCounter ), tTime );
             }
 
             tCounter++;

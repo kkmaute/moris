@@ -31,6 +31,17 @@ set(LIB_SOURCES
     cl_XML_Parser.cpp
     )
 
+
+# List library dependencies
+set(LIB_DEPENDENCIES
+    ${COR}-lib
+     )
+
+# Set the output path for library
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target
 #add_library(${IOS}-lib INTERFACE)
@@ -38,6 +49,8 @@ add_library(${IOS}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${IOS}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${IOS}_HEADER_INSTALL_DIR}> )
+
+target_link_libraries(${IOS}-lib PUBLIC ${LIB_DEPENDENCIES})
 
 foreach(TPL ${IOS_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

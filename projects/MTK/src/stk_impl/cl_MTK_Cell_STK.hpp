@@ -200,6 +200,23 @@ public:
         return tVerticesOnSide;
     }
 
+    moris::Cell<moris::mtk::Vertex const *>
+    get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+    {
+        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+
+        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_geometric_node_to_facet_map(aSideOrdinal);
+
+        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
+        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
+        {
+            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
+        }
+
+        return tVerticesOnSide;
+    }
+
+
     moris::Matrix<moris::DDRMat>
     compute_outward_side_normal(moris::moris_index aSideOrdinal) const
     {

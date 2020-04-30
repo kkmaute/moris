@@ -9,7 +9,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD16_HPP_
 
 #include "cl_HMR_Lagrange_Element.hpp"
-
+#include "cl_MTK_Cell_Info_Quad16.hpp"
 namespace moris
 {
     namespace hmr
@@ -69,6 +69,39 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
+
+        template<>
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< 2, 16 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type quad");
+            moris::mtk::Cell_Info_Quad16 tConn;
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_node_to_facet_map(aSideOrdinal);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(3);
+            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+            return tVerticesOnSide;
+        }
+
+// ----------------------------------------------------------------------------
+        template<>
+        moris::Cell<moris::mtk::Vertex const *> Lagrange_Element< 2, 16 >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type quad");
+            moris::mtk::Cell_Info_Quad16 tConn;
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_geometric_node_to_facet_map(aSideOrdinal);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(2);
+            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+            return tVerticesOnSide;
+        }
+
+// ----------------------------------------------------------------------------
+
+
 
         template<>
         inline

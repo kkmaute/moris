@@ -34,7 +34,7 @@ namespace moris
         private:
 
             // cluster measures
-            real mElementSize      = 1.0; // element size
+            real mElementSize = 1.0;
 
         public:
 
@@ -52,7 +52,6 @@ namespace moris
             /*
              * constructor
              * Rem: mParameters( 0 ) - gamma penalty parameter
-             *      mParameters( 1 ) - interpolation order
              */
             SP_Ghost_Displacement();
 

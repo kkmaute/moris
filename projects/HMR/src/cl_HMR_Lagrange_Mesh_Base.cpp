@@ -2066,13 +2066,9 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             MORIS_LOG_INFO( "%s Created Edges for Lagrange Mesh.",
-                    "Creation %5.3f seconds.",
-                    proc_string().c_str(),
-                    ( double ) tElapsedTime / 1000 );
+                    proc_string().c_str());
 
-            MORIS_LOG_INFO( "%s Created Edges for Lagrange Mesh.",
-                    "Creation %5.3f seconds.",
-                    proc_string().c_str(),
+            MORIS_LOG_INFO( "Creation %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
 
             MORIS_LOG_INFO( " " );
@@ -3511,8 +3507,7 @@ namespace moris
                     proc_string().c_str(),
                     ( unsigned int ) mOrder,
                     ( unsigned int ) mActivationPattern );
-            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.",
-                    "Creation took %5.3f seconds.",
+            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
             MORIS_LOG_INFO( " " );
         }

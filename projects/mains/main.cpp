@@ -41,7 +41,6 @@
 
 //#include "cl_Profiler.hpp" //profiler header
 //#include <Eigen/Dense>
-//#include <armadillo>
 #include "cl_Logger.hpp" // MRS/IOS/src
 
 #include "fn_Exec_load_user_library.hpp"

@@ -31,6 +31,7 @@ namespace moris
 namespace ios
 {
 
+
 //-----------------------------------------------------------------------------------------------------------//
 // TABLE QUERY DEFINITION
 //-----------------------------------------------------------------------------------------------------------//
@@ -183,6 +184,7 @@ void Query::table_query(std::string aFileNameWrite,
                                        tIterationStartEnd,
                                        iIter,
                                        tCurrentInstanceID);
+
 
             // merge new list with old lists
             this->merge_iteration_outputs( & tRefListOfEntityBases,
@@ -616,8 +618,12 @@ void Query::extract_iteration(       Cell<enum EntityBase> * aListOfEntityBases,
     // go through first iteration and collect initial information
     while (iLine <= aIterationStartEnd(aIteration-1)(1))
     {
-        // log information belongs to current function ID
-        if ( mFunctionIDs(iLine) == aCurrentInstanceID )
+        // log information belongs to current function ID, do not record if just text
+        if ( (mFunctionIDs(iLine) == aCurrentInstanceID)
+                &&  !(    (mOutputSpecifiers(iLine) == OutputSpecifier::FreeText)
+                      || (mOutputSpecifiers(iLine) == OutputSpecifier::InfoText)
+                      || (mOutputSpecifiers(iLine) == OutputSpecifier::DebugText)
+                      || (mOutputSpecifiers(iLine) == OutputSpecifier::Warning) ) )
         {
             // copy everything to list of what is happening inside of iteration
             if (tFirstEntry)

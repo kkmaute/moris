@@ -414,6 +414,9 @@ namespace xtk
                  // create double side cluster
                 mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tMasterSideCluster.get(),tSlaveSideCluster.get(),tMasterSideCluster->mVerticesInCluster);
 
+                // add to integration mesh
+                tEnrIntegMesh.mDoubleSideClusters.push_back(tDblSideCluster);
+
                 // add to the integration mesh
                 tEnrIntegMesh.mDoubleSideSets(aGhostSetupData.mDblSideSetIndexInMesh(i))(j) = tDblSideCluster;
 
@@ -516,7 +519,9 @@ namespace xtk
         tSlaveSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mSlaveSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
 
         // add vertices
-        tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells(0)->get_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
+        tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
+
+        tSlaveSideCluster->mVerticesInCluster.size();
 
         return tSlaveSideCluster;
     }
@@ -588,7 +593,7 @@ namespace xtk
             tMasterSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
 
             // add the vertices on the side ordinal
-            tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->get_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
+            tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
 
             // finalize
             tMasterSideCluster->finalize_setup();
@@ -623,7 +628,8 @@ namespace xtk
         uint tAdjFacetOrd = tCellInfo->get_adjacent_side_ordinal(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex));
 
         // setup the vertices and local coordinates of the vertices relative to the cell
-        moris::Cell<moris::mtk::Vertex const *> tAdjVertices = tBaseMasterCell->get_vertices_on_side_ordinal(tAdjFacetOrd);
+        moris::Cell<moris::mtk::Vertex const *> tAdjVertices = tBaseMasterCell->get_geometric_vertices_on_side_ordinal(tAdjFacetOrd);
+
 
         //properly order the vertices
         moris::Cell<moris::mtk::Vertex const *> tPermutedSlaveVertices;

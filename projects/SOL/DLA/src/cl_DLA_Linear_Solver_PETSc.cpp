@@ -105,7 +105,9 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
     // Create KSP and PC
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
     KSPGetPC( mPetscKSPProblem, &mpc );
-    KSPSetOperators( mPetscKSPProblem, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
+    KSPSetOperators( mPetscKSPProblem,
+                     aLinearSystem->get_matrix()->get_petsc_matrix(),
+                     aLinearSystem->get_matrix()->get_petsc_matrix() );
     KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
 //    KSPSetFromOptions( mPetscKSPProblem );
 
@@ -113,26 +115,32 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
 
     this->set_solver_internal_parameters( );
 
+    // build preconditiner class
+    dla::Preconditioner_PETSc tPreconditioner( this );
+
     if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "mg") )
     {
-        // build preconditiner class
-        dla::Preconditioner_PETSc tPreconditioner( this );
-
         tPreconditioner.build_multigrid_preconditioner( aLinearSystem );
     }
-    if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "asm") )
+    else if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "asm") )
     {
-        // build preconditiner class
-        dla::Preconditioner_PETSc tPreconditioner( this );
-
         // build schwarz preconditioner
-        tPreconditioner.build_schwarz_preconditioner();
+        tPreconditioner.build_schwarz_preconditioner_petsc();
+    }
+    else if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "mat") )
+    {
+        // build schwarz preconditioner
+        tPreconditioner.build_schwarz_preconditioner( aLinearSystem );
+
+        KSPSetOperators( mPetscKSPProblem,
+                         aLinearSystem->get_matrix()->get_petsc_matrix(),
+                         tPreconditioner.get_preconditioner_matrix()->get_petsc_matrix() );
     }
 
 //    aLinearSystem->get_free_solver_LHS()->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
 //    aLinearSystem->get_free_solver_LHS()->print();
 
-    aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
+//    aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
 //    aLinearSystem->get_solver_RHS()->print();
 
     this->set_solver_analysis_options();
@@ -158,18 +166,40 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
 //----------------------------------------------------------------------------------------
 void Linear_Solver_PETSc::set_solver_analysis_options()
 {
-    PetscViewer tViewer;
-    PetscViewerCreate( PETSC_COMM_WORLD, &tViewer );
-    PetscViewerSetType( tViewer, PETSCVIEWERASCII );
-    PetscViewerFileSetName( tViewer, "Residual_Norms.txt" );
+    if(true)
+    {
+        PetscViewer tViewerRes;
+        PetscViewerCreate( PETSC_COMM_WORLD, &tViewerRes );
+        PetscViewerSetType( tViewerRes, PETSCVIEWERASCII );
+        PetscViewerFileSetName( tViewerRes, "Residual_Norms.txt" );
 
-    PetscViewerAndFormat *tViewerAndFormat;
-    PetscViewerAndFormatCreate( tViewer, PETSC_VIEWER_DEFAULT, &tViewerAndFormat );
+        PetscViewerAndFormat *tViewerAndFormatRes;
+        PetscViewerAndFormatCreate( tViewerRes, PETSC_VIEWER_DEFAULT, &tViewerAndFormatRes );
 
-    KSPMonitorSet( mPetscKSPProblem,
-                   reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorTrueResidualNorm ),
-                   tViewerAndFormat,
-                   NULL );
+        KSPMonitorSet( mPetscKSPProblem,
+                       reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorTrueResidualNorm ),
+                       tViewerAndFormatRes,
+                       NULL );
+    }
+
+    if(false)
+    {
+        KSPSetComputeSingularValues( mPetscKSPProblem, PETSC_TRUE );
+
+        PetscViewer tViewerSV;
+        PetscViewerCreate( PETSC_COMM_WORLD, &tViewerSV );
+        PetscViewerSetType( tViewerSV, PETSCVIEWERASCII );
+        PetscViewerFileSetName( tViewerSV, "Singular_Values.txt" );
+
+        PetscViewerAndFormat *tViewerAndFormatSV;
+        PetscViewerAndFormatCreate( tViewerSV, PETSC_VIEWER_DEFAULT, &tViewerAndFormatSV );
+
+        KSPMonitorSet( mPetscKSPProblem,
+                       reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorSingularValue ),
+                       tViewerAndFormatSV,
+                       NULL );
+    }
+
 }
 
 //----------------------------------------------------------------------------------------

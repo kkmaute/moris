@@ -64,7 +64,7 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${COM}-lib
     ${MTK}-lib
-    ${HMR}-lib
+    ${SOL_CORE}-lib
     )
 
 # Set the output path for library

@@ -72,6 +72,9 @@ public:
     virtual void set_time( const Matrix< DDRMat> & aTime )
     { MORIS_ERROR( false, "Solver_Interface::set_time: not set."); };
 
+    virtual void set_previous_time( const Matrix< DDRMat> & aTime )
+    { MORIS_ERROR( false, "Solver_Interface::set_previous_time: not set."); };
+
     virtual void perform_mapping(  )
     { MORIS_ERROR( false, "Solver_Interface::perform_mapping: not implemented."); };
 

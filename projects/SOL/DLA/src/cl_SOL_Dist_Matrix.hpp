@@ -62,6 +62,9 @@ public:
                                   const moris::Matrix< DDSMat > & aRow,
                                   const moris::Matrix< DDSMat > & aCols ) = 0;
 
+    virtual void get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
+                                          moris::Matrix< DDRMat > & aValues ) = 0;
+
     virtual void matrix_global_assembly() = 0;
 
     virtual void dirichlet_BC_vector(      moris::Matrix< DDUMat > & aDirichletBCVec,

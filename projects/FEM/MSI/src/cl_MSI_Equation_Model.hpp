@@ -6,7 +6,7 @@
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_MSIMODEL_HPP_
+#define PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
 
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
@@ -40,10 +40,16 @@ namespace moris
             moris::Cell< MSI::Equation_Object* > mFemClusters;
 
             // map from mesh set indices to fem set indices
-            map< moris_index, moris_index >   mMeshSetToFemSetMap;
+            //map< moris_index, moris_index >   mMeshSetToFemSetMap;
+            map< std::pair< moris_index, bool >, moris_index > mMeshSetToFemSetMap;
 
-            Dist_Vector * mSolutionVector = nullptr;
+            // distributed solution vectors for current and previous time slabs
+            Dist_Vector * mSolutionVector     = nullptr;
             Dist_Vector * mPrevSolutionVector = nullptr;
+
+            // matrices for current and previous time slabs
+            Matrix< DDRMat > mTime;
+            Matrix< DDRMat > mPrevTime;
 
 //------------------------------------------------------------------------------
         public:
@@ -81,7 +87,8 @@ namespace moris
             /**
              * MTK set to fem set index map
              */
-            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            //map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            map< std::pair< moris_index, bool >, moris_index > & get_mesh_set_to_fem_set_index_map( )
             {
                 return mMeshSetToFemSetMap;
             };
@@ -134,6 +141,46 @@ namespace moris
             Dist_Vector * get_previous_solution_vector()
             {
                 return mPrevSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set time for current time slab
+             * @param[ in ] aTime matrix for time in current time slab
+             */
+            void set_time( Matrix< DDRMat > & aTime )
+            {
+                mTime = aTime;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get time for current time slab
+             * @param[ out ] mTime matrix for time in current time slab
+             */
+            Matrix< DDRMat > & get_time()
+            {
+                return mTime;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set time for previous time slab
+             * @param[ in ] aPrevTime matrix for time in previous time slab
+             */
+            void set_previous_time( Matrix< DDRMat > & aPrevTime )
+            {
+                mPrevTime = aPrevTime;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get time for previous time slab
+             * @param[ out ] mPrevTime matrix for time in previous time slab
+             */
+            Matrix< DDRMat > & get_previous_time()
+            {
+                return mPrevTime;
             }
 
 //------------------------------------------------------------------------------

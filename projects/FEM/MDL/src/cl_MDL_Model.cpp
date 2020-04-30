@@ -414,16 +414,41 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 4: create the solver
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // start timer
+            tic tTimerSolver;
             mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
 
             mSolverWarehouse->set_parameterlist( tSOLParameterList );
 
             mSolverWarehouse->initialize();
 
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimerSolver.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "Model: created Solver Warehouse in %5.3f seconds.\n\n",
+                                ( double ) tElapsedTime / 1000 );
+            }
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 5: create the output manager
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // start timer
+            tic tTimerVisMesh;
+
             mOutputManager = new vis::Output_Manager( tVISParameterList( 0 )( 0 ) );
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimerVisMesh.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "Model: created Vis Mesh in %5.3f seconds.\n\n",
+                                ( double ) tElapsedTime / 1000 );
+            }
         }
 
 //------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ class Tracer
     };
 
 
-    // destructor: automatically perform sign out operation when tracer is destructed
+    // destructor: automatically perform sign out operation when tracer gets destructed
     ~Tracer()
     {
         gLogger.sign_out();

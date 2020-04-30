@@ -6,6 +6,7 @@
  */
 
 #include "cl_MTK_Cell_Info_Hex27.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
 
@@ -118,6 +119,20 @@ Cell_Info_Hex27::get_node_to_facet_map(moris::uint aSideOrdinal) const
     return this->get_node_to_face_map(aSideOrdinal);
 }
 // ----------------------------------------------------------------------------------
+moris::Matrix<moris::IndexMat>
+Cell_Info_Hex27::get_geometric_node_to_facet_map() const
+{
+    Cell_Info_Hex8 tHex8;
+    return tHex8.get_node_to_face_map();
+}
+// ----------------------------------------------------------------------------------
+moris::Matrix<moris::IndexMat>
+Cell_Info_Hex27::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
+{
+    Cell_Info_Hex8 tHex8;
+    return tHex8.get_node_to_face_map(aSideOrdinal);
+}
+// ----------------------------------------------------------------------------------
 moris::uint
 Cell_Info_Hex27::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
 {
@@ -193,6 +208,59 @@ Cell_Info_Hex27::compute_cell_side_size( moris::mtk::Cell const * aCell ,
 //    return tLx*tLy;
 }
 // ----------------------------------------------------------------------------------
+void
+Cell_Info_Hex27::eval_N( const Matrix< DDRMat > & aXi,
+                              Matrix< DDRMat > & aNXi ) const
+{
+    // make sure that input is correct
+    MORIS_ASSERT( aXi.length() >= 3, "HEX27 - eval_N: aXi not allocated or hat wrong size." );
+
+    // unpack xi and eta from input vector
+    auto    xi = aXi( 0 );
+    auto   eta = aXi( 1 );
+    auto  zeta = aXi( 2 );
+
+    // often used constants
+    auto    xi2 = std::pow(   xi, 2 );
+    auto   eta2 = std::pow(  eta, 2 );
+    auto  zeta2 = std::pow( zeta, 2 );
+
+    auto a = -0.25 * eta * zeta;
+    auto b = -0.25 * xi * zeta;
+    auto c = -0.25 * xi * eta;
+    auto d = 0.125 * xi * eta * zeta;
+
+    // populate output matrix
+    aNXi.set_size(1,27);
+    aNXi(  0 ) = d * ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
+    aNXi(  1 ) = d * ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
+    aNXi(  2 ) = d * ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
+    aNXi(  3 ) = d * ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
+    aNXi(  4 ) = d * ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
+    aNXi(  5 ) = d * ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
+    aNXi(  6 ) = d * ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
+    aNXi(  7 ) = d * ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
+    aNXi(  8 ) = a * ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 );
+    aNXi(  9 ) = b * ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
+    aNXi( 10 ) = a * ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 );
+    aNXi( 11 ) = b * ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
+    aNXi( 12 ) = c * ( zeta2 - 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 );
+    aNXi( 13 ) = c * ( zeta2 - 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 );
+    aNXi( 14 ) = c * ( zeta2 - 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 );
+    aNXi( 15 ) = c * ( zeta2 - 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 );
+    aNXi( 16 ) = a * ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 );
+    aNXi( 17 ) = b * ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
+    aNXi( 18 ) = a * ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 );
+    aNXi( 19 ) = b * ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
+    aNXi( 20 ) = -( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( zeta2 - 1.0 );
+    aNXi( 21 ) = ( zeta * ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.5;
+    aNXi( 22 ) = ( zeta * ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.5;
+    aNXi( 23 ) = ( xi * ( eta2 - 1.0 ) * ( zeta2 - 1.0 ) * ( xi - 1.0 ) ) * 0.5;
+    aNXi( 24 ) = ( xi * ( eta2 - 1.0 ) * ( zeta2 - 1.0 ) * ( xi + 1.0 ) ) * 0.5;
+    aNXi( 25 ) = ( eta * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) * ( eta - 1.0 ) ) * 0.5;
+    aNXi( 26 ) = ( eta * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) * ( eta + 1.0 ) ) * 0.5;
+}
+
 
 }
 }

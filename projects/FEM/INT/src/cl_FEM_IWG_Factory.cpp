@@ -42,6 +42,10 @@
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp"
+// Time continuity
+#include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
+// Turbulence
+#include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
 
 namespace moris
 {
@@ -154,6 +158,12 @@ namespace moris
 
                 case ( IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE ):
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();
+
+                case ( IWG_Type::TIME_CONTINUITY_DOF ):
+                    return std::make_shared< IWG_Time_Continuity_Dof >();
+
+                case ( IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK ):
+                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Bulk >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );

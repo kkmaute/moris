@@ -46,6 +46,7 @@ cl_MTK_Side_Set.hpp
 cl_MTK_Side_Sets_Info.hpp
 cl_MTK_Cell_Info_Tet4.hpp
 cl_MTK_Cell_Info_Quad9.hpp
+cl_MTK_Cell_Info_Quad16.hpp
 cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex_Proxy.hpp
@@ -84,7 +85,8 @@ cl_MTK_Cell_Info_Hex64.cpp
 cl_MTK_Cell_Info_Tet4.cpp
 cl_MTK_Cell_Info_Tri3.cpp
 cl_MTK_Cell_Info_Quad4.cpp
-cl_MTK_Cell_Info_Quad9.cpp)
+cl_MTK_Cell_Info_Quad9.cpp
+cl_MTK_Cell_Info_Quad16.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES
