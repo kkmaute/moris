@@ -62,8 +62,8 @@ namespace moris
         //! B-Spline orders
         tParameterList.insert( "bspline_pattern", std::string( "0" ) );
 
-        //tParameterList.insert( "union_pattern", 6 );
-        //tParameterList.insert( "working_pattern", 7 );
+        tParameterList.insert( "union_pattern", 6 );
+        tParameterList.insert( "working_pattern", 7 );
 
         //! defines which B-Spline mesh is associated with which lagrange mesh
         tParameterList.insert( "lagrange_to_bspline", std::string( "0" ) );
