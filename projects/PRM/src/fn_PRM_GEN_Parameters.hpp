@@ -68,6 +68,17 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
+    ParameterList create_user_defined_geometry_parameter_list()
+    {
+        ParameterList tParameterList = create_geometry_parameter_list();
+
+        tParameterList.set("type", "user_defined"); // User-defined geometry
+        tParameterList.insert("field_function_name", ""); // Function name for evaluating the geometry field
+        tParameterList.insert("sensitivity_function_name", ""); // Function name for evaluating the sensitivity of the field
+
+        return tParameterList;
+    }
+
     } // end prm namespace
 } // end moris namespace
 
