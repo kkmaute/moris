@@ -30,6 +30,7 @@ namespace moris
         private :
             // list of all dv types on host
             Cell< std::shared_ptr< GEN_Pdv > > mPdvList;
+            Cell<bool> mActivePdvs;
 
             // list of properties for the dv types
             Cell< std::shared_ptr< GEN_Property > > mPdvProperties;
@@ -53,6 +54,7 @@ namespace moris
             {
                 // set size for the pdv list
                 mPdvList.resize( aNumPdvs, nullptr );
+                mActivePdvs.resize(aNumPdvs, true);
 
                 // set size for the id map
                 mTypeToIDMap.resize( aNumPdvs, 1 );
@@ -76,6 +78,7 @@ namespace moris
                 uint tNumCurrPdvs = mPdvList.size();
 
                 mPdvList.resize( tNumCurrPdvs + aNumNewPdvs, nullptr );
+                mActivePdvs.resize(tNumCurrPdvs + aNumNewPdvs, true);
 
                 mTypeToIDMap.resize( tNumCurrPdvs + aNumNewPdvs, 1 );
             }
@@ -176,24 +179,30 @@ namespace moris
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
-            sint is_active_type(       enum GEN_DV          aPdvType,
+            bool is_active_type(       enum GEN_DV          aPdvType,
                                  const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type
                 moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
 
-                // if pdv not created
-                if( mPdvList( tPos ) == nullptr )
+                // if pdv not created or inactive
+                if( mPdvList(tPos) == nullptr || mActivePdvs(tPos) == false)
                 {
-                    // return false
-                    return 0;
+                    return false;
                 }
-                // if pdv created
+                // if pdv created and active
                 else
                 {
-                    // return true
-                    return 1;
+                    return true;
                 }
+            }
+
+            void mark_pdv_as_inactive(GEN_DV aPdvType, const Matrix< IndexMat > & aGlobalPdvTypeMap)
+            {
+                // get index for dv type
+                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
+
+                mActivePdvs(tPos) = false;
             }
 
 //------------------------------------------------------------------------------
