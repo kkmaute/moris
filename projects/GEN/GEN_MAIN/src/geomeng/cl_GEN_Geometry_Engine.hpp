@@ -28,6 +28,8 @@
 
 // MRS
 #include "cl_Param_List.hpp"
+#include "fn_Exec_load_user_library.hpp"
+#include "../../../../MRS/IOS/src/fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -141,7 +143,7 @@ namespace moris
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              */
-            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists);
+            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**
              * Constructor using explicitly created analytic geometries and phase table

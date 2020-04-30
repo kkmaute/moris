@@ -14,7 +14,6 @@
 #include "cl_HMR.hpp"
 
 // MRS/IOS
-#include "fn_Exec_load_user_library.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
@@ -24,7 +23,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists) :
+        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :
         // User options
         mSpatialDim(aParameterLists(0)(0).get<uint>("spatial_dimensions")),
         mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
@@ -46,7 +45,7 @@ namespace moris
             mGeometryAnalytic.resize(this->get_num_geometries());
             for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
             {
-                mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs);
+                mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
             }
         }
 
