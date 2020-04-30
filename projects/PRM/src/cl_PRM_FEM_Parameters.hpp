@@ -115,6 +115,7 @@ namespace moris
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
 
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
+            tParameterList.insert( "time_continuity",            false );
 
             return tParameterList;
         }
@@ -143,6 +144,7 @@ namespace moris
             tParameterList.insert( "vectorial_field_index",      -1 );
 
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
+            tParameterList.insert( "time_continuity",            false );
 
             return tParameterList;
         }

@@ -136,7 +136,8 @@ namespace moris
         uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
         // get mtk set index to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap
+        //map< moris_index, moris_index > & tMeshSetToFemSetMap
+        map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
         = aEquationModel->get_mesh_set_to_fem_set_index_map();
 
         // get equation sets
@@ -154,10 +155,10 @@ namespace moris
             // get mtk set index
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-            if ( tMeshSetToFemSetMap.key_exists( tSetIndex ) )
+            if ( tMeshSetToFemSetMap.key_exists( std::make_pair( tSetIndex, false ) ) )
             {
                 // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
+                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_pair( tSetIndex, false ) );
 
                 // set vis set to fem set. +1 because 0 is reserved for fem
                 tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
@@ -378,7 +379,8 @@ namespace moris
                                             std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
         // get mesh set to fem set index map
-        map< moris_index, moris_index > & tMeshSetToFemSetMap
+        //map< moris_index, moris_index > & tMeshSetToFemSetMap
+        map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
         = aEquationModel->get_mesh_set_to_fem_set_index_map( );
 
         // get equation sets
@@ -405,10 +407,10 @@ namespace moris
             {
                 moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-                if ( tMeshSetToFemSetMap.key_exists( tSetIndex ) )
+                if ( tMeshSetToFemSetMap.key_exists( std::make_pair( tSetIndex, false ) ) )
                 {
                     // find set index for this block index
-                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( tSetIndex );
+                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_pair( tSetIndex, false ) );
 
                     // elemental field values
                     Matrix< DDRMat > tElementValues;
@@ -433,6 +435,8 @@ namespace moris
             }
             else if ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::GLOBAL )
             {
+                //std::cout<<tFieldName<<std::endl;
+                //std::cout<<tGlobalValue<<std::endl;
                 mWriter( aVisMeshIndex )->write_global_variable( tFieldName, tGlobalValue );
             }
         }

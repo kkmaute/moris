@@ -1,25 +1,21 @@
 /*
- * cl_FEM_SP_Ghost_Displacement.hpp
+ * cl_FEM_IWG_Time_Continuity_Dof.hpp
  *
- *  Created on: Nov 15, 2019
- *  Author: noel
+ *  Created on: Apr 20, 2020
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
-#define SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_TIME_CONTINUITY_DOF_HPP_
+#define SRC_FEM_CL_FEM_IWG_TIME_CONTINUITY_DOF_HPP_
 
 #include <map>
-
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
 {
@@ -27,45 +23,34 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class SP_Ghost_Displacement : public Stabilization_Parameter
+        class IWG_Time_Continuity_Dof : public IWG
         {
 
 //------------------------------------------------------------------------------
-        private:
-
-            // cluster measures
-            real mElementSize = 1.0;
-
         public:
 
-            // property type for the SP
-            enum class SP_Property_Type
+            enum class IWG_Property_Type
             {
-                MATERIAL,
+                WEIGHT_CURRENT,
+                WEIGHT_PREVIOUS,
+                INITIAL_CONDITION,
                 MAX_ENUM
             };
 
             // Local string to property enum map
-            std::map< std::string, SP_Property_Type > mPropertyMap;
+            std::map< std::string, IWG_Property_Type > mPropertyMap;
 
 //------------------------------------------------------------------------------
             /*
-             * constructor
-             * Rem: mParameters( 0 ) - gamma penalty parameter
+             *  constructor
              */
-            SP_Ghost_Displacement();
+            IWG_Time_Continuity_Dof();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~SP_Ghost_Displacement(){};
-
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures();
+            ~IWG_Time_Continuity_Dof(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -80,7 +65,11 @@ namespace moris
             {
                 // check that aPropertyString makes sense
                 MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "SP_Ghost_Displacement::set_property - Unknown aPropertyString." );
+                             "IWG_Time_Continuity_Dof::set_property - Unknown aPropertyString." );
+
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Time_Continuity_Dof::set_property - No slave allowed." );
 
                 // set the property in the property cell
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -88,28 +77,31 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter value
+             * compute the residual
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void eval_SP();
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter derivative wrt to a master dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dPPdMasterDOF ( 1 x numDerDof )
+             * compute the jacobian
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter derivative wrt to a master dv type
-             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             * dPPdMasterDV ( 1 x numDerDv )
+             * compute the residual and the jacobian
+             * @param[ in ] aWStar weight associated to the evaluation point
              */
-            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
-            {
-                MORIS_ERROR( false, "SP_Ghost_Displacement::eval_dSPdMasterDV: not implemented." );
-            }
+            void compute_jacobian_and_residual( real aWStar );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the residual wrt design variables
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_dRdp( real aWStar );
 
 //------------------------------------------------------------------------------
         };
@@ -117,4 +109,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_TIME_CONTINUITY_DOF_HPP_ */

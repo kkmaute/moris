@@ -177,7 +177,9 @@ namespace moris
 
         //------------------------------------------------------------------------------------------------------
 
-        mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );             //FIXME
+        std::cout<<"Dof_Manager::communicate_dof_types - mTimePerDofType forced."<<std::endl;
+        mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
+        //mTimePerDofType.set_size( tPdofTypeListSize, 1, 2 );
     }
 
     //-----------------------------------------------------------------------------------------------------------

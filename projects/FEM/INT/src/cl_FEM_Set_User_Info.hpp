@@ -40,6 +40,9 @@ namespace moris
         // mesh set name
         std::string mMeshSetName;
 
+        // bool for time sideset
+        bool mTimeContinuity = false;
+
 //------------------------------------------------------------------------------
         public :
 
@@ -63,6 +66,9 @@ namespace moris
              {
                  // print the mesh set name
                  std::cout<<"Mesh set name: "<<mMeshSetName<<std::endl;
+
+                 // print the bool for time sideset
+                 std::cout<<"Bool for time sideset: "<<mTimeContinuity<<std::endl;
 
                  // print IWG names
                  for ( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
@@ -115,6 +121,26 @@ namespace moris
             std::string get_mesh_set_name()
             {
                 return mMeshSetName;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * set the time continuity bool set name
+             * @param[ in ] aTimeContinuity bool for time sideset
+             */
+            void set_time_continuity( bool aTimeContinuity )
+            {
+                mTimeContinuity = aTimeContinuity;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * get the time continuity bool
+             * @param[ out ] mTimeContinuity bool for time sideset
+             */
+            const bool & get_time_continuity() const
+            {
+                return mTimeContinuity;
             };
 
 //------------------------------------------------------------------------------

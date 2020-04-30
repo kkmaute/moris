@@ -34,6 +34,9 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
+    // init time for time slab
+    Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
+
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
 
@@ -41,14 +44,18 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
         MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
 //        gLogger.log_specific(OutputSpecifier::Step, (Ik+1) );
 
-        bool tBreaker = false;
-        Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
+        // set time for previous time slab
+        mSolverInterface->set_previous_time( tTime );
 
-        if (mNonlinearSolver->get_nonlin_solver_type() == NLA::NonlinearSolverType::ARC_LENGTH_SOLVER )
+        bool tBreaker = false;
+        //Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
+
+        if ( mNonlinearSolver->get_nonlin_solver_type() == NLA::NonlinearSolverType::ARC_LENGTH_SOLVER )
         {
             mNonlinearSolver->set_time_solver_type( this );
 
             // update time increment (lambda) via the arc length function
+            tTime( 0, 0 ) = tTime( 1, 0 );
             tTime( 1, 0 ) = mLambdaInc;
 
             if ( mLambdaInc >= 1)
@@ -60,19 +67,22 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
         }
         else
         {
-            tTime_Scalar = tTime_Scalar + tTimeIncrements;
+            tTime_Scalar += tTimeIncrements;
+            tTime( 0, 0 ) = tTime( 1, 0 );
             tTime( 1, 0 ) = tTime_Scalar;
-
         }
+
+        // set time for current time slab
         mSolverInterface->set_time( tTime );
 
+        // set solution vector for previous time slab
         mSolverInterface->set_solution_vector_prev_time_step( mPrevFullVector );
 
         mNonlinearSolver->set_time_step_iter( Ik );
 
         mNonlinearSolver->solve( mFullVector );
 
-        mPrevFullVector->vec_plus_vec( 1.0, *mFullVector, 0.0);
+        mPrevFullVector->vec_plus_vec( 1.0, *mFullVector, 0.0 );
 
         if (tBreaker)
         {
