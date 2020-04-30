@@ -58,6 +58,8 @@ namespace moris
 
         typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
 
+        typedef bool ( *MORIS_POINTER_FUNC ) ( void * aPointer );
+
         typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
         typedef void ( *MORIS_GEN_FUNCTION ) (       moris::real                & aReturnValue,
@@ -289,6 +291,24 @@ namespace moris
             {
                 MORIS_SOL_CRITERIA_FUNC aUserFunction
                     = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            MORIS_POINTER_FUNC
+            load_pointer_functions( const std::string & aFunctionName )
+            {
+                MORIS_POINTER_FUNC aUserFunction
+                    = reinterpret_cast<MORIS_POINTER_FUNC>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

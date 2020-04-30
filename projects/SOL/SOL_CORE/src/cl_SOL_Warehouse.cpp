@@ -281,9 +281,11 @@ void SOL_Warehouse::create_time_solvers()
 
             for( uint Ia = 0; Ia< tOutputCriteria.size(); Ia++ )
             {
-                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = mLibrary->load_sol_criteria_functions( tOutputCriteria( Ia ) );
+//                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = mLibrary->load_sol_criteria_functions( tOutputCriteria( Ia ) );
+                MORIS_POINTER_FUNC tCriteriaFunc = mLibrary->load_pointer_functions( tOutputCriteria( Ia ) );
 
-                mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ), tCriteriaFunc );
+                mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
+                                                reinterpret_cast< bool(*)( moris::tsa::Time_Solver * )>( tCriteriaFunc ) );
             }
         }
 
