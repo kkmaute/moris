@@ -12,7 +12,7 @@
 
 // GE include -----------------------------------
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Design_Variable_Interface.hpp"
+#include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Dv_Enums.hpp"
 #include "cl_GEN_Enums.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -36,8 +36,6 @@
 #include "cl_XTK_Edge_Topology.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-
-#include "cl_MSI_Design_Variable_Interface.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
