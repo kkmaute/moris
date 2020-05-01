@@ -24,7 +24,7 @@ namespace moris
 
         private:
             Cell<std::string> mPhaseNames; // phase names
-            enum Phase_Table_Structure mPhaseTableStructure; // enum defining phase table structure
+            Phase_Table_Structure mPhaseTableStructure; // enum defining phase table structure
             moris::Matrix<moris::IndexMat> mPhaseTable; // the actual phase table
             moris::moris_index mNumPhases; // number of phases
 
@@ -34,7 +34,7 @@ namespace moris
              * @param aStructure Phase table structure
              * @param aPhaseNames (optional) Phase names
              */
-            Phase_Table(Phase_Table_Structure aStructure, moris::moris_index aNumPhases, Cell<std::string> aPhaseNames);
+            Phase_Table(Phase_Table_Structure aStructure, uint aNumPhases, Cell<std::string> aPhaseNames);
 
         public:
             /**

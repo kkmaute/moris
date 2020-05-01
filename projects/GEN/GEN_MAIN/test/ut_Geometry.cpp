@@ -143,6 +143,8 @@ namespace moris
             CHECK(tCircle1->evaluate_field_value(tCoordinates) == sqrt(10.0) - 2.0);
             CHECK(tCircle2->evaluate_field_value(tCoordinates) == 0.0);
 
+            Geometry_Engine tGeometryEngine(tParameterLists);
+
         }   // end test case
 
         TEST_CASE("User-Defined Geometry Test", "[GE], [GE_USER_GEOM]")
