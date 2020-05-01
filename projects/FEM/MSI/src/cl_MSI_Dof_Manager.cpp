@@ -175,11 +175,7 @@ namespace moris
         // Bcast unique mPdofTypeList to all processors
         MPI_Bcast( (mPdofTypeList.data()).data(), mPdofTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
 
-        //------------------------------------------------------------------------------------------------------
-
-        std::cout<<"Dof_Manager::communicate_dof_types - mTimePerDofType forced."<<std::endl;
-//        mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
-        mTimePerDofType.set_size( tPdofTypeListSize, 1, 2 );
+        mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
     }
 
     //-----------------------------------------------------------------------------------------------------------

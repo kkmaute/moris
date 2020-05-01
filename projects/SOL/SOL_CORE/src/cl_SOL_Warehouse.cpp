@@ -235,7 +235,7 @@ void SOL_Warehouse::create_time_solvers()
     for( uint Ik = 0; Ik< tNumTimeSolvers; Ik++ )
     {
         // Create time solver with user defined parameter list
-        mTimeSolvers( Ik ) = new tsa::Time_Solver( mParameterlist( 5 )( Ik ) );
+        mTimeSolvers( Ik ) = new tsa::Time_Solver( mParameterlist( 5 )( Ik ), this );
 
         // get tie solver algorithm indices for this time solver
         moris::Matrix< DDSMat > tMat;
@@ -290,7 +290,7 @@ void SOL_Warehouse::create_time_solvers()
         }
 
         // set warehouse to time solver
-        mTimeSolvers( Ik )->set_solver_warehouse( this );
+//        mTimeSolvers( Ik )->set_solver_warehouse( this );
     }
 }
 

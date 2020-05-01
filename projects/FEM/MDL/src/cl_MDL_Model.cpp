@@ -384,26 +384,6 @@ namespace moris
                                                                             tInterpolationMesh->get_num_coeffs( mBSplineIndex ),
                                                                             tInterpolationMesh );
 
-            // finalize the fem sets
-            mEquationModel->finalize_equation_sets( mModelSolverInterface );
-
-            // finalize the model solver interface
-            mModelSolverInterface->finalize();
-
-            // calculate AdofMap
-            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
-            }
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create the solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -431,6 +411,26 @@ namespace moris
                 MORIS_LOG_INFO( "Model: created Solver Warehouse in %5.3f seconds.\n\n",
                                 ( double ) tElapsedTime / 1000 );
             }
+
+            // finalize the model solver interface
+            mModelSolverInterface->finalize();
+
+            // calculate AdofMap
+            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
+                                ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( " " );
+            }
+
+            // finalize the fem sets
+            mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 5: create the output manager

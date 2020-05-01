@@ -24,10 +24,10 @@ namespace moris
         
         Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :
         // User options
-        mSpatialDim(aParameterLists(0)(0).get<uint>("spatial_dimensions")),
+        mSpatialDim(aParameterLists(0)(0).get<sint>("spatial_dimensions")),
         mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
         mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
-        mNumRefinements(aParameterLists(0)(0).get<uint>("HMR_refinements")),
+        mNumRefinements(aParameterLists(0)(0).get<sint>("HMR_refinements")),
 
         // ADVs
         mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),

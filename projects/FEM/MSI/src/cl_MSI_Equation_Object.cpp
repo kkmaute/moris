@@ -165,6 +165,18 @@ namespace moris
             }
         }
 
+//        for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
+//                {
+//                    // Loop over all pdof hosts and get their number of (free) pdofs
+//                    for ( moris::uint Ik=0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+//                    {
+//                        for ( moris::uint Ii=0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+//                        {
+//                            mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+//                        }
+//                    }
+//                }
+
         for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
         {
             moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
@@ -504,12 +516,12 @@ namespace moris
         this->build_PADofMap_1( tTMatrix );
 
 //        print( tTMatrix,"tTMatrix");
-        print( mEquationSet->get_jacobian(),"tJacobian");
+        //print( mEquationSet->get_jacobian(),"tJacobian");
 
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationSet->get_jacobian() * tTMatrix;
 
-        print(aEqnObjMatrix,"aEqnObjMatrix");
+        //print(aEqnObjMatrix,"aEqnObjMatrix");
 
     }
 
@@ -535,7 +547,8 @@ namespace moris
             aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
         }
 
-//        print(aEqnObjRHS, "aEqnObjRHS");
+        //print(tElementalResidual,"tElementalResidual");
+        //print(aEqnObjRHS, "aEqnObjRHS");
     }
 
 //-------------------------------------------------------------------------------------------------

@@ -56,7 +56,7 @@ namespace moris
             std::shared_ptr< Property > tPropInitialCondition
             = mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
-            // compute the residual
+              // compute the residual
             if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) == 0.0 )
             {
                 // compute the jump

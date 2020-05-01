@@ -6,6 +6,7 @@
  */
 
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Time_Solver.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
@@ -84,11 +85,15 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
 
         mPrevFullVector->vec_plus_vec( 1.0, *mFullVector, 0.0 );
 
+        // input second time slap value for output
+        mMyTimeSolver->check_for_outputs( tTime( 1 ) );
+
         if (tBreaker)
         {
             MORIS_ASSERT( false, "solve_monolytic_time_system(): lambda value greater than 1 detected...exiting monolithic time loop " );
             break;
         }
+
 
         mSolverInterface->perform_mapping();
     }
