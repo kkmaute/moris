@@ -24,10 +24,10 @@ namespace moris
         
         Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :
         // User options
-        mSpatialDim(aParameterLists(0)(0).get<uint>("spatial_dimensions")),
+        mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
         mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
         mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
-        mNumRefinements(aParameterLists(0)(0).get<uint>("HMR_refinements")),
+        mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
         // ADVs
         mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
@@ -41,10 +41,13 @@ namespace moris
 
         {
             // Build geometry (just analytic for right now)
-            mGeometryAnalytic.resize(this->get_num_geometries());
-            for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
+            if (aParameterLists(1).size() > 0)
             {
-                mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
+                mGeometryAnalytic.resize(aParameterLists(1).size());
+                for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
+                {
+                    mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
+                }
             }
         }
 
