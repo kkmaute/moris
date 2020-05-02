@@ -51,8 +51,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  |  SolVecNorm             ||  LinAsmTime  |  NewItrTime" );
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", 1, aResNorm, 0.0, solNorm );
-                MORIS_LOG( "|  %9.4e  |  %9.4e ", aAssemblyTime, 0.0 );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %9.4e  |  %9.4e ", 1, aResNorm, 0.0, solNorm, aAssemblyTime, 0.0);
             }
         }
 
@@ -65,8 +64,8 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, ( aResNorm/aRefNorm ), solNorm );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResDrop < %6.1e)", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %-10.4e  |  (NlinResDrop < %6.1e)",
+                        aIt, aResNorm, ( aResNorm/aRefNorm ), solNorm,  aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
             }
 
             tIsConverged = true;
@@ -75,8 +74,8 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, (aResNorm/aRefNorm), solNorm );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResNorm < %6.1e)", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %-10.4e  |  (NlinResNorm < %6.1e)",
+                        aIt, aResNorm, (aResNorm/aRefNorm), solNorm, aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
             }
 
             tIsConverged = true;
@@ -86,8 +85,8 @@ namespace moris
             // case for residual drop getting too big, not converged, need to retry
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, ( aResNorm/aRefNorm ), solNorm );
-                MORIS_LOG( "|  %-10.4e  |  (MaxResNormDrop > %6.1e)", aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %-10.4e  |  (MaxResNormDrop > %6.1e)",
+                        aIt, aResNorm, ( aResNorm/aRefNorm ), solNorm, aAssemblyTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
             }
 
             tIsConverged = false;
@@ -102,8 +101,7 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, aResNorm, (aResNorm/aRefNorm), solNorm  );
-                MORIS_LOG( "|  %9.4e  |  %9.4e ", aAssemblyTime, aSolvTime );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %9.4e  |  %9.4e ", aIt, aResNorm, (aResNorm/aRefNorm), solNorm, aAssemblyTime, aSolvTime  );
             }
         }
 
@@ -130,8 +128,7 @@ namespace moris
             if ( par_rank() == 0 )
             {
                 MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  ||  NewItrTime" );
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", 1, aResNorm, 0.0 );
-                MORIS_LOG( "|  %9.4e ",  0.0 );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %9.4e ", 1, aResNorm, 0.0,  0.0  );
             }
         }
 
@@ -144,8 +141,8 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, ( aResNorm/aRefNorm ) );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResDrop < %6.1e)", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %-10.4e  |  (NlinResDrop < %6.1e)",
+                        aIt, aResNorm, ( aResNorm/aRefNorm ), aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) );
             }
 
             tIsConverged = true;
@@ -154,8 +151,8 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, (aResNorm/aRefNorm) );
-                MORIS_LOG( "|  %-10.4e  |  (NlinResNorm < %6.1e)", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %-10.4e  |  (NlinResNorm < %6.1e)",
+                        aIt, aResNorm, (aResNorm/aRefNorm), aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
             }
 
             tIsConverged = true;
@@ -165,8 +162,8 @@ namespace moris
             // case for residual drop getting too big, not converged, need to retry
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, ( aResNorm/aRefNorm ) );
-                MORIS_LOG( "|  %-10.4e  |  (MaxResNormDrop > %6.1e)", aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %-10.4e  |  (MaxResNormDrop > %6.1e)",
+                        aIt, aResNorm, ( aResNorm/aRefNorm ), aSolvTime, tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_res_norm_drop" ) );
             }
 
             tIsConverged = false;
@@ -181,8 +178,8 @@ namespace moris
         {
             if ( par_rank() == 0 )
             {
-                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |", aIt, aResNorm, (aResNorm/aRefNorm) );
-                MORIS_LOG( "|  %9.4e  |  %9.4e ", aSolvTime, aSolvTime );
+                MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %9.4e  |  %9.4e ",
+                        aIt, aResNorm, (aResNorm/aRefNorm), aSolvTime, aSolvTime );
             }
         }
 
