@@ -44,9 +44,11 @@ namespace moris
 //-------------------------------------------------------------------------------------------------------
 
     void MSI_Solver_Interface::initiate_output( const uint aOutputIndex,
-                                                const uint aTime )
+                                                const real aTime,
+                                                const bool aEndOfTimeIteration )
     {
-        mModel->output_solution( aOutputIndex, aTime );
+        // end of time iteration that the exodus file should be closed
+        mModel->output_solution( aOutputIndex, aTime, aEndOfTimeIteration );
     }
 
 //------------------------------------------------------------------------------

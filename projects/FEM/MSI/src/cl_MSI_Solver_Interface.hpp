@@ -132,7 +132,8 @@ namespace mdl
 //------------------------------------------------------------------------------
 
             void initiate_output( const uint aOutputIndex,
-                                  const uint aTime );
+                                  const real aTime,
+                                  const bool aEndOfTimeIteration );
 
 //------------------------------------------------------------------------------
 

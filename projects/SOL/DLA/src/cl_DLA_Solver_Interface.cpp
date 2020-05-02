@@ -78,7 +78,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 {
     this->set_solution_vector( aFullSolutionVector );
 
-    aFullSolutionVector->print();
+    //aFullSolutionVector->print();
 
     // Get local number of elements
     moris::uint tNumBlocks = this->get_num_my_blocks();

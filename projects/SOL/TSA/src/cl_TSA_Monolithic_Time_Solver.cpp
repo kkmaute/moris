@@ -35,6 +35,8 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
+    bool tMaxTimeIterationReached = false;
+
     // init time for time slab
     Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
 
@@ -85,8 +87,13 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
 
         mPrevFullVector->vec_plus_vec( 1.0, *mFullVector, 0.0 );
 
+        if( Ik == tTimeSteps-1 )
+        {
+            tMaxTimeIterationReached = true;
+        }
+
         // input second time slap value for output
-        mMyTimeSolver->check_for_outputs( tTime( 1 ) );
+        mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached );
 
         if (tBreaker)
         {

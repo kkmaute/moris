@@ -215,7 +215,8 @@ using namespace tsa;
 
 //-------------------------------------------------------------------------------------------------------
 
-    void Time_Solver::check_for_outputs( const moris::real & aTime )
+    void Time_Solver::check_for_outputs( const moris::real & aTime,
+                                         const bool          aEndOfTimeIteration )
     {
          uint tCounter = 0;
 
@@ -237,7 +238,7 @@ using namespace tsa;
             {
                 MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
 
-                mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime );
+                mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
             }
 
             tCounter++;

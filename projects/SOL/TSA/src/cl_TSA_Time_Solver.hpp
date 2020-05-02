@@ -276,7 +276,8 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        void check_for_outputs( const moris::real & aTime );
+        void check_for_outputs( const moris::real & aTime,
+                                const bool          aEndOfTimeIteration);
 
         //--------------------------------------------------------------------------------------------------
 

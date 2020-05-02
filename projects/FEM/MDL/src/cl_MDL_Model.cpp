@@ -512,7 +512,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Model::output_solution( const uint aVisMeshIndex,
-                                     const real aTime )
+                                     const real aTime,
+                                     const bool aCloseFile )
         {
             // create the visualization mesh for this index
             mOutputManager->create_visualization_mesh( aVisMeshIndex,
@@ -524,15 +525,18 @@ namespace moris
                                                     mEquationModel );
 
             // write the mesh to file
-            mOutputManager->write_mesh( aVisMeshIndex,
-                                        aTime );
+            mOutputManager->write_mesh( aVisMeshIndex );
 
             // write requested fields
             mOutputManager->write_field( aVisMeshIndex,
+                                         aTime,
                                          mEquationModel );
 
-            // end writing and delete vis mesh
-            mOutputManager->end_writing( aVisMeshIndex );
+            if( aCloseFile )
+            {
+                // end writing and delete vis mesh
+                mOutputManager->end_writing( aVisMeshIndex );
+            }
         }
 
     } /* namespace mdl */

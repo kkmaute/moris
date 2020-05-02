@@ -269,6 +269,7 @@ namespace moris
                     " field was attempted to be written with " + std::to_string(aFieldValues.numel()) + " values, but there are " +
                     std::to_string(mMesh->get_num_nodes()) + " nodes in this mesh.").c_str());
 
+            std::cout<<mTimeStep<<std::endl;
             // Write the field
             ex_put_var(mExoid, mTimeStep, EX_NODAL, tFieldIndex + 1, 0, aFieldValues.numel(), aFieldValues.data());
         }

@@ -101,6 +101,8 @@ namespace moris
 
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
+
+        mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -111,20 +113,23 @@ namespace moris
     {
         MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex, "create_visualization_meshes(), Visualization mesh not set" );
 
-        mMTKMesh = aMesh;
-        mMTKMeshPairIndex = aMeshPairIndex;
+        if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+        {
+            mMTKMesh = aMesh;
+            mMTKMeshPairIndex = aMeshPairIndex;
 
-        // create vis factory
-        vis::VIS_Factory tVisFactory( aMesh, aMeshPairIndex );
+            // create vis factory
+            vis::VIS_Factory tVisFactory( aMesh, aMeshPairIndex );
 
-        // create vis mesh
-        mVisMesh( aVisMeshIndex ) = tVisFactory.create_visualization_mesh( mOutputData( aVisMeshIndex ) );
+            // create vis mesh
+            mVisMesh( aVisMeshIndex ) = tVisFactory.create_visualization_mesh( mOutputData( aVisMeshIndex ) );
 
-        // resize list of writers to list of outputs. memory allocation stays intact
-        mWriter.resize( mOutputData.size(), nullptr );
+            // resize list of writers to list of outputs. memory allocation stays intact
+            mWriter.resize( mOutputData.size(), nullptr );
 
-        // create writer for this mesh
-        mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+            // create writer for this mesh
+            mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+        }
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -132,70 +137,75 @@ namespace moris
     void Output_Manager::set_visualization_sets( const uint                                   aVisMeshIndex,
                                                        std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
-        // get number of requested sets
-        uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
-
-        // get mtk set index to fem set index map
-        //map< moris_index, moris_index > & tMeshSetToFemSetMap
-        map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
-        = aEquationModel->get_mesh_set_to_fem_set_index_map();
-
-        // get equation sets
-        moris::Cell< MSI::Equation_Set * > tEquationSets
-        = aEquationModel->get_equation_sets();
-
-        // get integration mesh
-        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-        mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
-
-        // loop over equation sets.
-        for( uint Ii = 0; Ii < tNumRequestedSets; Ii++ )
+        if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
         {
-            // get mtk set index
-            moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
+            // get number of requested sets
+            uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
-            if ( tMeshSetToFemSetMap.key_exists( std::make_pair( tSetIndex, false ) ) )
+            // get mtk set index to fem set index map
+            //map< moris_index, moris_index > & tMeshSetToFemSetMap
+            map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
+            = aEquationModel->get_mesh_set_to_fem_set_index_map();
+
+            // get equation sets
+            moris::Cell< MSI::Equation_Set * > tEquationSets
+            = aEquationModel->get_equation_sets();
+
+            // get integration mesh
+            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
+            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+            mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+
+            // loop over equation sets.
+            for( uint Ii = 0; Ii < tNumRequestedSets; Ii++ )
             {
-                // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_pair( tSetIndex, false ) );
+                // get mtk set index
+                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-                // set vis set to fem set. +1 because 0 is reserved for fem
-                tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
-                                                                           mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
-                                                                           mOnlyPrimary );
+                if ( tMeshSetToFemSetMap.key_exists( std::make_pair( tSetIndex, false ) ) )
+                {
+                    // find set index for this block index
+                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_pair( tSetIndex, false ) );
+
+                    // set vis set to fem set. +1 because 0 is reserved for fem
+                    tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
+                                                                               mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
+                                                                               mOnlyPrimary );
+                }
             }
         }
     }
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Output_Manager::write_mesh( const uint aVisMeshIndex,
-                                     const real aTime )
+    void Output_Manager::write_mesh( const uint aVisMeshIndex )
     {
-        // specify file path
-        std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
+        if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+        {
+            // specify file path
+            std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
 
-        // get file name
-        std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
+            // get file name
+            std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
 
-        std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
+            std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
 
-        MORIS_LOG( tMassage.c_str() );
+            MORIS_LOG( tMassage.c_str() );
 
-        // write mesh to file
-        mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
+            // write mesh to file
+            mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
 
-        // add nodal elemental and global fields to mesh
-        this->add_nodal_fields( aVisMeshIndex );
-        this->add_elemetal_fields( aVisMeshIndex );
-        this->add_global_fields( aVisMeshIndex );
+            // add nodal elemental and global fields to mesh
+            this->add_nodal_fields( aVisMeshIndex );
+            this->add_elemetal_fields( aVisMeshIndex );
+            this->add_global_fields( aVisMeshIndex );
 
-        // write time to file
-        mWriter( aVisMeshIndex )->set_time( aTime );
+            // write standard outputs like IDs and Indices to file
+            //this->write_mesh_indices( aVisMeshIndex );
 
-        // write standard outputs like IDs and Indices to file
-        //this->write_mesh_indices( aVisMeshIndex );
+            std::cout<<"write mesh"<<std::endl;
+            mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
+        }
     }
 
 
@@ -376,8 +386,12 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
     void Output_Manager::write_field( const uint                                   aVisMeshIndex,
+                                      const real                                   aTime,
                                             std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
+        // write time to file
+        mWriter( aVisMeshIndex )->set_time( aTime );
+
         // get mesh set to fem set index map
         //map< moris_index, moris_index > & tMeshSetToFemSetMap
         map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap

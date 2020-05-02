@@ -77,7 +77,8 @@ namespace moris
 
             moris::Cell< vis::Output_Data > mOutputData;
 
-            Cell< mtk::Mesh * > mVisMesh;
+            moris::Cell< mtk::Mesh * > mVisMesh;
+            moris::Cell< bool >        mVisMeshCreatedAndOpen;
 
             bool mOnlyPrimary = false;
 
@@ -122,6 +123,8 @@ namespace moris
                 delete ( mWriter( aVisMeshIndex ) );
 
                 mWriter( aVisMeshIndex ) = nullptr;
+
+                mVisMeshCreatedAndOpen( aVisMeshIndex ) = false;
             }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -163,8 +166,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            void write_mesh( const uint aVisMeshIndex,
-                             const real tTime);
+            void write_mesh( const uint aVisMeshIndex );
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -185,6 +187,7 @@ namespace moris
 //-----------------------------------------------------------------------------------------------------------
 
             void write_field( const uint                                   aVisMeshIndex,
+                              const real                                   aTime,
                                     std::shared_ptr< MSI::Equation_Model > aEquationModel );
 
 //-----------------------------------------------------------------------------------------------------------
