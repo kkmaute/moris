@@ -53,6 +53,8 @@ namespace moris
 
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
+
+        mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
     }
 
 //-----------------------------------------------------------------------------------------------------------
