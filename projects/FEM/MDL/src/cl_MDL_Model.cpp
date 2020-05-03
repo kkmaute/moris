@@ -515,17 +515,11 @@ namespace moris
                                      const real aTime,
                                      const bool aCloseFile )
         {
-            // create the visualization mesh for this index
-            mOutputManager->create_visualization_mesh( aVisMeshIndex,
-                                                       mMeshManager,
-                                                       mMeshPairIndex );
-
-            // set the visualization sets to the equation sets
-            mOutputManager->set_visualization_sets( aVisMeshIndex,
-                                                    mEquationModel );
-
-            // write the mesh to file
-            mOutputManager->write_mesh( aVisMeshIndex );
+            // create vis mesh and setup output
+            mOutputManager->setup_vis_mesh_for_output(aVisMeshIndex,
+                                                      mMeshManager,
+                                                      mMeshPairIndex,
+                                                      mEquationModel );
 
             // write requested fields
             mOutputManager->write_field( aVisMeshIndex,
