@@ -174,6 +174,26 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void IWG::set_field_interpolator_manager_previous_time( Field_Interpolator_Manager * aFieldInterpolatorManager,
+                                                                mtk::Master_Slave            aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ) :
+                {
+                    mMasterPreviousFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master");
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                    moris::Cell< GEN_DV >        & aDvTypes )
         {

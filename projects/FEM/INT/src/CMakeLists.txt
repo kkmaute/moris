@@ -42,6 +42,8 @@ set(HEADERS
     cl_FEM_IWG_INCOMPRESSIBLE_NS_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
+    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
+    cl_FEM_IWG_Time_Continuity_Dof.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
     #cl_FEM_IWG_Helmholtz_Bulk2.hpp
     #cl_FEM_IWG_Helmholtz_Interface.hpp
@@ -185,6 +187,8 @@ set(LIB_SOURCES
     cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
+    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
+    cl_FEM_IWG_Time_Continuity_Dof.cpp
     #cl_FEM_IWG_Helmholtz_Bulk.cpp
     #cl_FEM_IWG_Helmholtz_Bulk2.cpp
     #cl_FEM_IWG_Helmholtz_Interface.cpp

@@ -121,17 +121,16 @@ namespace moris
             std::shared_ptr< Property > tPropConductivity
             = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
+            // init the matrix
+            mdFluxdDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ) = tPropConductivity->val()( 0 )
-                                        * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
-            }
-            else
-            {
-                // reset the matrix
-                mdFluxdDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+                mdFluxdDof( tDofIndex ).matrix_data()
+                += tPropConductivity->val()( 0 )
+                 * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
             }
 
             // if indirect dependency on the dof type

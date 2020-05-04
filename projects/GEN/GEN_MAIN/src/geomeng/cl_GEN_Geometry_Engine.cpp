@@ -14,27 +14,26 @@
 #include "cl_HMR.hpp"
 
 // MRS/IOS
-#include "fn_Exec_load_user_library.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
 {
     namespace ge
     {
-
         //--------------------------------------------------------------------------------------------------------------
         
-        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists) :
+        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :
         // User options
-        mSpatialDim(aParameterLists(0)(0).get<uint>("spatial_dimensions")),
+        mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
         mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
         mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
-        mNumRefinements(aParameterLists(0)(0).get<uint>("HMR_refinements")),
+        mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
         // ADVs
         mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
         mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
         mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
+        mActiveGeometryIndex(0),
 
         // Phase table
         mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
@@ -43,10 +42,13 @@ namespace moris
 
         {
             // Build geometry (just analytic for right now)
-            mGeometryAnalytic.resize(this->get_num_geometries());
-            for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
+            if (aParameterLists(1).size() > 0)
             {
-                mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs);
+                mGeometryAnalytic.resize(aParameterLists(1).size());
+                for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
+                {
+                    mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
+                }
             }
         }
 
@@ -883,7 +885,6 @@ namespace moris
             moris::size_t tNumNodes = aEntityNodeInds.numel();
             moris::Matrix< moris::DDRMat > tEntityNodeVars(tNumNodes, 1);
             moris::Matrix< moris::DDRMat > tInterpLocationCoords(1,1);
-        
         
             // Loop through nodes and get levelset values from precomputed values in aNodeVars or in the levelset mesh
             for(moris::size_t n = 0; n < tNumNodes; n++)

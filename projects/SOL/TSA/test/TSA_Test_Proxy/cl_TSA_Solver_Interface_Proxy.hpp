@@ -44,6 +44,7 @@ namespace tsa
 
         moris::real mk = 2;
         Matrix< DDRMat> mT;
+        Matrix< DDRMat> mPreviousT;
         moris::real mDeltaT = 0.0;
 
         Matrix< DDSMat > mTimeLevelIdsMinus;
@@ -67,6 +68,11 @@ namespace tsa
         void set_time( const Matrix< DDRMat> & aTime )
         {
             mT = aTime;
+        }
+
+        void set_previous_time( const Matrix< DDRMat> & aTime )
+        {
+            mPreviousT = aTime;
         }
         // ----------------------------------------------------------------------------------------------
 

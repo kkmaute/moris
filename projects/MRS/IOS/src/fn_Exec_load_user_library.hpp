@@ -33,6 +33,11 @@ namespace moris
         class Field_Interpolator_Manager;
     }
 
+    namespace hmr
+    {
+        class Element;
+    }
+
 // -----------------------------------------------------------------------------
 
         /**
@@ -53,15 +58,23 @@ namespace moris
 
         typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
 
+        typedef bool ( *MORIS_POINTER_FUNC ) ( void * aPointer );
+
         typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
-        typedef void ( *MORIS_GEN_FUNCTION ) (       moris::real                & aReturnValue,
-                                               const moris::Matrix< DDRMat >    & aPoint,
-                                               const moris::Cell< moris::real > & aConst );
+        typedef real ( *MORIS_GEOMETRY_FUNCTION ) ( const moris::Matrix< DDRMat >    & aCoordinates,
+                                               const moris::Cell< moris::real* > & aParameters );
+
+        typedef Matrix<DDRMat> ( *MORIS_GEOMETRY_SENSITIVITY_FUNCTION ) ( const moris::Matrix< DDRMat >    & aCoordinates,
+                                                                           const moris::Cell< moris::real* > & aParameters );
 
         typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
                                                     moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                     moris::fem::Field_Interpolator_Manager        * aFIManager );
+                                                    
+        typedef sint  ( *MORIS_USER_DEFINED_REFINEMENT_FUNCTION ) (       hmr::Element             * aElement,
+                                                                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                                                                          ParameterList            & aParameters );
 
 // -----------------------------------------------------------------------------
 
@@ -255,16 +268,34 @@ namespace moris
                 return aUserFunction;
             }
 
-            MORIS_GEN_FUNCTION
-            load_gen_free_functions( const std::string & aFunctionName )
+            MORIS_GEOMETRY_FUNCTION
+            load_geometry_function( const std::string & aFunctionName )
             {
-                MORIS_GEN_FUNCTION aUserFunction
-                    = reinterpret_cast<MORIS_GEN_FUNCTION>
+                MORIS_GEOMETRY_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_GEOMETRY_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                                    + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            MORIS_GEOMETRY_SENSITIVITY_FUNCTION
+            load_geometry_sensitivity_function( const std::string & aFunctionName )
+            {
+                MORIS_GEOMETRY_SENSITIVITY_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_GEOMETRY_SENSITIVITY_FUNCTION>
+                        ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                        + "  within file " + mPath;
 
                 // make sure that loading succeeded
                 MORIS_ERROR( aUserFunction, tError.c_str() );
@@ -280,6 +311,44 @@ namespace moris
             {
                 MORIS_SOL_CRITERIA_FUNC aUserFunction
                     = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            MORIS_POINTER_FUNC
+            load_pointer_functions( const std::string & aFunctionName )
+            {
+                MORIS_POINTER_FUNC aUserFunction
+                    = reinterpret_cast<MORIS_POINTER_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION
+            load_user_defined_refinement_functions( const std::string & aFunctionName )
+            {
+                MORIS_USER_DEFINED_REFINEMENT_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_USER_DEFINED_REFINEMENT_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

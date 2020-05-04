@@ -251,9 +251,11 @@ class Library_IO;
             * output solution
             * @param[ in ] aVisMeshIndex mesh index on with solution is displayed
             * @param[ in ] aTime         a time at which solution is displayed
+            * @param[ in ] aCloseFile    boolean indicating the closing of the exodus file
             */
            void output_solution( const uint aVisMeshIndex,
-                                 const real aTime );
+                                 const real aTime,
+                                 const bool aCloseFile );
 
 //------------------------------------------------------------------------------
         };

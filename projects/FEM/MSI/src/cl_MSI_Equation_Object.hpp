@@ -77,7 +77,8 @@ class Dist_Vector;
 
             moris::uint mEqnObjInd;
 
-            Matrix< DDRMat > mTime;
+//            Matrix< DDRMat > mTime;
+//            Matrix< DDRMat > mPrevTime;
 
             Equation_Set * mEquationSet;
 
@@ -104,17 +105,18 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void set_time( const Matrix< DDRMat > & aTime )
-            {
-                mTime = aTime;
-            }
+            void set_time( Matrix< DDRMat > & aTime );
+//            {
+//                mTime = aTime;
+//            }
 
 //-------------------------------------------------------------------------------------------------
 
-            Matrix< DDRMat > & get_time()
-            {
-                return mTime ;
-            }
+            Matrix< DDRMat > & get_time();
+
+//-------------------------------------------------------------------------------------------------
+
+            Matrix< DDRMat > & get_previous_time();
 
 //-------------------------------------------------------------------------------------------------
 
@@ -210,7 +212,7 @@ class Dist_Vector;
              */
             void compute_my_pdof_values( );
 
-            //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 
             /**
              * @brief Compute function for the previous pdof values of this particular equation object

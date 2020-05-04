@@ -112,6 +112,18 @@ Cell_Info_Hex8::get_node_to_facet_map(moris::uint aSideOrdinal) const
 }
 // ----------------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>
+Cell_Info_Hex8::get_geometric_node_to_facet_map() const
+{
+    return this->get_node_to_face_map();
+}
+// ----------------------------------------------------------------------------------
+moris::Matrix<moris::IndexMat>
+Cell_Info_Hex8::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
+{
+    return this->get_node_to_face_map(aSideOrdinal);
+}
+// ----------------------------------------------------------------------------------
+moris::Matrix<moris::IndexMat>
 Cell_Info_Hex8::get_node_map_outward_normal(moris::uint aSideOrdinal) const
 {
     switch (aSideOrdinal)

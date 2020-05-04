@@ -185,6 +185,18 @@ public:
     }
 
     /*!
+     * get vertices on side ordinal that define the geometry (i.e. the corner nodes)
+     * This functions is needed for side clustering
+     */
+    virtual
+    moris::Cell<moris::mtk::Vertex const *>
+    get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+    {
+        MORIS_ERROR(0,"get_geometric_vertices_on_side_ordinal has no default implementation");
+        return  moris::Cell<moris::mtk::Vertex const *>(0);
+    }
+
+    /*!
      * Get vertex coordinates on side ordinal
      */
 

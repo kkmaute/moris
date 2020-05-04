@@ -31,9 +31,10 @@ namespace moris
                                                              mMeshSet( aMeshSet ),
                                                              mNodes( aIPNodes ),
                                                              mIWGs( aSetInfo.get_IWGs() ),
-                                                             mIQIs( aSetInfo.get_IQIs() )
+                                                             mIQIs( aSetInfo.get_IQIs() ),
+                                                             mTimeContinuity( aSetInfo.get_time_continuity() )
     {
-        // get the set type (BULK, SIDESET, DOUBLE_SIDESET)
+        // get the set type (BULK, SIDESET, DOUBLE_SIDESET, TIME_SIDESET)
         this->determine_set_type();
 
         // loop over the IWGs on the set
@@ -57,7 +58,7 @@ namespace moris
         uint tNumMeshClusters = mMeshClusterList.size();
 
         // set size for the equation objects list
-        mEquationObjList.resize( tNumMeshClusters, nullptr);
+        mEquationObjList.resize( tNumMeshClusters, nullptr );
 
         // create a fem cluster factory
         fem::Element_Factory tClusterFactory;
@@ -74,6 +75,7 @@ namespace moris
                 // if bulk or sideset
                 case( fem::Element_Type::BULK ):
                 case( fem::Element_Type::SIDESET ):
+                case( fem::Element_Type::TIME_SIDESET ):
                 {
                     tInterpolationCell.resize( 1, &mMeshClusterList( iCluster )->get_interpolation_cell() );
                     break;
@@ -138,12 +140,26 @@ namespace moris
 
         // integration info-------------------------------------------------------------
         //------------------------------------------------------------------------------
-        // create an interpolation rule
+
+        // set default time integration order
+        mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::LINE;
+        fem::Integration_Order tTimeIntegrationOrder = fem::Integration_Order::BAR_2;
+
+        // if a time set
+        if( mTimeContinuity )
+        {
+            tTimeGeometryType     = mtk::Geometry_Type::POINT;
+            tTimeIntegrationOrder = fem::Integration_Order::POINT;
+        }
+
+        // create an integration rule
         Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
                                                               Integration_Type::GAUSS,
-                                                              this->get_auto_integration_order( mIGGeometryType, mIPSpaceInterpolationOrder ),
+                                                              this->get_auto_integration_order( mIGGeometryType,
+                                                                                                mIPSpaceInterpolationOrder ),
+                                                              tTimeGeometryType,
                                                               Integration_Type::GAUSS,
-                                                              Integration_Order::BAR_1 ); // fixme time order
+                                                              tTimeIntegrationOrder );
 
         // create an integrator
         Integrator tIntegrator( tIntegrationRule );
@@ -252,6 +268,11 @@ namespace moris
         {
             delete mSlaveFIManager;
             mSlaveFIManager = nullptr;
+        }
+        if( mMasterPreviousFIManager != nullptr )
+        {
+            delete mMasterPreviousFIManager;
+            mMasterPreviousFIManager = nullptr;
         }
     }
 
@@ -727,6 +748,21 @@ namespace moris
         // create the field interpolators on the slave FI manager
         mSlaveFIManager->create_field_interpolators( aModelSolverInterface );
 
+        // if time sideset
+        if( mElementType == fem::Element_Type::TIME_SIDESET )
+        {
+            // create the master field interpolator manager
+            mMasterPreviousFIManager = new Field_Interpolator_Manager( mMasterDofTypes,
+                                                                       mMasterDvTypes,
+                                                                       this );
+
+            // create the geometry interpolators on the master FI manager
+            mMasterPreviousFIManager->create_geometry_interpolators();
+
+            // create the field interpolators on the master FI manager
+            mMasterPreviousFIManager->create_field_interpolators( aModelSolverInterface );
+        }
+
     }
 
 //------------------------------------------------------------------------------
@@ -743,6 +779,13 @@ namespace moris
             {
                 // set IWG slave field interpolator manager
                 tIWG->set_field_interpolator_manager( mSlaveFIManager, mtk::Master_Slave::SLAVE );
+            }
+
+            // if time sideset, set previous
+            if( mElementType == fem::Element_Type::TIME_SIDESET )
+            {
+                // set IWG master field interpolator manager for previous time step
+                tIWG->set_field_interpolator_manager_previous_time( mMasterPreviousFIManager, mtk::Master_Slave::MASTER );
             }
         }
     }
@@ -1995,8 +2038,16 @@ namespace moris
         switch( tMtkSetType )
         {
             case( moris::SetType::BULK ) :
+            {
                 mElementType = fem::Element_Type::BULK;
+
+                // if time continuity
+                if ( mTimeContinuity )
+                {
+                    mElementType = fem::Element_Type::TIME_SIDESET;
+                }
                 break;
+            }
 
             case( moris::SetType::SIDESET ) :
                  mElementType = fem::Element_Type::SIDESET;

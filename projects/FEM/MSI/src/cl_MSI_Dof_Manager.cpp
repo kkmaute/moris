@@ -175,8 +175,6 @@ namespace moris
         // Bcast unique mPdofTypeList to all processors
         MPI_Bcast( (mPdofTypeList.data()).data(), mPdofTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
 
-        //------------------------------------------------------------------------------------------------------
-
         mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
     }
 

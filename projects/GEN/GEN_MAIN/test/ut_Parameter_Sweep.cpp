@@ -170,123 +170,118 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
 //------------------------------------------------------------------------------
 TEST_CASE("param_test_02","[GE],[param_sweep_02]")
 {
-    if(par_size()<=1)
-    {
-        size_t tModelDimension = 3;
-        uint tLagrangeMeshIndex = 0;
-        //  HMR Parameters setup
-        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
-
-        tParameters.set( "number_of_elements_per_dimension", std::string("10, 10, 10") );
-        tParameters.set( "domain_dimensions",                std::string("10, 10, 10") );
-        tParameters.set( "domain_offset",                    std::string("-5, -5, -5") );
-
-//        tParameters.set( "domain_sidesets",      "1, 2, 3, 4, 5, 6" );
-
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
-
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
-        tParameters.set( "lagrange_input_meshes", std::string("0") );
-
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
-
-        tParameters.set( "use_multigrid", 0 );
-
-        tParameters.set( "refinement_buffer", 1 );
-        tParameters.set( "staircase_buffer", 1 );
-
-        tParameters.insert( "initial_refinement", 0 );
-
-        //  HMR Initialization
-        moris::hmr::HMR tHMR( tParameters );
-
-        std::shared_ptr< hmr::Database > tDatabase = tHMR.get_database();
-
-        tHMR.perform_initial_refinement( 0 );
-
-        tDatabase->update_bspline_meshes();
-        tDatabase->update_lagrange_meshes();
-
-        tHMR.finalize();
-
-        moris::mtk::Interpolation_Mesh*      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        //------------------------------------------------------------------------------
-        real tXCenter = 0.0;
-        real tYCenter = 0.0;
-        real tZCenter = 0.0;
-
-//        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
-//                                     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9 }};
-        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2 }};
-
-        uint tNumIters = tAllRadii.n_cols();
-        //------------------------------------------------------------------------------
-        for(uint iIter=0; iIter<tNumIters; iIter++)    // loop over radii values
-        {
-            real tRadius  = tAllRadii(iIter);
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
-            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
-
-            moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
-            tXTKModel.mVerbose = false;
-
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
-            tXTKModel.decompose(tDecompositionMethods);
-
-            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
-
-            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-            // place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
-
-            xtk::Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = false;
-            tOutputOptions.mAddSideSets = false;
-            tOutputOptions.mAddClusters = false;
-
-            std::string tCircleFieldName = "circleLS";
-            tOutputOptions.mRealNodeExternalFieldNames = { tCircleFieldName };
-
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-            //------------------------------------------------------------------------------
-            // get level-set field and add to integration mesh output
-            uint tNumNodes = tIntegMesh1->get_num_entities(EntityRank::NODE);
-
-            Matrix< DDRMat > tAllCoords( tNumNodes, 3 );
-            for(uint i=0; i<tNumNodes; i++ )
-            {
-                tAllCoords.set_row( i,tIntegMesh1->get_node_coordinate(i) );
-            }
-
-            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
-            tGENGeometryEngine.initialize_geometry_object_phase_values( tAllCoords );
-
-            Matrix< DDRMat > tLSVals( tNumNodes, 1, -1.0 );
-            for( uint i=0; i<tNumNodes; i++ )
-            {
-                tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
-            }
-            tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds( tCircleFieldName, EntityRank::NODE, tLSVals );
-
-            //------------------------------------------------------------------------------
-            // output solution to mesh
-            std::string s = std::to_string(iIter);
-            std::string tMeshOutputFile = "circle" + s +".e";
-
-            tIntegMesh1->create_output_mesh(tMeshOutputFile);
-            //------------------------------------------------------------------------------
-            delete tIntegMesh1;
-        }
-    }
+//    if(par_size()<=1)
+//    {
+//        size_t tModelDimension = 3;
+//        uint tLagrangeMeshIndex = 0;
+//        //  HMR Parameters setup
+//        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", std::string("10, 10, 10") );
+//        tParameters.set( "domain_dimensions",                std::string("10, 10, 10") );
+//        tParameters.set( "domain_offset",                    std::string("-5, -5, -5") );
+//
+////        tParameters.set( "domain_sidesets",      "1, 2, 3, 4, 5, 6" );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "lagrange_orders", std::string("1") );
+//        tParameters.set( "lagrange_pattern", std::string("0") );
+//        tParameters.set( "bspline_orders", std::string("1") );
+//        tParameters.set( "bspline_pattern", std::string("0") );
+//
+//        tParameters.set( "lagrange_output_meshes", std::string("0") );
+//        tParameters.set( "lagrange_input_meshes", std::string("0") );
+//
+//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//
+//        tParameters.set( "use_multigrid", 0 );
+//
+//        tParameters.set( "refinement_buffer", 1 );
+//        tParameters.set( "staircase_buffer", 1 );
+//
+//        tParameters.insert( "initial_refinement", 0 );
+//
+//        //  HMR Initialization
+//        moris::hmr::HMR tHMR( tParameters );
+//
+//        tHMR.perform_initial_refinement( 0 );
+//
+//        tHMR.finalize();
+//
+//        moris::hmr::Interpolation_Mesh_HMR*      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//        //------------------------------------------------------------------------------
+//        real tXCenter = 0.0;
+//        real tYCenter = 0.0;
+//        real tZCenter = 0.0;
+//
+////        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
+////                                     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9 }};
+//        Matrix< DDRMat > tAllRadii{{ 1.0, 1.1, 1.2 }};
+//
+//        uint tNumIters = tAllRadii.n_cols();
+//        //------------------------------------------------------------------------------
+//        for(uint iIter=0; iIter<tNumIters; iIter++)    // loop over radii values
+//        {
+//            real tRadius  = tAllRadii(iIter);
+//            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+//            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//
+//            moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+//            moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
+//            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGENGeometryEngine );
+//            tXTKModel.mVerbose = false;
+//
+//            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+//            tXTKModel.decompose(tDecompositionMethods);
+//
+//            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+//
+//            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+//            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+//
+//            // place the pair in mesh manager
+//            mtk::Mesh_Manager tMeshManager;
+//            tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
+//
+//            xtk::Output_Options tOutputOptions;
+//            tOutputOptions.mAddNodeSets = false;
+//            tOutputOptions.mAddSideSets = false;
+//            tOutputOptions.mAddClusters = false;
+//
+//            std::string tCircleFieldName = "circleLS";
+//            tOutputOptions.mRealNodeExternalFieldNames = { tCircleFieldName };
+//
+//            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//            //------------------------------------------------------------------------------
+//            // get level-set field and add to integration mesh output
+//            uint tNumNodes = tIntegMesh1->get_num_entities(EntityRank::NODE);
+//
+//            Matrix< DDRMat > tAllCoords( tNumNodes, 3 );
+//            for(uint i=0; i<tNumNodes; i++ )
+//            {
+//                tAllCoords.set_row( i,tIntegMesh1->get_node_coordinate(i) );
+//            }
+//
+//            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
+//            tGENGeometryEngine.initialize_geometry_object_phase_values( tAllCoords );
+//
+//            Matrix< DDRMat > tLSVals( tNumNodes, 1, -1.0 );
+//            for( uint i=0; i<tNumNodes; i++ )
+//            {
+//                tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
+//            }
+//            tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds( tCircleFieldName, EntityRank::NODE, tLSVals );
+//
+//            //------------------------------------------------------------------------------
+//            // output solution to mesh
+//            std::string s = std::to_string(iIter);
+//            std::string tMeshOutputFile = "circle" + s +".e";
+//
+//            tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//            //------------------------------------------------------------------------------
+//            delete tIntegMesh1;
+//        }
+//    }
 }
 }   // end ge namespace
 }   // end moris namespace

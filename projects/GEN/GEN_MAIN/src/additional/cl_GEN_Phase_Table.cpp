@@ -7,12 +7,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(Phase_Table_Structure aStructure, moris::moris_index aNumPhases, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(Phase_Table_Structure aStructure, uint aNumPhases, Cell<std::string> aPhaseNames)
         : mPhaseTableStructure(aStructure),
         mNumPhases(aNumPhases)
         {
             // Phase names
-            if(aPhaseNames.size() == 0)
+            if(aPhaseNames.size() == 0 && aNumPhases > 0)
             {
                 this->set_default_phase_names();
             }
@@ -37,44 +37,46 @@ namespace moris
         Phase_Table::Phase_Table(uint aNumPhi, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames)
         : Phase_Table(aStructure, std::pow(2, aNumPhi), aPhaseNames)
         {
-
-            // Determine structure for building
-            switch(mPhaseTableStructure) {
-                case (Phase_Table_Structure::EXP_BASE_2):
-                {
-                    // Allocate phase table
-                    mPhaseTable = moris::Matrix<moris::IndexMat>(mNumPhases, aNumPhi);
-                    moris::moris_index tAlternator = mNumPhases;
-                    moris::moris_index tCount = 0;
-                    moris::moris_index tVal = 0;
-                    for (uint iC = 0; iC < aNumPhi; iC++) {
-                        tAlternator = tAlternator / 2;
-                        for (moris::moris_index iR = 0; iR < mNumPhases; iR++) {
-                            mPhaseTable(iR, iC) = tVal;
-                            if (tCount < tAlternator - 1) {
-                                tCount++;
-                            } else {
-                                if (tVal == 0) {
-                                    tVal = 1;
+            if (aNumPhi > 0)
+            {
+                // Determine structure for building
+                switch(mPhaseTableStructure) {
+                    case (Phase_Table_Structure::EXP_BASE_2):
+                    {
+                        // Allocate phase table
+                        mPhaseTable = moris::Matrix<moris::IndexMat>(mNumPhases, aNumPhi);
+                        moris::moris_index tAlternator = mNumPhases;
+                        moris::moris_index tCount = 0;
+                        moris::moris_index tVal = 0;
+                        for (uint iC = 0; iC < aNumPhi; iC++) {
+                            tAlternator = tAlternator / 2;
+                            for (moris::moris_index iR = 0; iR < mNumPhases; iR++) {
+                                mPhaseTable(iR, iC) = tVal;
+                                if (tCount < tAlternator - 1) {
+                                    tCount++;
                                 } else {
-                                    tVal = 0;
+                                    if (tVal == 0) {
+                                        tVal = 1;
+                                    } else {
+                                        tVal = 0;
+                                    }
+                                    tCount = 0;
                                 }
-                                tCount = 0;
                             }
+                            tVal = 0;
+                            tCount = 0;
                         }
-                        tVal = 0;
-                        tCount = 0;
+                        break;
                     }
-                    break;
+                    default:
+                    {
+                        MORIS_ERROR(false, "Phase table structure has not been implemented for generation using a number of fields.");
+                    }
                 }
-                default:
-                {
-                    MORIS_ERROR(false, "Phase table structure has not been implemented for generation using a number of fields.");
-                }
-            }
 
-            MORIS_ASSERT(this->check_phase_table_structure(), "Data structure does not adhere to the guidelines see wiki pdf on multi_phase for an explanation");
-            MORIS_ASSERT(mPhaseNames.size() == mPhaseTable.n_rows(), "Dimension mismatch between phase names and phase table");
+                MORIS_ASSERT(this->check_phase_table_structure(), "Data structure does not adhere to the guidelines see wiki pdf on multi_phase for an explanation");
+                MORIS_ASSERT(mPhaseNames.size() == mPhaseTable.n_rows(), "Dimension mismatch between phase names and phase table");
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

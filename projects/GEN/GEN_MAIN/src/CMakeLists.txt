@@ -21,7 +21,7 @@ set(HEADERS
 	additional/cl_GEN_Topology.hpp
 	additional/fn_GEN_approximatate.hpp
 	additional/fn_GEN_bubble_sort.hpp
-    
+
 	geomeng/cl_GEN_Design_Variable_Interface.hpp
 	gemoeng/cl_GEN_Field.hpp
 	geomeng/cl_GEN_Geometry_Engine.hpp
@@ -41,6 +41,7 @@ set(HEADERS
 	geometry/cl_GEN_Geometry_Field_HMR.hpp
 	geometry/cl_GEN_Geometry_Field.hpp
 #	geometry/cl_GEN_Sphere.hpp
+	geometry/cl_GEN_User_Defined_Geometry.hpp
 #	geometry/fn_bounding_box.hpp
 	geometry/fn_GEN_create_geometry.hpp
 	
@@ -99,6 +100,7 @@ set(LIB_SOURCES
 	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Circle.cpp
 	geometry/cl_GEN_Plane.cpp
+	geometry/cl_GEN_User_Defined_Geometry.cpp
 	geometry/cl_GEN_Discrete_Level_Set.cpp
 	
 	property/cl_GEN_Property.cpp

@@ -48,11 +48,16 @@ using namespace tsa;
 
 //--------------------------------------------------------------------------------------------------
 
-    Time_Solver::Time_Solver( const ParameterList aParameterlist,
-                              const enum TimeSolverType aTimeSolverType ) : mParameterListTimeSolver( aParameterlist ),
-                                                                            mTimeSolverType( aTimeSolverType )
+    Time_Solver::Time_Solver( const ParameterList         aParameterlist,
+                                    sol::SOL_Warehouse  * aSolverWarehouse,
+                              const enum TimeSolverType   aTimeSolverType ) : mParameterListTimeSolver( aParameterlist ),
+                                                                              mSolverWarehouse( aSolverWarehouse ),
+                                                                              mSolverInterface( mSolverWarehouse->get_solver_interface() ),
+                                                                              mTimeSolverType( aTimeSolverType )
     {
         mDofTypeList.resize( 0 );
+
+        this->initialize_time_levels();
     }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +215,8 @@ using namespace tsa;
 
 //-------------------------------------------------------------------------------------------------------
 
-    void Time_Solver::check_for_outputs()
+    void Time_Solver::check_for_outputs( const moris::real & aTime,
+                                         const bool          aEndOfTimeIteration )
     {
          uint tCounter = 0;
 
@@ -232,7 +238,7 @@ using namespace tsa;
             {
                 MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
 
-                mSolverInterface->initiate_output( mOutputIndices( tCounter ), 0.0 );
+                mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
             }
 
             tCounter++;
@@ -253,7 +259,7 @@ using namespace tsa;
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
 
-        this->check_for_outputs();
+        //this->check_for_outputs();
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
@@ -286,7 +292,7 @@ using namespace tsa;
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
 
-        this->check_for_outputs();
+        //this->check_for_outputs();
     }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -341,6 +347,32 @@ using namespace tsa;
             }
         }
     }
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+    void Time_Solver::initialize_time_levels()
+    {
+        // extract initialization string from parameterlist
+        moris::Cell< moris::Cell< std::string > > tDofTypeAndTimeLevelPair;
+        string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_time_level_per_type" ),
+                tDofTypeAndTimeLevelPair );
+
+        // get string to dof type map
+        map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
+
+        // loop over input dof types
+        for( uint Ik = 0; Ik < tDofTypeAndTimeLevelPair.size(); Ik++ )
+        {
+            // First string is dof type
+            enum MSI::Dof_Type tDofType = tDofTypeMap.find( tDofTypeAndTimeLevelPair( Ik )( 0 ) );
+
+            // get value from input
+            moris::uint tValue = (moris::uint)std::stoi( tDofTypeAndTimeLevelPair( Ik )( 1 ) );
+
+            mSolverInterface->set_time_levels_for_type( tDofType, tValue );
+        }
+    }
+
 //--------------------------------------------------------------------------------------------------------------------------
     void Time_Solver::set_time_solver_parameters()
     {

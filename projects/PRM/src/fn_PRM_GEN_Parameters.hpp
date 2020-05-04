@@ -43,6 +43,9 @@ namespace moris
         tParameterList.insert("phase_table_structure", "exp_base_2"); // Phase table structure (if not using phase_table)
         tParameterList.insert("library", ""); // File for loading user-defined functions
 
+        tParameterList.insert( "user_defined_refinement_function", " " );
+
+
         return tParameterList;
     }
 
@@ -64,6 +67,17 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    ParameterList create_user_defined_geometry_parameter_list()
+    {
+        ParameterList tParameterList = create_geometry_parameter_list();
+
+        tParameterList.set("type", "user_defined"); // User-defined geometry
+        tParameterList.insert("field_function_name", ""); // Function name for evaluating the geometry field
+        tParameterList.insert("sensitivity_function_name", ""); // Function name for evaluating the sensitivity of the field
+
+        return tParameterList;
+    }
 
     } // end prm namespace
 } // end moris namespace
