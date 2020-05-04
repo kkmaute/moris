@@ -11,7 +11,7 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        IWG_GGLS_Diffusion_Phase_Change_Bulk::IWG_Diffusion_Bulk()
+        IWG_GGLS_Diffusion_Phase_Change_Bulk::IWG_GGLS_Diffusion_Phase_Change_Bulk()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -29,7 +29,7 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIFFUSION_PC_GGLS;
+            mStabilizationMap[ "GGLS_Param" ] = IWG_Stabilization_Type::GGLS_DIFFUSION_PC;
         }
 
 //------------------------------------------------------------------------------

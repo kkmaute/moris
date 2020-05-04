@@ -28,11 +28,13 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     cl_FEM_IWG_Diffusion_Bulk.hpp
+    cl_FEM_IWG_Diffusion_Phase_Change_Bulk.hpp
     cl_FEM_IWG_Advection_Bulk.hpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Diffusion_Neumann.hpp
     cl_FEM_IWG_Diffusion_Interface.hpp
     cl_FEM_IWG_Diffusion_Ghost.hpp
+    cl_FEM_IWG_GGLS_Diffusion_Phase_Change_Bulk.hpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
@@ -113,6 +115,7 @@ set(HEADERS
     cl_FEM_Property.hpp
     cl_FEM_Constitutive_Model.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
+    cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IQI.hpp
@@ -145,6 +148,7 @@ set(HEADERS
     cl_FEM_SP_Time_Velocity_Ghost.hpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_SP_SUPG_Advection.hpp
+    cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -173,11 +177,13 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     cl_FEM_IWG_Diffusion_Bulk.cpp
+    cl_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     cl_FEM_IWG_Advection_Bulk.cpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Diffusion_Neumann.cpp
     cl_FEM_IWG_Diffusion_Interface.cpp
     cl_FEM_IWG_Diffusion_Ghost.cpp
+    cl_FEM_IWG_GGLS_Diffusion_Phase_Change_Bulk.cpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
@@ -211,6 +217,7 @@ set(LIB_SOURCES
     cl_FEM_Constitutive_Model.cpp
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
+    cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
     cl_FEM_CM_Fluid_Incompressible.cpp
     cl_FEM_Stabilization_Parameter.cpp
@@ -229,6 +236,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Time_Velocity_Ghost.cpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_SP_SUPG_Advection.cpp
+    cl_FEM_SP_GGLS_Diffusion.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
