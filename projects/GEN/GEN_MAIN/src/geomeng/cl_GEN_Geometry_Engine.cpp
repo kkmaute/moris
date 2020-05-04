@@ -33,6 +33,7 @@ namespace moris
         mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
         mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
         mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
+        mActiveGeometryIndex(0),
 
         // Phase table
         mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
@@ -884,7 +885,6 @@ namespace moris
             moris::size_t tNumNodes = aEntityNodeInds.numel();
             moris::Matrix< moris::DDRMat > tEntityNodeVars(tNumNodes, 1);
             moris::Matrix< moris::DDRMat > tInterpLocationCoords(1,1);
-        
         
             // Loop through nodes and get levelset values from precomputed values in aNodeVars or in the levelset mesh
             for(moris::size_t n = 0; n < tNumNodes; n++)
