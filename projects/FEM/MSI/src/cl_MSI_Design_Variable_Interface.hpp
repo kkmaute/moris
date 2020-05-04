@@ -195,7 +195,7 @@ namespace mdl
              * set requested IQI type for sensitivity analysis
              * @param[ in ] aRequestedIQIType
              */
-            virtual void set_requested_IQIs( const moris::Cell< sd::string > & aRequestedIQIs )
+            virtual void set_requested_IQIs( const moris::Cell< std::string > & aRequestedIQIs )
             {
                 MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
             };
