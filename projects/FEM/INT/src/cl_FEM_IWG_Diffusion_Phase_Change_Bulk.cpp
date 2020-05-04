@@ -128,8 +128,10 @@ namespace moris
                 {
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    +=   aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tCMDiffusionPhaseChange->dFluxdDOF( tDofType ) )
-                       + aWStar * ( trans( tFITemp->N() ) * tCMDiffusionPhaseChange->dHdotdDOF( tDofType ) );
+                    +=   aWStar * (
+                            ( trans( tCMDiffusionPhaseChange->testStrain() ) * tCMDiffusionPhaseChange->dFluxdDOF( tDofType ) )
+                         +  ( trans( tFITemp->N() ) * tCMDiffusionPhaseChange->dHdotdDOF( tDofType ) )
+                                   );
                 }
             }
         }

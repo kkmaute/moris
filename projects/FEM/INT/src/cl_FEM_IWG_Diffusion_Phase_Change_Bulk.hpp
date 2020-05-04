@@ -5,8 +5,8 @@
  *      Author: wunsch
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_DIFFUSION_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_DIFFUSION_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_DIFFUSION_PHASE_CHANGE_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_DIFFUSION_PHASE_CHANGE_BULK_HPP_
 
 #include <map>
 #include "typedefs.hpp"                     //MRS/COR/src
