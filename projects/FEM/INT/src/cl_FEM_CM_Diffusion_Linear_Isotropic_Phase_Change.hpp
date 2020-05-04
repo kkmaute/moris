@@ -229,7 +229,6 @@ namespace moris
              */
             void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
             /**
              * get the enthalpy change rate wrt dof
              * @param[ in ]  aDofType        group of dof type
@@ -245,7 +244,6 @@ namespace moris
              */
             void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
             /**
              * get the gradient of enthalpy change rate wrt dof
              * @param[ in ]  aDofType        group of dof type
@@ -261,7 +259,6 @@ namespace moris
              */
             void eval_dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
             /**
              * get the gradient of enthalpy change rate wrt dof
              * @param[ in ]  aDofType        group of dof type
