@@ -23,13 +23,13 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "Diffusion_Phase_Change" ] = IWG_Constitutive_Type::DIFFUSION_PHASE_CHANGE;
+            mConstitutiveMap[ "Diffusion_Phase_Change" ] = IWG_Constitutive_Type::DIFF_LIN_ISO_PC;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
+            mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIFFUSION_PC_GGLS;
         }
 
 //------------------------------------------------------------------------------
@@ -56,11 +56,11 @@ namespace moris
 
             // get the Phase Change CM
             std::shared_ptr< Constitutive_Model > tCMDiffusionPhaseChange
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION_PHASE_CHANGE ) );
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO_PC ) );
 
             // get the Stabilization Parameter
             std::shared_ptr< Stabilization_Parameter > tGGLSParam
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
 
 
 
@@ -102,11 +102,11 @@ namespace moris
 
             // get the Phase Change CM
             std::shared_ptr< Constitutive_Model > tCMDiffusionPhaseChange
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION_PHASE_CHANGE ) );
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO_PC ) );
 
             // get the Stabilization Parameter
             std::shared_ptr< Stabilization_Parameter > tGGLSParam
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
 
 
 

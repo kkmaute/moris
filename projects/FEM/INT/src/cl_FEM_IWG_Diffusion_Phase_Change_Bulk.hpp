@@ -40,7 +40,7 @@ namespace moris
 
             enum class IWG_Constitutive_Type
             {
-                DIFFUSION_PHASE_CHANGE,
+                DIFF_LIN_ISO_PC,
                 MAX_ENUM
             };
 

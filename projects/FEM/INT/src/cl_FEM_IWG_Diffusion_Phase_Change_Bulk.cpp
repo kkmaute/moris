@@ -11,7 +11,7 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        IWG_Diffusion_Phase_Change_Bulk::IWG_Diffusion_Bulk()
+        IWG_Diffusion_Phase_Change_Bulk::IWG_Diffusion_Phase_Change_Bulk()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -26,7 +26,7 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "Diffusion_Phase_Change" ] = IWG_Constitutive_Type::DIFFUSION_PHASE_CHANGE;
+            mConstitutiveMap[ "Diffusion_Phase_Change" ] = IWG_Constitutive_Type::DIFF_LIN_ISO_PC;
         }
 
 //------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ namespace moris
 
             // get the Phase Change CM
             std::shared_ptr< Constitutive_Model > tCMDiffusionPhaseChange
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION_PHASE_CHANGE ) );
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO_PC ) );
 
             // compute the residual from bulk diffusion term
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
@@ -94,7 +94,7 @@ namespace moris
 
             // get the elasticity CM
             std::shared_ptr< Constitutive_Model > tCMDiffusionPhaseChange
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION_PHASE_CHANGE ) );
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO_PC ) );
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

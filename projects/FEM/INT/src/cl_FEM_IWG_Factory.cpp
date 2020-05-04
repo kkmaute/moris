@@ -78,6 +78,12 @@ namespace moris
                 case ( IWG_Type::SPATIALDIFF_BULK ):
                     return std::make_shared< IWG_Diffusion_Bulk >();
 
+                case ( IWG_Type::SPATIALDIFF_PC_BULK ):
+                    return std::make_shared< IWG_Diffusion_Phase_Change_Bulk >();
+
+                case ( IWG_Type::SPATIALDIFF_GGLS_PC ):
+                    return std::make_shared< IWG_GGLS_Diffusion_Phase_Change_Bulk >( 0 );
+
                 case ( IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ):
                     return std::make_shared< IWG_Diffusion_Dirichlet_Nitsche >( -1 );
 
