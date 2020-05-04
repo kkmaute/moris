@@ -37,9 +37,11 @@ namespace moris
 //------------------------------------------------------------------------------
         private:
 
-                // FIXME: element size
-                real mElementSize = 1.0;
+                // element size
+                real mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                                   mtk::Master_Slave::MASTER );
                 real mTimStepSize = 1.0;
+                //real mTimStepSize = mMasterFIManager->get_IG_geometry_interpolator()->;
 
 
         public:
