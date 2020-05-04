@@ -45,7 +45,7 @@ namespace moris
             real tXiBar = ( std::cosh( std::sqrt(6*tAlpha) ) + 2 ) / ( std::cosh( std::sqrt(6*tAlpha) ) - 1 )  -  (1/tAlpha);
 
             // compute stabilization parameter value
-            mPPVal = {{ ( std::pow(mElementSize, 2.0) / (6*tConductivity) ) * tXiBar }};
+            mPPVal = {{ tConductivity * ( std::pow(mElementSize, 2.0) / (6*tConductivity) ) * tXiBar }};
         }
 
 //------------------------------------------------------------------------------
