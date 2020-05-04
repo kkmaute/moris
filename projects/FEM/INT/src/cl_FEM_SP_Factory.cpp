@@ -29,7 +29,7 @@ namespace moris
                 case ( fem::Stabilization_Type::DIRICHLET_NITSCHE ):
                     return std::make_shared< SP_Dirichlet_Nitsche >();
 
-                case ( fem::Stabilization_Type::DIFFUSION_PC_GGLS ):
+                case ( fem::Stabilization_Type::GGLS_DIFFUSION_PC ):
                     return std::make_shared< SP_GGLS_Diffusion >();
 
                 case ( fem::Stabilization_Type::GHOST_DISPL ):

@@ -5,8 +5,8 @@
  *      Author: wunsch
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_DIFFUSION_PHASE_CHANGE_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_DIFFUSION_PHASE_CHANGE_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_GGLS_DIFFUSION_PHASE_CHANGE_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_GGLS_DIFFUSION_PHASE_CHANGE_BULK_HPP_
 
 #include <map>
 #include "typedefs.hpp"                     //MRS/COR/src
@@ -165,4 +165,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_DIFFUSION_PHASE_CHANGE_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_GGLS_DIFFUSION_PHASE_CHANGE_BULK_HPP_ */

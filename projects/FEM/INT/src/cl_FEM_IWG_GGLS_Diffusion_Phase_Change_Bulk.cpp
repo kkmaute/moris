@@ -46,7 +46,7 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator (here temperature)
-            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+//            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
 
 
@@ -66,7 +66,7 @@ namespace moris
 
             // compute the residual from bulk diffusion term
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam *
+            += aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
                           ( tCMDiffusionPhaseChange->gradHdot() - tCMDiffusionPhaseChange->graddivflux() ) );
 
             // if body load
@@ -74,7 +74,7 @@ namespace moris
             {
                 // compute contribution of body load to residual
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                -= aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam * tPropLoad->val()( 0 ) );
+                -= aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) * tPropLoad->val()( 0 ) );
             }
 
         }
@@ -93,7 +93,7 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
-            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+//            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
 
             // get body load property
@@ -136,13 +136,13 @@ namespace moris
                             // compute contribution of body load to jacobian
                             mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                                   { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            -= aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam * tPropLoad->dPropdDOF( tDofType ) );
+                            -= aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) * tPropLoad->dPropdDOF( tDofType ) );
                         }
                     }
 
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    +=   aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam *
+                    +=   aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
                                    ( tCMDiffusionPhaseChange->dGradHdotdDOF + tCMDiffusionPhaseChange->dGradDivFluxdDOF ) );
                 }
             }
