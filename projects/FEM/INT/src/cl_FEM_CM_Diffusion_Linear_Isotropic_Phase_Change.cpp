@@ -153,6 +153,56 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get properties
+            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
+            moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
+            moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
+
+            // check inputs
+            MORIS_ASSERT(tPCconst >= 0.0,
+                    "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dPCfuncdT: Phase change constant must be >= 0.  " );
+
+
+            // initialize value of derivative of Phase State Function
+            real tdfdT = 0.0;
+
+            // get temperature
+            real tTemp = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->val()( 0 );
+
+            // if phase change constant is set to zero, use linear phase change model
+            if (tPCconst == 0.0 )
+            {
+                if ( (tTemp > tTupper) || (tTemp < tTlower) )
+                    tdfdT = 0;
+                else
+                    tdfdT = 1 / (tTupper - tTlower);
+            }
+
+            // logistic phase change model
+            else
+            {
+                // logistic function parameter k
+                tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
+
+                // compute df/dT
+                tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
+                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+            }
+
+            // if direct dependency on the dof type
+            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
+            {
+                // compute derivative with direct dependency
+                mHdotDof( tDofIndex ) = tDensity * ( tHeatCap + tdfdT )
+                                          * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdt(1);
+            }
+        }
+
+//------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_gradHdot()
         {
             moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
@@ -194,7 +244,7 @@ namespace moris
 
             // compute derivative of enthalpy
             mHdot = tDensity * ( tHeatCap + tdfdT )
-                                  * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
+                                  * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
         }
 
 //------------------------------------------------------------------------------
