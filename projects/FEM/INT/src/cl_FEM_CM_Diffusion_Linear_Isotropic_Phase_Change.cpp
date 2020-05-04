@@ -47,7 +47,7 @@ namespace moris
 
             // flags specific to this constitutive model
             mHdotEval         = true;
-            mGradHdot         = true;
+            mGradHdotEval     = true;
             mGradDivFluxEval  = true;
 
             // reset the dof derivative flag
@@ -62,6 +62,11 @@ namespace moris
             mdStraindDofEval.assign( tNumDofTypes, true );
             mddivstrainduEval.assign( tNumDofTypes, true );
             mdConstdDofEval.assign( tNumDofTypes, true );
+
+            // flags specific to this constitutive model
+            mHdotDofEval.assign( tNumDofTypes, true );
+            mGradHdotDofEval.assign( tNumDofTypes, true );
+            mGradDivFluxDofEval.assign( tNumDofTypes, true );
 
             // reset the dv derivative flag
             uint tNumDvTypes = mGlobalDvTypes.size();
