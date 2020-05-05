@@ -17,6 +17,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Pdv_Host_Manager::~Pdv_Host_Manager()
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<GEN_DV>>& aDvTypes)
         {
             aDvTypes = mIpPdvTypes(aIPMeshSetIndex);

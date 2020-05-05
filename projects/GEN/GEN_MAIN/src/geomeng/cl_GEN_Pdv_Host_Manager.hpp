@@ -62,7 +62,7 @@ namespace moris
             /**
              * trivial destructor
              */
-            ~Pdv_Host_Manager(){};
+            ~Pdv_Host_Manager();
             
             /**
              * get dv types for set
@@ -176,7 +176,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ip_requested_dv_types( Cell< enum GEN_DV > & aDvTypes )
+            void get_ip_requested_dv_types( Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR(false, "Not implemented yet.");
             }
@@ -185,7 +185,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ig_requested_dv_types( Cell< enum GEN_DV > & aDvTypes )
+            void get_ig_requested_dv_types( Cell< GEN_DV > & aDvTypes )
             {
                 MORIS_ERROR(false, "Not implemented yet.");
             }
