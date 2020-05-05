@@ -257,29 +257,34 @@ public:
                               moris::Dist_Vector   * aVectorRHS,
                               moris::Dist_Vector   * aFullSolutionVector );
 
+//---------------------------------------------------------------------------------------------------------
     void assemble_jacobian( moris::Dist_Matrix * aMat,
                             moris::Dist_Vector   * aFullSolutionVector );
 
+//---------------------------------------------------------------------------------------------------------
     void assemble_RHS( moris::Dist_Vector * aVectorRHS,
                        moris::Dist_Vector * aFullSolutionVector );
 
+//---------------------------------------------------------------------------------------------------------
     void get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
                                          const moris::real                       aThreshold );
 
+//---------------------------------------------------------------------------------------------------------
     virtual void calculate_criteria( const moris::uint & aMySetInd,
                              const moris::uint & aMyElementInd )
     {
         MORIS_ERROR(false, "Solver_Interface::calculate_criteria(), not implemented for base class");
     };
 
+//---------------------------------------------------------------------------------------------------------
     virtual const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
     {
         MORIS_ERROR(false, "Solver_Interface::get_criteria(), not implemented for base class");
         return mMat6;
     };
 
-
-    virtual void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aRequestedIQIType )
+//---------------------------------------------------------------------------------------------------------
+    virtual void set_requested_IQI_names( const moris::Cell< std::string > & aIQINames )
     {
         MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");
     };

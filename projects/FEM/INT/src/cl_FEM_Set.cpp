@@ -1394,35 +1394,55 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::create_requested_IQI_list()
     {
-        // get list of requested IQI types from OPT
-        mRequestedIQIs = mIQIs;
+        // create IQI map
+        this->create_IQI_map();
 
-//        // FIXME use when MSI/GEN interface supports this
-          // FIXME set requested types fomr GEN or SOL. do not use get function
-//        // get list of requested IQI types from OPT through the design variable interface
-//        moris::Cell < enum FEM::IQI_Type > mRequestedIQITypes;
-//
-//        // clear requested IQI list
-//        mRequestedIQIs.clear();
-//
-//        // set size for requested IWG list
-//        mRequestedIWGs.resize( tRequestedIQITypes.size() );
-//
-//        // loop over the requested IQI types
-//        for( FEM::IQI_Type tIQIType : tRequestedIQITypes )
-//        {
-//            // loop over the IQI in set IQI list
-//            for( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
-//            {
-//                // if the IQI type is requested
-//                if( mIQIs( iIQI )->get_fem_IQI_type() == tIQIType )
-//                {
-//                    // add the IQI to the requested IQI list
-//                    mRequestedIQIs.push_back( mIQIs( iIQI ) );
-//                    break;
-//                }
-//            }
-//        }
+        // clear requested IQI list
+        mRequestedIQIs.clear();
+
+        // Get names of potential requested IQIs
+        const moris::Cell< std::string > & tRequestedIQINames = mEquationModel->get_requested_IQI_names();
+
+        // get number of potential requested IQIs
+        uint tNumREquestedIQINames = tRequestedIQINames.size();
+
+        // reserve memory
+        mRequestedIQIs.reserve( tNumREquestedIQINames );
+
+        // loop over requested IQI names
+        for( uint Ik = 0; Ik < tNumREquestedIQINames; Ik++ )
+        {
+            // check if this set has the requested IQI
+            if( mIQINameToIndexMap.key_exists( tRequestedIQINames( Ik ) ) )
+            {
+                // get the set local index
+                moris_index tIQISetLocalIndex = mIQINameToIndexMap.find( tRequestedIQINames( Ik ) );
+
+                // put IQI in requested IQI list
+                mRequestedIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
+            }
+        }
+
+        // reduce memory to used space
+        mRequestedIQIs.shrink_to_fit();
+    }
+
+//------------------------------------------------------------------------------
+
+    void Set::create_IQI_map()
+    {
+        // erase the contant of the map
+        mIQINameToIndexMap.clear();
+
+        uint tCounter = 0;
+
+        // loop over all IQIs and build a name to index map
+        for( auto tIQI : mIQIs )
+        {
+            std::string tIQIName = tIQI->get_name();
+
+            mIQINameToIndexMap[ tIQIName ] = tCounter++;
+        }
     }
 
 //------------------------------------------------------------------------------

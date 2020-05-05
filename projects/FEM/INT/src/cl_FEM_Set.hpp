@@ -101,6 +101,8 @@ namespace MSI
         moris::Cell< std::shared_ptr< IQI > > mIQIs;
         moris::Cell< std::shared_ptr< IQI > > mRequestedIQIs;
 
+        moris::map< std::string, moris_index > mIQINameToIndexMap;
+
         // enum for element type
         enum fem::Element_Type mElementType;
 
@@ -307,6 +309,12 @@ namespace MSI
          * param[ out ] aIQI an IQI pointer
          */
         std::shared_ptr< IQI > get_IQI_for_vis( enum vis::Output_Type aOutputType );
+
+//------------------------------------------------------------------------------
+        /**
+         * building an IQI name to set local index map
+         */
+        void create_IQI_map();
 
 //------------------------------------------------------------------------------
         /**

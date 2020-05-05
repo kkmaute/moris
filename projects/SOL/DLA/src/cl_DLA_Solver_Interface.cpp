@@ -226,10 +226,8 @@ void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matri
             // resize adof id vector
             aCriteriaIds.resize( aCriteriaIds.size() + tNumEquationObjectOnSet );
 
-            moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
-            tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::VOLUME_FRACTION );
-
-            this->set_requested_IQI_type( Ii, tRequestedIQITypes );
+            // hardcoded for right now. FIXME the moment I have time
+            this->set_requested_IQI_names( {"IQIBulkVolumeFraction"} );
 
             // initialize set
             this->initialize_set( Ii, false );
