@@ -78,22 +78,6 @@ namespace moris
         }
 
 
-//------------------------------------------------------------------------------
-//        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::Hdot()
-//        {
-//            // if the flux was not evaluated
-//            if( mHdotEval)
-//            {
-//                // evaluate the flux
-//                this->eval_Hdot();
-//
-//                // set bool for evaluation
-//                mHdotEval = false;
-//            }
-//            // return the flux value
-//            return mHdot;
-//        }
-
 
 //------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_gradHdot()
@@ -182,22 +166,6 @@ namespace moris
 
             mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx(3);
         }
-
-//------------------------------------------------------------------------------
-//        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::graddivflux()
-//        {
-//            // if the flux was not evaluated
-//            if( mGradDivFluxEval)
-//            {
-//                // evaluate the flux
-//                this->eval_graddivflux();
-//
-//                // set bool for evaluation
-//                mGradDivFluxEval = false;
-//            }
-//            // return the flux value
-//            return mGradDivFlux;
-//        }
 
 
 
@@ -380,28 +348,6 @@ namespace moris
 //            }
         }
 
-//------------------------------------------------------------------------------
-//        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
-//        {
-//            // if aDofType is not an active dof type for the CM
-//            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
-//
-//            // get the dof index
-//            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-//
-//            // if the derivative has not been evaluated yet
-//            if( mHdotDofEval( tDofIndex ) )
-//            {
-//                // evaluate the derivative
-//                this->eval_dHdotdDOF( aDofType );
-//
-//                // set bool for evaluation
-//                mHdotDofEval( tDofIndex ) = false;
-//            }
-//
-//            // return the derivative
-//            return mHdotDof( tDofIndex );
-//        }
 
 //--------------------------------------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
@@ -465,28 +411,6 @@ namespace moris
 //            }
         }
 
-//--------------------------------------------------------------------------------------------------------------
-//        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
-//        {
-//            // if aDofType is not an active dof type for the CM
-//            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
-//
-//            // get the dof index
-//            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-//
-//            // if the derivative has not been evaluated yet
-//            if( mGradHdotDofEval( tDofIndex ) )
-//            {
-//                // evaluate the derivative
-//                this->eval_dGradHdotdDOF( aDofType );
-//
-//                // set bool for evaluation
-//                mGradHdotDofEval( tDofIndex ) = false;
-//            }
-//
-//            // return the derivative
-//            return mGradHdotDof( tDofIndex );
-//        }
 
 
 //--------------------------------------------------------------------------------------------------------------
@@ -533,35 +457,6 @@ namespace moris
 //                mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
 //            }
         }
-
-////--------------------------------------------------------------------------------------------------------------
-//        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
-//        {
-//            // if aDofType is not an active dof type for the CM
-//            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dGradDivFluxdDOF - no dependency in this dof type." );
-//
-//            // get the dof index
-//            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-//
-//            // if the derivative has not been evaluated yet
-//            if( mGradDivFluxDofEval( tDofIndex ) )
-//            {
-//                // evaluate the derivative
-//                this->eval_dHdotdDOF( aDofType );
-//
-//                // set bool for evaluation
-//                mGradDivFluxDofEval( tDofIndex ) = false;
-//            }
-//
-//            // return the derivative
-//            return mGradDivFluxDof( tDofIndex );
-//        }
-
-//--------------------------------------------------------------------------------------------------------------
-
-
-
-
 
 
 //--------------------------------------------------------------------------------------------------------------
