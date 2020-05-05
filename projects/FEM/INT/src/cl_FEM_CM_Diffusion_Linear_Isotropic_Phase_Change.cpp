@@ -169,8 +169,7 @@ namespace moris
 //            uint tDims = ?
 //            if (tDims == 2)
 //            {
-            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},
-                                            { 0, tK, tK,  0}};
+            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},{ 0, tK, tK,  0}};
 //            }
 //            else if (tDims == 3)
 //            {
@@ -502,7 +501,7 @@ namespace moris
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-//            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             //FIXME: Check for 2D or 3D is missing
             // matrix for purely isotropic case
@@ -526,7 +525,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mGradDivFluxDof = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn(3);
+                mGradDivFluxDof(tDofIndex) = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn(3);
             }
 //            else
 //            {

@@ -144,7 +144,7 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                     +=   aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
-                                   ( tCMDiffusionPhaseChange->dGradHdotdDOF() + tCMDiffusionPhaseChange->dGradDivFluxdDOF() ) );
+                                   ( tCMDiffusionPhaseChange->dGradHdotdDOF(tDofType) + tCMDiffusionPhaseChange->dGradDivFluxdDOF(tDofType) ) );
                 }
             }
 

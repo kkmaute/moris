@@ -29,9 +29,6 @@ namespace moris
 //------------------------------------------------------------------------------
         void SP_GGLS_Diffusion::eval_SP()
         {
-            // get the velocity FI
-            Field_Interpolator * tVelocityFI
-            = mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Velocity" ] );
 
             // get the property values
             real tConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );

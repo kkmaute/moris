@@ -1016,7 +1016,7 @@ namespace moris
 //------------------------------------------------------------------------------
 // FIXME: Remove this stuff up to next double line
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::Hdot()
+        const Matrix< DDRMat > & Constitutive_Model::Hdot()
         {
             // if the flux was not evaluated
             if( mHdotEval)
@@ -1032,7 +1032,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::gradHdot()
+        const Matrix< DDRMat > & Constitutive_Model::gradHdot()
         {
             // if the flux was not evaluated
             if( mGradHdotEval)
@@ -1048,7 +1048,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::graddivflux()
+        const Matrix< DDRMat > & Constitutive_Model::graddivflux()
         {
             // if the flux was not evaluated
             if( mGradDivFluxEval)
@@ -1064,7 +1064,7 @@ namespace moris
         }
 
 //-----------------------------------------------------------------------------
-        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
@@ -1087,7 +1087,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
@@ -1110,7 +1110,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dGradDivFluxdDOF - no dependency in this dof type." );
