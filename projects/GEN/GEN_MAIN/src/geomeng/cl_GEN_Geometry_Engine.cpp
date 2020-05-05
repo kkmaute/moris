@@ -54,10 +54,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(Cell<std::shared_ptr<Geometry_Analytic>>   aGeometry,
-                                                 Phase_Table                                aPhaseTable,
-                                                 uint                                       aSpatialDim,
-                                                 real                                       aThresholdValue,
-                                                 real                                       aPerturbationValue)
+                                         Phase_Table                                aPhaseTable,
+                                         uint                                       aSpatialDim,
+                                         real                                       aThresholdValue,
+                                         real                                       aPerturbationValue)
             : mSpatialDim(aSpatialDim),
               mThresholdValue(aThresholdValue),
               mPerturbationValue(aPerturbationValue),
@@ -109,6 +109,13 @@ namespace moris
         Matrix<DDRMat>& Geometry_Engine::get_upper_bounds()
         {
             return mUpperBounds;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        MSI::Design_Variable_Interface* Geometry_Engine::get_design_variable_interface()
+        {
+            return &mPdvHostManager;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1041,13 +1048,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_pdv_types( Cell< enum GEN_DV > aPdvType )
+        void Geometry_Engine::set_pdv_types(Cell<Cell<Cell<GEN_DV>>> aPdvTypes)
         {
             // set the set dv type flag to true
             mTypesSet = true;
 
             // set the dv type list for the pdv host manager
-            mPdvHostManager.set_ip_pdv_types( aPdvType );
+            mPdvHostManager.set_ip_pdv_types(aPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1106,8 +1113,8 @@ namespace moris
             // ask pdv host manager to update local to global dv type map
             mPdvHostManager.update_ip_local_to_global_dv_type_map();
 
-            // mark this DV type as unchanging
-            mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
+            // mark this DV type as unchanging TODO
+            // mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1195,8 +1202,8 @@ namespace moris
             // ask pdv host manager to update local to global dv type map
             mPdvHostManager.update_ip_local_to_global_dv_type_map();
 
-            // mark this DV type as unchanging
-            mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
+            // mark this DV type as unchanging TODO
+            // mPdvHostManager.mark_ip_pdv_as_unchanging( aPdvType );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1244,23 +1251,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::initialize_integ_pdv_host_list(moris_index aWhichMesh)
+        void Geometry_Engine::initialize_integ_pdv_host_list(moris_index aWhichMesh) //FIXME
         {
-            moris::Cell< enum GEN_DV > tDimDvList(mSpatialDim);
+            Cell<Cell<Cell<GEN_DV>>> tDimDvList(1);
+            tDimDvList(0).resize(1);
+            tDimDvList(0)(0).resize(mSpatialDim);
 
             switch(mSpatialDim)
             {
                 case(2):
                 {
-                    tDimDvList(0) = GEN_DV::XCOORD;
-                    tDimDvList(1) = GEN_DV::YCOORD;
+                    tDimDvList(0)(0)(0) = GEN_DV::XCOORD;
+                    tDimDvList(0)(0)(1) = GEN_DV::YCOORD;
                     break;
                 }
                 case(3):
                 {
-                    tDimDvList(0) = GEN_DV::XCOORD;
-                    tDimDvList(1) = GEN_DV::YCOORD;
-                    tDimDvList(2) = GEN_DV::ZCOORD;
+                    tDimDvList(0)(0)(0) = GEN_DV::XCOORD;
+                    tDimDvList(0)(0)(1) = GEN_DV::YCOORD;
+                    tDimDvList(0)(0)(2) = GEN_DV::ZCOORD;
                     break;
                 }
                 default:
@@ -1288,22 +1297,22 @@ namespace moris
             {
                 mPdvHostManager.create_ig_pdv_host( mSpatialDim, mIntegNodeIndices(iInd) );
 
-                mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim );
+                //mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->update_pdv_list( mSpatialDim ); FIXME
 
                 Matrix< DDRMat > tTempCoords = mMesh->get_integration_mesh( aWhichMesh )->get_node_coordinate( mIntegNodeIndices(iInd) );
 
                 for(uint iDim=0; iDim<mSpatialDim; iDim++)
                 {
-                    mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_ig_global_map() );
+                    //mPdvHostManager.get_ig_pdv_host( mIntegNodeIndices(iInd) )->create_pdv( tTempCoords(iDim), tDimDvList(iDim), mPdvHostManager.get_ig_global_map() ); FIXME
                 }
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType )
+        void Geometry_Engine::mark_ig_pdv_as_inactive(moris_index aNodeIndex, GEN_DV aPdvType)
         {
-            mPdvHostManager.mark_ig_pdv_as_unchanging( aPdvType );
+            mPdvHostManager.mark_ig_pdv_as_inactive(aNodeIndex, aPdvType);
         }
 
         //--------------------------------------------------------------------------------------------------------------

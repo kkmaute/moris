@@ -14,10 +14,8 @@
 
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-
 #include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Geometry_Discrete.hpp"
-
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Dv_Enums.hpp"
 
@@ -29,7 +27,6 @@
 // MRS
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
-#include "../../../../MRS/IOS/src/fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -126,10 +123,6 @@ namespace moris
             moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
             moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
-
-            // Library
-//            Library_IO mLibrary;
-
             //
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
@@ -204,6 +197,13 @@ namespace moris
              * @return vector of upper bounds
              */
             Matrix<DDRMat>& get_upper_bounds();
+
+            /**
+             * Gets the design variable interface from the geometry engine
+             *
+             * @return member pdv host manager pointer
+             */
+            MSI::Design_Variable_Interface* get_design_variable_interface();
 
             /**
              * @brief Initial allocation of geometry objects,
@@ -480,10 +480,10 @@ namespace moris
 
             /**
              * Add geometry dv type to dv type list
-             * @param[ in ] aPdvType          list of dv types (material only)
-             * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
+             *
+             * @param[ in ] aPdvTypes          lists of dv types (material only)
              */
-            void set_pdv_types( Cell< enum GEN_DV > aPdvType );
+            void set_pdv_types(Cell<Cell<Cell<GEN_DV>>> aPdvTypes);
 
             /**
              * initialize interpolation pdv host list
@@ -535,7 +535,7 @@ namespace moris
              *
              * @param aPdvType The pdv type to be marked
              */
-            void mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType );
+            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, GEN_DV aPdvType);
 
         private:
             /**
