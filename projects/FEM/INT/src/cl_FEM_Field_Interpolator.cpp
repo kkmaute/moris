@@ -560,8 +560,8 @@ namespace moris
             mGeometryInterpolator->space_jacobian( tJGeoSpacet );
 
             // compute first derivative of the SF wrt x
-            md2Ndxt = inv( tJGeoSpacet ) * inv( tJGeoTimet ) * tdNFielddXiTau;
-
+            //md2Ndxt = inv( tJGeoSpacet ) * inv( tJGeoTimet ) * tdNFielddXiTau;
+            md2Ndxt = inv( tJGeoSpacet ) * tdNFielddXiTau / tJGeoTimet( 0 ) ;
 
 
         }
