@@ -52,6 +52,10 @@ namespace moris
             Matrix< DDRMat > mPrevTime;
 
 //------------------------------------------------------------------------------
+            // Dummy Variables
+            moris::Cell< std::string > mDummy;
+
+//------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /**
@@ -181,6 +185,27 @@ namespace moris
             Matrix< DDRMat > & get_previous_time()
             {
                 return mPrevTime;
+            }
+
+
+//------------------------------------------------------------------------------
+            /**
+             * set requested IQI names
+             * @param[ in ] aRequestedIQINames List of requested IQI names
+             */
+            virtual void set_requested_IQI_names( const moris::Cell< std::string > & aRequestedIQINames )
+            {
+                MORIS_ERROR( false, "Equation_Model::set_requested_IQI_names - not implemented for base class." );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get requested IQI names
+             */
+            virtual const moris::Cell< std::string > & get_requested_IQI_names()
+            {
+                MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
+                return mDummy;
             }
 
 //------------------------------------------------------------------------------

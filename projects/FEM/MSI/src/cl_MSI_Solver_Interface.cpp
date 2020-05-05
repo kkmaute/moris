@@ -83,6 +83,20 @@ namespace moris
         mMSI->mEquationModel->set_previous_time( mPrevTime );
     }
 
+//------------------------------------------------------------------------------
+
+    const moris::Cell < moris::Matrix< DDRMat> > & MSI_Solver_Interface::get_criteria( const moris::uint & aMySetInd )
+    {
+        return mMSI->get_equation_set( aMySetInd )->get_QI();
+    }
+
+//------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_requested_IQI_names( const moris::Cell< std::string > & aIQINames )
+    {
+        mMSI->get_equation_model()->set_requested_IQI_names( aIQINames );
+    }
+
 //-------------------------------------------------------------------------------------------------------
 
     }

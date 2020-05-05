@@ -197,7 +197,7 @@ namespace mdl
              */
             virtual void set_requested_IQIs( const moris::Cell< std::string > & aRequestedIQIs )
             {
-                MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
+                MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQIs - not implemented for base class." );
             };
 
         };

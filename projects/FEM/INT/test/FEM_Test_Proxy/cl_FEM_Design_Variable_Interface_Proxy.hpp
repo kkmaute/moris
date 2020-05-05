@@ -251,8 +251,7 @@ public :
     }
 //------------------------------------------------------------------------------
 
-	
-    void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType );
+    void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 
 };
 }

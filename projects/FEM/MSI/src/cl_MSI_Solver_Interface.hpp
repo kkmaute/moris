@@ -380,16 +380,11 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
-             const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
-             {
-                 return mMSI->get_equation_set( aMySetInd )->get_QI();
-             };
+             const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd );
 
 //------------------------------------------------------------------------------
-             void set_requested_IQI_type( const moris::uint & aMySetInd, const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
-             {
-                 mMSI->get_equation_set( aMySetInd )->set_requested_IQI_types( aRequestedIQIType );
-             };
+
+             void set_requested_IQI_names( const moris::Cell< std::string > & aIQINames );
         };
     }
 }

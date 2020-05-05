@@ -54,7 +54,7 @@ namespace moris
                 tRequestedIQITypes(0)(1) = fem::IQI_Type::DOF;
                 tRequestedIQITypes(0)(2) = fem::IQI_Type::K1_SENT;
 
-                mSet->set_requested_IQI_types( tRequestedIQITypes );
+                //mSet->set_requested_IQI_types( tRequestedIQITypes );
 
                 mSet->initialize_set( false, true );
 

@@ -27,6 +27,8 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
+#include "cl_FEM_Model.hpp"
+
 #include "cl_PRM_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
@@ -180,7 +182,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         Cell< MSI::Equation_Set * > tElementBlocks(1,nullptr);
 
-        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< MSI::Equation_Model >();
+        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< fem::FEM_Model >();
 
         // init the fem set counter
         moris::uint tFemSetCounter = 0;
@@ -362,12 +364,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              delete k ;
          }
          tNodes.clear();
-
-         for( auto k :tElementBlocks)
-         {
-             delete k ;
-         }
-         tElementBlocks.clear();
 
          delete tIntegrationMesh;
          delete tInterpolationMesh;

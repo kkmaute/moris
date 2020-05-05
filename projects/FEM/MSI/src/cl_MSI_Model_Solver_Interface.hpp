@@ -220,6 +220,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        std::shared_ptr< MSI::Equation_Model > get_equation_model()
+        {
+            return mEquationModel;
+        };
+//------------------------------------------------------------------------------
+
         Equation_Object * get_eqn_obj( const moris::uint & aMyEquObjInd )
         {
             return mEquationObjectList( aMyEquObjInd );
