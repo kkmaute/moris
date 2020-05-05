@@ -5,10 +5,6 @@
 //LINALG/src
 #include "fn_trans.hpp"
 
-// FIXME: those have to go as soon as casts are removed
-#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
-#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
-
 namespace moris
 {
     namespace fem
@@ -72,8 +68,7 @@ namespace moris
             // Heat capacity and latent heat term
             // add contribution to residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tFITemp->N() ) *
-                                reinterpret_cast<CM_Diffusion_Linear_Isotropic_Phase_Change>(tCMDiffusionPhaseChange)->Hdot());
+                        += aWStar * ( trans( tFITemp->N() ) * tCMDiffusionPhaseChange->Hdot());
 
         }
 
@@ -136,8 +131,7 @@ namespace moris
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                     +=   aWStar * (
                             ( trans( tCMDiffusionPhaseChange->testStrain() ) * tCMDiffusionPhaseChange->dFluxdDOF( tDofType ) )
-                         +  ( trans( tFITemp->N() ) *
-                                 reinterpret_cast<CM_Diffusion_Linear_Isotropic_Phase_Change>(tCMDiffusionPhaseChange)->dHdotdDOF( tDofType ) )
+                         +  ( trans( tFITemp->N() ) * tCMDiffusionPhaseChange->dHdotdDOF( tDofType ) )
                                    );
                 }
             }

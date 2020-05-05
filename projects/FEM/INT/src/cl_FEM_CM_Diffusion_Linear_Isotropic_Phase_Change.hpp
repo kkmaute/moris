@@ -33,29 +33,9 @@ namespace moris
 //------------------------------------------------------------------------------
         protected:
 
-           // enthalpy change rate
-           Matrix< DDRMat > mHdot;
-           Matrix< DDRMat > mHdotDof;
-
-           // enthalpy gradient change rate
-           Matrix< DDRMat > mGradHdot;
-           Matrix< DDRMat > mGradHdotDof;
-
-           // enthalpy change rate
-           Matrix< DDRMat > mGradDivFlux;
-           Matrix< DDRMat > mGradDivFluxDof;
-
+                // nothing
 
         private:
-
-            // eval flags specific to this CM
-            bool mHdotEval = true;
-            bool mGradHdotEval = true;
-            bool mGradDivFluxEval = true;
-
-            Cell<bool> mHdotDofEval;
-            Cell<bool> mGradHdotDofEval;
-            Cell<bool> mGradDivFluxDofEval;
 
 
             // property type for CM
@@ -86,13 +66,6 @@ namespace moris
              */
             ~CM_Diffusion_Linear_Isotropic_Phase_Change(){};
 
-
-//------------------------------------------------------------------------------
-            /**
-             * reset evaluation flags
-             */
-            void reset_eval_flags_spec();
-
 //------------------------------------------------------------------------------
             /**
              * set a property pointer
@@ -117,7 +90,6 @@ namespace moris
              */
             void eval_Hdot();
 
-//------------------------------------------------------------------------------
             /**
              * get the constitutive model change rate of enthalpy
              * @param[ out ] mHdot change rate of enthalpy
@@ -130,7 +102,6 @@ namespace moris
              */
             void eval_gradHdot();
 
-//------------------------------------------------------------------------------
             /**
              * get the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
              * @param[ out ] mGradHdot gradient of change rate of enthalpy
@@ -143,7 +114,6 @@ namespace moris
              */
             void eval_graddivflux();
 
-//------------------------------------------------------------------------------
             /**
              * get the gradient of the divergence of the flux (needed for GGLS-stabilization)
              * @param[ out ] mGradDivFlux gradient of divergence of flux
@@ -265,7 +235,8 @@ namespace moris
              * @param[ out ] mGradHdotDer derivative of the traction wrt dof
              */
             const Matrix< DDRMat > & dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
-//--------------------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the divergence of the flux wrt dof type
              */
