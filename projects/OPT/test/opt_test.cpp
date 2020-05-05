@@ -187,7 +187,7 @@ namespace moris
                     {
                         REQUIRE(tADVs(tADVIndex) == tADVIndex + 1);
                     }
-                    tInterface->get_criteria(tADVs);
+                    tInterface->perform(tADVs);
                     Matrix<DDRMat> tCriteriaGradients = tInterface->get_dcriteria_dadv();
                     for (uint tADVIndex = 0; tADVIndex < 8; tADVIndex++)
                     {

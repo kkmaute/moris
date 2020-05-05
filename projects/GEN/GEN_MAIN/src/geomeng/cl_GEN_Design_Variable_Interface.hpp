@@ -16,7 +16,7 @@ namespace moris
 {
 namespace ge
 {
-    class GEN_Design_Variable_Interface : MSI::Design_Variable_Interface
+    class GEN_Design_Variable_Interface : public MSI::Design_Variable_Interface
     {
 
     private:

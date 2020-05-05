@@ -46,10 +46,17 @@ namespace moris
             // distributed solution vectors for current and previous time slabs
             Dist_Vector * mSolutionVector     = nullptr;
             Dist_Vector * mPrevSolutionVector = nullptr;
+            Dist_Vector * mSensitivitySolutionVector = nullptr;
 
             // matrices for current and previous time slabs
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
+
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
+            bool mIsForwardAnalysis = true;
+
+            moris::sint mNumSensitivityAnalysisRHS = -1;
 
 //------------------------------------------------------------------------------
             // Dummy Variables
@@ -68,6 +75,26 @@ namespace moris
              * destructor
              */
             virtual ~Equation_Model(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * get equation sets for test
+             */
+            moris::sint get_num_rhs( )
+            {
+                if( !mIsForwardAnalysis )
+                {
+                    mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
+
+                    MORIS_ASSERT( mNumSensitivityAnalysisRHS <= 0, "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
+
+                    return mNumSensitivityAnalysisRHS;
+                }
+                else
+                {
+                    return 1;
+                }
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -149,6 +176,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * set sensitivity solution vector
+             * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
+             */
+            void set_senitivity_solution_vector( Dist_Vector * aSolutionVector )
+            {
+                mSensitivitySolutionVector = aSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * set time for current time slab
              * @param[ in ] aTime matrix for time in current time slab
              */
@@ -178,6 +215,7 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
             /**
              * get time for previous time slab
              * @param[ out ] mPrevTime matrix for time in previous time slab
@@ -185,6 +223,16 @@ namespace moris
             Matrix< DDRMat > & get_previous_time()
             {
                 return mPrevTime;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set pointer to design variable interface
+             * @param[ out ] aDesignVariableInterface pointer to design variable interface
+             */
+            void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+            {
+                mDesignVariableInterface = aDesignVariableInterface;
             }
 
 
@@ -207,6 +255,34 @@ namespace moris
                 MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
                 return mDummy;
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the sensitivity analysis
+             */
+            void set_is_sensitivity_analysis()
+            {
+                mIsForwardAnalysis = false;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the forward analysis
+             */
+            void set_is_forward_analysis()
+            {
+                mIsForwardAnalysis = true;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * retruns if this is the a forward analysis
+             * @param[ out ] mIsForwardAnalysis
+             */
+            bool get_is_forward_analysis()
+            {
+                return mIsForwardAnalysis;
+            };
 
 //------------------------------------------------------------------------------
         };

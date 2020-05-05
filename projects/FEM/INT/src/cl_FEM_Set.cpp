@@ -186,14 +186,11 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::initialize_set( const bool aIsResidual,
-                              const bool aIsForward )
+    void Set::initialize_set( const bool aIsResidual )
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
         {
             mIsResidual = aIsResidual;
-
-            mIsForward  = aIsForward;
 
             this->create_residual_dof_assembly_map();
 
@@ -1595,33 +1592,17 @@ namespace moris
                 }
             }
 
-            // if forward analysis (residual vector only, no dQIdu or dRdp)
-            if( mIsForward )
+            // get the number of rhs
+            uint tNumRHS = mEquationModel->get_num_rhs();
+
+             // set size for the list of dQIdu vectors
+            mResidual.resize( tNumRHS );
+
+            // loop over the dQIdu vectors
+            for( auto & tRes : mResidual )
             {
-                // set size for the list of residual vector
-                mResidual.resize( 1 );
-
-                // set size for the residual vector
-                mResidual( 0 ).set_size( tNumCoeff, 1, 0.0 );
-            }
-            // if sensitivity analysis ( dRdp + dQIdu)
-            else
-            {
-//                //get the number of requested dv types
-//                uint tNumRequestedDv  = this->get_requested_dv_types().size();
-
-                // get the number of requested QI
-                uint tNumRequestedIQI = this->get_requested_IQIs().size();
-
-                 // set size for the list of dQIdu vectors
-                mResidual.resize( tNumRequestedIQI );
-
-                // loop over the dQIdu vectors
-                for( auto & tRes : mResidual )
-                {
-                    // set size for the dQIdu vector
-                    tRes.set_size( tNumCoeff, 1, 0.0 );
-                }
+                // set size for the dQIdu vector
+                tRes.set_size( tNumCoeff, 1, 0.0 );
             }
 
             // set the residual initialization flag to true
@@ -1645,26 +1626,7 @@ namespace moris
         // if list of QI values not initialized before
         if ( !mQIExist )
         {
-           // get the dof types requested by the solver
-//            moris::Cell < moris::Cell< moris_index > > tQIAssemblyMap
-//            = this->get_QI_assembly_map();
-//
-//            // init QI counter
-//            uint tNumQI= 0;
-//
-//            // loop over the requested dof types
-//            for( uint Ik = 0; Ik < tQIAssemblyMap.size(); Ik++ )
-//            {
-//                for( uint Jk = 0; Jk < tQIAssemblyMap( Ik ).size(); Jk++ )
-//                {
-//                    if( tQIAssemblyMap( Ik )( Jk ) != -1 )
-//                    {
-//                        tNumQI++;
-//                    }
-//                }
-//            }
-
-                   uint tNumQI= 1;
+            uint tNumQI= mEquationModel->get_requested_IQI_names().size();
 
             // set size for the list of QI values
             mQI.resize( tNumQI );

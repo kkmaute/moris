@@ -452,12 +452,43 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Model::perform()
+        void Model::perform( uint aIndex )
+        {
+            if( aIndex == 0 )
+            {
+                this->perform_forward_analysis();
+            }
+            else if( aIndex == 1 )
+            {
+                this->perform_sensitivity_analysis();
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Model::perform_forward_analysis()
         {
             // initialize MDL - build FEM, MSI, SOL and VIS
             this->initialize();
 
+            mEquationModel->set_is_forward_analysis();
+
             mSolverWarehouse->get_main_time_solver()->solve();
+        }
+
+//------------------------------------------------------------------------------
+        void Model::perform_sensitivity_analysis()
+        {
+            mEquationModel->set_is_sensitivity_analysis();
+
+            mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+        }
+
+//------------------------------------------------------------------------------
+        void Model::set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+        {
+            mDesignVariableInterface = aDesignVariableInterface;
+
+            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
         }
 
 //------------------------------------------------------------------------------

@@ -78,6 +78,11 @@ using namespace tsa;
         {
             delete( mFullMap );
             delete( mFullVector );
+
+            if ( mFullVectorSensitivity != nullptr )
+            {
+                delete( mFullVectorSensitivity );
+            }
         }
     }
 
@@ -266,8 +271,6 @@ using namespace tsa;
 
     void Time_Solver::solve()
     {
-        //Tracer tTracer(EntityBase::TimeSolver, EntityType::Unknown, EntityAction::Solve);
-
         mIsMasterTimeSolver = true;
 
         // get solver interface
@@ -282,6 +285,8 @@ using namespace tsa;
         // full vector and prev full vector
         mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
+        mSolverInterface->set_solution_vector( mFullVector );
+
         this->initialize_sol_vec();
 
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
@@ -291,8 +296,31 @@ using namespace tsa;
         mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+    }
 
-        //this->check_for_outputs();
+    //--------------------------------------------------------------------------------------------------------------------------
+
+    void Time_Solver::solve_sensitivity()
+    {
+        // create map object
+        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
+
+        // full vector and prev full vector
+        mFullVectorSensitivity = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+
+        mSolverInterface->set_sensitivity_solution_vector( mFullVectorSensitivity );
+
+        mFullVectorSensitivity->vec_put_scalar( 0.0 );
+
+        moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
+
+        mSolverInterface->set_requested_dof_types( tDofTypeUnion );
+
+        mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
+
+        mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

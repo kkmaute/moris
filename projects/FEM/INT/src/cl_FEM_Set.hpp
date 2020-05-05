@@ -121,7 +121,6 @@ namespace MSI
         moris::Cell< uint >                    mMtkIgCellOnSet;
 
         bool mIsResidual = false;
-        bool mIsForward  = true;
 
         // bool for time continuity
         bool mTimeContinuity = false;
@@ -175,11 +174,9 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * initialize the set
-         * @param[ in ] aIsResidual bool true if ???
-         * @param[ in ] aIsForward  bool true if ???
+         * @param[ in ] aIsResidual bool true if this was called for the computation of a residual
          */
-        void initialize_set( const bool aIsResidual,
-                             const bool aIsForward );
+        void initialize_set( const bool aIsResidual  );
 
 //------------------------------------------------------------------------------
         /**

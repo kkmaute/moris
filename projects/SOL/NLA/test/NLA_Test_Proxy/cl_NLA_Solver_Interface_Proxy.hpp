@@ -137,17 +137,11 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_operator(const uint             & aMyElementInd,
-                                                Matrix< DDRMat > & aElementMatrix)
-        {
-            aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
-        };
+                                                Matrix< DDRMat > & aElementMatrix);
 
         void get_equation_object_operator( const uint             & aMyBlockInd,
                                            const uint             & aMyElementInd,
-                                                 Matrix< DDRMat > & aElementMatrix)
-        {
-            aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
-        };
+                                                 Matrix< DDRMat > & aElementMatrix);
 
         // ----------------------------------------------------------------------------------------------
         void  get_element_topology(const uint             & aMyElementInd,
@@ -168,17 +162,11 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_rhs( const uint                     & aMyElementInd,
-                                    Cell< Matrix< DDRMat > > & aElementRHS )
-        {
-            aElementRHS = { mFunctionRes( mNX, mNY, mTime(1), mMySolVec, aMyElementInd ) };
-        };
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
         void get_equation_object_rhs( const uint                     & aMyBlockInd,
                               const uint                     & aMyElementInd,
-                                    Cell< Matrix< DDRMat > > & aElementRHS )
-        {
-            aElementRHS = { mFunctionRes( mNX, mNY, mTime(1), mMySolVec, aMyElementInd ) };
-        };
+                                    Cell< Matrix< DDRMat > > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------
 

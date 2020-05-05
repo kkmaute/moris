@@ -52,6 +52,7 @@ namespace tsa
         moris::Cell< Time_Solver * > mTimeSubSolverList;
 
         Dist_Vector * mFullVector = nullptr;
+        Dist_Vector * mFullVectorSensitivity = nullptr;
 
         Dist_Map * mFullMap = nullptr;
 
@@ -253,6 +254,10 @@ namespace tsa
         //--------------------------------------------------------------------------------------------------
 
         void solve();
+
+//--------------------------------------------------------------------------------------------------
+
+        void solve_sensitivity();
 
         //--------------------------------------------------------------------------------------------------
 

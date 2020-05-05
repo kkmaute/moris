@@ -40,6 +40,10 @@ namespace moris
         class HMR;
         class Mesh;
     }
+    namespace MSI
+    {
+        class Design_Variable_Interface;
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -134,6 +138,8 @@ namespace moris
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
 
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
 
         public:
 
@@ -173,9 +179,7 @@ namespace moris
             /**
              * Destructor
              */
-            ~Geometry_Engine()
-            {
-            }
+            ~Geometry_Engine();
 
             /**
              * Sets new advs for the geometry engine
@@ -458,6 +462,11 @@ namespace moris
              * Performs refinement on an HMR mesh
              */
             void perform_refinement( );
+
+            /**
+             * Build Design Variable Interface
+             */
+            MSI::Design_Variable_Interface * build_design_variable_interface();
 
         //    /*
         //     * @brief function specific to fiber problem TODO this will be removed

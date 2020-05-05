@@ -56,7 +56,7 @@ namespace moris
 
                 //mSet->set_requested_IQI_types( tRequestedIQITypes );
 
-                mSet->initialize_set( false, true );
+                mSet->initialize_set( false );
 
                 mSet->compute_quantity_of_interest( tMeshIndex, &tElemVals, &tNodeVals, &tGlobVal, vis::Output_Type::DOF, vis::Field_Type::NODAL );
 

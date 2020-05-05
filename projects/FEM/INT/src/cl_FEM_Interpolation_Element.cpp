@@ -12,6 +12,7 @@
 #include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                   //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
+#include "cl_FEM_Model.hpp"                   //FEM/INT/src
 
 #include "fn_isfinite.hpp"
 
@@ -332,9 +333,28 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // ask cluster to compute residual
-            mFemCluster( 0 )->compute_residual();
+            if( mSet->mEquationModel->get_is_forward_analysis() )
+            {
+                // FIXME should not be like this
+                mSet->set_IWG_field_interpolator_managers();
 
+                // set cluster for stabilization parameter
+                mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                // ask cluster to compute residual
+                mFemCluster( 0 )->compute_residual();
+            }
+            else
+            {
+                // FIXME should not be like this
+                mSet->set_IQI_field_interpolator_managers();
+
+                // set cluster for stabilization parameter
+                mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                // ask cluster to compute jacobian
+                mFemCluster( 0 )->compute_dQIdu();
+            }
         }
 
 //------------------------------------------------------------------------------

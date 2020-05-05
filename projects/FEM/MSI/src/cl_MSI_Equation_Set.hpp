@@ -516,8 +516,7 @@ namespace moris
         /**
          * initialize set
          */
-        virtual void initialize_set( const bool aIsResidual,
-                                     const bool aIsForward )
+        virtual void initialize_set( const bool aIsResidual )
         {
             MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function");
         };

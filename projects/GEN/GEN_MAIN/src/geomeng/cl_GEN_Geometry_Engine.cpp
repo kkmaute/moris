@@ -1,6 +1,7 @@
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_create_geometry.hpp"
+#include "cl_GEN_Design_Variable_Interface.hpp"
 
 // LINALG
 #include "cl_Matrix.hpp"
@@ -84,6 +85,14 @@ namespace moris
         {
         }
         
+        Geometry_Engine::~Geometry_Engine()
+        {
+//            if (mDesignVariableInterface != nullptr)
+//            {
+//                delete(mDesignVariableInterface);
+//            }
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
@@ -805,6 +814,15 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
+        MSI::Design_Variable_Interface * Geometry_Engine::build_design_variable_interface()
+        {
+            mDesignVariableInterface = new GEN_Design_Variable_Interface( this->get_pdv_host_manager() );
+
+            return mDesignVariableInterface;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         //Matrix< DDRMat > Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
         //                                                         GEN_CylinderWithEndCaps* aFiber,
         //                                                         uint aNumberOfFibers )  //FIXME this is currently only setup to work with an HMR member mesh

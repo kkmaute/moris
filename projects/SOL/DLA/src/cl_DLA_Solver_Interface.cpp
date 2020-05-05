@@ -73,13 +73,8 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
-                                     moris::Dist_Vector * aFullSolutionVector )
+void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS )
 {
-    this->set_solution_vector( aFullSolutionVector );
-
-    //aFullSolutionVector->print();
-
     // Get local number of elements
     moris::uint tNumBlocks = this->get_num_my_blocks();
 
@@ -124,11 +119,8 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat,
-                                          moris::Dist_Vector   * aFullSolutionVector )
+void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat )
 {
-    this->set_solution_vector( aFullSolutionVector );
-
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 

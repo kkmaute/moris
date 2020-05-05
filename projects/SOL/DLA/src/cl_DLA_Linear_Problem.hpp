@@ -47,8 +47,8 @@ namespace dla
 
         void assemble_residual_and_jacobian(  );
         void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
-        void assemble_residual( Dist_Vector * aFullSolutionVector );
-        void assemble_jacobian( Dist_Vector * aFullSolutionVector );
+        void assemble_residual();
+        void assemble_jacobian();
 
         virtual moris::sint solve_linear_system() = 0;
 

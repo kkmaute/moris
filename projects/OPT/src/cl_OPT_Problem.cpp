@@ -44,7 +44,7 @@ namespace moris
             this->set_finite_differencing(mFiniteDifferenceType, mFiniteDifferenceEpsilons);
 
             // Get the criteria at the first step
-            mCriteria = mInterface->get_criteria(mADVs);
+            mCriteria = mInterface->perform(mADVs);
 
             // Initialize constraints
             mConstraintTypes = this->get_constraint_types();
@@ -118,7 +118,7 @@ namespace moris
                 return;
             }
             mADVs = aNewADVs;
-            mCriteria = mInterface->get_criteria(aNewADVs);
+            mCriteria = mInterface->perform(aNewADVs);
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ namespace moris
             {
                 // Perturb
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
+                mCriteria = mInterface->perform(mADVs);
                 tObjectivePerturbed = this->compute_objectives()(0);
 
                 // Biased finite difference
@@ -273,7 +273,7 @@ namespace moris
             {
                 // Perturb
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
+                mCriteria = mInterface->perform(mADVs);
                 tConstraintsPerturbed = this->compute_constraints();
 
                 // Biased finite difference
@@ -303,12 +303,12 @@ namespace moris
             {
                 // Perturb forwards
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
+                mCriteria = mInterface->perform(mADVs);
                 tObjectivePlus = this->compute_objectives()(0);
 
                 // Perturb backwards
                 mADVs(tADVIndex) -= 2 * mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
+                mCriteria = mInterface->perform(mADVs);
                 tObjectiveMinus = this->compute_objectives()(0);
 
                 // Central difference
@@ -335,12 +335,12 @@ namespace moris
             {
                 // Perturb forwards
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
+                mCriteria = mInterface->perform(mADVs);
                 tConstraintsPlus = this->compute_constraints();
 
                 // Perturb backwards
                 mADVs(tADVIndex) -= 2 * mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
+                mCriteria = mInterface->perform(mADVs);
                 tConstraintsMinus = this->compute_constraints();
 
                 // Central difference

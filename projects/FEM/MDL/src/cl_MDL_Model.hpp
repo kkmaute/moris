@@ -103,6 +103,8 @@ class Library_IO;
             // pointer to library for input reading
             std::shared_ptr< Library_IO > mLibrary;
 
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -157,15 +159,26 @@ class Library_IO;
             /**
              * solve
              */
-            void perform();
+            void perform( uint aIndex = 0 );
 
 //------------------------------------------------------------------------------
 
+            void perform_forward_analysis();
+
+//------------------------------------------------------------------------------
+
+            void perform_sensitivity_analysis();
+
+//------------------------------------------------------------------------------
             /**
              * set MTK performer
              * @param[ in ] aMTKPerformer the MTK mesh manager
              */
             void set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
+
+//------------------------------------------------------------------------------
+
+            void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface );
 
 //------------------------------------------------------------------------------
             /**

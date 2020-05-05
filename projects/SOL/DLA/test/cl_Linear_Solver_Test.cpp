@@ -191,8 +191,8 @@ TEST_CASE("Linear Solver Aztec multiple RHS","[Linear Solver multiple RHS],[Dist
         std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::BELOS_IMPL );
 
 //        tLinProblem->assemble_residual_and_jacobian();
-        tLinProblem->assemble_jacobian( nullptr );
-        tLinProblem->assemble_residual( nullptr);
+        tLinProblem->assemble_jacobian();
+        tLinProblem->assemble_residual();
 
         tLinSolver->solve_linear_system( tLinProblem );
 
