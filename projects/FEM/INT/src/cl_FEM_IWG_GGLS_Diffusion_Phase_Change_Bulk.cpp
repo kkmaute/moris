@@ -46,9 +46,7 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator (here temperature)
-//            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-
+            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get body load property
             std::shared_ptr< Property > tPropLoad
@@ -74,7 +72,7 @@ namespace moris
             {
                 // compute contribution of body load to residual
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                -= aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) * tPropLoad->val()( 0 ) );
+                -= aWStar * ( trans( tFITemp->N() ) * tGGLSParam->val()( 0 ) * tPropLoad->val() );
             }
 
         }
@@ -93,8 +91,7 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
-//            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
+            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get body load property
             std::shared_ptr< Property > tPropLoad
@@ -107,8 +104,6 @@ namespace moris
             // get the Stabilization Parameter
             std::shared_ptr< Stabilization_Parameter > tGGLSParam
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
-
-
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -124,27 +119,28 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
+                // if body load
+                if ( tPropLoad != nullptr )
+                {
+                    // if body load property has dependency on the dof type
+                    if ( tPropLoad->check_dof_dependency( tDofType ) )
+                    {
+                        // compute contribution of body load to jacobian
+                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
+                        -= aWStar * ( trans( tFITemp->N() ) * tGGLSParam->val()( 0 ) * tPropLoad->dPropdDOF( tDofType ) );
+                    }
+                }
+
                 // if constitutive model has dependency on the dof type
                 if ( tCMDiffusionPhaseChange->check_dof_dependency( tDofType ) )
                 {
-                    // if body load
-                    if ( tPropLoad != nullptr )
-                    {
-                        // if body load property has dependency on the dof type
-                        if ( tPropLoad->check_dof_dependency( tDofType ) )
-                        {
-                            // compute contribution of body load to jacobian
-                            mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                                  { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            -= aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) * tPropLoad->dPropdDOF( tDofType ) );
-                        }
-                    }
-
                     // FIXME: remove cast
                     // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
                     +=   aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
-                                   ( tCMDiffusionPhaseChange->dGradHdotdDOF(tDofType) + tCMDiffusionPhaseChange->dGradDivFluxdDOF(tDofType) ) );
+                                   ( tCMDiffusionPhaseChange->dGradHdotdDOF( tDofType ) - tCMDiffusionPhaseChange->dGradDivFluxdDOF( tDofType ) ) );
                 }
             }
 

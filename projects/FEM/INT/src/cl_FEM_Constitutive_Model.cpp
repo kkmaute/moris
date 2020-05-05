@@ -217,6 +217,11 @@ namespace moris
             mdStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
+
+            // FIXME: Remove once unified.
+            mHdotDof.resize( tNumGlobalDofTypes );
+            mGradHdotDof.resize( tNumGlobalDofTypes );
+            mGradDivFluxDof.resize( tNumGlobalDofTypes );
         }
 
 //------------------------------------------------------------------------------
@@ -1122,7 +1127,7 @@ namespace moris
             if( mGradDivFluxDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dHdotdDOF( aDofType );
+                this->eval_dGradDivFluxdDOF( aDofType );
 
                 // set bool for evaluation
                 mGradDivFluxDofEval( tDofIndex ) = false;
