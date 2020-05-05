@@ -2,6 +2,7 @@
 //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 

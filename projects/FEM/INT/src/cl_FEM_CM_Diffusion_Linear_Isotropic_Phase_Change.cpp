@@ -33,60 +33,21 @@ namespace moris
 
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::reset_eval_flags()
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::reset_eval_flags_spec()
         {
-            // reset the value flag
-            mFluxEval         = true;
-            mDivFluxEval      = true;
-            mTractionEval     = true;
-            mTestTractionEval.assign( mDofTypes.size(), true );
-            mStrainEval       = true;
-            mDivStrainEval    = true;
-            mTestStrainEval   = true;
-            mConstEval        = true;
 
             // flags specific to this constitutive model
             mHdotEval         = true;
             mGradHdotEval     = true;
             mGradDivFluxEval  = true;
 
-            // reset the dof derivative flag
             uint tNumDofTypes = mGlobalDofTypes.size();
-            mdFluxdDofEval.assign( tNumDofTypes, true );
-            mddivfluxduEval.assign( tNumDofTypes, true );
-            mdTractiondDofEval.assign( tNumDofTypes, true );
-            for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
-            {
-                mdTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
-            }
-            mdStraindDofEval.assign( tNumDofTypes, true );
-            mddivstrainduEval.assign( tNumDofTypes, true );
-            mdConstdDofEval.assign( tNumDofTypes, true );
 
             // flags specific to this constitutive model
             mHdotDofEval.assign( tNumDofTypes, true );
             mGradHdotDofEval.assign( tNumDofTypes, true );
             mGradDivFluxDofEval.assign( tNumDofTypes, true );
 
-            // reset the dv derivative flag
-            uint tNumDvTypes = mGlobalDvTypes.size();
-            mdFluxdDvEval.assign( tNumDvTypes, true );
-            mdTractiondDvEval.assign( tNumDvTypes, true );
-            for( uint iDirectDv = 0; iDirectDv < mDvTypes.size(); iDirectDv++ )
-            {
-                mdTestTractiondDvEval( iDirectDv ).assign( tNumDvTypes, true );
-            }
-            mdStraindDvEval.assign( tNumDvTypes, true );
-            mdConstdDvEval.assign( tNumDvTypes, true );
-
-            // reset underlying properties
-            for( std::shared_ptr< Property > tProp : mProperties )
-            {
-                if ( tProp != nullptr )
-                {
-                    tProp->reset_eval_flags();
-                }
-            }
         }
 
 //------------------------------------------------------------------------------
@@ -123,7 +84,7 @@ namespace moris
             else
             {
                 // logistic function parameter k
-                tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
+                real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
 
                 // compute df/dT
                 real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
@@ -222,14 +183,22 @@ namespace moris
 
             moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
 
-            // check inputs
-            MORIS_ASSERT(tPCconst >= 0.0,
-                         "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux: Phase change constant must be >= 0.  " );
-
-            // matrix for isotropic case
-            Matrix<DDRMat> tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
-                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
-                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+            //FIXME: Check for 2D or 3D is missing
+            // matrix for purely isotropic case
+//            uint tDims = ?
+//            if (tDims == 2)
+//            {
+            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},
+                                            { 0, tK, tK,  0}};
+//            }
+//            else if (tDims == 3)
+//            {
+//            Matrix<DDRMat> tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+//                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
+//                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+//            }
+//            else
+//            MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
 
             mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx(3);
         }
@@ -424,11 +393,11 @@ namespace moris
                 mHdotDof( tDofIndex ) = tDensity * ( tHeatCap + tdfdT )
                                                           * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
             }
-            else
-            {
-                // reset the matrix
-                mHdotDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-            }
+//            else
+//            {
+//                // reset the matrix
+//                mHdotDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+//            }
         }
 
 //------------------------------------------------------------------------------
@@ -451,7 +420,8 @@ namespace moris
             }
 
             // return the derivative
-            return mHdotDof( tDofIndex );
+//            return mHdotDof( tDofIndex );
+            return mHdotDof;
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -509,11 +479,11 @@ namespace moris
                 mGradHdotDof( tDofIndex ) = tDensity * ( tHeatCap + tdfdT )
                                                           * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
             }
-            else
-            {
-                // reset the matrix
-                mGradHdotDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-            }
+//            else
+//            {
+//                // reset the matrix
+//                mGradHdotDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+//            }
         }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -552,21 +522,21 @@ namespace moris
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+//            uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             //FIXME: Check for 2D or 3D is missing
             // matrix for purely isotropic case
 //            uint tDims = ?
 //            if (tDims == 2)
 //            {
-//            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},
-//                                            { 0, tK, tK,  0}};
+            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},
+                                            { 0, tK, tK,  0}};
 //            }
 //            else if (tDims == 3)
 //            {
-            Matrix<DDRMat> tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
-                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
-                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+//            Matrix<DDRMat> tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+//                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
+//                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
 //            }
 //            else
 //            MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
@@ -578,11 +548,11 @@ namespace moris
                 // compute derivative with direct dependency
                 mGradDivFluxDof = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn(3);
             }
-            else
-            {
-                // reset the matrix
-                mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-            }
+//            else
+//            {
+//                // reset the matrix
+//                mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+//            }
         }
 
 //--------------------------------------------------------------------------------------------------------------

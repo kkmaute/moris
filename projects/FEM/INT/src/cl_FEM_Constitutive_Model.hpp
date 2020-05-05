@@ -244,6 +244,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * reset evaluation flags specific to some CMs
+             */
+            virtual void reset_eval_flags_spec()
+            {
+                // This function is empty by purpose
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * set constitutive model dof types
              * @param[ in ] aDofTypes a list of group of dof types
              */

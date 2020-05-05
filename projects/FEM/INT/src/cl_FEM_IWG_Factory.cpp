@@ -16,6 +16,8 @@
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
 //Diffusion
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
+#include "cl_FEM_IWG_Diffusion_Phase_Change_Bulk.hpp"
+#include "cl_FEM_IWG_GGLS_Diffusion_Phase_Change_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Diffusion_Neumann.hpp"
 #include "cl_FEM_IWG_Diffusion_Interface.hpp"

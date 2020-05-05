@@ -5,6 +5,10 @@
 //LINALG/src
 #include "fn_trans.hpp"
 
+// FIXME: those have to go as soon as casts are removed
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
+
 namespace moris
 {
     namespace fem
@@ -63,11 +67,12 @@ namespace moris
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
 
 
-
+            // FIXME: remove cast
             // compute the residual from bulk diffusion term
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
-                          ( tCMDiffusionPhaseChange->gradHdot() - tCMDiffusionPhaseChange->graddivflux() ) );
+                          ( reinterpret_cast<CM_Diffusion_Linear_Isotropic_Phase_Change>(tCMDiffusionPhaseChange)->gradHdot()
+                            - reinterpret_cast<CM_Diffusion_Linear_Isotropic_Phase_Change>(tCMDiffusionPhaseChange)->graddivflux() ) );
 
             // if body load
             if ( tPropLoad != nullptr )
@@ -140,10 +145,12 @@ namespace moris
                         }
                     }
 
+                    // FIXME: remove cast
                     // compute the jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } )
                     +=   aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
-                                   ( tCMDiffusionPhaseChange->dGradHdotdDOF + tCMDiffusionPhaseChange->dGradDivFluxdDOF ) );
+                                   ( reinterpret_cast<CM_Diffusion_Linear_Isotropic_Phase_Change>(tCMDiffusionPhaseChange)->dGradHdotdDOF
+                                     + reinterpret_cast<CM_Diffusion_Linear_Isotropic_Phase_Change>(tCMDiffusionPhaseChange)->dGradDivFluxdDOF ) );
                 }
             }
 

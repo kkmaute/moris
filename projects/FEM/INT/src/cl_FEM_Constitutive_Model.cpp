@@ -59,6 +59,8 @@ namespace moris
                     tProp->reset_eval_flags();
                 }
             }
+
+            this->reset_eval_flags_spec();
         }
 
 //------------------------------------------------------------------------------

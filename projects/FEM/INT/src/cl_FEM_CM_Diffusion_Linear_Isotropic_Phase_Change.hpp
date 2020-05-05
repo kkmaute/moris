@@ -91,7 +91,7 @@ namespace moris
             /**
              * reset evaluation flags
              */
-            void reset_eval_flags();
+            void reset_eval_flags_spec();
 
 //------------------------------------------------------------------------------
             /**

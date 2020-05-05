@@ -15,6 +15,7 @@
 #include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
 #include "cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_SUPG_Advection.hpp"
+#include "cl_FEM_SP_GGLS_Diffusion.hpp"
 
 namespace moris
 {

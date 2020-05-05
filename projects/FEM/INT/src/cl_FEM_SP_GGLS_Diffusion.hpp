@@ -75,13 +75,13 @@ namespace moris
             /**
              * reset the cluster measures required for this SP
              */
-            void SP_GGLS_Diffusion::reset_cluster_measures()
+            void reset_cluster_measures()
             {
                 // evaluate element size from the cluster
                 mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
                                                                               mtk::Master_Slave::MASTER );
 
-            }
+            };
 
 //------------------------------------------------------------------------------
             /**
