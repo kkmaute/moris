@@ -133,7 +133,7 @@ namespace moris
             // get the pdv values from the MSI/GEN interface
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterCell->get_vertex_inds(),
-                                                              { GEN_DV::XCOORD, GEN_DV::YCOORD },
+                                                              { PDV::X_COORDINATE, PDV::Y_COORDINATE },
                                                               tPdvValueList,
                                                               tIsActiveDv );//FIXME
 
@@ -260,7 +260,7 @@ namespace moris
             // get the pdv values from the MSI/GEN interface
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterCell->get_vertex_inds(),
-                                                              { GEN_DV::XCOORD, GEN_DV::YCOORD },
+                                                              { PDV::X_COORDINATE, PDV::Y_COORDINATE },
                                                               tPdvValueList, tIsActiveDv );//FIXME
 
             // reshape the cell of vectors tPdvValueList into a matrix tPdvValues

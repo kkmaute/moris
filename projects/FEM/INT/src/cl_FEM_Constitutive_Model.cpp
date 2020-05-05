@@ -300,7 +300,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Constitutive_Model::set_dv_type_list( moris::Cell< moris::Cell< GEN_DV > > aDvTypes )
+        void Constitutive_Model::set_dv_type_list( moris::Cell< moris::Cell< PDV > > aDvTypes )
         {
             // set the dv types
             mDvTypes = aDvTypes;
@@ -311,7 +311,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Constitutive_Model::set_dv_type_list( moris::Cell< moris::Cell< GEN_DV > > aDvTypes,
+        void Constitutive_Model::set_dv_type_list( moris::Cell< moris::Cell< PDV > > aDvTypes,
                                                    moris::Cell< std::string >           aDvStrings )
         {
             // set the dv types
@@ -387,7 +387,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active dv types
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV > > tActiveDvType = tProperty->get_dv_type_list();
 
                     for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                     {
@@ -442,7 +442,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const moris::Cell< moris::Cell< GEN_DV > > & Constitutive_Model::get_global_dv_type_list()
+        const moris::Cell< moris::Cell< PDV > > & Constitutive_Model::get_global_dv_type_list()
         {
             if( mGlobalDvBuild )
             {
@@ -485,7 +485,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        bool Constitutive_Model::check_dv_dependency( const moris::Cell< GEN_DV > & aDvType )
+        bool Constitutive_Model::check_dv_dependency( const moris::Cell< PDV > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -580,7 +580,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Constitutive_Model::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                                  moris::Cell< GEN_DV >        & aDvTypes )
+                                                                  moris::Cell< PDV >        & aDvTypes )
         {
             // init dof counter
             uint tDofCounter = 0;
@@ -607,7 +607,7 @@ namespace moris
                 {
                     // get property dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -642,7 +642,7 @@ namespace moris
                 {
                     // get property dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -812,7 +812,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Constitutive_Model::eval_dFluxdDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+        void Constitutive_Model::eval_dFluxdDV_FD( const moris::Cell< PDV > & aDvTypes,
                                                          Matrix< DDRMat >      & adFluxdDV_FD,
                                                          real                    aPerturbation )
         {
@@ -891,7 +891,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Constitutive_Model::eval_dStraindDV_FD( const moris::Cell< GEN_DV > & aDvTypes,
+        void Constitutive_Model::eval_dStraindDV_FD( const moris::Cell< PDV > & aDvTypes,
                                                            Matrix< DDRMat >      & adStraindDV_FD,
                                                            real                    aPerturbation )
         {
@@ -1334,7 +1334,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dFluxdDV( const moris::Cell< GEN_DV > & aDvType )
+        const Matrix< DDRMat > & Constitutive_Model::dFluxdDV( const moris::Cell< PDV > & aDvType )
         {
            // if aDvType is not an active dv type
            MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dFluxdDV - no dependency in this dv type." );
@@ -1357,7 +1357,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dStraindDV( const moris::Cell< GEN_DV > & aDvType )
+        const Matrix< DDRMat > & Constitutive_Model::dStraindDV( const moris::Cell< PDV > & aDvType )
         {
            // if aDvType is not an active dv type for the property
            MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dStraindDV - no dependency in this dv type." );
@@ -1380,7 +1380,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dConstdDV( const moris::Cell< GEN_DV > & aDvType )
+        const Matrix< DDRMat > & Constitutive_Model::dConstdDV( const moris::Cell< PDV > & aDvType )
         {
            // if aDvType is not an active dv type for the property
            MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dConstdDV - no dependency in this dv type." );

@@ -254,7 +254,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_2D", "[IWG_Incompressible_NS_Pre
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager
@@ -493,7 +493,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_3D", "[IWG_Incompressible_NS_Pre
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager

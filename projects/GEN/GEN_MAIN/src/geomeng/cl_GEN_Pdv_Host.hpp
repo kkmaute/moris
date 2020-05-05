@@ -14,7 +14,7 @@
 #include "cl_GEN_Property.hpp"
 
 // GEN_CORE
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 // XTK includes
 #include "cl_XTK_Topology.hpp"
@@ -99,7 +99,7 @@ namespace moris
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
             void create_pdv( std::shared_ptr< GEN_Field > aFieldPointer,
-                             enum GEN_DV                  aPdvType,
+                             enum PDV                  aPdvType,
                              const Matrix< IndexMat >   & aGlobalPdvTypeMap )
             {
                 // get index for dv type
@@ -120,7 +120,7 @@ namespace moris
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
             void create_pdv( std::shared_ptr< GEN_Property > aPropertyPointer,
-                             enum GEN_DV                     aPdvType,
+                             enum PDV                     aPdvType,
                              const Matrix< IndexMat >      & aGlobalPdvTypeMap )
             {
                 // get index for dv type
@@ -142,7 +142,7 @@ namespace moris
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
             void create_pdv( moris::real                aPdvVal,
-                             enum GEN_DV                aPdvType,
+                             enum PDV                aPdvType,
                              const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type
@@ -163,7 +163,7 @@ namespace moris
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
-            std::shared_ptr< GEN_Pdv > get_pdv_by_type(       enum GEN_DV          aPdvType,
+            std::shared_ptr< GEN_Pdv > get_pdv_by_type(       enum PDV          aPdvType,
                                                         const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type
@@ -179,7 +179,7 @@ namespace moris
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
-            bool is_active_type(       enum GEN_DV          aPdvType,
+            bool is_active_type(       enum PDV          aPdvType,
                                  const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type
@@ -197,7 +197,7 @@ namespace moris
                 }
             }
 
-            void mark_pdv_as_inactive(GEN_DV aPdvType, const Matrix< IndexMat > & aGlobalPdvTypeMap)
+            void mark_pdv_as_inactive(PDV aPdvType, const Matrix< IndexMat > & aGlobalPdvTypeMap)
             {
                 // get index for dv type
                 moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
@@ -213,7 +213,7 @@ namespace moris
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
             void assign_id_to_type(      uint                  aId,
-                                    enum GEN_DV                aPdvType,
+                                    enum PDV                aPdvType,
                                     const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type
@@ -239,7 +239,7 @@ namespace moris
              * @param[ in ] aPdvType          a dv type
              * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
              */
-            uint get_global_index_for_dv_type(       enum GEN_DV          aPdvType,
+            uint get_global_index_for_dv_type(       enum PDV          aPdvType,
                                                const Matrix< IndexMat > & aGlobalPdvTypeMap )
             {
                 // get index for dv type

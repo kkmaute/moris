@@ -17,7 +17,7 @@
 #include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Geometry_Discrete.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
 #include "cl_MTK_Cluster.hpp"
@@ -483,7 +483,7 @@ namespace moris
              *
              * @param[ in ] aPdvTypes          lists of dv types (material only)
              */
-            void set_pdv_types(Cell<Cell<Cell<GEN_DV>>> aPdvTypes);
+            void set_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypes);
 
             /**
              * initialize interpolation pdv host list
@@ -496,7 +496,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_name( std::string                  aSetName,
                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                              enum GEN_DV                  aPdvType,
+                                              enum PDV                  aPdvType,
                                               moris_index                  aWhichMesh = 0 );
 
             /**
@@ -504,7 +504,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
                                               std::shared_ptr< GEN_Property > aPropertyPointer,
-                                              enum GEN_DV                     aPdvType,
+                                              enum PDV                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
 
             /**
@@ -512,7 +512,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                               enum GEN_DV                  aPdvType,
+                                               enum PDV                  aPdvType,
                                                moris_index                  aWhichMesh = 0 );
 
             /**
@@ -520,7 +520,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
                                                std::shared_ptr< GEN_Property > aPropertyPointer,
-                                               enum GEN_DV                     aPdvType,
+                                               enum PDV                     aPdvType,
                                                moris_index                     aWhichMesh = 0 );
 
             /**
@@ -535,7 +535,7 @@ namespace moris
              *
              * @param aPdvType The pdv type to be marked
              */
-            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, GEN_DV aPdvType);
+            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType);
 
         private:
             /**

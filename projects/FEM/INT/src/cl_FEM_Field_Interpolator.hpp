@@ -17,7 +17,7 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"     //FEM/MSI/src
 
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -64,7 +64,7 @@ class Property;
             moris::Cell< MSI::Dof_Type > mDofType;
 
             // dv type
-            moris::Cell< GEN_DV > mDvType;
+            moris::Cell< PDV > mDvType;
 
             // flag for evaluation
             bool mNBuildEval = true;
@@ -109,7 +109,7 @@ class Property;
             Field_Interpolator( const uint                         & aNumberOfFields,
                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                const moris::Cell< GEN_DV >          aDvType );
+                                const moris::Cell< PDV >          aDvType );
 
             /**
              * trivial constructor for unit test
@@ -125,7 +125,7 @@ class Property;
               * trivial constructor for unit test
               */
              Field_Interpolator( const uint                  & aNumberOfFields,
-                                 const moris::Cell< GEN_DV >   aDvType ) : mNumberOfFields( aNumberOfFields ),
+                                 const moris::Cell< PDV >   aDvType ) : mNumberOfFields( aNumberOfFields ),
                                                                                  mDvType( aDvType )
              {
                  mNFieldCoeff = mNumberOfFields;
@@ -150,7 +150,7 @@ class Property;
             /**
              * get dof type
              */
-            const moris::Cell< GEN_DV > & get_dv_type() const
+            const moris::Cell< PDV > & get_dv_type() const
             {
                 return mDvType;
             }

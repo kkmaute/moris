@@ -107,7 +107,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Property::set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes )
+        void Property::set_dv_type_list( const moris::Cell< moris::Cell< PDV > > & aDvTypes )
         {
             // set dv type list
             mDvTypes = aDvTypes;
@@ -154,7 +154,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        bool Property::check_dv_dependency( const moris::Cell< GEN_DV > aDvType )
+        bool Property::check_dv_dependency( const moris::Cell< PDV > aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -198,7 +198,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Property::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                        moris::Cell< GEN_DV >  & aDvTypes )
+                                                        moris::Cell< PDV >  & aDvTypes )
         {
             // init counter
             uint tDofCounter = 0;
@@ -308,7 +308,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Property::dPropdDV( const moris::Cell< GEN_DV > aDvType )
+        const Matrix< DDRMat > & Property::dPropdDV( const moris::Cell< PDV > aDvType )
         {
            // if aDvType is not an active dv type for the property
            MORIS_ERROR( this->check_dv_dependency( aDvType ), "Property::dPropdDV - no dependency in this dv type." );
@@ -331,7 +331,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Property::eval_dPropdDV( const moris::Cell< GEN_DV > aDvType )
+        void Property::eval_dPropdDV( const moris::Cell< PDV > aDvType )
         {
             // get the dv index
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );

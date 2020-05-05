@@ -18,7 +18,7 @@
 
 #include "cl_PRM_FEM_Parameters.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
@@ -198,13 +198,13 @@ namespace moris
              * create a list of property pointers
              * @param[ in ] aProperties    a list of property pointers to fill
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to GEN_DV
+             * @param[ in ] aDvTypeMap     a map from std::string to PDV
              * @param[ in ] aLibrary       a file path for property functions
              */
             void create_properties
             ( moris::map< std::string, uint >          & aPropertyMap,
               moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >        & aDvTypeMap,
+              moris::map< std::string, PDV >        & aDvTypeMap,
               std::shared_ptr< Library_IO >              aLibrary );
 
 //------------------------------------------------------------------------------
@@ -214,13 +214,13 @@ namespace moris
              *                            in aCMs
              * @param[ in ] aPropertyMap   a map from property name to property index
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to GEN_DV
+             * @param[ in ] aDvTypeMap     a map from std::string to PDV
              */
             void create_constitutive_models
             ( moris::map< std::string, uint >          & aCMMap,
               moris::map< std::string, uint >          & aPropertyMap,
               moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >        & aDvTypeMap );
+              moris::map< std::string, PDV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -230,14 +230,14 @@ namespace moris
              * @param[ in ] aCMMap         a map from CM name to CM index
              *                            in aCMs
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to GEN_DV
+             * @param[ in ] aDvTypeMap     a map from std::string to PDV
              */
             void create_stabilization_parameters
             ( moris::map< std::string, uint >          & aSPMap,
               moris::map< std::string, uint >          & aPropertyMap,
               moris::map< std::string, uint >          & aCMMap,
               moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >        & aDvTypeMap );
+              moris::map< std::string, PDV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -249,14 +249,14 @@ namespace moris
              * @param[ in ] aSPMap         a map from SP name to SP index
              *                            in aSPs
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to GEN_DV
+             * @param[ in ] aDvTypeMap     a map from std::string to PDV
              */
             void create_IWGs
             ( moris::map< std::string, uint >          & aPropertyMap,
               moris::map< std::string, uint >          & aCMMap,
               moris::map< std::string, uint >          & aSPMap,
               moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >        & aDvTypeMap );
+              moris::map< std::string, PDV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**
@@ -268,14 +268,14 @@ namespace moris
              * @param[ in ] aSPMap         a map from SP name to SP index
              *                            in aSPs
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to GEN_DV
+             * @param[ in ] aDvTypeMap     a map from std::string to PDV
              */
             void create_IQIs
             ( moris::map< std::string, uint >          & aPropertyMap,
               moris::map< std::string, uint >          & aCMMap,
               moris::map< std::string, uint >          & aSPMap,
               moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-              moris::map< std::string, GEN_DV >        & aDvTypeMap );
+              moris::map< std::string, PDV >        & aDvTypeMap );
 
 //------------------------------------------------------------------------------
             /**

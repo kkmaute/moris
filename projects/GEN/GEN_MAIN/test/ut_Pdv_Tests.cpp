@@ -13,7 +13,7 @@
 // GE include -----------------------------------
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_GEN_Enums.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -105,8 +105,8 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         uint tHMRMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegrationMesh );
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
-        Cell< enum GEN_DV > tPdvList0(1);
-        tPdvList0(0) = GEN_DV::DENSITY0;
+        Cell< enum PDV > tPdvList0(1);
+        tPdvList0(0) = PDV::DENSITY;
 
         std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
         tConstDensityProp0->set_parameters( { {{ 1234 }} } );
@@ -115,8 +115,8 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         Cell< std::shared_ptr< GEN_Property > > tPropertyList0(1);
         tPropertyList0(0) = tConstDensityProp0;
         //------------------------------------------------------------------------------
-        Cell< enum GEN_DV > tPdvList1(1);
-        tPdvList1(0) = GEN_DV::DENSITY1;
+        Cell< enum PDV > tPdvList1(1);
+        tPdvList1(0) = PDV::DENSITY1;
 
         std::shared_ptr< GEN_Property > tConstDensityProp1 = std::make_shared< GEN_Property >();
         tConstDensityProp1->set_parameters( { {{ 4321 }} } );
@@ -149,11 +149,11 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
         }
 
         // ----- check the global consistent lists -----
-        moris::Cell< enum GEN_DV > tCheckCell = { {GEN_DV::DENSITY0},
-                                                  {GEN_DV::DENSITY1} };
+        moris::Cell< enum PDV > tCheckCell = { {PDV::DENSITY},
+                                                  {PDV::DENSITY1} };
         if( par_rank()==0 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList0 = tGeometryEngine.get_pdv_host_manager()->get_ip_pdv_type_list();
+            moris::Cell< enum PDV > tPdvTypeList0 = tGeometryEngine.get_pdv_host_manager()->get_ip_pdv_type_list();
 
             REQUIRE( tPdvTypeList0(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList0(1) == tCheckCell(1) );
@@ -161,7 +161,7 @@ TEST_CASE("unit test for globally consistent pdv type list","[GE],[global_pdv_ty
 
         if( par_rank()==1 )
         {
-            moris::Cell< enum GEN_DV > tPdvTypeList1 = tGeometryEngine.get_pdv_host_manager()->get_ip_pdv_type_list();
+            moris::Cell< enum PDV > tPdvTypeList1 = tGeometryEngine.get_pdv_host_manager()->get_ip_pdv_type_list();
 
             REQUIRE( tPdvTypeList1(0) == tCheckCell(0) );
             REQUIRE( tPdvTypeList1(1) == tCheckCell(1) );

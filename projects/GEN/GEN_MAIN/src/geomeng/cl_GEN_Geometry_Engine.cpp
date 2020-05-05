@@ -1048,7 +1048,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_pdv_types(Cell<Cell<Cell<GEN_DV>>> aPdvTypes)
+        void Geometry_Engine::set_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypes)
         {
             // set the set dv type flag to true
             mTypesSet = true;
@@ -1075,7 +1075,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_name( std::string                  aSetName,
                                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                                               enum GEN_DV                  aPdvType,
+                                                               enum PDV                  aPdvType,
                                                                moris_index                  aWhichMesh)
         {
             // get the mesh set from name
@@ -1121,7 +1121,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
                                                               std::shared_ptr< GEN_Property > aPropertyPointer,
-                                                              enum GEN_DV                     aPdvType,
+                                                              enum PDV                     aPdvType,
                                                               moris_index                     aWhichMesh)
         {
             // get the mesh set from name
@@ -1164,7 +1164,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_index(moris_index                  aSetIndex,
                                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                                               enum GEN_DV                  aPdvType,
+                                                               enum PDV                  aPdvType,
                                                                moris_index                  aWhichMesh)
         {
             // get the mesh set from index
@@ -1210,7 +1210,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
                                                                 std::shared_ptr< GEN_Property > aPropertyPointer,
-                                                                enum GEN_DV                     aPdvType,
+                                                                enum PDV                     aPdvType,
                                                                 moris_index                     aWhichMesh)
         {
             // get the mesh set from index
@@ -1253,7 +1253,7 @@ namespace moris
 
         void Geometry_Engine::initialize_integ_pdv_host_list(moris_index aWhichMesh) //FIXME
         {
-            Cell<Cell<Cell<GEN_DV>>> tDimDvList(1);
+            Cell<Cell<Cell<PDV>>> tDimDvList(1);
             tDimDvList(0).resize(1);
             tDimDvList(0)(0).resize(mSpatialDim);
 
@@ -1261,15 +1261,15 @@ namespace moris
             {
                 case(2):
                 {
-                    tDimDvList(0)(0)(0) = GEN_DV::XCOORD;
-                    tDimDvList(0)(0)(1) = GEN_DV::YCOORD;
+                    tDimDvList(0)(0)(0) = PDV::X_COORDINATE;
+                    tDimDvList(0)(0)(1) = PDV::Y_COORDINATE;
                     break;
                 }
                 case(3):
                 {
-                    tDimDvList(0)(0)(0) = GEN_DV::XCOORD;
-                    tDimDvList(0)(0)(1) = GEN_DV::YCOORD;
-                    tDimDvList(0)(0)(2) = GEN_DV::ZCOORD;
+                    tDimDvList(0)(0)(0) = PDV::X_COORDINATE;
+                    tDimDvList(0)(0)(1) = PDV::Y_COORDINATE;
+                    tDimDvList(0)(0)(2) = PDV::Z_COORDINATE;
                     break;
                 }
                 default:
@@ -1310,7 +1310,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::mark_ig_pdv_as_inactive(moris_index aNodeIndex, GEN_DV aPdvType)
+        void Geometry_Engine::mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
             mPdvHostManager.mark_ig_pdv_as_inactive(aNodeIndex, aPdvType);
         }

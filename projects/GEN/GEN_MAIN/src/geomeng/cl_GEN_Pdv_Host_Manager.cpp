@@ -10,9 +10,9 @@ namespace moris
         Pdv_Host_Manager::Pdv_Host_Manager()
         {
 //            // set size for IP dv type enum to index map
-//            mIpGlobalPdvTypeMap.set_size(static_cast<size_t>(GEN_DV::END_ENUM), 1, gNoIndex);
+//            mIpGlobalPdvTypeMap.set_size(static_cast<size_t>(PDV::UNDEFINED), 1, gNoIndex);
 //            // set size for IG dv type enum to index map
-//            mIgGlobalPdvTypeMap.set_size(static_cast<size_t>(GEN_DV::ZCOORD) + 1, 1, gNoIndex);
+//            mIgGlobalPdvTypeMap.set_size(static_cast<size_t>(PDV::Z_COORDINATE) + 1, 1, gNoIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -23,21 +23,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<GEN_DV>>& aDvTypes)
+        void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<PDV>>& aDvTypes)
         {
             aDvTypes = mIpPdvTypes(aIPMeshSetIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<Cell<GEN_DV>>& aDvTypes)
+        void Pdv_Host_Manager::get_ig_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<Cell<PDV>>& aDvTypes)
         {
             aDvTypes = mIgPdvTypes(aIGMeshSetIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ip_unique_dv_types_for_set(const moris_index aIPMeshSetIndex, Cell<GEN_DV>& aDvTypes)
+        void Pdv_Host_Manager::get_ip_unique_dv_types_for_set(const moris_index aIPMeshSetIndex, Cell<PDV>& aDvTypes)
         {
             // Get number of unique PDVs
             uint tNumUniquePdvs = 0;
@@ -59,7 +59,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_unique_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<GEN_DV>& aDvTypes)
+        void Pdv_Host_Manager::get_ig_unique_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<PDV>& aDvTypes)
         {
             // Get number of unique PDVs
             uint tNumUniquePdvs = 0;
@@ -82,7 +82,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<GEN_DV>&       aDvTypes,
+                                                const Cell<PDV>&       aDvTypes,
                                                 Cell<Matrix<DDRMat>>&     aDvValues)
         {
             // get the number of node indices requested
@@ -109,7 +109,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<GEN_DV>&       aDvTypes,
+                                                const Cell<PDV>&       aDvTypes,
                                                 Cell<Matrix<DDRMat>>&     aDvValues,
                                                 Cell<Matrix<DDSMat>>&     aIsActiveDv)
         {
@@ -140,7 +140,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<GEN_DV>&       aDvTypes,
+                                                const Cell<PDV>&       aDvTypes,
                                                 Cell<Matrix<DDRMat>>&     aDvValues)
         {
             // get the number of node indices requested
@@ -167,7 +167,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<GEN_DV>&       aDvTypes,
+                                                const Cell<PDV>&       aDvTypes,
                                                 Cell<Matrix<DDRMat>>&     aDvValues,
                                                 Cell<Matrix<DDSMat>>&     aIsActiveDv)
         {
@@ -210,7 +210,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ip_dv_ids_for_type_and_ind(const Cell<moris_index>&    aNodeIndices,
-                                                              const Cell<GEN_DV>&         aDvTypes,
+                                                              const Cell<PDV>&         aDvTypes,
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
             /*
@@ -253,7 +253,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_dv_ids_for_type_and_ind(const Cell<moris_index>&    aNodeIndices,
-                                                              const Cell<GEN_DV>&         aDvTypes,
+                                                              const Cell<PDV>&         aDvTypes,
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
             /*
@@ -336,7 +336,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Property> aPropertyPointer,
-                                                                           GEN_DV                        aPdvType,
+                                                                           PDV                        aPdvType,
                                                                            moris_index                   aNodeIndex)
         {
             // create a pdv host for vertex index
@@ -349,7 +349,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::assign_field_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Field>   aFieldPointer,
-                                                                        GEN_DV                       aPdvType,
+                                                                        PDV                       aPdvType,
                                                                         moris_index                  aNodeIndex)
         {
             // create a pdv host for vertex index
@@ -361,49 +361,49 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ip_pdv_by_type_and_index(moris_index aNodeIndex, GEN_DV aPdvType)
+        std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType)
         {
             return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mIpGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ig_pdv_by_type_and_index(moris_index aNodeIndex, GEN_DV aPdvType)
+        std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType)
         {
             return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mIgGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sint Pdv_Host_Manager::check_ip_for_active_type(moris_index aNodeIndex, GEN_DV aPdvType)
+        sint Pdv_Host_Manager::check_ip_for_active_type(moris_index aNodeIndex, PDV aPdvType)
         {
             return mIpPdvHosts(aNodeIndex)->is_active_type(aPdvType, mIpGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sint Pdv_Host_Manager::check_ig_for_active_type(moris_index aNodeIndex, GEN_DV aPdvType)
+        sint Pdv_Host_Manager::check_ig_for_active_type(moris_index aNodeIndex, PDV aPdvType)
         {
             return mIgPdvHosts(aNodeIndex)->is_active_type(aPdvType, mIgGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Pdv_Host_Manager::get_ip_global_index_for_dv_type(moris_index aNodeIndex, GEN_DV aPdvType)
+        uint Pdv_Host_Manager::get_ip_global_index_for_dv_type(moris_index aNodeIndex, PDV aPdvType)
         {
             return mIpPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mIpGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Pdv_Host_Manager::get_ig_global_index_for_dv_type(moris_index aNodeIndex, GEN_DV aPdvType)
+        uint Pdv_Host_Manager::get_ig_global_index_for_dv_type(moris_index aNodeIndex, PDV aPdvType)
         {
             return mIgPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mIgGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ip_pdv_types(Cell<Cell<Cell<GEN_DV>>> aPdvTypeList)
+        void Pdv_Host_Manager::set_ip_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypeList)
         {
             mIpPdvTypes = aPdvTypeList;
 //            // communicate dv types
@@ -422,7 +422,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ig_pdv_types(Cell<Cell<Cell<GEN_DV>>> aPdvTypeList)
+        void Pdv_Host_Manager::set_ig_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypeList)
         {
             mIgPdvTypes = aPdvTypeList;
 //            // communicate dv types
@@ -441,14 +441,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::mark_ip_pdv_as_inactive(moris_index aNodeIndex, GEN_DV aPdvType)
+        void Pdv_Host_Manager::mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
             mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mIpGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::mark_ig_pdv_as_inactive(moris_index aNodeIndex, GEN_DV aPdvType)
+        void Pdv_Host_Manager::mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
             mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mIgGlobalPdvTypeMap);
         }
