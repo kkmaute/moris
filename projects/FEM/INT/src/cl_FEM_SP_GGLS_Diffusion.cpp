@@ -38,8 +38,13 @@ namespace moris
             real tDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             real tHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
 
+
+            // time step size
+            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
+            real tDeltat = tTimeCoeff.max() - tTimeCoeff.min();
+
             // get alpha
-            real tAlpha = (tDensity * tHeatCapacity / mTimStepSize) * std::pow(mElementSize, 2.0);
+            real tAlpha = (tDensity * tHeatCapacity / tDeltat) * std::pow(mElementSize, 2.0);
 
             // get xi-bar
             real tXiBar = ( std::cosh( std::sqrt(6*tAlpha) ) + 2 ) / ( std::cosh( std::sqrt(6*tAlpha) ) - 1 )  -  (1/tAlpha);

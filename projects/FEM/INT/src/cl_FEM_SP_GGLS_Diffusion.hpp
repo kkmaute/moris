@@ -38,10 +38,7 @@ namespace moris
         private:
 
                 // element size
-                real mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                                   mtk::Master_Slave::MASTER );
-                real mTimStepSize = 1.0;
-                //real mTimStepSize = mMasterFIManager->get_IG_geometry_interpolator()->;
+                real mElementSize = 1.0;
 
 
         public:
@@ -78,9 +75,12 @@ namespace moris
             /**
              * reset the cluster measures required for this SP
              */
-            void reset_cluster_measures()
+            void SP_GGLS_Diffusion::reset_cluster_measures()
             {
-                // No cluster measure needed
+                // evaluate element size from the cluster
+                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
+                                                                              mtk::Master_Slave::MASTER );
+
             }
 
 //------------------------------------------------------------------------------

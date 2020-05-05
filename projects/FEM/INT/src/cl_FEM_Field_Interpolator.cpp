@@ -546,12 +546,9 @@ namespace moris
 //            Matrix< DDRMat> tTemporary;
 
             // build the space time dNdTau row by row
-            for ( moris::uint It = 0; It < mNTimeDim; It++ )
+            for ( moris::uint Ix = 0; Ix < mNSpaceDim; Ix++ )
             {
-                for ( moris::uint Ix = 0; Ix < mNSpaceDim; Ix++ )
-                {
-                    tdNFielddXiTau.get_row( Ix ) = reshape( tdNSpacedXi.get_column(Ix) * tdNTimedTau.get_row(It), 1, mNFieldBases);
-                }
+                tdNFielddXiTau.get_row( Ix ) = reshape( tdNSpacedXi.get_column(Ix) * tdNTimedTau, 1, mNFieldBases);
             }
 
             // evaluate the Jacobian from the space geometry interpolator
