@@ -260,6 +260,12 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            //init the matrix
+            mdFluxdDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // get the conductivity property
             std::shared_ptr< Property > tPropConductivity
             = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
@@ -268,13 +274,8 @@ namespace moris
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ) = tPropConductivity->val()( 0 )
-                                        * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
-            }
-            else
-            {
-                // reset the matrix
-                mdFluxdDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+                mdFluxdDof( tDofIndex ).matrix_data()
+                += tPropConductivity->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
             }
 
             // if indirect dependency on the dof type
@@ -307,6 +308,12 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init the matrix
+            mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // initialize value of derivative of Phase State Function
             real tdfdT = 0.0;
 
@@ -338,14 +345,10 @@ namespace moris
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mHdotDof( tDofIndex ) = tDensity * ( tHeatCap + tdfdT )
-                                                          * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
+                mHdotDof( tDofIndex ).matrix_data()
+                += tDensity * ( tHeatCap + tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
             }
-//            else
-//            {
-//                // reset the matrix
-//                mHdotDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
+
         }
 
 
@@ -369,6 +372,11 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init the matrix
+            mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // initialize value of derivative of Phase State Function
             real tdfdT = 0.0;
@@ -401,14 +409,10 @@ namespace moris
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mGradHdotDof( tDofIndex ) = tDensity * ( tHeatCap + tdfdT )
-                                                          * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
+                mGradHdotDof( tDofIndex ).matrix_data()
+                += tDensity * ( tHeatCap + tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
             }
-//            else
-//            {
-//                // reset the matrix
-//                mGradHdotDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
+
         }
 
 
@@ -427,35 +431,42 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init the matrix
+            mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
             //FIXME: Check for 2D or 3D is missing
             // matrix for purely isotropic case
-//            uint tDims = ?
-//            if (tDims == 2)
-//            {
-            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},
-                                            { 0, tK, tK,  0}};
-//            }
-//            else if (tDims == 3)
-//            {
-//            Matrix<DDRMat> tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
-//                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
-//                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
-//            }
-//            else
-//            MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
-
+            Matrix< DDRMat > tKijIsotropic;
+            switch( mSpaceDim )
+            {
+                case ( 2 ):
+                {
+                    tKijIsotropic = {{tK,  0,  0, tK},
+                                     { 0, tK, tK,  0}};
+                    break;
+                }
+                case ( 3 ):
+                {
+                    tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
+                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+                    break;
+                }
+                default:
+                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
+                    break;
+            }
 
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
             {
                 // compute derivative with direct dependency
-                mGradDivFluxDof(tDofIndex) = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn(3);
+                mGradDivFluxDof( tDofIndex ).matrix_data()
+                += tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 3 ).matrix_data();
             }
-//            else
-//            {
-//                // reset the matrix
-//                mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-//            }
         }
 
 
