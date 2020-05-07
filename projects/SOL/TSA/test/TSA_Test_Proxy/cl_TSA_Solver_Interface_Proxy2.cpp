@@ -20,8 +20,6 @@ TSA_Solver_Interface_Proxy_II::TSA_Solver_Interface_Proxy_II()
 void TSA_Solver_Interface_Proxy_II::set_solution_vector( Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
-
-    mSolutionVector->extract_copy( mMySolVec );
 }
 
 void TSA_Solver_Interface_Proxy_II::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
@@ -34,6 +32,8 @@ void TSA_Solver_Interface_Proxy_II::set_solution_vector_prev_time_step( Dist_Vec
 void TSA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint                     & aMyElementInd,
                                                            Cell< Matrix< DDRMat > > & aElementRHS )
 {
+    mSolutionVector->extract_copy( mMySolVec );
+
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
     aElementRHS.resize(1);
     if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
@@ -52,6 +52,8 @@ void TSA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint         
                                                      const uint                     & aMyElementInd,
                                                            Cell< Matrix< DDRMat > > & aElementRHS )
 {
+    mSolutionVector->extract_copy( mMySolVec );
+
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
     aElementRHS.resize(1);
     if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
@@ -105,5 +107,42 @@ void TSA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint         
      mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
 
      mSolutionVectorPrev->vector_global_asembly();
+ }
+
+ void TSA_Solver_Interface_Proxy_II::get_equation_object_operator(const uint             & aMyElementInd,
+                                         Matrix< DDRMat > & aElementMatrix)
+ {
+     mSolutionVector->extract_copy( mMySolVec );
+
+     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+     if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
+     {
+         aElementMatrix.resize(1, 1);
+         aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+     }
+     else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
+     {
+         aElementMatrix.resize(1, 1);
+         aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+     }
+ }
+
+ void TSA_Solver_Interface_Proxy_II::get_equation_object_operator( const uint             & aMyBlockInd,
+                                    const uint             & aMyElementInd,
+                                          Matrix< DDRMat > & aElementMatrix)
+ {
+     mSolutionVector->extract_copy( mMySolVec );
+
+     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+     if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
+     {
+         aElementMatrix.resize(1, 1);
+         aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+     }
+     else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
+     {
+         aElementMatrix.resize(1, 1);
+         aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+     }
  }
 

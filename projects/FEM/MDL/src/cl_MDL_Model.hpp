@@ -103,6 +103,8 @@ class Library_IO;
             // pointer to library for input reading
             std::shared_ptr< Library_IO > mLibrary;
 
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -157,15 +159,26 @@ class Library_IO;
             /**
              * solve
              */
-            void perform();
+            void perform( uint aIndex = 0 );
 
 //------------------------------------------------------------------------------
 
+            void perform_forward_analysis();
+
+//------------------------------------------------------------------------------
+
+            void perform_sensitivity_analysis();
+
+//------------------------------------------------------------------------------
             /**
              * set MTK performer
              * @param[ in ] aMTKPerformer the MTK mesh manager
              */
             void set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
+
+//------------------------------------------------------------------------------
+
+            void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface );
 
 //------------------------------------------------------------------------------
             /**
@@ -251,9 +264,11 @@ class Library_IO;
             * output solution
             * @param[ in ] aVisMeshIndex mesh index on with solution is displayed
             * @param[ in ] aTime         a time at which solution is displayed
+            * @param[ in ] aCloseFile    boolean indicating the closing of the exodus file
             */
            void output_solution( const uint aVisMeshIndex,
-                                 const real aTime );
+                                 const real aTime,
+                                 const bool aCloseFile );
 
 //------------------------------------------------------------------------------
         };

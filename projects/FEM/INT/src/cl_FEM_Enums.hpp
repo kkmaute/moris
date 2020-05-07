@@ -88,12 +88,14 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
+            SPATIALDIFF_PC_BULK,   // spatial diffusion bulk with phase change
             ADVECTION_BULK,
             SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE, // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
+            SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change
             SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
             STRUC_LINEAR_BULK,     // linear elasticity bulk
             STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
@@ -145,6 +147,7 @@ namespace moris
         {
             UNDEFINED,
             DIFF_LIN_ISO,
+            DIFF_LIN_ISO_PC, // DIFF_LIN_ISO with phase change
             STRUC_LIN_ISO,
             STRUC_LIN_ISO_PRESSURE,
             FLUID_INCOMPRESSIBLE,
@@ -168,6 +171,7 @@ namespace moris
         {
             UNDEFINED,
             DIRICHLET_NITSCHE,
+            GGLS_DIFFUSION_PC,
             GHOST_DISPL,
             GHOST_VW,
             NITSCHE_INTERFACE,

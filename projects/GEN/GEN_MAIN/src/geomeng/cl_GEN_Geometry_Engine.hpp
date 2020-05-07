@@ -37,6 +37,10 @@ namespace moris
         class HMR;
         class Mesh;
     }
+    namespace MSI
+    {
+        class Design_Variable_Interface;
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -127,6 +131,8 @@ namespace moris
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
 
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
 
         public:
 
@@ -166,9 +172,7 @@ namespace moris
             /**
              * Destructor
              */
-            ~Geometry_Engine()
-            {
-            }
+            ~Geometry_Engine();
 
             /**
              * Sets new advs for the geometry engine

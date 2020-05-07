@@ -18,6 +18,7 @@
 #define private   public
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Solver_Interface_Proxy.hpp"
+#include "cl_TSA_Time_Solver.hpp"
 #undef protected
 #undef private
 
@@ -54,6 +55,9 @@ namespace tsa
 
         tTimesolver->set_param("TSA_Num_Time_Steps")   = 1000;
         tTimesolver->set_param("TSA_Time_Frame")       = 10.0;
+
+        Time_Solver tEmptyTimeSolver;
+        tTimesolver->mMyTimeSolver = &tEmptyTimeSolver;
 
         tTimesolver -> solve();
 

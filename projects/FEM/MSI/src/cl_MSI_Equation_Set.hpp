@@ -78,8 +78,10 @@ namespace moris
         // FIXME map of master and slave dv types for assembly
         Cell< moris::Matrix< DDSMat > > mDvAssemblyMap;
 
-        moris::Cell< moris::Cell< enum moris::fem::IQI_Type > > mRequestedIQITypes;
-        moris::Cell< moris::Cell< moris_index > >               mRequestedIQITypeAssemblyMap;
+        // Map from requested IQI Name to index.
+        // I do not know if this is slow because the map is called per gauss point.
+        // However as long as we go by name I do not see another way.
+        moris::map< std::string, moris_index > mRequestedIQINamesAssemblyMap;
 
         // initialization flag for jacobian, residual, QI, dRdp, dQIdp
         bool mJacobianExist = false;
@@ -514,8 +516,7 @@ namespace moris
         /**
          * initialize set
          */
-        virtual void initialize_set( const bool aIsResidual,
-                                     const bool aIsForward )
+        virtual void initialize_set( const bool aIsResidual )
         {
             MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function");
         };
@@ -590,8 +591,7 @@ namespace moris
         /**
          * get QI assembly map
          */
-        moris_index get_QI_assembly_index( const enum Phase_Type    aPhaseType,
-                                            const enum fem::IQI_Type aIQIType );
+        moris_index get_QI_assembly_index( const std::string & aIQIName );
 
 //-------------------------------------------------------------------------------------------------
         /**
@@ -734,18 +734,6 @@ namespace moris
          * get secundary dof types
          */
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types();
-
-//------------------------------------------------------------------------------
-        /**
-         * set requested IQI types
-         */
-        void set_requested_IQI_types( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQITypes );
-
-//------------------------------------------------------------------------------
-        /**
-          * get requested IQI types
-          */
-        const moris::Cell< moris::Cell< enum fem::IQI_Type > > & get_requested_IQI_types();
 
 //------------------------------------------------------------------------------
         /**

@@ -67,6 +67,8 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         // Create Full Vector
         Dist_Vector * tFullVector = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
+        tSolverInput->set_solution_vector( tFullVector );
+
         // Initilaze full vector with zeros
         tFullVector->vec_put_scalar( 0.0 );
 
@@ -83,7 +85,7 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         Matrix< DDRMat > tSol;
         tNonlinearSolverManager1.get_full_solution( tSol );
 
-        print(tSol,"tSol");
+        //print(tSol,"tSol");
 
         CHECK( equal_to( tSol( 0, 0 ), 0.03510531645, 1.0e+08 ) );
         CHECK( equal_to( tSol( 1, 0 ), 0.011710521925, 1.0e+08 ) );

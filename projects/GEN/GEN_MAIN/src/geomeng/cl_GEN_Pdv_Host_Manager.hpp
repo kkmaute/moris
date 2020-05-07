@@ -28,8 +28,7 @@ namespace moris
             Cell<std::shared_ptr<GEN_Pdv_Host>> mIgPdvHosts;
             
             // position in map corresponds to the value of the pdv enum
-            Matrix<IndexMat> mIpGlobalPdvTypeMap;
-            Matrix<IndexMat> mIgGlobalPdvTypeMap;
+            Matrix<IndexMat> mGlobalPdvTypeMap;
             
             // Groups of PDV types used per set
             Cell<Cell<Cell<PDV>>> mIpPdvTypes;
@@ -132,18 +131,11 @@ namespace moris
                                   Cell<Matrix<DDSMat>>&     aIsActiveDv);
             
             /**
-             * Get the local to global dv type map for interpolation nodes
+             * Get the local to global pdv type map
              *
-             * @return Matrix map from dv type to index
+             * @return Matrix map from pdv type to index
              */
-            Matrix<DDSMat> get_ip_local_global_map();
-            
-            /**
-             * Get the local to global dv type map for integration nodes
-             *
-             * @return Matrix map from dv type to index
-             */
-            Matrix<DDSMat> get_ig_local_global_map();
+            Matrix<DDSMat> get_my_local_global_map();
             
             /**
              * Return local to global DV type map

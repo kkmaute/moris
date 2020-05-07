@@ -186,14 +186,11 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::initialize_set( const bool aIsResidual,
-                              const bool aIsForward )
+    void Set::initialize_set( const bool aIsResidual )
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
         {
             mIsResidual = aIsResidual;
-
-            mIsForward  = aIsForward;
 
             this->create_residual_dof_assembly_map();
 
@@ -1394,35 +1391,55 @@ namespace moris
 //------------------------------------------------------------------------------
     void Set::create_requested_IQI_list()
     {
-        // get list of requested IQI types from OPT
-        mRequestedIQIs = mIQIs;
+        // create IQI map
+        this->create_IQI_map();
 
-//        // FIXME use when MSI/GEN interface supports this
-          // FIXME set requested types fomr GEN or SOL. do not use get function
-//        // get list of requested IQI types from OPT through the design variable interface
-//        moris::Cell < enum FEM::IQI_Type > mRequestedIQITypes;
-//
-//        // clear requested IQI list
-//        mRequestedIQIs.clear();
-//
-//        // set size for requested IWG list
-//        mRequestedIWGs.resize( tRequestedIQITypes.size() );
-//
-//        // loop over the requested IQI types
-//        for( FEM::IQI_Type tIQIType : tRequestedIQITypes )
-//        {
-//            // loop over the IQI in set IQI list
-//            for( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
-//            {
-//                // if the IQI type is requested
-//                if( mIQIs( iIQI )->get_fem_IQI_type() == tIQIType )
-//                {
-//                    // add the IQI to the requested IQI list
-//                    mRequestedIQIs.push_back( mIQIs( iIQI ) );
-//                    break;
-//                }
-//            }
-//        }
+        // clear requested IQI list
+        mRequestedIQIs.clear();
+
+        // Get names of potential requested IQIs
+        const moris::Cell< std::string > & tRequestedIQINames = mEquationModel->get_requested_IQI_names();
+
+        // get number of potential requested IQIs
+        uint tNumREquestedIQINames = tRequestedIQINames.size();
+
+        // reserve memory
+        mRequestedIQIs.reserve( tNumREquestedIQINames );
+
+        // loop over requested IQI names
+        for( uint Ik = 0; Ik < tNumREquestedIQINames; Ik++ )
+        {
+            // check if this set has the requested IQI
+            if( mIQINameToIndexMap.key_exists( tRequestedIQINames( Ik ) ) )
+            {
+                // get the set local index
+                moris_index tIQISetLocalIndex = mIQINameToIndexMap.find( tRequestedIQINames( Ik ) );
+
+                // put IQI in requested IQI list
+                mRequestedIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
+            }
+        }
+
+        // reduce memory to used space
+        mRequestedIQIs.shrink_to_fit();
+    }
+
+//------------------------------------------------------------------------------
+
+    void Set::create_IQI_map()
+    {
+        // erase the contant of the map
+        mIQINameToIndexMap.clear();
+
+        uint tCounter = 0;
+
+        // loop over all IQIs and build a name to index map
+        for( auto tIQI : mIQIs )
+        {
+            std::string tIQIName = tIQI->get_name();
+
+            mIQINameToIndexMap[ tIQIName ] = tCounter++;
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -1575,33 +1592,17 @@ namespace moris
                 }
             }
 
-            // if forward analysis (residual vector only, no dQIdu or dRdp)
-            if( mIsForward )
+            // get the number of rhs
+            uint tNumRHS = mEquationModel->get_num_rhs();
+
+             // set size for the list of dQIdu vectors
+            mResidual.resize( tNumRHS );
+
+            // loop over the dQIdu vectors
+            for( auto & tRes : mResidual )
             {
-                // set size for the list of residual vector
-                mResidual.resize( 1 );
-
-                // set size for the residual vector
-                mResidual( 0 ).set_size( tNumCoeff, 1, 0.0 );
-            }
-            // if sensitivity analysis ( dRdp + dQIdu)
-            else
-            {
-//                //get the number of requested dv types
-//                uint tNumRequestedDv  = this->get_requested_dv_types().size();
-
-                // get the number of requested QI
-                uint tNumRequestedIQI = this->get_requested_IQIs().size();
-
-                 // set size for the list of dQIdu vectors
-                mResidual.resize( tNumRequestedIQI );
-
-                // loop over the dQIdu vectors
-                for( auto & tRes : mResidual )
-                {
-                    // set size for the dQIdu vector
-                    tRes.set_size( tNumCoeff, 1, 0.0 );
-                }
+                // set size for the dQIdu vector
+                tRes.set_size( tNumCoeff, 1, 0.0 );
             }
 
             // set the residual initialization flag to true
@@ -1625,26 +1626,7 @@ namespace moris
         // if list of QI values not initialized before
         if ( !mQIExist )
         {
-           // get the dof types requested by the solver
-//            moris::Cell < moris::Cell< moris_index > > tQIAssemblyMap
-//            = this->get_QI_assembly_map();
-//
-//            // init QI counter
-//            uint tNumQI= 0;
-//
-//            // loop over the requested dof types
-//            for( uint Ik = 0; Ik < tQIAssemblyMap.size(); Ik++ )
-//            {
-//                for( uint Jk = 0; Jk < tQIAssemblyMap( Ik ).size(); Jk++ )
-//                {
-//                    if( tQIAssemblyMap( Ik )( Jk ) != -1 )
-//                    {
-//                        tNumQI++;
-//                    }
-//                }
-//            }
-
-                   uint tNumQI= 1;
+            uint tNumQI= mEquationModel->get_requested_IQI_names().size();
 
             // set size for the list of QI values
             mQI.resize( tNumQI );

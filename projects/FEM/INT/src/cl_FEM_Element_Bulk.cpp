@@ -246,7 +246,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Element_Bulk::compute_dQIdp()
+        void Element_Bulk::compute_dQIdp_FD()
         {
             // FIXME all this should be in the FI Manager
             // get the geometry pdv values

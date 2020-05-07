@@ -281,6 +281,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
         tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
+        tIQI->set_name("IQI_1");
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -359,11 +360,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         Matrix< DDRMat > tTime = { { 0.0 }, { 1.0 } };
         tEquationModel->set_time( tTime );
 
-        moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
-        tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
-
         tDesignVariableInterface->set_model( tModel );
-        tDesignVariableInterface->set_requested_IQI_type( tRequestedIQITypes );
+        tDesignVariableInterface->set_requested_IQIs( {"IQI_1"} );
         tWorkSet->create_requested_IQI_type_map();
 
         // Init IWG and IQI for forward analysis
@@ -411,7 +409,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         //print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
 //        // compute dQIdp
-//        tWorkEqObj->compute_dQIdp();
+//        tWorkEqObj->compute_dQIdp_FD();
 
 //        // Create the pdof hosts of this equation object
 //        moris::Cell < Pdof_Host * > tPdofHostList;

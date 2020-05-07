@@ -4,7 +4,8 @@
 # List source files
 set(TEST_SOURCES 
     test_main.cpp
-    UT_WRK_Performer_Manager.cpp )
+    UT_WRK_Performer_Manager.cpp
+    UT_WRK_Workflow.cpp )
 
 # List snippet includes
 set(SNIPPET_INCLUDES

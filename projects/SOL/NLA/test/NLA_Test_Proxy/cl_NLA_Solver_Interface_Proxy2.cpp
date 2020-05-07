@@ -18,15 +18,13 @@ NLA_Solver_Interface_Proxy_II::NLA_Solver_Interface_Proxy_II()
 void NLA_Solver_Interface_Proxy_II::set_solution_vector( Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
-
-    mSolutionVector->extract_copy( mMySolVec );
 }
 
 void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint               & aMyElementInd,
                                                      Cell< Matrix< DDRMat > > & aElementRHS )
 {
-//    std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    //print(mMySolVec,"mMySolVec");
+    mSolutionVector->extract_copy( mMySolVec );
+
 	aElementRHS.resize(1);
     if( mListOfDofTypes.size() == 1)
     {
@@ -50,8 +48,8 @@ void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint         
                                                      const uint               & aMyElementInd,
                                                      Cell< Matrix< DDRMat > > & aElementRHS )
 {
-//    std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    //print(mMySolVec,"mMySolVec");
+    mSolutionVector->extract_copy( mMySolVec );
+
 	aElementRHS.resize(1);
     if( mListOfDofTypes.size() == 1)
     {
@@ -68,6 +66,61 @@ void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint         
     else if( mListOfDofTypes.size() == 3)
     {
         MORIS_ERROR(false, "NLA_Solver_Interface_Proxy_II::get_equation_object_rhs");
+    }
+}
+
+void NLA_Solver_Interface_Proxy_II::get_equation_object_operator(const uint             & aMyElementInd,
+                                                Matrix< DDRMat > & aElementMatrix)
+{
+    mSolutionVector->extract_copy( mMySolVec );
+
+    if( mListOfDofTypes.size() == 1)
+    {
+        aElementMatrix.resize(2,2);
+        aElementMatrix(0,0)=-10;
+        aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 0, 0 ),2)+6*mMySolVec( 0, 0 );
+        aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 1, 0 ),2)+10*mMySolVec( 1, 0 );
+        aElementMatrix(1,1)=-10;
+    }
+    else if( mListOfDofTypes.size() == 2)
+    {
+        aElementMatrix.resize(2,2);
+        aElementMatrix(0,0)=-10;
+        aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 2, 0 ),2)+6*mMySolVec( 2, 0 );
+        aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 3, 0 ),2)+10*mMySolVec( 3, 0 );
+        aElementMatrix(1,1)=-10;
+    }
+    else if( mListOfDofTypes.size() == 3)
+    {
+        MORIS_ERROR(false,"NLA_Node_Proxy_II::get_equation_object_operator: not defined");
+    }
+}
+
+void NLA_Solver_Interface_Proxy_II::get_equation_object_operator( const uint             & aMyBlockInd,
+                                   const uint             & aMyElementInd,
+                                         Matrix< DDRMat > & aElementMatrix)
+{
+    mSolutionVector->extract_copy( mMySolVec );
+
+    if( mListOfDofTypes.size() == 1)
+    {
+        aElementMatrix.resize(2,2);
+        aElementMatrix(0,0)=-10;
+        aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 0, 0 ),2)+6*mMySolVec( 0, 0 );
+        aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 1, 0 ),2)+10*mMySolVec( 1, 0 );
+        aElementMatrix(1,1)=-10;
+    }
+    else if( mListOfDofTypes.size() == 2)
+    {
+        aElementMatrix.resize(2,2);
+        aElementMatrix(0,0)=-10;
+        aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 2, 0 ),2)+6*mMySolVec( 2, 0 );
+        aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 3, 0 ),2)+10*mMySolVec( 3, 0 );
+        aElementMatrix(1,1)=-10;
+    }
+    else if( mListOfDofTypes.size() == 3)
+    {
+        MORIS_ERROR(false,"NLA_Node_Proxy_II::get_equation_object_operator: not defined");
     }
 }
 

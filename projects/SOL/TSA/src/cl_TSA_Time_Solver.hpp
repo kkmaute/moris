@@ -51,13 +51,8 @@ namespace tsa
         //! List with time sub solvers
         moris::Cell< Time_Solver * > mTimeSubSolverList;
 
-        //! Pointer to solver database
-        sol::SOL_Warehouse * mSolverWarehouse;
-
-        //! Pointer to solver interface
-        Solver_Interface * mSolverInterface = nullptr;
-
         Dist_Vector * mFullVector = nullptr;
+        Dist_Vector * mFullVectorSensitivity = nullptr;
 
         Dist_Map * mFullMap = nullptr;
 
@@ -77,6 +72,12 @@ namespace tsa
 
         moris::ParameterList mParameterListTimeSolver;
 
+        //! Pointer to solver database
+        sol::SOL_Warehouse * mSolverWarehouse = nullptr;
+
+        //! Pointer to solver interface
+        Solver_Interface * mSolverInterface = nullptr;
+
         enum TimeSolverType mTimeSolverType = TimeSolverType::END_ENUM;
 
         moris::uint mCallCounter = 0;
@@ -87,8 +88,6 @@ namespace tsa
         bool mIsMasterTimeSolver = false;
 
         //--------------------------------------------------------------------------------------------------
-
-        void check_for_outputs();
 
     protected:
 
@@ -108,8 +107,9 @@ namespace tsa
          * @param[in] aParameterlist     User defined parameter list
          * @param[in] aTimeSolverType    Time solver type. Default is Newton
          */
-        Time_Solver( const ParameterList       aParameterlist,
-                     const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
+        Time_Solver( const ParameterList         aParameterlist,
+                           sol::SOL_Warehouse  * aSolverWarehouse,
+                     const enum TimeSolverType   aTimeSolverType = TimeSolverType::MONOLITHIC );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -255,6 +255,10 @@ namespace tsa
 
         void solve();
 
+//--------------------------------------------------------------------------------------------------
+
+        void solve_sensitivity();
+
         //--------------------------------------------------------------------------------------------------
 
         void solve( Dist_Vector * aFullVector);
@@ -264,8 +268,21 @@ namespace tsa
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
 
         //--------------------------------------------------------------------------------------------------
-
+        /**
+         * @brief initialize initial guess with parameter list input
+         */
         void initialize_sol_vec();
+
+        //--------------------------------------------------------------------------------------------------
+        /**
+         * @brief initialize time levels with parameter list input
+         */
+        void initialize_time_levels();
+
+        //--------------------------------------------------------------------------------------------------
+
+        void check_for_outputs( const moris::real & aTime,
+                                const bool          aEndOfTimeIteration);
 
         //--------------------------------------------------------------------------------------------------
 

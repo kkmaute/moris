@@ -43,6 +43,9 @@ namespace moris
         tParameterList.insert("phase_table_structure", "exp_base_2"); // Phase table structure (if not using phase_table)
         tParameterList.insert("library", ""); // File for loading user-defined functions
 
+        tParameterList.insert( "user_defined_refinement_function", " " );
+
+
         return tParameterList;
     }
 

@@ -9,10 +9,8 @@ namespace moris
 
         Pdv_Host_Manager::Pdv_Host_Manager()
         {
-//            // set size for IP dv type enum to index map
-//            mIpGlobalPdvTypeMap.set_size(static_cast<size_t>(PDV::UNDEFINED), 1, gNoIndex);
-//            // set size for IG dv type enum to index map
-//            mIgGlobalPdvTypeMap.set_size(static_cast<size_t>(PDV::Z_COORDINATE) + 1, 1, gNoIndex);
+            // set size for IP dv type enum to index map
+            mGlobalPdvTypeMap.set_size(static_cast<size_t>(PDV::UNDEFINED), 1, gNoIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -195,16 +193,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Pdv_Host_Manager::get_ip_local_global_map()
+        Matrix<DDSMat> Pdv_Host_Manager::get_my_local_global_map()
         {
-            return mIpGlobalPdvTypeMap;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDSMat> Pdv_Host_Manager::get_ig_local_global_map()
-        {
-            return mIgGlobalPdvTypeMap;
+            return mGlobalPdvTypeMap;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -357,7 +348,7 @@ namespace moris
             this->create_ip_pdv_host(mIpNumPDVs, aNodeIndex);
         
             // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPropertyPointer, aPdvType, mIpGlobalPdvTypeMap);
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPropertyPointer, aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -370,49 +361,49 @@ namespace moris
             this->create_ip_pdv_host(mIpNumPDVs, aNodeIndex);
         
             // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aFieldPointer, aPdvType, mIpGlobalPdvTypeMap);
+            mIpPdvHosts(aNodeIndex)->create_pdv(aFieldPointer, aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType)
         {
-            return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mIpGlobalPdvTypeMap);
+            return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType)
         {
-            return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mIgGlobalPdvTypeMap);
+            return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         sint Pdv_Host_Manager::check_ip_for_active_type(moris_index aNodeIndex, PDV aPdvType)
         {
-            return mIpPdvHosts(aNodeIndex)->is_active_type(aPdvType, mIpGlobalPdvTypeMap);
+            return mIpPdvHosts(aNodeIndex)->is_active_type(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         sint Pdv_Host_Manager::check_ig_for_active_type(moris_index aNodeIndex, PDV aPdvType)
         {
-            return mIgPdvHosts(aNodeIndex)->is_active_type(aPdvType, mIgGlobalPdvTypeMap);
+            return mIgPdvHosts(aNodeIndex)->is_active_type(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         uint Pdv_Host_Manager::get_ip_global_index_for_dv_type(moris_index aNodeIndex, PDV aPdvType)
         {
-            return mIpPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mIpGlobalPdvTypeMap);
+            return mIpPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         uint Pdv_Host_Manager::get_ig_global_index_for_dv_type(moris_index aNodeIndex, PDV aPdvType)
         {
-            return mIgPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mIgGlobalPdvTypeMap);
+            return mIgPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -430,7 +421,7 @@ namespace moris
 //            for(uint i = 0; i < tNumTypes; i++)
 //            {
 //                // populate the dv type to index map
-//                mIpGlobalPdvTypeMap(static_cast<sint>(mIpPdvTypes(i))) = mIpNumPDVs++;
+//                mGlobalPdvTypeMap(static_cast<sint>(mIpPdvTypes(i))) = mIpNumPDVs++;
 //            }
         }
 
@@ -449,7 +440,7 @@ namespace moris
 //            for(uint i = 0; i < tNumTypes; i++)
 //            {
 //                // populate the dv type to index map
-//                mIgGlobalPdvTypeMap(static_cast<sint>(mIgPdvTypes(i))) = mIgNumPDVs++;
+//                mGlobalPdvTypeMap(static_cast<sint>(mIgPdvTypes(i))) = mIgNumPDVs++;
 //            }
         }
 
@@ -457,14 +448,14 @@ namespace moris
 
         void Pdv_Host_Manager::mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
-            mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mIpGlobalPdvTypeMap);
+            mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
-            mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mIgGlobalPdvTypeMap);
+            mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mGlobalPdvTypeMap);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -491,7 +482,7 @@ namespace moris
 //                    if(mIpPdvHosts(iHost) != nullptr)
 //                    {
 //                        // assign a global id to type
-//                        mIpPdvHosts(iHost)->assign_id_to_type(mIpGlobalID, mIpPdvTypes(iType), mIpGlobalPdvTypeMap);
+//                        mIpPdvHosts(iHost)->assign_id_to_type(mIpGlobalID, mIpPdvTypes(iType), mGlobalPdvTypeMap);
 //
 //                        // update global id counter
 //                        mIpGlobalID++;
@@ -524,7 +515,7 @@ namespace moris
 //                    if (mIgPdvHosts(iHost) != nullptr)
 //                    {
 //                        // assign a global id to type
-//                        mIgPdvHosts(iHost)->assign_id_to_type(mIgGlobalID, mIgPdvTypes(iType), mIgGlobalPdvTypeMap);
+//                        mIgPdvHosts(iHost)->assign_id_to_type(mIgGlobalID, mIgPdvTypes(iType), mGlobalPdvTypeMap);
 //
 //                        // update global id counter
 //                        mIgGlobalID++;

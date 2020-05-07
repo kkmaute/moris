@@ -53,7 +53,7 @@ namespace moris
             uint tReciprocalVolIndex = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
 
             // get index for QI
-//            sint tQIIndex = mSet->get_QI_assembly_index( mIQIMatType, mFEMIQIType );
+//            sint tQIIndex = mSet->get_QI_assembly_index(mName );
             sint tQIIndex = 0;
 
             //print( mSet->get_QI(), "mSet->get_QI()");

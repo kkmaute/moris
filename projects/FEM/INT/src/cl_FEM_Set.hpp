@@ -101,6 +101,8 @@ namespace MSI
         moris::Cell< std::shared_ptr< IQI > > mIQIs;
         moris::Cell< std::shared_ptr< IQI > > mRequestedIQIs;
 
+        moris::map< std::string, moris_index > mIQINameToIndexMap;
+
         // enum for element type
         enum fem::Element_Type mElementType;
 
@@ -119,7 +121,6 @@ namespace MSI
         moris::Cell< uint >                    mMtkIgCellOnSet;
 
         bool mIsResidual = false;
-        bool mIsForward  = true;
 
         // bool for time continuity
         bool mTimeContinuity = false;
@@ -173,11 +174,9 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * initialize the set
-         * @param[ in ] aIsResidual bool true if ???
-         * @param[ in ] aIsForward  bool true if ???
+         * @param[ in ] aIsResidual bool true if this was called for the computation of a residual
          */
-        void initialize_set( const bool aIsResidual,
-                             const bool aIsForward );
+        void initialize_set( const bool aIsResidual  );
 
 //------------------------------------------------------------------------------
         /**
@@ -307,6 +306,12 @@ namespace MSI
          * param[ out ] aIQI an IQI pointer
          */
         std::shared_ptr< IQI > get_IQI_for_vis( enum vis::Output_Type aOutputType );
+
+//------------------------------------------------------------------------------
+        /**
+         * building an IQI name to set local index map
+         */
+        void create_IQI_map();
 
 //------------------------------------------------------------------------------
         /**

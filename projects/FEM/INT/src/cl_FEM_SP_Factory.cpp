@@ -15,6 +15,7 @@
 #include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
 #include "cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_SUPG_Advection.hpp"
+#include "cl_FEM_SP_GGLS_Diffusion.hpp"
 
 namespace moris
 {
@@ -28,6 +29,9 @@ namespace moris
             {
                 case ( fem::Stabilization_Type::DIRICHLET_NITSCHE ):
                     return std::make_shared< SP_Dirichlet_Nitsche >();
+
+                case ( fem::Stabilization_Type::GGLS_DIFFUSION_PC ):
+                    return std::make_shared< SP_GGLS_Diffusion >();
 
                 case ( fem::Stabilization_Type::GHOST_DISPL ):
                     return std::make_shared< SP_Ghost_Displacement >();

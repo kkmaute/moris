@@ -20,8 +20,6 @@ TSA_Solver_Interface_Proxy::TSA_Solver_Interface_Proxy()
 void TSA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
-
-    mSolutionVector->extract_copy( mMySolVec );
 }
 
 void TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
@@ -34,6 +32,7 @@ void TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector
 void TSA_Solver_Interface_Proxy::get_equation_object_rhs( const uint                     & aMyElementInd,
                                                         Cell< Matrix< DDRMat > > & aElementRHS )
 {
+    mSolutionVector->extract_copy( mMySolVec );
     Matrix< DDRMat > tMat;
     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
@@ -50,6 +49,8 @@ void TSA_Solver_Interface_Proxy::get_equation_object_rhs( const uint            
                                                   const uint                     & aMyElementInd,
                                                         Cell< Matrix< DDRMat > > & aElementRHS )
 {
+    mSolutionVector->extract_copy( mMySolVec );
+
     Matrix< DDRMat > tMat;
     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
@@ -84,5 +85,26 @@ void TSA_Solver_Interface_Proxy::get_equation_object_rhs( const uint            
      mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
 
      mSolutionVectorPrev->vector_global_asembly();
+ }
+
+ void TSA_Solver_Interface_Proxy::get_equation_object_operator(const uint             & aMyElementInd,
+                                         Matrix< DDRMat > & aElementMatrix)
+ {
+     mSolutionVector->extract_copy( mMySolVec );
+
+     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+     aElementMatrix.resize(1, 1);
+     aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+ }
+
+ void TSA_Solver_Interface_Proxy::get_equation_object_operator( const uint             & aMyBlockInd,
+                                    const uint             & aMyElementInd,
+                                          Matrix< DDRMat > & aElementMatrix)
+ {
+     mSolutionVector->extract_copy( mMySolVec );
+
+     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+     aElementMatrix.resize(1, 1);
+     aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
  }
 

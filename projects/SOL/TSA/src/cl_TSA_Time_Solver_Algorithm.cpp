@@ -96,6 +96,8 @@ void Time_Solver_Algorithm::finalize()
         // full vector and prev full vector
         mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
+        mSolverInterface->set_solution_vector( mFullVector );
+
         mFullVector->vec_put_scalar( 0.0 );
 
         mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );

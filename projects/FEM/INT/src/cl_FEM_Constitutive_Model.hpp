@@ -108,6 +108,21 @@ namespace moris
             // constitutive model name for input and debug
             std::string mName;
 
+            // ------------------------------------ //
+            // FIXME: Remove once unified.
+            // enthalpy change rate
+            Matrix< DDRMat > mHdot;
+            moris::Cell< Matrix< DDRMat > > mHdotDof;
+
+            // enthalpy gradient change rate
+            Matrix< DDRMat > mGradHdot;
+            moris::Cell< Matrix< DDRMat > > mGradHdotDof;
+
+            // gradient of Divergence of Flux
+            Matrix< DDRMat > mGradDivFlux;
+            moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
+            // ------------------------------------ //
+
         private:
 
             // bool for global dof type list and map build
@@ -144,6 +159,18 @@ namespace moris
             bool mConstEval = true;
             moris::Cell< bool > mdConstdDofEval;
             moris::Cell< bool > mdConstdDvEval;
+
+            // ------------------------------------ //
+            // FIXME: Remove once unified.
+            // eval flags specific to this CM
+            bool mHdotEval = true;
+            bool mGradHdotEval = true;
+            bool mGradDivFluxEval = true;
+
+            moris::Cell<bool> mHdotDofEval;
+            moris::Cell<bool> mGradHdotDofEval;
+            moris::Cell<bool> mGradDivFluxDofEval;
+            // ------------------------------------ //
 
 //------------------------------------------------------------------------------
         public :
@@ -657,6 +684,109 @@ namespace moris
                 MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDOF - This function does nothing. " );
             }
 
+//------------------------------------------------------------------------------
+// FIXME: Remove this stuff up to next double line
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the constitutive model change rate of enthalpy
+             */
+            virtual void eval_Hdot()
+            {
+                MORIS_ASSERT(false, "eval_Hdot: not implemented in base class.");
+            };
+
+            /**
+             * get the constitutive model change rate of enthalpy
+             * @param[ out ] mHdot change rate of enthalpy
+             */
+            const Matrix< DDRMat > & Hdot();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
+             */
+            virtual void eval_gradHdot()
+            {
+                MORIS_ASSERT(false, "eval_gradHdot: not implemented in base class.");
+            };
+
+            /**
+             * get the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
+             * @param[ out ] mGradHdot gradient of change rate of enthalpy
+             */
+            const Matrix< DDRMat > & gradHdot();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the gradient of the divergence of the flux (needed for GGLS-stabilization)
+             */
+            virtual void eval_graddivflux()
+            {
+                MORIS_ASSERT(false, "eval_graddivflux: not implemented in base class.");
+            };
+
+            /**
+             * get the gradient of the divergence of the flux (needed for GGLS-stabilization)
+             * @param[ out ] mGradDivFlux gradient of divergence of flux
+             */
+            const Matrix< DDRMat > & graddivflux();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model enthalpy change rate wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dHdotdDOF ( 1 x numDerDof )
+             */
+            virtual void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                MORIS_ASSERT(false, "eval_dHdotdDOF: not implemented in base class.");
+            };
+
+            /**
+             * get the enthalpy change rate wrt dof
+             * @param[ in ]  aDofType        group of dof type
+             * @param[ out ] mHdotDofDer derivative of the traction wrt dof
+             */
+            const Matrix< DDRMat > & dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model gradient of enthalpy change rate wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dgradHdotdDOF ( mSpaceDim x numDerDof )
+             */
+            virtual void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                MORIS_ASSERT(false, "eval_dGradHdotdDOF: not implemented in base class.");
+            };
+
+            /**
+             * get the gradient of enthalpy change rate wrt dof
+             * @param[ in ]  aDofType        group of dof type
+             * @param[ out ] mGradHdotDer derivative of the traction wrt dof
+             */
+            const Matrix< DDRMat > & dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model gradient of divergence of flux wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dGradDivFluxdDOF ( mSpaceDim x numDerDof )
+             */
+            virtual void eval_dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                MORIS_ASSERT(false, "eval_dGradDivFluxdDOF: not implemented in base class.");
+            };
+
+            /**
+             * get the gradient of enthalpy change rate wrt dof
+             * @param[ in ]  aDofType        group of dof type
+             * @param[ out ] mGradHdotDer derivative of the traction wrt dof
+             */
+            const Matrix< DDRMat > & dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+//------------------------------------------------------------------------------
+// FIXME: Remove the above stuff up to next double line
 //------------------------------------------------------------------------------
             /**
              * get the derivative of the traction wrt dof

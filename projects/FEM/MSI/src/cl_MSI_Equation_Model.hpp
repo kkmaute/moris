@@ -46,10 +46,23 @@ namespace moris
             // distributed solution vectors for current and previous time slabs
             Dist_Vector * mSolutionVector     = nullptr;
             Dist_Vector * mPrevSolutionVector = nullptr;
+            Dist_Vector * mSensitivitySolutionVector = nullptr;
+
+            Dist_Vector * mdQidu = nullptr;
 
             // matrices for current and previous time slabs
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
+
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
+            bool mIsForwardAnalysis = true;
+
+            moris::sint mNumSensitivityAnalysisRHS = -1;
+
+//------------------------------------------------------------------------------
+            // Dummy Variables
+            moris::Cell< std::string > mDummy;
 
 //------------------------------------------------------------------------------
         public:
@@ -64,6 +77,26 @@ namespace moris
              * destructor
              */
             virtual ~Equation_Model(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * get equation sets for test
+             */
+            moris::sint get_num_rhs( )
+            {
+                if( !mIsForwardAnalysis )
+                {
+                    mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
+
+                    MORIS_ASSERT( mNumSensitivityAnalysisRHS <= 0, "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
+
+                    return mNumSensitivityAnalysisRHS;
+                }
+                else
+                {
+                    return 1;
+                }
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -145,6 +178,26 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * set sensitivity solution vector
+             * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
+             */
+            void set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+            {
+                mSensitivitySolutionVector = aSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get adjoint solution vector
+             * @param[ out ] aSolutionVector adjoint distributed solution vector
+             */
+            Dist_Vector * get_adjoint_solution_vector()
+            {
+                return mSensitivitySolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * set time for current time slab
              * @param[ in ] aTime matrix for time in current time slab
              */
@@ -174,6 +227,7 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
             /**
              * get time for previous time slab
              * @param[ out ] mPrevTime matrix for time in previous time slab
@@ -182,6 +236,92 @@ namespace moris
             {
                 return mPrevTime;
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * set pointer to design variable interface
+             * @param[ out ] aDesignVariableInterface pointer to design variable interface
+             */
+            void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+            {
+                mDesignVariableInterface = aDesignVariableInterface;
+            }
+
+
+//------------------------------------------------------------------------------
+            /**
+             * set requested IQI names
+             * @param[ in ] aRequestedIQINames List of requested IQI names
+             */
+            virtual void set_requested_IQI_names( const moris::Cell< std::string > & aRequestedIQINames )
+            {
+                MORIS_ERROR( false, "Equation_Model::set_requested_IQI_names - not implemented for base class." );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get requested IQI names
+             */
+            virtual const moris::Cell< std::string > & get_requested_IQI_names()
+            {
+                MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
+                return mDummy;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the sensitivity analysis
+             */
+            void set_is_sensitivity_analysis()
+            {
+                mIsForwardAnalysis = false;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the forward analysis
+             */
+            void set_is_forward_analysis()
+            {
+                mIsForwardAnalysis = true;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * returns if this is the a forward analysis
+             * @param[ out ] mIsForwardAnalysis
+             */
+            bool get_is_forward_analysis()
+            {
+                return mIsForwardAnalysis;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * retruns if this is the a forward analysis
+             */
+            void compute_dQIdp()
+            {
+//                // Get local number of elements
+//                moris::uint tNumSets = mFemSets.size();
+//
+//                moris::uint tNumRHS = this->get_num_rhs();
+//
+//                // Loop over all local elements to build matrix graph
+//                for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
+//                {
+//                    moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
+//
+//                    this->initialize_set( Ii, true );
+//
+//                    for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+//                    {
+//                        mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
+//                    }
+//
+//                    this->free_block_memory( Ii );
+//                }
+            };
 
 //------------------------------------------------------------------------------
         };

@@ -53,6 +53,8 @@ namespace moris
 
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
+
+        mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -101,6 +103,8 @@ namespace moris
 
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
+
+        mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -124,7 +128,8 @@ namespace moris
         mWriter.resize( mOutputData.size(), nullptr );
 
         // create writer for this mesh
-        mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+            mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -170,8 +175,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Output_Manager::write_mesh( const uint aVisMeshIndex,
-                                     const real aTime )
+    void Output_Manager::write_mesh( const uint aVisMeshIndex )
     {
         // specify file path
         std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
@@ -190,9 +194,6 @@ namespace moris
         this->add_nodal_fields( aVisMeshIndex );
         this->add_elemetal_fields( aVisMeshIndex );
         this->add_global_fields( aVisMeshIndex );
-
-        // write time to file
-        mWriter( aVisMeshIndex )->set_time( aTime );
 
         // write standard outputs like IDs and Indices to file
         //this->write_mesh_indices( aVisMeshIndex );
@@ -376,8 +377,12 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
     void Output_Manager::write_field( const uint                                   aVisMeshIndex,
+                                      const real                                   aTime,
                                             std::shared_ptr< MSI::Equation_Model > aEquationModel )
     {
+        // write time to file
+        mWriter( aVisMeshIndex )->set_time( aTime );
+
         // get mesh set to fem set index map
         //map< moris_index, moris_index > & tMeshSetToFemSetMap
         map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap

@@ -166,37 +166,11 @@ namespace tsa
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_operator(const uint             & aMyElementInd,
-                                                Matrix< DDRMat > & aElementMatrix)
-        {
-            mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
-            if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
-            {
-                aElementMatrix.resize(1, 1);
-                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
-            }
-            else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
-            {
-                aElementMatrix.resize(1, 1);
-                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
-            }
-        };
+                                                Matrix< DDRMat > & aElementMatrix);
 
         void get_equation_object_operator( const uint             & aMyBlockInd,
                                            const uint             & aMyElementInd,
-                                                 Matrix< DDRMat > & aElementMatrix)
-        {
-            mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
-            if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
-            {
-                aElementMatrix.resize(1, 1);
-                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
-            }
-            else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
-            {
-                aElementMatrix.resize(1, 1);
-                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
-            }
-        };
+                                                 Matrix< DDRMat > & aElementMatrix);
 
         // ----------------------------------------------------------------------------------------------
         void  get_element_topology(const uint             & aMyElementInd,

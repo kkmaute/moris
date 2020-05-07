@@ -47,19 +47,11 @@ namespace moris
                                                 const Matrix< DDUMat >           & aTimePerDofType,
                                                       moris::Cell< Pdof_Host * > & aPdofHostList )
     {
-//        moris::uint tNumMyPdofHosts = 0;
-//
-//        // Loop over all node obj. get the maximal node index.
-//        for ( moris::uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
-//        {
-//            // Determine size of list containing this equations objects pdof hosts
-//            moris::uint tNumMyPdofHosts = tNumMyPdofHosts + mNodeObj( Ik ).size();              //Fixme Add ghost and element numbers
-//        }
-
         // Resize list containing this equations objects pdof hosts set
         mNumPdofSystems = mNodeObj.size();
         mMyPdofHosts.resize( mNumPdofSystems );                        //Fixme Add ghost and element numbers
 
+        // Loop over pdof systems. Is one except for double sided clusters
         for ( moris::uint Ik = 0; Ik < mNumPdofSystems; Ik++ )
         {
             moris::uint tNumMyPdofHosts = mNodeObj( Ik ).size();
@@ -100,7 +92,7 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
-    void Equation_Object::create_my_pdof_list()             //FIXME add time and type
+    void Equation_Object::create_my_pdof_list()
     {
         moris::uint tNumMyFreePdofs = 0;
 
@@ -119,6 +111,7 @@ namespace moris
         // Set size of vector containing this equation objects free pdofs.
         mFreePdofs.reserve( tNumMyFreePdofs );
 
+        // Loop over pdof systems. Is one except for double sided clusters
         for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
         {
             moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
@@ -167,12 +160,20 @@ namespace moris
 
         for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
         {
+            moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
+
             // Loop over all pdof hosts and get their number of (free) pdofs
-            for ( moris::uint Ik=0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+            for ( moris::uint Ij=0; Ij < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ij++ )
             {
-                for ( moris::uint Ii=0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+                // Loop over all time levels for this dof type
+                for ( moris::uint Ii = 0; Ii < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list()( Ij ).size(); Ii++ )
                 {
-                    mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+                    for ( moris::uint Ik=0; Ik < tNumMyPdofHosts; Ik++ )
+                    {
+//                        mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+                        // Append all time levels of this pdof type
+                        mFreePdofList( Ia )( Ij ).push_back( ( mMyPdofHosts( Ia )( Ik )->get_pdof_hosts_pdof_list() )( Ij )( Ii ) );
+                    }
                 }
             }
         }
@@ -490,18 +491,23 @@ namespace moris
         // compute jacobin
         this->compute_jacobian();
 
-
         // build T-matrix
         Matrix< DDRMat > tTMatrix;
         this->build_PADofMap_1( tTMatrix );
 
 //        print( tTMatrix,"tTMatrix");
-//        print( mEquationSet->get_jacobian(),"tJacobian");
+        //print( mEquationSet->get_jacobian(),"tJacobian");
 
         // project pdof resdiual to adof residual
         aEqnObjMatrix = trans( tTMatrix ) * mEquationSet->get_jacobian() * tTMatrix;
 
-//        print(aEqnObjMatrix,"aEqnObjMatrix");
+        // transpose for sensitivity analysis FIXME move to solver
+        if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
+        {
+            aEqnObjMatrix = trans( aEqnObjMatrix );
+        }
+
+        //print(aEqnObjMatrix,"aEqnObjMatrix");
 
     }
 
@@ -527,7 +533,8 @@ namespace moris
             aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
         }
 
-//        print(aEqnObjRHS, "aEqnObjRHS");
+        //print(tElementalResidual,"tElementalResidual");
+        //print(aEqnObjRHS, "aEqnObjRHS");
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -736,6 +743,33 @@ namespace moris
         for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
         {
             mPreviousPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+        }
+
+        this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
+    }
+
+//-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::compute_my_adjoint_values( )
+    {
+        Matrix< DDRMat > tTMatrix;
+
+        // build T-matrix
+        this->build_PADofMap( tTMatrix );
+
+        moris::Cell< Matrix< DDRMat > > tMyValues;
+
+        // Extract this equation objects adof values from solution vector
+        mEquationSet->mEquationModel
+                    ->get_adjoint_solution_vector()
+                    ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+        mAdjointPdofValues.resize( tMyValues.size() );
+
+        // multiply t_matrix with adof values to get pdof values
+        for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+        {
+            mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
         }
 
         this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM

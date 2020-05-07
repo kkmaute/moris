@@ -81,6 +81,8 @@ class Library_IO;
              *
              * @return vector of criteria
              */
+            Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
+
             Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs);
 
             /**

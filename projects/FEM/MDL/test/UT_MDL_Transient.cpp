@@ -154,7 +154,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        //------------------------------------------------------------------------------
        // create the properties
        std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-       tPropConductivity->set_parameters( { {{ 1.0 }} } );
+       tPropConductivity->set_parameters( { {{ 10.0 }} } );
        tPropConductivity->set_val_function( tPropConstFunc_MDLTransient );
 
        std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
@@ -166,19 +166,19 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        tPropHeatCapacity->set_val_function( tPropConstFunc_MDLTransient );
 
        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-       tPropNeumann->set_parameters( { {{ 20.0 }} } );
+       tPropNeumann->set_parameters( { {{ 1.0 }} } );
        tPropNeumann->set_val_function( tPropConstFunc_MDLTransient );
 
        std::shared_ptr< fem::Property > tPropInitCondition = std::make_shared< fem::Property >();
-       tPropInitCondition->set_parameters( { {{ 0.0 }} } );
+       tPropInitCondition->set_parameters( { {{ 1.0 }} } );
        tPropInitCondition->set_val_function( tPropConstFunc_MDLTransient );
 
        std::shared_ptr< fem::Property > tPropWeightCurrent = std::make_shared< fem::Property >();
-       tPropWeightCurrent->set_parameters( { {{ 1.0 }} } );
+       tPropWeightCurrent->set_parameters( { {{ 1000.0 }} } );
        tPropWeightCurrent->set_val_function( tPropConstFunc_MDLTransient );
 
        std::shared_ptr< fem::Property > tPropWeightPrevious = std::make_shared< fem::Property >();
-       tPropWeightPrevious->set_parameters( { {{ 1.0 }} } );
+       tPropWeightPrevious->set_parameters( { {{ 1000.0 }} } );
        tPropWeightPrevious->set_val_function( tPropConstFunc_MDLTransient );
 
        // define constitutive models
@@ -198,6 +198,9 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        tIWGDiffusionBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGDiffusionBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Master_Slave::MASTER );
+
+       tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
+       tIWGDiffusionBulk->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
 
        std::shared_ptr< fem::IWG > tIWGNeumann
        = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -282,8 +285,11 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        tTimeSolverAlgorithm->set_param("TSA_Num_Time_Steps")   = 10;
        tTimeSolverAlgorithm->set_param("TSA_Time_Frame")       = 1.0;
 
+
        tsa::Time_Solver tTimeSolver;
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+       tTimeSolver.set_param("TSA_Initialize_Sol_Vec") = std::string("TEMP,1.0");
+       tTimeSolver.set_param("TSA_time_level_per_type") = std::string("TEMP,2");
 
        sol::SOL_Warehouse tSolverWarehouse;
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());

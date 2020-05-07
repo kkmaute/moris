@@ -59,6 +59,18 @@ namespace moris
                     tProp->reset_eval_flags();
                 }
             }
+
+            // ------------------------------------ //
+            // FIXME: Remove once unified.
+            // flags specific to PCM constitutive model
+            mHdotEval         = true;
+            mGradHdotEval     = true;
+            mGradDivFluxEval  = true;
+
+            mHdotDofEval.assign( tNumDofTypes, true );
+            mGradHdotDofEval.assign( tNumDofTypes, true );
+            mGradDivFluxDofEval.assign( tNumDofTypes, true );
+            // ------------------------------------ //
         }
 
 //------------------------------------------------------------------------------
@@ -205,6 +217,11 @@ namespace moris
             mdStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
+
+            // FIXME: Remove once unified.
+            mHdotDof.resize( tNumGlobalDofTypes );
+            mGradHdotDof.resize( tNumGlobalDofTypes );
+            mGradDivFluxDof.resize( tNumGlobalDofTypes );
         }
 
 //------------------------------------------------------------------------------
@@ -1000,6 +1017,129 @@ namespace moris
             // return the divergence of the flux value
             return mDivFlux;
         }
+
+//------------------------------------------------------------------------------
+// FIXME: Remove this stuff up to next double line
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::Hdot()
+        {
+            // if the flux was not evaluated
+            if( mHdotEval)
+            {
+                // evaluate the flux
+                this->eval_Hdot();
+
+                // set bool for evaluation
+                mHdotEval = false;
+            }
+            // return the flux value
+            return mHdot;
+        }
+
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::gradHdot()
+        {
+            // if the flux was not evaluated
+            if( mGradHdotEval)
+            {
+                // evaluate the flux
+                this->eval_gradHdot();
+
+                // set bool for evaluation
+                mGradHdotEval = false;
+            }
+            // return the flux value
+            return mGradHdot;
+        }
+
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::graddivflux()
+        {
+            // if the flux was not evaluated
+            if( mGradDivFluxEval)
+            {
+                // evaluate the flux
+                this->eval_graddivflux();
+
+                // set bool for evaluation
+                mGradDivFluxEval = false;
+            }
+            // return the flux value
+            return mGradDivFlux;
+        }
+
+//-----------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mHdotDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dHdotdDOF( aDofType );
+
+                // set bool for evaluation
+                mHdotDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mHdotDof( tDofIndex );
+        }
+
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mGradHdotDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dGradHdotdDOF( aDofType );
+
+                // set bool for evaluation
+                mGradHdotDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mGradHdotDof( tDofIndex );
+        }
+
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dGradDivFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mGradDivFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dGradDivFluxdDOF( aDofType );
+
+                // set bool for evaluation
+                mGradDivFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mGradDivFluxDof( tDofIndex );
+          }
+
+//------------------------------------------------------------------------------
+// FIXME: Remove the above stuff up to next double line
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )

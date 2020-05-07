@@ -36,6 +36,7 @@ namespace mdl
 
                 Dist_Vector                        * mSolutionVector = nullptr;
                 Dist_Vector                        * mPrevSolutionVector = nullptr;
+                Dist_Vector                        * mSensitivitySolutionVector = nullptr;
                 Dist_Vector                        * mExactSolFromFile = nullptr;
                 Matrix< DDRMat>  mTime;
                 Matrix< DDRMat>  mPrevTime;
@@ -44,8 +45,6 @@ namespace mdl
                 Cell< moris::Cell< enum MSI::Dof_Type > > mListOfSecundaryDofTypes;
 
                 mdl::Model * mModel = nullptr;
-
-                bool mIsForward = true;
 
         public:
             MSI_Solver_Interface( )
@@ -77,18 +76,14 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
+            void set_adjoint_solution_vector( Dist_Vector * aSolutionVector );
+
+//------------------------------------------------------------------------------
+
             void set_model( mdl::Model * aModel )
             {
                 mModel = aModel;
             }
-
-//------------------------------------------------------------------------------
-
-            void set_is_forward( bool aIsForward )
-            {
-                mIsForward = aIsForward;
-            }
-
 
 //------------------------------------------------------------------------------
 
@@ -126,13 +121,14 @@ namespace mdl
             void initialize_set( const uint aMyEquSetInd,
                                  const bool aIsResidual )
             {
-                mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsResidual, mIsForward );
+                mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsResidual );
             };
 
 //------------------------------------------------------------------------------
 
             void initiate_output( const uint aOutputIndex,
-                                  const uint aTime );
+                                  const real aTime,
+                                  const bool aEndOfTimeIteration );
 
 //------------------------------------------------------------------------------
 
@@ -206,6 +202,10 @@ namespace mdl
              {
                  return mDofMgn->get_num_owned_adofs();
              };
+
+//------------------------------------------------------------------------------
+
+             moris::uint get_num_rhs();
 
 //------------------------------------------------------------------------------
 
@@ -296,7 +296,6 @@ namespace mdl
              void get_equation_object_rhs( const moris::uint      & aMyElementInd,
                                          Cell< Matrix< DDRMat > > & aElementRHS )
              {
-                 //mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                  mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS );
              };
 
@@ -306,8 +305,9 @@ namespace mdl
                                    const moris::uint              & aMyElementInd,
                                          Cell< Matrix< DDRMat > > & aElementRHS )
              {
-                 //mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
-                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS );
+                 mMSI->get_equation_set( aMyEquSetInd )
+                     ->get_equation_object_list()( aMyElementInd )
+                     ->get_equation_obj_residual( aElementRHS );
              };
 
 //------------------------------------------------------------------------------
@@ -379,16 +379,11 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
-             const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
-             {
-                 return mMSI->get_equation_set( aMySetInd )->get_QI();
-             };
+             const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd );
 
 //------------------------------------------------------------------------------
-             void set_requested_IQI_type( const moris::uint & aMySetInd, const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
-             {
-                 mMSI->get_equation_set( aMySetInd )->set_requested_IQI_types( aRequestedIQIType );
-             };
+
+             void set_requested_IQI_names( const moris::Cell< std::string > & aIQINames );
         };
     }
 }

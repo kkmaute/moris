@@ -384,26 +384,6 @@ namespace moris
                                                                             tInterpolationMesh->get_num_coeffs( mBSplineIndex ),
                                                                             tInterpolationMesh );
 
-            // finalize the fem sets
-            mEquationModel->finalize_equation_sets( mModelSolverInterface );
-
-            // finalize the model solver interface
-            mModelSolverInterface->finalize();
-
-            // calculate AdofMap
-            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
-            }
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create the solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -432,6 +412,26 @@ namespace moris
                                 ( double ) tElapsedTime / 1000 );
             }
 
+            // finalize the model solver interface
+            mModelSolverInterface->finalize();
+
+            // calculate AdofMap
+            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
+                                ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( " " );
+            }
+
+            // finalize the fem sets
+            mEquationModel->finalize_equation_sets( mModelSolverInterface );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 5: create the output manager
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -452,12 +452,43 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Model::perform()
+        void Model::perform( uint aIndex )
+        {
+            if( aIndex == 0 )
+            {
+                this->perform_forward_analysis();
+            }
+            else if( aIndex == 1 )
+            {
+                this->perform_sensitivity_analysis();
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Model::perform_forward_analysis()
         {
             // initialize MDL - build FEM, MSI, SOL and VIS
             this->initialize();
 
+            mEquationModel->set_is_forward_analysis();
+
             mSolverWarehouse->get_main_time_solver()->solve();
+        }
+
+//------------------------------------------------------------------------------
+        void Model::perform_sensitivity_analysis()
+        {
+            mEquationModel->set_is_sensitivity_analysis();
+
+            mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+        }
+
+//------------------------------------------------------------------------------
+        void Model::set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+        {
+            mDesignVariableInterface = aDesignVariableInterface;
+
+            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
         }
 
 //------------------------------------------------------------------------------
@@ -512,27 +543,25 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void Model::output_solution( const uint aVisMeshIndex,
-                                     const real aTime )
+                                     const real aTime,
+                                     const bool aCloseFile )
         {
-            // create the visualization mesh for this index
-            mOutputManager->create_visualization_mesh( aVisMeshIndex,
-                                                       mMeshManager,
-                                                       mMeshPairIndex );
-
-            // set the visualization sets to the equation sets
-            mOutputManager->set_visualization_sets( aVisMeshIndex,
-                                                    mEquationModel );
-
-            // write the mesh to file
-            mOutputManager->write_mesh( aVisMeshIndex,
-                                        aTime );
+            // create vis mesh and setup output
+            mOutputManager->setup_vis_mesh_for_output(aVisMeshIndex,
+                                                      mMeshManager,
+                                                      mMeshPairIndex,
+                                                      mEquationModel );
 
             // write requested fields
             mOutputManager->write_field( aVisMeshIndex,
+                                         aTime,
                                          mEquationModel );
 
-            // end writing and delete vis mesh
-            mOutputManager->end_writing( aVisMeshIndex );
+            if( aCloseFile )
+            {
+                // end writing and delete vis mesh
+                mOutputManager->end_writing( aVisMeshIndex );
+            }
         }
 
     } /* namespace mdl */

@@ -44,9 +44,11 @@ namespace moris
 //-------------------------------------------------------------------------------------------------------
 
     void MSI_Solver_Interface::initiate_output( const uint aOutputIndex,
-                                                const uint aTime )
+                                                const real aTime,
+                                                const bool aEndOfTimeIteration )
     {
-        mModel->output_solution( aOutputIndex, aTime );
+        // end of time iteration that the exodus file should be closed
+        mModel->output_solution( aOutputIndex, aTime, aEndOfTimeIteration );
     }
 
 //------------------------------------------------------------------------------
@@ -67,6 +69,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+     void MSI_Solver_Interface::set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+     {
+         mSensitivitySolutionVector = aSolutionVector;
+         mMSI->mEquationModel->set_adjoint_solution_vector( mSensitivitySolutionVector );
+     }
+
+//------------------------------------------------------------------------------
+
     void MSI_Solver_Interface::set_time( const Matrix< DDRMat> & aTime )
     {
         mTime = aTime;
@@ -79,6 +89,27 @@ namespace moris
     {
         mPrevTime = aTime;
         mMSI->mEquationModel->set_previous_time( mPrevTime );
+    }
+
+//------------------------------------------------------------------------------
+
+    const moris::Cell < moris::Matrix< DDRMat> > & MSI_Solver_Interface::get_criteria( const moris::uint & aMySetInd )
+    {
+        return mMSI->get_equation_set( aMySetInd )->get_QI();
+    }
+
+//------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_requested_IQI_names( const moris::Cell< std::string > & aIQINames )
+    {
+        mMSI->get_equation_model()->set_requested_IQI_names( aIQINames );
+    }
+
+//-------------------------------------------------------------------------------------------------------
+
+    moris::uint MSI_Solver_Interface::get_num_rhs()
+    {
+        return mMSI->get_equation_model()->get_num_rhs();
     }
 
 //-------------------------------------------------------------------------------------------------------
