@@ -421,7 +421,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Interpolation_Element::compute_dQIdp()
+        void Interpolation_Element::compute_dQIdp_FD()
         {
             // compute pdof values
             // FIXME do this only once
@@ -445,7 +445,7 @@ namespace moris
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
             // ask cluster to compute jacobian
-            mFemCluster( 0 )->compute_dQIdp();
+            mFemCluster( 0 )->compute_dQIdp_FD();
         }
 
 //------------------------------------------------------------------------------

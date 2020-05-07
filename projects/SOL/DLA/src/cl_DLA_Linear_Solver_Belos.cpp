@@ -19,6 +19,9 @@
 
 #include "BelosEpetraAdapter.hpp"
 
+#include "Ifpack.h"
+#include "Ifpack_AdditiveSchwarz.h"
+
 
 using namespace moris;
 using namespace dla;
@@ -81,11 +84,57 @@ moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLi
     using Teuchos::parameterList;
     using Belos::SolverFactory;
 
+    // FIXME move preconditioners in own class
+     // =============================================================== //
+      // B E G I N N I N G   O F   I F P A C K   C O N S T R U C T I O N //
+      // =============================================================== //
+
+      ParameterList List;
+
+      // Allocate an IFPACK factory.  The object contains no data, only
+      // the Create() method for creating preconditioners.
+      Ifpack Factory;
+
+      // Create the preconditioner.  For the list of PrecType values that
+      // Create() accepts, please check the IFPACK documentation.
+      std::string PrecType = "ILU"; // incomplete LU
+      int OverlapLevel = 1;
+
+//      rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() )
+
+      RCP< Ifpack_Preconditioner > Prec =  rcp (Factory.Create (PrecType, &*aLinearSystem->get_matrix()->get_matrix(), OverlapLevel));
+//      RCP< Ifpack_Preconditioner > Prec =  rcp (Factory.Create (PrecType, &*A, OverlapLevel));
+
+      // Specify parameters for ILU.  ILU is local to each MPI process.
+      List.set("fact: drop tolerance", 1e-9);
+      List.set("fact: level-of-fill", 1);
+
+      List.set("schwarz: combine mode", "Add");
+      // Set the parameters.
+      IFPACK_CHK_ERR(Prec->SetParameters(List));
+
+      // Initialize the preconditioner.
+      IFPACK_CHK_ERR(Prec->Initialize());
+
+      // Build the preconditioner, by looking at the values of the matrix.
+      IFPACK_CHK_ERR(Prec->Compute());
+
+      // Create the Belos preconditioned operator from the Ifpack preconditioner.
+      // NOTE:  This is necessary because Belos expects an operator to apply the
+      //        preconditioner with Apply() NOT ApplyInverse().
+      RCP<Belos::EpetraPrecOp> belosPrec = rcp ( new Belos::EpetraPrecOp ( Prec ) );
+
+      // =================================================== //
+      // E N D   O F   I F P A C K   C O N S T R U C T I O N //
+      // =================================================== //
+
 
     RCP<Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> > problem
                    = rcp (new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> (rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() ), false ),
                                                                                                rcp( aLinearSystem->get_free_solver_LHS()->get_epetra_vector(), false ),
                                                                                                rcp( aLinearSystem->get_solver_RHS()->get_epetra_vector(), false ) ) );
+
+    problem->setLeftPrec( belosPrec );
 
     bool set = problem->setProblem();
     if (set == false)

@@ -76,7 +76,7 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
-            void set_sensitivity_solution_vector( Dist_Vector * aSolutionVector );
+            void set_adjoint_solution_vector( Dist_Vector * aSolutionVector );
 
 //------------------------------------------------------------------------------
 

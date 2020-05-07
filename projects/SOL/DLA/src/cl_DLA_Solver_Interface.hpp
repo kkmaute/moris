@@ -62,8 +62,8 @@ public:
     virtual void set_solution_vector( Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 
-    virtual void set_sensitivity_solution_vector( Dist_Vector * aSolutionVector )
-    { MORIS_ERROR( false, "Solver_Interface::set_sensitivity_solution_vector: not set."); };
+    virtual void set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+    { MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set."); };
 
     virtual void set_time_levels_for_type( const enum MSI::Dof_Type aDofType,
                                    const moris::uint   aNumTimeLevels )

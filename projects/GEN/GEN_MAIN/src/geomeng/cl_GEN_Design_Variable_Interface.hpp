@@ -242,19 +242,12 @@ namespace ge
 
 //------------------------------------------------------------------------------
         /**
-         * @brief return local to global dv type map
+         * @brief return local to global dv map
          */
-        Matrix< DDSMat > get_ip_local_global_map()
+
+        Matrix< DDSMat > get_my_local_global_map()
         {
-            return mPdvHostManager->get_ip_global_map();
-        }
-//------------------------------------------------------------------------------
-        /**
-         * @brief return local to global dv type map
-         */
-        Matrix< DDSMat > get_ig_local_global_map()
-        {
-            return mPdvHostManager->get_ig_global_map();
+            return moris::Matrix< DDSMat >( 0,0 );
         }
 //------------------------------------------------------------------------------
         /**

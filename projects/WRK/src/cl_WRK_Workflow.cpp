@@ -76,6 +76,9 @@ namespace moris
                                                             ->build_design_variable_interface() );
 
             // FIXME set requeted IQIs
+//            mPerformerManager->mMDLPerformer( 0 )->
+
+            mPerformerManager->mMDLPerformer( 0 )->perform_sensitivity_analysis();
 
             return Matrix<DDRMat>(1, 1 , 0.0);
         }

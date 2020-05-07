@@ -178,7 +178,7 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
     }
 }
 
-TEST_CASE("Linear Solver Aztec multiple RHS","[Linear Solver multiple RHS],[DistLinAlg]")
+TEST_CASE("Linear Solver Belos multiple RHS","[Linear Solver multiple RHS],[DistLinAlg]")
 {
     if ( par_size() == 1)
     {
