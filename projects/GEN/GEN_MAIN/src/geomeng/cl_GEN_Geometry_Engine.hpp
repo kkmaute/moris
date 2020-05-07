@@ -421,11 +421,6 @@ namespace moris
             moris::size_t get_num_design_variables();
 
             /**
-             * returns a pointer to the PDV host manager ( FEM <-> GEN interface needs this manager )
-             */
-            Pdv_Host_Manager* get_pdv_host_manager();
-
-            /**
              * returns a pointer to the geometry object manager
              */
             Geometry_Object_Manager* get_all_geom_obj();

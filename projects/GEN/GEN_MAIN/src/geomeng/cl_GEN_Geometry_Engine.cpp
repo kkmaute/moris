@@ -15,6 +15,7 @@
 
 // MRS/IOS
 #include "fn_Parsing_Tools.hpp"
+#include "../../../GEN_CORE/src/cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -43,11 +44,19 @@ namespace moris
             // Build geometry (just analytic for right now)
             if (aParameterLists(1).size() > 0)
             {
+                // Create geometry
                 mGeometryAnalytic.resize(aParameterLists(1).size());
                 for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
                 {
                     mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
                 }
+
+                // Add integration pdv types
+                Cell<PDV> tPdvTypes(3);
+                tPdvTypes(0) = PDV::X_COORDINATE;
+                tPdvTypes(1) = PDV::Y_COORDINATE;
+                tPdvTypes(2) = PDV::Z_COORDINATE;
+                mPdvHostManager->set_ig_requested_dv_types(tPdvTypes)
             }
         }
 
@@ -735,13 +744,6 @@ namespace moris
         moris::size_t Geometry_Engine::get_num_design_variables()
         {
             return mADVs.length();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-        Pdv_Host_Manager* Geometry_Engine::get_pdv_host_manager(  )
-        {
-            return &mPdvHostManager;
         }
 
         //--------------------------------------------------------------------------------------------------------------
