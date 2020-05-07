@@ -23,6 +23,7 @@ namespace moris
             mPropertyMap[ "Conductivity" ]       = Property_Type::CONDUCTIVITY;
             mPropertyMap[ "Density" ]            = Property_Type::DENSITY;
             mPropertyMap[ "Heat_Capacity" ]      = Property_Type::HEAT_CAPACITY;
+            mPropertyMap[ "Latent_Heat" ]        = Property_Type::LATENT_HEAT;
             mPropertyMap[ "Lower_PC_Temp" ]      = Property_Type::LOWER_PC_TEMP;
             mPropertyMap[ "Upper_PC_Temp" ]      = Property_Type::UPPER_PC_TEMP;
             mPropertyMap[ "Phase_Change_Const" ] = Property_Type::PHASE_CHANGE_CONST;
@@ -37,6 +38,7 @@ namespace moris
             // get properties
             moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
             moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
             moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
             moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
@@ -73,7 +75,7 @@ namespace moris
             }
 
             // compute derivative of enthalpy
-            mHdot = tDensity * ( tHeatCap + tdfdT )
+            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
                                   * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt( 1 );
         }
 
@@ -84,6 +86,7 @@ namespace moris
         {
             moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
             moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
             moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
             moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
@@ -120,49 +123,38 @@ namespace moris
             }
 
             // compute gradient of
-            mGradHdot = tDensity * ( tHeatCap + tdfdT )
+            mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
                                     * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
         }
 
 //------------------------------------------------------------------------------
-//        const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Phase_Change::gradHdot()
-//        {
-//            // if the flux was not evaluated
-//            if( mGradHdotEval)
-//            {
-//                // evaluate the flux
-//                this->eval_gradHdot();
-//
-//                // set bool for evaluation
-//                mGradHdotEval = false;
-//            }
-//            // return the flux value
-//            return mGradHdot;
-//        }
-
-//------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux()
         {
-            // gets added later
-            mGradDivFlux = {{0}};
 
             moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
 
-            //FIXME: Check for 2D or 3D is missing
+
             // matrix for purely isotropic case
-//            uint tDims = ?
-//            if (tDims == 2)
-//            {
-            Matrix<DDRMat> tKijIsotropic = {{tK,  0,  0, tK},{ 0, tK, tK,  0}};
-//            }
-//            else if (tDims == 3)
-//            {
-//            Matrix<DDRMat> tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
-//                                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
-//                                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
-//            }
-//            else
-//            MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
+            Matrix< DDRMat > tKijIsotropic;
+            switch( mSpaceDim )
+            {
+                case ( 2 ):
+                {
+                    tKijIsotropic = {{tK,  0,  0, tK},
+                                     { 0, tK, tK,  0}};
+                    break;
+                }
+                case ( 3 ):
+                {
+                    tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+                                     { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
+                                     { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+                    break;
+                }
+                default:
+                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux: Number of spatial dimensions must be 2 or 3");
+                    break;
+            }
 
             mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx(3);
         }
@@ -437,7 +429,6 @@ namespace moris
             // init the matrix
             mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
-            //FIXME: Check for 2D or 3D is missing
             // matrix for purely isotropic case
             Matrix< DDRMat > tKijIsotropic;
             switch( mSpaceDim )
