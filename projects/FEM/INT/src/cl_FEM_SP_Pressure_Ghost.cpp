@@ -53,8 +53,7 @@ namespace moris
             }
 
             // compute deltaT
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-            real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
+            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // compute deltaP
             real tDeltaP = tViscosityProp->val()( 0 ) / mElementSize
@@ -96,8 +95,7 @@ namespace moris
             }
 
             // compute deltaT
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-            real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
+            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // compute deltaP
             real tDeltaP = tViscosityProp->val()( 0 ) / mElementSize

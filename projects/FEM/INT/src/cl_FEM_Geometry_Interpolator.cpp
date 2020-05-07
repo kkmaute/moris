@@ -231,6 +231,15 @@ namespace moris
             md3NdTau3Eval = true;
         }
 
+        real Geometry_Interpolator::get_time_step()
+        {
+            // check that mTHat is set
+            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_step - mTHat is not set." );
+
+            // compute time increment deltat
+            return mTHat.max() - mTHat.min();
+        }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Geometry_Interpolator::extract_space_side_space_param_coeff( moris_index aSpaceOrdinal,
