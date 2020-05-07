@@ -297,14 +297,14 @@ namespace moris
 
         void Pdv_Host_Manager::get_ip_requested_dv_types( Cell< PDV > & aPdvTypes )
         {
-            return mRequestedIpPdvTypes;
+            aPdvTypes =  mRequestedIpPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_requested_dv_types( Cell< PDV > & aPdvTypes )
         {
-            return mRequestedIgPdvTypes;
+            aPdvTypes =  mRequestedIgPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------

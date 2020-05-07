@@ -58,7 +58,7 @@ void tFIValDvFunction_UTIWGDIFFBULK
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV::DENSITY )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::PDV::DENSITY )->val();
 }
 
 void tFIDerDvFunction_UTIWGDIFFBULK
@@ -66,7 +66,7 @@ void tFIDerDvFunction_UTIWGDIFFBULK
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV::DENSITY )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::PDV::DENSITY )->N();
 }
 
 using namespace moris;

@@ -315,7 +315,7 @@ namespace moris
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ig_requested_dv_types(Cell<PDV>& aPdvTypes)
+            void set_ig_requested_dv_types(Cell<PDV>& aPdvTypes);
 
 //            /**
 //             * communicate dv types

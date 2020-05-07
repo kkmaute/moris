@@ -81,8 +81,8 @@ void tValFunction3
     aPropMatrix =  aParameters( 0 )
          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val()
-         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( PDV::LS1 )->val()
-         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( PDV::LS2 )->val();
+         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::PDV::LS1 )->val()
+         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::PDV::LS2 )->val();
 }
 void tDerFunction3_TEMP
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -103,14 +103,14 @@ void tDerFunction3_LS1
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( PDV::LS1 )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::PDV::LS1 )->N();
 }
 void tDerFunction3_LS2
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( PDV::LS2 )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::PDV::LS2 )->N();
 }
 
 

@@ -56,7 +56,7 @@ namespace moris
                 tPdvTypes(0) = PDV::X_COORDINATE;
                 tPdvTypes(1) = PDV::Y_COORDINATE;
                 tPdvTypes(2) = PDV::Z_COORDINATE;
-                mPdvHostManager->set_ig_requested_dv_types(tPdvTypes)
+                mPdvHostManager.set_ig_requested_dv_types(tPdvTypes);
             }
         }
 
