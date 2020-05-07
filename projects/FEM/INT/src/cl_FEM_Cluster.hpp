@@ -234,7 +234,7 @@ namespace moris
         /**
          * compute dQIdp
          */
-        void compute_dQIdp();
+        void compute_dQIdp_FD();
 
 //------------------------------------------------------------------------------
         /**

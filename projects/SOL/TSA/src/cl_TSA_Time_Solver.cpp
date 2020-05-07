@@ -310,7 +310,7 @@ using namespace tsa;
         // full vector and prev full vector
         mFullVectorSensitivity = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
-        mSolverInterface->set_sensitivity_solution_vector( mFullVectorSensitivity );
+        mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity );
 
         mFullVectorSensitivity->vec_put_scalar( 0.0 );
 

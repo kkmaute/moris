@@ -48,6 +48,8 @@ namespace moris
             Dist_Vector * mPrevSolutionVector = nullptr;
             Dist_Vector * mSensitivitySolutionVector = nullptr;
 
+            Dist_Vector * mdQidu = nullptr;
+
             // matrices for current and previous time slabs
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
@@ -179,9 +181,19 @@ namespace moris
              * set sensitivity solution vector
              * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
              */
-            void set_senitivity_solution_vector( Dist_Vector * aSolutionVector )
+            void set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
             {
                 mSensitivitySolutionVector = aSolutionVector;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get adjoint solution vector
+             * @param[ out ] aSolutionVector adjoint distributed solution vector
+             */
+            Dist_Vector * get_adjoint_solution_vector()
+            {
+                return mSensitivitySolutionVector;
             }
 
 //------------------------------------------------------------------------------
@@ -276,12 +288,39 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * retruns if this is the a forward analysis
+             * returns if this is the a forward analysis
              * @param[ out ] mIsForwardAnalysis
              */
             bool get_is_forward_analysis()
             {
                 return mIsForwardAnalysis;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * retruns if this is the a forward analysis
+             */
+            void compute_dQIdp()
+            {
+//                // Get local number of elements
+//                moris::uint tNumSets = mFemSets.size();
+//
+//                moris::uint tNumRHS = this->get_num_rhs();
+//
+//                // Loop over all local elements to build matrix graph
+//                for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
+//                {
+//                    moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
+//
+//                    this->initialize_set( Ii, true );
+//
+//                    for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+//                    {
+//                        mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
+//                    }
+//
+//                    this->free_block_memory( Ii );
+//                }
             };
 
 //------------------------------------------------------------------------------

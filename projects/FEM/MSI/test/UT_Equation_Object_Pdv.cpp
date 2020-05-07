@@ -409,7 +409,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         //print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
 //        // compute dQIdp
-//        tWorkEqObj->compute_dQIdp();
+//        tWorkEqObj->compute_dQIdp_FD();
 
 //        // Create the pdof hosts of this equation object
 //        moris::Cell < Pdof_Host * > tPdofHostList;

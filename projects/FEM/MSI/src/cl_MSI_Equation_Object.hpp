@@ -75,6 +75,9 @@ class Dist_Vector;
             //! previous pdof values
             moris::Cell< Matrix< DDRMat > > mPreviousPdofValues;
 
+            //! adjoint pdof values
+            moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
+
             moris::uint mEqnObjInd;
 
 //            Matrix< DDRMat > mTime;
@@ -223,6 +226,14 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             /**
+             * @brief Compute function for the labda values
+             *
+             */
+            void compute_my_adjoint_values( );
+
+//-------------------------------------------------------------------------------------------------
+
+            /**
              * @brief Get function for the pdof values of this particular equation object.
              * get_my_pdof_values() has to be called first to initialize.
              * @param[in] aRequestedDofTypes      List of requested dof types
@@ -324,9 +335,9 @@ class Dist_Vector;
             /**
              * compute dQIdp
              */
-            virtual void compute_dQIdp()
+            virtual void compute_dQIdp_FD()
             {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_FD - not implemented in msi." );
             };
 
 //------------------------------------------------------------------------------
