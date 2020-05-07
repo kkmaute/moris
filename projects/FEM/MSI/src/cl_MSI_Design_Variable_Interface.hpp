@@ -148,9 +148,7 @@ namespace mdl
             /**
              * return local to global dv type map
              */
-            virtual moris::Matrix< DDSMat > get_ip_local_global_map() = 0;
-
-            virtual moris::Matrix< DDSMat > get_ig_local_global_map() = 0;
+            virtual moris::Matrix< DDSMat > get_my_local_global_map() = 0;
 
 //------------------------------------------------------------------------------
             /**
