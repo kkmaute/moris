@@ -242,7 +242,7 @@ namespace ge
 
 //------------------------------------------------------------------------------
         /**
-         * @brief return local to global dv type map
+         * @brief return local to global dv map
          */
 
         Matrix< DDSMat > get_my_local_global_map()
