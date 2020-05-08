@@ -184,13 +184,12 @@ void receive_col_known(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
 {
     // The number of rows is known but the number of columns depends on the sending message
     // Need to probe
-    MPI_Status tStatus;
-    int tFlag = 0;
-    int tNumSent = 0;
-    MPI_Iprobe(aSendingProc, aTag, MPI_COMM_WORLD, &tFlag, &tStatus);
-
-    if(tStatus.MPI_ERROR==0)
+    if(sent_message_exists(aSendingProc,aTag))
     {
+
+        MPI_Status tStatus;
+        int tNumSent = 0;
+
         MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
 
 
