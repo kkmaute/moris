@@ -524,6 +524,64 @@ namespace moris
 //            // set bool for evaluation
 //            md2Ndt2Eval = false;
         }
+//------------------------------------------------------------------------------
+        void Field_Interpolator::eval_d2Ndxt()
+        {
+            // check that mXi and mTau are set
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d2Ndxt - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_d2Ndxt - mTau is not set." );
+
+            // evaluate dNdTau for the field time interpolation
+            Matrix< DDRMat > tdNTimedTau;
+            mTimeInterpolation->eval_dNdXi( mTau, tdNTimedTau );
+
+            // evaluate dNSpacedXi for the field time interpolation and transpose
+            Matrix< DDRMat> tdNSpacedXi;
+            mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
+
+            // set size tdNFielddTau for the field
+            Matrix< DDRMat> tdNFielddXiTau ( mNTimeDim * mNSpaceDim, mNFieldBases );
+
+            // temporary vector for condensation
+//            Matrix< DDRMat> tTemporary;
+
+            // build the space time dNdTau row by row
+            for ( moris::uint Ix = 0; Ix < mNSpaceDim; Ix++ )
+            {
+                tdNFielddXiTau.get_row( Ix ) = reshape( tdNSpacedXi.get_column(Ix) * tdNTimedTau, 1, mNFieldBases);
+            }
+
+            // evaluate the Jacobian from the space geometry interpolator
+            Matrix< DDRMat > tJGeoTimet;
+            mGeometryInterpolator->time_jacobian( tJGeoTimet );
+
+            // evaluate the space Jacobian from the geometry interpolator
+            Matrix< DDRMat > tJGeoSpacet;
+            mGeometryInterpolator->space_jacobian( tJGeoSpacet );
+
+            // compute first derivative of the SF wrt x
+            //md2Ndxt = inv( tJGeoSpacet ) * inv( tJGeoTimet ) * tdNFielddXiTau;
+            md2Ndxt = inv( tJGeoSpacet ) * tdNFielddXiTau / tJGeoTimet( 0 ) ;
+
+
+        }
+
+//------------------------------------------------------------------------------
+         const Matrix< DDRMat > & Field_Interpolator::d2Ndxt()
+         {
+             // if d2Ndxt needs to be evaluated
+             if( md2NdxtEval )
+             {
+                 // evaluate d1Ndt1
+                 this->eval_d2Ndxt();
+
+                // set bool for evaluation
+                 md2NdxtEval = false;
+             }
+             // return member data
+             return md2Ndxt;
+         }
+
 
 //------------------------------------------------------------------------------
         Matrix< DDRMat > Field_Interpolator::val()
@@ -550,6 +608,15 @@ namespace moris
 
         }
 
+//------------------------------------------------------------------------------
+        Matrix< DDRMat > Field_Interpolator::gradxt( )
+        {
+            // check that mUHat is set
+            MORIS_ASSERT( mUHat.numel() > 0,  "Field_Interpolator::gradxt - mUHat  is not set." );
+
+            // evaluate and return gradient
+            return this->d2Ndxt( ) * mUHat ;
+        }
 //------------------------------------------------------------------------------
         moris::real Field_Interpolator::div()
         {

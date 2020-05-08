@@ -30,6 +30,7 @@ namespace MSI
         VY,     //< Y-Velocity
         VZ,     //< Z-Velocity
         P,      //< Pressure
+        VISCOSITY,
         UNDEFINED, //< Undefined
         END_ENUM//
     };
@@ -52,8 +53,9 @@ namespace MSI
         tMSIDofTypeMap["VX"]          = MSI::Dof_Type::VX;
         tMSIDofTypeMap["VY"]          = MSI::Dof_Type::VY;
         tMSIDofTypeMap["VZ"]          = MSI::Dof_Type::VZ;
-        tMSIDofTypeMap["P"]          = MSI::Dof_Type::P;
-        tMSIDofTypeMap["UNDEFINED"]  = MSI::Dof_Type::UNDEFINED;
+        tMSIDofTypeMap["P"]           = MSI::Dof_Type::P;
+        tMSIDofTypeMap["VISCOSITY"]   = MSI::Dof_Type::VISCOSITY;
+        tMSIDofTypeMap["UNDEFINED"]   = MSI::Dof_Type::UNDEFINED;
 
         return tMSIDofTypeMap;
     }

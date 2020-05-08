@@ -75,9 +75,13 @@ class Dist_Vector;
             //! previous pdof values
             moris::Cell< Matrix< DDRMat > > mPreviousPdofValues;
 
+            //! adjoint pdof values
+            moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
+
             moris::uint mEqnObjInd;
 
-            Matrix< DDRMat > mTime;
+//            Matrix< DDRMat > mTime;
+//            Matrix< DDRMat > mPrevTime;
 
             Equation_Set * mEquationSet;
 
@@ -104,17 +108,18 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void set_time( const Matrix< DDRMat > & aTime )
-            {
-                mTime = aTime;
-            }
+            void set_time( Matrix< DDRMat > & aTime );
+//            {
+//                mTime = aTime;
+//            }
 
 //-------------------------------------------------------------------------------------------------
 
-            Matrix< DDRMat > & get_time()
-            {
-                return mTime ;
-            }
+            Matrix< DDRMat > & get_time();
+
+//-------------------------------------------------------------------------------------------------
+
+            Matrix< DDRMat > & get_previous_time();
 
 //-------------------------------------------------------------------------------------------------
 
@@ -210,13 +215,21 @@ class Dist_Vector;
              */
             void compute_my_pdof_values( );
 
-            //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 
             /**
              * @brief Compute function for the previous pdof values of this particular equation object
              *
              */
             void compute_previous_pdof_values( );
+
+//-------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Compute function for the labda values
+             *
+             */
+            void compute_my_adjoint_values( );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -322,9 +335,9 @@ class Dist_Vector;
             /**
              * compute dQIdp
              */
-            virtual void compute_dQIdp()
+            virtual void compute_dQIdp_FD()
             {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_FD - not implemented in msi." );
             };
 
 //------------------------------------------------------------------------------

@@ -62,7 +62,10 @@ public:
     virtual void set_solution_vector( Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 
-    void set_time_levels_for_type( const enum MSI::Dof_Type aDofType,
+    virtual void set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+    { MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set."); };
+
+    virtual void set_time_levels_for_type( const enum MSI::Dof_Type aDofType,
                                    const moris::uint   aNumTimeLevels )
     { MORIS_ERROR( false, "Solver_Interface::set_time_levels_for_type: not set."); };
 
@@ -71,6 +74,9 @@ public:
 
     virtual void set_time( const Matrix< DDRMat> & aTime )
     { MORIS_ERROR( false, "Solver_Interface::set_time: not set."); };
+
+    virtual void set_previous_time( const Matrix< DDRMat> & aTime )
+    { MORIS_ERROR( false, "Solver_Interface::set_previous_time: not set."); };
 
     virtual void perform_mapping(  )
     { MORIS_ERROR( false, "Solver_Interface::perform_mapping: not implemented."); };
@@ -94,7 +100,8 @@ public:
     };
 
     virtual void initiate_output( const uint aOutputIndex,
-                                  const uint aTime )
+                                  const real aTime,
+                                  const bool aEndOfTimeIteration )
     {
         MORIS_ERROR( false, "Solver_Interface::initiate_output: not set.");
     };
@@ -253,29 +260,32 @@ public:
                               moris::Dist_Vector   * aVectorRHS,
                               moris::Dist_Vector   * aFullSolutionVector );
 
-    void assemble_jacobian( moris::Dist_Matrix * aMat,
-                            moris::Dist_Vector   * aFullSolutionVector );
+//---------------------------------------------------------------------------------------------------------
+    void assemble_jacobian( moris::Dist_Matrix * aMat );
 
-    void assemble_RHS( moris::Dist_Vector * aVectorRHS,
-                       moris::Dist_Vector * aFullSolutionVector );
+//---------------------------------------------------------------------------------------------------------
+    void assemble_RHS( moris::Dist_Vector * aVectorRHS );
 
+//---------------------------------------------------------------------------------------------------------
     void get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
                                          const moris::real                       aThreshold );
 
+//---------------------------------------------------------------------------------------------------------
     virtual void calculate_criteria( const moris::uint & aMySetInd,
                              const moris::uint & aMyElementInd )
     {
         MORIS_ERROR(false, "Solver_Interface::calculate_criteria(), not implemented for base class");
     };
 
+//---------------------------------------------------------------------------------------------------------
     virtual const moris::Cell < moris::Matrix< DDRMat> > & get_criteria( const moris::uint & aMySetInd )
     {
         MORIS_ERROR(false, "Solver_Interface::get_criteria(), not implemented for base class");
         return mMat6;
     };
 
-
-    virtual void set_requested_IQI_type( const moris::uint & aMySetInd, const Cell< Cell< enum fem::IQI_Type > > & aRequestedIQIType )
+//---------------------------------------------------------------------------------------------------------
+    virtual void set_requested_IQI_names( const moris::Cell< std::string > & aIQINames )
     {
         MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");
     };

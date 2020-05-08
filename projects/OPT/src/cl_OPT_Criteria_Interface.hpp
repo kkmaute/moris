@@ -40,7 +40,7 @@ namespace moris
              *
              * @return vector of criteria
              */
-            virtual Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs) = 0;
+            virtual Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs) = 0;
 
             /**
              * Gets the derivative of the criteria with respect to the advs

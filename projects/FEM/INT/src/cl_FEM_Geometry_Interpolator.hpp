@@ -129,25 +129,12 @@ namespace moris
         /**
          * constructor
          * @param[ in ] interpolation rule for geometry
-         */
-        Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule );
-
-        /**
-         * constructor
-         * @param[ in ] interpolation rule for geometry
-         * @param[ in ] flag true if side interpolation
-         */
-        Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
-                               const bool                 aSpaceSideset );
-        /**
-         * constructor
-         * @param[ in ] interpolation rule for geometry
          * @param[ in ] flag true if side interpolation
          * @param[ in ] flag true if time side interpolation
          */
         Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
-                               const bool                 aSpaceSideset,
-                               const bool                 aTimeSideset );
+                               const bool                 aSpaceSideset = false,
+                               const bool                 aTimeSideset  = false );
 
 //------------------------------------------------------------------------------
         /**
@@ -273,6 +260,12 @@ namespace moris
 
                return mTHat;
            }
+
+//------------------------------------------------------------------------------
+          /**
+           * get the time step delta t
+           */
+          real get_time_step();
 
 //------------------------------------------------------------------------------
         /**

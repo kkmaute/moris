@@ -173,9 +173,9 @@ namespace moris
         /**
          * compute dQIdp
          */
-        virtual void compute_dQIdp()
+        virtual void compute_dQIdp_FD()
         {
-            MORIS_ERROR( false, "Element::compute_dQIdp - Not implemented for base class.");
+            MORIS_ERROR( false, "Element::compute_dQIdp_FD - Not implemented for base class.");
         }
 
 //------------------------------------------------------------------------------

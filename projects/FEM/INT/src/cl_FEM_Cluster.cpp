@@ -43,6 +43,7 @@ namespace moris
             switch ( mElementType )
             {
                 case ( fem::Element_Type::BULK ):
+                case ( fem::Element_Type::TIME_SIDESET ):
                 {
                     // loop over the IG cells
                     for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
@@ -251,7 +252,7 @@ namespace moris
         ( moris::moris_index aPrimaryCellIndexInCluster )
         {
             // check that bulk cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
+            MORIS_ASSERT( mElementType == fem::Element_Type::BULK || mElementType == fem::Element_Type::TIME_SIDESET,
                           "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster.");
 
             // check that the mesh cluster was set
@@ -382,13 +383,13 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Cluster::compute_dQIdp()
+        void Cluster::compute_dQIdp_FD()
         {
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
                 // compute the dQIdp for the IG element
-                mElements( iElem )->compute_dQIdp();
+                mElements( iElem )->compute_dQIdp_FD();
             }
         }
 
@@ -476,26 +477,50 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                           "Cluster::compute_cluster_cell_length_measure - empty cluster.");
 
+            // init volume of the custer
+            real tVolume = 0.0;
+
+            // switch on set type
+            fem::Element_Type tElementType = mSet->get_element_type();
+            switch( tElementType )
+            {
+                case( fem::Element_Type::BULK ):
+                case( fem::Element_Type::TIME_SIDESET ):
+                    tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+                    break;
+
+                case( fem::Element_Type::SIDESET ):
+                case( fem::Element_Type::DOUBLE_SIDESET ):
+                    tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
+                    break;
+
+                default:
+                    MORIS_ERROR( false, "Undefined set type" );
+                    break;
+            }
+
             // get spatial dimension from IP geometry interpolator
             uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )
                                  ->get_IP_geometry_interpolator()
                                  ->get_number_of_space_dimensions();
 
-            // compute the volume of the cluster
-//            real tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
-            real tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
-
             // compute element size
             switch ( tSpaceDim )
             {
                 case ( 3 ):
-                    return std::pow( 6 * tVolume / M_PI, 1.0 / 3.0 );
-
+                {
+                    // compute length from volume
+                    return std::pow( 6.0 * tVolume / M_PI, 1.0 / 3.0 );
+                }
                 case ( 2 ):
-                    return std::pow( 4 * tVolume / M_PI, 1.0 / 2.0 );
-
+                {
+                    // compute length from volume
+                    return std::pow( 4.0 * tVolume / M_PI, 1.0 / 2.0 );
+                }
                 case ( 1 ):
+                {
                     return tVolume;
+                }
 
                 default:
                     MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure - space dimension can only be 1, 2, or 3. ");

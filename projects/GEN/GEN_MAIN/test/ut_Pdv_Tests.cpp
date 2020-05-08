@@ -24,6 +24,9 @@
 // HMR includes ---------------------------------
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 
 // MTK includes ---------------------------------
 #include "cl_Mesh_Enums.hpp"

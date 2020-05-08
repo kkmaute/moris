@@ -206,16 +206,11 @@ public :
     }
 
 //------------------------------------------------------------------------------
-    moris::Matrix< DDSMat > get_ip_local_global_map()
+    moris::Matrix< DDSMat > get_my_local_global_map()
     {
         return mMap;
     }
-//------------------------------------------------------------------------------
-    moris::Matrix< DDSMat > get_ig_local_global_map()
-    {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_local_global_map() - not implemented in the child class" );
-        return {{0}};
-    }
+
 //------------------------------------------------------------------------------
     void get_ip_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
                                          const Cell< enum GEN_DV >               & aDvTypes,
@@ -253,7 +248,7 @@ public :
     }
 //------------------------------------------------------------------------------
 	
-    void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType );
+    void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 
 };
 }

@@ -16,6 +16,8 @@
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
 //Diffusion
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
+#include "cl_FEM_IWG_Diffusion_Phase_Change_Bulk.hpp"
+#include "cl_FEM_IWG_GGLS_Diffusion_Phase_Change_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Diffusion_Neumann.hpp"
 #include "cl_FEM_IWG_Diffusion_Interface.hpp"
@@ -42,6 +44,10 @@
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp"
+// Time continuity
+#include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
+// Turbulence
+#include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
 
 namespace moris
 {
@@ -73,6 +79,12 @@ namespace moris
 
                 case ( IWG_Type::SPATIALDIFF_BULK ):
                     return std::make_shared< IWG_Diffusion_Bulk >();
+
+                case ( IWG_Type::SPATIALDIFF_PC_BULK ):
+                    return std::make_shared< IWG_Diffusion_Phase_Change_Bulk >();
+
+                case ( IWG_Type::SPATIALDIFF_GGLS_PC ):
+                    return std::make_shared< IWG_GGLS_Diffusion_Phase_Change_Bulk >();
 
                 case ( IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ):
                     return std::make_shared< IWG_Diffusion_Dirichlet_Nitsche >( -1 );
@@ -154,6 +166,12 @@ namespace moris
 
                 case ( IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE ):
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();
+
+                case ( IWG_Type::TIME_CONTINUITY_DOF ):
+                    return std::make_shared< IWG_Time_Continuity_Dof >();
+
+                case ( IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK ):
+                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Bulk >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );

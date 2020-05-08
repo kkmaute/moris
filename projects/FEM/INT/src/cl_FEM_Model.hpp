@@ -88,6 +88,9 @@ namespace moris
             moris::Cell< std::shared_ptr< fem::IWG > > mIWGs;
             moris::Cell< std::shared_ptr< fem::IQI > > mIQIs;
 
+            //! requested IQI Names
+            moris::Cell< std::string > mRequestedIQINames;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -177,10 +180,31 @@ namespace moris
             /**
              * MTK set to fem set index map
              */
-            map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map()
+            //map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map()
+            map< std::pair< moris_index, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
             {
                 return mMeshSetToFemSetMap;
             };
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set requested IQI names
+             * @param[ in ] aRequestedIQINames List of requested IQI names
+             */
+            void set_requested_IQI_names( const moris::Cell< std::string > & aRequestedIQINames )
+            {
+                mRequestedIQINames = aRequestedIQINames;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get requested IQI names
+             */
+            const moris::Cell< std::string > & get_requested_IQI_names()
+            {
+                return mRequestedIQINames;
+            }
 
 //------------------------------------------------------------------------------
             /**

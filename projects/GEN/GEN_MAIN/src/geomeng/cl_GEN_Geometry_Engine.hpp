@@ -28,16 +28,21 @@
 
 // MRS
 #include "cl_Param_List.hpp"
+#include "fn_Exec_load_user_library.hpp"
+#include "../../../../MRS/IOS/src/fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
-
     //------------------------------------------------------------------------------------------------------------------
 
     namespace hmr
     {
         class HMR;
         class Mesh;
+    }
+    namespace MSI
+    {
+        class Design_Variable_Interface;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -133,6 +138,8 @@ namespace moris
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
 
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
 
         public:
 
@@ -141,7 +148,7 @@ namespace moris
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              */
-            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists);
+            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**
              * Constructor using explicitly created analytic geometries and phase table
@@ -172,9 +179,7 @@ namespace moris
             /**
              * Destructor
              */
-            ~Geometry_Engine()
-            {
-            }
+            ~Geometry_Engine();
 
             /**
              * Sets new advs for the geometry engine
@@ -457,6 +462,11 @@ namespace moris
              * Performs refinement on an HMR mesh
              */
             void perform_refinement( );
+
+            /**
+             * Build Design Variable Interface
+             */
+            MSI::Design_Variable_Interface * build_design_variable_interface();
 
         //    /*
         //     * @brief function specific to fiber problem TODO this will be removed

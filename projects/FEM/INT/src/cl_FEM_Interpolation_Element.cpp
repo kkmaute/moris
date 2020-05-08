@@ -12,6 +12,7 @@
 #include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                   //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
+#include "cl_FEM_Model.hpp"                   //FEM/INT/src
 
 #include "fn_isfinite.hpp"
 
@@ -121,6 +122,21 @@ namespace moris
                  // set field interpolator coefficients
                  mSet->get_field_interpolator_manager()
                      ->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+
+                 if( mSet->get_time_continuity() )
+                 {
+                     // get the pdof values for the ith dof type group
+                     Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                     this->get_previous_pdof_values( tDofTypeGroup, tCoeff_Original );
+
+                     // reshape tCoeffs into the order the cluster expects them
+                     Matrix< DDRMat > tCoeff;
+                     this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+
+                     // set field interpolator coefficients
+                     mSet->get_field_interpolator_manager_previous_time()
+                         ->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+                 }
              }
 
              // get number of slave dof types
@@ -209,7 +225,7 @@ namespace moris
                  ->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
              mSet->get_field_interpolator_manager()
                  ->get_IP_geometry_interpolator()
-                 ->set_time_coeff( this->mTime );
+                 ->set_time_coeff( this->get_time() );
 
              // if double sideset
              if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
@@ -220,58 +236,87 @@ namespace moris
                      ->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
                      ->get_IP_geometry_interpolator()
-                     ->set_time_coeff( this->mTime );
+                     ->set_time_coeff( this->get_time() );
+             }
+
+             // if time sideset
+             if( mElementType == fem::Element_Type::TIME_SIDESET )
+             {
+                 // set the IP geometry interpolator physical space and time coefficients for the previous
+                 mSet->get_field_interpolator_manager_previous_time( mtk::Master_Slave::MASTER )
+                     ->get_IP_geometry_interpolator()
+                     ->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
+                 mSet->get_field_interpolator_manager_previous_time( mtk::Master_Slave::MASTER )
+                     ->get_IP_geometry_interpolator()
+                     ->set_time_coeff( this->get_previous_time() );
              }
          }
 
 //------------------------------------------------------------------------------
         void Interpolation_Element::compute_jacobian()
         {
-             //Fixme do this only once
-             this->compute_my_pdof_values();
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
 
-             // init the jacobian
-             mSet->initialize_mJacobian();
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
+            // init the jacobian
+            mSet->initialize_mJacobian();
 
-             // FIXME should not be like this
-             mSet->set_IWG_field_interpolator_managers();
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
 
-             // set cluster for stabilization parameter
-             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
 
-             // ask cluster to compute jacobian
-             mFemCluster( 0 )->compute_jacobian();
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-             // check that jacobian is finite
-             // FIXME
-             bool tIsFinite = true;
-             uint tNumRows = mSet->get_jacobian().n_rows();
-             uint tNumCols = mSet->get_jacobian().n_cols();
-             for( uint iRow = 0; iRow < tNumRows; iRow++ )
-             {
-                 for( uint iCol = 0; iCol < tNumCols; iCol++ )
-                 {
-                     Matrix< DDRMat> tValue = {{mSet->get_jacobian()( iRow, iCol )}};
-                     if( !isfinite( tValue ) )
-                     {
-                         tIsFinite = false;
-                     }
-                 }
-             }
-             if( !tIsFinite )
-             {
-                 std::cout<<"Interpolation_Element::compute_jacobian - non finite values in jacobian."<<std::endl;
-             }
-         }
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_jacobian();
+
+//            // check that jacobian is finite
+//            // FIXME
+//            bool tIsFinite = true;
+//            uint tNumRows = mSet->get_jacobian().n_rows();
+//            uint tNumCols = mSet->get_jacobian().n_cols();
+//            for( uint iRow = 0; iRow < tNumRows; iRow++ )
+//            {
+//                for( uint iCol = 0; iCol < tNumCols; iCol++ )
+//                {
+//                    Matrix< DDRMat> tValue = {{mSet->get_jacobian()( iRow, iCol )}};
+//                    if( !isfinite( tValue ) )
+//                    {
+//                        tIsFinite = false;
+//                    }
+//                }
+//            }
+//            if( !tIsFinite )
+//            {
+//                std::cout<<"Interpolation_Element::compute_jacobian - non finite values in jacobian."<<std::endl;
+//            }
+        }
 
 //------------------------------------------------------------------------------
         void Interpolation_Element::compute_residual()
         {
             //Fixme do this only once
             this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
             // init the residual
             mSet->initialize_mResidual();
@@ -288,9 +333,28 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // ask cluster to compute residual
-            mFemCluster( 0 )->compute_residual();
+            if( mSet->mEquationModel->get_is_forward_analysis() )
+            {
+                // FIXME should not be like this
+                mSet->set_IWG_field_interpolator_managers();
 
+                // set cluster for stabilization parameter
+                mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                // ask cluster to compute residual
+                mFemCluster( 0 )->compute_residual();
+            }
+            else
+            {
+                // FIXME should not be like this
+                mSet->set_IQI_field_interpolator_managers();
+
+                // set cluster for stabilization parameter
+                mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                // ask cluster to compute jacobian
+                mFemCluster( 0 )->compute_dQIdu();
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -298,6 +362,14 @@ namespace moris
          {
              //Fixme do this only once
              this->compute_my_pdof_values();
+
+             // if time continuity set
+             if ( mSet->get_time_continuity() )
+             {
+                 // compute pdof values for previous time step
+                 // FIXME do this only once
+                 this->compute_previous_pdof_values();
+             }
 
              // init the jacobian
              mSet->initialize_mJacobian();
@@ -323,150 +395,196 @@ namespace moris
 //------------------------------------------------------------------------------
         void Interpolation_Element::compute_dRdp()
         {
-             //Fixme do this only once
-             this->compute_my_pdof_values();
+            // compute pdof values
+            //Fixme do this only once
+            this->compute_my_pdof_values();
 
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-             // FIXME should not be like this
-             mSet->set_IWG_field_interpolator_managers();
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
 
-             // set cluster for stabilization parameter
-             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
 
-             // ask cluster to compute jacobian
-             mFemCluster( 0 )->compute_dRdp();
-         }
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-//------------------------------------------------------------------------------
-        void Interpolation_Element::compute_dQIdp()
-        {
-             //Fixme do this only once
-             this->compute_my_pdof_values();
-
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
-
-             // FIXME should not be like this
-             mSet->set_IQI_field_interpolator_managers();
-
-             // set cluster for stabilization parameter
-             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-             // ask cluster to compute jacobian
-             mFemCluster( 0 )->compute_dQIdp();
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_dRdp();
         }
 
 //------------------------------------------------------------------------------
-         void Interpolation_Element::compute_dQIdu()
-         {
-              //Fixme do this only once
-              this->compute_my_pdof_values();
+        void Interpolation_Element::compute_dQIdp_FD()
+        {
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
 
-              // set the field interpolators coefficients
-              this->set_field_interpolators_coefficients();
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-              // FIXME should not be like this
-              mSet->set_IQI_field_interpolator_managers();
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
 
-              // set cluster for stabilization parameter
-              mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
 
-              // ask cluster to compute jacobian
-              mFemCluster( 0 )->compute_dQIdu();
-         }
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_dQIdp_FD();
+        }
+
+//------------------------------------------------------------------------------
+        void Interpolation_Element::compute_dQIdu()
+        {
+            // compute pdof values
+            //FIXME do this only once
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_dQIdu();
+        }
 
 //------------------------------------------------------------------------------
         void Interpolation_Element::compute_QI()
         {
-             // FIXME do this only once
-             this->compute_my_pdof_values();
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
 
-             mSet->initialize_mQI();
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
+            mSet->initialize_mQI();
 
-             // FIXME should not be like this
-             mSet->set_IQI_field_interpolator_managers();
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
 
-             // set cluster for stabilization parameter
-             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
 
-             // ask cluster to compute quantity of interest
-             mFemCluster( 0 )->compute_QI();
-         }
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute quantity of interest
+            mFemCluster( 0 )->compute_QI();
+        }
 
 //------------------------------------------------------------------------------
-        void Interpolation_Element::compute_quantity_of_interest( const uint            aMeshIndex,
-                                                                  enum vis::Output_Type aOutputType,
-                                                                  enum vis::Field_Type  aFieldType )
+        void
+        Interpolation_Element::compute_quantity_of_interest( const uint            aMeshIndex,
+                                                             enum vis::Output_Type aOutputType,
+                                                             enum vis::Field_Type  aFieldType )
         {
-             // FIXME do this only once
-             this->compute_my_pdof_values();
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
 
-             // set the field interpolators coefficients
-             this->set_field_interpolators_coefficients();
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-             // FIXME should not be like this
-             mSet->get_IQI_for_vis( aOutputType )
-                 ->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
 
-             // set cluster for stabilization parameter
-             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            // FIXME should not be like this
+            mSet->get_IQI_for_vis( aOutputType )
+                ->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
 
-             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-             {
-                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                 mSet->get_IQI_for_vis( aOutputType )
-                     ->set_field_interpolator_manager( mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE ),
-                                                       mtk::Master_Slave::SLAVE );
-             }
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-             if( aFieldType == vis::Field_Type::NODAL )
-             {
-                 // get the master vertices indices on the mesh cluster
-                 moris::Cell< moris_index > tVertexIndices
-                 = mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster();
+            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            {
+                // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
+                mSet->get_IQI_for_vis( aOutputType )
+                    ->set_field_interpolator_manager( mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE ),
+                                                      mtk::Master_Slave::SLAVE );
+            }
 
-                 // get the master vertices local coordinates on the mesh cluster
-                 moris::Matrix<moris::DDRMat> tVertexLocalCoords
-                 = mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
+            if( aFieldType == vis::Field_Type::NODAL )
+            {
+                // get the master vertices indices on the mesh cluster
+                moris::Cell< moris_index > tVertexIndices
+                = mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster();
 
-                 // get number of vertices on the treated mesh cluster
-                 uint tNumNodes = tVertexIndices.size();
+                // get the master vertices local coordinates on the mesh cluster
+                moris::Matrix<moris::DDRMat> tVertexLocalCoords
+                = mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
 
-                 // loop over the vertices on the treated mesh cluster
-                 for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
-                 {
-                     // get the ith vertex coordinates in the IP param space
-                     Matrix< DDRMat > tGlobalIntegPoint = tVertexLocalCoords.get_row( iVertex );
-                     tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
-                     tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = this->get_time()( 0 );
-                     tGlobalIntegPoint = trans( tGlobalIntegPoint );
+                // get number of vertices on the treated mesh cluster
+                uint tNumNodes = tVertexIndices.size();
 
-                     // set vertex coordinates for field interpolator
-                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
+                // loop over the vertices on the treated mesh cluster
+                for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
+                {
+                    // get the ith vertex coordinates in the IP param space
+                    Matrix< DDRMat > tGlobalIntegPoint = tVertexLocalCoords.get_row( iVertex );
+                    tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
+                    tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = -1.0;
+                    tGlobalIntegPoint = trans( tGlobalIntegPoint );
 
-                     // reset the requested IQI
-                     mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                    // set vertex coordinates for field interpolator
+                    mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
-                     // compute quantity of interest at evaluation point
-                     Matrix< DDRMat > tQIValue;
-                     mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                    // reset the requested IQI
+                    mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
 
-                     // fill in the nodal set values
-                     ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 )
-                     = tQIValue( 0 );
-                 }
-             }
-             else
-             {
-                 // ask cluster to compute quantity of interest
-                 mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
-             }
-         }
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQIValue;
+                    mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+
+                    // fill in the nodal set values
+                    ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 )
+                             = tQIValue( 0 );
+                }
+            }
+            else
+            {
+                // ask cluster to compute quantity of interest
+                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
+            }
+        }
 
 //------------------------------------------------------------------------------
         real Interpolation_Element::compute_volume()

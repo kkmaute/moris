@@ -13,6 +13,7 @@
 
 #define protected public
 #define private   public
+#include "cl_FEM_Model.hpp"         //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #include "cl_FEM_IQI.hpp"         //FEM/INT/src
 #include "cl_FEM_Set.hpp"         //FEM/INT/src
@@ -93,6 +94,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
     tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
     tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
+    tIQI->set_name("IQI_1");
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -172,6 +174,11 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // create a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
+    fem::FEM_Model tModel;
+
+    tModel.set_requested_IQI_names({"IQI_1"});
+
+    tSet->set_equation_model(&tModel);
 
     // create a GEN/MSI interface
     MSI::Design_Variable_Interface * tGENMSIInterface = new fem::FEM_Design_Variable_Interface_Proxy();
@@ -228,8 +235,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 	moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
     tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
 
-	tSet->set_requested_IQI_types( tRequestedIQITypes );
-	tSet->create_requested_IQI_type_map();
+     tSet->create_requested_IQI_type_map();
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;

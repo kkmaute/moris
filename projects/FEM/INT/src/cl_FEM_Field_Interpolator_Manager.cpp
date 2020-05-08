@@ -1,6 +1,5 @@
 
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
-
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
 
 namespace moris
@@ -119,6 +118,7 @@ namespace moris
             {
                 // get the number of time level for the dof type group
                 uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( mDofTypes( iDof )( 0 ) );
+                std::cout<<"Field_Interpolator_Manager::create_field_interpolators - Time Node: "<<tNumTimeNodes<<std::endl;
 
                 // get the set index for the dof type group
                 uint tDofIndex = mEquationSet->get_dof_index_for_type_1( mDofTypes( iDof )( 0 ), mIsMaster );
@@ -179,28 +179,50 @@ namespace moris
 //------------------------------------------------------------------------------
         void Field_Interpolator_Manager::create_geometry_interpolators()
         {
-             // create geometry interpolation rule for IP elements
-             Interpolation_Rule tIPGeometryInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
+            // get element type for set
+            fem::Element_Type tElementType = reinterpret_cast< Set* >( mEquationSet )->mElementType;
+
+            // bool true if time sideset
+            bool tIsTimeSide = ( tElementType == fem::Element_Type::TIME_SIDESET );
+
+            // bool true if sideset or double sideset
+            bool tIsSide = ( tElementType != fem::Element_Type::BULK )
+                         &&( tElementType != fem::Element_Type::TIME_SIDESET );
+
+            // create geometry interpolation rule for IP elements
+            Interpolation_Rule tIPGeometryInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
+                                                             mtk::Geometry_Type::LINE,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
+
+            // FIXME default should be given by the MSI
+            mtk::Geometry_Type       tIGTimeGeometryType = mtk::Geometry_Type::LINE;
+            fem::Interpolation_Type  tIGTimeInterpType   = fem::Interpolation_Type::LAGRANGE;
+            mtk::Interpolation_Order tIGTimeInterpOrder  = mtk::Interpolation_Order::LINEAR;
+
+            // if time sideset
+            if ( tIsTimeSide )
+            {
+                tIGTimeGeometryType = mtk::Geometry_Type::POINT;
+                tIGTimeInterpType   = fem::Interpolation_Type::CONSTANT;
+                tIGTimeInterpOrder  = mtk::Interpolation_Order::CONSTANT;
+            }
 
              // create geometry interpolation rule for IG elements
              Interpolation_Rule tIGGeometryInterpolationRule( reinterpret_cast< Set* >( mEquationSet )->mIGGeometryType,
                                                               Interpolation_Type::LAGRANGE,
                                                               reinterpret_cast< Set* >( mEquationSet )->mIGSpaceInterpolationOrder,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
-
-             // bool true if sideset or double sideset
-             bool tIsSide = ( reinterpret_cast< Set* >( mEquationSet )->mElementType != fem::Element_Type::BULK );
+                                                              tIGTimeGeometryType,
+                                                              tIGTimeInterpType,
+                                                              tIGTimeInterpOrder );
 
              // create a geometry interpolator for IP cells
-             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, tIsSide );
+             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, tIsSide, tIsTimeSide );
 
              // create a geometry interpolator for IG cells
-             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tIsSide );
+             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tIsSide, tIsTimeSide );
         }
 
 //------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::get_criteria(Matrix<DDRMat> aNewADVs)
+        Matrix<DDRMat> Workflow::perform(Matrix<DDRMat> aNewADVs)
         {
             //---------------------------------------------------------------------------------------
             //                               Stage 1: HMR refinement
@@ -64,6 +64,21 @@ namespace moris
 
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
+
+            return Matrix<DDRMat>(1, 1 , 0.0);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Workflow::get_criteria(Matrix<DDRMat> aNewADVs)
+        {
+            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface( mPerformerManager->mGENPerformer( 0 )
+                                                            ->build_design_variable_interface() );
+
+            // FIXME set requeted IQIs
+//            mPerformerManager->mMDLPerformer( 0 )->
+
+            mPerformerManager->mMDLPerformer( 0 )->perform_sensitivity_analysis();
 
             return Matrix<DDRMat>(1, 1 , 0.0);
         }

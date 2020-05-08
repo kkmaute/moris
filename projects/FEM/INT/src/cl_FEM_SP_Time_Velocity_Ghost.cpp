@@ -26,8 +26,7 @@ namespace moris
             std::shared_ptr< Property > tDensityProp = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-            real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
+            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 3.0 )
@@ -50,8 +49,7 @@ namespace moris
             std::shared_ptr< Property > tDensityProp = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-            real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
+            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // if density depends on dof type
             if( tDensityProp->check_dof_dependency( aDofTypes ) )

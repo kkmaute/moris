@@ -44,6 +44,7 @@ namespace tsa
 
         moris::real mk = 2;
         Matrix< DDRMat> mT;
+        Matrix< DDRMat> mPreviousT;
         moris::real mDeltaT = 0.0;
 
         Matrix< DDSMat > mTimeLevelIdsMinus;
@@ -67,6 +68,11 @@ namespace tsa
         void set_time( const Matrix< DDRMat> & aTime )
         {
             mT = aTime;
+        }
+
+        void set_previous_time( const Matrix< DDRMat> & aTime )
+        {
+            mPreviousT = aTime;
         }
         // ----------------------------------------------------------------------------------------------
 
@@ -142,21 +148,11 @@ namespace tsa
 
         // ----------------------------------------------------------------------------------------------
         void get_equation_object_operator(const uint             & aMyElementInd,
-                                                Matrix< DDRMat > & aElementMatrix)
-        {
-                mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
-                aElementMatrix.resize(1, 1);
-                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
-        };
+                                                Matrix< DDRMat > & aElementMatrix);
 
         void get_equation_object_operator( const uint             & aMyBlockInd,
                                            const uint             & aMyElementInd,
-                                                 Matrix< DDRMat > & aElementMatrix)
-        {
-                mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
-                aElementMatrix.resize(1, 1);
-                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
-        };
+                                                 Matrix< DDRMat > & aElementMatrix);
 
         // ----------------------------------------------------------------------------------------------
         void  get_element_topology(const uint             & aMyElementInd,

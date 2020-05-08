@@ -81,8 +81,8 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
      */
     //------------------------------------------------------------------------------
 
-    mNonlinearProblem->get_linearized_problem()->assemble_jacobian( mDSolve );  // reassemble jacobian
-    mNonlinearProblem->get_linearized_problem()->assemble_residual( mDSolve );  // reassemble residual
+    mNonlinearProblem->get_linearized_problem()->assemble_jacobian(  );  // reassemble jacobian
+    mNonlinearProblem->get_linearized_problem()->assemble_residual(  );  // reassemble residual
 
     mJac->get_diagonal( *mJacVal );                                             // fill vector mJacVal with diagonal values of the Jacobian matrix
     if ( tTimeIter < 2 )
@@ -91,7 +91,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
         this->solve_linear_system( tTimeIter, tHardBreak );                      // inv(Ktilde)*Fext
 
         mD_tilde->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
-        mNonlinearProblem->get_linearized_problem()->assemble_residual( mDSolve );  // rebuild residual since it was changed above
+        mNonlinearProblem->get_linearized_problem()->assemble_residual();  // rebuild residual since it was changed above
     }
 
     sint tSize = mDeltaD->vec_local_length();
@@ -163,8 +163,8 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
 
         // assemble RHS and Jacobian
         mMyTimeSolverAlgorithm->set_lambda_increment( mLambdaK );
-        mNonlinearProblem->get_linearized_problem()->assemble_residual( mDK );
-        mNonlinearProblem->get_linearized_problem()->assemble_jacobian( mDK );
+        mNonlinearProblem->get_linearized_problem()->assemble_residual();
+        mNonlinearProblem->get_linearized_problem()->assemble_jacobian();
 
         tMaxAssemblyTime = this->calculate_time_needed( tStartAssemblyTime );
 
@@ -218,7 +218,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
         //-------------------------------------------------
 
         // solve linear system for numerator
-        mNonlinearProblem->get_linearized_problem()->assemble_residual( mDK );
+        mNonlinearProblem->get_linearized_problem()->assemble_residual();
         this->solve_linear_system( tIter, tHardBreak );
 
         mDelLamNum->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
@@ -239,7 +239,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
         this->solve_linear_system( tIter, tHardBreak );
         mdeltaD->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
 
-        mNonlinearProblem->get_linearized_problem()->assemble_residual( mDK );
+        mNonlinearProblem->get_linearized_problem()->assemble_residual();
         //------------------------------------------------------------------------------
         /*
          * (3) Updates
@@ -271,7 +271,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
         mFArc = std::sqrt((1-mB)*(mArcNumer/mArcDenom)+mB*std::pow(mDeltaLambda,2));
 
         mMyTimeSolverAlgorithm->set_lambda_increment( mLambdaK );
-        mNonlinearProblem->get_linearized_problem()->assemble_residual( mDK );
+        mNonlinearProblem->get_linearized_problem()->assemble_residual();
         //------------------------------------------------------------------------------
 
         Convergence tConvergence;

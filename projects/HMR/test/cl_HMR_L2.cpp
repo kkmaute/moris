@@ -4,6 +4,7 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
 #include "HMR_Globals.hpp"
 
 #include "cl_Communication_Manager.hpp" // COM/src

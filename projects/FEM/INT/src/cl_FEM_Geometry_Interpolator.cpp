@@ -10,62 +10,6 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-    Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule )
-    {
-        // create member pointer to space interpolation function
-        mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
-
-        // create member pointer to time interpolation function
-        mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
-
-        // number of space bases and dimensions
-        mNumSpaceBases    = mSpaceInterpolation->get_number_of_bases();
-        mNumSpaceDim      = mSpaceInterpolation->get_number_of_dimensions();
-        mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
-
-        // number of time bases and dimensions
-        mNumTimeBases = mTimeInterpolation->get_number_of_bases();
-        mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
-
-        // set member geometry type
-        mGeometryType     = aInterpolationRule.get_geometry_type();
-        mTimeGeometryType = aInterpolationRule.get_time_geometry_type();
-
-        // set pointers for second derivative depending on space and time dimensions
-        this->set_function_pointers();
-    }
-
-    // fixme a supprimer?
-        Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
-                                                      const bool                 aSpaceSideset )
-        {
-            // set bool for side interpolation to true
-            mSpaceSideset = aSpaceSideset;
-
-            // create member pointer to space interpolation function
-            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
-
-            // create member pointer to time interpolation function
-            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
-
-            // number of space bases and dimensions
-            mNumSpaceBases    = mSpaceInterpolation->get_number_of_bases();
-            mNumSpaceDim      = mSpaceInterpolation->get_number_of_dimensions();
-            mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
-
-            // number of time bases and dimensions
-            mNumTimeBases = mTimeInterpolation->get_number_of_bases();
-            mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
-
-            // set member geometry type
-            mGeometryType     = aInterpolationRule.get_geometry_type();
-            mTimeGeometryType = aInterpolationRule.get_time_geometry_type();
-
-            // set pointers for second derivative depending on space and time dimensions
-            this->set_function_pointers();
-        }
-
         Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
                                                       const bool                 aSpaceSideset,
                                                       const bool                 aTimeSideset )
@@ -285,6 +229,15 @@ namespace moris
             mdNdTauEval   = true;
             md2NdTau2Eval = true;
             md3NdTau3Eval = true;
+        }
+
+        real Geometry_Interpolator::get_time_step()
+        {
+            // check that mTHat is set
+            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_step - mTHat is not set." );
+
+            // compute time increment deltat
+            return mTHat.max() - mTHat.min();
         }
 
 //------------------------------------------------------------------------------
@@ -771,36 +724,11 @@ namespace moris
              }
          }
 
-//        template< mtk::Geometry_Type G >
-//        void
-//        Geometry_Interpolator< G >::get_normal( Matrix< DDRMat > & aNormal )
-//        {
-//            MORIS_ERROR( false, "get_normal() not implemented for this geometry type." );
-//        }
-//
-//        template<>
-//        void
-//        Geometry_Interpolator< mtk::Geometry_Type::LINE >::get_normal( Matrix< DDRMat > & aNormal )
-//        {
-//            // evaluate side space interpolation shape functions first parametric derivatives at aParamPoint
-//            Matrix< DDRMat > tdNSpacedXi;
-//            mSpaceInterpolation->eval_dNdXi( mXiLocal, tdNSpacedXi );
-//
-//            // evaluation of tangent vectors to the space side in the physical space
-//            Matrix< DDRMat > tRealTangents = trans( tdNSpacedXi * mXHat );
-//
-//            // computing the normal from the real tangent vectors
-//            aNormal = {{  tRealTangents( 1 ) },
-//                       { -tRealTangents( 0 ) }};
-//            aNormal = aNormal / norm( aNormal );
-//        }
-
-
 //------------------------------------------------------------------------------
         Matrix< DDRMat > Geometry_Interpolator::valx()
         {
             // check that mTHat is set
-            MORIS_ASSERT( mXHat.numel() > 0, "Geometry_Interpolator::time_jacobian - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0, "Geometry_Interpolator::valx - mXHat is not set." );
 
             //evaluate the field
             return this->NXi() * mXHat ;
@@ -810,7 +738,7 @@ namespace moris
         Matrix< DDRMat > Geometry_Interpolator::valt()
         {
             // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
+            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::valt - mTHat is not set." );
 
             //evaluate the field
             return this->NTau() * mTHat;

@@ -281,6 +281,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
         tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
+        tIQI->set_name("IQI_1");
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -353,17 +354,15 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // set the solution vector
 //        tEquationObject( 0 )->mPdofValues = {{ 0},{0},{0},{0}};
-        tEquationModel->set_solution_vector( mVector);
+        tEquationModel->set_solution_vector( mVector );
 
         // set the time
-        tWorkEqObj->set_time( { { 0 }, { 1 } } );
-		
-		moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
-        tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
-		
-		tDesignVariableInterface->set_model( tModel );
-		tDesignVariableInterface->set_requested_IQI_type( tRequestedIQITypes );
-		tWorkSet->create_requested_IQI_type_map();
+        Matrix< DDRMat > tTime = { { 0.0 }, { 1.0 } };
+        tEquationModel->set_time( tTime );
+
+        tDesignVariableInterface->set_model( tModel );
+        tDesignVariableInterface->set_requested_IQIs( {"IQI_1"} );
+        tWorkSet->create_requested_IQI_type_map();
 
         // Init IWG and IQI for forward analysis
         //------------------------------------------------------------------------------
@@ -384,11 +383,11 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tWorkSet->mJacobian.set_size( 4, 4, 0.0 );
         tWorkSet->mJacobianExist = true;
         tWorkEqObj->compute_residual();
-        print( tWorkSet->get_residual()( 0 ), "R" );
+        //print( tWorkSet->get_residual()( 0 ), "R" );
 
         // compute jacobian
         tWorkEqObj->compute_jacobian();
-        print( tWorkSet->get_jacobian(), "dRdu" );
+        //print( tWorkSet->get_jacobian(), "dRdu" );
 
         // compute dRdp
         tWorkEqObj->compute_dRdp();
@@ -401,16 +400,16 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tWorkSet->mQI( 0 ).set_size( 1, 1, 0.0 );
         tWorkSet->mQIExist = true;
         tWorkEqObj->compute_QI();
-        print( tWorkSet->get_QI()( 0 ), "QI" );
+        //print( tWorkSet->get_QI()( 0 ), "QI" );
 
         // compute dQIdu
         reinterpret_cast< fem::Set * >( tWorkSet )->mResidual.resize( 1 );
         reinterpret_cast< fem::Set * >( tWorkSet )->mResidual( 0 ).set_size( 4, 1, 0.0 );
         tWorkEqObj->compute_dQIdu();
-        print( tWorkSet->get_residual()( 0 ), "dQIdu" );
+        //print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
 //        // compute dQIdp
-//        tWorkEqObj->compute_dQIdp();
+//        tWorkEqObj->compute_dQIdp_FD();
 
 //        // Create the pdof hosts of this equation object
 //        moris::Cell < Pdof_Host * > tPdofHostList;

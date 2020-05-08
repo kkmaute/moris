@@ -6,14 +6,13 @@ include_directories(DLA_Test_Proxys)
 set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     cl_MDL_DiffusionElement_Cut_Mesh.cpp
-    cl_MDL_Simple_Beam_Test.cpp
     #UT_MDL_Mesh_Model_Helper.cpp
     UT_MDL_XTK_DiffusionElement.cpp
     UT_MDL_XTK_HMR_DiffusionElement.cpp
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Contact_2D.cpp
     UT_MDL_XTK_HMR_Linear_Struc_Incompressible.cpp
-    UT_MDL_XTK_HMR_Linear_Struc_Thick_Wall_PV.cpp
+    #UT_MDL_XTK_HMR_Linear_Struc_Thick_Wall_PV.cpp
     UT_MDL_XTK_HMR_ThermoElastic_2D.cpp
     UT_MDL_XTK_HMR_2_Material_Bar_Plane.cpp
     UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
@@ -25,7 +24,8 @@ set(TEST_SOURCES
     UT_MDL_FEM_DQ_Dp.cpp
     UT_MDL_Input.cpp
     UT_MDL_Fluid_Benchmark.cpp
-    UT_XFEM_Measure.cpp
+    UT_XFEM_Measure.cpp    
+    #UT_MDL_Transient.cpp
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp

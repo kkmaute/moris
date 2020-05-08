@@ -49,7 +49,7 @@ namespace dla
     }
 
 //----------------------------------------------------------------------------------------
-    void Linear_Problem::assemble_residual( Dist_Vector * aFullSolutionVector )
+    void Linear_Problem::assemble_residual()
     {
         Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleResidual);
 
@@ -60,7 +60,7 @@ namespace dla
         tic tTimer;
 
         // assemble RHS
-        mSolverInterface->assemble_RHS( mVectorRHS, aFullSolutionVector );
+        mSolverInterface->assemble_RHS( mVectorRHS );
 
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
         MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
@@ -69,7 +69,7 @@ namespace dla
     }
 
 //----------------------------------------------------------------------------------------
-    void Linear_Problem::assemble_jacobian( Dist_Vector * aFullSolutionVector )
+    void Linear_Problem::assemble_jacobian()
     {
         Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleJacobian);
 
@@ -79,7 +79,7 @@ namespace dla
         tic tTimer;
 
         // assemble jacobian
-        mSolverInterface->assemble_jacobian( mMat, aFullSolutionVector);
+        mSolverInterface->assemble_jacobian( mMat);
 
         // stop timer
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
