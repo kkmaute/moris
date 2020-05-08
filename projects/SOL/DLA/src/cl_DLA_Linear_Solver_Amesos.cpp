@@ -95,6 +95,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
     mSymFactTime = endSymFactTime - startSymFactTime;
     mNumFactTime = endNumFactTime - startNumFactTime;
 
+    delete mAmesosSolver;
+
     return error;
 }
 
@@ -108,7 +110,9 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
     mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
     mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
 
-    mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
+    Amesos tAmesosFactory;
+
+    mAmesosSolver = tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
 
     sint error = 0;
     moris::real startSolTime     = 0.0;
@@ -149,6 +153,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
     mSolTime     = endSolTime     - startSolTime;
     mSymFactTime = endSymFactTime - startSymFactTime;
     mNumFactTime = endNumFactTime - startNumFactTime;
+
+    delete mAmesosSolver;
 
     return error;
 }

@@ -617,7 +617,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
         tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
-        tNonlinearSolverAlgorithm->set_param("NLA_rel_residual") = 1e-6;
 
         tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 

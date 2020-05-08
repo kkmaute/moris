@@ -756,7 +756,6 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
         //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
         tNonlinearSolverAlgorithm->set_param("NLA_max_iter")          = 10;
-        tNonlinearSolverAlgorithm->set_param("NLA_rel_residual")      = 1e-3;
         tNonlinearSolverAlgorithm->set_param("NLA_tot_res_norm_drop") = 1e-3;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;

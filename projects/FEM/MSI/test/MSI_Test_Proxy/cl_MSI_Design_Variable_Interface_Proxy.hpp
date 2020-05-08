@@ -212,7 +212,7 @@ public :
     }
 
 //------------------------------------------------------------------------------
-    void get_ip_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+    void get_ip_dv_ids_for_type_and_ind( const moris::Matrix< IndexMat > & aNodeIndices,
                                          const Cell< enum GEN_DV >               & aDvTypes,
                                                Cell<moris::Matrix< IdMat > >     & aDvIds )
     {
@@ -220,16 +220,16 @@ public :
 
         for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
         {
-            aDvIds( Ik ).set_size( aNodeIndices.size(), 1, MORIS_UINT_MAX );
+            aDvIds( Ik ).set_size( aNodeIndices.numel(), 1, MORIS_UINT_MAX );
 
-            for ( uint Ii = 0; Ii < aNodeIndices.size(); Ii++ )
+            for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
             {
                aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
             }
         }
     }
 //------------------------------------------------------------------------------
-    void get_ig_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+    void get_ig_dv_ids_for_type_and_ind( const moris::Matrix< IndexMat > & aNodeIndices,
                                          const Cell< enum GEN_DV >               & aDvTypes,
                                                Cell< moris::Matrix< IdMat > >    & aDvIds )
     {

@@ -1434,7 +1434,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 //
 //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
-//        tNonlinearSolverAlgorithm->set_param("NLA_rel_residual") = 1e-4;
 //        //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
 //        //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
 //        //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;

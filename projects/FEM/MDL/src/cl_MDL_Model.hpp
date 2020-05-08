@@ -96,6 +96,7 @@ class Library_IO;
 
             // pointer to output manager
             vis::Output_Manager * mOutputManager = nullptr;
+            bool mOutputManagerOwned = false;
 
             // bool for multigrid use
             bool mUseMultigrid = false;

@@ -24,8 +24,8 @@ class Linear_Solver_Amesos : public Linear_Solver_Algorithm
 {
 private:
 
-    Amesos_BaseSolver *mAmesosSolver;
-    Amesos            mAmesosFactory;
+    Amesos_BaseSolver * mAmesosSolver = nullptr;
+//    Amesos              mAmesosFactory;
 
     Linear_Problem   * mLinearSystem =  nullptr;
 

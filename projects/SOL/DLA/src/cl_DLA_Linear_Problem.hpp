@@ -24,12 +24,12 @@ namespace dla
     private:
 
     protected:
-        Dist_Matrix   * mMat;
-        Dist_Vector   * mVectorRHS;
-        Dist_Vector   * mFreeVectorLHS;
-        Dist_Vector   * mFullVectorLHS;
-        Dist_Map      * mMap = nullptr;
-        Dist_Map      * mMapFree= nullptr;
+        Dist_Matrix   * mMat           = nullptr;
+        Dist_Vector   * mVectorRHS     = nullptr;
+        Dist_Vector   * mFreeVectorLHS = nullptr;
+        Dist_Vector   * mFullVectorLHS = nullptr;
+        Dist_Map      * mMap           = nullptr;
+        Dist_Map      * mMapFree       = nullptr;
 
         Solver_Interface * mSolverInterface = nullptr;
 
