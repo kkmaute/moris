@@ -17,6 +17,7 @@
 namespace moris
 {
     class Dist_Vector;
+    class Dist_Map;
 //------------------------------------------------------------------------------
 
     namespace MSI
@@ -47,6 +48,8 @@ namespace moris
             Dist_Vector * mSolutionVector     = nullptr;
             Dist_Vector * mPrevSolutionVector = nullptr;
             Dist_Vector * mSensitivitySolutionVector = nullptr;
+
+            Dist_Map * mdQiduMap = nullptr;
 
             Dist_Vector * mdQidu = nullptr;
 
@@ -198,6 +201,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * returns dQidu
+             * @param[ out ] mdQidu returns a pointer to dQidu
+             */
+            Dist_Vector * get_dQidu()
+            {
+                return mdQidu;
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * set time for current time slab
              * @param[ in ] aTime matrix for time in current time slab
              */
@@ -247,6 +260,12 @@ namespace moris
                 mDesignVariableInterface = aDesignVariableInterface;
             }
 
+//------------------------------------------------------------------------------
+
+            MSI::Design_Variable_Interface * get_design_variable_interface()
+            {
+                return mDesignVariableInterface;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -300,28 +319,7 @@ namespace moris
             /**
              * retruns if this is the a forward analysis
              */
-            void compute_dQIdp()
-            {
-//                // Get local number of elements
-//                moris::uint tNumSets = mFemSets.size();
-//
-//                moris::uint tNumRHS = this->get_num_rhs();
-//
-//                // Loop over all local elements to build matrix graph
-//                for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
-//                {
-//                    moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
-//
-//                    this->initialize_set( Ii, true );
-//
-//                    for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
-//                    {
-//                        mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
-//                    }
-//
-//                    this->free_block_memory( Ii );
-//                }
-            };
+            void compute_dQIdp();
 
 //------------------------------------------------------------------------------
         };

@@ -44,10 +44,14 @@ namespace moris
                 }
             }
 
+            // compute deltaT
+            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
             // compute stabilization parameter value
             mPPVal = mParameters( 0 )
                    * (   tPropViscosity->val()( 0 ) / mElementSize
-                       + tPropDensity->val()( 0 ) * tInfinityNorm / 6.0 );
+                       + tPropDensity->val()( 0 ) * tInfinityNorm / 6.0
+                       + tPropDensity->val()( 0 ) * mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) );
         }
 
 //------------------------------------------------------------------------------
@@ -84,16 +88,17 @@ namespace moris
             // if dof type == velocity
             if( aDofTypes( 0 ) == mMasterDofMap[ "Velocity" ] )
             {
-            	Matrix< DDRMat > tdInfinityNormdu;
+                Matrix< DDRMat > tdInfinityNormdu;
+
                 // compute derivative of infinity norm
-            	if( tInfinityNorm == 0.0 )
-            	{
+                if( tInfinityNorm == 0.0 )
+                {
                     tdInfinityNormdu = tVelocityFI->N().get_row( tInfinityNormIndex );
-            	}
-            	else
-            	{
+                }
+                else
+                {
                     tdInfinityNormdu = tVelocityFI->N().get_row( tInfinityNormIndex ) * tVelocityFI->val()( tInfinityNormIndex ) / tInfinityNorm;
-            	}
+                }
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ).matrix_data()
@@ -111,9 +116,13 @@ namespace moris
             // if density depends on dof type
             if( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
+                // compute deltaT
+                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ).matrix_data()
-                += mParameters( 0 )( 0 ) * tPropDensity->dPropdDOF( aDofTypes ) * tInfinityNorm / 6.0;
+                += mParameters( 0 )( 0 ) * tPropDensity->dPropdDOF( aDofTypes )
+                 * ( tInfinityNorm / 6.0 + mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) );
             }
         }
 

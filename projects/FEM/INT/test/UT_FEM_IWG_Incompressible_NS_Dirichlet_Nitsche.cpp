@@ -72,7 +72,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
     tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -317,7 +317,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
     tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

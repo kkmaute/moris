@@ -63,10 +63,6 @@ void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
     // Allowable Newton solver iterations
     mParameterListNonlinearSolver.insert( "NLA_restart", 0 );
 
-    // Allowable Newton irelative residual
-//    mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-02 );
-    mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-08 );
-
     // Desired total residual norm drop
 //    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm_drop" , 1e-02 );
     mParameterListNonlinearSolver.insert( "NLA_tot_res_norm_drop" , 1e-08 );

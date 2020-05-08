@@ -119,7 +119,7 @@ void GEN_Design_Variable_Interface::reshape_pdv_values(
  }
 //------------------------------------------------------------------------------
 void GEN_Design_Variable_Interface::get_ip_dv_ids_for_type_and_ind(
-		                             const moris::Cell< moris::moris_index >     & aNodeIndices,
+		                             const moris::Matrix< IndexMat >     & aNodeIndices,
                                      const moris::Cell< enum GEN_DV >            & aDvTypes,
                                            moris::Cell< moris::Matrix< IdMat > > & aDvIds )
 {
@@ -128,7 +128,7 @@ void GEN_Design_Variable_Interface::get_ip_dv_ids_for_type_and_ind(
 	 * - return the global ids of the dv type on a specified vertex
 	 */
 
-	uint tNumIndices = aNodeIndices.size();
+	uint tNumIndices = aNodeIndices.numel();
 	uint tNumTypes   = aDvTypes.size();
 
 	moris::Cell< uint > tCounter( tNumTypes, 0 );
@@ -170,7 +170,7 @@ void GEN_Design_Variable_Interface::get_ig_dv_ids_for_type_and_ind(
 	 * - return the global ids of the dv type on a specified vertex
 	 */
 
-	uint tNumIndices = aNodeIndices.size();
+	uint tNumIndices = aNodeIndices.numel();
 	uint tNumTypes   = aDvTypes.size();
 
 	moris::Cell< uint > tCounter( tNumTypes, 0 );

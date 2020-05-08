@@ -287,10 +287,6 @@ ParameterList create_nonlinear_algorithm_parameter_list()
     // Allowable Newton solver iterations
     tNonLinAlgorithmParameterList.insert( "NLA_restart", 0 );
 
-    // Allowable Newton irelative residual
-//    mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-02 );
-    tNonLinAlgorithmParameterList.insert( "NLA_rel_residual" , 1e-08 );
-
     // Desired total residual norm drop
 //    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm_drop" , 1e-02 );
     tNonLinAlgorithmParameterList.insert( "NLA_tot_res_norm_drop" , 1e-08 );

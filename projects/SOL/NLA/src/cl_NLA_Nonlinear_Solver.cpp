@@ -64,7 +64,21 @@ using namespace NLA;
     //--------------------------------------------------------------------------------------------------
     Nonlinear_Solver::~Nonlinear_Solver()
     {
-        delete( mNonlinearProblem );
+        this->free_memory();
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void Nonlinear_Solver::free_memory()
+    {
+        if( mNonlinearProblem != nullptr )
+        {
+            delete( mNonlinearProblem );
+
+            mNonlinearProblem = nullptr;
+        }
+
+
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -255,6 +269,8 @@ using namespace NLA;
 
         if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
         {
+            this->free_memory();
+
             mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
                                                        mSolverInput,
                                                        aFullVector,
@@ -264,6 +280,8 @@ using namespace NLA;
         }
         else
         {
+            this->free_memory();
+
             mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
                                                        mSolverInput,
                                                        aFullVector,
