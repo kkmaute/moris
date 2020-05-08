@@ -5,6 +5,8 @@
  *      Author: noel
  */
 
+#include <iostream>
+
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -219,6 +221,9 @@ namespace moris
             mdConstdDof.resize( tNumGlobalDofTypes );
 
             // FIXME: Remove once unified.
+            mHdotDofEval.resize( tNumGlobalDofTypes, true );
+            mGradHdotDofEval.resize( tNumGlobalDofTypes, true );
+            mGradDivFluxDofEval.resize( tNumGlobalDofTypes, true );
             mHdotDof.resize( tNumGlobalDofTypes );
             mGradHdotDof.resize( tNumGlobalDofTypes );
             mGradDivFluxDof.resize( tNumGlobalDofTypes );
@@ -749,6 +754,247 @@ namespace moris
             tFI->set_coeff( tCoeff );
         }
 
+
+//------------------------------------------------------------------------------
+            void Constitutive_Model::eval_dHdotdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                              Matrix< DDRMat >             & adHdotdDOF_FD,
+                                                              real                           aPerturbation )
+            {
+                // get the field interpolator for type
+                Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+                // get number of coefficients, fields and bases for the considered FI
+                uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
+
+                // FIXME works only for diffusion
+                // set size for derivative
+                adHdotdDOF_FD.set_size( 1, tDerNumDof, 0.0 );
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                // init dof counter
+                uint tDofCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mProperties.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tHdot_Plus = this->Hdot();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tHdot_Minus = this->Hdot();
+
+                        // evaluate Jacobian
+                        adHdotdDOF_FD.get_column( tDofCounter ) = ( tHdot_Plus - tHdot_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
+            }
+
+
+//------------------------------------------------------------------------------
+            void Constitutive_Model::eval_dGradHdotdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                                  Matrix< DDRMat >             & adGradHdotdDOF_FD,
+                                                                  real                           aPerturbation )
+            {
+                // get the field interpolator for type
+                Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+                // get number of coefficients, fields and bases for the considered FI
+                uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
+
+                // FIXME works only for diffusion
+                // set size for derivative
+                adGradHdotdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                // init dof counter
+                uint tDofCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mProperties.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tGradHdot_Plus = this->gradHdot();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tGradHdot_Minus = this->gradHdot();
+
+                        // evaluate Jacobian
+                        adGradHdotdDOF_FD.get_column( tDofCounter ) = ( tGradHdot_Plus - tGradHdot_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
+            }
+
+
+//------------------------------------------------------------------------------
+            void Constitutive_Model::eval_dGradDivFluxdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                                    Matrix< DDRMat >             & adGradDivFluxdDOF_FD,
+                                                                    real                           aPerturbation )
+            {
+                // get the field interpolator for type
+                Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+                // get number of coefficients, fields and bases for the considered FI
+                uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
+
+                // FIXME works only for diffusion
+                // set size for derivative
+                adGradDivFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                // init dof counter
+                uint tDofCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mProperties.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tGradDivFlux_Plus = this->graddivflux();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tGradDivFlux_Minus = this->graddivflux();
+
+                        // evaluate Jacobian
+                        adGradDivFluxdDOF_FD.get_column( tDofCounter ) = ( tGradDivFlux_Plus - tGradDivFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
+            }
+
+
 //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dStraindDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                             Matrix< DDRMat >             & adStraindDOF_FD,
@@ -1019,8 +1265,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-// FIXME: Remove this stuff up to next double line
-//------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::Hdot()
         {
             // if the flux was not evaluated
@@ -1067,79 +1311,6 @@ namespace moris
             // return the flux value
             return mGradDivFlux;
         }
-
-//-----------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
-        {
-            // if aDofType is not an active dof type for the CM
-            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
-
-            // get the dof index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-            // if the derivative has not been evaluated yet
-            if( mHdotDofEval( tDofIndex ) )
-            {
-                // evaluate the derivative
-                this->eval_dHdotdDOF( aDofType );
-
-                // set bool for evaluation
-                mHdotDofEval( tDofIndex ) = false;
-            }
-
-            // return the derivative
-            return mHdotDof( tDofIndex );
-        }
-
-//------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
-        {
-            // if aDofType is not an active dof type for the CM
-            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
-
-            // get the dof index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-            // if the derivative has not been evaluated yet
-            if( mGradHdotDofEval( tDofIndex ) )
-            {
-                // evaluate the derivative
-                this->eval_dGradHdotdDOF( aDofType );
-
-                // set bool for evaluation
-                mGradHdotDofEval( tDofIndex ) = false;
-            }
-
-            // return the derivative
-            return mGradHdotDof( tDofIndex );
-        }
-
-//------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
-        {
-            // if aDofType is not an active dof type for the CM
-            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dGradDivFluxdDOF - no dependency in this dof type." );
-
-            // get the dof index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-            // if the derivative has not been evaluated yet
-            if( mGradDivFluxDofEval( tDofIndex ) )
-            {
-                // evaluate the derivative
-                this->eval_dGradDivFluxdDOF( aDofType );
-
-                // set bool for evaluation
-                mGradDivFluxDofEval( tDofIndex ) = false;
-            }
-
-            // return the derivative
-            return mGradDivFluxDof( tDofIndex );
-          }
-
-//------------------------------------------------------------------------------
-// FIXME: Remove the above stuff up to next double line
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )
@@ -1326,6 +1497,78 @@ namespace moris
            // return the derivative
            return mdFluxdDof( tDofIndex );
         }
+
+//-----------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+std::cout << "DoF-index is: " << tDofIndex << " . \n" << std::flush;
+std::cout << "Size of flag-cell is: " << mHdotDofEval.size() << " . \n" << std::flush;
+
+            // if the derivative has not been evaluated yet
+            if( mHdotDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dHdotdDOF( aDofType );
+
+                // set bool for evaluation
+                mHdotDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mHdotDof( tDofIndex );
+        }
+
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mGradHdotDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dGradHdotdDOF( aDofType );
+
+                // set bool for evaluation
+                mGradHdotDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mGradHdotDof( tDofIndex );
+        }
+
+//------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dGradDivFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mGradDivFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dGradDivFluxdDOF( aDofType );
+
+                // set bool for evaluation
+                mGradDivFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mGradDivFluxDof( tDofIndex );
+          }
 
 //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,

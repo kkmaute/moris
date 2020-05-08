@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -270,14 +272,14 @@ namespace moris
                 += tPropConductivity->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
             }
 
-            // if indirect dependency on the dof type
-            if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
-            {
-                // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data()
-                += mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 )
-                 * tPropConductivity->dPropdDOF( aDofTypes );
-            }
+//            // if indirect dependency on the dof type
+//            if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
+//            {
+//                // compute derivative with indirect dependency through properties
+//                mdFluxdDof( tDofIndex ).matrix_data()
+//                += mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 )
+//                 * tPropConductivity->dPropdDOF( aDofTypes );
+//            }
         }
 
 //------------------------------------------------------------------------------
@@ -286,6 +288,7 @@ namespace moris
             // get properties
             moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
             moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
             moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
             moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
@@ -302,6 +305,11 @@ namespace moris
 
             // get the corresponding FI
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+// debug
+std::cout << "Number of space-time-coeffs: " << tFI->get_number_of_space_time_coefficients() << " .\n" << std::flush;
+std::cout << "Size of cell 'mHdotDof': " << mHdotDof.size() << " .\n" << std::flush;
+std::cout << "Size of matrix 'mHdotDof': " << mHdotDof(tDofIndex).n_rows() << "x" << mHdotDof(tDofIndex).n_cols() << " .\n" << std::flush;
 
             // init the matrix
             mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
@@ -338,7 +346,7 @@ namespace moris
             {
                 // compute derivative with direct dependency
                 mHdotDof( tDofIndex ).matrix_data()
-                += tDensity * ( tHeatCap + tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
+                += tDensity * ( tHeatCap + tLatHeat * tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
             }
 
         }
@@ -350,6 +358,7 @@ namespace moris
             // get properties
             moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
             moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
             moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
             moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
@@ -402,7 +411,7 @@ namespace moris
             {
                 // compute derivative with direct dependency
                 mGradHdotDof( tDofIndex ).matrix_data()
-                += tDensity * ( tHeatCap + tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
+                += tDensity * ( tHeatCap + tLatHeat * tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
             }
 
         }
