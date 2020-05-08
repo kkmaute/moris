@@ -262,6 +262,12 @@ namespace moris
            }
 
 //------------------------------------------------------------------------------
+          /**
+           * get the time step delta t
+           */
+          real get_time_step();
+
+//------------------------------------------------------------------------------
         /**
          * set the space param coefficients of the geometry field xiHat
          * @param[ in ] space coefficients

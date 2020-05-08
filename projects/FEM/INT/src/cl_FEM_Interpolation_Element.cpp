@@ -688,7 +688,7 @@ namespace moris
                     // get the ith vertex coordinates in the IP param space
                     Matrix< DDRMat > tGlobalIntegPoint = tVertexLocalCoords.get_row( iVertex );
                     tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
-                    tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = this->get_time()( 0 );
+                    tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = -1.0;
                     tGlobalIntegPoint = trans( tGlobalIntegPoint );
 
                     // set vertex coordinates for field interpolator

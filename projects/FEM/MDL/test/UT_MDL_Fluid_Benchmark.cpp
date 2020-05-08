@@ -332,7 +332,7 @@ namespace moris
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+        tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
                 = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -742,7 +742,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+        tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
                 = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -2477,7 +2477,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+        tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
         = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
