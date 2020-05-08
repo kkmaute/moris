@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
@@ -188,10 +186,6 @@ namespace moris
             Matrix< DDRMat > tdHdotdDOF_FD;
             tCMMasterDiffLinIsoPC->eval_dHdotdDOF_FD( { MSI::Dof_Type::TEMP }, tdHdotdDOF_FD, 1E-6 );
 
-// debug
-std::cout << "Hdot/DoF: Number of Rows = " << tdHdotdDOF.n_rows() << " ,  Number of Cols: " << tdHdotdDOF.n_cols() << " .\n" << std::flush;
-std::cout << "Hdot/DoF by FD: Number of Rows = " << tdHdotdDOF_FD.n_rows() << " ,  Number of Cols: " << tdHdotdDOF_FD.n_cols() << " .\n" << std::flush;
-
             //check stress derivative
             bool tCheckHdot = true;
             for ( uint iStress = 0; iStress < tdHdotdDOF.n_rows(); iStress++ )
@@ -201,12 +195,7 @@ std::cout << "Hdot/DoF by FD: Number of Rows = " << tdHdotdDOF_FD.n_rows() << " 
                     tCheckHdot = tCheckHdot && ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) < tEpsilon );
                 }
             }
-//            REQUIRE( tCheckHdot );
-// debug
-std::cout << "Check Hdot: " << tCheckHdot << " .\n" << std::flush;
-moris::print(tdHdotdDOF, "tdHdotdDOF");
-moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
-std::cout << "\n \n";
+            REQUIRE( tCheckHdot );
 
 
 
@@ -221,10 +210,6 @@ std::cout << "\n \n";
             Matrix< DDRMat > tdGradHdotdDOF_FD;
             tCMMasterDiffLinIsoPC->eval_dGradHdotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdotdDOF_FD, 1E-6 );
 
-// debug
-std::cout << "gradHdot/DoF: Number of Rows = " << tdGradHdotdDOF.n_rows() << " ,  Number of Cols: " << tdGradHdotdDOF.n_cols() << " .\n";
-std::cout << "gradHdot/DoF by FD: Number of Rows = " << tdGradHdotdDOF_FD.n_rows() << " ,  Number of Cols: " << tdGradHdotdDOF_FD.n_cols() << " .\n";
-
             //check stress derivative
             bool tCheckGradHdot = true;
             for ( uint iStress = 0; iStress < tdGradHdotdDOF.n_rows(); iStress++ )
@@ -234,12 +219,8 @@ std::cout << "gradHdot/DoF by FD: Number of Rows = " << tdGradHdotdDOF_FD.n_rows
                     tCheckGradHdot = tCheckGradHdot && ( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) < tEpsilon );
                 }
             }
-//            REQUIRE( tCheckGradHdot );
-// debug
-std::cout << "Check gradHdot: " << tCheckGradHdot << " .\n" << std::flush;
-moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
-moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
-std::cout << "\n \n";
+            REQUIRE( tCheckGradHdot );
+
 
             // check graddivflux -----------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -252,10 +233,6 @@ std::cout << "\n \n";
             Matrix< DDRMat > tdGradDivFluxdDOF_FD;
             tCMMasterDiffLinIsoPC->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, 1E-6 );
 
-// debug
-std::cout << "gradDivFlux/DoF: Number of Rows = " << tdGradDivFluxdDOF.n_rows() << " ,  Number of Cols: " << tdGradDivFluxdDOF.n_cols() << " .\n";
-std::cout << "gradDivFlux/DoF by FD: Number of Rows = " << tdGradDivFluxdDOF_FD.n_rows() << " ,  Number of Cols: " << tdGradDivFluxdDOF_FD.n_cols() << " .\n";
-
             //check strain derivative
             bool tCheckGradDivFlux = true;
             for ( uint iStress = 0; iStress < tdGradDivFluxdDOF.n_rows(); iStress++ )
@@ -265,13 +242,7 @@ std::cout << "gradDivFlux/DoF by FD: Number of Rows = " << tdGradDivFluxdDOF_FD.
                     tCheckGradDivFlux = tCheckGradDivFlux && ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) < tEpsilon );
                 }
             }
-//            REQUIRE( tCheckGradDivFlux );
-// debug
-std::cout << "Check GradDivFlux: " << tCheckGradDivFlux << " .\n" << std::flush;
-moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
-moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
-std::cout << "\n \n";
-
+            REQUIRE( tCheckGradDivFlux );
 
             // clean up
             //------------------------------------------------------------------------------

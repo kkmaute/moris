@@ -1,6 +1,3 @@
-
-#include <iostream>
-
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -305,11 +302,6 @@ namespace moris
 
             // get the corresponding FI
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-// debug
-std::cout << "Number of space-time-coeffs: " << tFI->get_number_of_space_time_coefficients() << " .\n" << std::flush;
-std::cout << "Size of cell 'mHdotDof': " << mHdotDof.size() << " .\n" << std::flush;
-std::cout << "Size of matrix 'mHdotDof': " << mHdotDof(tDofIndex).n_rows() << "x" << mHdotDof(tDofIndex).n_cols() << " .\n" << std::flush;
 
             // init the matrix
             mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );

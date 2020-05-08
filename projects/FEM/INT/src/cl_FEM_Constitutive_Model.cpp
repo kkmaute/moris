@@ -5,8 +5,6 @@
  *      Author: noel
  */
 
-#include <iostream>
-
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -1506,9 +1504,6 @@ namespace moris
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-std::cout << "DoF-index is: " << tDofIndex << " . \n" << std::flush;
-std::cout << "Size of flag-cell is: " << mHdotDofEval.size() << " . \n" << std::flush;
 
             // if the derivative has not been evaluated yet
             if( mHdotDofEval( tDofIndex ) )
