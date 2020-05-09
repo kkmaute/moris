@@ -14,14 +14,15 @@
 using namespace moris;
 using namespace dla;
 
-Linear_Solver_Amesos::Linear_Solver_Amesos( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist )
+Linear_Solver_Amesos::Linear_Solver_Amesos(
+        const moris::ParameterList aParameterlist ) 
+        : Linear_Solver_Algorithm( aParameterlist )
 {
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;
 }
 
-Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem ) //: mAmesosSolver( NULL ),
-                                                                         //  mAmesosFactory()
+Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem )
 {
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;
@@ -32,7 +33,10 @@ Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem ) //:
 
 Linear_Solver_Amesos::~Linear_Solver_Amesos()
 {
-//    delete mAmesosSolver;
+    if (mAmesosSolver != nullptr)
+    {
+        delete mAmesosSolver;
+    }
 }
 
 void Linear_Solver_Amesos::set_solver_parameters()
@@ -43,15 +47,15 @@ void Linear_Solver_Amesos::set_solver_parameters()
     // Set Amesos solver type
     // options are "Amesos_Klu", "Amesos_Superlu", "Amesos_Umfpack", "Amesos_Dscpack",
     // "Amesos_Superludist", "Amesos_Mumps", "Amesos_Scalapack", "Amesos_Pardiso"
-//    mParameterList.insert( "solver_type" ,  "Amesos_Pardiso" );
+    //    mParameterList.insert( "solver_type" ,  "Amesos_Pardiso" );
 
     // set AZ_output options
     // options are true, false
-//    mParameterList.insert( "output" , false );
+    //    mParameterList.insert( "output" , false );
 
     // set symbolic factorization
     // options are true, false
-//    mParameterList.insert( "symbolic_factorization" , false );
+    //    mParameterList.insert( "symbolic_factorization" , false );
 }
 
 moris::sint Linear_Solver_Amesos::solve_linear_system()
@@ -96,11 +100,14 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
     mNumFactTime = endNumFactTime - startNumFactTime;
 
     delete mAmesosSolver;
+    mAmesosSolver = nullptr;
 
     return error;
 }
 
-moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter )
+moris::sint Linear_Solver_Amesos::solve_linear_system(
+        Linear_Problem * aLinearSystem,
+        const moris::sint aIter )
 {
     Tracer tTracer(EntityBase::LinearSolver, EntityType::Amesos, EntityAction::Solve);
 
@@ -126,12 +133,12 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
     Teuchos::ParameterList timingsList;
 
     // Perform symbolic factorization
-//    if ( !mParameterList.get< bool >( "symbolic_factorization" ) || !mIsPastFirstSolve )
-//    {
-        error = mAmesosSolver->SymbolicFactorization();
+    //    if ( !mParameterList.get< bool >( "symbolic_factorization" ) || !mIsPastFirstSolve )
+    //    {
+    error = mAmesosSolver->SymbolicFactorization();
 
-        MORIS_ERROR( error == 0, "SYMBOLIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
-//    }
+    MORIS_ERROR( error == 0, "SYMBOLIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
+    //    }
 
     // Perform numeric factorization
     error = mAmesosSolver->NumericFactorization();
@@ -155,6 +162,7 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
     mNumFactTime = endNumFactTime - startNumFactTime;
 
     delete mAmesosSolver;
+    mAmesosSolver = nullptr;
 
     return error;
 }
@@ -162,47 +170,47 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
 void Linear_Solver_Amesos::set_solver_internal_parameters()
 {
     // Set Amesos solver type
-//    mAmesosSolver = mAmesosFactory.Create( mParameterList.get< const char * >( "solver_type" ), mEpetraProblem );
-//    mAmesosSolver = mAmesosFactory.Create( "Amesos_Klu", *mLinearSystem->get_linear_system_epetra() );
+    //    mAmesosSolver = mAmesosFactory.Create( mParameterList.get< const char * >( "solver_type" ), mEpetraProblem );
+    //    mAmesosSolver = mAmesosFactory.Create( "Amesos_Klu", *mLinearSystem->get_linear_system_epetra() );
 
     // Initialize parameter list
-//    Teuchos::ParameterList params;
+    //    Teuchos::ParameterList params;
 
     // Set output options
-//    params.set("PrintTiming"        , mParameterList.get< bool >( "output" ));
-//    params.set("PrintStatus"        , mParameterList.get< bool >( "output" ));
-//    params.set("ComputeVectorNorms" , mParameterList.get< bool >( "output" ));
-//    params.set("ComputeTrueResidual", mParameterList.get< bool >( "output" ));
+    //    params.set("PrintTiming"        , mParameterList.get< bool >( "output" ));
+    //    params.set("PrintStatus"        , mParameterList.get< bool >( "output" ));
+    //    params.set("ComputeVectorNorms" , mParameterList.get< bool >( "output" ));
+    //    params.set("ComputeTrueResidual", mParameterList.get< bool >( "output" ));
 
     // Allows non contiguous indexing of stiffness matrix dofs (XFEM Reduced system) KLU only
-//    params.set("Reindex",(bool) (true));
+    //    params.set("Reindex",(bool) (true));
 
     // Create a parameter sublist for PARDISO solver
-//    const char* tSolverType1 = "Amesos_Pardiso";
-////    if ( mParameterList.get< const char * >( "solver_type" ) == tSolverType1 )
-//    if ( "Amesos_Pardiso" == tSolverType1 )
+    //    const char* tSolverType1 = "Amesos_Pardiso";
+    ////    if ( mParameterList.get< const char * >( "solver_type" ) == tSolverType1 )
+    //    if ( "Amesos_Pardiso" == tSolverType1 )
     {
-//        params.sublist( "Pardiso" ).set( "Use (non-)symmetric scaling vectors", static_cast<int>(1) );
-//        params.sublist( "Pardiso" ).set( "Use (non-)symmetric matchings"      , static_cast<int>(1) );
-//        if (aUseTranspose)
-//        {
-//            params.sublist("Pardiso").set("Solve transposed",static_cast<int>(1) );
-//        }
-//        else
-//        {
-//            params.sublist( "Pardiso" ).set( "Solve transposed", static_cast<int>(0) );
-//        }
+        //        params.sublist( "Pardiso" ).set( "Use (non-)symmetric scaling vectors", static_cast<int>(1) );
+        //        params.sublist( "Pardiso" ).set( "Use (non-)symmetric matchings"      , static_cast<int>(1) );
+        //        if (aUseTranspose)
+        //        {
+        //            params.sublist("Pardiso").set("Solve transposed",static_cast<int>(1) );
+        //        }
+        //        else
+        //        {
+        //            params.sublist( "Pardiso" ).set( "Solve transposed", static_cast<int>(0) );
+        //        }
     }
 
-//    // Create a parameter sub list for MUMPS solver
-//    const char* tSolverType2 = "Amesos_Mumps";
-////    if (mParameterList.get< const char * >( "solver_type" ) == tSolverType2 )
-//    if ( "Amesos_Mumps" == tSolverType2 )
-//    {
-//        // Increase memory allocation to 200% at a time (default = 20%)
-//        params.sublist( "mumps" ).set( "ICNTL(14)",static_cast<int>(200) );
-//    }
+    //    // Create a parameter sub list for MUMPS solver
+    //    const char* tSolverType2 = "Amesos_Mumps";
+    ////    if (mParameterList.get< const char * >( "solver_type" ) == tSolverType2 )
+    //    if ( "Amesos_Mumps" == tSolverType2 )
+    //    {
+    //        // Increase memory allocation to 200% at a time (default = 20%)
+    //        params.sublist( "mumps" ).set( "ICNTL(14)",static_cast<int>(200) );
+    //    }
 
     // Set AMESOS solver parameter list
-//    mAmesosSolver->SetParameters( params );
+    //    mAmesosSolver->SetParameters( params );
 }
