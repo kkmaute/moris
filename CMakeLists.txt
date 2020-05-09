@@ -328,18 +328,39 @@ list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,
 # for debugging purposes.
-if (MORIS_HAVE_SYMBOLIC)
-    check_cxx_compiler_flag(-g HAVE_DEBUG)
-    if (HAVE_DEBUG)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g")
-    endif()
-endif()
 
+
+# Set optimization type.
+# Compile with -O compiler optimizations.
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
     list(APPEND MORIS_DEFINITIONS "-DDEBUG")
-else()
-    list(APPEND MORIS_DEFINITIONS "-DNDEBUG")
+
+    if (MORIS_HAVE_SYMBOLIC)
+        check_cxx_compiler_flag(-g HAVE_DEBUG)
+        if (HAVE_DEBUG)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g")
+        endif()
+
+        check_cxx_compiler_flag(-ggdb HAVE_DEBUG_DBG)
+        if (HAVE_DEBUG_DBG)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -ggdb")
+        endif()
+    else()
+        check_cxx_compiler_flag(-Og HAVE_DEBUG)
+        if (HAVE_DEBUG)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
+        endif()
+    endif()
+else()    
+    check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
+    if (HAVE_O3_OPTIMISATION)
+        if (USE_TACC)
+	        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
+        else()
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        endif()
+    endif()
 endif()
 
 if (MORIS_USE_MATRIX_FILL)
@@ -363,22 +384,6 @@ endif()
 # Performace check flag for logger
 if(MORIS_PERFORM_CHECK)
         list(APPEND MORIS_DEFINITIONS "-DMORIS_PERFORM_CHECK")
-endif()
-
-# Set optimization type.
-# Compile with -O compiler optimizations.
-if (NOT MORIS_HAVE_DEBUG)
-    check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
-    if (HAVE_O3_OPTIMISATION)
-        if (USE_TACC)
-	    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
-        else()
-            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
-        endif()
-    endif()
-else()
-#> redundant? see stuff starting at line 210
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g -ggdb -m64")
 endif()
 
 # Add some strict compiler checks.

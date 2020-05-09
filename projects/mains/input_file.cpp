@@ -337,7 +337,6 @@ void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
     
     tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-    tParameterlist( 2 )( 0 ).set("NLA_rel_residual", 1e-07 );
 
     tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
     tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , std::string("TEMP") );

@@ -287,6 +287,14 @@ namespace moris
 
             // delete MSI
             delete mModelSolverInterface;
+
+            // delete MSI
+            if( mOutputManager != nullptr && mOutputManagerOwned == true )
+            {
+                delete mOutputManager;
+
+                mOutputManagerOwned = false;
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -443,6 +451,8 @@ namespace moris
             tic tTimerVisMesh;
 
             mOutputManager = new vis::Output_Manager( tVISParameterList( 0 )( 0 ) );
+
+            mOutputManagerOwned = true;
 
             if( par_rank() == 0)
             {

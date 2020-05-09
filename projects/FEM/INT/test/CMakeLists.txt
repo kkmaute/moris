@@ -31,7 +31,10 @@ set(TEST_SOURCES
     UT_FEM_IWG.cpp
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp
+    UT_FEM_CM_Diff_PC.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
+    UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
+    UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
     UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp

@@ -157,11 +157,11 @@ namespace mdl
              * @param[ in ] aDvType        List of Dv types
              * @param[ in ] aDvIds         List of Dv Ids
              */
-            virtual void get_ip_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+            virtual void get_ip_dv_ids_for_type_and_ind( const moris::Matrix< IndexMat > & aNodeIndices,
                                                          const Cell< enum GEN_DV >               & aDvTypes,
                                                                Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
 
-            virtual void get_ig_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index > & aNodeIndices,
+            virtual void get_ig_dv_ids_for_type_and_ind( const moris::Matrix< IndexMat > & aNodeIndices,
                                                          const Cell< enum GEN_DV >               & aDvTypes,
                                                                Cell< moris::Matrix< IdMat > >    & aDvIds ) = 0;
 //------------------------------------------------------------------------------

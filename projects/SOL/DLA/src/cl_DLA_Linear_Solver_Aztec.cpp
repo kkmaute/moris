@@ -54,16 +54,19 @@ Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterl
 //----------------------------------------------------------------------------------------
 Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mMlPrec ( NULL )
 {
-	this->set_linear_problem( aLinearSystem );
+    this->set_linear_problem( aLinearSystem );
     this->set_solver_parameters();
-
-    mAztecSolver.SetProblem( mEpetraProblem );
 }
 
 //----------------------------------------------------------------------------------------
 Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
     delete( mMlPrec );
+
+    if( mAztecSolver != nullptr )
+    {
+        delete mAztecSolver;
+    }
 }
 
 //----------------------------------------------------------------------------------------
@@ -73,8 +76,6 @@ void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
     mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
     mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
-
-    mAztecSolver.SetProblem( mEpetraProblem );
 }
 
 //----------------------------------------------------------------------------------------
@@ -243,6 +244,8 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
 {
     Tracer tTracer(EntityBase::LinearSolver, EntityType::Aztec, EntityAction::Solve);
 
+    mAztecSolver = new AztecOO ( mEpetraProblem );
+
     moris::sint error = 0;
     // Set all Aztec options
     this->set_solver_internal_parameters();
@@ -257,22 +260,25 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
         {
             mMlPrec->ComputePreconditioner();
 
-            mAztecSolver.SetPrecOperator ( mMlPrec );
+            mAztecSolver->SetPrecOperator ( mMlPrec );
             //mIsPastFirstSolve = true;
         }
         mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
     }
 
     // Solve the linear system
-    error = mAztecSolver.Iterate( tMaxIt, tRelRes );
+    error = mAztecSolver->Iterate( tMaxIt, tRelRes );
 
     //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 
     // Get linear solution info
-    mSolNumIters       = mAztecSolver.NumIters();
-    mSolTrueResidual   = mAztecSolver.TrueResidual();
-    mSolScaledResidual = mAztecSolver.ScaledResidual();
-    mSolTime           = mAztecSolver.SolveTime();
+    mSolNumIters       = mAztecSolver->NumIters();
+    mSolTrueResidual   = mAztecSolver->TrueResidual();
+    mSolScaledResidual = mAztecSolver->ScaledResidual();
+    mSolTime           = mAztecSolver->SolveTime();
+
+    delete mAztecSolver;
+    mAztecSolver = nullptr;
 
     return error;
 }
@@ -285,7 +291,7 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLi
     mEpetraProblem.SetRHS     ( aLinearSystem->get_solver_RHS()     ->get_epetra_vector() );
     mEpetraProblem.SetLHS     ( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
 
-    mAztecSolver.SetProblem( mEpetraProblem );
+    mAztecSolver = new AztecOO ( mEpetraProblem );
 
 //    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
 
@@ -317,11 +323,11 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLi
         {
             mMlPrec->ComputePreconditioner();
 
-            mAztecSolver.SetPrecOperator ( mMlPrec );
+            mAztecSolver->SetPrecOperator ( mMlPrec );
         }
         else
         {
-            mAztecSolver.SetPrecOperator ( mMlPrec );
+            mAztecSolver->SetPrecOperator ( mMlPrec );
         }
 
         mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
@@ -330,23 +336,25 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLi
 
     if ( mParameterList.get< moris::sint >( "AZ_keep_info" ) == 1 && aIter == 1)
     {
-        mAztecSolver.SetAztecOption ( AZ_pre_calc, AZ_calc );
-        error = mAztecSolver.Iterate( tMaxIt, tRelRes );
+        mAztecSolver->SetAztecOption ( AZ_pre_calc, AZ_calc );
+        error = mAztecSolver->Iterate( tMaxIt, tRelRes );
     }
     else
     {
-        error = mAztecSolver.Iterate( tMaxIt, tRelRes );
+        error = mAztecSolver->Iterate( tMaxIt, tRelRes );
     }
 
     // Solve the linear system
    // error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
     // Get linear solution info
-    mSolNumIters       = mAztecSolver.NumIters();
-    mSolTrueResidual   = mAztecSolver.TrueResidual();
-    mSolScaledResidual = mAztecSolver.ScaledResidual();
-    mSolTime           = mAztecSolver.SolveTime();
+    mSolNumIters       = mAztecSolver->NumIters();
+    mSolTrueResidual   = mAztecSolver->TrueResidual();
+    mSolScaledResidual = mAztecSolver->ScaledResidual();
+    mSolTime           = mAztecSolver->SolveTime();
 
+    delete mAztecSolver;
+    mAztecSolver = nullptr;
     return error;
 }
 
@@ -358,7 +366,7 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     // Solver Type
     if (mParameterList.get< moris::sint >( "AZ_solver" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption( AZ_solver, mParameterList.get< moris::sint >( "AZ_solver" ) );
+        mAztecSolver->SetAztecOption( AZ_solver, mParameterList.get< moris::sint >( "AZ_solver" ) );
     }
 
     // Set AZ_overlap
@@ -366,14 +374,14 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     // Option to specify with how many rows from other processors each processor’s local submatrix is augmented.
     if (mParameterList.get< moris::sint >( "AZ_overlap" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_overlap, mParameterList.get< moris::sint >( "AZ_overlap" ) );
+        mAztecSolver->SetAztecOption ( AZ_overlap, mParameterList.get< moris::sint >( "AZ_overlap" ) );
     }
 
     // Set AZ_type_overlap
     // AZ_standard = The resulting value of an unknown is determined by the processor owning that unknown. Information from other processors about that unknown is discarded.
     if (mParameterList.get< moris::sint >( "AZ_type_overlap" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_type_overlap, mParameterList.get< moris::sint >( "AZ_type_overlap" ) );
+        mAztecSolver->SetAztecOption ( AZ_type_overlap, mParameterList.get< moris::sint >( "AZ_type_overlap" ) );
     }
 
     // Set AZ_reorder
@@ -381,7 +389,7 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     // Option to enable (=1) or disable (=0) the Reverse Cuthill–McKee (RCM) algorithm to reorder system equations for smaller bandwidth
     if (mParameterList.get< moris::sint >( "AZ_reorder" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_reorder, mParameterList.get< moris::sint >( "AZ_reorder" ) );
+        mAztecSolver->SetAztecOption ( AZ_reorder, mParameterList.get< moris::sint >( "AZ_reorder" ) );
     }
 
     // Set AZ_aux_vec
@@ -394,100 +402,100 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption. For very difficult problems, set it equal to the maximum number of iterations.
     if (mParameterList.get< moris::sint >( "AZ_kspace" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_kspace,  mParameterList.get< moris::sint >( "AZ_kspace" ));
+        mAztecSolver->SetAztecOption ( AZ_kspace,  mParameterList.get< moris::sint >( "AZ_kspace" ));
     }
 
     // Set AZ_orthog
     if (mParameterList.get< moris::sint >( "AZ_orthog" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_orthog, mParameterList.get< moris::sint >( "AZ_orthog" ) );
+        mAztecSolver->SetAztecOption ( AZ_orthog, mParameterList.get< moris::sint >( "AZ_orthog" ) );
     }
 
     // Set AZ_rthresh
     // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
     if (mParameterList.get< moris::real >( "AZ_rthresh" ) != -1.0)
     {
-        mAztecSolver.SetAztecParam ( AZ_rthresh, mParameterList.get< moris::real >( "AZ_rthresh" ) );
+        mAztecSolver->SetAztecParam ( AZ_rthresh, mParameterList.get< moris::real >( "AZ_rthresh" ) );
     }
 
     // Set AZ_athresh
     //Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
     if (mParameterList.get< moris::real >( "AZ_athresh" ) != -1.0)
     {
-        mAztecSolver.SetAztecParam ( AZ_athresh, mParameterList.get< moris::real >( "AZ_athresh" ));
+        mAztecSolver->SetAztecParam ( AZ_athresh, mParameterList.get< moris::real >( "AZ_athresh" ));
     }
 
     //---------------------------------------------------------------------------------------------------------------
     // Set AZ_conv criteria
     if (mParameterList.get< moris::sint >( "AZ_conv" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_conv, mParameterList.get< moris::sint >( "AZ_conv" ));
+        mAztecSolver->SetAztecOption ( AZ_conv, mParameterList.get< moris::sint >( "AZ_conv" ));
     }
 
     // Set AZ_diagnostics
     if (mParameterList.get< moris::sint >( "AZ_diagnostics" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_diagnostics, mParameterList.get< moris::sint >( "AZ_diagnostics" ));
+        mAztecSolver->SetAztecOption ( AZ_diagnostics, mParameterList.get< moris::sint >( "AZ_diagnostics" ));
     }
 
     // Set AZ_output
     if ( mParameterList.get< moris::sint >( "AZ_output" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_output, mParameterList.get< int >( "AZ_output" ));
+        mAztecSolver->SetAztecOption ( AZ_output, mParameterList.get< int >( "AZ_output" ));
     }
 
     // Set if preconditioner is recalculated
     if (mParameterList.get< moris::sint >( "AZ_pre_calc" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_pre_calc, mParameterList.get< moris::sint >( "AZ_pre_calc" ));
+        mAztecSolver->SetAztecOption ( AZ_pre_calc, mParameterList.get< moris::sint >( "AZ_pre_calc" ));
     }
 
     // Set if preconditioner is recalculated
     if (mParameterList.get< moris::sint >( "AZ_keep_info" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_keep_info, mParameterList.get< moris::sint >( "AZ_keep_info" ));
+        mAztecSolver->SetAztecOption ( AZ_keep_info, mParameterList.get< moris::sint >( "AZ_keep_info" ));
     }
 
     // Determine which preconditioner is used
     if (mParameterList.get< moris::sint >( "AZ_precond" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_precond,  mParameterList.get< moris::sint >( "AZ_precond" ) );
+        mAztecSolver->SetAztecOption ( AZ_precond,  mParameterList.get< moris::sint >( "AZ_precond" ) );
     }
 
     // Set preconditioner subdomain solve - direct solve or incomplete
     if (mParameterList.get< moris::sint >( "AZ_subdomain_solve" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_subdomain_solve, mParameterList.get< moris::sint >( "AZ_subdomain_solve" ) );
+        mAztecSolver->SetAztecOption ( AZ_subdomain_solve, mParameterList.get< moris::sint >( "AZ_subdomain_solve" ) );
     }
 
     // Set preconditioner polynomial order
     if (mParameterList.get< moris::sint >( "AZ_poly_ord" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_poly_ord, mParameterList.get< moris::sint >( "AZ_poly_ord" ) );
+        mAztecSolver->SetAztecOption ( AZ_poly_ord, mParameterList.get< moris::sint >( "AZ_poly_ord" ) );
     }
 
     // Set drop tolerance - for LU, ILUT
     if (mParameterList.get< moris::real >( "AZ_drop" ) != -1.0 )
     {
-        mAztecSolver.SetAztecParam ( AZ_drop, mParameterList.get< moris::real >( "AZ_drop" ) );
+        mAztecSolver->SetAztecParam ( AZ_drop, mParameterList.get< moris::real >( "AZ_drop" ) );
     }
 
     // Set level of graph fill in - for ilu(k), icc(k), bilu(k)
     if (mParameterList.get< moris::sint >( "AZ_graph_fill" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecOption ( AZ_graph_fill, mParameterList.get< moris::sint >( "AZ_graph_fill" ) );
+        mAztecSolver->SetAztecOption ( AZ_graph_fill, mParameterList.get< moris::sint >( "AZ_graph_fill" ) );
     }
 
     // Set Damping or relaxation parameter used for RILU
     if (mParameterList.get< moris::real >( "AZ_omega" ) != -1.0 )
     {
-        mAztecSolver.SetAztecParam ( AZ_omega, mParameterList.get< moris::real >( "AZ_omega" ) );
+        mAztecSolver->SetAztecParam ( AZ_omega, mParameterList.get< moris::real >( "AZ_omega" ) );
     }
 
     // Set ilut fill
     if (mParameterList.get< moris::real >( "AZ_ilut_fill" ) != -1.0 )
     {
-        mAztecSolver.SetAztecParam ( AZ_ilut_fill, mParameterList.get< moris::real >( "AZ_ilut_fill" ) );
+        mAztecSolver->SetAztecParam ( AZ_ilut_fill, mParameterList.get< moris::real >( "AZ_ilut_fill" ) );
     }
 
 //==============================================================================================================

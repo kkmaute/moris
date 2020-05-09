@@ -63,21 +63,17 @@ void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
     // Allowable Newton solver iterations
     mParameterListNonlinearSolver.insert( "NLA_restart", 0 );
 
-    // Allowable Newton irelative residual
-//    mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-02 );
-    mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-08 );
-
     // Desired total residual norm drop
-//    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm_drop" , 1e-02 );
-    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm_drop" , 1e-08 );
+    // mParameterListNonlinearSolver.insert( "NLA_rel_res_norm_drop" , 1e-02 );
+    mParameterListNonlinearSolver.insert( "NLA_rel_res_norm_drop" , 1e-08 );
 
     // Desired total residual norm
-//    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-2 );
-    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-9 );
+    // mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-12 );
+    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-12 );
 
     // Maximal residual norm drop
-//    mParameterListNonlinearSolver.insert( "NLA_max_res_norm_drop" , 1e-2 );
-    mParameterListNonlinearSolver.insert( "NLA_max_res_norm_drop" , 1e-6 );
+    // mParameterListNonlinearSolver.insert( "NLA_max_res_norm_drop" , 1e-2 );
+    mParameterListNonlinearSolver.insert( "NLA_max_rel_res_norm" , 1e12 );
 
     // Maximal number of linear solver restarts on fail
     mParameterListNonlinearSolver.insert( "NLA_max_lin_solver_restarts" , 0 );

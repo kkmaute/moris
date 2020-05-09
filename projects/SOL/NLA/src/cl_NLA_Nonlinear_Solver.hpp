@@ -108,6 +108,12 @@ namespace NLA
 
         ~Nonlinear_Solver();
 
+        //--------------------------------------------------------------------------------------------------
+
+        void free_memory();
+
+        //--------------------------------------------------------------------------------------------------
+
         /**
          * @brief Sets one of the lists this nonlinear solver manager is operating on. Should be called multiple times for black solvers
          *

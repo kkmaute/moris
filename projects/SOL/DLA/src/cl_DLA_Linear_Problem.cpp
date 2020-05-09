@@ -78,13 +78,13 @@ namespace dla
         // start timer
         tic tTimer;
 
-        // assemble jacobian
+        // assemble Jacobian
         mSolverInterface->assemble_jacobian( mMat);
 
         // stop timer
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-        MORIS_LOG_INFO( " Assembly of jacobianon processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+        MORIS_LOG_INFO( " Assembly of Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
 //----------------------------------------------------------------------------------------
