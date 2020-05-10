@@ -257,7 +257,7 @@ namespace ge
          * @param[ in ] aDvIds         List of Dv Ids
          *
          */
-        void get_ip_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index >     & aNodeIndices,
+        void get_ip_dv_ids_for_type_and_ind( const moris::Matrix< IndexMat >     & aNodeIndices,
                                              const moris::Cell< enum GEN_DV >            & aDvTypes,
                                                    moris::Cell< moris::Matrix< IdMat > > & aDvIds )
         {
@@ -266,7 +266,7 @@ namespace ge
              * - return the global ids of the dv type on a specified vertex
              */
 
-            uint tNumIndices = aNodeIndices.size();
+            uint tNumIndices = aNodeIndices.numel();
             uint tNumTypes   = aDvTypes.size();
 
             moris::Cell< uint > tCounter( tNumTypes, 0 );
@@ -305,7 +305,7 @@ namespace ge
          * @param[ in ] aDvIds         List of Dv Ids
          *
          */
-        void get_ig_dv_ids_for_type_and_ind( const moris::Cell< moris::moris_index >     & aNodeIndices,
+        void get_ig_dv_ids_for_type_and_ind( const moris::Matrix< IndexMat >     & aNodeIndices,
                                              const moris::Cell< enum GEN_DV >            & aDvTypes,
                                                    moris::Cell< moris::Matrix< IdMat > > & aDvIds )
         {
@@ -314,7 +314,7 @@ namespace ge
              * - return the global ids of the dv type on a specified vertex
              */
 
-            uint tNumIndices = aNodeIndices.size();
+            uint tNumIndices = aNodeIndices.numel();
             uint tNumTypes   = aDvTypes.size();
 
             moris::Cell< uint > tCounter( tNumTypes, 0 );

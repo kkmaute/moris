@@ -69,7 +69,7 @@ class Dist_Vector;
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
-            //! actual pdof values
+            //! actual pdof values. Cells are for different multi-vectors
             moris::Cell< Matrix< DDRMat > > mPdofValues;
 
             //! previous pdof values
@@ -236,26 +236,15 @@ class Dist_Vector;
             /**
              * @brief Get function for the pdof values of this particular equation object.
              * get_my_pdof_values() has to be called first to initialize.
-             * @param[in] aRequestedDofTypes      List of requested dof types
-             * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             * @param[ in ] aPdofValues             All pdof values of this equation object
+             * @param[ in ] aRequestedDofTypes      List of requested dof types
+             * @param[ in ] aRequestedPdofValues    Reference to the matrix of requested pdof values
              * @param[ in ] aIsMaster             enum for master or slave
              */
-            void get_my_pdof_values( const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
+            void get_my_pdof_values( const moris::Cell< Matrix< DDRMat > >  & aPdofValues,
+                                     const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
                                            Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
                                      const mtk::Master_Slave                  aIsMaster = mtk::Master_Slave::MASTER );
-
-//-------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Get function for the previous pdof values of this particular equation object.
-             * get_my_pdof_values() has to be called first to initialize.
-             * @param[in] aRequestedDofTypes      List of requested dof types
-             * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
-             * @param[ in ] aIsMaster             enum for master or slave
-             */
-            void get_previous_pdof_values( const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
-                                                 Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
-                                            const mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -333,11 +322,20 @@ class Dist_Vector;
 
 //------------------------------------------------------------------------------
             /**
-             * compute dQIdp
+             * compute dQIdp with finite difference
              */
             virtual void compute_dQIdp_FD()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp_FD - not implemented in msi." );
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * compute dQIdp
+             */
+            virtual void compute_dQIdp()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
             };
 
 //------------------------------------------------------------------------------

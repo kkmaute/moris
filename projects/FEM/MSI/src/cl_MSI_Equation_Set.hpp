@@ -142,6 +142,13 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        MSI::Equation_Model * get_equation_model()
+        {
+            return mEquationModel;
+        }
+
+//------------------------------------------------------------------------------
         /**
          * get dof type list
          * @param[ in ] aIsMaster enum for master or slave
