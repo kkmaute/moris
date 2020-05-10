@@ -391,8 +391,6 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods)
     if(moris::par_rank() == 0 && mVerbose)
     {
         std::cout<<"XTK: Decomposition completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        std::cout<<"--------------------------------------------------------"<<std::endl;
-
     }
 }
 
@@ -2920,10 +2918,8 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
 
     if(moris::par_rank() == 0 && mVerbose)
     {
-        std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
-        std::cout<<"--------------------------------------------------------"<<std::endl;
     }
 }
 // ----------------------------------------------------------------------------------
@@ -2947,7 +2943,6 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
 
     if(moris::par_rank() == 0 && mVerbose)
     {
-        std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         std::cout<<"XTK: Basis enrichment performed on meshes:";
         for(moris::uint i = 0; i < aMeshIndex.numel(); i++)
@@ -2955,7 +2950,6 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
             std::cout<<std::setw(6)<<aMeshIndex(i);
         }
         std::cout<<std::endl;
-        std::cout<<"--------------------------------------------------------"<<std::endl;
     }
 }
 // ----------------------------------------------------------------------------------

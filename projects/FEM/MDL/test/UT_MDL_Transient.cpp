@@ -533,7 +533,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tSetInfo( 1 ).set_IWGs( { tIWGDiffusionBulk } );
     tSetInfo( 1 ).set_IQIs( { tIQITEMP } );
 
-    tSetInfo( 2 ).set_mesh_set_name( "iside_g_1_b0_2_b1_3" );
+    tSetInfo( 2 ).set_mesh_set_name( "iside_1_b0_2_b1_3" );
     tSetInfo( 2 ).set_IWGs( { tIWGNeumann } );
 
     tSetInfo( 3 ).set_mesh_set_name( "HMR_dummy_c_p2" );
