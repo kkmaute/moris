@@ -9,8 +9,9 @@
 
 namespace moris
 {
-    Comm_Manager::Comm_Manager(int *argc,
-                               char ***argv)
+    Comm_Manager::Comm_Manager(
+            int *argc,
+            char ***argv)
     {
         MPI_Init(argc, argv);
 
@@ -39,6 +40,7 @@ namespace moris
         mCommName = Cell<std::string>({tGlobCommName});
     }
 
+    //--------------------------------------------------------------------------------
 
     Comm_Manager::~Comm_Manager()
     {
@@ -47,8 +49,9 @@ namespace moris
     //--------------------------------------------------------------------------------
 
     void
-    Comm_Manager::initialize(int *argc,
-                             char ***argv)
+    Comm_Manager::initialize(
+            int *argc,
+            char ***argv)
     {
         MPI_Init(argc, argv);
 
@@ -77,7 +80,8 @@ namespace moris
     Comm_Manager::get_comm(size_t aCommIndex)
     {
         MORIS_ASSERT( aCommIndex<mComm.size()-1,
-                      "Communicator Index out of bounds, did you add the communicator?" );
+                "Communicator Index out of bounds, did you add the communicator?" );
+
         return mComm( aCommIndex );
     }
 
@@ -92,8 +96,9 @@ namespace moris
     //--------------------------------------------------------------------------------
 
     size_t
-    Comm_Manager::add_communicator( MPI_Comm    & aNewComm,
-                                    const std::string& aCommName)
+    Comm_Manager::add_communicator(
+            MPI_Comm          & aNewComm,
+            const std::string & aCommName)
     {
         // Use the current size as the next index
         size_t aCommIndex = mComm.size();
@@ -130,5 +135,4 @@ namespace moris
     {
         return mMorisExec;
     }
-
 }

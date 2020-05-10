@@ -1014,7 +1014,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
                 //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
                 //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
-                tNonlinearSolverAlgorithm->set_param("NLA_rel_residual") = 1e-12;
 
                 tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
                 //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );

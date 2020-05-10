@@ -685,8 +685,6 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-// FIXME: Remove this stuff up to next double line
-//------------------------------------------------------------------------------
             /**
              * evaluates the constitutive model change rate of enthalpy
              */
@@ -785,8 +783,6 @@ namespace moris
              */
             const Matrix< DDRMat > & dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
 
-//------------------------------------------------------------------------------
-// FIXME: Remove the above stuff up to next double line
 //------------------------------------------------------------------------------
             /**
              * get the derivative of the traction wrt dof
@@ -978,6 +974,39 @@ namespace moris
             void eval_dFluxdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                           Matrix< DDRMat >             & adFluxdDOF_FD,
                                           real                           aPerturbation );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the enthalpy change rate wrt dof using finite differences
+             * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+             * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+             * @param[ in ] aPerturbation   real to perturb for FD
+             */
+            void eval_dHdotdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                          Matrix< DDRMat >             & adHdotdDOF_FD,
+                                          real                           aPerturbation );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the gradient of enthalpy change rate wrt dof using finite differences
+             * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+             * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+             * @param[ in ] aPerturbation   real to perturb for FD
+             */
+            void eval_dGradHdotdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                              Matrix< DDRMat >             & adGradHdotdDOF_FD,
+                                              real                           aPerturbation );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the gradient of enthalpy change rate wrt dof using finite differences
+             * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+             * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+             * @param[ in ] aPerturbation   real to perturb for FD
+             */
+            void eval_dGradDivFluxdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                 Matrix< DDRMat >             & adGradDivFluxdDOF_FD,
+                                                 real                           aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
