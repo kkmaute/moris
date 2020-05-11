@@ -427,7 +427,6 @@ private:
     bool
     valid_parameters();
 
-
     /*
      * Using the parameter list, figure out the cell of subdivision methods
      */
@@ -500,6 +499,12 @@ private:
                            Cell<uint>                      const & aProcRanks,
                            std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
                            Cell<Matrix<IndexMat>>                & aSentRequests);
+
+    /*!
+     * Verifies that the nodes in a decomposition have all been assigned node ids
+     */
+    bool
+    verify_successful_node_assignment(Decomposition_Data & aDecompData);
 
 protected:
 
