@@ -1,6 +1,8 @@
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include <iostream>
+
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
@@ -69,8 +71,20 @@ namespace moris
                 real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
 
                 // compute df/dT
-                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
-                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+//                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
+//                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+                real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
+                tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
+
+// debug
+std::cout << "Logistic Param: " << tLogisticParam << " .\n" << std::flush;
+std::cout << "Temperature: " << tTemp << " .\n" << std::flush;
+std::cout << "exponential: " << tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) << " .\n" << std::flush;
+std::cout << "Exponential function: " << tExp << " .\n" << std::flush;
+std::cout << "Deriv of Logistic function: " << tdfdT << " .\n" << std::flush;
+MORIS_ERROR( !( std::isnan( tLogisticParam ) || std::isinf( tLogisticParam )), "eval_Hdot:Logistic parameter is  NAN or INF.");
+MORIS_ERROR( !( std::isnan( tExp ) || std::isinf( tExp )), "eval_Hdot:Exponent is  NAN or INF.");
+MORIS_ERROR( !( std::isnan( tdfdT ) || std::isinf( tdfdT )), "eval_Hdot:PC-func  NAN or INF.");
             }
 
             // compute derivative of enthalpy
@@ -117,13 +131,28 @@ namespace moris
                 real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
 
                 // compute df/dT
-                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
-                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+//                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
+//                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+                real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
+                tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
+
+// debug
+std::cout << "Logistic Param: " << tLogisticParam << " .\n" << std::flush;
+std::cout << "Temperature: " << tTemp << " .\n" << std::flush;
+std::cout << "exponential: " << tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) << " .\n" << std::flush;
+std::cout << "Exponential function: " << tExp << " .\n" << std::flush;
+std::cout << "Deriv of Logistic function: " << tdfdT << " .\n" << std::flush;
+MORIS_ERROR( !( std::isnan( tLogisticParam ) || std::isinf( tLogisticParam )), "eval_gradHdot:Logistic parameter is  NAN or INF.");
+MORIS_ERROR( !( std::isnan( tExp ) || std::isinf( tExp )), "eval_gradHdot:Exponent is  NAN or INF.");
+MORIS_ERROR( !( std::isnan( tdfdT ) || std::isinf( tdfdT )), "eval_gradHdot:PC-func  NAN or INF.");
             }
 
             // compute gradient of
             mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
                                     * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
+
+// debug
+//moris::print( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt() , "gradxt()");
         }
 
 //------------------------------------------------------------------------------
@@ -405,6 +434,8 @@ namespace moris
                 mGradHdotDof( tDofIndex ).matrix_data()
                 += tDensity * ( tHeatCap + tLatHeat * tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
             }
+// debug
+//moris::print( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt() , "d2Ndxt()");
 
         }
 
