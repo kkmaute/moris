@@ -197,9 +197,6 @@ namespace moris
             }
             REQUIRE( tCheckHdot );
 
-// debug
-moris::print(tdHdotdDOF,"tdHdotdDOF");
-
 
             // check gradHdot --------------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -222,9 +219,6 @@ moris::print(tdHdotdDOF,"tdHdotdDOF");
                 }
             }
             REQUIRE( tCheckGradHdot );
-
-// debug
-moris::print(tdGradHdotdDOF,"tdGradHdotdDOF");
 
 
             // check graddivflux -----------------------------------------------------------

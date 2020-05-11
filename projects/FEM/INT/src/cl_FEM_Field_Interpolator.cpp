@@ -537,18 +537,10 @@ namespace moris
             Matrix< DDRMat > tdNTimedTau;
             mTimeInterpolation->eval_dNdXi( mTau, tdNTimedTau );
 
-// debug
-//moris::print( mTau, "mTau" );
-//moris::print( tdNTimedTau, "eval_d2Ndxt:tdNTimedTau" );
-
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi;
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
             tdNSpacedXi = trans( tdNSpacedXi );
-
-// debug
-//moris::print( mXi, "mXi" );
-//moris::print( tdNSpacedXi, "eval_d2Ndxt:tdNSpacedXi" );
 
             // set size tdNFielddTau for the field
             Matrix< DDRMat> tdNFielddXiTau ( mNSpaceDim, mNFieldBases );
@@ -562,29 +554,17 @@ namespace moris
                 tdNFielddXiTau.get_row( Ix ) = reshape( tdNSpacedXi.get_column(Ix) * tdNTimedTau, 1, mNFieldBases);
             }
 
-// debug
-//moris::print( tdNFielddXiTau, "eval_d2Ndxt:tdNFielddXiTau" );
-
             // evaluate the Jacobian from the space geometry interpolator
             Matrix< DDRMat > tJGeoTimet;
             mGeometryInterpolator->time_jacobian( tJGeoTimet );
-
-// debug
-//moris::print( tJGeoTimet, "eval_d2Ndxt:tJGeoTimet" );
 
             // evaluate the space Jacobian from the geometry interpolator
             Matrix< DDRMat > tJGeoSpacet;
             mGeometryInterpolator->space_jacobian( tJGeoSpacet );
 
-// debug
-//moris::print( tJGeoTimet, "eval_d2Ndxt:tJGeoTimet" );
-
             // compute first derivative of the SF wrt x
             //md2Ndxt = inv( tJGeoSpacet ) * inv( tJGeoTimet ) * tdNFielddXiTau;
             md2Ndxt = inv( tJGeoSpacet ) * tdNFielddXiTau / tJGeoTimet( 0 ) ;
-
-// debug
-//moris::print( md2Ndxt, "eval_d2Ndxt:md2Ndxt" );
 
         }
 

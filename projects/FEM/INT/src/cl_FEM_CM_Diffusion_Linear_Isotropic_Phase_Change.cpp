@@ -76,15 +76,6 @@ namespace moris
                 real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
                 tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
 
-// debug
-std::cout << "Logistic Param: " << tLogisticParam << " .\n" << std::flush;
-std::cout << "Temperature: " << tTemp << " .\n" << std::flush;
-std::cout << "exponential: " << tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) << " .\n" << std::flush;
-std::cout << "Exponential function: " << tExp << " .\n" << std::flush;
-std::cout << "Deriv of Logistic function: " << tdfdT << " .\n" << std::flush;
-MORIS_ERROR( !( std::isnan( tLogisticParam ) || std::isinf( tLogisticParam )), "eval_Hdot:Logistic parameter is  NAN or INF.");
-MORIS_ERROR( !( std::isnan( tExp ) || std::isinf( tExp )), "eval_Hdot:Exponent is  NAN or INF.");
-MORIS_ERROR( !( std::isnan( tdfdT ) || std::isinf( tdfdT )), "eval_Hdot:PC-func  NAN or INF.");
             }
 
             // compute derivative of enthalpy
@@ -136,15 +127,6 @@ MORIS_ERROR( !( std::isnan( tdfdT ) || std::isinf( tdfdT )), "eval_Hdot:PC-func 
                 real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
                 tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
 
-// debug
-std::cout << "Logistic Param: " << tLogisticParam << " .\n" << std::flush;
-std::cout << "Temperature: " << tTemp << " .\n" << std::flush;
-std::cout << "exponential: " << tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) << " .\n" << std::flush;
-std::cout << "Exponential function: " << tExp << " .\n" << std::flush;
-std::cout << "Deriv of Logistic function: " << tdfdT << " .\n" << std::flush;
-MORIS_ERROR( !( std::isnan( tLogisticParam ) || std::isinf( tLogisticParam )), "eval_gradHdot:Logistic parameter is  NAN or INF.");
-MORIS_ERROR( !( std::isnan( tExp ) || std::isinf( tExp )), "eval_gradHdot:Exponent is  NAN or INF.");
-MORIS_ERROR( !( std::isnan( tdfdT ) || std::isinf( tdfdT )), "eval_gradHdot:PC-func  NAN or INF.");
             }
 
             // compute gradient of
@@ -434,8 +416,6 @@ MORIS_ERROR( !( std::isnan( tdfdT ) || std::isinf( tdfdT )), "eval_gradHdot:PC-f
                 mGradHdotDof( tDofIndex ).matrix_data()
                 += tDensity * ( tHeatCap + tLatHeat * tdfdT ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
             }
-// debug
-//moris::print( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt() , "d2Ndxt()");
 
         }
 
