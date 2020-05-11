@@ -1204,7 +1204,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tSetDirichlet2.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann;
-        tSetNeumann.set_mesh_set_name( "iside_g_0_b0_0_b1_1" );
+        tSetNeumann.set_mesh_set_name( "iside_b0_0_b1_1" );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
