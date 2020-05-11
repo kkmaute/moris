@@ -79,26 +79,6 @@ namespace ge
 
 //------------------------------------------------------------------------------
         /**
-         * set index
-         * @param[ in ] aPdvIndex an index for the pdv
-         */
-        void set_index( moris_index aPdvIndex )
-        {
-            mIndex = aPdvIndex;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get index
-         * @param[ out ] aPdvIndex an index for the pdv
-         */
-        moris_index get_index()
-        {
-            return mIndex;
-        }
-
-//------------------------------------------------------------------------------
-        /**
          * get value
          * @param[ out ] mVal a value for the pdv
          */
