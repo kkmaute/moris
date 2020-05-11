@@ -75,13 +75,13 @@ namespace moris
 
             // lower phase change temp
             std::shared_ptr< fem::Property > tPropMasterTlower = std::make_shared< fem::Property >();
-            tPropMasterTlower->set_parameters( {{{ 1.0 }}} );
+            tPropMasterTlower->set_parameters( {{{ 8.0 }}} );
             tPropMasterTlower->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTlower->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // upper phase change temp
             std::shared_ptr< fem::Property > tPropMasterTupper = std::make_shared< fem::Property >();
-            tPropMasterTupper->set_parameters( {{{ 2.0 }}} );
+            tPropMasterTupper->set_parameters( {{{ 12.0 }}} );
             tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTupper->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
@@ -110,16 +110,16 @@ namespace moris
             tCMMasterDiffLinIsoPC->set_space_dim( 2 );
 
             //create a quad4 space element
-            Matrix< DDRMat > tXHat( 4, 2 );
-            tXHat( 0, 0 ) = 0.0; tXHat( 0, 1 ) = 0.0;
-            tXHat( 1, 0 ) = 1.0; tXHat( 1, 1 ) = 0.0;
-            tXHat( 2, 0 ) = 1.0; tXHat( 2, 1 ) = 1.0;
-            tXHat( 3, 0 ) = 0.0; tXHat( 3, 1 ) = 1.0;
+//            Matrix< DDRMat > tXHat( 4, 2 );
+            Matrix< DDRMat > tXHat = {{ 0.0, 0.0},
+                                      { 1.0, 0.0},
+                                      { 1.0, 1.0},
+                                      { 0.0, 1.0}};
 
             //create a line time element
             Matrix< DDRMat > tTHat( 2, 1 );
             tTHat( 0 ) = 0.0;
-            tTHat( 1 ) = 5.0;
+            tTHat( 1 ) = 1.0;
 
             //create a space geometry interpolation rule
             Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
@@ -147,7 +147,7 @@ namespace moris
             tFIs( 0 ) = new Field_Interpolator ( 1, tIPRule, & tGI, { MSI::Dof_Type::TEMP } );
 
             // set coefficients for field interpolators
-            Matrix< DDRMat > tUHat0 = {{1.0},{1.0},{2.0},{2.0},{1.0},{1.0},{2.0},{2.0}};
+            Matrix< DDRMat > tUHat0 = {{7.0},{8.0},{9.0},{10.0},{11.0},{12.0},{13.0},{14.0}};
             tFIs( 0 )->set_coeff( tUHat0 );
             tFIs( 0 )->set_space_time({{0.0}, {0.0}, {-1.0}});
 
@@ -196,7 +196,6 @@ namespace moris
                 }
             }
             REQUIRE( tCheckHdot );
-
 
 
             // check gradHdot --------------------------------------------------------------

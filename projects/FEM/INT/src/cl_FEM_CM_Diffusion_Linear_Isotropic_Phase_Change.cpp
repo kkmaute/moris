@@ -1,6 +1,8 @@
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include <iostream>
+
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
@@ -69,8 +71,11 @@ namespace moris
                 real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
 
                 // compute df/dT
-                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
-                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+//                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
+//                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+                real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
+                tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
+
             }
 
             // compute derivative of enthalpy
@@ -117,13 +122,19 @@ namespace moris
                 real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
 
                 // compute df/dT
-                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
-                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+//                real tExp = std::exp(  tLogisticParam * ( tTemp - (tTupper + tTlower)/2 ) );
+//                tdfdT = ( tLogisticParam * tExp )  / std::pow( 1 + tExp , 2 );
+                real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
+                tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
+
             }
 
             // compute gradient of
             mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
                                     * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
+
+// debug
+//moris::print( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt() , "gradxt()");
         }
 
 //------------------------------------------------------------------------------
