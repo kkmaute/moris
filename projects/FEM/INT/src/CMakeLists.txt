@@ -16,6 +16,7 @@ set(HEADERS
     cl_FEM_Element_Sideset.hpp
     cl_FEM_Element_Double_Sideset.hpp
     cl_FEM_Element_Time_Sideset.hpp
+    cl_FEM_Element_Time_Boundary.hpp
     cl_FEM_IWG_Factory.hpp
     cl_FEM_IWG.hpp
     cl_FEM_IWG_L2.hpp
@@ -166,6 +167,7 @@ set(LIB_SOURCES
     cl_FEM_Element_Sideset.cpp
     cl_FEM_Element_Double_Sideset.cpp
     cl_FEM_Element_Time_Sideset.cpp
+    cl_FEM_Element_Time_Boundary.cpp
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
