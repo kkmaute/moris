@@ -70,6 +70,14 @@ namespace moris
         real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
+    protected:
+
+//------------------------------------------------------------------------------
+        /**
+         * initialize integration geometry interpolator
+         */
+        void init_ig_geometry_interpolator( uint aMasterSideOrdinal,
+                                            uint aSlaveSideOrdinal );
     };
 
 //------------------------------------------------------------------------------

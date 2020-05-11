@@ -130,6 +130,13 @@ namespace moris
 //        real compute_element_average_of_scalar_field();
 
 //------------------------------------------------------------------------------
+    protected:
+//------------------------------------------------------------------------------
+        /**
+         * initialize integration geometry interpolator
+         */
+        void init_ig_geometry_interpolator();
+
     };
 
 //------------------------------------------------------------------------------
