@@ -1,7 +1,7 @@
 #include <iostream>
-#include "cl_FEM_Element_Time_Sideset.hpp" //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
-#include "cl_FEM_Set.hpp"                    //FEM/INT/src
+#include "cl_FEM_Element_Time_Sideset.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 
 namespace moris
 {
@@ -64,14 +64,11 @@ namespace moris
                 // get integration point location in the reference surface
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // get integration point location in the reference surface for previous time step
-                Matrix< DDRMat > tPreviousLocalIntegPoint = tLocalIntegPoint;
-
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()
                     ->set_space_time_from_local_IG_point( tLocalIntegPoint );
                 mSet->get_field_interpolator_manager_previous_time()
-                    ->set_space_time_from_local_IG_point( tPreviousLocalIntegPoint );
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
@@ -138,15 +135,11 @@ namespace moris
                 // get local integration point location
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // get integration point location in the reference surface for previous time step
-                Matrix< DDRMat > tPreviousLocalIntegPoint = tLocalIntegPoint;
-                tPreviousLocalIntegPoint( tPreviousLocalIntegPoint.numel()-1 ) = 1.0;
-
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()
                     ->set_space_time_from_local_IG_point( tLocalIntegPoint );
                 mSet->get_field_interpolator_manager_previous_time()
-                    ->set_space_time_from_local_IG_point( tPreviousLocalIntegPoint );
+                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
