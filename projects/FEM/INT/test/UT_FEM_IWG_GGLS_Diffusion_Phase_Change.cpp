@@ -72,7 +72,7 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
 
     // conductivity
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( {{{ 1.0}}, {{1.0 }}} );
+    tPropMasterConductivity->set_parameters( {{{ 1.0}}} );
     tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
@@ -96,13 +96,13 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
 
     // lower phase change temp
     std::shared_ptr< fem::Property > tPropMasterTlower = std::make_shared< fem::Property >();
-    tPropMasterTlower->set_parameters( {{{ 1.0 }}} );
+    tPropMasterTlower->set_parameters( {{{ 8.0 }}} );
     tPropMasterTlower->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterTlower->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
     // upper phase change temp
     std::shared_ptr< fem::Property > tPropMasterTupper = std::make_shared< fem::Property >();
-    tPropMasterTupper->set_parameters( {{{ 2.0 }}} );
+    tPropMasterTupper->set_parameters( {{{ 13.0 }}} );
     tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterTupper->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
@@ -199,10 +199,11 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
                                  mtk::Interpolation_Order::LINEAR );
 
     // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 16, 1 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
+//    arma::Mat< double > tMatrix;
+//    tMatrix.randu( 16, 1 );
+    Matrix< DDRMat > tDOFHat = {{  7.0 }, {  7.5 }, {  8.0 }, {  8.5 }, {  9.0 }, {  9.5 }, { 10.0 }, { 10.5 },
+                                { 11.0 }, { 11.5 }, { 12.0 }, { 12.5 }, { 13.0 }, { 13.5 }, { 14.0 }, { 14.5 }};
+//    tDOFHat.matrix_data() = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tFIs( 1 );
