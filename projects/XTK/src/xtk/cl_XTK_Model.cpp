@@ -1322,60 +1322,65 @@ void
 Model::assign_node_requests_identifiers(Decomposition_Data & aDecompData,
                                         moris::moris_index   aMPITag)
 {
-        // asserts
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),      "Dimension mismatch in assign_node_requests_identifiers");
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(), "Dimension mismatch in assign_node_requests_identifiers");
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),"Dimension mismatch in assign_node_requests_identifiers");
+    barrier();
+    // asserts
+    MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),      "Dimension mismatch in assign_node_requests_identifiers");
+    MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(), "Dimension mismatch in assign_node_requests_identifiers");
+    MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),"Dimension mismatch in assign_node_requests_identifiers");
 
-        // owned requests and shared requests sorted by owning proc
-        Cell<uint> tOwnedRequest;
-        Cell<Cell<uint>> tNotOwnedRequests;
-        Cell<uint> tProcRanks;
-        std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
-        this->sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
+    // owned requests and shared requests sorted by owning proc
+    Cell<uint> tOwnedRequest;
+    Cell<Cell<uint>> tNotOwnedRequests;
+    Cell<uint> tProcRanks;
+    std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
+    this->sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
 
-        // allocate ids for nodes I own
-        moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
+    // allocate ids for nodes I own
+    moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
 
-        // get first available index
-        moris::moris_id tNodeInd = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+    // get first available index
+    moris::moris_id tNodeInd = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
 
-        // Assign owned request identifiers
-        this->assign_owned_request_identifiers(aDecompData, tOwnedRequest, tNodeInd, tNodeId);
+    // Assign owned request identifiers
+    this->assign_owned_request_identifiers(aDecompData, tOwnedRequest, tNodeInd, tNodeId);
 
-        // prepare node information request data
-        Cell<Matrix<IndexMat>> tOutwardRequests;
-        this->setup_outward_requests(aDecompData, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests);
+    // prepare node information request data
+    Cell<Matrix<IndexMat>> tOutwardRequests;
+    this->setup_outward_requests(aDecompData, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests);
 
-        // send requests to owning processor
-        this->send_outward_requests(aMPITag,tProcRanks,tOutwardRequests);
+    // send requests to owning processor
+    this->send_outward_requests(aMPITag,tProcRanks,tOutwardRequests);
 
-        // hold on to make sure everyone has sent all their information
-        barrier();
+    // hold on to make sure everyone has sent all their information
+    barrier();
 
-        // receive the requests
-        Cell<Matrix<IndexMat>> tReceivedRequests;
-        Cell<uint> tProcsReceivedFrom;
-        this->inward_receive_requests(aMPITag,3, tReceivedRequests, tProcsReceivedFrom);
+    // receive the requests
+    Cell<Matrix<IndexMat>> tReceivedRequests;
+    Cell<uint> tProcsReceivedFrom;
+    this->inward_receive_requests(aMPITag,3, tReceivedRequests, tProcsReceivedFrom);
 
-        // Prepare request answers
-        Cell<Matrix<IndexMat>> tRequestAnwers;
-        this->prepare_request_answers(aDecompData,tReceivedRequests,tRequestAnwers);
+    // Prepare request answers
+    Cell<Matrix<IndexMat>> tRequestAnwers;
+    this->prepare_request_answers(aDecompData,tReceivedRequests,tRequestAnwers);
 
-        // send the answers back
-        this->return_request_answers(aMPITag+1, tRequestAnwers, tProcsReceivedFrom);
+    // send the answers back
+    this->return_request_answers(aMPITag+1, tRequestAnwers, tProcsReceivedFrom);
 
-        barrier();
+    barrier();
 
-        // receive the answers
-        Cell<Matrix<IndexMat>> tReceivedRequestsAnswers;
-        this->inward_receive_request_answers(aMPITag+1,1,tProcRanks,tReceivedRequestsAnswers);
+    // receive the answers
+    Cell<Matrix<IndexMat>> tReceivedRequestsAnswers;
+    this->inward_receive_request_answers(aMPITag+1,1,tProcRanks,tReceivedRequestsAnswers);
 
-        // handle received information
-        this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeInd,tNodeId);
+    // handle received information
+    this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeInd,tNodeId);
 
-        // return index to update
-        mBackgroundMesh.update_first_available_index(tNodeInd,EntityRank::NODE);
+    // return index to update
+    mBackgroundMesh.update_first_available_index(tNodeInd,EntityRank::NODE);
+
+    MORIS_ASSERT(this->verify_successful_node_assignment(aDecompData),"Unsuccesssful node assignment detected.");
+
+    barrier();
 }
 
 
@@ -1496,6 +1501,21 @@ Model::setup_outward_requests(Decomposition_Data              const & aDecompDat
             aOutwardRequests(i)(2,j) = tSecondaryId;
         }
     }
+}
+
+bool
+Model::verify_successful_node_assignment(Decomposition_Data & aDecompData)
+{
+    for(moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++)
+    {
+        if(aDecompData.tNewNodeId(i) == MORIS_INDEX_MAX)
+        {
+            return false;
+        }
+    }
+
+    return true;
+
 }
 
 void
@@ -1797,6 +1817,8 @@ Model::assign_child_element_identifiers()
 
     // tell the background mesh about the new first available index
     mBackgroundMesh.update_first_available_index(tElementIndOffset,EntityRank::ELEMENT);
+
+    barrier();
 
 }
 
@@ -2336,6 +2358,8 @@ Model::assign_subphase_glob_ids()
 
     // add child cell ids to not owned child meshes
     this->handle_received_subphase_id_request_answers(tNotOwnedSubphasesToProcs,tCMSubphaseIndices,tReceivedSubphaseIds);
+
+    barrier();
 
 }
 
