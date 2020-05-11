@@ -1391,7 +1391,7 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
-//                    if( !( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) )
+//                    if( !( tAbsolute < aEpsilon ) && ( tRelative < aEpsilon ) )
 //                    {
 //                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
 //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
