@@ -121,8 +121,7 @@ namespace moris
                 }
 
                 // fill the mesh set index to fem set index map
-                //mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
-                mMeshSetToFemSetMap[ std::make_pair( tMeshSetIndex, aSetInfo( iSet ).get_time_continuity() ) ] = iSet;
+                mMeshSetToFemSetMap[ std::make_tuple( tMeshSetIndex, aSetInfo( iSet ).get_time_continuity(),  aSetInfo( iSet ).get_time_boundary() ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
@@ -255,8 +254,7 @@ namespace moris
                 moris_index tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
 
                 // fill the mesh set index to fem set index map
-                //mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
-                mMeshSetToFemSetMap[ std::make_pair( tMeshSetIndex, mSetInfo( iSet ).get_time_continuity() ) ] = iSet;
+                mMeshSetToFemSetMap[ std::make_tuple( tMeshSetIndex, mSetInfo( iSet ).get_time_continuity(), mSetInfo( iSet ).get_time_boundary() ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
@@ -935,7 +933,8 @@ namespace moris
             moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // create a map of the set
-            std::map< std::pair< std::string, bool >, uint > tMeshtoFemSet;
+            //std::map< std::pair< std::string, bool >, uint > tMeshtoFemSet;
+            std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
@@ -947,16 +946,17 @@ namespace moris
                 // get the time continuity flag from the IWG parameter list
                 bool tTimeContinuity = tIWGParameterList( iIWG ).get< bool >( "time_continuity" );
 
+                // get the time boundary flag from the IQI parameter list
+                bool tTimeBoundary = tIWGParameterList( iIWG ).get< bool >( "time_boundary" );
+
                 // loop over the mesh set names
                 for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
                 {
                     // check if the mesh set name already in map
-                    //if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
-                    if( tMeshtoFemSet.find( std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ) == tMeshtoFemSet.end() )
+                    if( tMeshtoFemSet.find( std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ) == tMeshtoFemSet.end() )
                     {
                         // add the mesh set name map
-                        //tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
-                        tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] = tNumFEMSets++;
+                        tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
@@ -966,6 +966,9 @@ namespace moris
 
                         // set its time continuity flag
                         aSetUserInfo.set_time_continuity( tTimeContinuity );
+
+                        // set its time boundary flag
+                        aSetUserInfo.set_time_boundary( tTimeBoundary );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -976,8 +979,7 @@ namespace moris
                     else
                     {
                         // set the IWG
-                        mSetInfo( tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] ).set_IWG( mIWGs( iIWG ) );
-                        //mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IWG( mIWGs( iIWG ) );
+                        mSetInfo( tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] ).set_IWG( mIWGs( iIWG ) );
                     }
                 }
             }
@@ -985,23 +987,24 @@ namespace moris
             // loop over the IQIs
             for( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
             {
-                // get the mesh set names from the IWG parameter list
+                // get the mesh set names from the IQI parameter list
                 moris::Cell< std::string > tMeshSetNames;
                 string_to_cell( tIQIParameterList( iIQI ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
 
-                // get the time continuity flag from the IWG parameter list
+                // get the time continuity flag from the IQI parameter list
                 bool tTimeContinuity = tIQIParameterList( iIQI ).get< bool >( "time_continuity" );
+
+                // get the time boundary flag from the IQI parameter list
+                bool tTimeBoundary = tIQIParameterList( iIQI ).get< bool >( "time_boundary" );
 
                 // loop over the mesh set names
                 for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
                 {
                     // if the mesh set name not in map
-                    //if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
-                    if( tMeshtoFemSet.find( std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ) == tMeshtoFemSet.end() )
+                    if( tMeshtoFemSet.find( std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ) == tMeshtoFemSet.end() )
                     {
                         // add the mesh set name map
-                        //tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
-                        tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] = tNumFEMSets++;
+                        tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
@@ -1012,6 +1015,9 @@ namespace moris
                         // set its time continuity flag
                         aSetUserInfo.set_time_continuity( tTimeContinuity );
 
+                        // set its time boundary flag
+                        aSetUserInfo.set_time_boundary( tTimeBoundary );
+
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );
 
@@ -1021,8 +1027,7 @@ namespace moris
                     else
                     {
                         // set the IQI
-                        mSetInfo( tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] ).set_IQI( mIQIs( iIQI ) );
-                        //mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IQI( mIQIs( iIQI ) );
+                        mSetInfo( tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] ).set_IQI( mIQIs( iIQI ) );
                     }
                 }
             }
