@@ -1,12 +1,14 @@
 #include "assert.hpp"
-#include "cl_FEM_Element_Factory.hpp"      //FEM/INT/src
-#include "cl_FEM_Element_Bulk.hpp"         //FEM/INT/src
-#include "cl_FEM_Element_Sideset.hpp"      //FEM/INT/src
-#include "cl_FEM_Element_Double_Sideset.hpp"      //FEM/INT/src
-#include "cl_FEM_Element_Time_Sideset.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Element.hpp" //FEM/INT/src
-
-#include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
+//FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"
+#include "cl_FEM_Element_Bulk.hpp"
+#include "cl_FEM_Element_Sideset.hpp"
+#include "cl_FEM_Element_Double_Sideset.hpp"
+#include "cl_FEM_Element_Time_Sideset.hpp"
+#include "cl_FEM_Element_Time_Boundary.hpp"
+#include "cl_FEM_Interpolation_Element.hpp"
+//FEM/MSI/src
+#include "cl_MSI_Equation_Object.hpp"
 
 namespace moris
 {
@@ -48,6 +50,10 @@ namespace moris
 
                 case ( fem::Element_Type::TIME_SIDESET ):
                     tElement = new Element_Time_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
+                    break;
+
+                case ( fem::Element_Type::TIME_BOUNDARY ):
+                    tElement = new Element_Time_Boundary( aCell, aSet, aCluster, aCellIndexInCluster );
                     break;
 
                 default:

@@ -76,6 +76,7 @@ namespace moris
                 case( fem::Element_Type::BULK ):
                 case( fem::Element_Type::SIDESET ):
                 case( fem::Element_Type::TIME_SIDESET ):
+                case( fem::Element_Type::TIME_BOUNDARY ):
                 {
                     tInterpolationCell.resize( 1, &mMeshClusterList( iCluster )->get_interpolation_cell() );
                     break;
@@ -146,7 +147,7 @@ namespace moris
         fem::Integration_Order tTimeIntegrationOrder = fem::Integration_Order::BAR_2;
 
         // if a time set
-        if( mTimeContinuity )
+        if( mTimeContinuity || mTimeBoundary )
         {
             tTimeGeometryType     = mtk::Geometry_Type::POINT;
             tTimeIntegrationOrder = fem::Integration_Order::POINT;
@@ -2027,6 +2028,12 @@ namespace moris
                 if ( mTimeContinuity )
                 {
                     mElementType = fem::Element_Type::TIME_SIDESET;
+                }
+
+                // if time boundary
+                if( mTimeBoundary )
+                {
+                    mElementType = fem::Element_Type::TIME_BOUNDARY;
                 }
                 break;
             }
