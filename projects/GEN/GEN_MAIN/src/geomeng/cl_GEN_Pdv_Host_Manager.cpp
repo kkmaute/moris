@@ -1,4 +1,5 @@
 #include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "fn_sum.hpp"
 
 namespace moris
 {
@@ -9,8 +10,6 @@ namespace moris
 
         Pdv_Host_Manager::Pdv_Host_Manager()
         {
-            // set size for IP dv type enum to index map
-            mGlobalPdvTypeMap.set_size(static_cast<size_t>(PDV::UNDEFINED), 1, gNoIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -37,44 +36,14 @@ namespace moris
 
         void Pdv_Host_Manager::get_ip_unique_dv_types_for_set(const moris_index aIPMeshSetIndex, Cell<PDV>& aPdvTypes)
         {
-            // Get number of unique PDVs
-            uint tNumUniquePdvs = 0;
-            for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(aIPMeshSetIndex).size(); tGroupIndex++)
-            {
-                tNumUniquePdvs += mIpPdvTypes(aIPMeshSetIndex)(tGroupIndex).size();
-            }
-
-            // Copy PDV types over
-            uint tTotalPdvIndex = 0;
-            for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(aIPMeshSetIndex).size(); tGroupIndex++)
-            {
-                for (uint tPdvIndex = 0; tPdvIndex < mIpPdvTypes(aIPMeshSetIndex)(tGroupIndex).size(); tPdvIndex++)
-                {
-                    aPdvTypes(tTotalPdvIndex++) = mIpPdvTypes(aIPMeshSetIndex)(tGroupIndex)(tPdvIndex);
-                }
-            }
+            aPdvTypes =  mUniqueIpPdvTypes(aIPMeshSetIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_unique_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<PDV>& aPdvTypes)
         {
-            // Get number of unique PDVs
-            uint tNumUniquePdvs = 0;
-            for (uint tGroupIndex = 0; tGroupIndex < mIgPdvTypes(aIGMeshSetIndex).size(); tGroupIndex++)
-            {
-                tNumUniquePdvs += mIgPdvTypes(aIGMeshSetIndex)(tGroupIndex).size();
-            }
-
-            // Copy PDV types over
-            uint tTotalPdvIndex = 0;
-            for (uint tGroupIndex = 0; tGroupIndex < mIgPdvTypes(aIGMeshSetIndex).size(); tGroupIndex++)
-            {
-                for (uint tPdvIndex = 0; tPdvIndex < mIgPdvTypes(aIGMeshSetIndex)(tGroupIndex).size(); tPdvIndex++)
-                {
-                    aPdvTypes(tTotalPdvIndex++) = mIgPdvTypes(aIGMeshSetIndex)(tGroupIndex)(tPdvIndex);
-                }
-            }
+            aPdvTypes =  mUniqueIgPdvTypes(aIGMeshSetIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -99,7 +68,7 @@ namespace moris
                 for (uint iType = 0; iType < tNumTypes; iType++)
                 {
                     aDvValues(iType).resize(tNumIndices, 1);
-                    aDvValues(iType)(iInd) = this->get_ip_pdv_by_type_and_index(aNodeIndices(iInd), aPdvTypes(iType))->get_val()(0, 0);
+                    aDvValues(iType)(iInd) = mIpPdvHosts(aNodeIndices(iInd))->get_pdv_value(aPdvTypes(iType));
                 }
             }
         }
@@ -130,7 +99,7 @@ namespace moris
                 // loop over the requested dv types
                 for (uint iType = 0; iType < tNumTypes; iType++)
                 {
-                    aIsActiveDv(iInd)(iType) = this->check_ip_for_active_type(aNodeIndices(iInd), aPdvTypes(iType));
+                    aIsActiveDv(iInd)(iType) = mIpPdvHosts(aNodeIndices(iInd))->is_active_type(aPdvTypes(iType));
                 }
             }
         }
@@ -157,7 +126,7 @@ namespace moris
                 for (uint iType = 0; iType < tNumTypes; iType++)
                 {
                     aDvValues(iType).resize(tNumIndices, 1);
-                    aDvValues(iType)(iInd) = this->get_ip_pdv_by_type_and_index(aNodeIndices(iInd), aPdvTypes(iType))->get_val()(0, 0);
+                    aDvValues(iType)(iInd) = mIgPdvHosts(aNodeIndices(iInd))->get_pdv_value(aPdvTypes(iType));
                 }
             }
         }
@@ -186,7 +155,7 @@ namespace moris
                 // loop over the requested dv types
                 for (uint iType = 0; iType < tNumTypes; iType++)
                 {
-                    aIsActiveDv(iInd)(iType) = this->check_ig_for_active_type(aNodeIndices(iInd), aPdvTypes(iType));
+                    aIsActiveDv(iInd)(iType) = mIgPdvHosts(aNodeIndices(iInd))->is_active_type(aPdvTypes(iType));
                 }
             }
         }
@@ -204,40 +173,24 @@ namespace moris
                                                               const Cell<PDV>&         aPdvTypes,
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
-            /*
-             * - each cell is a row vector of global IDs per each type
-             * - return the global ids of the dv type on a specified vertex
-             */
-        
+            // get the number of node indices requested
             uint tNumIndices = aNodeIndices.size();
-            uint tNumTypes   = aPdvTypes.size();
-        
-            moris::Cell< uint > tCounter(tNumTypes, 0);
-        
+
+            // get the number of dv types requested
+            uint tNumTypes = aPdvTypes.size();
+
+            // set size for list of dv values
             aDvIds.resize(tNumTypes);
-            for (uint Ik = 0; Ik <tNumTypes; Ik++)
+
+            // loop over the node indices
+            for (uint iInd = 0; iInd < tNumIndices; iInd++)
             {
-                aDvIds(Ik).set_size(tNumIndices, 1);
-            }
-        
-            for (uint iType = 0; iType<tNumTypes; iType++)
-            {
-                for (uint iInd = 0; iInd<tNumIndices; iInd++)
+                // loop over the requested dv types
+                for (uint iType = 0; iType < tNumTypes; iType++)
                 {
-        
-                    bool tDvTypeExists = this->check_ip_for_active_type(aNodeIndices(iInd), aPdvTypes(iType));   // flag for if the DV type exists on the current host
-        
-                    if (tDvTypeExists)
-                    {
-                        aDvIds(iType)(iInd) = this->get_ip_global_index_for_dv_type(aNodeIndices(iInd), aPdvTypes(iType));
-                        tCounter(iType)++;
-                    }
+                    aDvIds(iType).resize(tNumIndices, 1);
+                    aDvIds(iType)(iInd) = mIpPdvHosts(aNodeIndices(iInd))->get_global_index_for_pdv_type(aPdvTypes(iType));
                 }
-            }
-        
-            for (uint Ik = 0; Ik < tNumTypes; Ik++)
-            {
-                aDvIds(Ik).resize(tCounter(Ik), 1);
             }
         }
 
@@ -247,40 +200,24 @@ namespace moris
                                                               const Cell<PDV>&         aPdvTypes,
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
-            /*
-             * - each cell is a row vector of global IDs per each type
-             * - return the global ids of the dv type on a specified vertex
-             */
-
+            // get the number of node indices requested
             uint tNumIndices = aNodeIndices.size();
-            uint tNumTypes   = aPdvTypes.size();
 
-            Cell<uint> tCounter(tNumTypes, 0);
+            // get the number of dv types requested
+            uint tNumTypes = aPdvTypes.size();
 
+            // set size for list of dv values
             aDvIds.resize(tNumTypes);
-            for (uint Ik = 0; Ik < tNumTypes; Ik++)
-            {
-                aDvIds(Ik).set_size(tNumIndices, 1);
-            }
 
-            for (uint iType = 0; iType < tNumTypes; iType++)
+            // loop over the node indices
+            for (uint iInd = 0; iInd < tNumIndices; iInd++)
             {
-                for (uint iInd = 0; iInd < tNumIndices; iInd++)
+                // loop over the requested dv types
+                for (uint iType = 0; iType < tNumTypes; iType++)
                 {
-
-                    bool tDvTypeExists = this->check_ig_for_active_type(aNodeIndices(iInd), aPdvTypes(iType));   // flag for if the DV type exists on the current host
-
-                    if (tDvTypeExists)
-                    {
-                        aDvIds(iType)(iInd) = this->get_ig_global_index_for_dv_type(aNodeIndices(iInd), aPdvTypes(iType));
-                        tCounter(iType)++;
-                    }
+                    aDvIds(iType).resize(tNumIndices, 1);
+                    aDvIds(iType)(iInd) = mIgPdvHosts(aNodeIndices(iInd))->get_global_index_for_pdv_type(aPdvTypes(iType));
                 }
-            }
-
-            for (uint Ik = 0; Ik < tNumTypes; Ik++)
-            {
-                aDvIds(Ik).resize(tCounter(Ik), 1);
             }
         }
 
@@ -300,55 +237,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::initialize_ip_hosts(uint aTotalNumVertices)
-        {
-            // set size for the list of pdv host
-            mIpPdvHosts.resize(aTotalNumVertices, nullptr);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::initialize_ig_hosts(uint aTotalNumVertices)
-        {
-            // set size for the list of pdv host
-            mIgPdvHosts.resize(aTotalNumVertices, nullptr);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::create_ip_pdv_host(uint aNumPdvs, moris_index aNodeIndex)
-        {
-            // if pdv host not assigned yet
-            if (mIpPdvHosts(aNodeIndex) == nullptr)
-            {
-                // create a pdv host
-                mIpPdvHosts(aNodeIndex) = std::make_shared<GEN_Pdv_Host>(aNumPdvs, aNodeIndex);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::create_ig_pdv_host(uint aNumPdvs, moris_index aNodeIndex)
-        {
-            // if pdv host is not assigned yet
-            if (mIgPdvHosts(aNodeIndex) == nullptr)
-            {
-                // create a pdv host
-                mIgPdvHosts(aNodeIndex) = std::make_shared<GEN_Pdv_Host>(aNumPdvs, aNodeIndex);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Property> aPropertyPointer,
                                                                            PDV                        aPdvType,
                                                                            moris_index                   aNodeIndex)
         {
-            // create a pdv host for vertex index
-            this->create_ip_pdv_host(mIpNumPDVs, aNodeIndex);
-        
+            // Check if PDV host exists
+            MORIS_ASSERT(mIpPdvHosts(aNodeIndex) != nullptr, "PDV attempted to be created via property when PDV host doesn't exist yet.");
+
             // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPropertyPointer, aPdvType, mGlobalPdvTypeMap);
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -357,171 +254,155 @@ namespace moris
                                                                         PDV                       aPdvType,
                                                                         moris_index                  aNodeIndex)
         {
-            // create a pdv host for vertex index
-            this->create_ip_pdv_host(mIpNumPDVs, aNodeIndex);
+            // Check if PDV host exists
+            MORIS_ASSERT(mIpPdvHosts(aNodeIndex) != nullptr, "PDV attempted to be created via field when PDV host doesn't exist yet.");
         
             // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aFieldPointer, aPdvType, mGlobalPdvTypeMap);
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aFieldPointer, aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType)
+        void Pdv_Host_Manager::create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV>>> aPdvTypes)
         {
-            return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mGlobalPdvTypeMap);
+            // Check that number of sets is consistent
+            uint tNumSets = aPdvTypes.size();
+            MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
+                    "Information passed to Pdv_Host_Manager.create_ip_pdv_hosts() does not have a consistent number of sets!");
+
+            // Set PDV types
+            mIpPdvTypes = aPdvTypes;
+            mUniqueIpPdvTypes.resize(tNumSets);
+
+            // Initialize PDV hosts
+            mIpPdvHosts.resize(aTotalNodes, nullptr);
+
+            // Create PDV hosts
+            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+            {
+                // Get number of unique PDVs
+                uint tNumUniquePdvs = 0;
+                for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
+                {
+                    tNumUniquePdvs += mIpPdvTypes(tMeshSetIndex)(tGroupIndex).size();
+                }
+                mUniqueIpPdvTypes(tMeshSetIndex).resize(tNumUniquePdvs);
+
+                // Copy PDV types over
+                uint tUniquePdvIndex = 0;
+                for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
+                {
+                    for (uint tPdvIndex = 0; tPdvIndex < mIpPdvTypes(tMeshSetIndex)(tGroupIndex).size(); tPdvIndex++)
+                    {
+                        mUniqueIpPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) = mIpPdvTypes(tMeshSetIndex)(tGroupIndex)(tPdvIndex);
+                    }
+                }
+
+                // Create PDV hosts
+                for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < aNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndexOnSet++)
+                {
+                    // Create new host or add unique PDVs
+                    uint tNumAddedPdvs = tNumUniquePdvs;
+                    if (mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
+                    {
+                        mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
+                        = std::make_shared<Pdv_Host>(mUniqueIpPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                    }
+                    else
+                    {
+                        tNumAddedPdvs = mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))->add_pdv_types(mUniqueIpPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                    }
+
+                    // Resize global map
+                    mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
+
+                    // Update global PDV indices
+                    for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
+                    {
+                        mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
+                        mGlobalPdvIndex++;
+                    }
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<GEN_Pdv> Pdv_Host_Manager::get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType)
+        void Pdv_Host_Manager::create_ig_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV>>> aPdvTypes)
         {
-            return mIpPdvHosts(aNodeIndex)->get_pdv_by_type(aPdvType, mGlobalPdvTypeMap);
-        }
+            // Check that number of sets is consistent
+            uint tNumSets = aPdvTypes.size();
+            MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
+            "Information passed to Pdv_Host_Manager.create_ip_pdv_hosts() does not have a consistent number of sets!");
 
-        //--------------------------------------------------------------------------------------------------------------
+            // Set PDV types
+            mIgPdvTypes = aPdvTypes;
+            mUniqueIgPdvTypes.resize(tNumSets);
 
-        sint Pdv_Host_Manager::check_ip_for_active_type(moris_index aNodeIndex, PDV aPdvType)
-        {
-            return mIpPdvHosts(aNodeIndex)->is_active_type(aPdvType, mGlobalPdvTypeMap);
-        }
+            // Initialize PDV hosts
+            mIgPdvHosts.resize(aTotalNodes, nullptr);
 
-        //--------------------------------------------------------------------------------------------------------------
+            // Create PDV hosts
+            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+            {
+                // Get number of unique PDVs
+                uint tNumUniquePdvs = 0;
+                for (uint tGroupIndex = 0; tGroupIndex < mIgPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
+                {
+                    tNumUniquePdvs += mIgPdvTypes(tMeshSetIndex)(tGroupIndex).size();
+                }
+                mUniqueIgPdvTypes(tMeshSetIndex).resize(tNumUniquePdvs);
 
-        sint Pdv_Host_Manager::check_ig_for_active_type(moris_index aNodeIndex, PDV aPdvType)
-        {
-            return mIgPdvHosts(aNodeIndex)->is_active_type(aPdvType, mGlobalPdvTypeMap);
-        }
+                // Copy PDV types over
+                uint tUniquePdvIndex = 0;
+                for (uint tGroupIndex = 0; tGroupIndex < mIgPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
+                {
+                    for (uint tPdvIndex = 0; tPdvIndex < mIgPdvTypes(tMeshSetIndex)(tGroupIndex).size(); tPdvIndex++)
+                    {
+                        mUniqueIgPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) = mIgPdvTypes(tMeshSetIndex)(tGroupIndex)(tPdvIndex);
+                    }
+                }
 
-        //--------------------------------------------------------------------------------------------------------------
+                // Create PDV hosts
+                for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < aNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndexOnSet++)
+                {
+                    // Create new host or add unique PDVs
+                    uint tNumAddedPdvs = tNumUniquePdvs;
+                    if (mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
+                    {
+                        mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
+                        = std::make_shared<Pdv_Host>(mUniqueIgPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                    }
+                    else
+                    {
+                        tNumAddedPdvs = mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))->add_pdv_types(mUniqueIgPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                    }
 
-        uint Pdv_Host_Manager::get_ip_global_index_for_dv_type(moris_index aNodeIndex, PDV aPdvType)
-        {
-            return mIpPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mGlobalPdvTypeMap);
-        }
+                    // Resize global map
+                    mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        uint Pdv_Host_Manager::get_ig_global_index_for_dv_type(moris_index aNodeIndex, PDV aPdvType)
-        {
-            return mIgPdvHosts(aNodeIndex)->get_global_index_for_dv_type(aPdvType, mGlobalPdvTypeMap);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::set_ip_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypeList)
-        {
-            mIpPdvTypes = aPdvTypeList;
-//            // communicate dv types
-//            this->communicate_ip_dv_types(aPdvTypeList);
-//
-//            // get number of dv types
-//            uint tNumTypes = mIpPdvTypes.size();
-//
-//            // loop over dv types
-//            for(uint i = 0; i < tNumTypes; i++)
-//            {
-//                // populate the dv type to index map
-//                mGlobalPdvTypeMap(static_cast<sint>(mIpPdvTypes(i))) = mIpNumPDVs++;
-//            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::set_ig_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypeList)
-        {
-            mIgPdvTypes = aPdvTypeList;
-//            // communicate dv types
-//            this->communicate_ig_dv_types(aPdvTypeList);
-//
-//            // get number of dv types
-//            uint tNumTypes = mIgPdvTypes.size();
-//
-//            // loop over dv types
-//            for(uint i = 0; i < tNumTypes; i++)
-//            {
-//                // populate the dv type to index map
-//                mGlobalPdvTypeMap(static_cast<sint>(mIgPdvTypes(i))) = mIgNumPDVs++;
-//            }
+                    // Update global PDV indices
+                    for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
+                    {
+                        mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
+                        mGlobalPdvIndex++;
+                    }
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
-            mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mGlobalPdvTypeMap);
+            mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType)
         {
-            mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType, mGlobalPdvTypeMap);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::update_ip_local_to_global_dv_type_map() // FIXME
-        {
-//            // Get number of unique PDVs
-//            uint tNumUniquePdvs = 0;
-//            for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(0).size(); tGroupIndex++)
-//            {
-//                tNumUniquePdvs += mIpPdvTypes(0)(tGroupIndex).size();
-//            }
-//
-//            // get the number of pdv hosts
-//            uint tNumHosts = mIpPdvHosts.size();
-//
-//            // loop over the dv types
-//            for(uint iType = 0; iType < tNumUniquePdvs; iType++)
-//            {
-//                // loop over the pdv hosts
-//                for(uint iHost = 0; iHost < tNumHosts; iHost++)
-//                {
-//                    // if the pdv host was assigned
-//                    if(mIpPdvHosts(iHost) != nullptr)
-//                    {
-//                        // assign a global id to type
-//                        mIpPdvHosts(iHost)->assign_id_to_type(mIpGlobalID, mIpPdvTypes(iType), mGlobalPdvTypeMap);
-//
-//                        // update global id counter
-//                        mIpGlobalID++;
-//                    }
-//                }
-//            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::update_ig_local_to_global_dv_type_map()
-        {
-//            // Get number of unique PDVs
-//            uint tNumUniquePdvs = 0;
-//            for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(0).size(); tGroupIndex++)
-//            {
-//                tNumUniquePdvs += mIpPdvTypes(0)(tGroupIndex).size();
-//            }
-//
-//            // get the number of pdv hosts
-//            uint tNumHosts = mIgPdvHosts.size();
-//
-//            // loop over the dv types
-//            for (uint iType = 0; iType < tNumUniquePdvs; iType++)
-//            {
-//                // loop over the pdv hosts
-//                for (uint iHost = 0; iHost < tNumHosts; iHost++)
-//                {
-//                    // if the pdv host was assigned
-//                    if (mIgPdvHosts(iHost) != nullptr)
-//                    {
-//                        // assign a global id to type
-//                        mIgPdvHosts(iHost)->assign_id_to_type(mIgGlobalID, mIgPdvTypes(iType), mGlobalPdvTypeMap);
-//
-//                        // update global id counter
-//                        mIgGlobalID++;
-//                    }
-//                }
-//            }
+            mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -536,6 +417,34 @@ namespace moris
         void Pdv_Host_Manager::set_ig_requested_dv_types(Cell<PDV>& aPdvTypes)
         {
             mRequestedIgPdvTypes = aPdvTypes;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV aPdvType, std::shared_ptr<GEN_Field> aFieldPointer)
+        {
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aFieldPointer, aNodeIndex);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer)
+        {
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV aPdvType, moris::real aPdvVal)
+        {
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV aPdvType, moris::real aPdvVal)
+        {
+            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
         }
 
         //--------------------------------------------------------------------------------------------------------------

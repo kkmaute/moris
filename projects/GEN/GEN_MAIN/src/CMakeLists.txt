@@ -94,6 +94,7 @@ set(LIB_SOURCES
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp
 	geomeng/cl_GEN_Pdv_Host_Manager.cpp
+	geomeng/cl_GEN_Pdv_Host.cpp
 
     geometry/cl_GEN_Geometry_Analytic.cpp
 	geometry/cl_GEN_Geometry_Discrete.cpp
