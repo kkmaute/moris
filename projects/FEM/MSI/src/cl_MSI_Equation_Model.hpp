@@ -17,6 +17,7 @@
 namespace moris
 {
     class Dist_Vector;
+    class Dist_Map;
 //------------------------------------------------------------------------------
 
     namespace MSI
@@ -40,13 +41,14 @@ namespace moris
             moris::Cell< MSI::Equation_Object* > mFemClusters;
 
             // map from mesh set indices to fem set indices
-            //map< moris_index, moris_index >   mMeshSetToFemSetMap;
-            map< std::pair< moris_index, bool >, moris_index > mMeshSetToFemSetMap;
+            map< std::tuple< moris_index, bool, bool >, moris_index > mMeshSetToFemSetMap;
 
             // distributed solution vectors for current and previous time slabs
             Dist_Vector * mSolutionVector     = nullptr;
             Dist_Vector * mPrevSolutionVector = nullptr;
             Dist_Vector * mSensitivitySolutionVector = nullptr;
+
+            Dist_Map * mdQiduMap = nullptr;
 
             Dist_Vector * mdQidu = nullptr;
 
@@ -120,8 +122,7 @@ namespace moris
             /**
              * MTK set to fem set index map
              */
-            //map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
-            map< std::pair< moris_index, bool >, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            map< std::tuple< moris_index, bool, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
             {
                 return mMeshSetToFemSetMap;
             };
@@ -198,6 +199,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * returns dQidu
+             * @param[ out ] mdQidu returns a pointer to dQidu
+             */
+            Dist_Vector * get_dQidu()
+            {
+                return mdQidu;
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * set time for current time slab
              * @param[ in ] aTime matrix for time in current time slab
              */
@@ -247,6 +258,12 @@ namespace moris
                 mDesignVariableInterface = aDesignVariableInterface;
             }
 
+//------------------------------------------------------------------------------
+
+            MSI::Design_Variable_Interface * get_design_variable_interface()
+            {
+                return mDesignVariableInterface;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -300,28 +317,7 @@ namespace moris
             /**
              * retruns if this is the a forward analysis
              */
-            void compute_dQIdp()
-            {
-//                // Get local number of elements
-//                moris::uint tNumSets = mFemSets.size();
-//
-//                moris::uint tNumRHS = this->get_num_rhs();
-//
-//                // Loop over all local elements to build matrix graph
-//                for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
-//                {
-//                    moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
-//
-//                    this->initialize_set( Ii, true );
-//
-//                    for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
-//                    {
-//                        mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
-//                    }
-//
-//                    this->free_block_memory( Ii );
-//                }
-            };
+            void compute_dQIdp();
 
 //------------------------------------------------------------------------------
         };

@@ -23,15 +23,30 @@ namespace moris
         Element_Bulk::~Element_Bulk(){}
 
 //------------------------------------------------------------------------------
-        void Element_Bulk::compute_residual()
+        void Element_Bulk::init_ig_geometry_interpolator()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_coeff( mMasterCell->get_vertex_coords());
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            mSet->get_field_interpolator_manager()
+                ->get_IG_geometry_interpolator()
+                ->set_time_param_coeff( { { -1.0 }, { 1.0 } } );
+        }
+
+//------------------------------------------------------------------------------
+        void Element_Bulk::compute_residual()
+        {
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -71,13 +86,8 @@ namespace moris
 //------------------------------------------------------------------------------
         void Element_Bulk::compute_jacobian()
         {
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -205,13 +215,8 @@ namespace moris
 //------------------------------------------------------------------------------
         void Element_Bulk::compute_QI()
         {
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -329,13 +334,8 @@ namespace moris
 //------------------------------------------------------------------------------
         void Element_Bulk::compute_dQIdu()
         {
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -371,13 +371,8 @@ namespace moris
         void Element_Bulk::compute_quantity_of_interest_global( const uint aMeshIndex,
                                                                 enum  vis::Output_Type aOutputType )
         {
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -409,13 +404,8 @@ namespace moris
         void Element_Bulk::compute_quantity_of_interest_nodal( const uint aMeshIndex,
                                                                enum vis::Output_Type aOutputType )
         {
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
@@ -452,21 +442,8 @@ namespace moris
         void Element_Bulk::compute_quantity_of_interest_elemental( const uint aMeshIndex,
                                                                    enum vis::Output_Type aOutputType )
         {
-            // set the IG geometry interpolator physical space and time coefficients
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
-
-            // set the IP geometry interpolator param space and time coefficients
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -498,21 +475,8 @@ namespace moris
 //------------------------------------------------------------------------------
         real Element_Bulk::compute_volume( mtk::Master_Slave aIsMaster )
         {
-            // set the IG geometry interpolator physical space and time coefficients
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
-
-            // set the IP geometry interpolator param space and time coefficients
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-              ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
 
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();

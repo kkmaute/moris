@@ -74,6 +74,7 @@ namespace moris
             SIDESET,
             DOUBLE_SIDESET,
             TIME_SIDESET,
+            TIME_BOUNDARY,
             END_ELEMENT_TYPE
         };
 
@@ -142,7 +143,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Constitutive_Type
         {
             UNDEFINED,
@@ -153,8 +153,8 @@ namespace moris
             FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
         enum class Model_Type
         {
             UNDEFINED,

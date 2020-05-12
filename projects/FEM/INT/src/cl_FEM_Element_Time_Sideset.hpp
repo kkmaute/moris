@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Element_Time_Sideset.hpp
+ * cl_FEM_Element_Time_Continuity.hpp
  *
  *  Created on: Mar 19, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_
-#define SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_
+#ifndef SRC_FEM_CL_FEM_Element_Time_Sideset_HPP_
+#define SRC_FEM_CL_FEM_Element_Time_Sideset_HPP_
 
 #include "assert.h"
 #include "cl_FEM_Element.hpp" //FEM/INT/src
@@ -39,10 +39,10 @@ namespace moris
          * @param[ in ]     cell of pointer to fem nodes
          * @param[ in ]     Pointer to element block
          */
-        Element_Time_Sideset( mtk::Cell const  * aCell,
-                              Set              * aSet,
-                              Cluster          * aCluster,
-                              moris::moris_index aCellIndexInCluster );
+            Element_Time_Sideset( mtk::Cell const  * aCell,
+                                  Set              * aSet,
+                                  Cluster          * aCluster,
+                                  moris::moris_index aCellIndexInCluster );
 
 //------------------------------------------------------------------------------
         /**
@@ -81,6 +81,10 @@ namespace moris
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
+        /**
+         * initialize integration geometry interpolator
+         */
+        void init_ig_geometry_interpolator();
 
 //------------------------------------------------------------------------------
     };
@@ -90,4 +94,4 @@ namespace moris
 } /* namespace moris */
 
 
-#endif /* SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_ */
+#endif /* SRC_FEM_CL_FEM_Element_Time_Sideset_HPP_ */

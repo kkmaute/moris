@@ -79,8 +79,7 @@ namespace moris
             real tCI = mParameters( 0 )( 0 );
 
             // get the time step
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-            real deltaT = tTimeCoeff.max() - tTimeCoeff.min();
+           real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
             Matrix< DDRMat > tG;
@@ -95,7 +94,7 @@ namespace moris
             // evaluate tauM = mPPVal( 0 )
             Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
-            real tPPVal = std::pow( 2.0 * tDensity / deltaT, 2.0 )
+            real tPPVal = std::pow( 2.0 * tDensity / tDeltaT, 2.0 )
                         + std::pow( tDensity, 2.0 ) * tvivjGij( 0 )
                         + tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 );
             mPPVal( 0 ) = std::pow( tPPVal, -0.5 );
@@ -131,8 +130,7 @@ namespace moris
             real tCI = mParameters( 0 )( 0 );
 
             // get the time step
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-            real deltaT = tTimeCoeff.max() - tTimeCoeff.min();
+           real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
             Matrix< DDRMat > tG;
@@ -160,7 +158,7 @@ namespace moris
             {
                 mdPPdMasterDof( tDofIndex ).get_row( 0 )
                 += -0.5 * std::pow( this->val()( 0 ), 3 ) *
-                  (   8.0 * tDensity / deltaT * tDensityProp->dPropdDOF( aDofTypes )
+                  (   8.0 * tDensity / tDeltaT * tDensityProp->dPropdDOF( aDofTypes )
                     + 2.0 * tDensity * tvivjGij( 0 ) * tDensityProp->dPropdDOF( aDofTypes ) );
             }
 

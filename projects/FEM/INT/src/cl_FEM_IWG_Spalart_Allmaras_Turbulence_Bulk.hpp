@@ -178,7 +178,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual strong form
-             * @param[ in ] aR a matrix to fill with R
+             * @param[ in ] aR real to fill with R
              */
             void compute_residual_strong_form( Matrix< DDRMat > & aR );
 
@@ -191,6 +191,23 @@ namespace moris
              */
             void compute_jacobian_strong_form( moris::Cell< MSI::Dof_Type >   aDofTypes,
                                                Matrix< DDRMat >             & aJ );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute Wij = 0.5 * ( dui/dxj - duj/dxi )
+             * @param[ out ] Wij
+             */
+            void compute_divflux( Matrix< DDRMat > & aDivFlux );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of Wij wrt to a dof type
+             * @param[ in ] aDofTypes  a list of dof type wrt which
+             *                         the derivative is requested
+             * @param[ in ] adwijdu    a matrix to fill with dwijdu
+             */
+            void compute_ddivfluxdu( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                     Matrix< DDRMat >             & adDivFluxdu );
 
 //------------------------------------------------------------------------------
             /**

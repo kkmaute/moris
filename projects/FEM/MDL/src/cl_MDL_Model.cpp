@@ -128,6 +128,10 @@ namespace moris
                                                                         tMaxNumAdofs,
                                                                         tInterpolationMesh );
 
+//                // FIXME
+//                std::cout<<"Model::Model - remove this forcing"<<std::endl;
+//                mModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::TEMP, 2 );
+
         // finalize the fem sets
         mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
@@ -283,6 +287,14 @@ namespace moris
 
             // delete MSI
             delete mModelSolverInterface;
+
+            // delete MSI
+            if( mOutputManager != nullptr && mOutputManagerOwned == true )
+            {
+                delete mOutputManager;
+
+                mOutputManagerOwned = false;
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -439,6 +451,8 @@ namespace moris
             tic tTimerVisMesh;
 
             mOutputManager = new vis::Output_Manager( tVISParameterList( 0 )( 0 ) );
+
+            mOutputManagerOwned = true;
 
             if( par_rank() == 0)
             {

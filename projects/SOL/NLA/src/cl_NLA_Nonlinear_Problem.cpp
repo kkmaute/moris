@@ -164,6 +164,8 @@ void Nonlinear_Problem::delete_pointers()
     if( mLinearProblem != nullptr )
     {
         delete( mLinearProblem );
+
+        mLinearProblem = nullptr;
     }
 }
 

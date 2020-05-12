@@ -45,6 +45,7 @@ set(LIB_DEPENDENCIES
 	${CON}-lib
 	${LINALG}-lib
 	${COM}-lib
+	${MORIS_BASE_LIBS}
 	)
 
 # Set the output path for library

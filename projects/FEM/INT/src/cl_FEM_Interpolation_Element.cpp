@@ -14,6 +14,8 @@
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
 #include "cl_FEM_Model.hpp"                   //FEM/INT/src
 
+#include "cl_SOL_Dist_Vector.hpp"
+
 #include "fn_isfinite.hpp"
 
 namespace moris
@@ -113,7 +115,7 @@ namespace moris
 
                  // get the pdof values for the ith dof type group
                  Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
+                 this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original );
 
                  // reshape tCoeffs into the order the cluster expects them
                  Matrix< DDRMat > tCoeff;
@@ -127,7 +129,7 @@ namespace moris
                  {
                      // get the pdof values for the ith dof type group
                      Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                     this->get_previous_pdof_values( tDofTypeGroup, tCoeff_Original );
+                     this->get_my_pdof_values( mPreviousPdofValues, tDofTypeGroup, tCoeff_Original );
 
                      // reshape tCoeffs into the order the cluster expects them
                      Matrix< DDRMat > tCoeff;
@@ -151,7 +153,7 @@ namespace moris
 
                  // get the pdof values for the ith dof type group
                  Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                 this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                  // reshape tCoeffs into the order the cluster expects them
                  Matrix< DDRMat > tCoeff;
@@ -448,6 +450,131 @@ namespace moris
             mFemCluster( 0 )->compute_dQIdp_FD();
         }
 
+//-------------------------------------------------------------------------------------------------
+
+        void Interpolation_Element::compute_dQIdp()
+        {
+            this->compute_dRdp();
+
+            moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_dRdp();
+
+            this->compute_my_adjoint_values();
+
+    //        moris::Matrix< DDRMat > tMyAdjointValues( mAdjointPdofValues.numel(), 1, 0.0 );
+    //
+    //        // get number of master dof types
+    //        uint tMasterNumDofTypes = mEquationSet->get_dof_type_list().size();
+    //
+    //        // loop on the master dof types
+    //        for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
+    //        {
+    //            // get the ith dof type group
+    //            moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
+    //
+    //            // get the pdof values for the ith dof type group. Outer cell are multi-vector entries
+    //            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+    //            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original );
+    //
+    //        //FIXME reshape correctly
+    ////            // reshape tCoeffs into the order the cluster expects them
+    ////            Matrix< DDRMat > tCoeff;
+    ////            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+    //        }
+
+            for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
+            {
+                moris::Matrix< DDRMat > tLocalIPdQiDp = trans( mAdjointPdofValues( Ik ) ) * tdRdp( 0 );
+
+                Cell< enum PDV > tRequestedIPDvTypes;
+
+                mEquationSet->get_equation_model()
+                            ->get_design_variable_interface()
+                            ->get_ip_requested_dv_types( tRequestedIPDvTypes );
+
+                // get vertices from cell
+                Matrix< IndexMat > tVerticesInds = mMasterInterpolationCell->get_vertex_inds();
+
+                //FIXME add Slave
+
+                moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
+
+                mEquationSet->get_equation_model()
+                            ->get_design_variable_interface()
+                            ->get_ip_dv_ids_for_type_and_ind( tVerticesInds,
+                                                              tRequestedIPDvTypes,
+                                                              tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
+
+                moris::uint tCounter = 0;
+
+                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                {
+                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                }
+
+                moris::Matrix< IdMat > tLocalToGlobalIds( tCounter, 1, moris::gNoIndex );
+
+                tCounter = 0;
+
+                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                {
+                    tLocalToGlobalIds( { tCounter, tTypeListOfLocalToGlobalIds( Ii ).numel() -1 },{ 0, 0 } )
+                            = tTypeListOfLocalToGlobalIds( Ii ).matrix_data();
+
+                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                }
+
+                mEquationSet->get_equation_model()->get_dQidu()->sum_into_global_values( tLocalToGlobalIds,
+                                                                                       tLocalIPdQiDp,
+                                                                                       Ik );
+            }
+
+            for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
+            {
+                moris::Matrix< DDRMat > tLocalIGdQiDp = trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
+
+                Cell< enum PDV > tRequestedIGDvTypes;
+
+                mEquationSet->get_equation_model()
+                            ->get_design_variable_interface()
+                            ->get_ip_requested_dv_types( tRequestedIGDvTypes );
+
+                moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
+
+                // get vertices from cell
+                Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()
+                                                                   ->get_vertex_indices_in_cluster();
+
+                mEquationSet->get_equation_model()
+                            ->get_design_variable_interface()
+                            ->get_ig_dv_ids_for_type_and_ind( tVerticesInds,
+                                                              tRequestedIGDvTypes,
+                                                              tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
+
+                moris::uint tCounter = 0;
+
+                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                {
+                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                }
+
+                moris::Matrix< IdMat > tLocalToGlobalIds( tCounter, 1, moris::gNoIndex );
+
+                tCounter = 0;
+
+                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                {
+                    tLocalToGlobalIds( { tCounter, tTypeListOfLocalToGlobalIds( Ii ).numel() -1 },{ 0, 0 } )
+                            = tTypeListOfLocalToGlobalIds( Ii ).matrix_data();
+
+                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                }
+
+                mEquationSet->get_equation_model()->get_dQidu()->sum_into_global_values( tLocalToGlobalIds,
+                                                                                       tLocalIGdQiDp,
+                                                                                       Ik );
+            }
+        }
+
 //------------------------------------------------------------------------------
         void Interpolation_Element::compute_dQIdu()
         {
@@ -561,7 +688,7 @@ namespace moris
                     // get the ith vertex coordinates in the IP param space
                     Matrix< DDRMat > tGlobalIntegPoint = tVertexLocalCoords.get_row( iVertex );
                     tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
-                    tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = this->get_time()( 0 );
+                    tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = -1.0;
                     tGlobalIntegPoint = trans( tGlobalIntegPoint );
 
                     // set vertex coordinates for field interpolator

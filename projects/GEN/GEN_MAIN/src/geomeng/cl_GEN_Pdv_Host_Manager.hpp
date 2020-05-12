@@ -142,7 +142,7 @@ namespace moris
              * @param aPdvType        List of Dv types
              * @param aDvIds         List of Dv Ids
              */
-            void get_ip_dv_ids_for_type_and_ind(const Cell<moris_index>&    aNodeIndices,
+            void get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
                                                 const Cell<PDV>&         aPdvTypes,
                                                 Cell<Matrix<IdMat>>&        aDvIds);
             
@@ -153,12 +153,13 @@ namespace moris
              * @param aPdvType        List of Dv types
              * @param aDvIds         List of Dv Ids
              */
-            void get_ig_dv_ids_for_type_and_ind(const Cell<moris_index>&    aNodeIndices,
+            void get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
                                                 const Cell<PDV>&         aPdvTypes,
                                                 Cell<Matrix<IdMat>>&        aDvIds);
 
             /**
-             * get requested dv types for sensitivity analysis
+             * Get requested pdv types for sensitivity analysis
+             *
              * @param[ in ] aPdvTypes list of dv types to fill
              */
             void get_ip_requested_dv_types( Cell< PDV > & aPdvTypes );

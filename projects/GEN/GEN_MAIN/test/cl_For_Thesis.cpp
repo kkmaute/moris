@@ -782,7 +782,6 @@ TEST_CASE("experiments for thesis, geom.", "[GE],[thesis_01]")
             std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             tNonlinearSolverAlgorithm->set_param("NLA_max_iter")          = 10;
-            tNonlinearSolverAlgorithm->set_param("NLA_rel_residual")      = 1e-6;
             tNonlinearSolverAlgorithm->set_param("NLA_tot_res_norm_drop") = 1e-3;
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );

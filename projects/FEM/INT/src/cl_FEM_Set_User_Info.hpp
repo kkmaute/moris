@@ -43,6 +43,9 @@ namespace moris
         // bool for time sideset
         bool mTimeContinuity = false;
 
+        // bool for time boundary
+        bool mTimeBoundary = false;
+
 //------------------------------------------------------------------------------
         public :
 
@@ -125,7 +128,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set the time continuity bool set name
+             * set the time continuity bool
              * @param[ in ] aTimeContinuity bool for time sideset
              */
             void set_time_continuity( bool aTimeContinuity )
@@ -141,6 +144,26 @@ namespace moris
             const bool & get_time_continuity() const
             {
                 return mTimeContinuity;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * set the time boundary bool
+             * @param[ in ] aTimeBoundary bool for time boundary integral
+             */
+            void set_time_boundary( bool aTimeBoundary )
+            {
+                mTimeBoundary = aTimeBoundary;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * get the time boundary bool
+             * @param[ out ] mTimeBoundary bool for time boundary integral
+             */
+            const bool & get_time_boundary() const
+            {
+                return mTimeBoundary;
             };
 
 //------------------------------------------------------------------------------

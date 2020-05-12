@@ -332,7 +332,7 @@ namespace moris
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+        tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
                 = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -455,17 +455,17 @@ namespace moris
 
         // Fluid/solid bottom
         fem::Set_User_Info tSetFSBottom;
-        tSetFSBottom.set_mesh_set_name( "iside_g_0_b0_10_b1_2" );
+        tSetFSBottom.set_mesh_set_name( "iside_b0_10_b1_2" );
         tSetFSBottom.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
 
         // Fluid/solid top
         fem::Set_User_Info tSetFSTop;
-        tSetFSTop.set_mesh_set_name( "iside_g_1_b0_10_b1_14" );
+        tSetFSTop.set_mesh_set_name( "iside_b0_10_b1_14" );
         tSetFSTop.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
 
         // Inlet
         fem::Set_User_Info tSetInlet;
-        tSetInlet.set_mesh_set_name( "iside_g_2_b0_10_b1_8" );
+        tSetInlet.set_mesh_set_name( "iside_b0_10_b1_8" );
         tSetInlet.set_IWGs( { tIWGInletVelocity, tIWGInletPressure } );
 
         // Ghost
@@ -742,7 +742,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+        tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
                 = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -856,17 +856,17 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         // Fluid/solid bottom
         fem::Set_User_Info tSetFSBottom;
-        tSetFSBottom.set_mesh_set_name( "iside_g_0_b0_10_b1_2" );
+        tSetFSBottom.set_mesh_set_name( "iside_b0_10_b1_2" );
         tSetFSBottom.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
 
         // Fluid/solid top
         fem::Set_User_Info tSetFSTop;
-        tSetFSTop.set_mesh_set_name( "iside_g_1_b0_10_b1_14" );
+        tSetFSTop.set_mesh_set_name( "iside_b0_10_b1_14" );
         tSetFSTop.set_IWGs( { tIWGFSVelocity, tIWGFSPressure } );
 
         // Inlet
         fem::Set_User_Info tSetInlet;
-        tSetInlet.set_mesh_set_name( "iside_g_2_b0_10_b1_8" );
+        tSetInlet.set_mesh_set_name( "iside_b0_10_b1_8" );
         tSetInlet.set_IWGs( { tIWGInletPressure } );
 
         // Ghost
@@ -2477,7 +2477,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
+        tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
         = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -2595,12 +2595,12 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         // At RIn
         fem::Set_User_Info tSetRIn;
-        tSetRIn.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
+        tSetRIn.set_mesh_set_name( "iside_b0_1_b1_0" );
         tSetRIn.set_IWGs( { tIWGDirichletVelocity, tIWGDirichletPressure } );
 
         // At ROut
         fem::Set_User_Info tSetROut;
-        tSetROut.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
+        tSetROut.set_mesh_set_name( "iside_b0_1_b1_3" );
         tSetROut.set_IWGs( { tIWGDirichletVelocity, tIWGDirichletPressure } );
 
         // Ghost

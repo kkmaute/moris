@@ -142,7 +142,8 @@ namespace moris
 
         // get mtk set index to fem set index map
         //map< moris_index, moris_index > & tMeshSetToFemSetMap
-        map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
+        //map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
+        map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap
         = aEquationModel->get_mesh_set_to_fem_set_index_map();
 
         // get equation sets
@@ -160,10 +161,10 @@ namespace moris
             // get mtk set index
             moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-            if ( tMeshSetToFemSetMap.key_exists( std::make_pair( tSetIndex, false ) ) )
+            if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tSetIndex, false, false ) ) )
             {
                 // find set index for this block index
-                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_pair( tSetIndex, false ) );
+                moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_tuple( tSetIndex, false, false ) );
 
                 // set vis set to fem set. +1 because 0 is reserved for fem
                 tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
@@ -384,8 +385,7 @@ namespace moris
         mWriter( aVisMeshIndex )->set_time( aTime );
 
         // get mesh set to fem set index map
-        //map< moris_index, moris_index > & tMeshSetToFemSetMap
-        map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
+        map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap
         = aEquationModel->get_mesh_set_to_fem_set_index_map( );
 
         // get equation sets
@@ -412,10 +412,10 @@ namespace moris
             {
                 moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
 
-                if ( tMeshSetToFemSetMap.key_exists( std::make_pair( tSetIndex, false ) ) )
+                if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tSetIndex, false, false ) ) )
                 {
                     // find set index for this block index
-                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_pair( tSetIndex, false ) );
+                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_tuple( tSetIndex, false, false ) );
 
                     // elemental field values
                     Matrix< DDRMat > tElementValues;

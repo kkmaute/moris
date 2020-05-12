@@ -9,7 +9,6 @@
 #ifndef SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_PHASE_CHANGE_HPP_
 #define SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_PHASE_CHANGE_HPP_
 
-#include <iostream>
 #include <map>
 
 #include "typedefs.hpp"                     //MRS/COR/src
@@ -46,6 +45,7 @@ namespace moris
                 PHASE_CHANGE_CONST,
                 CONDUCTIVITY,
                 HEAT_CAPACITY,
+                LATENT_HEAT,
                 DENSITY,
                 MAX_ENUM
             };

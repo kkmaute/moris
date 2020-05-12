@@ -169,12 +169,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ip_dv_ids_for_type_and_ind(const Cell<moris_index>&    aNodeIndices,
+        void Pdv_Host_Manager::get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
                                                               const Cell<PDV>&         aPdvTypes,
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
             // get the number of node indices requested
-            uint tNumIndices = aNodeIndices.size();
+            uint tNumIndices = aNodeIndices.length();
 
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
@@ -196,12 +196,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_dv_ids_for_type_and_ind(const Cell<moris_index>&    aNodeIndices,
+        void Pdv_Host_Manager::get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
                                                               const Cell<PDV>&         aPdvTypes,
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
             // get the number of node indices requested
-            uint tNumIndices = aNodeIndices.size();
+            uint tNumIndices = aNodeIndices.length();
 
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();

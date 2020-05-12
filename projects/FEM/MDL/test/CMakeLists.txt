@@ -25,7 +25,7 @@ set(TEST_SOURCES
     UT_MDL_Input.cpp
     UT_MDL_Fluid_Benchmark.cpp
     UT_XFEM_Measure.cpp    
-    UT_MDL_Transient.cpp
+    #UT_MDL_Transient.cpp
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp

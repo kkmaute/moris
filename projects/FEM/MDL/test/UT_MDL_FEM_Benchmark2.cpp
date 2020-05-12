@@ -384,11 +384,11 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tSetBulk2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
+        tSetDirichlet1.set_mesh_set_name( "iside_b0_1_b1_0" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
+        tSetNeumann1.set_mesh_set_name( "iside_b0_1_b1_3" );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -749,11 +749,11 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tSetBulk2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
+        tSetDirichlet1.set_mesh_set_name( "iside_b0_1_b1_0" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
+        tSetNeumann1.set_mesh_set_name( "iside_b0_1_b1_3" );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetDisplGhost;

@@ -18,6 +18,8 @@
 
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
 
+#include <iostream>
+
 namespace moris
 {
     namespace fem
@@ -538,12 +540,13 @@ namespace moris
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi;
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
+            tdNSpacedXi = trans( tdNSpacedXi );
 
             // set size tdNFielddTau for the field
-            Matrix< DDRMat> tdNFielddXiTau ( mNTimeDim * mNSpaceDim, mNFieldBases );
+            Matrix< DDRMat> tdNFielddXiTau ( mNSpaceDim, mNFieldBases );
 
             // temporary vector for condensation
-//            Matrix< DDRMat> tTemporary;
+            //Matrix< DDRMat> tTemporary;
 
             // build the space time dNdTau row by row
             for ( moris::uint Ix = 0; Ix < mNSpaceDim; Ix++ )
@@ -562,7 +565,6 @@ namespace moris
             // compute first derivative of the SF wrt x
             //md2Ndxt = inv( tJGeoSpacet ) * inv( tJGeoTimet ) * tdNFielddXiTau;
             md2Ndxt = inv( tJGeoSpacet ) * tdNFielddXiTau / tJGeoTimet( 0 ) ;
-
 
         }
 

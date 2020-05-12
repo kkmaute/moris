@@ -47,8 +47,8 @@ namespace dla
         Linear_System_Trilinos( Solver_Interface * aInput );
 
         Linear_System_Trilinos( Solver_Interface * aInput,
-        		Dist_Map *        aMap,
-				Dist_Map *        aFullMap );
+                                Dist_Map *        aMap,
+                                Dist_Map *        aFullMap );
 
         Linear_System_Trilinos( const char* aString );
 

@@ -83,6 +83,27 @@ moris::Dist_Vector * tDistVector = nullptr;
     }
     return tDistVector;
 }
+//-------------------------------------------------------------------------------------------------
+moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Dist_Map        * aMap,
+                                                                  const sint                     aNumVectors )
+{
+moris::Dist_Vector * tDistVector = nullptr;
+
+    switch( mMapType )
+    {
+    case (sol::MapType::Epetra):
+        tDistVector = new moris::Vector_Epetra( aMap, aNumVectors );
+        break;
+//    case (sol::MapType::Petsc):
+//        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
+//        tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
+//        break;
+    default:
+        MORIS_ERROR( false, "No vector type specified." );
+        break;
+    }
+    return tDistVector;
+}
 
 
 moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()

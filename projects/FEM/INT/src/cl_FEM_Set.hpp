@@ -125,12 +125,15 @@ namespace MSI
         // bool for time continuity
         bool mTimeContinuity = false;
 
+        // bool for time boundary integral
+        bool mTimeBoundary   = false;
+
         friend class MSI::Equation_Object;
         friend class Cluster;
         friend class Element_Bulk;
         friend class Element_Sideset;
         friend class Element_Double_Sideset;
-        friend class Element_Time_Sideset;
+        friend class Element_Time_Continuity;
         friend class Element;
         friend class Field_Interpolator_Manager;
         friend class Interpolation_Element;

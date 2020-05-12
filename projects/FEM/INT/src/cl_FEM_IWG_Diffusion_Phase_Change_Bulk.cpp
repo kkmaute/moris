@@ -18,9 +18,6 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Load" ]         = IWG_Property_Type::BODY_LOAD;
-//            mPropertyMap[ "Density" ]      = IWG_Property_Type::DENSITY;
-//            mPropertyMap[ "HeatCapacity" ] = IWG_Property_Type::HEAT_CAPACITY;
-//            mPropertyMap[ "LatentHeat" ]   = IWG_Property_Type::LATENT_HEAT;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
