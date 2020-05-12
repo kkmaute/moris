@@ -51,8 +51,8 @@ namespace dla
                              const bool               aNotCreatedByNonLinSolver = false);
 
         Linear_System_PETSc(       Solver_Interface * aInput,
-                                   Dist_Map        * aFreeMap,
-                                   Dist_Map        * aFullMap,
+                                   sol::Dist_Map    * aFreeMap,
+                                   sol::Dist_Map    * aFullMap,
                              const bool               aNotCreatedByNonLinSolver = false);
 
         Linear_System_PETSc( const char* aString );

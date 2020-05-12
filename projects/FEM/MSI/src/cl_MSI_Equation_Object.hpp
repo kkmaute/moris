@@ -20,7 +20,6 @@
 #include "cl_MSI_Pdof_Host.hpp"
 namespace moris
 {
-class Dist_Vector;
     namespace mtk
     {
         class Set;
@@ -324,9 +323,9 @@ class Dist_Vector;
             /**
              * compute dQIdp with finite difference
              */
-            virtual void compute_dQIdp_FD()
+            virtual void compute_explicit_dQIdp()
             {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_FD - not implemented in msi." );
+                MORIS_ERROR( false, "Equation_Object::compute_explicit_dQIdp - not implemented in msi." );
             };
 
 //------------------------------------------------------------------------------

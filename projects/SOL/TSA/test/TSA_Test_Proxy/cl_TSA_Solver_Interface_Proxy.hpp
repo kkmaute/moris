@@ -13,7 +13,10 @@
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 namespace tsa
 {
     //class Nonlinear_Solver;
@@ -31,8 +34,8 @@ namespace tsa
 
         bool mUseMatrixMarketFiles;                       // determines is matrix and RHS comes from MatrixMarket files
 
-        Dist_Vector * mSolutionVector;
-        Dist_Vector * mSolutionVectorPrev;
+        sol::Dist_Vector * mSolutionVector;
+        sol::Dist_Vector * mSolutionVectorPrev;
         Matrix< DDRMat > mMySolVec;
         Matrix< DDRMat > mMySolVecPrev;
 
@@ -59,9 +62,9 @@ namespace tsa
 
         // ----------------------------------------------------------------------------------------------
 
-        void set_solution_vector( Dist_Vector * aSolutionVector );
+        void set_solution_vector( sol::Dist_Vector * aSolutionVector );
 
-        void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
+        void set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector );
 
         void free_block_memory( const uint aBlockInd ){};
 

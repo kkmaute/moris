@@ -53,7 +53,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void MSI_Solver_Interface::set_solution_vector( Dist_Vector * aSolutionVector )
+    void MSI_Solver_Interface::set_solution_vector( sol::Dist_Vector * aSolutionVector )
     {
         mSolutionVector = aSolutionVector;
         mMSI->mEquationModel->set_solution_vector( mSolutionVector );
@@ -61,7 +61,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void MSI_Solver_Interface::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+    void MSI_Solver_Interface::set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector )
     {
         mPrevSolutionVector = aSolutionVector;
         mMSI->mEquationModel->set_previous_solution_vector( mPrevSolutionVector );
@@ -69,7 +69,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-     void MSI_Solver_Interface::set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+     void MSI_Solver_Interface::set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
      {
          mSensitivitySolutionVector = aSolutionVector;
          mMSI->mEquationModel->set_adjoint_solution_vector( mSensitivitySolutionVector );

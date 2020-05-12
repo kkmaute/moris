@@ -305,8 +305,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         std::cout<<tSolverInterface->get_requested_dof_types().size()<<std::endl;
 
         Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
-        Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
+        sol::Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
+        sol::Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
         mVector->sum_into_global_values( {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});
 

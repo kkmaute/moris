@@ -23,7 +23,10 @@
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 
 namespace mdl
 {

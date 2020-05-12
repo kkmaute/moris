@@ -21,8 +21,11 @@
 
 namespace moris
 {
-    class Dist_Vector;
-    class Dist_Matrix;
+    namespace sol
+    {
+       class Dist_Vector;
+       class Dist_Matrix;
+    }
 
     namespace mtk
     {
@@ -59,17 +62,17 @@ public:
         }
     };
 
-    virtual void set_solution_vector( Dist_Vector * aSolutionVector )
+    virtual void set_solution_vector( sol::Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 
-    virtual void set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+    virtual void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set."); };
 
     virtual void set_time_levels_for_type( const enum MSI::Dof_Type aDofType,
                                    const moris::uint   aNumTimeLevels )
     { MORIS_ERROR( false, "Solver_Interface::set_time_levels_for_type: not set."); };
 
-    virtual void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+    virtual void set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector_prev_time_step: not set."); };
 
     virtual void set_time( const Matrix< DDRMat> & aTime )
@@ -249,22 +252,22 @@ public:
     };
 
 //---------------------------------------------------------------------------------------------------------
-    void build_graph( moris::Dist_Matrix * aMat );
+    void build_graph( moris::sol::Dist_Matrix * aMat );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
-                              moris::Dist_Vector   * aVectorRHS );
+    void fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
+                              moris::sol::Dist_Vector   * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
-                              moris::Dist_Vector   * aVectorRHS,
-                              moris::Dist_Vector   * aFullSolutionVector );
+    void fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
+                              moris::sol::Dist_Vector   * aVectorRHS,
+                              moris::sol::Dist_Vector   * aFullSolutionVector );
 
 //---------------------------------------------------------------------------------------------------------
-    void assemble_jacobian( moris::Dist_Matrix * aMat );
+    void assemble_jacobian( moris::sol::Dist_Matrix * aMat );
 
 //---------------------------------------------------------------------------------------------------------
-    void assemble_RHS( moris::Dist_Vector * aVectorRHS );
+    void assemble_RHS( moris::sol::Dist_Vector * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
     void get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,

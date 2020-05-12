@@ -22,7 +22,7 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        void Equation_Model::compute_dQIdp()
+        void Equation_Model::compute_implicit_dQIdp()
         {
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
@@ -31,9 +31,9 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // full vector and prev full vector
-            mdQidu = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
+            mImplicitdQidu = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
 
-            mdQidu->vec_put_scalar( 0.0 );
+            mImplicitdQidu->vec_put_scalar( 0.0 );
 
             // Get local number of elements
             moris::uint tNumSets = mFemSets.size();
@@ -48,6 +48,39 @@ namespace moris
                 for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
                     mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
+                }
+
+                //this->free_block_memory( Ii );
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void Equation_Model::compute_explicit_dQIdp()
+        {
+            // create map object
+            moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+            mdQiduMap = tMatFactory.create_map( mDesignVariableInterface->get_my_local_global_map() );
+
+            uint tNumRHMS = this->get_num_rhs();
+
+            // full vector and prev full vector
+            mExplicitdQidu = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
+
+            mExplicitdQidu->vec_put_scalar( 0.0 );
+
+            // Get local number of elements
+            moris::uint tNumSets = mFemSets.size();
+
+            // Loop over all local elements to build matrix graph
+            for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
+            {
+                moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
+
+                //this->initialize_set( Ii, true );
+
+                for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+                {
+//                    mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
                 }
 
                 //this->free_block_memory( Ii );

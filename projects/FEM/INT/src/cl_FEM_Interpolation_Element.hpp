@@ -123,7 +123,7 @@ namespace moris
         /**
          * compute dQIdp using finite difference
          */
-        void compute_dQIdp_FD();
+        void compute_explicit_dQIdp();
 
 //------------------------------------------------------------------------------
         /**

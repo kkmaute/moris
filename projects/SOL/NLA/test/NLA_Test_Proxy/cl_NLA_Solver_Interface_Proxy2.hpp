@@ -14,7 +14,10 @@
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 namespace NLA
 {
     class Nonlinear_Algorithm;
@@ -32,7 +35,7 @@ namespace NLA
 
         bool mUseMatrixMarketFiles;                       // determines is matrix and RHS comes from MatrixMarket files
 
-        Dist_Vector * mSolutionVector;
+        sol::Dist_Vector * mSolutionVector = nullptr;
         Matrix< DDRMat > mMySolVec;
 
         moris::sint mNX;
@@ -50,7 +53,7 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
 
-        void set_solution_vector( Dist_Vector * aSolutionVector );
+        void set_solution_vector( sol::Dist_Vector * aSolutionVector );
 
         void free_block_memory( const uint aBlockInd ){};
 

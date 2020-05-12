@@ -22,7 +22,7 @@
 namespace moris
 {
 // Project header files
-class Sparse_Matrix_EpetraFECrs : public Dist_Matrix
+class Sparse_Matrix_EpetraFECrs : public sol::Dist_Matrix
 {
 private:
     moris::Matrix< DDUMat > mDirichletBCVec;
@@ -34,7 +34,7 @@ protected:
 
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
-                               const moris::Dist_Map        * aMap );
+                               const moris::sol::Dist_Map    * aMap );
 
     Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
                                const moris::uint aCols )
@@ -61,15 +61,15 @@ public:
     void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );
 
-    void get_diagonal( moris::Dist_Vector & aDiagVec ) const;
+    void get_diagonal( moris::sol::Dist_Vector & aDiagVec ) const;
 
     void mat_put_scalar( const moris::real & aValue );
 
-    void sparse_mat_left_scale( const moris::Dist_Vector & aScaleVector );
+    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector );
 
-    void sparse_mat_right_scale( const moris::Dist_Vector & aScaleVector );
+    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector );
 
-    void replace_diagonal_values( const moris::Dist_Vector & aDiagVec );
+    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec );
 
     void  print() const;
 

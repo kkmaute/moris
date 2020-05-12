@@ -15,7 +15,10 @@ extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 
 namespace mtk
 {
@@ -34,10 +37,10 @@ namespace mdl
                 moris::MSI::Model_Solver_Interface * mMSI = nullptr;
                 moris::MSI::Dof_Manager            * mDofMgn = nullptr;
 
-                Dist_Vector                        * mSolutionVector = nullptr;
-                Dist_Vector                        * mPrevSolutionVector = nullptr;
-                Dist_Vector                        * mSensitivitySolutionVector = nullptr;
-                Dist_Vector                        * mExactSolFromFile = nullptr;
+                sol::Dist_Vector                   * mSolutionVector = nullptr;
+                sol::Dist_Vector                   * mPrevSolutionVector = nullptr;
+                sol::Dist_Vector                   * mSensitivitySolutionVector = nullptr;
+                sol::Dist_Vector                   * mExactSolFromFile = nullptr;
                 Matrix< DDRMat>  mTime;
                 Matrix< DDRMat>  mPrevTime;
 
@@ -68,15 +71,15 @@ namespace mdl
 
 //------------------------------------------------------------------------------
 
-            void set_solution_vector( Dist_Vector * aSolutionVector );
+            void set_solution_vector( sol::Dist_Vector * aSolutionVector );
 
 //------------------------------------------------------------------------------
 
-            void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
+            void set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector );
 
 //------------------------------------------------------------------------------
 
-            void set_adjoint_solution_vector( Dist_Vector * aSolutionVector );
+            void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector );
 
 //------------------------------------------------------------------------------
 

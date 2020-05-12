@@ -59,7 +59,7 @@ public :
 
     void free_block_memory( const uint aBlockInd ){};
 
-    void set_solution_vector( Dist_Vector * aSolutionVector ){};
+    void set_solution_vector( sol::Dist_Vector * aSolutionVector ){};
 
     // ----------------------------------------------------------------------------------------------
     // local-to-global map

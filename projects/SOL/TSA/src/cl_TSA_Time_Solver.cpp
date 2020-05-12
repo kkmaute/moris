@@ -252,7 +252,7 @@ using namespace tsa;
 
 //-------------------------------------------------------------------------------------------------------
 
-    void Time_Solver::solve( Dist_Vector * aFullVector )
+    void Time_Solver::solve( sol::Dist_Vector * aFullVector )
     {
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 

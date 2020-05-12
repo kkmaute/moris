@@ -28,7 +28,7 @@
 namespace moris
 {
 
-class Map_PETSc : public moris::Dist_Map
+class Map_PETSc : public moris::sol::Dist_Map
 {
 private:
 

@@ -80,8 +80,8 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
 //----------------------------------------------------------------------------------------
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
-                                                Dist_Map *        aFreeMap,
-                                                Dist_Map *        aFullMap ) : moris::dla::Linear_Problem( aInput )
+                                                sol::Dist_Map    * aFreeMap,
+                                                sol::Dist_Map    * aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 

@@ -12,7 +12,10 @@
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 namespace dla
 {
     class Linear_Solver_Algorithm;

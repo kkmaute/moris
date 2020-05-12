@@ -11,8 +11,8 @@ using namespace moris;
 
 //----------------------------------------------------------------------------------------------
 
-Vector_Epetra::Vector_Epetra(       Dist_Map       * aMapClass,
-                              const sint              aNumVectors ) : Dist_Vector( aMapClass )
+Vector_Epetra::Vector_Epetra(       sol::Dist_Map   * aMapClass,
+                              const sint              aNumVectors ) : sol::Dist_Vector( aMapClass )
 {
 	mNumVectors = aNumVectors;
 
@@ -64,9 +64,9 @@ void Vector_Epetra::vector_global_asembly()
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vec_plus_vec( const moris::real & aScaleA,
-                                        Dist_Vector & aVecA,
-                                  const moris::real & aScaleThis )
+void Vector_Epetra::vec_plus_vec( const moris::real      & aScaleA,
+                                        sol::Dist_Vector & aVecA,
+                                  const moris::real      & aScaleThis )
 {
     // check if both vectors are build with the same map
     const Epetra_Map* tMap = aVecA.get_map()->get_epetra_map();
@@ -111,7 +111,7 @@ void Vector_Epetra::scale_vector( const moris::real & aValue,
 //----------------------------------------------------------------------------------------------
 
 // Import the local vector into the global vector object mEpetraVec
-void Vector_Epetra::import_local_to_global( Dist_Vector & aSourceVec )
+void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
 {
     // check if both vectores have the same map
     const Epetra_Map* tMap = aSourceVec.get_map()->get_epetra_map();

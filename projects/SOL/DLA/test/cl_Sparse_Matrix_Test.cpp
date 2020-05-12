@@ -34,11 +34,11 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Dist_Map * tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+    sol::Dist_Map * tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                     tSolverInput->get_constrained_Ids());
 
     // Create pointer to sparse matrix
-    Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tLocalMap );
+    sol::Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tLocalMap );
 
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -105,14 +105,14 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+    sol::Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
-    Dist_Vector * tVectorScale = tMatFactory.create_vector( tSolverInput, tMap, 1 );
+    sol::Dist_Vector * tVectorScale = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
     // Create pointer to sparse matrix
-    Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
+    sol::Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
 
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -184,14 +184,14 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+    sol::Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
-    Dist_Vector * tVectorDiagonal = tMatFactory.create_vector( tSolverInput, tMap, 1 );
+    sol::Dist_Vector * tVectorDiagonal = tMatFactory.create_vector( tSolverInput, tMap, 1 );
 
     // Create pointer to sparse matrix
-    Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
+    sol::Dist_Matrix * tMat = tMatFactory.create_matrix( tSolverInput, tMap );
 
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -287,7 +287,7 @@ TEST_CASE("Get Matrix Values","[Get_Matrix_Values],[DistLinAlg]")
     {
         PetscInitializeNoArguments();
         // Create pointer to sparse matrix
-        Dist_Matrix * tMat = new moris::Matrix_PETSc( 4, 4 );
+        sol::Dist_Matrix * tMat = new moris::Matrix_PETSc( 4, 4 );
 
         Matrix< DDSMat > tElementIds = { { 0, 1, 2, 3 } };
 

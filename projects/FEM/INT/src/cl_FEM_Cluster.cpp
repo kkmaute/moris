@@ -383,7 +383,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Cluster::compute_dQIdp_FD()
+        void Cluster::compute_explicit_dQIdp()
         {
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )

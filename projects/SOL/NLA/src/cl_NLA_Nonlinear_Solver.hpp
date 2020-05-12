@@ -256,7 +256,7 @@ namespace NLA
 
         //void solve();
 
-        void solve( Dist_Vector * aFullVector);
+        void solve( sol::Dist_Vector * aFullVector);
 
         void solve( Nonlinear_Problem * aNonlinearProblem );
 
