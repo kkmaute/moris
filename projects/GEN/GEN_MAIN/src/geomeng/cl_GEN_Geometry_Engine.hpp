@@ -116,23 +116,19 @@ namespace moris
             Pdv_Host_Manager mPdvHostManager;
 
             // Phase Table
-            moris::Matrix<moris::IndexMat> tPhaseTableExplicit; // temporary explicit phase table
             Phase_Table mPhaseTable;
 
             // Node Entity Phase Vals - only analytic phase values are stored here to prevent duplicate storage of discrete geometries
             moris::Matrix< moris::DDRMat > mNodePhaseVals;
 
             // Mesh
-            mtk::Mesh_Manager* mMesh;
+            mtk::Mesh_Manager* mMeshManager;
             moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
             moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
             //
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
-
-            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
-
 
         public:
 
@@ -478,24 +474,11 @@ namespace moris
                                                       const moris_index                 aWhichMesh = 0 );
 
             /**
-             * Add geometry dv type to dv type list
-             *
-             * @param[ in ] aPdvTypes          lists of dv types (material only)
-             */
-            void set_pdv_types(Cell<Cell<Cell<PDV>>> aPdvTypes);
-
-            /**
-             * initialize interpolation pdv host list
-             * @param[ in ] aWhichMesh a mesh index
-             */
-            void initialize_interp_pdv_host_list( moris_index aWhichMesh = 0 );
-
-            /**
              * @brief assign the pdv type and property for each pdv host in a given set via a GEN_Field class
              */
             void assign_ip_hosts_by_set_name( std::string                  aSetName,
                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                              enum PDV                  aPdvType,
+                                              PDV                  aPdvType,
                                               moris_index                  aWhichMesh = 0 );
 
             /**
@@ -503,7 +486,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
                                               std::shared_ptr< GEN_Property > aPropertyPointer,
-                                              enum PDV                     aPdvType,
+                                              PDV                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
 
             /**
@@ -511,7 +494,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                               enum PDV                  aPdvType,
+                                               PDV                  aPdvType,
                                                moris_index                  aWhichMesh = 0 );
 
             /**
@@ -519,24 +502,26 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
                                                std::shared_ptr< GEN_Property > aPropertyPointer,
-                                               enum PDV                     aPdvType,
+                                               PDV                     aPdvType,
                                                moris_index                     aWhichMesh = 0 );
 
             /**
-             * @brief create pdv objects for the spatial dimensions
-             *        - if the hosts have already been initialized via the interpolation mesh, add new PDV objects to them
-             *        - if not, initialize the hosts and add PDV objects to them
+             * Create PDV hosts with the specified PDV types on the interpolation mesh
+             *
+             * @param aPdvTypes PDV types; set->group->individual
+             * @param aMeshIndex Interpolation mesh index
              */
-            void initialize_integ_pdv_host_list( moris_index aWhichMesh = 0 );
+            void create_ip_pdv_hosts(Cell<Cell<Cell<PDV>>> aPdvTypes, moris_index aMeshIndex = 0);
 
             /**
-             * Mark an integration design variable type as being unchanging
+             * Create PDV hosts with PDVs for each of the spatial dimensions on the integration mesh
              *
-             * @param aPdvType The pdv type to be marked
+             * @param aMeshIndex Integration mesh index
              */
-            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType);
+            void create_ig_pdv_hosts(moris_index aMeshIndex = 0);
 
         private:
+
             /**
              * Get the index of analytic geometry
              *
@@ -552,8 +537,6 @@ namespace moris
              * @return Index for the discrete geometry cell
              */
             size_t discrete_geometry_index(size_t aGlobalGeometryIndex);
-
-
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
