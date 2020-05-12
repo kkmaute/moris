@@ -1210,7 +1210,7 @@ namespace moris
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Node indices per set
-                tNodeIndicesPerSet(tMeshSetIndex) = tInterpolationMesh->get_set_by_index(tMeshSetIndex)->get_vertieces_inds_on_block(false);
+                tNodeIndicesPerSet(tMeshSetIndex) = tInterpolationMesh->get_set_by_index(tMeshSetIndex)->get_vertices_inds_on_block(false);
             }
 
             // Create hosts
@@ -1256,7 +1256,7 @@ namespace moris
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Node indices per set
-                tNodeIndicesPerSet(tMeshSetIndex) = tIntegrationMesh->get_set_by_index(tMeshSetIndex)->get_vertieces_inds_on_block(false);
+                tNodeIndicesPerSet(tMeshSetIndex) = tIntegrationMesh->get_set_by_index(tMeshSetIndex)->get_vertices_inds_on_block(false);
 
                 // PDV_Type types per set
                 tPdvTypes(tMeshSetIndex).resize(1);

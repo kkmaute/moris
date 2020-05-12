@@ -166,7 +166,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
               uint
-              get_num_vertieces_on_set( const bool aOnlyPrimary )
+              get_num_vertices_on_set( const bool aOnlyPrimary )
               {
                   return mNumVerticesOnSet;
               }
@@ -174,7 +174,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
               moris::Matrix< DDSMat >
-              get_vertieces_inds_on_block(const bool aOnlyPrimary )
+              get_vertices_inds_on_block(const bool aOnlyPrimary )
               {
                   return mVerticesOnSet;
               }
