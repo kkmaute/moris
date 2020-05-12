@@ -44,7 +44,7 @@ namespace moris
 
         std::shared_ptr< fem::Property > tPropMaster2 = std::make_shared< fem::Property > ();
         tPropMaster2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
-//        tPropMaster2->set_dv_type_list( {{ PDV::LS1 }, { PDV::LS2 }} );
+//        tPropMaster2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
         tPropMaster2->set_val_function( tValFunction_UTIWG );
 
         std::shared_ptr< fem::Property > tPropSlave1 = std::make_shared< fem::Property > ();
@@ -52,7 +52,7 @@ namespace moris
 
         std::shared_ptr< fem::Property > tPropSlave2 = std::make_shared< fem::Property > ();
         tPropSlave2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
-//        tPropSlave2->set_dv_type_list( {{ PDV::LS1 }, { PDV::LS2 }} );
+//        tPropSlave2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
         tPropSlave2->set_val_function( tValFunction_UTIWG );
 
         // define constitutive models
@@ -77,9 +77,9 @@ namespace moris
 
 //        // create master dv field interpolators
 //        Cell< Field_Interpolator* > tMasterDvFI( 3, nullptr );
-//        tMasterDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV::DENSITY } );
-//        tMasterDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV::LS1 } );
-//        tMasterDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { PDV::LS2 } );
+//        tMasterDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::DENSITY } );
+//        tMasterDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
+//        tMasterDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
 
 //        // create slave dof field interpolators
 //        Cell< Field_Interpolator* > tSlaveDofFI( 4, nullptr );
@@ -89,8 +89,8 @@ namespace moris
 
 //        // create slave dv field interpolators
 //        Cell< Field_Interpolator* > tSlaveDvFI( 2, nullptr );
-//        tSlaveDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV::LS1 } );
-//        tSlaveDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV::LS2 } );
+//        tSlaveDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
+//        tSlaveDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -99,8 +99,8 @@ namespace moris
         tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Master_Slave::SLAVE );
-        //tIWG->set_dv_type_list( {{ PDV::DENSITY }, {PDV::LS1 }}, mtk::Master_Slave::MASTER );
-        //tIWG->set_dv_type_list( {{PDV::LS1 }}, mtk::Master_Slave::SLAVE );
+        //tIWG->set_dv_type_list( {{ PDV_Type::DENSITY }, {PDV_Type::LS1 }}, mtk::Master_Slave::MASTER );
+        //tIWG->set_dv_type_list( {{PDV_Type::LS1 }}, mtk::Master_Slave::SLAVE );
         tIWG->set_constitutive_model( tCMMaster1, "Diffusion", mtk::Master_Slave::MASTER );
         //tIWG->set_constitutive_model( tCMSlave1, "Diffusion", mtk::Master_Slave::SLAVE );
         tIWG->set_property( tPropMaster1, "Load", mtk::Master_Slave::MASTER );

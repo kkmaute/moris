@@ -64,7 +64,7 @@ class Property;
             moris::Cell< MSI::Dof_Type > mDofType;
 
             // dv type
-            moris::Cell< PDV > mDvType;
+            moris::Cell< PDV_Type > mDvType;
 
             // flag for evaluation
             bool mNBuildEval = true;
@@ -111,7 +111,7 @@ class Property;
             Field_Interpolator( const uint                         & aNumberOfFields,
                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                const moris::Cell< PDV >          aDvType );
+                                const moris::Cell< PDV_Type >          aDvType );
 
             /**
              * trivial constructor for unit test
@@ -127,7 +127,7 @@ class Property;
               * trivial constructor for unit test
               */
              Field_Interpolator( const uint                  & aNumberOfFields,
-                                 const moris::Cell< PDV >   aDvType ) : mNumberOfFields( aNumberOfFields ),
+                                 const moris::Cell< PDV_Type >   aDvType ) : mNumberOfFields( aNumberOfFields ),
                                                                                  mDvType( aDvType )
              {
                  mNFieldCoeff = mNumberOfFields;
@@ -152,7 +152,7 @@ class Property;
             /**
              * get dof type
              */
-            const moris::Cell< PDV > & get_dv_type() const
+            const moris::Cell< PDV_Type > & get_dv_type() const
             {
                 return mDvType;
             }

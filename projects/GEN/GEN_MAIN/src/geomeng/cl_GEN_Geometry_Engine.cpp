@@ -1039,7 +1039,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_name( std::string                  aSetName,
                                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                                               PDV                  aPdvType,
+                                                               PDV_Type                  aPdvType,
                                                                moris_index                  aWhichMesh)
         {
             // get the mesh set from name
@@ -1079,7 +1079,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
                                                               std::shared_ptr< GEN_Property > aPropertyPointer,
-                                                              PDV                     aPdvType,
+                                                              PDV_Type                     aPdvType,
                                                               moris_index                     aWhichMesh)
         {
             // get the mesh set from name
@@ -1119,7 +1119,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_index(moris_index                  aSetIndex,
                                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                                               PDV                  aPdvType,
+                                                               PDV_Type                  aPdvType,
                                                                moris_index                  aWhichMesh)
         {
             // get the mesh set from index
@@ -1159,7 +1159,7 @@ namespace moris
 
         void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
                                                                 std::shared_ptr< GEN_Property > aPropertyPointer,
-                                                                PDV                     aPdvType,
+                                                                PDV_Type                     aPdvType,
                                                                 moris_index                     aWhichMesh)
         {
             // get the mesh set from index
@@ -1197,7 +1197,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_ip_pdv_hosts(Cell<Cell<Cell<PDV>>> aPdvTypes, moris_index aMeshIndex)
+        void Geometry_Engine::create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex)
         {
             // Get information from integration mesh
             mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh(aMeshIndex);
@@ -1206,7 +1206,7 @@ namespace moris
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
 
             // Loop through sets
-            Cell<Cell<Cell<PDV>>> tPdvTypes(tNumSets);
+            Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Node indices per set
@@ -1227,22 +1227,22 @@ namespace moris
             uint tNumNodes = tIntegrationMesh->get_num_nodes();
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
 
-            // Cell of IG PDV types
-            Cell<PDV> tCoordinatePdvs(mSpatialDim);
+            // Cell of IG PDV_Type types
+            Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);
 
             switch(mSpatialDim)
             {
                 case(2):
                 {
-                    tCoordinatePdvs(0) = PDV::X_COORDINATE;
-                    tCoordinatePdvs(1) = PDV::Y_COORDINATE;
+                    tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
+                    tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
                     break;
                 }
                 case(3):
                 {
-                    tCoordinatePdvs(0) = PDV::X_COORDINATE;
-                    tCoordinatePdvs(1) = PDV::Y_COORDINATE;
-                    tCoordinatePdvs(2) = PDV::Z_COORDINATE;
+                    tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
+                    tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
+                    tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
                     break;
                 }
                 default:
@@ -1252,13 +1252,13 @@ namespace moris
             }
 
             // Loop through sets
-            Cell<Cell<Cell<PDV>>> tPdvTypes(tNumSets);
+            Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Node indices per set
                 tNodeIndicesPerSet(tMeshSetIndex) = tIntegrationMesh->get_set_by_index(tMeshSetIndex)->get_vertieces_inds_on_block(false);
 
-                // PDV types per set
+                // PDV_Type types per set
                 tPdvTypes(tMeshSetIndex).resize(1);
                 tPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
             }
@@ -1274,11 +1274,11 @@ namespace moris
                 tCoordinates = tIntegrationMesh->get_node_coordinate(tNodeIndex);
 
                 // Create PDVs
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV::X_COORDINATE, tCoordinates(0));
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV::Y_COORDINATE, tCoordinates(1));
+                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tCoordinates(0));
+                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tCoordinates(1));
                 if (mSpatialDim == 3)
                 {
-                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV::Z_COORDINATE, tCoordinates(2));
+                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tCoordinates(2));
                 }
             }
         }

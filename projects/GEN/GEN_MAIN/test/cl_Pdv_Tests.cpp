@@ -138,10 +138,10 @@ namespace moris
             mtk::Mesh_Manager tMeshManager;
             //------------------------------------------------------------------------------
             //------------------------------------------------------------------------------
-            Cell< enum PDV > tPdvList(3);
-            tPdvList(0) = PDV::DENSITY;
-            tPdvList(1) = PDV::DENSITY1;
-            tPdvList(2) = PDV::DENSITY2;
+            Cell< enum PDV_Type > tPdvList(3);
+            tPdvList(0) = PDV_Type::DENSITY;
+            tPdvList(1) = PDV_Type::DENSITY1;
+            tPdvList(2) = PDV_Type::DENSITY2;
 
             std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
             tConstDensityProp0->set_parameters( { {{ 1234 }} } );
@@ -259,7 +259,7 @@ namespace moris
     {
         /*
          * testing the integration node pdv functionalities in serial
-         * - assign PDV types (UX, UY) to the integration nodes which are at the geometry boundaries
+         * - assign PDV_Type types (UX, UY) to the integration nodes which are at the geometry boundaries
          * - check assignment
          */
         if(par_size()<=1)
@@ -359,9 +359,9 @@ namespace moris
             tGeometryEngine.register_mesh( &tMeshManager );
 
             //------------------------------------------------------------------------------
-            Cell< enum PDV > tPdvList(2);
-            tPdvList(0) = PDV::DENSITY;
-            tPdvList(1) = PDV::DENSITY1;
+            Cell< enum PDV_Type > tPdvList(2);
+            tPdvList(0) = PDV_Type::DENSITY;
+            tPdvList(1) = PDV_Type::DENSITY1;
 
             std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
             tConstDensityProp0->set_parameters( { {{ 1234 }} } );
@@ -390,8 +390,8 @@ namespace moris
             moris::Cell< moris::Matrix< DDSMat > > tIsActive;
 
             Matrix< IndexMat > tIntegVerts{{10, 11, 12}};
-            Cell< enum PDV > tList(2);
-            tList(0) = PDV::X_COORDINATE;  tList(1) = PDV::Y_COORDINATE;
+            Cell< enum PDV_Type > tList(2);
+            tList(0) = PDV_Type::X_COORDINATE;  tList(1) = PDV_Type::Y_COORDINATE;
 
             tDVInterface.get_ig_pdv_value( tIntegVerts, tList, tDvVals, tIsActive );
 
@@ -418,7 +418,7 @@ namespace moris
         /*
          * testing the interpolation pdv hosts in serial
          *  - assign different density values to two materials on same mesh, one via a GEN_Field class and the other via a property pointer
-         *  - check the IP "changing" list from the interface to be sure the PDV from the field is not on it
+         *  - check the IP "changing" list from the interface to be sure the PDV_Type from the field is not on it
          *  - create the IG PDVs and set X_COORDINATE to be "unchanging"
          *  - check the IG "changing" list from the interface to be sure X_COORDINATE is not on it
          */
@@ -469,9 +469,9 @@ namespace moris
 
             mtk::Mesh_Manager tMeshManager;
             //------------------------------------------------------------------------------
-            Cell< enum PDV > tPdvList(2);
-            tPdvList(0) = PDV::DENSITY;
-            tPdvList(1) = PDV::DENSITY1;
+            Cell< enum PDV_Type > tPdvList(2);
+            tPdvList(0) = PDV_Type::DENSITY;
+            tPdvList(1) = PDV_Type::DENSITY1;
 
             std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
             tConstDensityProp0->set_val_function( tFieldPropFunc0 );
@@ -543,7 +543,7 @@ namespace moris
             // create the IG hosts, set X_COORDINATE to unchanging
             tGeometryEngine.initialize_integ_pdv_host_list(  );
 
-            tGeometryEngine.mark_ig_dv_type_as_unchanging( PDV::X_COORDINATE );
+            tGeometryEngine.mark_ig_dv_type_as_unchanging( PDV_Type::X_COORDINATE );
             //------------------------------------------------------------------------------
             // get the vertex indices of the circle to use below
             Matrix< IndexMat > tAllVertIndices;
@@ -584,24 +584,24 @@ namespace moris
             // ------------------------ end ------------------------
 
             // ------- check the IP list of changing types ---------
-            Cell< enum PDV > tIPChangingList;
+            Cell< enum PDV_Type > tIPChangingList;
             tDVInterface.get_ip_requested_dv_types( tIPChangingList );
 
             // check that the changing type is DENSITY1
             for( uint i=0; i<tIPChangingList.size(); i++ )
             {
-                REQUIRE( tIPChangingList(i) != PDV::DENSITY );
+                REQUIRE( tIPChangingList(i) != PDV_Type::DENSITY );
             }
             // ------------------------ end ------------------------
 
             // -------- check the IG list of changing types --------
-            Cell< enum PDV > tIGChangingList;
+            Cell< enum PDV_Type > tIGChangingList;
             tDVInterface.get_ig_requested_dv_types( tIGChangingList );
 
             // check that the changing types are Y_COORDINATE and Z_COORDINATE
             for( uint i=0; i<tIGChangingList.size(); i++ )
             {
-                REQUIRE( tIGChangingList(i) != PDV::X_COORDINATE );
+                REQUIRE( tIGChangingList(i) != PDV_Type::X_COORDINATE );
             }
             // ------------------------ end ------------------------
         }

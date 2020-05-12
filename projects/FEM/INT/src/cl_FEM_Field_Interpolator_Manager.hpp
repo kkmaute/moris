@@ -60,7 +60,7 @@ namespace moris
         moris::uint mMaxNumDofFI;
 
         // dof type list for the FI manager
-        const moris::Cell< moris::Cell< enum PDV > > mDvTypes;
+        const moris::Cell< moris::Cell< enum PDV_Type > > mDvTypes;
 
         // dof type map
         moris::Matrix< DDSMat > mDvTypeMap;
@@ -100,7 +100,7 @@ namespace moris
          */
         Field_Interpolator_Manager
         ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
-          const moris::Cell< moris::Cell< enum PDV > >        & aDvTypes,
+          const moris::Cell< moris::Cell< enum PDV_Type > >        & aDvTypes,
                 MSI::Equation_Set                                * aEquationSet,
                 mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
 
@@ -210,7 +210,7 @@ namespace moris
          * get the field interpolator for a given dv type
          * @param[ in ] aDvType a dv type enum
          */
-        Field_Interpolator * get_field_interpolators_for_type( enum PDV aDvType );
+        Field_Interpolator * get_field_interpolators_for_type( enum PDV_Type aDvType );
 
 //------------------------------------------------------------------------------
         /**
@@ -241,7 +241,7 @@ namespace moris
          * @param[ in ] aDofType a dof type for which the coeff will be set
          * @param[ in ] aCoeff   coefficients to be set
          */
-        void set_coeff_for_type( enum PDV        aDvType,
+        void set_coeff_for_type( enum PDV_Type        aDvType,
                                  Matrix< DDRMat > & aCoeff );
 
 //------------------------------------------------------------------------------

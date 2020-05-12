@@ -56,13 +56,13 @@ namespace moris
             Matrix< DDSMat > mGlobalDofTypeMap;
 
             // dv type list
-            moris::Cell< moris::Cell< PDV > > mDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mDvTypes;
 
             // local string to dv enum map
-            std::map< std::string, PDV > mDvMap;
+            std::map< std::string, PDV_Type > mDvMap;
 
             // global dv type list
-            moris::Cell< moris::Cell< PDV > > mGlobalDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mGlobalDvTypes;
 
             // global dv type map
             Matrix< DDSMat > mGlobalDvTypeMap;
@@ -316,7 +316,7 @@ namespace moris
              * set constitutive model dv types
              * @param[ in ] aDvTypes a list of group of dv types
              */
-            void set_dv_type_list( moris::Cell< moris::Cell< PDV > > aDvTypes );
+            void set_dv_type_list( moris::Cell< moris::Cell< PDV_Type > > aDvTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -324,7 +324,7 @@ namespace moris
              * @param[ in ] aDvTypes   a list of group of dv types
              * @param[ in ] aDvStrings a list of strings to describe the dv types
              */
-            void set_dv_type_list( moris::Cell< moris::Cell< PDV > > aDvTypes,
+            void set_dv_type_list( moris::Cell< moris::Cell< PDV_Type > > aDvTypes,
                                    moris::Cell< std::string >           aDvStrings );
 
 //------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ namespace moris
              * return a cell of dv types
              * @param[ out ] aDvTypes a cell of cell of dv types
              */
-            const moris::Cell< moris::Cell< PDV > > & get_dv_type_list() const
+            const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list() const
             {
                 return mDvTypes;
             };
@@ -419,7 +419,7 @@ namespace moris
              * @param[ in ] aDvTypes  a cell of dv type to fill
              */
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                  moris::Cell< PDV >        & aDvTypes );
+                                                  moris::Cell< PDV_Type >        & aDvTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -454,7 +454,7 @@ namespace moris
              * get global dv type list
              * @param[ out ] mGlobalDvTypes global list of dv types
              */
-            const moris::Cell< moris::Cell< PDV > > & get_global_dv_type_list();
+            const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list();
 
 //------------------------------------------------------------------------------
             /**
@@ -479,7 +479,7 @@ namespace moris
              * @param[ out ] tDvDependency a bool true if dependency on dv type
              *
              */
-            bool check_dv_dependency( const moris::Cell< PDV > & aDvType );
+            bool check_dv_dependency( const moris::Cell< PDV_Type > & aDvType );
 
 //------------------------------------------------------------------------------
             /**
@@ -916,14 +916,14 @@ namespace moris
              * @param[ in ]  aDvTypes  a dv type wrt which the derivative is evaluated
              * @param[ out ] mdFluxdDv derivative of the flux wrt dv
              */
-            const Matrix< DDRMat > & dFluxdDV( const moris::Cell< PDV > & aDvType );
+            const Matrix< DDRMat > & dFluxdDV( const moris::Cell< PDV_Type > & aDvType );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            virtual void eval_dFluxdDV( const moris::Cell< PDV > & aDvTypes )
+            virtual void eval_dFluxdDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDV - This function does nothing. " );
             }
@@ -934,14 +934,14 @@ namespace moris
              * @param[ in ]  aDvTypes    a dv type wrt which the derivative is evaluated
              * @param[ out ] mdStraindDv derivative of the strain wrt dv
              */
-            const Matrix< DDRMat > & dStraindDV( const moris::Cell< PDV > & aDvType );
+            const Matrix< DDRMat > & dStraindDV( const moris::Cell< PDV_Type > & aDvType );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            virtual void eval_dStraindDV( const moris::Cell< PDV > & aDvTypes )
+            virtual void eval_dStraindDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dStraindDV - This function does nothing. " );
             }
@@ -952,14 +952,14 @@ namespace moris
              * @param[ in ]  aDvTypes   a dv type wrt which the derivative is evaluated
              * @param[ out ] mdConstdDv derivative of the constitutive matrix wrt dv
              */
-            const Matrix< DDRMat > & dConstdDV( const moris::Cell< PDV > & aDvType );
+            const Matrix< DDRMat > & dConstdDV( const moris::Cell< PDV_Type > & aDvType );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model constitutive matrix derivative wrt to a dv type
              * @param[ in ] aDvTypes a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dConstdDV( const moris::Cell< PDV > & aDvTypes )
+            virtual void eval_dConstdDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDV - This function does nothing. " );
             }
@@ -1027,7 +1027,7 @@ namespace moris
              * @param[ in ] aPerturbation real to perturb for FD
              */
 
-            void eval_dFluxdDV_FD( const moris::Cell< PDV > & aDvTypes,
+            void eval_dFluxdDV_FD( const moris::Cell< PDV_Type > & aDvTypes,
                                          Matrix< DDRMat >      & adFluxdDV_FD,
                                          real                    aPerturbation );
 //------------------------------------------------------------------------------
@@ -1038,7 +1038,7 @@ namespace moris
             * @param[ in ] aPerturbation  real to perturb for FD
             */
 
-            void eval_dStraindDV_FD( const moris::Cell< PDV > & aDvTypes,
+            void eval_dStraindDV_FD( const moris::Cell< PDV_Type > & aDvTypes,
                                      Matrix< DDRMat >            & adStraindDV_FD,
                                      real                          aPerturbation );
 

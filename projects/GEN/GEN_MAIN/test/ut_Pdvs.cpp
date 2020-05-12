@@ -6,9 +6,9 @@ namespace moris
 {
     namespace ge
     {
-        TEST_CASE("PDV creation through host manager", "[GE], [PDV]")
+        TEST_CASE("PDV_Type creation through host manager", "[GE], [PDV_Type]")
         {
-            // Create PDV host manager
+            // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;
             
             // ----------------- Interpolation PDVs ---------------------- //
@@ -19,20 +19,20 @@ namespace moris
             tIpNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
             tIpNodeIndicesPerSet(1) = {{2, 3, 4, 5}};
 
-            // PDV types per set
-            Cell<Cell<Cell<PDV>>> tIpPdvTypes(2);
+            // PDV_Type types per set
+            Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(2);
             tIpPdvTypes(0).resize(2);
             tIpPdvTypes(1).resize(2);
             tIpPdvTypes(0)(0).resize(1);
             tIpPdvTypes(0)(1).resize(1);
             tIpPdvTypes(1)(0).resize(1);
             tIpPdvTypes(1)(1).resize(1);
-            tIpPdvTypes(0)(0)(0) = PDV::DENSITY;
-            tIpPdvTypes(0)(1)(0) = PDV::TEMPERATURE;
-            tIpPdvTypes(1)(0)(0) = PDV::TEMPERATURE;
-            tIpPdvTypes(1)(1)(0) = PDV::ELASTIC_MODULUS;
+            tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
+            tIpPdvTypes(0)(1)(0) = PDV_Type::TEMPERATURE;
+            tIpPdvTypes(1)(0)(0) = PDV_Type::TEMPERATURE;
+            tIpPdvTypes(1)(1)(0) = PDV_Type::ELASTIC_MODULUS;
 
-            // Create PDV hosts
+            // Create PDV_Type hosts
             tPdvHostManager.create_ip_pdv_hosts(6, tIpNodeIndicesPerSet, tIpPdvTypes);
 
             // Set PDVs
@@ -57,7 +57,7 @@ namespace moris
                     tPdvHostManager.get_ip_pdv_value(tIpNodeIndicesPerSet(tMeshSetIndex), tIpPdvTypes(tMeshSetIndex)(tPdvIndex), tPdvValues);
                     for (uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++)
                     {
-                        CHECK(tPdvValues(0)(tNodeIndex) == tMeshSetIndex + (tMeshSetIndex == 0) * (tNodeIndex > 1) * (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV::TEMPERATURE));
+                        CHECK(tPdvValues(0)(tNodeIndex) == tMeshSetIndex + (tMeshSetIndex == 0) * (tNodeIndex > 1) * (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV_Type::TEMPERATURE));
                     }
                 }
             }
@@ -72,21 +72,21 @@ namespace moris
             tIgNodeIndicesPerSet(1) = {{0, 4, 5}};
             tIgNodeIndicesPerSet(2) = {{1, 2, 6, 7}};
 
-            // IG PDV types
-            Cell<PDV> tCoordinatePdvs(3);
-            tCoordinatePdvs(0) = PDV::X_COORDINATE;
-            tCoordinatePdvs(1) = PDV::Y_COORDINATE;
-            tCoordinatePdvs(2) = PDV::Z_COORDINATE;
+            // IG PDV_Type types
+            Cell<PDV_Type> tCoordinatePdvs(3);
+            tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
+            tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
+            tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
 
-            // PDV types per set
-            Cell<Cell<Cell<PDV>>> tIgPdvTypes(3);
+            // PDV_Type types per set
+            Cell<Cell<Cell<PDV_Type>>> tIgPdvTypes(3);
             for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
             {
                 tIgPdvTypes(tMeshSetIndex).resize(1);
                 tIgPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
             }
 
-            // Create PDV hosts
+            // Create PDV_Type hosts
             tPdvHostManager.create_ig_pdv_hosts(8, tIgNodeIndicesPerSet, tIgPdvTypes);
 
             // Set PDVs

@@ -109,15 +109,15 @@ public:
 
     xtk::Topology const & get_parent_entity_topology( );
     //------------------------------------------------------------------------------
-    void register_pdv_type( enum PDV aPdvType );
+    void register_pdv_type( enum PDV_Type aPdvType );
 
-    void set_pdv_list( moris::Cell< enum PDV > aPdvList );
+    void set_pdv_list( moris::Cell< enum PDV_Type > aPdvList );
 
-    moris::Cell< enum PDV > get_pdv_list( );
+    moris::Cell< enum PDV_Type > get_pdv_list( );
 
     //------------------------------------------------------------------------------
 
-    real get_pdv_val( const enum PDV aPdvType );
+    real get_pdv_val( const enum PDV_Type aPdvType );
 
 
     //------------------------------------------------------------------------------

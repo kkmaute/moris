@@ -204,7 +204,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_2D", "[IWG_Incompressible_NS
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum PDV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager
@@ -453,7 +453,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche_3D", "[IWG_Incompressible_NS
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum PDV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager

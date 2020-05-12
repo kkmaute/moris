@@ -300,7 +300,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dFluxdDV ( mSpaceDim x numDerDv )
              */
-            void eval_dFluxdDV( const moris::Cell< PDV > & aDofTypes );
+            void eval_dFluxdDV( const moris::Cell< PDV_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -308,7 +308,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dStraindDV ( mSpaceDim x numDerDV )
              */
-            void eval_dStraindDV( const moris::Cell< PDV > & aDofTypes );
+            void eval_dStraindDV( const moris::Cell< PDV_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
         };

@@ -1,5 +1,5 @@
-#ifndef MORIS_CL_GEN_PDV_HOST_HPP_
-#define MORIS_CL_GEN_PDV_HOST_HPP_
+#ifndef MORIS_CL_GEN_PDV_Type_HOST_HPP_
+#define MORIS_CL_GEN_PDV_Type_HOST_HPP_
 
 // GEN_MAIN
 #include "cl_GEN_Field.hpp"
@@ -19,7 +19,7 @@ namespace moris
         private :
             // Information about the contained PDVs
             Cell<std::shared_ptr<GEN_Pdv>> mPdvList;
-            moris::map<PDV, uint> mPdvTypeMap;
+            moris::map<PDV_Type, uint> mPdvTypeMap;
             Matrix<DDUMat> mGlobalPdvIndices;
             Cell<bool> mActivePdvs;
             
@@ -31,10 +31,10 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aPdvTypes PDV types for this host
-             * @param aStartingGlobalIndex Global index to start assigning new PDV types
+             * @param aPdvTypes PDV_Type types for this host
+             * @param aStartingGlobalIndex Global index to start assigning new PDV_Type types
              */
-            Pdv_Host(const Cell<PDV>& aPdvTypes, uint aStartingGlobalIndex);
+            Pdv_Host(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
             
             /**
              * destructor
@@ -42,70 +42,70 @@ namespace moris
             ~Pdv_Host();
 
             /**
-             * Update the pdv type list to include potentially new PDV types
+             * Update the pdv type list to include potentially new PDV_Type types
              *
-             * @param aPdvTypes Potentially new PDV types to be added
-             * @param aStartingGlobalIndex Global index to start assigning to PDV types
-             * @return Number of added PDV types (unique PDVs)
+             * @param aPdvTypes Potentially new PDV_Type types to be added
+             * @param aStartingGlobalIndex Global index to start assigning to PDV_Type types
+             * @return Number of added PDV_Type types (unique PDVs)
              */
-            uint add_pdv_types(const Cell<PDV>& aPdvTypes, uint aStartingGlobalIndex);
+            uint add_pdv_types(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
             
             /**
-             * Create PDV with GEN field
+             * Create PDV_Type with GEN field
              *
-             * @param aPdvType PDV type
+             * @param aPdvType PDV_Type type
              * @param aFieldPointer Pointer to a GEN field
              * @param aNodeIndex Node index for pulling a value from the field
              */
-            void create_pdv(PDV aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex);
+            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex);
             
             /**
-             * Create PDV with GEN property
+             * Create PDV_Type with GEN property
              *
-             * @param aPdvType PDV type
+             * @param aPdvType PDV_Type type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_pdv(PDV aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
+            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
             
             /**
-             * Create PDV with real value
+             * Create PDV_Type with real value
              *
-             * @param aPdvType PDV type
-             * @param aPdvVal PDV value
+             * @param aPdvType PDV_Type type
+             * @param aPdvVal PDV_Type value
              */
-            void create_pdv(PDV aPdvType, moris::real aPdvVal);
+            void create_pdv(PDV_Type aPdvType, moris::real aPdvVal);
             
             /**
-             * Check if PDV type is active on this host
+             * Check if PDV_Type type is active on this host
              *
-             * @param aPdvType PDV type
-             * @return if PDV type is active
+             * @param aPdvType PDV_Type type
+             * @return if PDV_Type type is active
              */
-            bool is_active_type(PDV aPdvType);
+            bool is_active_type(PDV_Type aPdvType);
 
             /**
              * Mark a pdv as being inactive
              *
-             * @param aPdvType PDV type
+             * @param aPdvType PDV_Type type
              * @param aGlobalPdvTypeMap
              */
-            void mark_pdv_as_inactive(PDV aPdvType);
+            void mark_pdv_as_inactive(PDV_Type aPdvType);
             
             /**
              * Get global index for pdv by type
              *
-             * @param aPdvType PDV type
+             * @param aPdvType PDV_Type type
              * @return Global index
              */
-            uint get_global_index_for_pdv_type(PDV aPdvType);
+            uint get_global_index_for_pdv_type(PDV_Type aPdvType);
 
             /**
-             * Get the value of a PDV by type
+             * Get the value of a PDV_Type by type
              *
-             * @param aPdvType PDV type
-             * @return PDV value
+             * @param aPdvType PDV_Type type
+             * @return PDV_Type value
              */
-            real get_pdv_value(PDV aPdvType);
+            real get_pdv_value(PDV_Type aPdvType);
             
         };
     }  // end ge namepsace

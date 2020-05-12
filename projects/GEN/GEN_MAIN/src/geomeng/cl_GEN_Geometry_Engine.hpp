@@ -404,13 +404,13 @@ namespace moris
             void advance_geometry_index();
 
             /**
-             * this function need to be deleted as they are not used in the current PDV interface implementation !!!
+             * this function need to be deleted as they are not used in the current PDV_Type interface implementation !!!
              */
             moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
             /**
              * @brief Returns the ADV indices of the provided nodes
-             * this function need to be deleted as they are not used in the current PDV interface implementation !!!
+             * this function need to be deleted as they are not used in the current PDV_Type interface implementation !!!
              */
             moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
             ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
@@ -478,7 +478,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_name( std::string                  aSetName,
                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                              PDV                  aPdvType,
+                                              PDV_Type                  aPdvType,
                                               moris_index                  aWhichMesh = 0 );
 
             /**
@@ -486,7 +486,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
                                               std::shared_ptr< GEN_Property > aPropertyPointer,
-                                              PDV                     aPdvType,
+                                              PDV_Type                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
 
             /**
@@ -494,7 +494,7 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                               PDV                  aPdvType,
+                                               PDV_Type                  aPdvType,
                                                moris_index                  aWhichMesh = 0 );
 
             /**
@@ -502,19 +502,19 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
                                                std::shared_ptr< GEN_Property > aPropertyPointer,
-                                               PDV                     aPdvType,
+                                               PDV_Type                     aPdvType,
                                                moris_index                     aWhichMesh = 0 );
 
             /**
-             * Create PDV hosts with the specified PDV types on the interpolation mesh
+             * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
              *
-             * @param aPdvTypes PDV types; set->group->individual
+             * @param aPdvTypes PDV_Type types; set->group->individual
              * @param aMeshIndex Interpolation mesh index
              */
-            void create_ip_pdv_hosts(Cell<Cell<Cell<PDV>>> aPdvTypes, moris_index aMeshIndex = 0);
+            void create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex = 0);
 
             /**
-             * Create PDV hosts with PDVs for each of the spatial dimensions on the integration mesh
+             * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
              *
              * @param aMeshIndex Integration mesh index
              */

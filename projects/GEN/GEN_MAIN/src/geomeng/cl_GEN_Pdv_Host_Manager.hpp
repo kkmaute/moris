@@ -1,5 +1,5 @@
-#ifndef CL_GEN_PDV_HOST_MANAGER_HPP_
-#define CL_GEN_PDV_HOST_MANAGER_HPP_
+#ifndef CL_GEN_PDV_Type_HOST_MANAGER_HPP_
+#define CL_GEN_PDV_Type_HOST_MANAGER_HPP_
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Pdv_Host.hpp"
@@ -21,17 +21,17 @@ namespace moris
             // position in map corresponds to the value of the pdv enum
             Matrix<IndexMat> mGlobalPdvTypeMap;
             
-            // Groups of PDV types used per set
-            Cell<Cell<Cell<PDV>>> mIpPdvTypes;
-            Cell<Cell<Cell<PDV>>> mIgPdvTypes;
+            // Groups of PDV_Type types used per set
+            Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;
+            Cell<Cell<Cell<PDV_Type>>> mIgPdvTypes;
 
-            // Ungrouped PDV types
-            Cell<Cell<PDV>> mUniqueIpPdvTypes;
-            Cell<Cell<PDV>> mUniqueIgPdvTypes;
+            // Ungrouped PDV_Type types
+            Cell<Cell<PDV_Type>> mUniqueIpPdvTypes;
+            Cell<Cell<PDV_Type>> mUniqueIgPdvTypes;
             
-            // Requested PDV types
-            Cell<PDV> mRequestedIpPdvTypes;
-            Cell<PDV> mRequestedIgPdvTypes;
+            // Requested PDV_Type types
+            Cell<PDV_Type> mRequestedIpPdvTypes;
+            Cell<PDV_Type> mRequestedIgPdvTypes;
             
             // Pdv index
             uint mGlobalPdvIndex = 0;
@@ -54,7 +54,7 @@ namespace moris
              * @param aIPMeshSetIndex integration mesh index
              * @param aPdvTypes        list of groups of dv types to fill
              */
-            void get_ip_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV>>& aPdvTypes);
+            void get_ip_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes);
             
             /**
              * Get dv types for set
@@ -62,7 +62,7 @@ namespace moris
              * @param aIGMeshSetIndex integration mesh index
              * @param aPdvTypes        list of groups of dv types to fill
              */
-            void get_ig_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV>>& aPdvTypes);
+            void get_ig_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes);
             
             /**
              * Get unique dv types for set
@@ -70,7 +70,7 @@ namespace moris
              * @param aIPMeshSetIndex integration mesh index
              * @param aPdvTypes        list dv types to fill
              */
-            void get_ip_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV>& aPdvTypes);
+            void get_ip_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes);
             
             /**
              * Get unique dv types for set
@@ -78,7 +78,7 @@ namespace moris
              * @param aIGMeshSetIndex integration mesh index
              * @param aPdvTypes        list dv types to fill
              */
-            void get_ig_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV>& aPdvTypes);
+            void get_ig_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes);
             
             /**
              * Get pdv values for requested vertex indices and dv types
@@ -88,7 +88,7 @@ namespace moris
              * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
              */
             void get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV>&       aPdvTypes,
+                                  const Cell<PDV_Type>&       aPdvTypes,
                                   Cell<Matrix<DDRMat>>&     aDvValues);
             
             /**
@@ -100,7 +100,7 @@ namespace moris
              * @param aIsActive    list of if design variable is active (vertexIndex)(DvType)
              */
             void get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV>&       aPdvTypes,
+                                  const Cell<PDV_Type>&       aPdvTypes,
                                   Cell<Matrix<DDRMat>>&     aDvValues,
                                   Cell<Matrix<DDSMat>>&     aIsActiveDv);
             
@@ -112,7 +112,7 @@ namespace moris
              * @param aDvValues    list of dv values (DvType)(vertexIndex)
              */
             void get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV>&       aPdvTypes,
+                                  const Cell<PDV_Type>&       aPdvTypes,
                                   Cell<Matrix<DDRMat>>&     aDvValues);
             
             /**
@@ -124,7 +124,7 @@ namespace moris
              * @param aIsActive    list of active design variables (vertexIndex)(DvType)
              */
             void get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV>&       aPdvTypes,
+                                  const Cell<PDV_Type>&       aPdvTypes,
                                   Cell<Matrix<DDRMat>>&     aDvValues,
                                   Cell<Matrix<DDSMat>>&     aIsActiveDv);
             
@@ -143,7 +143,7 @@ namespace moris
              * @param aDvIds         List of Dv Ids
              */
             void get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
-                                                const Cell<PDV>&         aPdvTypes,
+                                                const Cell<PDV_Type>&         aPdvTypes,
                                                 Cell<Matrix<IdMat>>&        aDvIds);
             
             /**
@@ -154,7 +154,7 @@ namespace moris
              * @param aDvIds         List of Dv Ids
              */
             void get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
-                                                const Cell<PDV>&         aPdvTypes,
+                                                const Cell<PDV_Type>&         aPdvTypes,
                                                 Cell<Matrix<IdMat>>&        aDvIds);
 
             /**
@@ -162,13 +162,13 @@ namespace moris
              *
              * @param[ in ] aPdvTypes list of dv types to fill
              */
-            void get_ip_requested_dv_types( Cell< PDV > & aPdvTypes );
+            void get_ip_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
 
             /**
              * get requested dv types for sensitivity analysis
              * @param[ in ] aPdvTypes list of dv types to fill
              */
-            void get_ig_requested_dv_types( Cell< PDV > & aPdvTypes );
+            void get_ig_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
             
             /**
              * Assign a GEN property to pdv type by node index
@@ -178,7 +178,7 @@ namespace moris
              * @param aNodeIndex     a node index
              */
             void assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Property>  aPropertyPointer,
-                                                              PDV                        aPdvType,
+                                                              PDV_Type                        aPdvType,
                                                               moris_index                   aNodeIndex);
             
             /**
@@ -189,7 +189,7 @@ namespace moris
              * @param aNodeIndex  a node index
              */
             void assign_field_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Field>   aFieldPointer,
-                                                          PDV                       aPdvType,
+                                                          PDV_Type                       aPdvType,
                                                           moris_index                  aNodeIndex);
             
             /**
@@ -198,7 +198,7 @@ namespace moris
              * @param aNodeIndex     a node index
              * @param aPdvType         a list of dv types
              */
-            std::shared_ptr<GEN_Pdv> get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType);
+            std::shared_ptr<GEN_Pdv> get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
             /**
              * Get pdv by type and node index
@@ -206,97 +206,97 @@ namespace moris
              * @param aNodeIndex     a node index
              * @param aPdvType         a list of dv types
              */
-            std::shared_ptr<GEN_Pdv> get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV aPdvType);
+            std::shared_ptr<GEN_Pdv> get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
             /**
              * Create the pdv hosts on interpolation nodes based on the pdv types per set
              *
-             * @param aTotalNodes The total number of nodes where a PDV host will be created
+             * @param aTotalNodes The total number of nodes where a PDV_Type host will be created
              * @param aNodeIndicesPerSet The node indices contained on a set
-             * @param aPdvTypes The PDV types per set, grouped
+             * @param aPdvTypes The PDV_Type types per set, grouped
              */
-            void create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV>>> aPdvTypes);
+            void create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
 
             /**
              * Create the pdv hosts on integration nodes based on the pdv types per set
              *
-             * @param aTotalNodes The total number of nodes where a PDV host will be created
+             * @param aTotalNodes The total number of nodes where a PDV_Type host will be created
              * @param aNodeIndicesPerSet The node indices contained on a set
-             * @param aPdvTypes The PDV types per set, grouped
+             * @param aPdvTypes The PDV_Type types per set, grouped
              */
-            void create_ig_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV>>> aPdvTypes);
+            void create_ig_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
 
             /**
-             * Mark a PDV on an interpolation node as being inactive
+             * Mark a PDV_Type on an interpolation node as being inactive
              *
              * @param aNodeIndex IP node index
-             * @param aPdvType PDV on the node to be marked
+             * @param aPdvType PDV_Type on the node to be marked
              */
-            void mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType);
+            void mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType);
 
             /**
-             * Mark a PDV on an integration node as being inactive
+             * Mark a PDV_Type on an integration node as being inactive
              *
              * @param aNodeIndex IG node index
-             * @param aPdvType PDV on the node to be marked
+             * @param aPdvType PDV_Type on the node to be marked
              */
-            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV aPdvType);
+            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType);
             
             /**
-             * Set the requested interpolation node PDV types for sensitivities
+             * Set the requested interpolation node PDV_Type types for sensitivities
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ip_requested_dv_types(Cell<PDV>& aPdvTypes);
+            void set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
 
             /**
-             * Set the requested integration node PDV types for sensitivities
+             * Set the requested integration node PDV_Type types for sensitivities
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ig_requested_dv_types(Cell<PDV>& aPdvTypes);
+            void set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
 
             /**
-             * Create PDV on interpolation mesh node with GEN field
+             * Create PDV_Type on interpolation mesh node with GEN field
              *
              * @param aNodeIndex Node index for pulling a value from the field
-             * @param aPdvType PDV type
+             * @param aPdvType PDV_Type type
              * @param aFieldPointer Pointer to a GEN field
              */
-            void create_ip_pdv(uint aNodeIndex, PDV aPdvType, std::shared_ptr<GEN_Field> aFieldPointer);
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer);
 
             /**
-             * Create PDV on interpolation mesh node with GEN property
+             * Create PDV_Type on interpolation mesh node with GEN property
              *
              * @param aNodeIndex Node index
-             * @param aPdvType PDV type
+             * @param aPdvType PDV_Type type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_ip_pdv(uint aNodeIndex, PDV aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
 
             /**
-             * Create PDV on interpolation mesh node with real value
+             * Create PDV_Type on interpolation mesh node with real value
              *
              * @param aNodeIndex Node index
-             * @param aPdvType PDV type
-             * @param aPdvVal PDV value
+             * @param aPdvType PDV_Type type
+             * @param aPdvVal PDV_Type value
              */
-            void create_ip_pdv(uint aNodeIndex, PDV aPdvType, moris::real aPdvVal);
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
 
             /**
-             * Create PDV on integration mesh node with real value
+             * Create PDV_Type on integration mesh node with real value
              *
              * @param aNodeIndex Node index
-             * @param aPdvType PDV type
-             * @param aPdvVal PDV value
+             * @param aPdvType PDV_Type type
+             * @param aPdvVal PDV_Type value
              */
-            void create_ig_pdv(uint aNodeIndex, PDV aPdvType, moris::real aPdvVal);
+            void create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
 
 //            /**
 //             * communicate dv types
 //             * @param aPdvTypeList a local list of dv types
 //             */
-//            void communicate_ip_dv_types(moris::Cell<PDV>& aPdvTypeList)
+//            void communicate_ip_dv_types(moris::Cell<PDV_Type>& aPdvTypeList)
 //            {
 //                // get processor size
 //                int tSize = par_size();
@@ -373,7 +373,7 @@ namespace moris
 //             * communicate dv types
 //             * @param aPdvTypeList a local list of dv types
 //             */
-//            void communicate_ig_dv_types(moris::Cell<PDV>& aPdvTypeList)
+//            void communicate_ig_dv_types(moris::Cell<PDV_Type>& aPdvTypeList)
 //            {
 //                // get processor size
 //                int tSize = par_size();

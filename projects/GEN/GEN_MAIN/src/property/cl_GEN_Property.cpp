@@ -37,7 +37,7 @@ void GEN_Property::build_dv_type_map()
 }
 
 //------------------------------------------------------------------------------
-bool GEN_Property::check_dv_dependency( const moris::Cell< PDV > aDvType )
+bool GEN_Property::check_dv_dependency( const moris::Cell< PDV_Type > aDvType )
 {
     // set bool for dependency
     bool tDvDependency = false;
@@ -119,7 +119,7 @@ void GEN_Property::eval_Prop()
     mProp = mValFunction( mParameters );
 }
 //------------------------------------------------------------------------------
-const Matrix< DDRMat > & GEN_Property::dPropdDV( const moris::Cell< PDV > aDvType )
+const Matrix< DDRMat > & GEN_Property::dPropdDV( const moris::Cell< PDV_Type > aDvType )
 {
     // if aDvType is not an active dv type for the property
     MORIS_ERROR( this->check_dv_dependency( aDvType ), "Property::dPropdDV - no dependency in this dv type." );
@@ -141,7 +141,7 @@ const Matrix< DDRMat > & GEN_Property::dPropdDV( const moris::Cell< PDV > aDvTyp
     return mPropDvDer( tDvIndex );
 }
 //------------------------------------------------------------------------------
-void GEN_Property::eval_dPropdDV( const moris::Cell< PDV > aDvType )
+void GEN_Property::eval_dPropdDV( const moris::Cell< PDV_Type > aDvType )
 {
     // get the dv index
     uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );

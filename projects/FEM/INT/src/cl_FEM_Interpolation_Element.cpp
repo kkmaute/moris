@@ -173,7 +173,7 @@ namespace moris
              for( uint iDv = 0; iDv < tMasterNumDvTypes; iDv++ )
              {
                  // get the dv type group
-                 moris::Cell< PDV > tDvTypeGroup
+                 moris::Cell< PDV_Type > tDvTypeGroup
                  = mSet->get_dv_type_list()( iDv );
 
                 // get the pdv values for the ith dv type group
@@ -200,7 +200,7 @@ namespace moris
              for( uint iDv = 0; iDv < tSlaveNumDvTypes; iDv++ )
              {
                  // get the dv type group
-                 moris::Cell< PDV > tDvTypeGroup
+                 moris::Cell< PDV_Type > tDvTypeGroup
                  = mSet->get_dv_type_list( mtk::Master_Slave::SLAVE )( iDv );
 
                  // get the pdv values for the ith dv type group
@@ -485,7 +485,7 @@ namespace moris
             {
                 moris::Matrix< DDRMat > tLocalIPdQiDp = trans( mAdjointPdofValues( Ik ) ) * tdRdp( 0 );
 
-                Cell< enum PDV > tRequestedIPDvTypes;
+                Cell< enum PDV_Type > tRequestedIPDvTypes;
 
                 mEquationSet->get_equation_model()
                             ->get_design_variable_interface()
@@ -532,7 +532,7 @@ namespace moris
             {
                 moris::Matrix< DDRMat > tLocalIGdQiDp = trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
 
-                Cell< enum PDV > tRequestedIGDvTypes;
+                Cell< enum PDV_Type > tRequestedIGDvTypes;
 
                 mEquationSet->get_equation_model()
                             ->get_design_variable_interface()

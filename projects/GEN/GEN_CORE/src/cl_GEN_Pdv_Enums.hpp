@@ -1,9 +1,9 @@
-#ifndef MORIS_CL_PDV_ENUMS_HPP_
-#define MORIS_CL_PDV_ENUMS_HPP_
+#ifndef MORIS_CL_PDV_Type_ENUMS_HPP_
+#define MORIS_CL_PDV_Type_ENUMS_HPP_
 
 namespace moris
 {
-    enum class PDV
+    enum class PDV_Type
     {
         X_COORDINATE,
         Y_COORDINATE,
@@ -16,18 +16,18 @@ namespace moris
         UNDEFINED
     };
 
-    moris::map< std::string, PDV > get_dv_type_map()
+    moris::map< std::string, PDV_Type > get_dv_type_map()
     {
-        moris::map< std::string, PDV > tPdvTypeMap;
+        moris::map< std::string, PDV_Type > tPdvTypeMap;
 
-        tPdvTypeMap["X_COORDINATE"]     = PDV::X_COORDINATE;
-        tPdvTypeMap["Y_COORDINATE"]     = PDV::Y_COORDINATE;
-        tPdvTypeMap["Z_COORDINATE"]     = PDV::Z_COORDINATE;
-        tPdvTypeMap["DENSITY"]          = PDV::DENSITY;
-        tPdvTypeMap["TEMPERATURE"]      = PDV::TEMPERATURE;
-        tPdvTypeMap["ELASTIC_MODULUS"]  = PDV::ELASTIC_MODULUS;
-        tPdvTypeMap["LS1"]              = PDV::LS1;
-        tPdvTypeMap["LS2"]              = PDV::LS2;
+        tPdvTypeMap["X_COORDINATE"]     = PDV_Type::X_COORDINATE;
+        tPdvTypeMap["Y_COORDINATE"]     = PDV_Type::Y_COORDINATE;
+        tPdvTypeMap["Z_COORDINATE"]     = PDV_Type::Z_COORDINATE;
+        tPdvTypeMap["DENSITY"]          = PDV_Type::DENSITY;
+        tPdvTypeMap["TEMPERATURE"]      = PDV_Type::TEMPERATURE;
+        tPdvTypeMap["ELASTIC_MODULUS"]  = PDV_Type::ELASTIC_MODULUS;
+        tPdvTypeMap["LS1"]              = PDV_Type::LS1;
+        tPdvTypeMap["LS2"]              = PDV_Type::LS2;
         return tPdvTypeMap;
     }
 

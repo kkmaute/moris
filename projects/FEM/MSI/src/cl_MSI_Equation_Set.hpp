@@ -68,8 +68,8 @@ namespace moris
         Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
         // lists of master and slave groups of dv types
-        moris::Cell< moris::Cell< enum PDV > > mMasterDvTypes;
-        moris::Cell< moris::Cell< enum PDV > > mSlaveDvTypes;
+        moris::Cell< moris::Cell< enum PDV_Type > > mMasterDvTypes;
+        moris::Cell< moris::Cell< enum PDV_Type > > mSlaveDvTypes;
 
         // maps for the master and slave dv type
         moris::Matrix< DDSMat > mMasterDvTypeMap;
@@ -94,7 +94,7 @@ namespace moris
 
         // unique list of dof and dv types
         moris::Cell< enum MSI::Dof_Type > mUniqueDofTypeList;
-        moris::Cell< enum PDV >        mUniqueDvTypeList;
+        moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
 
         // pointer to the model solver interface
         Model_Solver_Interface * mModelSolverInterface = nullptr;
@@ -324,7 +324,7 @@ namespace moris
          * get dv type list
          * @param[ in ] aIsMaster enum for master or slave
          */
-        moris::Cell< moris::Cell< PDV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             switch ( aIsMaster )
             {
@@ -378,7 +378,7 @@ namespace moris
          * @param[ in ] aIsMaster enum for master or slave
          * @param[ out ] sint     consecutive index for dv type
          */
-        sint get_dv_index_for_type( enum PDV            aDvType,
+        sint get_dv_index_for_type( enum PDV_Type            aDvType,
                                          mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             switch ( aIsMaster )
@@ -445,7 +445,7 @@ namespace moris
          * @param[ in ]  aIsMaster enum for master or slave
          * @param[ out ] sint      non-consecutive index for dv type
          */
-        sint get_dv_index_for_type_1( enum PDV            aDvType,
+        sint get_dv_index_for_type_1( enum PDV_Type            aDvType,
                                            mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             switch ( aIsMaster )
@@ -716,7 +716,7 @@ namespace moris
          * get unique dv type list
          * @param[ out ] mUniqueDvTypeList a unique list of dv type
          */
-        moris::Cell< enum PDV > & get_unique_dv_type_list()
+        moris::Cell< enum PDV_Type > & get_unique_dv_type_list()
         {
             return mUniqueDvTypeList;
         }
@@ -752,7 +752,7 @@ namespace moris
         /**
          * get requested dv types
          */
-        moris::Cell < enum PDV > get_requested_dv_types();
+        moris::Cell < enum PDV_Type > get_requested_dv_types();
 
 //------------------------------------------------------------------------------
         /**

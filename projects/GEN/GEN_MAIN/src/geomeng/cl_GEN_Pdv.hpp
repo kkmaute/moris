@@ -5,8 +5,8 @@
  *      Author: sonne
  */
 
-#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HPP_
-#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HPP_
+#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_Type_HPP_
+#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_Type_HPP_
 
 // GEN_MAIN
 #include "cl_GEN_Field.hpp"
@@ -45,7 +45,7 @@ namespace ge
             // assign pdv value from the property pointer
             mVal(0,0) = aFieldPointer->get_field_val_at_vertex( aEntityIndex );
 
-            // flag this PDV so the interface knows it is from a Field and therefore not changing
+            // flag this PDV_Type so the interface knows it is from a Field and therefore not changing
             mIsChanging = false;
         };
 //------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace ge
         }
 //------------------------------------------------------------------------------
         /*
-         * return flag for if this PDV is changing or not
+         * return flag for if this PDV_Type is changing or not
          */
         bool is_pdv_changing()
         {
@@ -96,7 +96,7 @@ namespace ge
         }
 //------------------------------------------------------------------------------
         /*
-         * set flag such that the PDV is not changing
+         * set flag such that the PDV_Type is not changing
          */
         void flag_as_unchanging()
         {
