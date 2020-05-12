@@ -130,7 +130,7 @@ public:
         {
             moris::mtk::Set * tSet = this->get_set_by_index( Ik);
 
-            tNumNodes += tSet->get_num_vertieces_on_set( mOnlyPrimary );
+            tNumNodes += tSet->get_num_vertices_on_set( mOnlyPrimary );
         }
         return tNumNodes;
     }

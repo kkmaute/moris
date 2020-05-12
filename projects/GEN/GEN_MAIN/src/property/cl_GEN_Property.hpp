@@ -12,7 +12,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"
 
 // GE includes
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -29,7 +29,7 @@ class GEN_Property
 
 protected:
     // active dv types
-    moris::Cell< moris::Cell< GEN_DV > > mDvTypes;
+    moris::Cell< moris::Cell< PDV_Type > > mDvTypes;
 
     // active dv type map
     Matrix< DDSMat > mDvTypeMap;
@@ -54,7 +54,7 @@ protected:
     moris::Cell< bool > mPropDvDerEval;
 
     // pdv type
-    enum GEN_DV mPdvType = GEN_DV::END_ENUM;
+    enum PDV_Type mPdvType = PDV_Type::UNDEFINED;
 
     // storage
     Matrix< DDRMat > mProp;
@@ -66,21 +66,21 @@ public:
     GEN_Property(  ){};
 
     //------------------------------------------------------------------------------
-    GEN_Property( enum GEN_DV aPdvType ): mPdvType( aPdvType )
+    GEN_Property( enum PDV_Type aPdvType ): mPdvType( aPdvType )
     {  };
 
     //------------------------------------------------------------------------------
     virtual ~GEN_Property( ){};
 
     //------------------------------------------------------------------------------
-    void set_pdv_type( enum GEN_DV aPdvType )
+    void set_pdv_type( enum PDV_Type aPdvType )
     {
         mPdvType = aPdvType;
     }
     //------------------------------------------------------------------------------
-    enum GEN_DV get_pdv_type( )
+    enum PDV_Type get_pdv_type( )
     {
-        MORIS_ASSERT( mPdvType == GEN_DV::END_ENUM, "cl_GEN_Property::get_pdv_type() - pdv type not set" );
+        MORIS_ASSERT( mPdvType == PDV_Type::UNDEFINED, "cl_GEN_Property::get_pdv_type() - pdv type not set" );
         return mPdvType;
     }
     //------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ public:
      * set a list of dv types
      * @param[ in ] aDvTypes list of dv type
      */
-    void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes )
+    void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes )
     {
         // set dv type list
         mDvTypes = aDvTypes;
@@ -186,7 +186,7 @@ public:
      * return a list of dv types
      * @param[ out ] mDvTypes list of dv type
      */
-    const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( ) const
+    const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( ) const
     {
         return mDvTypes;
     };
@@ -210,7 +210,7 @@ public:
      * @param[ in ]  aDvType cell of dv type
      * @param[ out ] aBool   boolean, true if dependency on the dv type
      */
-    bool check_dv_dependency( const moris::Cell< GEN_DV > aDvType );
+    bool check_dv_dependency( const moris::Cell< PDV_Type > aDvType );
     //------------------------------------------------------------------------------
     /**
      * set dv field interpolators
@@ -260,13 +260,13 @@ public:
      * @param[ in ]  aDvType   cell of dv type
      * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
      */
-    const Matrix< DDRMat > & dPropdDV( const moris::Cell< GEN_DV > aDvType );
+    const Matrix< DDRMat > & dPropdDV( const moris::Cell< PDV_Type > aDvType );
     //------------------------------------------------------------------------------
     /**
      * evaluate property derivatives wrt a design variable
      * @param[ in ] aDvType cell of dv type
      */
-    void eval_dPropdDV( const moris::Cell< GEN_DV > aDvType );
+    void eval_dPropdDV( const moris::Cell< PDV_Type > aDvType );
     //------------------------------------------------------------------------------
 
 };

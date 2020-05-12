@@ -67,6 +67,7 @@ namespace moris
         friend class Element_Sideset;
         friend class Element_Double_Sideset;
         friend class Element_Time_Sideset;
+        friend class Element_Time_Boundary;
         friend class Element;
 //------------------------------------------------------------------------------
     public:

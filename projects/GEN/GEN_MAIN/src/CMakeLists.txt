@@ -22,7 +22,6 @@ set(HEADERS
 	additional/fn_GEN_approximatate.hpp
 	additional/fn_GEN_bubble_sort.hpp
 
-	geomeng/cl_GEN_Design_Variable_Interface.hpp
 	gemoeng/cl_GEN_Field.hpp
 	geomeng/cl_GEN_Geometry_Engine.hpp
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
@@ -94,6 +93,8 @@ set(LIB_SOURCES
 
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp
+	geomeng/cl_GEN_Pdv_Host_Manager.cpp
+	geomeng/cl_GEN_Pdv_Host.cpp
 
     geometry/cl_GEN_Geometry_Analytic.cpp
 	geometry/cl_GEN_Geometry_Discrete.cpp

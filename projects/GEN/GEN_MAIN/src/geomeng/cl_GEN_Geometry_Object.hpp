@@ -17,7 +17,7 @@
 #include "../additional/cl_GEN_Enums.hpp"
 
 #include "../property/cl_GEN_Property.hpp"
-#include "../projects/GEN/GEN_CORE/src/cl_GEN_Dv_Enums.hpp"
+#include "../projects/GEN/GEN_CORE/src/cl_GEN_Pdv_Enums.hpp"
 
 // XTK includes
 #include "cl_XTK_Topology.hpp"
@@ -109,15 +109,15 @@ public:
 
     xtk::Topology const & get_parent_entity_topology( );
     //------------------------------------------------------------------------------
-    void register_pdv_type( enum GEN_DV aPdvType );
+    void register_pdv_type( enum PDV_Type aPdvType );
 
-    void set_pdv_list( moris::Cell< enum GEN_DV > aPdvList );
+    void set_pdv_list( moris::Cell< enum PDV_Type > aPdvList );
 
-    moris::Cell< enum GEN_DV > get_pdv_list( );
+    moris::Cell< enum PDV_Type > get_pdv_list( );
 
     //------------------------------------------------------------------------------
 
-    real get_pdv_val( const enum GEN_DV aPdvType );
+    real get_pdv_val( const enum PDV_Type aPdvType );
 
 
     //------------------------------------------------------------------------------

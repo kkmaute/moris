@@ -47,9 +47,9 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::Cell < enum GEN_DV > Equation_Set::get_requested_dv_types()
+        moris::Cell < enum PDV_Type > Equation_Set::get_requested_dv_types()
         {
-            moris::Cell< enum GEN_DV > tDvTypes;
+            moris::Cell< enum PDV_Type > tDvTypes;
             mDesignVariableInterface->get_ip_requested_dv_types( tDvTypes );
             return tDvTypes;
         }

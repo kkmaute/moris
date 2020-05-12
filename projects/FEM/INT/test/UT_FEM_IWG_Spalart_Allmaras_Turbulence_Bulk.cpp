@@ -120,7 +120,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                          { 0.0, 1.0, 1.0 }};
 
                 // fill evaluation point xi, tau
-                tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
+                tParamPoint = {{ 0.35 }, {-0.25}, { 0.75}, { 0.0 }};
 
                 // number of coefficients
                 tNumCoeffs = {{ 16 },{ 54 },{ 128 }};
@@ -265,7 +265,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
+            std::shared_ptr< fem::IWG > tIWG
+            = tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
             tIWG->set_residual_dof_type( tVisDofTypes );
             tIWG->set_dof_type_list( { tVelDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWG->set_property( tPropWallDistance, "WallDistance" );
@@ -307,11 +308,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::VISCOSITY }};
+            tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::VISCOSITY } };
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-            moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
             // populate the field interpolator manager
@@ -328,7 +329,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             // check evaluation of the residual for IWG
             //------------------------------------------------------------------------------
             // evaluate the residual
-            tIWG->compute_residual( 1.0 );
+            //tIWG->compute_residual( 1.0 );
 
             // check evaluation of the jacobian by FD
             //------------------------------------------------------------------------------
@@ -347,6 +348,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 //            print( tJacobianFD( { 0, tNumDofVis-1 }, { 0, tNumDofVel-1 } ), "tJacobianFDVU" );
 //            print( tJacobian(   { 0, tNumDofVis-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 }), "tJacobianVV" );
 //            print( tJacobianFD( { 0, tNumDofVis-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 }), "tJacobianFDVV" );
+
+            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 
             // require check is true
             REQUIRE( tCheckJacobian );

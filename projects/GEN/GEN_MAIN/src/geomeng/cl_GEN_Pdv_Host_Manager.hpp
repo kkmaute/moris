@@ -1,610 +1,453 @@
-/*
- * cl_GEN_Pdv_Host_Manager.hpp
- *
- *  Created on: Dec 20, 2019
- *      Author: sonne
- */
+#ifndef CL_GEN_PDV_Type_HOST_MANAGER_HPP_
+#define CL_GEN_PDV_Type_HOST_MANAGER_HPP_
 
-#ifndef PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_
-#define PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_
-
-// GEN_MAIN
+#include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Field.hpp"
-// GEN_CORE
-#include "cl_GEN_Dv_Enums.hpp"
-
-// CORE
+#include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
-#include "cl_Communication_Tools.hpp"
-#include "cl_Communication_Manager.hpp"
-#include "cl_Map.hpp"
-#include "fn_sum.hpp"
 
 namespace moris
 {
-namespace ge
-{
-class Pdv_Host_Manager
-{
-private:
-    // list of pdv hosts - interpolation nodes
-    moris::Cell< std::shared_ptr< GEN_Pdv_Host > > mIpHostList;
-    // list of pdv hosts - integration nodes
-    moris::Cell< std::shared_ptr< GEN_Pdv_Host > > mIgHostList;
-
-    // position in map corresponds to the value of the pdv enum
-    Matrix< IndexMat > mIpGlobalPdvTypeMap;
-    // position in map corresponds to the value of the pdv enum
-    Matrix< IndexMat > mIgGlobalPdvTypeMap;
-
-    // list containing all the used unique pdv types
-    moris::Cell< enum GEN_DV > mIpPdvTypeList;
-    // list containing all the unique pdv types which are not changing
-    moris::Cell< enum GEN_DV > mIpUnchangingPdvTypeList;
-
-    // list containing all the used unique pdv types
-    moris::Cell< enum GEN_DV > mIgPdvTypeList;
-    // list containing all the unique pdv types which are not changing
-    moris::Cell< enum GEN_DV > mIgUnchangingPdvTypeList;
-
-    // total number of dv types on interpolation nodes
-    uint mIpNumPDVs = 0;
-    // total number of dv types on integration nodes
-    uint mIgNumPDVs = 0;
-
-    // global dv ID for interpolation nodes
-    uint mIpGlobalID = 0;
-    // global dv ID for integration nodes
-    uint mIgGlobalID = 0;
-
-//------------------------------------------------------------------------------
-public:
-
-//------------------------------------------------------------------------------
-    /**
-     * constructor
-     */
-    Pdv_Host_Manager()
+    namespace ge
     {
-        // set size for IP dv type enum to index map
-        mIpGlobalPdvTypeMap.set_size( static_cast<size_t>(GEN_DV::END_ENUM), 1, gNoIndex );
-        // set size for IG dv type enum to index map
-        mIgGlobalPdvTypeMap.set_size( static_cast<size_t>(GEN_DV::ZCOORD) + 1, 1, gNoIndex );
-    };
-
-//------------------------------------------------------------------------------
-    /**
-     * trivial destructor
-     */
-    ~Pdv_Host_Manager(){};
-
-//------------------------------------------------------------------------------
-    /**
-     * get pdv host for a vertex
-     * @param[ out ] aPdvHost a pdv host for the vertex index
-     */
-    std::shared_ptr< GEN_Pdv_Host > get_ip_pdv_host( moris_index aVertexIndex )
-    {
-        return mIpHostList( aVertexIndex );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get pdv host for a vertex
-     * @param[ out ] aPdvHost a pdv host for the vertex index
-     */
-    std::shared_ptr< GEN_Pdv_Host > get_ig_pdv_host( moris_index aVertexIndex )
-    {
-        return mIgHostList( aVertexIndex );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * initialize the list of pdv host
-     * @param[ in ] aTotalNumVertices number of vertices in IP mesh
-     */
-    void initialize_ip_hosts( uint aTotalNumVertices )
-    {
-        // set size for the list of pdv host
-        mIpHostList.resize( aTotalNumVertices, nullptr );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * initialize the list of pdv host
-     * @param[ in ] aTotalNumVertices number of vertices in IG mesh
-     */
-    void initialize_ig_hosts( uint aTotalNumVertices )
-    {
-        // set size for the list of pdv host
-        mIgHostList.resize( aTotalNumVertices, nullptr );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * create pdv host
-     * @param[ in ] aNumPdvs     a number of dv
-     * @param[ in ] aVertexIndex a vertex index
-     */
-    void create_ip_pdv_host( uint        aNumPdvs,
-                             moris_index aVertexIndex )
-    {
-        // if pdv host not assigned yet
-        if( mIpHostList( aVertexIndex ) == nullptr )
+        class Pdv_Host_Manager : public MSI::Design_Variable_Interface
         {
-            // create a pdv host
-            mIpHostList( aVertexIndex ) = std::make_shared< GEN_Pdv_Host >( aNumPdvs, aVertexIndex );
-        }
-    }
-//------------------------------------------------------------------------------
-    /**
-     * create pdv host
-     * @param[ in ] aNumPdvs     a number of dv
-     * @param[ in ] aVertexIndex a vertex index
-     */
-    void create_ig_pdv_host( uint        aNumPdvs,
-                             moris_index aVertexIndex )
-    {
-        // if pdv host is not assigned yet
-        if( mIgHostList( aVertexIndex ) == nullptr )
-        {
-            // create a pdv host
-            mIgHostList( aVertexIndex ) = std::make_shared< GEN_Pdv_Host >( aNumPdvs, aVertexIndex );
-        }
-    }
-//------------------------------------------------------------------------------
-    /**
-     * assign a GEN property to pdv type by vertex index
-     * @param[ in ] aPropertyPointer a GEN property pointer
-     * @param[ in ] aPdvType         a list of dv types
-     * @param[ in ] aVertexIndex     a vertex index
-     */
-    void assign_property_to_pdv_type_by_vertex_index( std::shared_ptr< GEN_Property > aPropertyPointer,
-                                                      enum GEN_DV                     aPdvType,
-                                                      moris_index                     aVertexIndex )
-    {
-        // create a pdv host for vertex index
-        this->create_ip_pdv_host( mIpNumPDVs, aVertexIndex );
+        private:
+            // list of pdv hosts - interpolation nodes
+            Cell<std::shared_ptr<Pdv_Host>> mIpPdvHosts;
+            Cell<std::shared_ptr<Pdv_Host>> mIgPdvHosts;
+            
+            // position in map corresponds to the value of the pdv enum
+            Matrix<IndexMat> mGlobalPdvTypeMap;
+            
+            // Groups of PDV_Type types used per set
+            Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;
+            Cell<Cell<Cell<PDV_Type>>> mIgPdvTypes;
 
-        // get the pdv host and create the pdv for dv type
-        this->get_ip_pdv_host( aVertexIndex )->create_pdv( aPropertyPointer, aPdvType, mIpGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * assign a GEN Field to pdv type by vertex index
-     * @param[ in ] aFieldPointer a GEN Field pointer
-     * @param[ in ] aPdvType      a list of dv types
-     * @param[ in ] aVertexIndex  a vertex index
-     */
-    void assign_field_to_pdv_type_by_vertex_index( std::shared_ptr< GEN_Field > aFieldPointer,
-                                                   enum GEN_DV                  aPdvType,
-                                                   moris_index                  aVertexIndex )
-    {
-        // create a pdv host for vertex index
-        this->create_ip_pdv_host( mIpNumPDVs, aVertexIndex );
+            // Ungrouped PDV_Type types
+            Cell<Cell<PDV_Type>> mUniqueIpPdvTypes;
+            Cell<Cell<PDV_Type>> mUniqueIgPdvTypes;
+            
+            // Requested PDV_Type types
+            Cell<PDV_Type> mRequestedIpPdvTypes;
+            Cell<PDV_Type> mRequestedIgPdvTypes;
+            
+            // Pdv index
+            uint mGlobalPdvIndex = 0;
+            
+        public:
+            
+            /**
+             * Constructor
+             */
+            Pdv_Host_Manager();
+            
+            /**
+             * Destructor
+             */
+            ~Pdv_Host_Manager();
+            
+            /**
+             * Get dv types for set
+             *
+             * @param aIPMeshSetIndex integration mesh index
+             * @param aPdvTypes        list of groups of dv types to fill
+             */
+            void get_ip_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes);
+            
+            /**
+             * Get dv types for set
+             *
+             * @param aIGMeshSetIndex integration mesh index
+             * @param aPdvTypes        list of groups of dv types to fill
+             */
+            void get_ig_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes);
+            
+            /**
+             * Get unique dv types for set
+             *
+             * @param aIPMeshSetIndex integration mesh index
+             * @param aPdvTypes        list dv types to fill
+             */
+            void get_ip_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes);
+            
+            /**
+             * Get unique dv types for set
+             *
+             * @param aIGMeshSetIndex integration mesh index
+             * @param aPdvTypes        list dv types to fill
+             */
+            void get_ig_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes);
+            
+            /**
+             * Get pdv values for requested vertex indices and dv types
+             *
+             * @param aNodeIndices list of node indices
+             * @param aPdvTypes     list of dv types
+             * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
+             */
+            void get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
+                                  const Cell<PDV_Type>&       aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&     aDvValues);
+            
+            /**
+             * Get pdv values for requested vertex indices and dv types
+             *
+             * @param aNodeIndices list of node indices
+             * @param aPdvTypes     list of dv types
+             * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
+             * @param aIsActive    list of if design variable is active (vertexIndex)(DvType)
+             */
+            void get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
+                                  const Cell<PDV_Type>&       aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&     aDvValues,
+                                  Cell<Matrix<DDSMat>>&     aIsActiveDv);
+            
+            /**
+             * Get pdv values for requested vertex indices and dv types
+             *
+             * @param aNodeIndices list of node indices
+             * @param aPdvTypes     list of dv types
+             * @param aDvValues    list of dv values (DvType)(vertexIndex)
+             */
+            void get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
+                                  const Cell<PDV_Type>&       aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&     aDvValues);
+            
+            /**
+             * Get pdv values for requested vertex indices and dv types
+             *
+             * @param aNodeIndices list of node indices
+             * @param aPdvTypes     list of dv types
+             * @param aDvValues    list of dv values (DvType)(vertexIndex)
+             * @param aIsActive    list of active design variables (vertexIndex)(DvType)
+             */
+            void get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
+                                  const Cell<PDV_Type>&       aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&     aDvValues,
+                                  Cell<Matrix<DDSMat>>&     aIsActiveDv);
+            
+            /**
+             * Get the local to global pdv type map
+             *
+             * @return Matrix map from pdv type to index
+             */
+            Matrix<DDSMat> get_my_local_global_map();
+            
+            /**
+             * Return local to global DV type map
+             *
+             * @param aNodeIndex   List of vertex indices
+             * @param aPdvType        List of Dv types
+             * @param aDvIds         List of Dv Ids
+             */
+            void get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
+                                                const Cell<PDV_Type>&         aPdvTypes,
+                                                Cell<Matrix<IdMat>>&        aDvIds);
+            
+            /**
+             * Get local to global DV type map
+             *
+             * @param aNodeIndex   List of vertex indices
+             * @param aPdvType        List of Dv types
+             * @param aDvIds         List of Dv Ids
+             */
+            void get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
+                                                const Cell<PDV_Type>&         aPdvTypes,
+                                                Cell<Matrix<IdMat>>&        aDvIds);
 
-        // get the pdv host and create the pdv for dv type
-        this->get_ip_pdv_host( aVertexIndex )->create_pdv( aFieldPointer, aPdvType, mIpGlobalPdvTypeMap );
-    }
+            /**
+             * Get requested pdv types for sensitivity analysis
+             *
+             * @param[ in ] aPdvTypes list of dv types to fill
+             */
+            void get_ip_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
 
-//------------------------------------------------------------------------------
-    /**
-     * FIXME add a phase
-     * get pdv by type and vertex index
-     * @param[ in ] aVertexIndex     a vertex index
-     * @param[ in ] aPdvType         a list of dv types
-     */
-    std::shared_ptr< GEN_Pdv > get_ip_pdv_by_type_and_index( moris_index aVertexIndex,
-                                                             enum GEN_DV aPdvType )
-    {
-        return this->get_ip_pdv_host( aVertexIndex )->get_pdv_by_type( aPdvType, mIpGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * FIXME add a phase
-     * get pdv by type and vertex index
-     * @param[ in ] aVertexIndex     a vertex index
-     * @param[ in ] aPdvType         a list of dv types
-     */
-    std::shared_ptr< GEN_Pdv > get_ig_pdv_by_type_and_index( moris_index aVertexIndex,
-                                                             enum GEN_DV aPdvType )
-    {
-        return this->get_ig_pdv_host( aVertexIndex )->get_pdv_by_type( aPdvType, mIgGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * check for active pdv by type and vertex index
-     * @param[ in ] aVertexIndex     a vertex index
-     * @param[ in ] aPdvType         a list of dv types
-     */
-    sint check_ip_for_active_types( moris_index aVertexIndex,
-                                 enum GEN_DV aPdvType )
-    {
-        return this->get_ip_pdv_host( aVertexIndex )->is_active_type( aPdvType, mIpGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * check for active pdv by type and vertex index
-     * @param[ in ] aVertexIndex     a vertex index
-     * @param[ in ] aPdvType         a list of dv types
-     */
-    sint check_ig_for_active_types( moris_index aVertexIndex,
-                                    enum GEN_DV aPdvType )
-    {
-        return this->get_ig_pdv_host( aVertexIndex )->is_active_type( aPdvType, mIgGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * set dv types
-     * @param[ in ] aPdvTypeList list of dv types
-     */
-    void set_ip_pdv_types( Cell< enum GEN_DV > aPdvTypeList )
-    {
-        // communicate dv types
-        this->communicate_ip_dv_types( aPdvTypeList );
+            /**
+             * get requested dv types for sensitivity analysis
+             * @param[ in ] aPdvTypes list of dv types to fill
+             */
+            void get_ig_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
+            
+            /**
+             * Assign a GEN property to pdv type by node index
+             * 
+             * @param aPropertyPointer a GEN property pointer
+             * @param aPdvType         a list of dv types
+             * @param aNodeIndex     a node index
+             */
+            void assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Property>  aPropertyPointer,
+                                                              PDV_Type                        aPdvType,
+                                                              moris_index                   aNodeIndex);
+            
+            /**
+             * Assign a GEN Field to pdv type by node index
+             * 
+             * @param aFieldPointer a GEN Field pointer
+             * @param aPdvType      a list of dv types
+             * @param aNodeIndex  a node index
+             */
+            void assign_field_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Field>   aFieldPointer,
+                                                          PDV_Type                       aPdvType,
+                                                          moris_index                  aNodeIndex);
+            
+            /**
+             * Get pdv by type and node index
+             *
+             * @param aNodeIndex     a node index
+             * @param aPdvType         a list of dv types
+             */
+            std::shared_ptr<GEN_Pdv> get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
-        // get number of dv types
-        uint tNumTypes = mIpPdvTypeList.size();
+            /**
+             * Get pdv by type and node index
+             *
+             * @param aNodeIndex     a node index
+             * @param aPdvType         a list of dv types
+             */
+            std::shared_ptr<GEN_Pdv> get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
-        // loop over dv types
-        for( uint i=0; i<tNumTypes; i++)
-        {
-            // populate the dv type to index map
-            mIpGlobalPdvTypeMap( static_cast< sint >( mIpPdvTypeList( i ) ) ) = mIpNumPDVs;
+            /**
+             * Create the pdv hosts on interpolation nodes based on the pdv types per set
+             *
+             * @param aTotalNodes The total number of nodes where a PDV_Type host will be created
+             * @param aNodeIndicesPerSet The node indices contained on a set
+             * @param aPdvTypes The PDV_Type types per set, grouped
+             */
+            void create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
 
-            // update dv type counter
-            mIpNumPDVs++;
-        }
-    }
-//------------------------------------------------------------------------------
-    /**
-     * set dv types
-     * @param[ in ] aPdvTypeList list of dv types
-     */
-    void set_ig_pdv_types( Cell< enum GEN_DV > aPdvTypeList )
-    {
-        // communicate dv types
-        this->communicate_ig_dv_types( aPdvTypeList );
+            /**
+             * Create the pdv hosts on integration nodes based on the pdv types per set
+             *
+             * @param aTotalNodes The total number of nodes where a PDV_Type host will be created
+             * @param aNodeIndicesPerSet The node indices contained on a set
+             * @param aPdvTypes The PDV_Type types per set, grouped
+             */
+            void create_ig_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
 
-        // get number of dv types
-        uint tNumTypes = mIgPdvTypeList.size();
+            /**
+             * Mark a PDV_Type on an interpolation node as being inactive
+             *
+             * @param aNodeIndex IP node index
+             * @param aPdvType PDV_Type on the node to be marked
+             */
+            void mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType);
 
-        // loop over dv types
-        for( uint i=0; i<tNumTypes; i++)
-        {
-            // populate the dv type to index map
-            mIgGlobalPdvTypeMap( static_cast< sint >( mIgPdvTypeList( i ) ) ) = mIgNumPDVs;
+            /**
+             * Mark a PDV_Type on an integration node as being inactive
+             *
+             * @param aNodeIndex IG node index
+             * @param aPdvType PDV_Type on the node to be marked
+             */
+            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType);
+            
+            /**
+             * Set the requested interpolation node PDV_Type types for sensitivities
+             *
+             * @param aPdvTypes the pdv types which will be requested by MDL
+             */
+            void set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
 
-            // update dv type counter
-            mIgNumPDVs++;
-        }
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get pdv type lists
-     * @param[ out ] aPdvTypeList list of dv types
-     */
-    moris::Cell< enum GEN_DV > get_ip_pdv_type_list()
-    {
-        return mIpPdvTypeList;
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get pdv type lists
-     * @param[ out ] aPdvTypeList list of dv types
-     */
-    moris::Cell< enum GEN_DV > get_ig_pdv_type_list()
-    {
-        return mIgPdvTypeList;
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get unchanging pdv type lists
-     * @param[ out ] aPdvTypeList list of unchanging dv types
-     */
-    moris::Cell< enum GEN_DV > get_ip_unchanging_type_list()
-    {
-        return mIpUnchangingPdvTypeList;
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get unchanging pdv type lists
-     * @param[ out ] aPdvTypeList list of unchanging dv types
-     */
-    moris::Cell< enum GEN_DV > get_ig_unchanging_type_list()
-    {
-        return mIgUnchangingPdvTypeList;
-    }
-//------------------------------------------------------------------------------
-    /**
-     * comminucate dv types
-     * @param[ in ] aPdvTypeList a local list of dv types
-     */
-    void communicate_ip_dv_types( moris::Cell< enum GEN_DV > & aPdvTypeList )
-    {
-        // get processor size
-        int tSize = par_size();
+            /**
+             * Set the requested integration node PDV_Type types for sensitivities
+             *
+             * @param aPdvTypes the pdv types which will be requested by MDL
+             */
+            void set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
 
-        // get number of local dv types
-        moris::sint tNumLocalDvTypes = aPdvTypeList.size();
+            /**
+             * Create PDV_Type on interpolation mesh node with GEN field
+             *
+             * @param aNodeIndex Node index for pulling a value from the field
+             * @param aPdvType PDV_Type type
+             * @param aFieldPointer Pointer to a GEN field
+             */
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer);
 
-        // variable for maximal possible global dv types ???
-        moris::sint tNumMaxGlobalDvTypes;
+            /**
+             * Create PDV_Type on interpolation mesh node with GEN property
+             *
+             * @param aNodeIndex Node index
+             * @param aPdvType PDV_Type type
+             * @param aPropertyPointer Pointer to a GEN property
+             */
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
 
-        // get number of global dv types
-        sum_all( tNumLocalDvTypes, tNumMaxGlobalDvTypes );
+            /**
+             * Create PDV_Type on interpolation mesh node with real value
+             *
+             * @param aNodeIndex Node index
+             * @param aPdvType PDV_Type type
+             * @param aPdvVal PDV_Type value
+             */
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
 
-        if ( par_rank() == 0 )
-        {
-            // set size of dv type list = number of global types
-            mIpPdvTypeList.resize( tNumMaxGlobalDvTypes );
-        }
+            /**
+             * Create PDV_Type on integration mesh node with real value
+             *
+             * @param aNodeIndex Node index
+             * @param aPdvType PDV_Type type
+             * @param aPdvVal PDV_Type value
+             */
+            void create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
 
-        // create list containing the number of local dv types
-        moris::Cell < moris::sint > tNumLocalDvTypesList ( tSize );
+//            /**
+//             * communicate dv types
+//             * @param aPdvTypeList a local list of dv types
+//             */
+//            void communicate_ip_dv_types(moris::Cell<PDV_Type>& aPdvTypeList)
+//            {
+//                // get processor size
+//                int tSize = par_size();
+//
+//                // get number of local dv types
+//                moris::sint tNumLocalDvTypes = aPdvTypeList.size();
+//
+//                // variable for maximal possible global dv types ???
+//                moris::sint tNumMaxGlobalDvTypes;
+//
+//                // get number of global dv types
+//                sum_all(tNumLocalDvTypes, tNumMaxGlobalDvTypes);
+//
+//                if (par_rank() == 0)
+//                {
+//                    // set size of dv type list = number of global types
+//                    mIpPdvTypes.resize(tNumMaxGlobalDvTypes);
+//                }
+//
+//                // create list containing the number of local dv types
+//                moris::Cell <moris::sint> tNumLocalDvTypesList (tSize);
+//
+//                // insert number of local dv types into list containing the number of local dv types
+//                MPI_Allgather(&tNumLocalDvTypes, 1, MPI_UNSIGNED, (tNumLocalDvTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD);
+//
+//                // create list containing the offsets of the local dv types in relation to processor 0
+//                moris::Cell<moris::sint> tDofTypeOffset(tSize, 0);
+//
+//                // fill the list with the corresponding offsets
+//                for (int Ip = 1; Ip <tSize; ++Ip)
+//                {
+//                    tDofTypeOffset(Ip) = tDofTypeOffset(Ip-1) + tNumLocalDvTypesList(Ip-1);
+//                }
+//
+//                // assemble list containing all used dv types. Dv types are not unique
+//                MPI_Gatherv(((aPdvTypeList.data()).data()),
+//                               tNumLocalDvTypes,
+//                               MPI_UNSIGNED,
+//                               (mIpPdvTypes.data()).data(),
+//                               (tNumLocalDvTypesList.data()).data(),
+//                               (tDofTypeOffset.data()).data(),
+//                               MPI_UNSIGNED,
+//                               0,
+//                               MPI_COMM_WORLD);
+//
+//                // temporary variable for mIpPdvTypes size
+//                moris::uint tPdvTypeListSize;
+//
+//                if (par_rank() == 0)
+//                {
+//                    // sort this created list
+//                    std::sort((mIpPdvTypes.data()).data(), (mIpPdvTypes.data()).data() + mIpPdvTypes.size());
+//
+//                    // use std::unique and std::distance to create list containing all used dof types. This list is unique
+//                    auto last = std::unique((mIpPdvTypes.data()).data(), (mIpPdvTypes.data()).data() + mIpPdvTypes.size());
+//                    auto pos  = std::distance((mIpPdvTypes.data()).data(), last);
+//
+//                    mIpPdvTypes.resize(pos);
+//
+//                    tPdvTypeListSize = mIpPdvTypes.size();
+//                }
+//
+//                // bcast size of mIpPdvTypes on processor 0
+//                MPI_Bcast(& tPdvTypeListSize, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+//
+//                // resize mIpPdvTypes on all processors
+//                mIpPdvTypes.resize(tPdvTypeListSize);
+//
+//                // bcast unique mIpPdvTypes to all processors
+//                MPI_Bcast((mIpPdvTypes.data()).data(), mIpPdvTypes.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+//            }
+//        //------------------------------------------------------------------------------
+//            /**
+//             * communicate dv types
+//             * @param aPdvTypeList a local list of dv types
+//             */
+//            void communicate_ig_dv_types(moris::Cell<PDV_Type>& aPdvTypeList)
+//            {
+//                // get processor size
+//                int tSize = par_size();
+//
+//                // get number of local dv types
+//                moris::sint tNumLocalDvTypes = aPdvTypeList.size();
+//
+//                // variable for maximal possible global dv types ???
+//                moris::sint tNumMaxGlobalDvTypes;
+//
+//                // get number of global dv types
+//                sum_all(tNumLocalDvTypes, tNumMaxGlobalDvTypes);
+//
+//                if (par_rank() == 0)
+//                {
+//                    // set size of dv type list = number of global types
+//                    mIgPdvTypes.resize(tNumMaxGlobalDvTypes);
+//                }
+//
+//                // create list containing the number of local dv types
+//                moris::Cell <moris::sint> tNumLocalDvTypesList (tSize);
+//
+//                // insert number of local dv types into list containing the number of local dv types
+//                MPI_Allgather(&tNumLocalDvTypes, 1, MPI_UNSIGNED, (tNumLocalDvTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD);
+//
+//                // create list containing the offsets of the local dv types in relation to processor 0
+//                moris::Cell<moris::sint> tDofTypeOffset(tSize, 0);
+//
+//                // fill the list with the corresponding offsets
+//                for (int Ip = 1; Ip <tSize; ++Ip)
+//                {
+//                    tDofTypeOffset(Ip) = tDofTypeOffset(Ip-1) + tNumLocalDvTypesList(Ip-1);
+//                }
+//
+//                // assemble list containing all used dv types. Dv types are not unique
+//                MPI_Gatherv(((aPdvTypeList.data()).data()),
+//                               tNumLocalDvTypes,
+//                               MPI_UNSIGNED,
+//                               (mIgPdvTypes.data()).data(),
+//                               (tNumLocalDvTypesList.data()).data(),
+//                               (tDofTypeOffset.data()).data(),
+//                               MPI_UNSIGNED,
+//                               0,
+//                               MPI_COMM_WORLD);
+//
+//                // temporary variable for mIpPdvTypes size
+//                moris::uint tPdvTypeListSize;
+//
+//                if (par_rank() == 0)
+//                {
+//                    // sort this created list
+//                    std::sort((mIgPdvTypes.data()).data(), (mIgPdvTypes.data()).data() + mIgPdvTypes.size());
+//
+//                    // use std::unique and std::distance to create list containing all used dof types. This list is unique
+//                    auto last = std::unique((mIgPdvTypes.data()).data(), (mIgPdvTypes.data()).data() + mIgPdvTypes.size());
+//                    auto pos  = std::distance((mIgPdvTypes.data()).data(), last);
+//
+//                    mIgPdvTypes.resize(pos);
+//
+//                    tPdvTypeListSize = mIgPdvTypes.size();
+//                }
+//
+//                // bcast size of mIgPdvTypes on processor 0
+//                MPI_Bcast(& tPdvTypeListSize, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+//
+//                // resize mIgPdvTypes on all processors
+//                mIgPdvTypes.resize(tPdvTypeListSize);
+//
+//                // bcast unique mIgPdvTypes to all processors
+//                MPI_Bcast((mIgPdvTypes.data()).data(), mIgPdvTypes.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+//            }
 
-        // insert number of local dv types into list containing the number of local dv types
-        MPI_Allgather( &tNumLocalDvTypes, 1, MPI_UNSIGNED, (tNumLocalDvTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD );
-
-        // create list containing the offsets of the local dv types in relation to processor 0
-        moris::Cell< moris::sint > tDofTypeOffset( tSize, 0 );
-
-        // fill the list with the corresponding offsets
-        for ( int Ip = 1; Ip < tSize; ++Ip )
-        {
-            tDofTypeOffset( Ip ) = tDofTypeOffset( Ip-1 ) + tNumLocalDvTypesList( Ip-1 );
-        }
-
-        // assemble list containing all used dv types. Dv types are not unique
-        MPI_Gatherv( ((aPdvTypeList.data()).data()),
-                       tNumLocalDvTypes,
-                       MPI_UNSIGNED,
-                       (mIpPdvTypeList.data()).data(),
-                       (tNumLocalDvTypesList.data()).data(),
-                       (tDofTypeOffset.data()).data(),
-                       MPI_UNSIGNED,
-                       0,
-                       MPI_COMM_WORLD );
-
-        // temporary variable for mIpPdvTypeList size
-        moris::uint tPdvTypeListSize;
-
-        if ( par_rank() == 0 )
-        {
-            // sort this created list
-            std::sort( ( mIpPdvTypeList.data() ).data(), ( mIpPdvTypeList.data() ).data() + mIpPdvTypeList.size() );
-
-            // use std::unique and std::distance to create list containing all used dof types. This list is unique
-            auto last = std::unique( ( mIpPdvTypeList.data() ).data(), ( mIpPdvTypeList.data() ).data() + mIpPdvTypeList.size() );
-            auto pos  = std::distance( ( mIpPdvTypeList.data() ).data(), last );
-
-            mIpPdvTypeList.resize( pos );
-
-            tPdvTypeListSize = mIpPdvTypeList.size();
-        }
-
-        // bcast size of mIpPdvTypeList on processor 0
-        MPI_Bcast( & tPdvTypeListSize, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
-
-        // resize mIpPdvTypeList on all processors
-        mIpPdvTypeList.resize( tPdvTypeListSize );
-
-        // bcast unique mIpPdvTypeList to all processors
-        MPI_Bcast( (mIpPdvTypeList.data()).data(), mIpPdvTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * comminucate dv types
-     * @param[ in ] aPdvTypeList a local list of dv types
-     */
-    void communicate_ig_dv_types( moris::Cell< enum GEN_DV > & aPdvTypeList )
-    {
-        // get processor size
-        int tSize = par_size();
-
-        // get number of local dv types
-        moris::sint tNumLocalDvTypes = aPdvTypeList.size();
-
-        // variable for maximal possible global dv types ???
-        moris::sint tNumMaxGlobalDvTypes;
-
-        // get number of global dv types
-        sum_all( tNumLocalDvTypes, tNumMaxGlobalDvTypes );
-
-        if ( par_rank() == 0 )
-        {
-            // set size of dv type list = number of global types
-            mIgPdvTypeList.resize( tNumMaxGlobalDvTypes );
-        }
-
-        // create list containing the number of local dv types
-        moris::Cell < moris::sint > tNumLocalDvTypesList ( tSize );
-
-        // insert number of local dv types into list containing the number of local dv types
-        MPI_Allgather( &tNumLocalDvTypes, 1, MPI_UNSIGNED, (tNumLocalDvTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD );
-
-        // create list containing the offsets of the local dv types in relation to processor 0
-        moris::Cell< moris::sint > tDofTypeOffset( tSize, 0 );
-
-        // fill the list with the corresponding offsets
-        for ( int Ip = 1; Ip < tSize; ++Ip )
-        {
-            tDofTypeOffset( Ip ) = tDofTypeOffset( Ip-1 ) + tNumLocalDvTypesList( Ip-1 );
-        }
-
-        // assemble list containing all used dv types. Dv types are not unique
-        MPI_Gatherv( ((aPdvTypeList.data()).data()),
-                       tNumLocalDvTypes,
-                       MPI_UNSIGNED,
-                       (mIgPdvTypeList.data()).data(),
-                       (tNumLocalDvTypesList.data()).data(),
-                       (tDofTypeOffset.data()).data(),
-                       MPI_UNSIGNED,
-                       0,
-                       MPI_COMM_WORLD );
-
-        // temporary variable for mIpPdvTypeList size
-        moris::uint tPdvTypeListSize;
-
-        if ( par_rank() == 0 )
-        {
-            // sort this created list
-            std::sort( ( mIgPdvTypeList.data() ).data(), ( mIgPdvTypeList.data() ).data() + mIgPdvTypeList.size() );
-
-            // use std::unique and std::distance to create list containing all used dof types. This list is unique
-            auto last = std::unique( ( mIgPdvTypeList.data() ).data(), ( mIgPdvTypeList.data() ).data() + mIgPdvTypeList.size() );
-            auto pos  = std::distance( ( mIgPdvTypeList.data() ).data(), last );
-
-            mIgPdvTypeList.resize( pos );
-
-            tPdvTypeListSize = mIgPdvTypeList.size();
-        }
-
-        // bcast size of mIpPdvTypeList on processor 0
-        MPI_Bcast( & tPdvTypeListSize, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
-
-        // resize mIpPdvTypeList on all processors
-        mIgPdvTypeList.resize( tPdvTypeListSize );
-
-        // bcast unique mIpPdvTypeList to all processors
-        MPI_Bcast( (mIgPdvTypeList.data()).data(), mIgPdvTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * update local to global dv type map for interpolation nodes
-     */
-    void update_ip_local_to_global_dv_type_map(  )
-    {
-        // get the number of dv types
-        uint tNumDvTypes = mIpPdvTypeList.size();
-
-        // get the number of pdv hosts
-        uint tNumHosts   = mIpHostList.size();
-
-        // loop over the dv types
-        for( uint iType=0; iType<tNumDvTypes; iType++ )
-        {
-            // loop over the pdv hosts
-            for( uint iHost=0; iHost<tNumHosts; iHost++ )
-            {
-                // if the pdv host was assigned
-                if(mIpHostList(iHost) != nullptr)
-                {
-                    // assign a global id to type
-                    mIpHostList(iHost)->assign_id_to_type( mIpGlobalID, mIpPdvTypeList(iType), mIpGlobalPdvTypeMap );
-
-                    // update global id counter
-                    mIpGlobalID++;
-                }
-            }
-        }
-    }
-//------------------------------------------------------------------------------
-    /**
-     * update local to global dv type map for interpolation nodes
-     */
-    void update_ig_local_to_global_dv_type_map(  )
-    {
-        // get the number of dv types
-        uint tNumDvTypes = mIgPdvTypeList.size();
-
-        // get the number of pdv hosts
-        uint tNumHosts   = mIgHostList.size();
-
-        // loop over the dv types
-        for( uint iType=0; iType<tNumDvTypes; iType++ )
-        {
-            // loop over the pdv hosts
-            for( uint iHost=0; iHost<tNumHosts; iHost++ )
-            {
-                // if the pdv host was assigned
-                if(mIgHostList(iHost) != nullptr)
-                {
-                    // assign a global id to type
-                    mIgHostList(iHost)->assign_id_to_type( mIgGlobalID, mIgPdvTypeList(iType), mIgGlobalPdvTypeMap );
-
-                    // update global id counter
-                    mIgGlobalID++;
-                }
-            }
-        }
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get global index for dv type
-     * @param[ in ] aVertexIndex a vertex index
-     * @param[ in ] aPdvType     a list of dv types
-     */
-    uint get_ip_global_index_for_dv_type( moris_index aVertexIndex,
-                                          enum GEN_DV aPdvType )
-    {
-        return this->get_ip_pdv_host( aVertexIndex )->get_global_index_for_dv_type( aPdvType, mIpGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get global index for dv type
-     * @param[ in ] aVertexIndex a vertex index
-     * @param[ in ] aPdvType     a list of dv types
-     */
-    uint get_ig_global_index_for_dv_type( moris_index aVertexIndex,
-                                          enum GEN_DV aPdvType )
-    {
-        return this->get_ig_pdv_host( aVertexIndex )->get_global_index_for_dv_type( aPdvType, mIgGlobalPdvTypeMap );
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get global map for IP nodes
-     * @param[ out ] mIpGlobalPdvTypeMap a map from dv type to index
-     */
-    Matrix< IndexMat > get_ip_global_map()
-    {
-        return mIpGlobalPdvTypeMap;
-    }
-//------------------------------------------------------------------------------
-    /**
-     * get global map for IG nodes
-     * @param[ out ] mIgGlobalPdvTypeMap a map from dv type to index
-     */
-    Matrix< IndexMat > get_ig_global_map()
-    {
-        return mIgGlobalPdvTypeMap;
-    }
-//------------------------------------------------------------------------------
-    void mark_ip_pdv_as_unchanging( enum GEN_DV aPdvType )
-    {
-        mIpUnchangingPdvTypeList.push_back( aPdvType );
-    }
-//------------------------------------------------------------------------------
-    void mark_ig_pdv_as_unchanging( enum GEN_DV aPdvType )
-    {
-        mIgUnchangingPdvTypeList.push_back( aPdvType );
-    }
-//------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-//--------------- these are temporary for debugging/testing purposes -----------
-    /**
-     * get_num_hosts
-     * @param[ out ] aNumPdvHosts a number of pdv hosts
-     */
-    uint get_num_ip_hosts()
-    {
-        return mIpHostList.size();
-    }
-//------------------------------------------------------------------------------
-    uint get_num_ig_hosts()
-    {
-        return mIgHostList.size();
-    }
-//------------------------------------------------------------------------------
-};
-}   // end ge namespace
-}       // end moris namepspace
-
-
+        };
+    }   // end ge namespace
+}  // end moris namepspace
 
 #endif /* PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_ */

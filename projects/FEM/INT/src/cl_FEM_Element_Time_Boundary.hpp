@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Element_Double_Sideset.hpp
+ * cl_FEM_Element_Time_Boundary.hpp
  *
- *  Created on: May 13, 2019
- *  Author: noel
+ *  Created on: Mar 19, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_ELEMENT_DOUBLE_SIDESET_HPP_
-#define SRC_FEM_CL_FEM_ELEMENT_DOUBLE_SIDESET_HPP_
+#ifndef SRC_FEM_CL_FEM_Element_Time_Boundary_HPP_
+#define SRC_FEM_CL_FEM_Element_Time_Boundary_HPP_
 
 #include "assert.h"
 #include "cl_FEM_Element.hpp" //FEM/INT/src
@@ -18,32 +18,38 @@ namespace moris
     class Set;
 //------------------------------------------------------------------------------
     /**
-     * \brief Element_Sideset class
+     * \brief Element_Time_Boundary class
      */
-    class Element_Double_Sideset : public Element
+    class Element_Time_Boundary : public Element
     {
+
+//------------------------------------------------------------------------------
+    protected:
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
+
         /**
          * constructor
-         * @param[ in ]     pointer to mesh cell
-         * @param[ in ]     pointer to element block
-         * @param[ in ]     pointer to cluster
          *
+         * @param[ in ]     pointer to mesh interface object
+         * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
+         * @param[ in ]     cell of pointer to fem nodes
+         * @param[ in ]     Pointer to element block
          */
-        Element_Double_Sideset( mtk::Cell const  * aLeftIGCell,
-                                mtk::Cell const  * aRightIGCell,
-                                Set              * aSet,
-                                Cluster          * aCluster,
-                                moris::moris_index aCellIndexInCluster);
+            Element_Time_Boundary( mtk::Cell const  * aCell,
+                              Set              * aSet,
+                              Cluster          * aCluster,
+                              moris::moris_index aCellIndexInCluster );
 
 //------------------------------------------------------------------------------
         /**
          * destructor
          */
-        ~Element_Double_Sideset();
+        ~Element_Time_Boundary();
 
 //------------------------------------------------------------------------------
         /**
@@ -67,7 +73,11 @@ namespace moris
         /**
          * compute volume over the element
          */
-        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            MORIS_ERROR( false, "Element_Time_Boundary::compute_volume - not implemented." );
+            return 0.0;
+        }
 
 //------------------------------------------------------------------------------
     protected:
@@ -76,8 +86,9 @@ namespace moris
         /**
          * initialize integration geometry interpolator
          */
-        void init_ig_geometry_interpolator( uint aMasterSideOrdinal,
-                                            uint aSlaveSideOrdinal );
+        void init_ig_geometry_interpolator( uint aTimeOrdinal );
+
+//------------------------------------------------------------------------------
     };
 
 //------------------------------------------------------------------------------
@@ -85,4 +96,4 @@ namespace moris
 } /* namespace moris */
 
 
-#endif /* SRC_FEM_CL_FEM_ELEMENT_DOUBLE_SIDESET_HPP_ */
+#endif /* SRC_FEM_CL_FEM_Element_Time_Boundary_HPP_ */

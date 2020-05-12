@@ -128,6 +128,10 @@ namespace moris
                                                                         tMaxNumAdofs,
                                                                         tInterpolationMesh );
 
+//                // FIXME
+//                std::cout<<"Model::Model - remove this forcing"<<std::endl;
+//                mModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::TEMP, 2 );
+
         // finalize the fem sets
         mEquationModel->finalize_equation_sets( mModelSolverInterface );
 

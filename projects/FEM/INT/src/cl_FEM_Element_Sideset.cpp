@@ -20,15 +20,12 @@ namespace moris
         Element_Sideset::~Element_Sideset(){}
 
 //------------------------------------------------------------------------------
-        void Element_Sideset::compute_residual()
+        void Element_Sideset::init_ig_geometry_interpolator( uint aSideOrdinal )
         {
-            // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
             // set the geometry interpolator physical space and time coefficients for integration cell
             mSet->get_field_interpolator_manager()
                 ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal ) );
             mSet->get_field_interpolator_manager()
                 ->get_IG_geometry_interpolator()
                 ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
@@ -36,10 +33,20 @@ namespace moris
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_field_interpolator_manager()
                 ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
+                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal ) );
             mSet->get_field_interpolator_manager()
                 ->get_IG_geometry_interpolator()
                 ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+        }
+
+//------------------------------------------------------------------------------
+        void Element_Sideset::compute_residual()
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -90,21 +97,8 @@ namespace moris
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -157,21 +151,8 @@ namespace moris
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -211,21 +192,8 @@ namespace moris
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -262,21 +230,8 @@ namespace moris
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
@@ -318,21 +273,8 @@ namespace moris
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, tSideOrd ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -364,21 +306,11 @@ namespace moris
 //------------------------------------------------------------------------------
         real Element_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
-            // set the IG geometry interpolator physical space and time coefficients
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_vertex_coords());
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff(  mCluster->mInterpolationElement->get_time() );
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the IP geometry interpolator param space and time coefficients
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-              ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();

@@ -58,7 +58,7 @@ void tFIValDvFunction_UTIWGDIFFBULK
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::DENSITY )->val();
 }
 
 void tFIDerDvFunction_UTIWGDIFFBULK
@@ -66,7 +66,7 @@ void tFIDerDvFunction_UTIWGDIFFBULK
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::DENSITY )->N();
 }
 
 using namespace moris;
@@ -427,7 +427,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
     tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterConductivity->set_dv_type_list( {{ GEN_DV::DENSITY0 }} );
+    tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
     tPropMasterConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
     tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
 
@@ -520,7 +520,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     Cell< Field_Interpolator* > tDvFIs( 1 );
 
     // create the field interpolator
-    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { GEN_DV::DENSITY0 } );
+    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { PDV_Type::DENSITY } );
 
     // set the coefficients
     tDvFIs( 0 )->set_coeff( tDvHat );
@@ -534,7 +534,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
     tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-    tIWG->mSet->mUniqueDvTypeList.resize( 5, GEN_DV::END_ENUM );
+    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::UNDEFINED );
 
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
@@ -542,11 +542,11 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
+    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
+    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
-    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
+    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
     tIWG->mSet->mResDofAssemblyMap.resize( 1 );
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };

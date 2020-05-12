@@ -121,7 +121,7 @@ namespace moris
              * evaluate the penalty parameter derivative wrt to a master dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
             }

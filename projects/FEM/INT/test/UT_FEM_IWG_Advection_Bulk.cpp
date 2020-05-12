@@ -209,7 +209,7 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager
@@ -419,7 +419,7 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager

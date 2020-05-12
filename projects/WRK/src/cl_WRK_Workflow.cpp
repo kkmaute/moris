@@ -73,7 +73,7 @@ namespace moris
         Matrix<DDRMat> Workflow::get_criteria(Matrix<DDRMat> aNewADVs)
         {
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface( mPerformerManager->mGENPerformer( 0 )
-                                                            ->build_design_variable_interface() );
+                                                            ->get_design_variable_interface() );
 
             // FIXME set requeted IQIs
 //            mPerformerManager->mMDLPerformer( 0 )->

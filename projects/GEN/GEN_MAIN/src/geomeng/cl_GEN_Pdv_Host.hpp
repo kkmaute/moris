@@ -1,12 +1,5 @@
-/*
- * cl_GEN_Pdv_Host.hpp
- *
- *  Created on: Dec 20, 2019
- *      Author: sonne
- */
-
-#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
-#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_
+#ifndef MORIS_CL_GEN_PDV_Type_HOST_HPP_
+#define MORIS_CL_GEN_PDV_Type_HOST_HPP_
 
 // GEN_MAIN
 #include "cl_GEN_Field.hpp"
@@ -14,237 +7,108 @@
 #include "cl_GEN_Property.hpp"
 
 // GEN_CORE
-#include "cl_GEN_Dv_Enums.hpp"
-
-// XTK includes
-#include "cl_XTK_Topology.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
     namespace ge
     {
-
-        class GEN_Pdv_Host
+        class Pdv_Host
         {
-//------------------------------------------------------------------------------
+            
         private :
-            // list of all dv types on host
-            Cell< std::shared_ptr< GEN_Pdv > > mPdvList;
-
+            // Information about the contained PDVs
+            Cell<std::shared_ptr<GEN_Pdv>> mPdvList;
+            moris::map<PDV_Type, uint> mPdvTypeMap;
+            Matrix<DDUMat> mGlobalPdvIndices;
+            Cell<bool> mActivePdvs;
+            
             // list of properties for the dv types
             Cell< std::shared_ptr< GEN_Property > > mPdvProperties;
-
-            // vertex index which this host lives on
-            moris_index mIndex;
-
-            // map between pdv and global ID (row vector)
-            Matrix< IdMat > mTypeToIDMap;
-
+            
         public:
-//------------------------------------------------------------------------------
+            
             /**
-             * constructor
-             * @param[ in ] aNumPdvs     number of pdv type
-             * @param[ in ] aVertexIndex vertex index
+             * Constructor
+             *
+             * @param aPdvTypes PDV_Type types for this host
+             * @param aStartingGlobalIndex Global index to start assigning new PDV_Type types
              */
-            GEN_Pdv_Host( const uint aNumPdvs,
-                          const moris_index aVertexIndex )
-            : mIndex( aVertexIndex )
-            {
-                // set size for the pdv list
-                mPdvList.resize( aNumPdvs, nullptr );
-
-                // set size for the id map
-                mTypeToIDMap.resize( aNumPdvs, 1 );
-            };
-
-//------------------------------------------------------------------------------
+            Pdv_Host(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
+            
             /**
              * destructor
              */
-            ~GEN_Pdv_Host(){};
+            ~Pdv_Host();
 
-//------------------------------------------------------------------------------
-            Matrix< IdMat > get_type_to_id_map(  )
-            {
-                return mTypeToIDMap;
-            }
-
-//------------------------------------------------------------------------------
-            void update_pdv_list( const uint aNumNewPdvs )
-            {
-                uint tNumCurrPdvs = mPdvList.size();
-
-                mPdvList.resize( tNumCurrPdvs + aNumNewPdvs, nullptr );
-
-                mTypeToIDMap.resize( tNumCurrPdvs + aNumNewPdvs, 1 );
-            }
-
-//------------------------------------------------------------------------------
             /**
-             * get index of vertex associated to pdv host
+             * Update the pdv type list to include potentially new PDV_Type types
+             *
+             * @param aPdvTypes Potentially new PDV_Type types to be added
+             * @param aStartingGlobalIndex Global index to start assigning to PDV_Type types
+             * @return Number of added PDV_Type types (unique PDVs)
              */
-            moris_index get_index()
-            {
-                return mIndex;
-            }
-//------------------------------------------------------------------------------
+            uint add_pdv_types(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
+            
             /**
-             * create pdv
-             * @param[ in ] aFieldPointer     a field pointer for dv type
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Create PDV_Type with GEN field
+             *
+             * @param aPdvType PDV_Type type
+             * @param aFieldPointer Pointer to a GEN field
+             * @param aNodeIndex Node index for pulling a value from the field
              */
-            void create_pdv( std::shared_ptr< GEN_Field > aFieldPointer,
-                             enum GEN_DV                  aPdvType,
-                             const Matrix< IndexMat >   & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
-
-                // if pdv not created
-                if( mPdvList( tPos ) == nullptr )
-                {
-                    // create a pdv with field pointer
-                    mPdvList( tPos ) = std::make_shared< GEN_Pdv >( aFieldPointer, mIndex );
-                }
-            }
-//------------------------------------------------------------------------------
+            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex);
+            
             /**
-             * create pdv
-             * @param[ in ] aPropertyPointer  a property pointer for dv type
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Create PDV_Type with GEN property
+             *
+             * @param aPdvType PDV_Type type
+             * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_pdv( std::shared_ptr< GEN_Property > aPropertyPointer,
-                             enum GEN_DV                     aPdvType,
-                             const Matrix< IndexMat >      & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
-
-                // if pdv not created
-                if( mPdvList( tPos ) == nullptr )
-                {
-                    // create a pdv with property pointer
-                    mPdvList( tPos ) = std::make_shared< GEN_Pdv >( aPropertyPointer );
-                }
-            }
-
-//------------------------------------------------------------------------------
+            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
+            
             /**
-             * create pdv
-             * @param[ in ] aPdvVal           a pdv value
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Create PDV_Type with real value
+             *
+             * @param aPdvType PDV_Type type
+             * @param aPdvVal PDV_Type value
              */
-            void create_pdv( moris::real                aPdvVal,
-                             enum GEN_DV                aPdvType,
-                             const Matrix< IndexMat > & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
-
-                // if pdv not created
-                if( mPdvList( tPos ) == nullptr )
-                {
-                    // create a pdv with pdv value
-                    mPdvList( tPos ) = std::make_shared< GEN_Pdv >( aPdvVal );
-                }
-            }
-
-//------------------------------------------------------------------------------
+            void create_pdv(PDV_Type aPdvType, moris::real aPdvVal);
+            
             /**
-             * FIXME add phase
-             * get pdv by type
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Check if PDV_Type type is active on this host
+             *
+             * @param aPdvType PDV_Type type
+             * @return if PDV_Type type is active
              */
-            std::shared_ptr< GEN_Pdv > get_pdv_by_type(       enum GEN_DV          aPdvType,
-                                                        const Matrix< IndexMat > & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
+            bool is_active_type(PDV_Type aPdvType);
 
-                // return pdf for index
-                return mPdvList( tPos );
-            }
-
-//------------------------------------------------------------------------------
             /**
-             * check if active per phase and type
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Mark a pdv as being inactive
+             *
+             * @param aPdvType PDV_Type type
+             * @param aGlobalPdvTypeMap
              */
-            sint is_active_type(       enum GEN_DV          aPdvType,
-                                 const Matrix< IndexMat > & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
-
-                // if pdv not created
-                if( mPdvList( tPos ) == nullptr )
-                {
-                    // return false
-                    return 0;
-                }
-                // if pdv created
-                else
-                {
-                    // return true
-                    return 1;
-                }
-            }
-
-//------------------------------------------------------------------------------
+            void mark_pdv_as_inactive(PDV_Type aPdvType);
+            
             /**
-             * assign an id to a pdv with phase and type
-             * @param[ in ] aId               an id
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Get global index for pdv by type
+             *
+             * @param aPdvType PDV_Type type
+             * @return Global index
              */
-            void assign_id_to_type(      uint                  aId,
-                                    enum GEN_DV                aPdvType,
-                                    const Matrix< IndexMat > & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
+            uint get_global_index_for_pdv_type(PDV_Type aPdvType);
 
-                // if pdv created
-                if( mPdvList( tPos ) != nullptr )
-                {
-                    // assign id
-                    mTypeToIDMap( tPos ) = aId;
-                }
-                // if pdv not created
-                else
-                {
-                    // assign default -1
-                    mTypeToIDMap( tPos ) = gNoID;
-                }
-            }
-
-//------------------------------------------------------------------------------
             /**
-             * get global index for pdv with phase and type
-             * @param[ in ] aPdvType          a dv type
-             * @param[ in ] aGlobalPdvTypeMap a map from dv type enum to index
+             * Get the value of a PDV_Type by type
+             *
+             * @param aPdvType PDV_Type type
+             * @return PDV_Type value
              */
-            uint get_global_index_for_dv_type(       enum GEN_DV          aPdvType,
-                                               const Matrix< IndexMat > & aGlobalPdvTypeMap )
-            {
-                // get index for dv type
-                moris_index tPos = aGlobalPdvTypeMap( static_cast<sint>(aPdvType) );
-
-                // return id from map
-                return mTypeToIDMap( tPos );
-            }
-
-//------------------------------------------------------------------------------
+            real get_pdv_value(PDV_Type aPdvType);
+            
         };
+    }  // end ge namepsace
+} // end moris namespace
 
-//------------------------------------------------------------------------------
-    }   // end ge namepsace
-}       // end moris namespace
-
-#endif /* PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_GEN_PDV_HOST_HPP_ */
+#endif /* MORIS_CL_GEN_PDV_HOST_HPP_ */

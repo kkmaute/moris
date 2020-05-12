@@ -195,7 +195,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                   moris::Cell< GEN_DV >        & aDvTypes )
+                                                   moris::Cell< PDV_Type >        & aDvTypes )
         {
             // init counters for dof and dv types
             uint tDofCounter = 0;
@@ -232,7 +232,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -250,7 +250,7 @@ namespace moris
                     // get property non unique dof and dv type lists
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -267,7 +267,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -285,7 +285,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -302,7 +302,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     moris::Cell< MSI::Dof_Type >  tActiveDofTypes;
-                    moris::Cell< GEN_DV >         tActiveDvTypes;
+                    moris::Cell< PDV_Type >         tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -351,7 +351,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -368,7 +368,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -385,7 +385,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -402,7 +402,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -419,7 +419,7 @@ namespace moris
                 {
                     // get SP non unique master dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -500,7 +500,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
                     = tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -549,7 +549,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
                     = tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -598,7 +598,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
                     = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
 
                     // loop on property dv type
@@ -686,7 +686,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
                     = tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -735,7 +735,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
                     = tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -784,7 +784,7 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                     moris::Cell< moris::Cell< GEN_DV > > tActiveDvTypes
+                     moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
                      = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                      // loop on property dv type
@@ -1001,7 +1001,7 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
         }
 
 //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell< GEN_DV > > &
+        moris::Cell< moris::Cell< PDV_Type > > &
         IWG::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
         {
             // if the global list was not yet built
@@ -1391,7 +1391,7 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
 //                    // for debug
-//                    if( !( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) )
+//                    if( !( tAbsolute < aEpsilon ) && ( tRelative < aEpsilon ) )
 //                    {
 //                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
 //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
