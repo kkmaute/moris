@@ -75,8 +75,9 @@ namespace moris
         moris::Matrix< DDSMat > mMasterDvTypeMap;
         moris::Matrix< DDSMat > mSlaveDvTypeMap;
 
-        // FIXME map of master and slave dv types for assembly
-        Cell< moris::Matrix< DDSMat > > mDvAssemblyMap;
+        // map of master and slave mat pdv types for assembly
+        Cell< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
+        std::map< std::pair< moris_index, GEN_DV >, uint > mPdvGeoAssemblyMap;
 
         // Map from requested IQI Name to index.
         // I do not know if this is slow because the map is called per gauss point.
@@ -87,7 +88,7 @@ namespace moris
         bool mJacobianExist = false;
         bool mResidualExist = false;
         bool mQIExist       = false;
-        bool mdRdpExist     = false;
+        bool mdRdpMatExist  = false;
         bool mdQIdpExist    = false;
 
         Matrix< DDRMat > mTime;
@@ -622,10 +623,46 @@ namespace moris
         /**
          * get dRdp
          */
-        moris::Cell< Matrix< DDRMat > > & get_dRdp()
+        moris::Cell< Matrix< DDRMat > > & get_drdp()
         {
             return mdRdp;
-        };
+        }
+
+//-------------------------------------------------------------------------------------------------
+        /**
+         * get dRdpMat
+         */
+        Matrix< DDRMat > & get_drdpmat()
+        {
+            return mdRdp( 0 );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dRdpMat pdv assembly map
+         */
+        moris::Cell< moris::Matrix< DDSMat > > & get_mat_pdv_assembly_map()
+        {
+            return mPdvMatAssemblyMap;
+        }
+
+//-------------------------------------------------------------------------------------------------
+        /**
+         * get dRdpGeo
+         */
+        Matrix< DDRMat > & get_drdpgeo()
+        {
+            return mdRdp( 1 );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dRdpGeo pdv assembly map
+         */
+        std::map< std::pair< moris_index, GEN_DV >, uint > & get_geo_pdv_assembly_map()
+        {
+            return mPdvGeoAssemblyMap;
+        }
 
 //-------------------------------------------------------------------------------------------------
         /**
@@ -635,15 +672,6 @@ namespace moris
         {
             return mdQIdp;
         };
-
-//------------------------------------------------------------------------------
-        /**
-         * get dv assembly map
-         */
-        moris::Cell< moris::Matrix< DDSMat > > & get_dv_assembly_map()
-        {
-            return mDvAssemblyMap;
-        }
 
 //-------------------------------------------------------------------------------------------------
         /**
