@@ -40,7 +40,7 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 
     // Note that these pointers are deleted by the the Arma and Eigen
     // libraries themselves.
-    auto tAdv = mProblem->get_advs().data();
+    auto tAdv         = mProblem->get_advs().data();
     auto tUpperBounds = mProblem->get_upper_bounds().data();
     auto tLowerBounds = mProblem->get_lower_bounds().data();
 
