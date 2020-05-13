@@ -12,61 +12,61 @@ extern moris::Logger gLogger;
 
 extern "C"
 {
-    // SNOPT (a Fortran implementation of SQP) function declarations
-    void sninit_(
-            int* iPrint, int* iSumm, char* cw, int* lencw,
-            int* iw, int* leniw, double* rw, int* lenrw);
+// SNOPT (a Fortran implementation of SQP) function declarations
+void sninit_(
+        int* iPrint, int* iSumm, char* cw, int* lencw,
+        int* iw, int* leniw, double* rw, int* lenrw);
 
-    void snset_(
-            char* buffer, int* iPrint, int* iSumm, int* iExit,
-            char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
-            short buflen);
+void snset_(
+        char* buffer, int* iPrint, int* iSumm, int* iExit,
+        char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
+        short buflen);
 
-    void snseti_(
-            char* buffer, int* ivalue, int* iPrint, int* iSumm, int* iExit,
-            char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
-            short buflen);
+void snseti_(
+        char* buffer, int* ivalue, int* iPrint, int* iSumm, int* iExit,
+        char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
+        short buflen);
 
-    void sngeti_(
-            char* buffer, int* ivalue, int* iExit,
-            char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
-            short buflen);
+void sngeti_(
+        char* buffer, int* ivalue, int* iExit,
+        char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
+        short buflen);
 
-    void snsetr_(
-            char* buffer, double* rvalue, int* iPrint, int* iSumm, int* iExit,
-            char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
-            short buflen);
+void snsetr_(
+        char* buffer, double* rvalue, int* iPrint, int* iSumm, int* iExit,
+        char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
+        short buflen);
 
-    void snopta_(
-            int* Start, int* nF, int* n, int* nxname, int* nFname,
-            double* mObjAdd, int* mObjRow, char* mProb, void (*usrfun)(), void (*snLog)(),
-            int* iAfun, int* jAvar, int* lenA, int* neA, double* A,
-            int* iGfun, int* jGvar, int* lenG, int* neG,
-            double* xlow, double* xupp, char* xnames,
-            double* Flow, double* Fupp, char* Fnames,
-            double* x, int* xstate, double* xmul,
-            double* F, int* Fstate, double* Fmul,
-            int* inform, int* mincw, int* miniw, int* minrw,
-            int* nS, int* nInf, double* sInf,
-            char* cu, int* lencu, int* iu, int* leniu,
-            double* ru, int* lenru,
-            char* cw, int* lencw, int* iw, int* leniw,
-            double* rw, int* lenrw, short mProblen);
+void snopta_(
+        int* Start, int* nF, int* n, int* nxname, int* nFname,
+        double* mObjAdd, int* mObjRow, char* mProb, void (*usrfun)(), void (*snLog)(),
+        int* iAfun, int* jAvar, int* lenA, int* neA, double* A,
+        int* iGfun, int* jGvar, int* lenG, int* neG,
+        double* xlow, double* xupp, char* xnames,
+        double* Flow, double* Fupp, char* Fnames,
+        double* x, int* xstate, double* xmul,
+        double* F, int* Fstate, double* Fmul,
+        int* inform, int* mincw, int* miniw, int* minrw,
+        int* nS, int* nInf, double* sInf,
+        char* cu, int* lencu, int* iu, int* leniu,
+        double* ru, int* lenru,
+        char* cw, int* lencw, int* iw, int* leniw,
+        double* rw, int* lenrw, short mProblen);
 
-    void snmema_(
-            int* nF, int* n, int* nxname, int* nFname, int* neA, int* neG,
-            int* mincw, int* miniw, int* minrw, char* cw, int* lencw, int* iw,
-            int* leniw, double* rw, int* lenrw);
+void snmema_(
+        int* nF, int* n, int* nxname, int* nFname, int* neA, int* neG,
+        int* mincw, int* miniw, int* minrw, char* cw, int* lencw, int* iw,
+        int* leniw, double* rw, int* lenrw);
 
-    void snlog_(
-            int* iAbort, int* info, int* Htype, int* KTcond, int* MjrPrt, int* minimz,
-            int* n, int* nb, int* nnCon0, int* nS, int* itn, int* nMajor, int* nMinor, int* nSwap,
-            double* condHz, int* iObj, double* sclObj, double* mObjAdd, double* fMrt, double* PenNrm, double* step,
-            double* prInf, double* duInf, double* vimax, double* virel, int* hs,
-            int* ne, int* nlocJ, int* locJ, int* indJ, double* Jcol,
-            double* Ascale, double* bl, double* bu, double* Fcon, double* Lmul, double* x,
-            char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru,
-            char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw);
+void snlog_(
+        int* iAbort, int* info, int* Htype, int* KTcond, int* MjrPrt, int* minimz,
+        int* n, int* nb, int* nnCon0, int* nS, int* itn, int* nMajor, int* nMinor, int* nSwap,
+        double* condHz, int* iObj, double* sclObj, double* mObjAdd, double* fMrt, double* PenNrm, double* step,
+        double* prInf, double* duInf, double* vimax, double* virel, int* hs,
+        int* ne, int* nlocJ, int* locJ, int* indJ, double* Jcol,
+        double* Ascale, double* bl, double* bu, double* Fcon, double* Lmul, double* x,
+        char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru,
+        char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw);
 }
 
 void OptAlgSQP_usrfun(
@@ -117,43 +117,43 @@ namespace moris
                 // call Fortran rubroutine based on parameter type
                 switch ( tParamType )
                 {
-                case 1: // set integer parameters
-                {
-                    char* paramname = (char*)it->first.c_str();
-                    int tParamVal   = mParameterList.get< sint >( paramname );
-                    short paramlen  = strlen( paramname );
+                    case 1: // set integer parameters
+                    {
+                        char* paramname = (char*)it->first.c_str();
+                        int tParamVal   = mParameterList.get< sint >( paramname );
+                        short paramlen  = strlen( paramname );
 
-                    snseti_( paramname, &tParamVal, &iPrint, &iSumm, &iExit,
-                             cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
+                        snseti_( paramname, &tParamVal, &iPrint, &iSumm, &iExit,
+                                cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
 
-                    break;
-                }
+                        break;
+                    }
 
-                case 2: // set double parameters
-                {
-                    char* paramname  = (char*)it->first.c_str();
-                    double tParamVal = mParameterList.get< real >( paramname );
-                    short paramlen   = strlen( paramname );
+                    case 2: // set double parameters
+                    {
+                        char* paramname  = (char*)it->first.c_str();
+                        double tParamVal = mParameterList.get< real >( paramname );
+                        short paramlen   = strlen( paramname );
 
-                    snsetr_( paramname, &tParamVal, &iPrint, &iSumm, &iExit,
-                             cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
-                    break;
-                }
+                        snsetr_( paramname, &tParamVal, &iPrint, &iSumm, &iExit,
+                                cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
+                        break;
+                    }
 
-                case 4: // set string parameters to char
-                {
-                    char* paramname = (char*)it->first.c_str();
-                    char* tParamVal = (char*)( mParameterList.get< std::string >( paramname ) ).c_str();
-                    short paramlen  = strlen( tParamVal ) ;
+                    case 4: // set string parameters to char
+                    {
+                        char* paramname = (char*)it->first.c_str();
+                        char* tParamVal = (char*)( mParameterList.get< std::string >( paramname ) ).c_str();
+                        short paramlen  = strlen( tParamVal ) ;
 
-                    snset_( tParamVal, &iPrint, &iSumm, &iExit,
-                            cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
-                    break;
-                }
+                        snset_( tParamVal, &iPrint, &iSumm, &iExit,
+                                cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
+                        break;
+                    }
 
-                default:
-                    MORIS_LOG_ERROR ( "No matching function call for underlying type.");
-                    assert::error( "In cl_Algorithm_SQP.cpp" );
+                    default:
+                        MORIS_LOG_ERROR ( "No matching function call for underlying type.");
+                        assert::error( "In cl_Algorithm_SQP.cpp" );
                 }
 
                 if( iExit != 0 )
@@ -247,21 +247,21 @@ namespace moris
             // set parameters
             set_params(cw, lencw, iw, leniw, rw, lenrw);
 
-            // get parameter values that have been changed itnernally
+            // get parameter values that have been changed internally
             {
                 char* paramname = (char*)"Print file";
+
                 short paramlen  = strlen(paramname);
                 sngeti_(paramname, &iPrint, &inform,
                         cw, &lencw, iw, &leniw, rw, &lenrw, paramlen);
             }
-            {
 
+            {
                 char* paramname = (char*)"Summary file";
                 short paramlen  = strlen(paramname);
                 sngeti_(paramname, &iSumm, &inform,
                         cw, &lencw, iw, &leniw, rw, &lenrw, paramlen);
             }
-
             // estimate workspace sizes
             snmema_(&nF, &n, &nxname, &nFname, &neA, &neG,
                     &lencw, &leniw, &lenrw, cw, &mMinWLen, iw, &mMinWLen, rw, &mMinWLen);
