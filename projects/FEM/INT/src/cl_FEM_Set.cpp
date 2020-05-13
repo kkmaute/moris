@@ -197,7 +197,7 @@ namespace moris
 
             this->create_dof_assembly_map( aIsResidual );
 
-            this->create_dv_assembly_map();
+            this->create_mat_pdv_assembly_map();
 
             this->create_requested_IWG_list();
 
@@ -1259,20 +1259,19 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::create_dv_assembly_map()
+    void Set::create_mat_pdv_assembly_map()
     {
         // get the list of requested dv types by the opt solver
-        // FIXME for now everything is evaluated
-        //Cell < enum GEN_DV >  tRequestedDvTypes;
+        moris::Cell< moris::Cell< enum GEN_DV > > tRequestedDvTypes = mMasterDvTypes;
 
         // init the max index for dv types
         sint tMaxDvIndex = -1;
 
         // loop over the dv types
-        for( uint Ik = 0; Ik < mMasterDvTypes.size(); Ik++ )
+        for( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
         {
             // get the set index for the requested master dof type
-            sint tDvIndex = this->get_dv_index_for_type( mMasterDvTypes( Ik )( 0 ),
+            sint tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik )( 0 ),
                                                          mtk::Master_Slave::MASTER );
 
             // if the index was set (and is different from -1)
@@ -1283,7 +1282,7 @@ namespace moris
             }
 
             // get the set index for the requested slave slave type
-            tDvIndex = this->get_dv_index_for_type( mSlaveDvTypes( Ik )( 0 ),
+            tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik )( 0 ),
                                                     mtk::Master_Slave::SLAVE );
 
             // if the index was set (and is different -1)
@@ -1297,35 +1296,35 @@ namespace moris
         tMaxDvIndex++;
 
         // set size for the dv assembly map
-        mDvAssemblyMap.resize( tMaxDvIndex );
+        mPdvMatAssemblyMap.resize( tMaxDvIndex );
 
         // init the dv assembly map
-        for( uint Ik = 0; Ik < mDvAssemblyMap.size(); Ik++ )
+        for( uint Ik = 0; Ik < mPdvMatAssemblyMap.size(); Ik++ )
         {
-            mDvAssemblyMap( Ik ).set_size( 1, 2, -1 );
+            mPdvMatAssemblyMap( Ik ).set_size( 1, 2, -1 );
         }
 
         // init dv coefficients counter
         uint tCounter = 0;
 
         // loop over the dv types
-        for( uint Ik = 0; Ik < mMasterDvTypes.size(); Ik++ )
+        for( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
         {
             // get the set index for the requested master dv type
-            sint tDvIndex = this->get_dv_index_for_type( mMasterDvTypes( Ik )( 0 ),
+            sint tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik )( 0 ),
                                                          mtk::Master_Slave::MASTER );
 
             // if the index was set (and is different from -1)
             if( tDvIndex != -1 )
             {
                 // get the number of coefficients related to the master dv type
-                uint tNumCoeff = mMasterFIManager->get_field_interpolators_for_type( mMasterDvTypes( Ik )( 0 ) )
+                uint tNumCoeff = mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )
                                                  ->get_number_of_space_time_coefficients();
 
                 // fill the dv assembly map with starting and ending indices
                 // for the master dv type
-                mDvAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
-                mDvAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+                mPdvMatAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
+                mPdvMatAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
 
                 // update the dv coefficient counter
                 tCounter += tNumCoeff;
@@ -1333,25 +1332,89 @@ namespace moris
         }
 
         // loop over the slave dv types
-        for( uint Ik = 0; Ik < mSlaveDvTypes.size(); Ik++ )
+        for( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
         {
             //get the set index for the slave dv type
-            sint tDvIndex = this->get_dv_index_for_type( mSlaveDvTypes( Ik )( 0 ),
+            sint tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik )( 0 ),
                                                          mtk::Master_Slave::SLAVE );
 
             // if the dv type was set (its set index is different from -1)
             if( tDvIndex != -1 )
             {
                 // get the number of coefficients for the slave dv type
-                uint tNumCoeff = mSlaveFIManager->get_field_interpolators_for_type( mSlaveDvTypes( Ik )( 0 ) )
+                uint tNumCoeff = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )
                                                 ->get_number_of_space_time_coefficients();
 
                 // fill the residual assembly map with starting and ending indices for the slave dof type
-                mDvAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
-                mDvAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+                mPdvMatAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
+                mPdvMatAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
 
                 // update the dof coefficient counter
                 tCounter += tNumCoeff;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    void Set::create_geo_pdv_assembly_map( std::shared_ptr< fem::Cluster > aFemCluster )
+    {
+        std::cout<<"Here creating the geo map"<<std::endl;
+
+        // clean up the map
+        mPdvGeoAssemblyMap.clear();
+
+        // FIXME get the geo dv types requested by the opt
+        moris::Cell < enum GEN_DV > tRequestedDvTypes;
+        mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
+                                                                  tRequestedDvTypes );
+
+        // get node indices on cluster
+        moris::Cell< moris_index > tNodeIndicesOnCluster
+        = aFemCluster->get_vertex_indices_in_cluster();
+
+        // init active geo pdv counter
+        uint tActiveGeoPdvCounter = 0;
+
+        // loop over the requested pdv types
+        for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
+        {
+            // get treated geo pdv type
+            GEN_DV tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+
+            // build geo pdv type cell
+            moris::Cell< GEN_DV > tGeoPdvMat = { tGeoPdvType };
+
+            // loop over the ig nodes on cluster
+            uint tNumIGNodes = tNodeIndicesOnCluster.size();
+            for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
+            {
+                // get treated node index
+                moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
+
+                // build node index matrix
+                Matrix< IndexMat > tNodeIndexMat = {{ tNodeIndex }};
+
+                // check if active
+                moris::Cell< moris::Matrix< DDRMat > > tPdvValue( 1 );
+                tPdvValue( 0 ).set_size( 1, 1 );
+                moris::Cell< moris::Matrix< DDSMat > > tIsActivePdv;
+                mDesignVariableInterface->get_ig_pdv_value( tNodeIndexMat,
+                                                            tGeoPdvMat,
+                                                            tPdvValue,
+                                                            tIsActivePdv );
+
+                // create key pair
+                std::pair< moris_index, GEN_DV > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+
+                // if active and not set in the map
+                if( tIsActivePdv( 0 )( 0 ) && ( mPdvGeoAssemblyMap.find( tKeyPair ) == mPdvGeoAssemblyMap.end() ) )
+                {
+                    // fill the map
+                    mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
+
+                    // update active geo pdv counter
+                    tActiveGeoPdvCounter++;
+                }
             }
         }
     }
@@ -1426,7 +1489,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_IQI_map()
     {
         // erase the contant of the map
@@ -1657,6 +1719,213 @@ namespace moris
         void Set::initialize_mdQIdp()
         {
             MORIS_ERROR( false, "Set::initialize_mdQIdp - not implemented yet." );
+        }
+
+        //----------------------------------------------------------------------
+        void Set::initialize_mdRdpMat()
+        {
+
+            // if dRdpMap not initialized before
+            if ( !mdRdpMatExist )
+            {
+                // get the dof types requested by the solver
+                moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes
+                = this->get_requested_dof_types();
+
+                // init dof coefficient counter
+                uint tNumRows = 0;
+
+                // loop over the requested dof types
+                for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                {
+                    // get the set index for the master dof type
+                    sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                                   mtk::Master_Slave::MASTER );
+
+                    // if this master dof is active
+                    if( tDofIndex != -1 )
+                    {
+                        // update number of dof coefficients
+                        tNumRows += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
+                                                    ->get_number_of_space_time_coefficients();
+                    }
+
+                    // get the set index for the slave dof type
+                    tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                              mtk::Master_Slave::SLAVE  );
+
+                    // if this slave dof is active
+                    if( tDofIndex != -1 )
+                    {
+                        // update number of dof coefficients
+                        tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
+                                                   ->get_number_of_space_time_coefficients();
+                    }
+                }
+
+                // FIXME get the dv types requested by the opt
+                moris::Cell < enum GEN_DV > tRequestedDvTypes;
+                mDesignVariableInterface->get_ip_unique_dv_types_for_set( mMeshSet->get_set_index(),
+                                                                          tRequestedDvTypes );
+
+                // init dv coefficient counter
+                uint tNumCols = 0;
+
+                // loop over the requested dv types
+                for( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+                {
+                    // get the set index for the master dof type
+                    sint tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                                                                 mtk::Master_Slave::MASTER );
+
+                    // if this master dv is active
+                    if( tDvIndex != -1 )
+                    {
+                        // update number of dof coefficients
+                        tNumCols += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
+                                                    ->get_number_of_space_time_coefficients();
+                    }
+
+                    // get the set index for the slave dv type
+                    tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                                                            mtk::Master_Slave::SLAVE  );
+
+                    // if this slave dv is active
+                    if( tDvIndex != -1 )
+                    {
+                        // update number of dof coefficients
+                        tNumCols += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
+                                                   ->get_number_of_space_time_coefficients();
+                    }
+                }
+
+                mdRdp.resize( 2 );
+                mdRdp( 0 ).set_size( tNumRows, tNumCols, 0.0 );
+
+//                // get the number of rhs
+//                uint tNumRHS = mEquationModel->get_num_rhs();
+//
+//                // set size for the list of dRdp vectors
+//                mdRdpMat.resize( tNumRHS );
+//
+//                // loop over the dQIdu vectors
+//                for( auto & tdRdpMat : mdRdpMat )
+//                {
+//                    // set size for the dQIdu vector
+//                    tdRdpMat.set_size( tNumRows, tNumCols, 0.0 );
+//                }
+
+                // set the dRdpMat initialization flag to true
+                mdRdpMatExist = true;
+            }
+            // if dRdpMat initialized before
+            else
+            {
+                mdRdp( 0 ).fill( 0.0 );
+
+//                // loop over the dRdp matrices
+//                for( auto & tdRdpMat : mdRdpMat )
+//                {
+//                    // fill the dRdpMat matrix with zeros
+//                    tdRdpMat.fill( 0.0 );
+//                }
+            }
+        }
+
+        //----------------------------------------------------------------------
+        void Set::initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
+        {
+            std::cout<<"Set::initialize_mdRdpGeo - can only be called if geo pdv assembly map is ready"<<std::endl;
+
+            // get the dof types requested by the solver
+            moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes
+            = this->get_requested_dof_types();
+
+            // init dof coefficient counter
+            uint tNumRows = 0;
+
+            // loop over the requested dof types
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                // get the set index for the master dof type
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                               mtk::Master_Slave::MASTER );
+
+                // if this master dof is active
+                if( tDofIndex != -1 )
+                {
+                    // update number of dof coefficients
+                    tNumRows += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
+                                                ->get_number_of_space_time_coefficients();
+                }
+
+                // get the set index for the slave dof type
+                tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                                                          mtk::Master_Slave::SLAVE  );
+
+                // if this slave dof is active
+                if( tDofIndex != -1 )
+                {
+                    // update number of dof coefficients
+                    tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
+                                               ->get_number_of_space_time_coefficients();
+                }
+            }
+
+            // FIXME get the geo dv types requested by the opt
+            moris::Cell < enum GEN_DV > tRequestedDvTypes;
+            mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
+                                                                      tRequestedDvTypes );
+
+            // init active geo pdv counter
+            uint tActiveGeoPdvCounter = 0;
+
+            // get node indices on cluster
+            moris::Cell< moris_index > tNodeIndicesOnCluster
+            = aFemCluster->get_vertex_indices_in_cluster();
+
+            // loop over the ig nodes on cluster
+            uint tNumIGNodes = tNodeIndicesOnCluster.size();
+
+            // loop over the requested pdv types
+            for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
+            {
+                // get treated geo pdv type
+                GEN_DV tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+
+                // loop over the ig nodes on cluster
+                for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
+                {
+                    // get treated node index
+                    moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
+
+                    // create key pair
+                    std::pair< moris_index, GEN_DV > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+
+                    // if in map
+                    if( mPdvGeoAssemblyMap.find( tKeyPair ) != mPdvGeoAssemblyMap.end() )
+                    {
+                        tActiveGeoPdvCounter++;
+                    }
+                }
+            }
+
+            mdRdp( 1 ).set_size( tNumRows, tActiveGeoPdvCounter, 0.0 );
+
+//            // get the number of rhs
+//            uint tNumRHS = mEquationModel->get_num_rhs();
+//
+//            // set size for the list of tdRdpGeo matrices
+//            mdRdpGeo.resize( tNumRHS );
+//
+//            // loop over the dRdpGeo matrices
+//            for( auto & tdRdpGeo : mdRdpGeo )
+//            {
+//                // set size for the dRdpGeo matrices
+//                tdRdpGeo.set_size( tNumRows, tActiveGeoPdvCounter, 0.0 );
+//            }
+
+            //print(mdRdpGeo(0),"mdRdpGeo(0)");
         }
 
 //------------------------------------------------------------------------------

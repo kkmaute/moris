@@ -395,9 +395,16 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * create the dv assembly map
+         * create the material pdv assembly map
          */
-        void create_dv_assembly_map();
+        void create_mat_pdv_assembly_map();
+
+//------------------------------------------------------------------------------
+        /**
+         * create the geometry pdv assembly map
+         * @param[ in ] aFemCluster a fem cluster pointer
+         */
+        void create_geo_pdv_assembly_map( std::shared_ptr< fem::Cluster > aFemCluster );
 
 //------------------------------------------------------------------------------
         /**
@@ -565,9 +572,15 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * set size and reset values for dRdp
+         * set size and reset values for dRdp mat
          */
-        void initialize_mdRdp();
+        void initialize_mdRdpMat();
+
+//------------------------------------------------------------------------------
+        /**
+         * set size and reset values for dRdp geo
+         */
+        void initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster );
 
 //------------------------------------------------------------------------------
         /**
