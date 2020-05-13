@@ -55,15 +55,15 @@ namespace moris
             uint tSpaceDim = tXYZValues.n_cols();
 
             // FIXME get requested geo pdv
-            moris::Cell< GEN_DV > tGeoPdvType;
+            moris::Cell< PDV_Type > tGeoPdvType;
             switch ( tSpaceDim )
             {
                 case ( 2 ):
-                    tGeoPdvType = { GEN_DV::XCOORD, GEN_DV::YCOORD };
+                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
                     break;
 
                 case ( 3 ):
-                    tGeoPdvType = { GEN_DV::XCOORD, GEN_DV::YCOORD, GEN_DV::ZCOORD };
+                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
                     break;
 
                 default:

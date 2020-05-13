@@ -17,7 +17,7 @@
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -70,12 +70,12 @@ namespace moris
             Matrix< DDSMat > mSlaveGlobalDofTypeMap;
 
             // master and slave dv type lists
-            moris::Cell< moris::Cell< GEN_DV > > mMasterDvTypes;
-            moris::Cell< moris::Cell< GEN_DV > > mSlaveDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mMasterDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mSlaveDvTypes;
 
             // master and slave global dv type list
-            moris::Cell< moris::Cell< GEN_DV > > mMasterGlobalDvTypes;
-            moris::Cell< moris::Cell< GEN_DV > > mSlaveGlobalDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mMasterGlobalDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mSlaveGlobalDvTypes;
 
             // master and slave global dv type maps
             Matrix< DDSMat > mMasterGlobalDvTypeMap;
@@ -101,8 +101,8 @@ namespace moris
             std::map< std::string, MSI::Dof_Type > mSlaveDofMap;
 
             // local string to dv enum map
-            std::map< std::string, GEN_DV > mMasterDvMap;
-            std::map< std::string, GEN_DV > mSlaveDvMap;
+            std::map< std::string, PDV_Type > mMasterDvMap;
+            std::map< std::string, PDV_Type > mSlaveDvMap;
 
             // string for stabilization parameter name
             std::string mName;
@@ -288,7 +288,7 @@ namespace moris
              * @param[ in ] aDvTypes a list of group of dv types
              * @param[ in ] aIsMaster enum for master or slave
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+            void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                                     mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ namespace moris
              * @param[ in ] aDvStrings list of strings describing the dv types
              * @param[ in ] aIsMaster  enum for master or slave
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+            void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                                          moris::Cell< std::string >           & aDvStrings,
                                          mtk::Master_Slave                      aIsMaster = mtk::Master_Slave::MASTER );
 
@@ -308,7 +308,7 @@ namespace moris
              * @param[ in ]  aIsMaster enum master or slave
              * @param[ out ] aDvTypes a list of group of dv types
              */
-            const moris::Cell< moris::Cell< GEN_DV > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+            const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
 //------------------------------------------------------------------------------
             /**
@@ -327,7 +327,7 @@ namespace moris
              */
             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >        & aDofTypes );
             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                  moris::Cell< GEN_DV >        & aDvTypes );
+                                                  moris::Cell< PDV_Type >        & aDvTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -408,7 +408,7 @@ namespace moris
              * get global dv type list
              * @param[ out ] mGlobalDvTypes global list of dv type
              */
-            const moris::Cell< moris::Cell< GEN_DV > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+            const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -428,7 +428,7 @@ namespace moris
              * @param[ in ]  aDvType       a group of dv types
              * @param[ out ] tDvDependency a bool true if dependency on dv type
              */
-            bool check_master_dv_dependency( const moris::Cell< GEN_DV > & aDvType );
+            bool check_master_dv_dependency( const moris::Cell< PDV_Type > & aDvType );
 
 //------------------------------------------------------------------------------
             /**
@@ -437,7 +437,7 @@ namespace moris
              * @param[ out ] tDvDependency a bool true if dependency on dv type
              *
              */
-            bool check_slave_dv_dependency( const moris::Cell< GEN_DV > & aDvType );
+            bool check_slave_dv_dependency( const moris::Cell< PDV_Type > & aDvType );
 
 //------------------------------------------------------------------------------
             /**
@@ -495,13 +495,13 @@ namespace moris
               * @param[ in ]  aDvTypes      a dv type wrt which the derivative is evaluated
               * @param[ out ] mdPPdMasterDv penalty parameter derivative wrt master dv
               */
-             const Matrix< DDRMat > & dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes );
+             const Matrix< DDRMat > & dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes );
 
  //------------------------------------------------------------------------------
              /**
               * evaluate the penalty parameter derivative wrt master dv
               */
-             virtual void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+             virtual void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
              {
                  MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdMasterDV - Not implemented for base class. " );
              }
@@ -512,13 +512,13 @@ namespace moris
               * @param[ in ]  aDvTypes     a dv type wrt which the derivative is evaluated
               * @param[ out ] mdPPdSlaveDv penalty parameter derivative wrt master dv
               */
-             const Matrix< DDRMat > & dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes );
+             const Matrix< DDRMat > & dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes );
 
  //------------------------------------------------------------------------------
              /**
               * evaluate the penalty parameter derivative wrt slave dv
               */
-             virtual void eval_dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes )
+             virtual void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
              {
                  MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDV - This function does nothing. " );
              }

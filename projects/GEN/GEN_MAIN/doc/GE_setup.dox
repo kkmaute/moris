@@ -38,7 +38,7 @@ namespace ge {
     Once the GR is defined, the GE can be created. The GE takes in a GR along with its associated mesh and stores them in a list. 
     
     Next, the GE must perform its initalization step. Depending on the type of the GR, the initalization may result in a projection onto the target field. Regardless, 
-    the initalization step sets up the container which holds all the relevant information (referred to as PDV_Info objects) and registers it in a list whose index 
+    the initalization step sets up the container which holds all the relevant information (referred to as PDV_Type_Info objects) and registers it in a list whose index
     corresponds to the index of the associated GR. 
     
     The target field may be defined in many ways. For example, it may be an analytically defined level set field or a collection of geometric primitives 

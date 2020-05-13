@@ -15,9 +15,9 @@ namespace moris
     //------------------------------------------------------------------------------
 //        enum class GEN_PDV
 //        {
-//            XCOORD,
-//            YCOORD,
-//            ZCOORD,
+//            X_COORDINATE,
+//            Y_COORDINATE,
+//            Z_COORDINATE,
 //
 //            RADIUS,
 //            DENSITY0,

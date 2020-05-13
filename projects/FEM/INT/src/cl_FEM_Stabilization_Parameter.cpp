@@ -205,7 +205,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+        void Stabilization_Parameter::set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                                                               mtk::Master_Slave                      aIsMaster )
         {
             switch ( aIsMaster )
@@ -229,7 +229,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_dv_type_list( const moris::Cell< moris::Cell< GEN_DV > > & aDvTypes,
+        void Stabilization_Parameter::set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                                                               moris::Cell< std::string >           & aDvStrings,
                                                               mtk::Master_Slave                      aIsMaster )
         {
@@ -267,7 +267,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const moris::Cell< moris::Cell< GEN_DV > > & Stabilization_Parameter::get_dv_type_list( mtk::Master_Slave aIsMaster ) const
+        const moris::Cell< moris::Cell< PDV_Type > > & Stabilization_Parameter::get_dv_type_list( mtk::Master_Slave aIsMaster ) const
         {
             // switch on master/slave
             switch( aIsMaster )
@@ -562,7 +562,7 @@ namespace moris
 //------------------------------------------------------------------------------
         void Stabilization_Parameter::get_non_unique_dof_and_dv_types
         ( moris::Cell< MSI::Dof_Type > & aDofTypes,
-          moris::Cell< GEN_DV >        & aDvTypes )
+          moris::Cell< PDV_Type >        & aDvTypes )
         {
             // init dof and dv counters
             uint tDofCounter = 0;
@@ -603,7 +603,7 @@ namespace moris
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -621,7 +621,7 @@ namespace moris
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -638,7 +638,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -655,7 +655,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -704,7 +704,7 @@ namespace moris
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >  tActiveDvTypes;
+                    moris::Cell< PDV_Type >  tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -721,7 +721,7 @@ namespace moris
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >  tActiveDvTypes;
+                    moris::Cell< PDV_Type >  tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                                 tActiveDvTypes );
 
@@ -738,7 +738,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -755,7 +755,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< GEN_DV >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                                                           tActiveDvTypes );
 
@@ -1119,7 +1119,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const moris::Cell< moris::Cell< GEN_DV > > & Stabilization_Parameter::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
+        const moris::Cell< moris::Cell< PDV_Type > > & Stabilization_Parameter::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
         {
             // switch on master/slave
             switch( aIsMaster )
@@ -1204,7 +1204,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get dv types for property
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1238,7 +1238,7 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tCM->get_global_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1322,7 +1322,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get dv types for property
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1356,7 +1356,7 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< GEN_DV > > tActiveDvType = tCM->get_global_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1452,7 +1452,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        bool Stabilization_Parameter::check_master_dv_dependency( const moris::Cell< GEN_DV > & aDvType )
+        bool Stabilization_Parameter::check_master_dv_dependency( const moris::Cell< PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -1471,7 +1471,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        bool Stabilization_Parameter::check_slave_dv_dependency( const moris::Cell< GEN_DV > & aDvType )
+        bool Stabilization_Parameter::check_slave_dv_dependency( const moris::Cell< PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -1613,7 +1613,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Stabilization_Parameter::dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+        const Matrix< DDRMat > & Stabilization_Parameter::dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
         {
             // if aDofType is not an active dv type for the property
             MORIS_ERROR( this->check_master_dv_dependency( aDvTypes ), "Penalty_Parameter::dPPdMasterDV - no dependency in this dv type." );
@@ -1636,7 +1636,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Stabilization_Parameter::dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes )
+        const Matrix< DDRMat > & Stabilization_Parameter::dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
         {
             // if aDofType is not an active dv type for the property
             MORIS_ERROR( this->check_slave_dv_dependency( aDvTypes ),

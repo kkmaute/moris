@@ -312,7 +312,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-            moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
             // populate the field interpolator manager

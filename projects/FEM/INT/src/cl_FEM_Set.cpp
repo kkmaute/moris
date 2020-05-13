@@ -286,7 +286,7 @@ namespace moris
         {
             // get an IWG non unique dof and dv types
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            moris::Cell< GEN_DV >         tActiveDvType;
+            moris::Cell< PDV_Type >         tActiveDvType;
             tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // update dof and dv type counters
@@ -299,7 +299,7 @@ namespace moris
         {
             // get an IWG non unique dof and dv types
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
-            moris::Cell< GEN_DV >   tActiveDvType;
+            moris::Cell< PDV_Type >   tActiveDvType;
             tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // update dof and dv type counter
@@ -316,7 +316,7 @@ namespace moris
         {
             // get non unique dof and dv types
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            moris::Cell< GEN_DV >        tActiveDvType;
+            moris::Cell< PDV_Type >        tActiveDvType;
             tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // populate the corresponding unique dof and dv type lists
@@ -329,7 +329,7 @@ namespace moris
         {
             // get non unique dof and dv types
             moris::Cell< MSI::Dof_Type > tActiveDofType;
-            moris::Cell< GEN_DV >        tActiveDvType;
+            moris::Cell< PDV_Type >        tActiveDvType;
             tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
             // populate the corresponding unique dof and dv type lists
@@ -383,7 +383,7 @@ namespace moris
             // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIWG->get_global_dof_type_list();
-            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeMaster
+            moris::Cell< moris::Cell< PDV_Type > >  tDvTypeMaster
             = tIWG->get_global_dv_type_list();
 
             // loop over the IWG active master dof type
@@ -423,7 +423,7 @@ namespace moris
             // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeSlave
+            moris::Cell< moris::Cell< PDV_Type > >  tDvTypeSlave
             = tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
@@ -467,7 +467,7 @@ namespace moris
             // get master dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster
             = tIQI->get_global_dof_type_list();
-            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeMaster
+            moris::Cell< moris::Cell< PDV_Type > >  tDvTypeMaster
             = tIQI->get_global_dv_type_list();
 
             // loop over the IQI active master dof type
@@ -507,7 +507,7 @@ namespace moris
             // get slave dof and dv types for the IWG
             moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave
             = tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-            moris::Cell< moris::Cell< GEN_DV > >  tDvTypeSlave
+            moris::Cell< moris::Cell< PDV_Type > >  tDvTypeSlave
             = tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // loop over the IWG active slave dof type
@@ -587,7 +587,7 @@ namespace moris
         // dv types
         //------------------------------------------------------------------------------
         // Create temporary dv type list
-        moris::Cell< enum GEN_DV > tDvType = get_unique_dv_type_list();
+        moris::Cell< enum PDV_Type > tDvType = get_unique_dv_type_list();
 
         //Get number of unique dvs of this equation object
         moris::uint tNumUniqueDvTypes = tDvType.size();
@@ -1262,7 +1262,7 @@ namespace moris
     void Set::create_mat_pdv_assembly_map()
     {
         // get the list of requested dv types by the opt solver
-        moris::Cell< moris::Cell< enum GEN_DV > > tRequestedDvTypes = mMasterDvTypes;
+        moris::Cell< moris::Cell< enum PDV_Type > > tRequestedDvTypes = mMasterDvTypes;
 
         // init the max index for dv types
         sint tMaxDvIndex = -1;
@@ -2177,7 +2177,7 @@ namespace moris
 ////------------------------------------------------------------------------------
 //    void Set::create_requested_dv_assembly_map()
 //    {
-//        moris::Cell< enum GEN_DV > tRequestedDvTypes = this->get_requested_dv_types();
+//        moris::Cell< enum PDV_Type > tRequestedDvTypes = this->get_requested_dv_types();
 //
 //        uint tMaxDvIndex = 0;
 //

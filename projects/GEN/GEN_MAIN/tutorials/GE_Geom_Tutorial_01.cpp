@@ -302,10 +302,10 @@ main( int    argc,
      *
      * You can ask for information pertaining to a specific node again by passing in the index.
      */
-    PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
+    PDV_Type_Info* tPDV_TypeInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
 
-    Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals( tSubIndex );           // phi
-    Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals( tSubIndex );     // dphi/dp
+    Matrix< DDRMat > tLSVals                = tPDV_TypeInfo->get_field_vals( tSubIndex );           // phi
+    Cell< Matrix< DDRMat > > tSensitivities = tPDV_TypeInfo->get_sensitivity_vals( tSubIndex );     // dphi/dp
 
     tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);      // add the determined values as a field on the mesh (for output purposes)
 
@@ -412,24 +412,24 @@ main( int    argc,
      *
      */
 
-    moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+    moris_index tXInd = tPDV_TypeInfo->compute_intersection( &tIntersectionObject );
 
-    Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
+    Matrix< F31RMat > tIntersectionAlongX = tPDV_TypeInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
 
-    tPDVInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
+    tPDV_TypeInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
 
-    Matrix< DDRMat > tIntersSensitivity = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject );
+    Matrix< DDRMat > tIntersSensitivity = tPDV_TypeInfo->get_intersection_sensitivity( &tIntersectionObject );
 
-    Matrix< DDRMat > tPDVSensitivity = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
+    Matrix< DDRMat > tPDV_TypeSensitivity = tPDV_TypeInfo->get_dxgamma_dp( &tIntersectionObject );
 
     tGlobalPos = {{0,0},{0,1}};     // edge [2] goes from (0,0) to (0,1)
     tTHat = {{0},{1}};
     tUHat = {{ tLSVals(0) },{ tLSVals(3) }};
 
     tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
-    moris_index tYInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+    moris_index tYInd = tPDV_TypeInfo->compute_intersection( &tIntersectionObject );
 
-    Matrix< F31RMat > tIntersectionAlongY = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tYInd );
+    Matrix< F31RMat > tIntersectionAlongY = tPDV_TypeInfo->get_intersection_point_global_coord( &tIntersectionObject, tYInd );
     //------------------------------------------------------------------------------
     /*!
      * Clean up.

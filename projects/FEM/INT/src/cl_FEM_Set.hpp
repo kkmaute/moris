@@ -603,7 +603,7 @@ namespace MSI
          * get index from unique dv type map
          *@param[ in ] aDofType a dof type enum
          */
-        moris::sint get_index_from_unique_dv_type_map( enum GEN_DV aDvType )
+        moris::sint get_index_from_unique_dv_type_map( enum PDV_Type aDvType )
         {
             return mUniqueDvTypeMap( static_cast< int >( aDvType ), 0 );
         }
@@ -651,10 +651,10 @@ namespace MSI
        {
            mDesignVariableInterface = aDesignVariableInterface;
 
-//           moris::Cell< GEN_DV > tTypesUnique;
+//           moris::Cell< PDV_Type > tTypesUnique;
 //           mDesignVariableInterface->get_unique_dv_types_for_set( 0, tTypesUnique );     //FIXME use fem::SEt to MTK::set map
 //
-//           mUniqueDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ), 1, -1 );
+//           mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ), 1, -1 );
 //           for( uint Ik = 0; Ik < tTypesUnique.size(); Ik++)
 //           {
 //               mUniqueDvTypeMap( static_cast< int >( tTypesUnique( Ik ) ) )= Ik;
