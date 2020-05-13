@@ -247,8 +247,6 @@ public :
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
     }
 //------------------------------------------------------------------------------
-	
-    void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 
 };
 }
