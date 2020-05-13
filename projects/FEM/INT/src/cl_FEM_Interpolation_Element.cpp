@@ -220,7 +220,6 @@ namespace moris
              }
 
              // geometry interpolators------------------------------------------
-             // FIXME can be dv types
              // set the IP geometry interpolator physical space and time coefficients for the master
              mSet->get_field_interpolator_manager()
                  ->get_IP_geometry_interpolator()
@@ -398,7 +397,7 @@ namespace moris
         void Interpolation_Element::compute_dRdp()
         {
             // compute pdof values
-            //Fixme do this only once
+            // FIXME do this only once
             this->compute_my_pdof_values();
 
             // if time continuity set
@@ -408,6 +407,13 @@ namespace moris
                 // FIXME do this only once
                 this->compute_previous_pdof_values();
             }
+
+            // init geo pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
@@ -456,7 +462,7 @@ namespace moris
         {
             this->compute_dRdp();
 
-            moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_dRdp();
+            moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_drdp();
 
             this->compute_my_adjoint_values();
 
