@@ -594,8 +594,7 @@ namespace moris
              * @param[ in ] adRdpMatFD    cell of matrix for dRdpMat to fill
              */
             void compute_dRdp_FD_material( moris::real                       aWStar,
-                                           moris::real                       aPerturbation,
-                                           moris::Cell< Matrix< DDRMat > > & adRdpMatFD );
+                                           moris::real                       aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
@@ -609,7 +608,7 @@ namespace moris
             void compute_dRdp_FD_geometry( moris::real                       aWStar,
                                            moris::real                       aPerturbation,
                                            moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                           moris::Cell< Matrix< DDRMat > > & adRdpGeoFD );
+                                           Matrix< IndexMat >              & aVertexIndices );
 
 //------------------------------------------------------------------------------
             /**

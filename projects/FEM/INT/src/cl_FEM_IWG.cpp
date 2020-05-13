@@ -1463,15 +1463,15 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-                    // for debug
-                    if( !( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) )
-                    {
-                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
-                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
-                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
-                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
-                        std::cout<<"Relative difference "<<tRelative<<std::endl;
-                    }
+//                    // for debug
+//                    if( !( ( tAbsolute < aEpsilon ) && ( tRelative < aEpsilon ) ) )
+//                    {
+//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
+//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+//                        std::cout<<"Relative difference "<<tRelative<<std::endl;
+//                    }
                 }
             }
 
@@ -1484,34 +1484,24 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
         ( moris::real                       aWStar,
           moris::real                       aPerturbation,
           moris::Cell< Matrix< DDSMat > > & aIsActive,
-          moris::Cell< Matrix< DDRMat > > & adRdpGeoFD )
+          Matrix< IndexMat >              & aVertexIndices )
         {
             // get the GI for the IG element considered
             Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()
                                               ->get_IG_geometry_interpolator();
 
             // get the residual dof type index in the set
-            uint tDofIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ),
-                                                           mtk::Master_Slave::MASTER );
-            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-            // get number of rows
-            uint tNumRows = tResDofAssemblyStop - tResDofAssemblyStart + 1;
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ),
+                                                              mtk::Master_Slave::MASTER );
+            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tGI->get_number_of_space_bases();
             uint tDerNumDimensions = tGI->get_number_of_space_dimensions();
 
-            // set size for adRdpGeoFD
-            adRdpGeoFD.resize( 1 );
-            adRdpGeoFD( 0 ).set_size( tNumRows, tDerNumBases * tDerNumDimensions, 0.0 );
-
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tGI->get_space_coeff();
-
-            // init dv counter
-            uint tDvCounter = 0;
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1539,7 +1529,7 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
 
                         // perturbation of the coefficient
                         tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += - aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
                         tGI->set_space_coeff( tCoeffPert );
@@ -1553,12 +1543,18 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                         Matrix< DDRMat > tResidual_Minus
                         = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
-                        // evaluate drdpdvGeo
-                        adRdpGeoFD( 0 ).get_column( tDvCounter )
-                        = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // FIXME get geo pdv index
+                        moris::Cell< GEN_DV > tGeoPdvType = { GEN_DV::XCOORD, GEN_DV::YCOORD, GEN_DV::ZCOORD };
+
+                        std::pair< moris_index, GEN_DV > tKeyPair
+                        = std::make_pair( aVertexIndices( iCoeffRow ), tGeoPdvType( iCoeffCol ) );
+                        uint tPdvIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+
+                        // evaluate dRdpGeo
+                        Matrix< DDRMat > tI( tResidual_Plus.numel(), 1, 1.0 );
+                        mSet->get_drdpgeo()( { tResDofAssemblyStart, tResDofAssemblyStop }, { tPdvIndex, tPdvIndex } )
+                        += ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
                     }
-                    // update dv counter
-                    tDvCounter++;
                 }
                 // reset the coefficients values
                 tGI->set_space_coeff( tCoeff );
@@ -1566,38 +1562,17 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
         }
 
 //------------------------------------------------------------------------------
-        void IWG::compute_dRdp_FD_material
-        ( moris::real                       aWStar,
-          moris::real                       aPerturbation,
-          moris::Cell< Matrix< DDRMat > > & adRdpMatFD )
+        void IWG::compute_dRdp_FD_material( moris::real aWStar,
+                                            moris::real aPerturbation )
         {
-            // get master number of dv types
+            // FIXME get master number of dv types
             uint tNumDvType = mMasterGlobalDvTypes.size();
 
-            // get the residaul dof type index in the set
-            uint tDofIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ),
-                                                           mtk::Master_Slave::MASTER );
-            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-            // get number of rows
-            uint tNumRows = tResDofAssemblyStop - tResDofAssemblyStart + 1;
-
-            // set size for adrdpdvFD
-            uint tNumCols = 0;
-            for( uint iFI = 0; iFI < tNumDvType; iFI++ )
-            {
-                // get the dv index in the set
-                uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
-                                                             mtk::Master_Slave::MASTER );
-
-                // get the number of cols
-                tNumCols += mSet->get_dv_assembly_map()( tDvIndex )( 0, 1 )
-                          - mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 ) + 1;
-            }
-
-            adRdpMatFD.resize( 1 );
-            adRdpMatFD( 0 ).set_size( tNumRows, tNumCols, 0.0 );
+            // get the residual dof type index in the set
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ),
+                                                              mtk::Master_Slave::MASTER );
+            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
             // loop over the dv types associated with a FI
             for( uint iFI = 0; iFI < tNumDvType; iFI++ )
@@ -1613,8 +1588,8 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                 // coefficients for dof type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
-                // init dv coeff counter  //FIXME add map
-                uint tCounter = 0;
+                // init coeff counter
+                uint tCoeffCounter = 0;
 
                 // loop over the coefficient column
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
@@ -1654,13 +1629,20 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                         Matrix< DDRMat > tResidual_Minus
                         =  mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
-                        // evaluate dRdpMat
-                       // uint tDvAssemblyStart = mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 );
-                        adRdpMatFD( 0 ).get_column( tCounter )
-                        = ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // get mat pdv index
+                        uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tCoeffCounter;
 
-                        // update counter
-                        tCounter++;
+                        // evaluate dRdpMat
+//                        std::cout<<"tResDofAssemblyStart "<<tResDofAssemblyStart<<std::endl;
+//                        std::cout<<"tResDofAssemblyStop "<<tResDofAssemblyStop<<std::endl;
+//                        std::cout<<"tPdvIndex "<<tPdvIndex<<std::endl;
+//                        print(mSet->get_drdpmat()( 0 ),"mSet->get_drdpmat()( 0 )");
+
+                        mSet->get_drdpmat()( { tResDofAssemblyStart, tResDofAssemblyStop }, { tPdvIndex, tPdvIndex } )
+                        += ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update coefficient counter
+                        tCoeffCounter++;
                     }
                 }
                 // reset the coefficients values
