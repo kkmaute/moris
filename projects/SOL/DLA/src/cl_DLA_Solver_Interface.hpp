@@ -132,16 +132,16 @@ public:
     // number local elements
     virtual moris::uint             get_num_my_elements()     =0;
 
-    // local-to-global map
-    virtual moris::Matrix< DDSMat > get_my_local_global_map() =0;
-
-    virtual moris::Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes )
+    // local-to-global map // FIXME pass return value in as reference
+    virtual moris::Matrix< DDSMat >  get_my_local_global_map() =0;
+    // FIXME pass return value in as reference
+    virtual moris::Matrix< DDSMat >  get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes )
     {
         MORIS_ERROR( false, "Solver_Interface::get_my_local_global_map: not set.");
         return Matrix< DDSMat>(0,0);
     }
-
-    virtual moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
+    // FIXME pass return value in as reference
+    virtual moris::Matrix< DDSMat >  get_my_local_global_overlapping_map( )
     {
         moris::Matrix< DDSMat > aMat;
         //MORIS_ERROR( false, "Solver_Interface::get_my_local_global_overlapping_map(): Virtual class not overwritten" );

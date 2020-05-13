@@ -453,7 +453,7 @@ namespace moris
 
             for( uint Ik = 0; Ik < mSet->mdQIdp( 0 ).size(); Ik++ )
             {
-                Cell< enum GEN_DV > tRequestedIPDvTypes;
+                Cell< enum PDV_Type > tRequestedIPDvTypes;
 
                 mEquationSet->get_equation_model()
                             ->get_design_variable_interface()
@@ -500,7 +500,7 @@ namespace moris
 
             for( uint Ik = 0; Ik < mSet->mdQIdp( 1 ).size(); Ik++ )
             {
-                Cell< enum GEN_DV > tRequestedIGDvTypes;
+                Cell< enum PDV_Type > tRequestedIGDvTypes;
 
                 mEquationSet->get_equation_model()
                             ->get_design_variable_interface()

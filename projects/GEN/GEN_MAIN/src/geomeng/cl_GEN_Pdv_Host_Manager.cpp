@@ -162,7 +162,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Pdv_Host_Manager::get_my_local_global_map()
+        const Matrix<DDSMat> & Pdv_Host_Manager::get_my_local_global_map()
         {
             return mGlobalPdvTypeMap;
         }

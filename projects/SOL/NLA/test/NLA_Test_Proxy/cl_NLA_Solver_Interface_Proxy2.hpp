@@ -64,7 +64,7 @@ namespace NLA
            mListOfDofTypes = aListOfDofTypes;
         };
 
-        virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+        moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
         {
             return mListOfDofTypes;
         };

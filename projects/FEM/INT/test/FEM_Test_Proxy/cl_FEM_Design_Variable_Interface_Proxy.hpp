@@ -204,7 +204,7 @@ public :
     }
 
 //------------------------------------------------------------------------------
-    moris::Matrix< DDSMat > get_my_local_global_map()
+    const moris::Matrix< DDSMat > & get_my_local_global_map()
     {
         return mMap;
     }
