@@ -92,6 +92,10 @@ namespace moris
             // stabilization parameters
             moris::Cell< std::shared_ptr< Stabilization_Parameter > > mStabilizationParam;
 
+            // local string to dof enum map
+            std::map< std::string, MSI::Dof_Type > mMasterDofMap;
+            std::map< std::string, MSI::Dof_Type > mSlaveDofMap;
+
             std::string mName;
 
 //------------------------------------------------------------------------------
