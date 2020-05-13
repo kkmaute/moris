@@ -220,7 +220,7 @@ Model::perform()
 
         // Write mesh
         moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
-        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
+        writer.write_mesh("", "./xtk_temp.exo");
 
         // Write the fields
         writer.set_time(0.0);
