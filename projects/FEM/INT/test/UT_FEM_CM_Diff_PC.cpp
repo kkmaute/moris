@@ -91,9 +91,14 @@ namespace moris
             tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
+            // phase state function type
+            std::shared_ptr< fem::Property > tPropMasterPCfunction = std::make_shared< fem::Property >();
+            tPropMasterPCfunction->set_parameters( {{{ 1 }}} );
+            tPropMasterPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterPCfunction->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+
             // temperature load
             std::shared_ptr< fem::Property > tPropMasterBodyLoad = nullptr;
-
 
             // define constitutive models ---------------------------------------------------------------- //
             fem::CM_Factory tCMFactory;
@@ -106,6 +111,7 @@ namespace moris
             tCMMasterDiffLinIsoPC->set_property( tPropMasterLatentHeat  , "Latent_Heat" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterTlower      , "Lower_PC_Temp" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterTupper      , "Upper_PC_Temp" );
+            tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "Phase_State_Function" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "Phase_Change_Const" );
             tCMMasterDiffLinIsoPC->set_space_dim( 2 );
 

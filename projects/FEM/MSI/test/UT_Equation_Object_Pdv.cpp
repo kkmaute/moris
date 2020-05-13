@@ -360,7 +360,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         Matrix< DDRMat > tTime = { { 0.0 }, { 1.0 } };
         tEquationModel->set_time( tTime );
 
-        tDesignVariableInterface->set_model( tModel );
+        tDesignVariableInterface->set_equation_model( tModel->get_fem_model() );
         tDesignVariableInterface->set_requested_IQIs( {"IQI_1"} );
         tWorkSet->create_requested_IQI_type_map();
 

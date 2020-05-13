@@ -29,11 +29,11 @@ namespace moris
         mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
         mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
-        // ADVs
+        // ADVs/IQIs
         mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
         mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
         mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
-        mActiveGeometryIndex(0),
+        mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
         // Phase table
         mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
@@ -115,6 +115,22 @@ namespace moris
         Matrix<DDRMat>& Geometry_Engine::get_upper_bounds()
         {
             return mUpperBounds;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::set_equation_model(std::shared_ptr<MSI::Equation_Model> aModel)
+        {
+            mPdvHostManager.set_equation_model(aModel);
+            mModelSet = true;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::communicate_requested_IQIs()
+        {
+            MORIS_ERROR(mModelSet, "Geometry_Engine::set_equation_model() must be called before communicate_requested_IQIs()");
+            mPdvHostManager.set_requested_IQIs(mRequestedIQIs);
         }
 
         //--------------------------------------------------------------------------------------------------------------

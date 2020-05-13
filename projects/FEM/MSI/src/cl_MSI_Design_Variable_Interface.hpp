@@ -18,31 +18,22 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-//#include "cl_Matrix_Vector_Factory.hpp"
-//#include "cl_SOL_Dist_Map.hpp"
-
 namespace moris
 {
+
     namespace sol
     {
         class Dist_Vector;
     }
 
-namespace mdl
-{
-    class Model;
-}
-
     namespace MSI
     {
+        class Equation_Model;
         class Design_Variable_Interface
         {
         private:
-
-                Matrix< DDRMat>  mTime;
-
-        protected:
-                mdl::Model * mModel = nullptr;
+            Matrix< DDRMat>  mTime;
+            std::shared_ptr<MSI::Equation_Model> mModel = nullptr;
 
         public:
 
@@ -63,10 +54,10 @@ namespace mdl
              * set model pointer
              * @param[ in ] aModel Model pointer
              */
-            void set_model( mdl::Model * aModel )
+            void set_equation_model( std::shared_ptr<MSI::Equation_Model> aModel )
             {
                 mModel = aModel;
-            }
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -77,6 +68,14 @@ namespace mdl
             {
                 mTime = aTime;
             };
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set requested IQI type for sensitivity analysis
+             * @param[ in ] aRequestedIQIType
+             */
+            void set_requested_IQIs( const moris::Cell< std::string > & aRequestedIQIs );
 
 //------------------------------------------------------------------------------
             /**
@@ -182,24 +181,6 @@ namespace mdl
             virtual void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
-            /**
-             * set requested IQI type for sensitivity analysis
-             * @param[ in ] aRequestedIQIType
-             */
-            virtual void set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
-            {
-                MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQI_type - not implemented for base class." );
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * set requested IQI type for sensitivity analysis
-             * @param[ in ] aRequestedIQIType
-             */
-            virtual void set_requested_IQIs( const moris::Cell< std::string > & aRequestedIQIs )
-            {
-                MORIS_ERROR( false, "Design_Variable_Interface::set_requested_IQIs - not implemented for base class." );
-            };
 
         };
     }

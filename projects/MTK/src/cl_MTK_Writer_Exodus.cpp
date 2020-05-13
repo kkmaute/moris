@@ -73,7 +73,7 @@ namespace moris
             mExoid = -1;
             if (aRename)
             {
-                std::rename(mTempFileName.c_str(), mPermFileName.c_str());
+                MORIS_ERROR( std::rename(mTempFileName.c_str(), mPermFileName.c_str()) == 0 ,"Cannot save exodus file");
             }
         }
 
