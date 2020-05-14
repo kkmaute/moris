@@ -137,7 +137,6 @@ namespace moris
          */
         void init_ig_geometry_interpolator();
         void init_ig_geometry_interpolator_with_pdv( moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
-
     };
 
 //------------------------------------------------------------------------------
