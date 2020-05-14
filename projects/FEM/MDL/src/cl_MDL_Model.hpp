@@ -10,6 +10,7 @@
 
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
+#include "cl_Map.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -91,7 +92,7 @@ class Library_IO;
             std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
 
             // fixme: maybe introduce a cell of maps for different orders?
-            map< moris_id, moris_index >      mCoefficientsMap;
+            moris::map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
             // pointer to output manager
