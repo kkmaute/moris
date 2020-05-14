@@ -89,13 +89,13 @@ namespace moris
         bool mResidualExist = false;
         bool mQIExist       = false;
         bool mdRdpMatExist  = false;
-        bool mdQIdpExist    = false;
+        bool mdQIdpMatExist = false;
 
         Matrix< DDRMat > mTime;
 
         // unique list of dof and dv types
         moris::Cell< enum MSI::Dof_Type > mUniqueDofTypeList;
-        moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
+        moris::Cell< enum PDV_Type >      mUniqueDvTypeList;
 
         // pointer to the model solver interface
         Model_Solver_Interface * mModelSolverInterface = nullptr;
@@ -664,13 +664,31 @@ namespace moris
             return mPdvGeoAssemblyMap;
         }
 
-//-------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
         /**
          * get dQIdp
          */
-        moris::Cell< moris::Cell< Matrix< DDRMat > > > & get_dQIdp()
+        moris::Cell< moris::Cell< Matrix< DDRMat > > > & get_dqidp()
         {
             return mdQIdp;
+        };
+
+        //-----------------------------------------------------------------------------------------
+        /**
+         * get dQIdp for material pdv
+         */
+        moris::Cell< Matrix< DDRMat > > & get_dqidpmat()
+        {
+            return mdQIdp( 0 );
+        };
+
+        //-----------------------------------------------------------------------------------------
+        /**
+         * get dQIdp for geometry pdv
+         */
+        moris::Cell< Matrix< DDRMat > > & get_dqidpgeo()
+        {
+            return mdQIdp( 1 );
         };
 
 //-------------------------------------------------------------------------------------------------
