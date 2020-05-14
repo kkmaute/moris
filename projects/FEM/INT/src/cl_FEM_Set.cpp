@@ -1358,8 +1358,6 @@ namespace moris
     //--------------------------------------------------------------------------
     void Set::create_geo_pdv_assembly_map( std::shared_ptr< fem::Cluster > aFemCluster )
     {
-        std::cout<<"Here creating the geo map"<<std::endl;
-
         // clean up the map
         mPdvGeoAssemblyMap.clear();
 
@@ -1697,7 +1695,7 @@ namespace moris
             for( auto & tQI : mQI )
             {
                 // set size for the QI value
-                // FIXMe assumed scalar
+                // FIXME assumed scalar
                 tQI.set_size( 1, 1, 0.0 );
             }
             // set the QI initialization flag to true
@@ -1715,19 +1713,142 @@ namespace moris
         }
     }
 
-//------------------------------------------------------------------------------
-        void Set::initialize_mdQIdp()
+        //------------------------------------------------------------------------------
+        void Set::initialize_mdQIdpMat()
         {
-            MORIS_ERROR( false, "Set::initialize_mdQIdp - not implemented yet." );
+            // if dRdpMap not initialized before
+            if ( !mdQIdpMatExist )
+            {
+                // set size for dQIdp
+                mdQIdp.resize( 2 );
+
+                // get the number of requested IQIs
+                uint tNumRequestedIQIs = this->get_number_of_requested_IQIs();
+
+                // set size for dQIdp
+                mdQIdp( 0 ).resize( tNumRequestedIQIs );
+
+                // FIXME get the requested pdv types
+                moris::Cell < enum PDV_Type > tRequestedDvTypes;
+                mDesignVariableInterface->get_ip_unique_dv_types_for_set( mMeshSet->get_set_index(),
+                                                                          tRequestedDvTypes );
+                uint tNumRequestedPdvTypes = tRequestedDvTypes.size();
+
+                // init pdv coefficient counter
+                uint tNumPdvCoefficients = 0;
+
+                // loop over the requested dv types
+                for( uint Ik = 0; Ik < tNumRequestedPdvTypes; Ik++ )
+                {
+                    // get the set index for the master dof type
+                    sint tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                                                                 mtk::Master_Slave::MASTER );
+
+                    // if this master dv is active
+                    if( tDvIndex != -1 )
+                    {
+                        // update number of dof coefficients
+                        tNumPdvCoefficients += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
+                                                               ->get_number_of_space_time_coefficients();
+                    }
+
+                    // get the set index for the slave dv type
+                    tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                                                            mtk::Master_Slave::SLAVE  );
+
+                    // if this slave dv is active
+                    if( tDvIndex != -1 )
+                    {
+                        // update number of dof coefficients
+                        tNumPdvCoefficients += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
+                                                              ->get_number_of_space_time_coefficients();
+                    }
+                }
+                // loop over requested IQIs
+                for ( auto & tdQIdp : mdQIdp( 0 ) )
+                {
+                    // set size
+                    tdQIdp.set_size( 1, tNumPdvCoefficients, 0.0 );
+                }
+
+                // set exist flag to true
+                mdQIdpMatExist = true;
+            }
+            else
+            {
+                // loop over requested IQIs
+                for ( auto & tdQIdp : mdQIdp( 0 ) )
+                {
+                    // fill the dQIdp vector with zero
+                    tdQIdp.fill( 0.0 );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void Set::initialize_mdQIdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
+        {
+            // get the number of requested IQIs
+            uint tNumRequestedIQIs = this->get_number_of_requested_IQIs();
+
+            // set size for dQIdp
+            mdQIdp( 1 ).resize( tNumRequestedIQIs );
+
+            // get the requested geo pdv types
+            moris::Cell < enum PDV_Type > tRequestedDvTypes;
+            mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
+                                                                      tRequestedDvTypes );
+
+            // init active geo pdv counter
+            uint tActiveGeoPdvCounter = 0;
+
+            // get node indices on cluster
+            moris::Cell< moris_index > tNodeIndicesOnCluster
+            = aFemCluster->get_vertex_indices_in_cluster();
+
+            // loop over the ig nodes on cluster
+            uint tNumIGNodes = tNodeIndicesOnCluster.size();
+
+            // loop over the requested pdv types
+            for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
+            {
+                // get treated geo pdv type
+                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+
+                // loop over the ig nodes on cluster
+                for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
+                {
+                    // get treated node index
+                    moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
+
+                    // create key pair
+                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+
+                    // if in map
+                    if( mPdvGeoAssemblyMap.find( tKeyPair ) != mPdvGeoAssemblyMap.end() )
+                    {
+                        tActiveGeoPdvCounter++;
+                    }
+                }
+            }
+
+            // loop over requested IQIs
+            for ( auto & tdQIdp : mdQIdp( 1 ) )
+            {
+                // fill the dQIdp vector with zero
+                tdQIdp.set_size( 1, tActiveGeoPdvCounter, 0.0 );
+            }
         }
 
         //----------------------------------------------------------------------
         void Set::initialize_mdRdpMat()
         {
-
             // if dRdpMap not initialized before
             if ( !mdRdpMatExist )
             {
+                // set size for dRdp
+                mdRdp.resize( 2 );
+
                 // get the dof types requested by the solver
                 moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes
                 = this->get_requested_dof_types();
@@ -1799,21 +1920,7 @@ namespace moris
                     }
                 }
 
-                mdRdp.resize( 2 );
                 mdRdp( 0 ).set_size( tNumRows, tNumCols, 0.0 );
-
-//                // get the number of rhs
-//                uint tNumRHS = mEquationModel->get_num_rhs();
-//
-//                // set size for the list of dRdp vectors
-//                mdRdpMat.resize( tNumRHS );
-//
-//                // loop over the dQIdu vectors
-//                for( auto & tdRdpMat : mdRdpMat )
-//                {
-//                    // set size for the dQIdu vector
-//                    tdRdpMat.set_size( tNumRows, tNumCols, 0.0 );
-//                }
 
                 // set the dRdpMat initialization flag to true
                 mdRdpMatExist = true;
@@ -1822,13 +1929,6 @@ namespace moris
             else
             {
                 mdRdp( 0 ).fill( 0.0 );
-
-//                // loop over the dRdp matrices
-//                for( auto & tdRdpMat : mdRdpMat )
-//                {
-//                    // fill the dRdpMat matrix with zeros
-//                    tdRdpMat.fill( 0.0 );
-//                }
             }
         }
 
@@ -1910,22 +2010,8 @@ namespace moris
                 }
             }
 
+            // set size for dRdpgeo
             mdRdp( 1 ).set_size( tNumRows, tActiveGeoPdvCounter, 0.0 );
-
-//            // get the number of rhs
-//            uint tNumRHS = mEquationModel->get_num_rhs();
-//
-//            // set size for the list of tdRdpGeo matrices
-//            mdRdpGeo.resize( tNumRHS );
-//
-//            // loop over the dRdpGeo matrices
-//            for( auto & tdRdpGeo : mdRdpGeo )
-//            {
-//                // set size for the dRdpGeo matrices
-//                tdRdpGeo.set_size( tNumRows, tActiveGeoPdvCounter, 0.0 );
-//            }
-
-            //print(mdRdpGeo(0),"mdRdpGeo(0)");
         }
 
 //------------------------------------------------------------------------------

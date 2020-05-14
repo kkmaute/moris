@@ -570,6 +570,18 @@ namespace MSI
          */
         void initialize_mQI();
 
+        //----------------------------------------------------------------------
+        /**
+         * set size and reset values for dQIdp
+         */
+        void initialize_mdQIdpMat();
+
+        //----------------------------------------------------------------------
+        /**
+         * set size and reset values for dQIdp
+         */
+        void initialize_mdQIdpGeo( std::shared_ptr< fem::Cluster > aFemCluster );
+
 //------------------------------------------------------------------------------
         /**
          * set size and reset values for dRdp mat
@@ -581,12 +593,6 @@ namespace MSI
          * set size and reset values for dRdp geo
          */
         void initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster );
-
-//------------------------------------------------------------------------------
-        /**
-         * set size and reset values for dQIdp
-         */
-        void initialize_mdQIdp();
 
 //------------------------------------------------------------------------------
         /*
