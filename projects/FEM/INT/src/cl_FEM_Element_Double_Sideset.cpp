@@ -359,12 +359,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Element_Double_Sideset::compute_dQIdp_explicit()
-        {
-            MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit - not implemented yet" );
-        }
-
-        //------------------------------------------------------------------------------
         real Element_Double_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // get treated side ordinal on the master and on the slave
