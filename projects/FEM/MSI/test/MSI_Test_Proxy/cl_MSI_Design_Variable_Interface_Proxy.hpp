@@ -42,7 +42,8 @@ public :
         mDvTypes( 0 ).resize( 2 );     mDvTypes( 0 )( 0 ) = PDV_Type::X_COORDINATE;   mDvTypes( 0 )( 1 ) = PDV_Type::Y_COORDINATE;
         mDvTypes( 1 ).resize( 1 );     mDvTypes( 1 )( 0 ) = PDV_Type::DENSITY;
 
-        mDvTypesUnique.resize( 3 );    mDvTypesUnique = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::DENSITY };
+        mDvTypesUnique.resize( 3 );
+        mDvTypesUnique = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::DENSITY };
 
         mDvToIndexMap[ PDV_Type::X_COORDINATE ]   = 0;
         mDvToIndexMap[ PDV_Type::Y_COORDINATE ]   = 1;
@@ -61,8 +62,8 @@ public :
         mIsActiveDv( 1, 0 ) = 0;      mIsActiveDv( 1, 1 ) = 0;             mIsActiveDv( 1, 2 ) = 1;
         mIsActiveDv( 2, 0 ) = 0;      mIsActiveDv( 2, 1 ) = 0;             mIsActiveDv( 2, 2 ) = 1;
         mIsActiveDv( 3, 0 ) = 0;      mIsActiveDv( 3, 1 ) = 0;             mIsActiveDv( 3, 2 ) = 1;
-        mIsActiveDv( 4, 0 ) = 1;      mIsActiveDv( 4, 1 ) = 1;             mIsActiveDv( 4, 2 ) = 0;
-        mIsActiveDv( 5, 0 ) = 1;      mIsActiveDv( 5, 1 ) = 1;             mIsActiveDv( 5, 2 ) = 0;
+        mIsActiveDv( 4, 0 ) = 1;      mIsActiveDv( 4, 1 ) = 0;             mIsActiveDv( 4, 2 ) = 0;
+        mIsActiveDv( 5, 0 ) = 0;      mIsActiveDv( 5, 1 ) = 1;             mIsActiveDv( 5, 2 ) = 0;
 
         mDvIds.resize( 3 );
         for ( uint Ik = 0; Ik < mDvIds.size(); Ik++ )
@@ -103,25 +104,26 @@ public :
     void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                Cell< enum PDV_Type > & aDvTypes )
     {
-        aDvTypes = mDvTypesUnique;
+        aDvTypes = { PDV_Type::DENSITY };
     };
 //------------------------------------------------------------------------------
     void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                Cell< enum PDV_Type > & aDvTypes )
     {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_unique_dv_types_for_set() - not implemented in the child class" );
+        aDvTypes = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
     };
 //------------------------------------------------------------------------------
     void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                         Cell< Cell< enum PDV_Type >> & aDvTypes )
     {
-        aDvTypes = mDvTypes;
+        aDvTypes = {{ PDV_Type::DENSITY }};
     };
+
 //------------------------------------------------------------------------------
     void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                         Cell< Cell< enum PDV_Type >> & aDvTypes )
     {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_types_for_set() - not implemented in the child class" );
+        aDvTypes = {{ PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE }};
     };
 //------------------------------------------------------------------------------
     void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
@@ -139,11 +141,14 @@ public :
 
             for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
             {
-                if( mIsActiveDv( Ii, tIndex ) == 1 )
+                // get node index
+                uint tNodeIndex = aNodeIndices( Ii );
+
+                if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
                 {
-                    aDvValues( Ik )( Ii ) = mDvValues( Ii, tIndex );
+                    aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
                 }
-                aIsActiveDv( Ik )( Ii ) = mIsActiveDv( Ii, tIndex );
+                aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
             }
         }
     }
@@ -153,7 +158,27 @@ public :
                                  Cell<moris::Matrix< DDRMat > > & aDvValues,
                                  Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
     {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
+        aIsActiveDv.resize( aDvTypes.size() );
+
+        for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+        {
+            aIsActiveDv( Ik ).set_size( aNodeIndices.numel(), 1, MORIS_SINT_MAX );
+
+            sint tIndex = mDvToIndexMap.find( aDvTypes (Ik) );
+
+            for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( Ii );
+
+                if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
+                {
+                    aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
+                }
+
+                aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
+            }
+        }
     }
 //------------------------------------------------------------------------------
     void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
@@ -170,9 +195,12 @@ public :
 
             for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
             {
-                if( mIsActiveDv( Ii, tIndex ) == 1 )
+                // get node index
+                uint tNodeIndex = aNodeIndices( Ii );
+
+                if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
                 {
-                    aDvValues( Ik )( Ii ) = mDvValues( Ii, tIndex );
+                    aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
                 }
             }
         }
@@ -182,7 +210,25 @@ public :
                            const Cell< enum PDV_Type >            & aDvTypes,
                                  Cell<moris::Matrix< DDRMat > > & aDvValues )
     {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
+        aDvValues.resize( aDvTypes.size() );
+
+        for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+        {
+            aDvValues(Ik).set_size( aNodeIndices.numel(), 1, MORIS_REAL_MAX );
+
+            sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
+
+            for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( Ii );
+
+                if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
+                {
+                    aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
+                }
+            }
+        }
     }
 //------------------------------------------------------------------------------
     void reshape_pdv_values( const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
@@ -229,9 +275,9 @@ public :
         }
     }
 //------------------------------------------------------------------------------
-    void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat> & aNodeIndices,
-                                         const Cell< enum PDV_Type >               & aDvTypes,
-                                               Cell< moris::Matrix< IdMat > >    & aDvIds )
+    void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat>               & aNodeIndices,
+                                         const Cell< enum PDV_Type >          & aDvTypes,
+                                               Cell< moris::Matrix< IdMat > > & aDvIds )
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_ids_for_type_and_ind() - not implemented in the child class" );
     }
@@ -241,13 +287,15 @@ public :
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
     }
+
 //------------------------------------------------------------------------------
     void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
     }
-//------------------------------------------------------------------------------
 
+    //------------------------------------------------------------------------------
+    void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 };
 }
 }

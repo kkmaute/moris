@@ -220,7 +220,6 @@ namespace moris
              }
 
              // geometry interpolators------------------------------------------
-             // FIXME can be dv types
              // set the IP geometry interpolator physical space and time coefficients for the master
              mSet->get_field_interpolator_manager()
                  ->get_IP_geometry_interpolator()
@@ -398,7 +397,7 @@ namespace moris
         void Interpolation_Element::compute_dRdp()
         {
             // compute pdof values
-            //Fixme do this only once
+            // FIXME do this only once
             this->compute_my_pdof_values();
 
             // if time continuity set
@@ -408,6 +407,13 @@ namespace moris
                 // FIXME do this only once
                 this->compute_previous_pdof_values();
             }
+
+            // init geo pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
@@ -423,7 +429,8 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Interpolation_Element::compute_explicit_dQIdp()
+
+        void Interpolation_Element::compute_dQIdp_explicit()
         {
             // compute pdof values
             // FIXME do this only once
@@ -437,6 +444,13 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
+            // init geo pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // init dRdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
@@ -447,7 +461,7 @@ namespace moris
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
             // ask cluster to compute jacobian
-            mFemCluster( 0 )->compute_explicit_dQIdp();
+            mFemCluster( 0 )->compute_dQIdp_explicit();
 
             //----------------------------------------------------------------------------------------
 
@@ -551,7 +565,7 @@ namespace moris
         {
             this->compute_dRdp();
 
-            moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_dRdp();
+            moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_drdp();
 
             this->compute_my_adjoint_values();
 

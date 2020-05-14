@@ -418,191 +418,191 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
 
 TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]" )
 {
-    // define an epsilon environment
-    real tEpsilon = 1E-6;
-
-    // define aperturbation relative size
-    real tPerturbation = 1E-6;
-
-    // create the properties
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
-    tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
-    tPropMasterConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
-    tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
-
-    std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
-    tPropMasterTempLoad->set_parameters( { {{ 1.0 }} } );
-    tPropMasterTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
-
-    // define constitutive models
-    fem::CM_Factory tCMFactory;
-
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIso->set_space_dim( 3 );
-
-    // define the IWGs
-    fem::IWG_Factory tIWGFactory;
-
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
-
-    // create evaluation point xi, tau
-    //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI( tGIRule );
-
-    // create space coeff xHat
-    arma::Mat< double > tXMatrix;
-    tXMatrix.randu( 8, 3 );
-    Matrix< DDRMat > tXHat;
-    tXHat.matrix_data() = 10.0 * tXMatrix;
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 1 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-
-    // create random coefficients
-    arma::Mat< double > tDvMatrix;
-    tDvMatrix.randu( 8, 1 );
-    Matrix< DDRMat > tDvHat;
-    tDvHat.matrix_data() = 10.0 * tDvMatrix;
-
-    // create a cell of dv field interpolators for IWG
-    Cell< Field_Interpolator* > tDvFIs( 1 );
-
-    // create the field interpolator
-    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { PDV_Type::DENSITY } );
-
-    // set the coefficients
-    tDvFIs( 0 )->set_coeff( tDvHat );
-
-    //set the evaluation point xi, tau
-    tDvFIs( 0 )->set_space_time( tParamPoint );
-
-    // create a fem set
-    MSI::Equation_Set * tSet = new fem::Set();
-
-    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
-
-    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::UNDEFINED );
-
-    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-
-    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
-
-    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
-
-    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
-
-    tIWG->mSet->mDvAssemblyMap.resize( 1 );
-    tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 7 } };
-
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
-
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
-    tIWG->get_global_dv_type_list();
-
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
-
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
-
-    tFIManager.mFI = tFIs;
-    tFIManager.mDvFI = tDvFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
-
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
-
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
-
-    // check evaluation of drdpdv  by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Cell< Matrix< DDRMat > > tdRdpMatFD;
-    Cell< Matrix< DDRMat > > tdRdpGeoFD;
-    Cell< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
-                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
-                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }} };
-
-    // check jacobian by FD
-    tIWG->compute_dRdp_FD_material( 1.0,
-                                    tPerturbation,
-                                    tdRdpMatFD );
-
-    tIWG->compute_dRdp_FD_geometry( 1.0,
-                                    tPerturbation,
-                                    tIsActive,
-                                    tdRdpGeoFD );
-
-    // print for debug
-    //print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
-    //print( tdrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
-
-    // clean up
-    tFIs.clear();
-    tDvFIs.clear();
+//    // define an epsilon environment
+//    real tEpsilon = 1E-6;
+//
+//    // define aperturbation relative size
+//    real tPerturbation = 1E-6;
+//
+//    // create the properties
+//    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
+//    tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
+//    tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY0 }} );
+//    tPropMasterConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
+//    tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
+//
+//    std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
+//    tPropMasterTempLoad->set_parameters( { {{ 1.0 }} } );
+//    tPropMasterTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
+//
+//    // define constitutive models
+//    fem::CM_Factory tCMFactory;
+//
+//    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+//    tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
+//    tCMMasterDiffLinIso->set_space_dim( 3 );
+//
+//    // define the IWGs
+//    fem::IWG_Factory tIWGFactory;
+//
+//    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+//    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+//    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+//    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
+//    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
+//
+//    // create evaluation point xi, tau
+//    //------------------------------------------------------------------------------
+//    Matrix< DDRMat > tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
+//
+//    // space and time geometry interpolators
+//    //------------------------------------------------------------------------------
+//    // create a space geometry interpolation rule
+//    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
+//                                Interpolation_Type::LAGRANGE,
+//                                mtk::Interpolation_Order::LINEAR,
+//                                Interpolation_Type::LAGRANGE,
+//                                mtk::Interpolation_Order::LINEAR );
+//
+//    // create a space time geometry interpolator
+//    Geometry_Interpolator tGI( tGIRule );
+//
+//    // create space coeff xHat
+//    arma::Mat< double > tXMatrix;
+//    tXMatrix.randu( 8, 3 );
+//    Matrix< DDRMat > tXHat;
+//    tXHat.matrix_data() = 10.0 * tXMatrix;
+//
+//    // create time coeff tHat
+//    Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+//
+//    // set the coefficients xHat, tHat
+//    tGI.set_coeff( tXHat, tTHat );
+//
+//    // set the evaluation point
+//    tGI.set_space_time( tParamPoint );
+//
+//    // field interpolators
+//    //------------------------------------------------------------------------------
+//    //create a space time interpolation rule
+//    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
+//                                 Interpolation_Type::LAGRANGE,
+//                                 mtk::Interpolation_Order::LINEAR,
+//                                 Interpolation_Type::CONSTANT,
+//                                 mtk::Interpolation_Order::CONSTANT );
+//
+//    // create random coefficients
+//    arma::Mat< double > tMatrix;
+//    tMatrix.randu( 8, 1 );
+//    Matrix< DDRMat > tDOFHat;
+//    tDOFHat.matrix_data() = 10.0 * tMatrix;
+//
+//    // create a cell of field interpolators for IWG
+//    Cell< Field_Interpolator* > tFIs( 1 );
+//
+//    // create the field interpolator
+//    tFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
+//
+//    // set the coefficients uHat
+//    tFIs( 0 )->set_coeff( tDOFHat );
+//
+//    //set the evaluation point xi, tau
+//    tFIs( 0 )->set_space_time( tParamPoint );
+//
+//    // create random coefficients
+//    arma::Mat< double > tDvMatrix;
+//    tDvMatrix.randu( 8, 1 );
+//    Matrix< DDRMat > tDvHat;
+//    tDvHat.matrix_data() = 10.0 * tDvMatrix;
+//
+//    // create a cell of dv field interpolators for IWG
+//    Cell< Field_Interpolator* > tDvFIs( 1 );
+//
+//    // create the field interpolator
+//    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { PDV_Type::DENSITY0 } );
+//
+//    // set the coefficients
+//    tDvFIs( 0 )->set_coeff( tDvHat );
+//
+//    //set the evaluation point xi, tau
+//    tDvFIs( 0 )->set_space_time( tParamPoint );
+//
+//    // create a fem set
+//    MSI::Equation_Set * tSet = new fem::Set();
+//
+//    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+//
+//    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+//    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::END_ENUM );
+//
+//    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+//    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+//
+//    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+//    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+//
+//    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
+//    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
+//
+//    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
+//    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
+//
+//    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+//    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+//
+//    tIWG->mSet->mDvAssemblyMap.resize( 1 );
+//    tIWG->mSet->mDvAssemblyMap( 0 ) = { { 0, 7 } };
+//
+//    tIWG->mSet->mResidual.resize( 1 );
+//    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
+//
+//    // build global dof type list
+//    tIWG->get_global_dof_type_list();
+//    tIWG->get_global_dv_type_list();
+//
+//    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+//
+//    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+//    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+//
+//    tFIManager.mFI = tFIs;
+//    tFIManager.mDvFI = tDvFIs;
+//    tFIManager.mIPGeometryInterpolator = &tGI;
+//    tFIManager.mIGGeometryInterpolator = &tGI;
+//
+//    // set the interpolator manager to the set
+//    tIWG->mSet->mMasterFIManager = &tFIManager;
+//
+//    // set IWG field interpolator manager
+//    tIWG->set_field_interpolator_manager( &tFIManager );
+//
+//    // check evaluation of drdpdv  by FD
+//    //------------------------------------------------------------------------------
+//    // init the jacobian for IWG and FD evaluation
+//    Cell< Matrix< DDRMat > > tdRdpMatFD;
+//    Cell< Matrix< DDRMat > > tdRdpGeoFD;
+//    Cell< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
+//                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
+//                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }} };
+//
+//    // check jacobian by FD
+//    tIWG->compute_dRdp_FD_material( 1.0,
+//                                    tPerturbation,
+//                                    tdRdpMatFD );
+//
+//    tIWG->compute_dRdp_FD_geometry( 1.0,
+//                                    tPerturbation,
+//                                    tIsActive,
+//                                    tdRdpGeoFD );
+//
+//    // print for debug
+//    //print( tdrdpdvMatFD( 0 ), "tdrdpdvMatFD" );
+//    //print( tdrdpdvGeoFD( 0 ), "tdrdpdvGeoFD" );
+//
+//    // clean up
+//    tFIs.clear();
+//    tDvFIs.clear();
 
 }/* END_TEST_CASE */
 

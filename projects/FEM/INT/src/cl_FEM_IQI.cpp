@@ -1013,40 +1013,26 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-            void IQI::compute_dQIdp_FD_material
-            ( moris::real               aWStar,
-              moris::real               aPerturbation,
-              moris::Matrix< DDRMat > & adQIdpMatFD )
+            void IQI::compute_dQIdp_FD_material( moris::real aWStar,
+                                                 moris::real aPerturbation )
             {
-                // get master number of dv types
-                uint tNumDvType = mMasterGlobalDvTypes.size();
+                // FIXME
+                // get list of requested pdv types
+                moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes
+                = mMasterGlobalDvTypes;
 
-                // set size for adrdpdvFD
-                uint tNumCols = 0;
-                for( uint iFI = 0; iFI < tNumDvType; iFI++ )
+                // get number of requested pdv types
+                uint tNumPdvType = tRequestedPdvTypes.size();
+
+                // get the IQI index
+                uint tIQIAssemblyIndex = 0;
+
+                // loop over the pdv types
+                for( uint iFI = 0; iFI < tNumPdvType; iFI++ )
                 {
-                    // get the dv index in the set
-                    uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
-                                                                 mtk::Master_Slave::MASTER );
-
-                    // get the number of cols
-                    tNumCols += mSet->get_dv_assembly_map()( tDvIndex )( 0, 1 )
-                              - mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 ) + 1;
-                }
-
-                // set size for adQIdpMatFD
-                adQIdpMatFD.set_size( 1, tNumCols, 0.0 );
-
-                // loop over the dv types associated with a FI
-                for( uint iFI = 0; iFI < tNumDvType; iFI++ )
-                {
-                    // get the dv index in the set
-                    uint tDvIndex = mSet->get_dv_index_for_type( mMasterGlobalDvTypes( iFI )( 0 ),
-                                                                 mtk::Master_Slave::MASTER );
-
                     // get the FI for the dv type
                     Field_Interpolator * tFI
-                    = mMasterFIManager->get_field_interpolators_for_type( mMasterGlobalDvTypes( iFI )( 0 ) );
+                    = mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                     // get number of master FI bases and fields
                     uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -1055,16 +1041,16 @@ namespace moris
                     // coefficients for dof type wrt which derivative is computed
                     Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
-                    // init dv coeff counter
-                    uint tCounter = 0;
+                    // init pdv coeff counter
+                    uint tPdvCoeffCounter = 0;
 
-                    // loop over the coefficient column
+                    // loop over the pdv coefficient column
                     for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
                     {
-                        // loop over the coefficient row
+                        // loop over the pdv coefficient row
                         for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
                         {
-                            // perturbation of the coefficent
+                            // perturbation of the pdv coefficent
                             Matrix< DDRMat > tCoeffPert = tCoeff;
                             tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
@@ -1092,14 +1078,15 @@ namespace moris
                             Matrix< DDRMat > tQIValMinus;
                             this->compute_QI( tQIValMinus );
 
-                            // evaluate Jacobian
-                            uint tDvAssemblyStart = mSet->get_dv_assembly_map()( tDvIndex )( 0, 0 );
+                            // get the pdv index for assembly
+                            uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
 
-                            adQIdpMatFD( tDvAssemblyStart + tCounter )
+                            // evaluate dQIqp
+                            mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex )
                             = ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
-                            // update counter
-                            tCounter++;
+                            // update the pdv coefficient counter
+                            tPdvCoeffCounter++;
                         }
                     }
                     // reset the coefficients values
@@ -1112,33 +1099,34 @@ namespace moris
             ( moris::real                       aWStar,
               moris::real                       aPerturbation,
               moris::Cell< Matrix< DDSMat > > & aIsActive,
-              Matrix< DDRMat >                & adQIdpGeoFD )
+              Matrix< IndexMat >              & aVertexIndices )
             {
+                // FIXME
+                // get requested geometry pdv type
+                moris::Cell< PDV_Type > tRequestedGeoPdvType
+                = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
+
+                // get the IQI index
+                uint tIQIAssemblyIndex = 0;
+
                 // get the GI for the IG element considered
-                Geometry_Interpolator * tGI
-                = mSet->get_field_interpolator_manager()
-                      ->get_IG_geometry_interpolator();
+                Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()
+                                                  ->get_IG_geometry_interpolator();
 
                 // get number of master GI bases and space dimensions
                 uint tDerNumBases      = tGI->get_number_of_space_bases();
                 uint tDerNumDimensions = tGI->get_number_of_space_dimensions();
 
-                // set size for adrdpdvGeoFD
-                adQIdpGeoFD.set_size( 1, tDerNumBases * tDerNumDimensions, 0.0 );
-
                 // coefficients for dv type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = tGI->get_space_coeff();
-
-                // init dv counter
-                uint tDvCounter = 0;
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
                 {
                     // loop over the IG nodes
-                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
+                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
                     {
-                        if ( aIsActive( iCoeffRow )( iCoeffCol ) == 1 )
+                        if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                         {
                             // perturbation of the coefficent
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1168,13 +1156,15 @@ namespace moris
                             Matrix< DDRMat > tQIValMinus;
                             this->compute_QI( tQIValMinus );
 
-                            // evaluate drdpdvGeo
-                            adQIdpGeoFD( tDvCounter )
-                            = ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                        }
+                            // get the geometry pdv assembly index
+                            std::pair< moris_index, PDV_Type > tKeyPair
+                            = std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
+                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
-                        // update dv counter
-                        tDvCounter++;
+                            // evaluate dqidpdv
+                            mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex )
+                            += ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        }
                     }
                     // reset the coefficients values
                      tGI->set_space_coeff( tCoeff );
