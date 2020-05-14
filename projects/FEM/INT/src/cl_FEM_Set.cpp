@@ -2556,6 +2556,14 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void Set::get_ig_unique_dv_types_for_set( moris::Cell < enum PDV_Type > & aGeoPdvType )
+        {
+            mDesignVariableInterface->get_ig_unique_dv_types_for_set(
+                    mMeshSet->get_set_index(),
+                    aGeoPdvType );
+        }
+
+        //------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */
