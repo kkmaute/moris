@@ -34,8 +34,6 @@
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
-
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
@@ -51,6 +49,7 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_Property.hpp"
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -89,20 +88,14 @@ void tConstValFunction2MatMDL
     aPropMatrix = aParameters( 0 );
 }
 
-void tFIValDvFunction_FDTest
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+Matrix<DDRMat> density_function_1(moris::Cell<Matrix<DDRMat>>& aCoeff)
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+    return Matrix<DDRMat>(1, 1, 1.0);
 }
 
-void tFIDerDvFunction_FDTest
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+Matrix<DDRMat> density_function_2(moris::Cell<Matrix<DDRMat>>& aCoeff)
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
+    return Matrix<DDRMat>(1, 1, 2.0);
 }
 
 TEST_CASE("Sensitivity test","[Sensitivity test]")
@@ -214,11 +207,11 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e");
+        //writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e");
 
         // Write the fields
-        writer.set_time(0.0);
-        writer.close_file();
+//        writer.set_time(0.0);
+//        writer.close_file();
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -226,18 +219,13 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         //------------------------------------------------------------------------------
         // create the properties
-        // create the properties
-        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property > ();
+        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity1->set_dv_type_list( {{ PDV_Type::DENSITY }} );
-        tPropConductivity1->set_val_function( tFIValDvFunction_FDTest );
-        tPropConductivity1->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
+        tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
 
-        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property > ();
-        tPropConductivity2->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity2->set_dv_type_list( {{ PDV_Type::DENSITY }} );
-        tPropConductivity2->set_val_function( tFIValDvFunction_FDTest );
-        tPropConductivity2->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
+        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
+        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
+        tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
@@ -328,23 +316,25 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // --------------------------------------------------------------------------------------
         fem::IQI_Factory tIQIFactory;
 
+        Cell<std::string> tRequestedIQINames(2);
+        tRequestedIQINames(0) = "IQI_StrainEnergy1";
+        tRequestedIQINames(1) = "IQI_StrainEnergy2";
+
+        std::shared_ptr< fem::IQI > tIQI_SE1 = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+        tIQI_SE1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIQI_SE1->set_constitutive_model( tCMDiffLinIso1, "Elast", mtk::Master_Slave::MASTER );
+        tIQI_SE1->set_name(tRequestedIQINames(0));
+
+        std::shared_ptr< fem::IQI > tIQI_SE2 = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+        tIQI_SE2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIQI_SE2->set_constitutive_model( tCMDiffLinIso2, "Elast", mtk::Master_Slave::MASTER );
+        tIQI_SE2->set_name(tRequestedIQINames(1));
+
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
         tIQITEMP->set_name("IQI_TEMP");
-
-        std::shared_ptr< fem::IQI > tIQI1 = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI1->set_IQI_phase_type( Phase_Type::PHASE0 );
-        tIQI1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIQI1->set_constitutive_model( tCMDiffLinIso1, "Elast", mtk::Master_Slave::MASTER );
-        tIQI1->set_name("IQI_StrainEnergy1");
-
-        std::shared_ptr< fem::IQI > tIQI2 = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI2->set_IQI_phase_type( Phase_Type::PHASE0 );
-        tIQI2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIQI2->set_constitutive_model( tCMDiffLinIso2, "Elast", mtk::Master_Slave::MASTER );
-        tIQI2->set_name("IQI_StrainEnergy2");
 
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
@@ -353,22 +343,22 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_set_name( "HMR_dummy_c_p0" );
         tSetBulk1.set_IWGs( { tIWGBulk1 } );
-        tSetBulk1.set_IQIs( { tIQITEMP } );
+        tSetBulk1.set_IQIs( { tIQITEMP, tIQI_SE1 } );
 
         fem::Set_User_Info tSetBulk2;
         tSetBulk2.set_mesh_set_name( "HMR_dummy_n_p0" );
         tSetBulk2.set_IWGs( { tIWGBulk1 } );
-        tSetBulk2.set_IQIs( { tIQITEMP } );
+        tSetBulk2.set_IQIs( { tIQITEMP, tIQI_SE1 } );
 
         fem::Set_User_Info tSetBulk3;
         tSetBulk3.set_mesh_set_name( "HMR_dummy_c_p1" );
         tSetBulk3.set_IWGs( { tIWGBulk2 } );
-        tSetBulk3.set_IQIs( { tIQITEMP } );
+        tSetBulk3.set_IQIs( { tIQITEMP, tIQI_SE2 } );
 
         fem::Set_User_Info tSetBulk4;
         tSetBulk4.set_mesh_set_name( "HMR_dummy_n_p1" );
         tSetBulk4.set_IWGs( { tIWGBulk2 } );
-        tSetBulk4.set_IQIs( { tIQITEMP } );
+        tSetBulk4.set_IQIs( { tIQITEMP, tIQI_SE2 } );
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_set_name( "SideSet_2_n_p1" );
@@ -398,6 +388,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                                tSetInfo,
                                                0, false );
 
+        // output manager
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
@@ -409,6 +400,42 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                  {  vis::Output_Type::TEMP } );
         tModel->set_output_manager( &tOutputData );
 
+        // PDVs and design variable interface
+        tGeometryEngine.register_mesh(&tMeshManager);
+
+        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(7);
+        for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
+        {
+            tPdvTypes(tBulkSetIndex).resize(1);
+            tPdvTypes(tBulkSetIndex)(0).resize(1);
+            tPdvTypes(tBulkSetIndex)(0)(0) = PDV_Type::DENSITY;
+        }
+        tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
+
+        std::shared_ptr<ge::GEN_Property> tDensityProperty1 = std::make_shared<ge::GEN_Property>();
+        std::shared_ptr<ge::GEN_Property> tDensityProperty2 = std::make_shared<ge::GEN_Property>();
+        tDensityProperty1->set_val_function(&density_function_1);
+        tDensityProperty2->set_val_function(&density_function_2);
+        tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
+
+        tGeometryEngine.set_equation_model(tModel->get_fem_model());
+        tGeometryEngine.communicate_requested_IQIs(tRequestedIQINames);
+        tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
+
+//        Cell<Matrix<DDRMat>> tDvValues;
+//        Matrix<IndexMat> tNodeIndices(70, 1);
+//        for (uint tNodeIndex = 0; tNodeIndex < 70; tNodeIndex++)
+//        {
+//            tNodeIndices(tNodeIndex) = tNodeIndex;
+//        }
+//        tGeometryEngine.get_design_variable_interface()->get_ip_pdv_value(tNodeIndices, tPdvTypes(0)(0), tDvValues);
+//        moris::print(tDvValues, "vals");
+//        moris::print(tGeometryEngine.get_design_variable_interface()->get_my_local_global_map(), "map");
+
+        // Solver
         std::shared_ptr< sol::SOL_Warehouse > tSolverWarehouse
         = std::make_shared<sol::SOL_Warehouse>( tModel->get_solver_interface() );
 

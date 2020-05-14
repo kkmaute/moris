@@ -18,6 +18,12 @@ namespace moris
         class Solver_Data
         {
             private:
+                bool        mIsConverged = false;
+
+                moris::uint mNumIterationsToConvergence = 0;
+
+                moris::real mResidualNorm = MORIS_REAL_MAX;
+
 
             public:
                 Solver_Data(){};
