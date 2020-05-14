@@ -91,7 +91,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
         uint tNumRHMS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
+        mVectorRHS     = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
         mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHMS );

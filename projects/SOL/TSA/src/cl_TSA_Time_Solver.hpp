@@ -88,6 +88,8 @@ namespace tsa
 
         bool mIsMasterTimeSolver = false;
 
+        bool mIsForwardSolve = true;
+
         //--------------------------------------------------------------------------------------------------
 
     protected:

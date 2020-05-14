@@ -85,7 +85,9 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
     {
         moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        this->initialize_set( Ii, true );
+        this->initialize_set( Ii, false );                     // FIXME FIXME shoudl be true. this is a brutal hack and will be changed in a few days
+
+//        std::cout<<"Set "<<Ii<<std::endl;
 
         for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
@@ -97,7 +99,7 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
             Cell< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_rhs( Ii, Ik, tElementRHS );
 
-//            print(tElementRHS,"tElementRHS");
+            //print(tElementRHS,"tElementRHS");
 
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {

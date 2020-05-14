@@ -517,14 +517,28 @@ namespace moris
     {
         this->compute_residual();
 
-        Cell< Matrix< DDRMat > > & tElementalResidual = mEquationSet->get_residual();
+//        Cell< Matrix< DDRMat > > & tElementalResidual = mEquationSet->get_residual();
+        Cell< Matrix< DDRMat > > tElementalResidual = mEquationSet->get_residual();
 
 //        this->add_staggered_contribution_to_residual( tElementalResidual );
+
+        // FIXME this is a hack and will be changed in the next days
+        if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
+        {
+            this->compute_jacobian();
+
+            this->compute_my_adjoint_values();
+
+            for ( uint Ik = 0; Ik<tElementalResidual.size(); Ik++ )
+            {
+                tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik )- tElementalResidual( Ik );
+            }
+        }
 
         Matrix< DDRMat > tTMatrix;
         this->build_PADofMap_1( tTMatrix );
 
-        uint tNumRHS = mEquationSet->get_num_rhs();
+        uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 
         aEqnObjRHS.resize( tNumRHS );
 

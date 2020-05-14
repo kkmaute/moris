@@ -94,7 +94,7 @@ namespace moris
                 {
                     mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
 
-                    MORIS_ASSERT( mNumSensitivityAnalysisRHS <= 0, "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
+                    MORIS_ASSERT( mNumSensitivityAnalysisRHS > 0, "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
 
                     return mNumSensitivityAnalysisRHS;
                 }

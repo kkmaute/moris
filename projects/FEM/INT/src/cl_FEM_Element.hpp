@@ -184,7 +184,8 @@ namespace moris
          */
         virtual void compute_dQIdu()
         {
-            MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class.");
+            // this virtual function does nothing
+            //MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class.");
         }
 
 //------------------------------------------------------------------------------

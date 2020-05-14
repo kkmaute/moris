@@ -110,8 +110,6 @@ namespace moris
 
         Matrix< DDUMat > mSetNodalCounter;
 
-        uint tNumRHS = 1;
-
         MSI::Equation_Model * mEquationModel = nullptr;
 
         friend class MSI::Equation_Object;
@@ -644,15 +642,6 @@ namespace moris
         {
             return mDvAssemblyMap;
         }
-
-//-------------------------------------------------------------------------------------------------
-        /**
-         * get number of right hand side
-         */
-        uint get_num_rhs()
-        {
-           return tNumRHS;
-        };
 
 //------------------------------------------------------------------------------
         /**

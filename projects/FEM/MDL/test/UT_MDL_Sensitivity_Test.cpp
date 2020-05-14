@@ -109,7 +109,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::string("11,4") );
+        tParameters.set( "number_of_elements_per_dimension", std::string("5,2") );
         tParameters.set( "domain_dimensions", std::string("6,2") );
         tParameters.set( "domain_offset", std::string("-3.0,-1.0") );
         tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
@@ -422,7 +422,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
 
         tGeometryEngine.set_equation_model(tModel->get_fem_model());
-        tGeometryEngine.communicate_requested_IQIs(tRequestedIQINames);
+
         tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
 
 //        Cell<Matrix<DDRMat>> tDvValues;
@@ -449,6 +449,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
         tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
         tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
 
@@ -466,11 +467,19 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tTimeSolver->set_output( 0, nullptr );
 
-//        tModel->set_solver_warehouse_hack( tSolverWarehouse );
-//
-//        tModel->perform_forward_analysis_temporary_hack();
+        tModel->set_solver_warehouse_hack( tSolverWarehouse );
 
-        tTimeSolver->solve();
+        tModel->perform_forward_analysis_temporary_hack();
+
+        //--------------------------------------------------------------------------
+        //                          Sensitivity analysis
+        //--------------------------------------------------------------------------
+
+        tGeometryEngine.communicate_requested_IQIs(tRequestedIQINames);
+
+        tModel->perform_sensitivity_analysis();
+
+//        tTimeSolver->solve();
 
         delete tModel;
         delete tInterpMesh;

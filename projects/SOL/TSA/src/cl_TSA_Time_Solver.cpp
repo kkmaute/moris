@@ -223,30 +223,33 @@ using namespace tsa;
     void Time_Solver::check_for_outputs( const moris::real & aTime,
                                          const bool          aEndOfTimeIteration )
     {
-         uint tCounter = 0;
-
-         // loop over all outputs and check if it is triggered
-        for( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
+        if( mIsForwardSolve )
         {
-            bool tIsOutput = false;
+            uint tCounter = 0;
 
-            if( tOutputCriterias == nullptr )
+            // loop over all outputs and check if it is triggered
+            for( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
             {
-                tIsOutput = true;
-            }
-            else
-            {
-                tIsOutput = tOutputCriterias( this );
-            }
+                bool tIsOutput = false;
 
-            if( tIsOutput )
-            {
-                MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
+                if( tOutputCriterias == nullptr )
+                {
+                    tIsOutput = true;
+                }
+                else
+                {
+                    tIsOutput = tOutputCriterias( this );
+                }
 
-                mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
+                if( tIsOutput )
+                {
+                    MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
+
+                    mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
+                }
+
+                tCounter++;
             }
-
-            tCounter++;
         }
     }
 
@@ -272,6 +275,7 @@ using namespace tsa;
     void Time_Solver::solve()
     {
         mIsMasterTimeSolver = true;
+        mIsForwardSolve = true;
 
         // get solver interface
         mSolverInterface = mSolverWarehouse->get_solver_interface();
@@ -302,6 +306,8 @@ using namespace tsa;
 
     void Time_Solver::solve_sensitivity()
     {
+        mIsForwardSolve = false;
+
         // create map object
         Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
