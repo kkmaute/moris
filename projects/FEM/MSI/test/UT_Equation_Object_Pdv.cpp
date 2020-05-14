@@ -360,8 +360,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
         // set size and populate the set master dof type map
-        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap.set_size( static_cast< int >( GEN_DV::END_ENUM ) + 1, 1, -1 );
-        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap( static_cast< int >( GEN_DV::DENSITY0 ) ) = 0;
+        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
         // MSI Equation object
         //------------------------------------------------------------------------------

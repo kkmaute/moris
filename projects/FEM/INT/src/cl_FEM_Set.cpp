@@ -1364,7 +1364,7 @@ namespace moris
         mPdvGeoAssemblyMap.clear();
 
         // FIXME get the geo dv types requested by the opt
-        moris::Cell < enum GEN_DV > tRequestedDvTypes;
+        moris::Cell < enum PDV_Type > tRequestedDvTypes;
         mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
                                                                   tRequestedDvTypes );
 
@@ -1379,10 +1379,10 @@ namespace moris
         for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
         {
             // get treated geo pdv type
-            GEN_DV tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+            PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
 
             // build geo pdv type cell
-            moris::Cell< GEN_DV > tGeoPdvMat = { tGeoPdvType };
+            moris::Cell< PDV_Type > tGeoPdvMat = { tGeoPdvType };
 
             // loop over the ig nodes on cluster
             uint tNumIGNodes = tNodeIndicesOnCluster.size();
@@ -1404,7 +1404,7 @@ namespace moris
                                                             tIsActivePdv );
 
                 // create key pair
-                std::pair< moris_index, GEN_DV > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+                std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
 
                 // if active and not set in the map
                 if( tIsActivePdv( 0 )( 0 ) && ( mPdvGeoAssemblyMap.find( tKeyPair ) == mPdvGeoAssemblyMap.end() ) )
@@ -1764,7 +1764,7 @@ namespace moris
                 }
 
                 // FIXME get the dv types requested by the opt
-                moris::Cell < enum GEN_DV > tRequestedDvTypes;
+                moris::Cell < enum PDV_Type > tRequestedDvTypes;
                 mDesignVariableInterface->get_ip_unique_dv_types_for_set( mMeshSet->get_set_index(),
                                                                           tRequestedDvTypes );
 
@@ -1873,7 +1873,7 @@ namespace moris
             }
 
             // FIXME get the geo dv types requested by the opt
-            moris::Cell < enum GEN_DV > tRequestedDvTypes;
+            moris::Cell < enum PDV_Type > tRequestedDvTypes;
             mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
                                                                       tRequestedDvTypes );
 
@@ -1891,7 +1891,7 @@ namespace moris
             for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
             {
                 // get treated geo pdv type
-                GEN_DV tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
 
                 // loop over the ig nodes on cluster
                 for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
@@ -1900,7 +1900,7 @@ namespace moris
                     moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
 
                     // create key pair
-                    std::pair< moris_index, GEN_DV > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
 
                     // if in map
                     if( mPdvGeoAssemblyMap.find( tKeyPair ) != mPdvGeoAssemblyMap.end() )

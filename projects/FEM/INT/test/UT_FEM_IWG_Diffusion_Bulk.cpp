@@ -520,7 +520,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    Cell< Field_Interpolator* > tDvFIs( 1 );
 //
 //    // create the field interpolator
-//    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { GEN_DV::DENSITY0 } );
+//    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { PDV_Type::DENSITY0 } );
 //
 //    // set the coefficients
 //    tDvFIs( 0 )->set_coeff( tDvHat );
@@ -534,7 +534,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 //
 //    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-//    tIWG->mSet->mUniqueDvTypeList.resize( 5, GEN_DV::END_ENUM );
+//    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::END_ENUM );
 //
 //    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
 //    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;

@@ -104,26 +104,26 @@ public :
     void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                Cell< enum PDV_Type > & aDvTypes )
     {
-        aDvTypes = { GEN_DV::DENSITY0 };
+        aDvTypes = { PDV_Type::DENSITY };
     };
 //------------------------------------------------------------------------------
     void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                Cell< enum PDV_Type > & aDvTypes )
     {
-        aDvTypes = { GEN_DV::XCOORD, GEN_DV::YCOORD };
+        aDvTypes = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
     };
 //------------------------------------------------------------------------------
     void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                         Cell< Cell< enum PDV_Type >> & aDvTypes )
     {
-        aDvTypes = {{ GEN_DV::DENSITY0 }};
+        aDvTypes = {{ PDV_Type::DENSITY }};
     };
 
 //------------------------------------------------------------------------------
     void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                         Cell< Cell< enum PDV_Type >> & aDvTypes )
     {
-        aDvTypes = {{ GEN_DV::XCOORD, GEN_DV::YCOORD }};
+        aDvTypes = {{ PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE }};
     };
 //------------------------------------------------------------------------------
     void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,

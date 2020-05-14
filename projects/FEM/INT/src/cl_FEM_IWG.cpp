@@ -1390,15 +1390,15 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-//                    // for debug
-//                    if( !( tAbsolute < aEpsilon ) && ( tRelative < aEpsilon ) )
-//                    {
-//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
-//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
-//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
-//                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
-//                        std::cout<<"Relative difference "<<tRelative<<std::endl;
-//                    }
+                    // for debug
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
+                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
+                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+                        std::cout<<"Relative difference "<<tRelative<<std::endl;
+                    }
                 }
             }
 
@@ -1544,9 +1544,9 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                         = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // FIXME get geo pdv index
-                        moris::Cell< GEN_DV > tGeoPdvType = { GEN_DV::XCOORD, GEN_DV::YCOORD, GEN_DV::ZCOORD };
+                        moris::Cell< PDV_Type > tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
 
-                        std::pair< moris_index, GEN_DV > tKeyPair
+                        std::pair< moris_index, PDV_Type > tKeyPair
                         = std::make_pair( aVertexIndices( iCoeffRow ), tGeoPdvType( iCoeffCol ) );
                         uint tPdvIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
@@ -1633,11 +1633,6 @@ void IWG::build_requested_dof_type_list( const bool aIsResidual )
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tCoeffCounter;
 
                         // evaluate dRdpMat
-//                        std::cout<<"tResDofAssemblyStart "<<tResDofAssemblyStart<<std::endl;
-//                        std::cout<<"tResDofAssemblyStop "<<tResDofAssemblyStop<<std::endl;
-//                        std::cout<<"tPdvIndex "<<tPdvIndex<<std::endl;
-//                        print(mSet->get_drdpmat()( 0 ),"mSet->get_drdpmat()( 0 )");
-
                         mSet->get_drdpmat()( { tResDofAssemblyStart, tResDofAssemblyStop }, { tPdvIndex, tPdvIndex } )
                         += ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 

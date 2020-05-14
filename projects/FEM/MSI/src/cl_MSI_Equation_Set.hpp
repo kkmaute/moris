@@ -77,7 +77,7 @@ namespace moris
 
         // map of master and slave mat pdv types for assembly
         Cell< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
-        std::map< std::pair< moris_index, GEN_DV >, uint > mPdvGeoAssemblyMap;
+        std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
 
         // Map from requested IQI Name to index.
         // I do not know if this is slow because the map is called per gauss point.
@@ -659,7 +659,7 @@ namespace moris
         /**
          * get dRdpGeo pdv assembly map
          */
-        std::map< std::pair< moris_index, GEN_DV >, uint > & get_geo_pdv_assembly_map()
+        std::map< std::pair< moris_index, PDV_Type >, uint > & get_geo_pdv_assembly_map()
         {
             return mPdvGeoAssemblyMap;
         }
