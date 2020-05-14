@@ -8,38 +8,85 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
-        Element_Sideset::Element_Sideset( mtk::Cell const    * aCell,
-                                          Set                * aSet,
-                                          Cluster            * aCluster,
-                                          moris::moris_index   aCellIndexInCluster)
+        //------------------------------------------------------------------------------
+        Element_Sideset::Element_Sideset(
+                mtk::Cell const    * aCell,
+                Set                * aSet,
+                Cluster            * aCluster,
+                moris::moris_index   aCellIndexInCluster)
         : Element( aCell, aSet, aCluster, aCellIndexInCluster )
         {}
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         Element_Sideset::~Element_Sideset(){}
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Element_Sideset::init_ig_geometry_interpolator( uint aSideOrdinal )
         {
+            // get IG geometry interpolator
+            Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_coeff( mCluster->mInterpolationElement->get_time() );
+            tIGGI->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal ) );
+            tIGGI->set_time_coeff( mCluster->mInterpolationElement->get_time() );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal ) );
-            mSet->get_field_interpolator_manager()
-                ->get_IG_geometry_interpolator()
-                ->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
+            tIGGI->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal ) );
+            tIGGI->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void Element_Sideset::init_ig_geometry_interpolator_with_pdv(
+                uint                              aSideOrdinal,
+                moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
+        {
+            // get the vertices indices
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+            // get the geometry XYZ values
+            Matrix< DDRMat > tXYZValues =
+                    mMasterCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
+
+            // get the requested geo pdv types
+            moris::Cell < enum PDV_Type > tGeoPdvType;
+            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+            // get space dimension
+            uint tSpaceDim = tXYZValues.n_cols();
+
+            // reshape the XYZ values into a cell of vectors
+            moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
+            for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+            {
+                tPdvValueList( iSpaceDim ) = tXYZValues.get_column( iSpaceDim );
+            }
+
+            // get the pdv values from the MSI/GEN interface
+            mSet->mDesignVariableInterface->get_ig_pdv_value(
+                    tVertexIndices,
+                    tGeoPdvType,
+                    tPdvValueList,
+                    aIsActiveDv );
+
+            // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
+            Matrix< DDRMat > tPdvValues;
+            mSet->mDesignVariableInterface->reshape_pdv_values(
+                    tPdvValueList,
+                    tPdvValues );
+
+            // get IG geometry interpolator
+            Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            tIGGI->set_space_coeff( tPdvValues );
+            tIGGI->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
+
+            // set the geometry interpolator param space and time coefficients for integration cell
+            tIGGI->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal ) );
+            tIGGI->set_time_param_coeff( {{-1.0}, {1.0}} ); // FIXME
+        }
+
+        //------------------------------------------------------------------------------
         void Element_Sideset::compute_residual()
         {
             // get treated side ordinal
@@ -60,11 +107,11 @@ namespace moris
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()
-                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute the integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
-                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
@@ -91,7 +138,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Element_Sideset::compute_jacobian()
         {
             // get treated side ordinal
@@ -111,12 +158,11 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()
-                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP )
-                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
@@ -139,13 +185,74 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Element_Sideset::compute_jacobian_and_residual()
         {
             MORIS_ERROR( false, " Element_Sideset::compute_jacobian_and_residual - not implemented. ");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void Element_Sideset::compute_dRdp()
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // get the vertices indices
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+            // set the IG geometry interpolator physical/param space and time coefficients
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator_with_pdv(
+                    tSideOrd,
+                    tIsActiveDv );
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar =
+                        mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                    // FIXME set nodal weak BCs
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // set a perturbation size
+                    real tPerturbation = 1E-6;
+
+                    // compute dRdpMat at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
+                            tWStar,
+                            tPerturbation );
+
+                    // compute dRdpGeo at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
+                            tWStar,
+                            tPerturbation,
+                            tIsActiveDv,
+                            tVertexIndices );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
         void Element_Sideset::compute_QI()
         {
             // get treated side ordinal
@@ -168,8 +275,8 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP )
-                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -183,11 +290,69 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void
-        Element_Sideset::compute_quantity_of_interest_global
-        ( const uint             aMeshIndex,
-          enum  vis::Output_Type aOutputType )
+        //------------------------------------------------------------------------------
+        void Element_Sideset::compute_dQIdp_explicit()
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // get the vertices indices
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+            // set the IG geometry interpolator physical/param space and time coefficients
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator_with_pdv(
+                    tSideOrd,
+                    tIsActiveDv );
+
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()
+                                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // relative perturbation size
+                    real tPerturbation = 1E-6;
+
+                    // compute dQIdpMat at evaluation point
+                    Matrix< DDRMat > tdQIdpMatFD;
+                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
+                            tWStar,
+                            tPerturbation );
+
+                    // compute dQIdpGeo at evaluation point
+                    Matrix< DDRMat > tdQIdpGeoFD;
+                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
+                            tWStar,
+                            tPerturbation,
+                            tIsActiveDv,
+                            tVertexIndices );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void Element_Sideset::compute_quantity_of_interest_global(
+                const uint             aMeshIndex,
+                enum  vis::Output_Type aOutputType )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
@@ -206,8 +371,8 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP )
-                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
                 mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
@@ -221,11 +386,10 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void
-        Element_Sideset::compute_quantity_of_interest_nodal
-        ( const uint             aMeshIndex,
-          enum  vis::Output_Type aOutputType )
+        //------------------------------------------------------------------------------
+        void Element_Sideset::compute_quantity_of_interest_nodal(
+                const uint             aMeshIndex,
+                enum  vis::Output_Type aOutputType )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
@@ -264,11 +428,10 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void
-        Element_Sideset::compute_quantity_of_interest_elemental
-        ( const uint             aMeshIndex,
-          enum  vis::Output_Type aOutputType )
+        //------------------------------------------------------------------------------
+        void Element_Sideset::compute_quantity_of_interest_elemental(
+                const uint             aMeshIndex,
+                enum  vis::Output_Type aOutputType )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
@@ -288,7 +451,7 @@ namespace moris
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
-                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
                 mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
@@ -299,11 +462,11 @@ namespace moris
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
-                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         real Element_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // get treated side ordinal
@@ -318,24 +481,25 @@ namespace moris
             // init volume
             real tVolume = 0;
 
+            // get IG geometry interpolator
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager( aIsMaster )->get_IG_geometry_interpolator();
+
             // loop over integration points
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // set integration point for geometry interpolator
-                mSet->get_field_interpolator_manager( aIsMaster )
-                    ->get_IG_geometry_interpolator()
-                    ->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+                tIGGI->set_space_time( mSet->get_integration_points().get_column( iGP ) );
 
                 // compute and add integration point contribution to volume
-                tVolume += mSet->get_field_interpolator_manager( aIsMaster)->get_IG_geometry_interpolator()->det_J()
-                         * mSet->get_integration_weights()( iGP );
+                tVolume += tIGGI->det_J() * mSet->get_integration_weights()( iGP );
             }
 
             // return the volume value
             return tVolume;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */

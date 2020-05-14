@@ -15,72 +15,91 @@ namespace moris
 {
     namespace fem
     {
-    class Set;
-//------------------------------------------------------------------------------
-    /**
-     * \brief Element_Sideset class
-     */
-    class Element_Double_Sideset : public Element
-    {
-
-//------------------------------------------------------------------------------
-    public:
-//------------------------------------------------------------------------------
+        class Set;
+        //------------------------------------------------------------------------------
         /**
-         * constructor
-         * @param[ in ]     pointer to mesh cell
-         * @param[ in ]     pointer to element block
-         * @param[ in ]     pointer to cluster
-         *
+         * \brief Element_Sideset class
          */
-        Element_Double_Sideset( mtk::Cell const  * aLeftIGCell,
-                                mtk::Cell const  * aRightIGCell,
-                                Set              * aSet,
-                                Cluster          * aCluster,
-                                moris::moris_index aCellIndexInCluster);
+        class Element_Double_Sideset : public Element
+        {
 
-//------------------------------------------------------------------------------
-        /**
-         * destructor
-         */
-        ~Element_Double_Sideset();
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
+                /**
+                 * constructor
+                 * @param[ in ]     pointer to mesh cell
+                 * @param[ in ]     pointer to element block
+                 * @param[ in ]     pointer to cluster
+                 *
+                 */
+                Element_Double_Sideset(
+                        mtk::Cell const  * aLeftIGCell,
+                        mtk::Cell const  * aRightIGCell,
+                        Set              * aSet,
+                        Cluster          * aCluster,
+                        moris::moris_index aCellIndexInCluster);
 
-//------------------------------------------------------------------------------
-        /**
-         * compute jacobian over the element
-         */
-        void compute_jacobian();
+                //------------------------------------------------------------------------------
+                /**
+                 * destructor
+                 */
+                ~Element_Double_Sideset();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute residual over the element
-         */
-        void compute_residual();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian over the element
+                 */
+                void compute_jacobian();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute jacobian and residual over the element
-         */
-        void compute_jacobian_and_residual();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute residual over the element
+                 */
+                void compute_residual();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute volume over the element
-         */
-        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian and residual over the element
+                 */
+                void compute_jacobian_and_residual();
 
-//------------------------------------------------------------------------------
-    protected:
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dRdp over the element
+                 */
+                void compute_dRdp();
 
-//------------------------------------------------------------------------------
-        /**
-         * initialize integration geometry interpolator
-         */
-        void init_ig_geometry_interpolator( uint aMasterSideOrdinal,
-                                            uint aSlaveSideOrdinal );
-    };
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit();
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * compute volume over the element
+                 */
+                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+            protected:
+
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize integration geometry interpolator
+                 */
+                void init_ig_geometry_interpolator(
+                        uint aMasterSideOrdinal,
+                        uint aSlaveSideOrdinal );
+                void init_ig_geometry_interpolator_with_pdv(
+                        uint aMasterSideOrdinal,
+                        uint aSlaveSideOrdinal,
+                        moris::Cell< Matrix< DDSMat > > & aMasterIsActiveDv,
+                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActiveDv );
+        };
+
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
