@@ -32,16 +32,21 @@ namespace moris
     {
         ParameterList tParameterList;
 
+        // General
         tParameterList.insert("spatial_dimensions", 3); // Number of spatial dimensions
         tParameterList.insert("threshold_value", 0.0);
         tParameterList.insert("perturbation_value", 1E-6);
         tParameterList.insert("HMR_refinements", 0); // Number of HMR refinements to be performed
+
+        // ADVs/IQIs
         tParameterList.insert("initial_advs", ""); // Initial advs, string converted into vector
         tParameterList.insert("lower_bounds", ""); // Lower bounds on advs, string converted into vector
         tParameterList.insert("upper_bounds", ""); // Upper bounds on advs, string converted into vector
+        tParameterList.insert("IQI_types", ""); // Requested IQI types for sensitivity analysis
+
+        // Phase table
         tParameterList.insert("phase_table", ""); // Construct phase table directly
         tParameterList.insert("phase_table_structure", "exp_base_2"); // Phase table structure (if not using phase_table)
-        tParameterList.insert("library", ""); // File for loading user-defined functions
 
         tParameterList.insert( "user_defined_refinement_function", " " );
 

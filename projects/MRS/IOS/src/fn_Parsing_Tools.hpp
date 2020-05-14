@@ -714,10 +714,16 @@ namespace moris
                 }
             }
         }
-    //    else
-    //    {
-    //        aCell.resize( 0 );
-    //    }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    template < typename T >
+    moris::Cell<T> string_to_cell( const std::string & aString)
+    {
+        moris::Cell<T> tCell;
+        string_to_cell(aString, tCell);
+        return tCell;
     }
 
 

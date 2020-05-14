@@ -18,9 +18,6 @@ namespace moris
             Cell<std::shared_ptr<Pdv_Host>> mIpPdvHosts;
             Cell<std::shared_ptr<Pdv_Host>> mIgPdvHosts;
             
-            // position in map corresponds to the value of the pdv enum
-            Matrix<IndexMat> mGlobalPdvTypeMap;
-            
             // Groups of PDV_Type types used per set
             Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;
             Cell<Cell<Cell<PDV_Type>>> mIgPdvTypes;
@@ -32,6 +29,12 @@ namespace moris
             // Requested PDV_Type types
             Cell<PDV_Type> mRequestedIpPdvTypes;
             Cell<PDV_Type> mRequestedIgPdvTypes;
+
+            // List of global indices for identifying a given local PDV
+            Matrix<IndexMat> mGlobalPdvTypeMap;
+
+            // Requested IQI types
+            Cell<std::string> mRequestedIQIs;
             
             // Pdv index
             uint mGlobalPdvIndex = 0;
@@ -158,14 +161,15 @@ namespace moris
                                                 Cell<Matrix<IdMat>>&        aDvIds);
 
             /**
-             * Get requested pdv types for sensitivity analysis
+             * Get requested pdv types on interpolation mesh nodes for sensitivity analysis
              *
              * @param[ in ] aPdvTypes list of dv types to fill
              */
             void get_ip_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
 
             /**
-             * get requested dv types for sensitivity analysis
+             * Get requested pdv types on integration mesh nodes for sensitivity analysis
+             *
              * @param[ in ] aPdvTypes list of dv types to fill
              */
             void get_ig_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
