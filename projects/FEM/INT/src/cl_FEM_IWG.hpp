@@ -590,20 +590,18 @@ namespace moris
              * wrt the material design variables by finite difference
              * @param[ in ] aWStar        weight associated to evaluation point
              * @param[ in ] aPerturbation real for dv perturbation
-             * @param[ in ] aIsActive     cell of vectors for active dv
-             * @param[ in ] adRdpMatFD    cell of matrix for dRdpMat to fill
              */
-            void compute_dRdp_FD_material( moris::real                       aWStar,
-                                           moris::real                       aPerturbation );
+            void compute_dRdp_FD_material( moris::real aWStar,
+                                           moris::real aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the residual
              * wrt the geometry design variables by finite difference
-             * @param[ in ] aWStar weight associated to evaluation point
-             * @param[ in ] aPerturbation real for dv perturbation
-             * @param[ in ] aIsActive     cell of vectors for active dv
-             * @param[ in ] adRdpGeoFD    cell of matrix for dRdpGeo to fill
+             * @param[ in ] aWStar         weight associated to evaluation point
+             * @param[ in ] aPerturbation  real for dv perturbation
+             * @param[ in ] aIsActive      cell of vectors for active dv
+             * @param[ in ] aVertexIndices vertices indices
              */
             void compute_dRdp_FD_geometry( moris::real                       aWStar,
                                            moris::real                       aPerturbation,
