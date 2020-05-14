@@ -135,6 +135,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Geometry_Engine::communicate_requested_IQIs(Cell<std::string> aIQINames)
+        {
+            MORIS_ERROR(mModelSet, "Geometry_Engine::set_equation_model() must be called before communicate_requested_IQIs()");
+            mPdvHostManager.set_requested_IQIs(aIQINames);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         MSI::Design_Variable_Interface* Geometry_Engine::get_design_variable_interface()
         {
             return &mPdvHostManager;
@@ -1059,7 +1067,7 @@ namespace moris
                                                                moris_index                  aWhichMesh)
         {
             // get the mesh set from name
-            moris::mtk::Set* tSetPointer = mMeshManager->get_interpolation_mesh( aWhichMesh )->get_set_by_name( aSetName );
+            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
 
             // get the list of cluster on mesh set
             moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
@@ -1099,7 +1107,7 @@ namespace moris
                                                               moris_index                     aWhichMesh)
         {
             // get the mesh set from name
-            moris::mtk::Set* tSetPointer = mMeshManager->get_interpolation_mesh( aWhichMesh )->get_set_by_name( aSetName );
+            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
 
             // get the list of cluster on mesh set
             moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
@@ -1139,7 +1147,7 @@ namespace moris
                                                                moris_index                  aWhichMesh)
         {
             // get the mesh set from index
-            moris::mtk::Set* tSetPointer = mMeshManager->get_interpolation_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
+            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
 
             // get the list of cluster on mesh set
             moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
@@ -1179,7 +1187,7 @@ namespace moris
                                                                 moris_index                     aWhichMesh)
         {
             // get the mesh set from index
-            moris::mtk::Set* tSetPointer = mMeshManager->get_interpolation_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
+            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
 
             // get the list of cluster on mesh set
             moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
@@ -1216,21 +1224,42 @@ namespace moris
         void Geometry_Engine::create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex)
         {
             // Get information from integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh(aMeshIndex);
-            uint tNumSets = tInterpolationMesh->get_num_sets();
-            uint tNumNodes = tInterpolationMesh->get_num_nodes();
+            mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(aMeshIndex);
+            //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
+            uint tNumSets = aPdvTypes.size();
+            uint tNumNodes = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_num_nodes();
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
 
             // Loop through sets
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
+            mtk::Set* tSet;
+            const mtk::Cluster* tCluster;
+            uint tCurrentNode;
+            Matrix<IndexMat> tNodeIndicesInCluster;
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
-                // Node indices per set
-                tNodeIndicesPerSet(tMeshSetIndex) = tInterpolationMesh->get_set_by_index(tMeshSetIndex)->get_vertices_inds_on_block(false);
+                tCurrentNode = 0;
+                tSet = tIntegrationMesh->get_set_by_index(tMeshSetIndex);
+
+                // Clusters per set
+                for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
+                {
+                    tCluster = tSet->get_clusters_by_index(tClusterIndex);
+
+                    // Indices on cluster FIXME get rid of copying over indices
+                    tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
+                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+                    
+                    for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                    {
+                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
+                    }
+                }
+                //tNodeIndicesPerSet(tMeshSetIndex) = tInterpolationMesh->get_set_by_index(tMeshSetIndex)->get_vertices_inds_on_block(false);
             }
 
             // Create hosts
-            mPdvHostManager.create_ig_pdv_hosts(tNumNodes, tNodeIndicesPerSet, aPdvTypes);
+            mPdvHostManager.create_ip_pdv_hosts(tNumNodes, tNodeIndicesPerSet, aPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -209,6 +209,7 @@ namespace moris
              * Lets MDL know about the stored requested IQIs through the PDV host manager
              */
             void communicate_requested_IQIs();
+            void communicate_requested_IQIs(Cell<std::string> aIQINames);
 
             /**
              * Gets the design variable interface from the geometry engine
