@@ -276,19 +276,18 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
         tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-//        // define an IQI
-//        fem::IQI_Factory tIQIFactory;
-//        std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-//        tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
-//        tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-//        tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
-//        tIQI->set_name("IQI_1");
+        // define an IQI
+        fem::IQI_Factory tIQIFactory;
+        std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+        tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
+        tIQI->set_name("IQI_1");
 
         // define set info
         fem::Set_User_Info tSetBulk1;
         tSetBulk1.set_mesh_set_name( "Omega_0_tets" );
         tSetBulk1.set_IWGs( { tIWG } );
-//        tSetBulk1.set_IQIs( { tIQI } );
+        tSetBulk1.set_IQIs( { tIQI } );
 
         // create a cell of set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
@@ -334,7 +333,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // set the IWG and IQI to the set
         reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIWGs = { tIWG };
-//        reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIQIs = { tIQI };
+        reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIQIs = { tIQI };
 
         // set size and fill the set residual assembly map
         reinterpret_cast< fem::Set * >( tWorkSet )->mResDofAssemblyMap.resize( 1 );
@@ -372,7 +371,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         MSI::Equation_Object * tWorkEqObj = tEqObjs( 0 );
 
         // set the solution vector
-//        tEquationObject( 0 )->mPdofValues = {{ 0},{0},{0},{0}};
         tEquationModel->set_solution_vector( mVector );
 
         // set the time
@@ -385,8 +383,9 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // Init IWG and IQI for forward analysis
         //------------------------------------------------------------------------------
-        // set the IWG fem set
+        // set the IWG/IQI fem set
         tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
+        tIQI->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
         // build global dof type list
         tIWG->get_global_dof_type_list();
@@ -399,71 +398,38 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tWorkSet->mResidual.resize( 1 );
         tWorkSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
         tWorkSet->mResidualExist = true;
-        tWorkSet->mJacobian.set_size( 4, 4, 0.0 );
-        tWorkSet->mJacobianExist = true;
-
-        // compute residual
         tWorkEqObj->compute_residual();
         //print( tWorkSet->get_residual()( 0 ), "R" );
 
         // compute jacobian
+        tWorkSet->mJacobian.set_size( 4, 4, 0.0 );
+        tWorkSet->mJacobianExist = true;
         tWorkEqObj->compute_jacobian();
         //print( tWorkSet->get_jacobian(), "dRdu" );
 
         // compute dRdp
         tWorkEqObj->compute_dRdp();
-        print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
-        print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
+        //print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
+        //print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
 
-        // set the IQI fem set
-//        tIQI->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
-
-//        // compute QIs
-//        tWorkSet->mQI.resize( 1 );
-//        tWorkSet->mQI( 0 ).set_size( 1, 1, 0.0 );
-//        tWorkSet->mQIExist = true;
-//        tWorkEqObj->compute_QI();
+        // compute QIs
+        tWorkSet->mQI.resize( 1 );
+        tWorkSet->mQI( 0 ).set_size( 1, 1, 0.0 );
+        tWorkSet->mQIExist = true;
+        tWorkEqObj->compute_QI();
         //print( tWorkSet->get_QI()( 0 ), "QI" );
 
-//        // compute dQIdu
-//        reinterpret_cast< fem::Set * >( tWorkSet )->mResidual.resize( 1 );
-//        reinterpret_cast< fem::Set * >( tWorkSet )->mResidual( 0 ).set_size( 4, 1, 0.0 );
-//        tWorkEqObj->compute_dQIdu();
-        //print( tWorkSet->get_residual()( 0 ), "dQIdu" );
+        // compute dQIdu
+        reinterpret_cast< fem::Set * >( tWorkSet )->mResidual.resize( 1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mResidual( 0 ).set_size( 4, 1, 0.0 );
+        tWorkEqObj->compute_dQIdu();
+        print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
-//        // compute dQIdp
-//        tWorkEqObj->compute_dQIdp_FD();
+        // compute dQIdp
+        tWorkEqObj->compute_dQIdp_explicit();
+        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
+        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
 
-//        // Create the pdof hosts of this equation object
-//        moris::Cell < Pdof_Host * > tPdofHostList;
-//        tPdofHostList.resize( 3, nullptr );
-//        moris::uint tNumMaxPdofTypes = 1;
-//
-//        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-//        tDofTypeIndexMap(3, 0) = 0;
-//
-//        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
-//
-//        Equation_Set tEqnBlock;
-//        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-//        EquObj.mEquationSet = &tEqnBlock;
-//
-//        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
-//
-//        // Check if right pdof host was created in given pdof host list
-//        CHECK( equal_to( tPdofHostList( 0 )->mNodeID, 0 ) );
-//        REQUIRE( tPdofHostList( 1 ) == NULL );
-//        CHECK( equal_to( tPdofHostList( 2 )->mNodeID, 2 ) );
-//
-//        // Check equation objects internal pdof host list
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 ).size(), 2 ) );
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 0 )->mNodeID, 0 ) );
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 1 )->mNodeID, 2 ) );
-//        delete Node1;
-//        delete Node2;
-//        delete tPdofHostList(0);
-//        delete tPdofHostList(1);
-//        delete tPdofHostList(2);
     }
 
 }/* END_TEST_CASE */

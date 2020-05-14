@@ -275,9 +275,9 @@ public :
         }
     }
 //------------------------------------------------------------------------------
-    void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat> & aNodeIndices,
-                                         const Cell< enum PDV_Type >               & aDvTypes,
-                                               Cell< moris::Matrix< IdMat > >    & aDvIds )
+    void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat>               & aNodeIndices,
+                                         const Cell< enum PDV_Type >          & aDvTypes,
+                                               Cell< moris::Matrix< IdMat > > & aDvIds )
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_ids_for_type_and_ind() - not implemented in the child class" );
     }
@@ -287,15 +287,15 @@ public :
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
     }
+
 //------------------------------------------------------------------------------
     void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
     }
-//------------------------------------------------------------------------------
-	
-    void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 
+    //------------------------------------------------------------------------------
+    void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 };
 }
 }
