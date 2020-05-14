@@ -429,7 +429,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Interpolation_Element::compute_dQIdp_FD()
+        void Interpolation_Element::compute_dQIdp_explicit()
         {
             // compute pdof values
             // FIXME do this only once
@@ -443,6 +443,13 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
+            // init geo pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // init dRdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
@@ -453,7 +460,7 @@ namespace moris
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
             // ask cluster to compute jacobian
-            mFemCluster( 0 )->compute_dQIdp_FD();
+            mFemCluster( 0 )->compute_dQIdp_explicit();
         }
 
 //-------------------------------------------------------------------------------------------------

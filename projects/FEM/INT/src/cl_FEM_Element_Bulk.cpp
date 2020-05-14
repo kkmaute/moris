@@ -285,7 +285,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Element_Bulk::compute_dQIdp_FD()
+        void Element_Bulk::compute_dQIdp_explicit()
         {
             // get the vertices indices
             Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
@@ -322,16 +322,14 @@ namespace moris
                     real tPerturbation = 1E-6;
                     Matrix< DDRMat > tdQIdpMatFD;
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material( tWStar,
-                                                                                   tPerturbation,
-                                                                                   tdQIdpMatFD );
+                                                                                   tPerturbation );
 
                     // compute dQIdpGeo at evaluation point
                     Matrix< DDRMat > tdQIdpGeoFD;
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry( tWStar,
                                                                                    tPerturbation,
                                                                                    tIsActiveDv,
-                                                                                   tdQIdpGeoFD );
-                    // fill list of dQIdp
+                                                                                   tVertexIndices );
                 }
             }
         }

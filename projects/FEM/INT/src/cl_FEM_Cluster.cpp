@@ -383,13 +383,13 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void Cluster::compute_dQIdp_FD()
+        void Cluster::compute_dQIdp_explicit()
         {
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
                 // compute the dQIdp for the IG element
-                mElements( iElem )->compute_dQIdp_FD();
+                mElements( iElem )->compute_dQIdp_explicit();
             }
         }
 

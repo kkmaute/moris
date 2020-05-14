@@ -324,9 +324,9 @@ class Dist_Vector;
             /**
              * compute dQIdp with finite difference
              */
-            virtual void compute_dQIdp_FD()
+            virtual void compute_dQIdp_explicit()
             {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_FD - not implemented in msi." );
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit - not implemented in msi." );
             };
 
 //------------------------------------------------------------------------------
