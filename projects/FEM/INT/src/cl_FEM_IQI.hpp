@@ -724,25 +724,23 @@ namespace moris
              * wrt to material dv by finite difference
              * @param[ in ] aWStar        weight associated to evaluation point
              * @param[ in ] aPerturbation dv relative perturbation
-             * @param[ in ] adQIdpMatFD   cell of matrix for dQIdpMat to fill
              */
-            void compute_dQIdp_FD_material( moris::real        aWStar,
-                                            moris::real        aPerturbation,
-                                            Matrix< DDRMat > & adQIdpMatFD );
+            void compute_dQIdp_FD_material( moris::real aWStar,
+                                            moris::real aPerturbation );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest
              * wrt to geometry dv by finite difference
-             * @param[ in ] aWStar        weight associated to evaluation point
-             * @param[ in ] aPerturbation dv relative perturbation
-             * @param[ in ] aIsActive     cell of vectors for active dv
-             * @param[ in ] adQIdpGeoFD   cell of matrix for dRdpGeo to fill
+             * @param[ in ] aWStar         weight associated to evaluation point
+             * @param[ in ] aPerturbation  dv relative perturbation
+             * @param[ in ] aIsActive      cell of vectors for active dv
+             * @param[ in ] aVertexIndices vertices indices
              */
             void compute_dQIdp_FD_geometry( moris::real                       aWStar,
                                             moris::real                       aPerturbation,
                                             moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                            Matrix< DDRMat >                & adQIdpGeoFD );
+                                            Matrix< IndexMat >              & aVertexIndices );
 
 //------------------------------------------------------------------------------
         };
