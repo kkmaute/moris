@@ -12,26 +12,36 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<Criteria_Interface> create_interface(Cell<ParameterList> aParameterLists)
+        std::shared_ptr<Criteria_Interface> create_interface(
+                Cell<ParameterList> aParameterLists,
+                Cell<std::shared_ptr<Criteria_Interface>> aInterfaces)
         {
             // Get number of interfaces
-            uint tNumInterfaces = aParameterLists.size() - 1;
+            uint tNumInterfaces = aParameterLists.size() + aInterfaces.size() - 1;
 
             // Single interface without manager
             if (tNumInterfaces == 0)
             {
-                return create_interface(aParameterLists(0));
+                if (aParameterLists.size() > 0)
+                {
+                    return create_interface(aParameterLists(0));
+                }
+                else
+                {
+                    return aInterfaces(0);
+                }
             }
 
             // Multiple interfaces, create interface manager
             else
             {
-                Cell<std::shared_ptr<Criteria_Interface>> tInterfaces(tNumInterfaces);
-                for (uint tInterfaceIndex = 0; tInterfaceIndex < tNumInterfaces; tInterfaceIndex++)
+                uint tNumCreatedInterfaces = aInterfaces.size();
+                aInterfaces.resize(tNumInterfaces);
+                for (uint tInterfaceIndex = tNumCreatedInterfaces; tInterfaceIndex < tNumInterfaces; tInterfaceIndex++)
                 {
-                    tInterfaces(tInterfaceIndex) = create_interface(aParameterLists(tInterfaceIndex + 1));
+                    aInterfaces(tInterfaceIndex) = create_interface(aParameterLists(tInterfaceIndex + 1));
                 }
-                return std::make_shared<Interface_Manager>(aParameterLists(0), tInterfaces);
+                return std::make_shared<Interface_Manager>(aParameterLists(0), aInterfaces);
             }
         }
 
