@@ -511,6 +511,8 @@ namespace moris
             mDesignVariableInterface = aDesignVariableInterface;
 
             mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+
+            mDesignVariableInterface->set_equation_model( mEquationModel );
         }
 
 //------------------------------------------------------------------------------

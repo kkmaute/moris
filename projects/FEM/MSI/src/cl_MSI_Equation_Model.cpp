@@ -49,7 +49,7 @@ namespace moris
 
                 for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
-                    mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
+                    mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp_implicit();
                 }
 
                 //this->free_block_memory( Ii );
