@@ -309,7 +309,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_2D", "[IWG_Incompressible_NS_Vel
 TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_3D", "[IWG_Incompressible_NS_Velocity_Bulk_3D]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-3;
 
     // define a perturbation relative size
     real tPerturbation = 1E-4;
