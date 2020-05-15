@@ -78,7 +78,9 @@ namespace moris
             {
                 moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
 
-                //this->initialize_set( Ii, true );
+                std::cout<<"Set "<<Ii<<std::endl;
+
+                mFemSets( Ii )->initialize_set( true );
 
                 for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
