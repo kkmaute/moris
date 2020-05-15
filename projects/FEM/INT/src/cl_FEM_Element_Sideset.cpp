@@ -2,6 +2,7 @@
 #include "cl_FEM_Element_Sideset.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_FEM_Set.hpp"   //FEM/INT/src
+#include "cl_MSI_Equation_Model.hpp"
 
 namespace moris
 {
@@ -62,7 +63,7 @@ namespace moris
             }
 
             // get the pdv values from the MSI/GEN interface
-            mSet->mDesignVariableInterface->get_ig_pdv_value(
+            mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
                     tVertexIndices,
                     tGeoPdvType,
                     tPdvValueList,
@@ -70,7 +71,7 @@ namespace moris
 
             // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
             Matrix< DDRMat > tPdvValues;
-            mSet->mDesignVariableInterface->reshape_pdv_values(
+            mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
                     tPdvValueList,
                     tPdvValues );
 

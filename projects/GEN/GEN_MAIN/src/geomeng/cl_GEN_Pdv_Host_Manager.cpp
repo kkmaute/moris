@@ -333,7 +333,7 @@ namespace moris
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
             MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
-            "Information passed to Pdv_Host_Manager.create_ip_pdv_hosts() does not have a consistent number of sets!");
+            "Information passed to Pdv_Host_Manager.create_ig_pdv_hosts() does not have a consistent number of sets!");
 
             // Set PDV_Type types
             mIgPdvTypes = aPdvTypes;

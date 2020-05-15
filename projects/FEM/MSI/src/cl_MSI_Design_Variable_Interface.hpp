@@ -143,7 +143,21 @@ namespace moris
             virtual void reshape_pdv_values( const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
                                                    moris::Matrix< DDRMat >                & aReshapedPdvValues )
             {
-                MORIS_ERROR( false, "Design_Variable_Interface::reshape_pdv_values - not implemented for base class." );
+                MORIS_ASSERT( aPdvValues.size() != 0,
+                              "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty.");
+
+                // get the number of rows and columns
+                uint tRows = aPdvValues( 0 ).numel();
+                uint tCols = aPdvValues.size();
+
+                // set size for the reshaped matrix
+                aReshapedPdvValues.set_size( tRows, tCols );
+
+                for( uint iCol = 0; iCol < tCols; iCol++ )
+                {
+                    aReshapedPdvValues( { 0, tRows - 1 }, { iCol, iCol } )
+                    = aPdvValues( iCol ).matrix_data();
+                }
             }
 
 //------------------------------------------------------------------------------

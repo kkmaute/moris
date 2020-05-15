@@ -41,9 +41,11 @@ namespace moris
             // Loop over all local elements to build matrix graph
             for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
             {
+                std::cout<<"Set "<<Ii<<std::endl;
+
                 moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
 
-                //this->initialize_set( Ii, true );
+                mFemSets( Ii )->initialize_set( true );   //FIXME
 
                 for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
@@ -80,7 +82,7 @@ namespace moris
 
                 for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
-//                    mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp();
+                    mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp_explicit();
                 }
 
                 //this->free_block_memory( Ii );

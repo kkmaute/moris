@@ -34,6 +34,7 @@
 #include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
@@ -42,6 +43,7 @@
 
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Model.hpp"
 
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_SOL_Warehouse.hpp"
@@ -55,9 +57,6 @@
 
 #include "cl_PRM_HMR_Parameters.hpp"
 #include "cl_PRM_SOL_Parameters.hpp"
-
-
-
 
 real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
                                  const moris::Cell< moris::real* > & aParameters)
@@ -86,6 +85,22 @@ void tConstValFunction2MatMDL
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
+}
+
+void tFIValDvFunction_FDTest
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+}
+
+void tFIDerDvFunction_FDTest
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
 }
 
 Matrix<DDRMat> density_function_1(moris::Cell<Matrix<DDRMat>>& aCoeff)
@@ -219,13 +234,17 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         //------------------------------------------------------------------------------
         // create the properties
-        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
+        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property > ();
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
+        tPropConductivity1->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropConductivity1->set_val_function( tFIValDvFunction_FDTest );
+        tPropConductivity1->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
-        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
-        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
-        tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
+        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property > ();
+        tPropConductivity2->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity2->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropConductivity2->set_val_function( tFIValDvFunction_FDTest );
+        tPropConductivity2->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
@@ -404,6 +423,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.register_mesh(&tMeshManager);
 
         Cell<Cell<Cell<PDV_Type>>> tPdvTypes(7);
+        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(15);
         for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
         {
             tPdvTypes(tBulkSetIndex).resize(1);
@@ -411,6 +431,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
             tPdvTypes(tBulkSetIndex)(0)(0) = PDV_Type::DENSITY;
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
+        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
+                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(15), tIGPdvTypes);
 
         std::shared_ptr<ge::GEN_Property> tDensityProperty1 = std::make_shared<ge::GEN_Property>();
         std::shared_ptr<ge::GEN_Property> tDensityProperty2 = std::make_shared<ge::GEN_Property>();
@@ -421,7 +443,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
 
-        tGeometryEngine.set_equation_model(tModel->get_fem_model());
+        tGeometryEngine.set_equation_model(tModel->get_fem_model() );
 
         tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
 
@@ -479,7 +501,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tModel->perform_sensitivity_analysis();
 
-//        tTimeSolver->solve();
+        tModel->get_fem_model()->compute_implicit_dQIdp();
+
 
         delete tModel;
         delete tInterpMesh;

@@ -178,13 +178,13 @@ namespace moris
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
-                mSet->mDesignVariableInterface->get_ip_pdv_value( mMasterInterpolationCell->get_vertex_inds(),
+                mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value( mMasterInterpolationCell->get_vertex_inds(),
                                                                   tDvTypeGroup,
                                                                   tCoeff_Original );
 
                 // reshape tCoeffs into the order the FI expects them
                 Matrix< DDRMat > tCoeff;
-                mSet->mDesignVariableInterface
+                mSet->get_equation_model()->get_design_variable_interface()
                     ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                 // set field interpolator coefficients
@@ -205,13 +205,13 @@ namespace moris
 
                  // get the pdv values for the ith dv type group
                  Cell< Matrix< DDRMat > > tCoeff_Original;
-                 mSet->mDesignVariableInterface->get_ip_pdv_value( mSlaveInterpolationCell->get_vertex_inds(),
+                 mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value( mSlaveInterpolationCell->get_vertex_inds(),
                                                                    tDvTypeGroup,
                                                                    tCoeff_Original );
 
                  // reshape tCoeffs into the order the FI expects them
                  Matrix< DDRMat > tCoeff;
-                 mSet->mDesignVariableInterface
+                 mSet->get_equation_model()->get_design_variable_interface()
                      ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                  // set the field coefficients
@@ -408,12 +408,15 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
-            // init geo pdv assembly map
+            // init geo pdv assembly map FIXME put this back in  after it is fixed in GE
             mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
 
             // init dRdp
             mSet->initialize_mdRdpMat();
             mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+            // as long as dRdp is computed with FD we need this
+            mSet->initialize_mResidual();
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
@@ -444,7 +447,7 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
-            // init geo pdv assembly map
+            // init geo pdv assembly map FIXME put this back in  after it is fixed in GE
             mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
 
             // init dRdp
@@ -651,7 +654,7 @@ namespace moris
 
                 // get vertices from cell
                 Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()
-                                                                   ->get_vertex_indices_in_cluster();
+                                                                   ->get_primary_vertices_inds_in_cluster();
 
                 mEquationSet->get_equation_model()
                             ->get_design_variable_interface()

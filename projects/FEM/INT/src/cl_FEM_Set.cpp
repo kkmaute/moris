@@ -1520,7 +1520,8 @@ namespace moris
 
             // FIXME get the geo dv types requested by the opt
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            mDesignVariableInterface->get_ig_unique_dv_types_for_set(
+            mEquationModel->get_design_variable_interface()->
+                    get_ig_unique_dv_types_for_set(
                     mMeshSet->get_set_index(),
                     tRequestedDvTypes );
 
@@ -1554,7 +1555,7 @@ namespace moris
                     moris::Cell< moris::Matrix< DDRMat > > tPdvValue( 1 );
                     tPdvValue( 0 ).set_size( 1, 1 );
                     moris::Cell< moris::Matrix< DDSMat > > tIsActivePdv;
-                    mDesignVariableInterface->get_ig_pdv_value(
+                    mEquationModel->get_design_variable_interface()->get_ig_pdv_value(
                             tNodeIndexMat,
                             tGeoPdvMat,
                             tPdvValue,
@@ -1888,7 +1889,7 @@ namespace moris
 
                 // FIXME get the requested pdv types
                 moris::Cell < enum PDV_Type > tRequestedDvTypes;
-                mDesignVariableInterface->get_ip_unique_dv_types_for_set(
+                mEquationModel->get_design_variable_interface()->get_ip_unique_dv_types_for_set(
                         mMeshSet->get_set_index(),
                         tRequestedDvTypes );
                 uint tNumRequestedPdvTypes = tRequestedDvTypes.size();
@@ -1956,7 +1957,7 @@ namespace moris
 
             // get the requested geo pdv types
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
+            mEquationModel->get_design_variable_interface()->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
                     tRequestedDvTypes );
 
             // init active geo pdv counter
@@ -2046,7 +2047,7 @@ namespace moris
 
                 // FIXME get the dv types requested by the opt
                 moris::Cell < enum PDV_Type > tRequestedDvTypes;
-                mDesignVariableInterface->get_ip_unique_dv_types_for_set( mMeshSet->get_set_index(),
+                mEquationModel->get_design_variable_interface()->get_ip_unique_dv_types_for_set( mMeshSet->get_set_index(),
                         tRequestedDvTypes );
 
                 // init dv coefficient counter
@@ -2134,7 +2135,7 @@ namespace moris
 
             // FIXME get the geo dv types requested by the opt
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            mDesignVariableInterface->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
+            mEquationModel->get_design_variable_interface()->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
                     tRequestedDvTypes );
 
             // init active geo pdv counter
@@ -2558,7 +2559,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Set::get_ig_unique_dv_types_for_set( moris::Cell < enum PDV_Type > & aGeoPdvType )
         {
-            mDesignVariableInterface->get_ig_unique_dv_types_for_set(
+            mEquationModel->get_design_variable_interface()->get_ig_unique_dv_types_for_set(
                     mMeshSet->get_set_index(),
                     aGeoPdvType );
         }

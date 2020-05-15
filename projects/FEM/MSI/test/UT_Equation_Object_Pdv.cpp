@@ -328,8 +328,10 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // get a working set
         MSI::Equation_Set* tWorkSet = tSets( 0 );
 
+        tWorkSet->set_equation_model( tEquationModel.get() );
+
         // set the dv interface to the set
-        tWorkSet->set_dv_interface( tDesignVariableInterface );
+        tEquationModel->set_design_variable_interface( tDesignVariableInterface );
 
         // set the IWG and IQI to the set
         reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIWGs = { tIWG };
@@ -426,9 +428,11 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
         // compute dQIdp
-        tWorkEqObj->compute_dQIdp_explicit();
-        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
-        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
+//        tWorkEqObj->compute_dQIdp_explicit();
+//        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
+//        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
+
+//        tEquationModel->compute_explicit_dQIdp();
 
     }
 

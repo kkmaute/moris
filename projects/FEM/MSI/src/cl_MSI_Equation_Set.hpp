@@ -100,9 +100,6 @@ namespace moris
         // pointer to the model solver interface
         Model_Solver_Interface * mModelSolverInterface = nullptr;
 
-        // FIXME pointer to the GEN MSI interface
-        MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
-
         bool mIsEmptySet = false;    //FIXME this flag is a hack. find better solution
 
         Matrix< DDRMat > * mSetElementalValues;
@@ -543,16 +540,6 @@ namespace moris
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             MORIS_ERROR(false,"Equation_Set::finalize - not implemented for msi base class.");
-        };
-
-//-------------------------------------------------------------------------------------------------
-        /**
-         * set GEN/MSI interface
-         * @param[ in ] aDesignVariableInterface a GEN/MSI interface pointer
-         */
-        virtual void set_dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
-        {
-            MORIS_ERROR( false, "Equation_Set::set_dv_interface - not implemented for msi base class." );
         };
 
 //-------------------------------------------------------------------------------------------------
