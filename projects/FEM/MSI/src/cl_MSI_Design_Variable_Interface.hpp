@@ -195,6 +195,16 @@ namespace moris
             virtual void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
+            /**
+             * returns the explicit dQidu
+             */
+            sol::Dist_Vector * get_implicit_dQidu();
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the explicit dQidu
+             */
+            sol::Dist_Vector * get_explicit_dQidu();
 
         };
     }
