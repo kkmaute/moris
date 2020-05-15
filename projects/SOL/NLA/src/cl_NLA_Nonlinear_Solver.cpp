@@ -269,7 +269,7 @@ void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehou
 
 //-------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Solver::solve( Dist_Vector * aFullVector )
+void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
 {
     //Tracer tTracer(EntityBase::NonLinearSolver, EntityType::Unknown, EntityAction::Solve);
 

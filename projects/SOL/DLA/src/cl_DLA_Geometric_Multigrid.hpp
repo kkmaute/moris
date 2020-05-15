@@ -12,8 +12,11 @@
 
 namespace moris
 {
-    class Dist_Vector;
-    class Dist_Matrix;
+    namespace sol
+    {
+        class Dist_Vector;
+        class Dist_Matrix;
+    }
     class Solver_Interface;
 
     namespace mtk
@@ -26,7 +29,7 @@ namespace moris
     {
     private:
         //! List containing the prolongation operators
-        moris::Cell< Dist_Matrix * > mProlongationList;
+        moris::Cell< sol::Dist_Matrix * > mProlongationList;
 
         //! List of external indices for each level
         moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
@@ -61,7 +64,7 @@ namespace moris
          * @param[out] mProlongationList    List with prolongation operators
          *
          */
-        moris::Cell< Dist_Matrix * > & get_prolongation_list()
+        moris::Cell< sol::Dist_Matrix * > & get_prolongation_list()
         {
             return mProlongationList;
         };

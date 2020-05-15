@@ -322,6 +322,22 @@ public:
         return tPrimaryVertices;
     }
 
+    moris::Matrix<moris::IndexMat>
+    get_primary_vertices_inds_in_cluster() const
+    {
+        moris::Cell<moris::mtk::Vertex *> tPrimaryVertices = this->get_primary_vertices_in_cluster();
+
+        moris::Matrix<moris::IndexMat> tPrimaryVertexInd( tPrimaryVertices.size(), 1, -1 );
+
+        uint tCounter = 0;
+        for( auto tVertex : tPrimaryVertices )
+        {
+            tPrimaryVertexInd( tCounter++ ) = tVertex->get_index();
+        }
+
+        return tPrimaryVertexInd;
+    }
+
 
 };
 }

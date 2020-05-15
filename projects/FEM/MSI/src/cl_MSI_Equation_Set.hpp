@@ -75,8 +75,9 @@ namespace moris
         moris::Matrix< DDSMat > mMasterDvTypeMap;
         moris::Matrix< DDSMat > mSlaveDvTypeMap;
 
-        // FIXME map of master and slave dv types for assembly
-        Cell< moris::Matrix< DDSMat > > mDvAssemblyMap;
+        // map of master and slave mat pdv types for assembly
+        Cell< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
+        std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
 
         // Map from requested IQI Name to index.
         // I do not know if this is slow because the map is called per gauss point.
@@ -87,20 +88,17 @@ namespace moris
         bool mJacobianExist = false;
         bool mResidualExist = false;
         bool mQIExist       = false;
-        bool mdRdpExist     = false;
-        bool mdQIdpExist    = false;
+        bool mdRdpMatExist  = false;
+        bool mdQIdpMatExist = false;
 
         Matrix< DDRMat > mTime;
 
         // unique list of dof and dv types
         moris::Cell< enum MSI::Dof_Type > mUniqueDofTypeList;
-        moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
+        moris::Cell< enum PDV_Type >      mUniqueDvTypeList;
 
         // pointer to the model solver interface
         Model_Solver_Interface * mModelSolverInterface = nullptr;
-
-        // FIXME pointer to the GEN MSI interface
-        MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
         bool mIsEmptySet = false;    //FIXME this flag is a hack. find better solution
 
@@ -109,8 +107,6 @@ namespace moris
         moris::real      * mSetGlobalValues;
 
         Matrix< DDUMat > mSetNodalCounter;
-
-        uint tNumRHS = 1;
 
         MSI::Equation_Model * mEquationModel = nullptr;
 
@@ -548,16 +544,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
         /**
-         * set GEN/MSI interface
-         * @param[ in ] aDesignVariableInterface a GEN/MSI interface pointer
-         */
-        virtual void set_dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
-        {
-            MORIS_ERROR( false, "Equation_Set::set_dv_interface - not implemented for msi base class." );
-        };
-
-//-------------------------------------------------------------------------------------------------
-        /**
          * get residual
          */
         Cell< Matrix< DDRMat > > & get_residual()
@@ -622,36 +608,72 @@ namespace moris
         /**
          * get dRdp
          */
-        moris::Cell< Matrix< DDRMat > > & get_dRdp()
+        moris::Cell< Matrix< DDRMat > > & get_drdp()
         {
             return mdRdp;
-        };
-
-//-------------------------------------------------------------------------------------------------
-        /**
-         * get dQIdp
-         */
-        moris::Cell< moris::Cell< Matrix< DDRMat > > > & get_dQIdp()
-        {
-            return mdQIdp;
-        };
-
-//------------------------------------------------------------------------------
-        /**
-         * get dv assembly map
-         */
-        moris::Cell< moris::Matrix< DDSMat > > & get_dv_assembly_map()
-        {
-            return mDvAssemblyMap;
         }
 
 //-------------------------------------------------------------------------------------------------
         /**
-         * get number of right hand side
+         * get dRdpMat
          */
-        uint get_num_rhs()
+        Matrix< DDRMat > & get_drdpmat()
         {
-           return tNumRHS;
+            return mdRdp( 0 );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dRdpMat pdv assembly map
+         */
+        moris::Cell< moris::Matrix< DDSMat > > & get_mat_pdv_assembly_map()
+        {
+            return mPdvMatAssemblyMap;
+        }
+
+//-------------------------------------------------------------------------------------------------
+        /**
+         * get dRdpGeo
+         */
+        Matrix< DDRMat > & get_drdpgeo()
+        {
+            return mdRdp( 1 );
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dRdpGeo pdv assembly map
+         */
+        std::map< std::pair< moris_index, PDV_Type >, uint > & get_geo_pdv_assembly_map()
+        {
+            return mPdvGeoAssemblyMap;
+        }
+
+        //-----------------------------------------------------------------------------------------
+        /**
+         * get dQIdp
+         */
+        moris::Cell< moris::Cell< Matrix< DDRMat > > > & get_dqidp()
+        {
+            return mdQIdp;
+        };
+
+        //-----------------------------------------------------------------------------------------
+        /**
+         * get dQIdp for material pdv
+         */
+        moris::Cell< Matrix< DDRMat > > & get_dqidpmat()
+        {
+            return mdQIdp( 0 );
+        };
+
+        //-----------------------------------------------------------------------------------------
+        /**
+         * get dQIdp for geometry pdv
+         */
+        moris::Cell< Matrix< DDRMat > > & get_dqidpgeo()
+        {
+            return mdQIdp( 1 );
         };
 
 //------------------------------------------------------------------------------

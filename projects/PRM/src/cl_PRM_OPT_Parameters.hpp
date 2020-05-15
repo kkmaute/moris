@@ -17,6 +17,7 @@ namespace moris
         {
             ParameterList tParameterList;
 
+            tParameterList.insert("is_optimization_problem", false); // if its and OPT problem or forward analysis
             tParameterList.insert("problem", "user_defined"); // OPT Problem class type
             tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
                                                                       // central, forward, backward, or none

@@ -53,7 +53,7 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
     }
 }
 
-void NLA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVector )
+void NLA_Solver_Interface_Proxy::set_solution_vector( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
 }
@@ -69,7 +69,7 @@ void NLA_Solver_Interface_Proxy::set_time( const Matrix< DDRMat> & aTime )
     mTime = aTime;
 }
 //-------------------------------------------------
-void NLA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+void NLA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVectorPrev = aSolutionVector;
 

@@ -136,7 +136,7 @@ namespace moris
              *
              * @return Matrix map from pdv type to index
              */
-            Matrix<DDSMat> get_my_local_global_map();
+            const Matrix<DDSMat> & get_my_local_global_map();
             
             /**
              * Return local to global DV type map

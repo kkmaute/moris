@@ -64,7 +64,7 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Dist_Map * tMap = tMatFactory.create_map( tMyGlobalElements,
+    sol::Dist_Map * tMap = tMatFactory.create_map( tMyGlobalElements,
                                                tMyConstraintDofs );
 
     //std::cout<<*tEpetraMap.get_epetra_free_map()<<std::endl;
@@ -148,7 +148,7 @@ TEST_CASE("PETSc Map","[Petsc Map],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Dist_Map * tMap = tMatFactory.create_map( tNumMyDofs,
+    sol::Dist_Map * tMap = tMatFactory.create_map( tNumMyDofs,
                                                tMyGlobalElements,
                                                tMyConstraintDofs );
 

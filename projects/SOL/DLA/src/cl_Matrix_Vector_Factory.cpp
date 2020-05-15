@@ -21,10 +21,10 @@ moris::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum sol::MapType aMa
     mMapType = aMapType;
 }
 
-Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_Interface * aInput,
-                                                             const moris::Dist_Map        * aMap )
+sol::Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_Interface * aInput,
+                                                             const moris::sol::Dist_Map        * aMap )
 {
-	Dist_Matrix * tSparseMatrix = nullptr;
+	sol::Dist_Matrix * tSparseMatrix = nullptr;
 
     switch( mMapType )
     {
@@ -41,10 +41,10 @@ Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_I
     return tSparseMatrix;
 }
 
-Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRows,
+sol::Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRows,
                                                              const moris::uint aCols )
 {
-	Dist_Matrix * tSparseMatrix = nullptr;
+	sol::Dist_Matrix * tSparseMatrix = nullptr;
 
     switch( mMapType )
     {
@@ -62,11 +62,11 @@ Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRo
 }
 
 //-------------------------------------------------------------------------------------------------
-moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Solver_Interface * aInput,
-                                                                        moris::Dist_Map        * aMap,
+moris::sol::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Solver_Interface * aInput,
+                                                                        moris::sol::Dist_Map        * aMap,
                                                                   const sint                      aNumVectors )
 {
-moris::Dist_Vector * tDistVector = nullptr;
+moris::sol::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
@@ -84,10 +84,10 @@ moris::Dist_Vector * tDistVector = nullptr;
     return tDistVector;
 }
 //-------------------------------------------------------------------------------------------------
-moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Dist_Map        * aMap,
-                                                                  const sint                     aNumVectors )
+moris::sol::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::sol::Dist_Map * aMap,
+                                                                       const sint                   aNumVectors )
 {
-moris::Dist_Vector * tDistVector = nullptr;
+moris::sol::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
@@ -106,9 +106,9 @@ moris::Dist_Vector * tDistVector = nullptr;
 }
 
 
-moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
+moris::sol::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
 {
-moris::Dist_Vector * tDistVector = nullptr;
+moris::sol::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
@@ -126,10 +126,10 @@ moris::Dist_Vector * tDistVector = nullptr;
 }
 
 //-------------------------------------------------------------------------------------------------
-moris::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix< DDSMat > & aMyGlobalIds,
-                                                             const moris::Matrix< DDUMat > & aMyConstraintIds )
+moris::sol::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix< DDSMat > & aMyGlobalIds,
+                                                                  const moris::Matrix< DDUMat > & aMyConstraintIds )
 {
-    moris::Dist_Map * tMap = nullptr;
+    moris::sol::Dist_Map * tMap = nullptr;
 
     switch( mMapType )
     {
@@ -147,9 +147,9 @@ moris::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix<
 }
 
 //-------------------------------------------------------------------------------------------------
-moris::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix< DDSMat > & aMyGlobalIds )
+moris::sol::Dist_Map * moris::Matrix_Vector_Factory::create_map( const moris::Matrix< DDSMat > & aMyGlobalIds )
 {
-    moris::Dist_Map * tMap = nullptr;
+    moris::sol::Dist_Map * tMap = nullptr;
 
     switch( mMapType )
         {

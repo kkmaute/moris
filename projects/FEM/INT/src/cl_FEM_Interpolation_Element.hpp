@@ -59,6 +59,7 @@ namespace moris
         friend class Element_Sideset;
         friend class Element_Double_Sideset;
         friend class Element_Time_Sideset;
+        friend class Element_Time_Boundary;
         friend class Element;
 //------------------------------------------------------------------------------
     public:
@@ -121,9 +122,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * compute dQIdp using finite difference
+         * compute dQIdp
          */
-        void compute_dQIdp_FD();
+        void compute_dQIdp_explicit();
 
 //------------------------------------------------------------------------------
         /**

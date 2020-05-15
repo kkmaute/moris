@@ -10,7 +10,9 @@
 
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
-#include "cl_Map.hpp"
+
+#include "cl_Map.hpp"                        //MRS/CON/src
+
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -166,6 +168,13 @@ class Library_IO;
 //------------------------------------------------------------------------------
 
             void perform_forward_analysis();
+
+            void perform_forward_analysis_temporary_hack();
+
+            void set_solver_warehouse_hack( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse)
+            {
+                mSolverWarehouse = aSolverWarehouse;
+            };
 
 //------------------------------------------------------------------------------
 

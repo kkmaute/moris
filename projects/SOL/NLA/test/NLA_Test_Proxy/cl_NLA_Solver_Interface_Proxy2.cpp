@@ -15,13 +15,13 @@ NLA_Solver_Interface_Proxy_II::NLA_Solver_Interface_Proxy_II()
 {
 }
 
-void NLA_Solver_Interface_Proxy_II::set_solution_vector( Dist_Vector * aSolutionVector )
+void NLA_Solver_Interface_Proxy_II::set_solution_vector( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
 }
 
 void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs( const uint               & aMyElementInd,
-                                                     Cell< Matrix< DDRMat > > & aElementRHS )
+                                                             Cell< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 

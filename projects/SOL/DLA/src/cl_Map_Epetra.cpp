@@ -14,7 +14,7 @@ using namespace moris;
 // ----------------------------------------------------------------------------------------------------------------------
 
 Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
-                        const Matrix< DDUMat > & aMyConstraintDofs ) :  Dist_Map()
+                        const Matrix< DDUMat > & aMyConstraintDofs ) : sol::Dist_Map()
 {
     delete( mEpetraMap );
 
@@ -40,7 +40,7 @@ Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds ) :  Dist_Map()
+Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds ) : sol::Dist_Map()
 {
     delete( mEpetraMap );
 

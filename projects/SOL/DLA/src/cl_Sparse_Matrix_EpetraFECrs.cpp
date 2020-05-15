@@ -11,7 +11,7 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * aInput,
-                                                      const Dist_Map        * aMap ) : Dist_Matrix( aMap )
+                                                      const sol::Dist_Map    * aMap ) : sol::Dist_Matrix( aMap )
 {
     // Fixme implement get function for nonzero rows
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
@@ -135,7 +135,7 @@ void Sparse_Matrix_EpetraFECrs::mat_put_scalar( const moris::real & aValue )
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void Sparse_Matrix_EpetraFECrs::get_diagonal( Dist_Vector & aDiagVec ) const
+void Sparse_Matrix_EpetraFECrs::get_diagonal( sol::Dist_Vector & aDiagVec ) const
 {
     // check if matrix is filled
     if ( mEpetraMat->Filled() == false )
@@ -154,7 +154,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( Dist_Vector & aDiagVec ) const
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const Dist_Vector & aScaleVector )
+void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const sol::Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the left
     int error = mEpetraMat->LeftScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
@@ -167,7 +167,7 @@ void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const Dist_Vector & aScal
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const Dist_Vector & aScaleVector )
+void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const sol::Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the right
     int error = mEpetraMat->RightScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
@@ -178,7 +178,7 @@ void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const Dist_Vector & aSca
     }
 }
 
-void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const Dist_Vector & aDiagVec )
+void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const sol::Dist_Vector & aDiagVec )
 {
     // check if matrix is filled
     if ( mEpetraMat->Filled() == false )

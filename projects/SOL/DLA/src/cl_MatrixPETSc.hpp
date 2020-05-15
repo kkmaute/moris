@@ -26,7 +26,7 @@
 
 namespace moris
 {
-class Matrix_PETSc : public Dist_Matrix
+class Matrix_PETSc : public sol::Dist_Matrix
 {
 private:
     moris::Matrix< DDUMat >   mDirichletBCVec;
@@ -39,7 +39,7 @@ protected:
 public:
     /** Default contructor */
     Matrix_PETSc(       moris::Solver_Interface * aInput,
-                  const moris::Dist_Map        * aMap );
+                  const moris::sol::Dist_Map    * aMap );
 
     Matrix_PETSc( const moris::uint aRows,
                   const moris::uint aCols );
@@ -63,7 +63,7 @@ public:
     void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );
 
-    void get_diagonal( moris::Dist_Vector & aDiagVec ) const{};
+    void get_diagonal( moris::sol::Dist_Vector & aDiagVec ) const{};
 
     //FIXME mat_put_scalar only implemented for zeros with petsc. has to be changed
     void mat_put_scalar( const moris::real & aValue )
@@ -72,11 +72,11 @@ public:
 //      MORIS_ERROR(false, "mat_put_scalar only implemented for zeros with petsc. has to be changed.");
     }
 
-    void sparse_mat_left_scale( const moris::Dist_Vector & aScaleVector ){};
+    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector ){};
 
-    void sparse_mat_right_scale( const moris::Dist_Vector & aScaleVector ){};
+    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector ){};
 
-    void replace_diagonal_values( const moris::Dist_Vector & aDiagVec ){};
+    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec ){};
 
     void print() const;
 

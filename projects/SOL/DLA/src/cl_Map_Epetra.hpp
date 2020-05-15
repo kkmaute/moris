@@ -19,7 +19,7 @@
 
 namespace moris
 {
-class Map_Epetra : public Dist_Map
+class Map_Epetra : public sol::Dist_Map
 {
 private:
     Communicator_Epetra      mEpetraComm;
@@ -52,7 +52,7 @@ public:
 //-------------------------------------------------------------------------------------------------------------
 
     Epetra_Map * get_epetra_map()      { return mEpetraMap; };
-	Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
+    Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
 
 //-------------------------------------------------------------------------------------------------------------
     moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;

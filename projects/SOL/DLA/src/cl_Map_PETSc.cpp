@@ -10,7 +10,7 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Map_PETSc::Map_PETSc( const Matrix< DDSMat > & aMyGlobalIds,
-                      const Matrix< DDUMat > & aMyConstraintDofs) : moris::Dist_Map()
+                      const Matrix< DDUMat > & aMyConstraintDofs) : moris::sol::Dist_Map()
 {
     AODestroy( &mPETScMap );
     //size_t rank = par_rank();
@@ -35,7 +35,7 @@ Map_PETSc::Map_PETSc( const Matrix< DDSMat > & aMyGlobalIds,
     //AOView(mPETScMap,PETSC_VIEWER_STDOUT_WORLD);
 }
 
-Map_PETSc::Map_PETSc( const Matrix< DDSMat > & aMyGlobalIds ) : moris::Dist_Map()
+Map_PETSc::Map_PETSc( const Matrix< DDSMat > & aMyGlobalIds ) : moris::sol::Dist_Map()
 {
     AODestroy( &mPETScMap );
     //size_t rank = par_rank();

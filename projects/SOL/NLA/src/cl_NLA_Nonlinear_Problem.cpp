@@ -28,7 +28,7 @@ using namespace dla;
 
 Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase,
                                             Solver_Interface   * aSolverInterface,
-                                            Dist_Vector        * aFullVector,
+                                            sol::Dist_Vector   * aFullVector,
                                       const moris::sint          aNonlinearSolverManagerIndex,
                                       const bool                 aBuildLinerSystemFlag,
                                       const enum sol::MapType    aMapType) :     mFullVector( aFullVector ),
@@ -80,10 +80,8 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 {
     mSolverInterface = aSolverInterface;
 
-    std::cout<<"build linear system"<<std::endl;
     if( mMapType == sol::MapType::Petsc )
     {
-        std::cout<<"build linear system"<<std::endl;
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
@@ -212,7 +210,7 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     mLinearProblem->assemble_residual();
 }
 
-Dist_Vector * Nonlinear_Problem::get_full_vector()
+sol::Dist_Vector * Nonlinear_Problem::get_full_vector()
 {
     return mFullVector;
 }

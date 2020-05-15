@@ -22,7 +22,7 @@
 
 namespace moris
 {
-class Vector_Epetra : public Dist_Vector
+class Vector_Epetra : public sol::Dist_Vector
 {
 private:
     Epetra_MultiVector * mEpetraVector;
@@ -35,7 +35,7 @@ protected:
 public:
     Vector_Epetra(){};
 
-    Vector_Epetra(       Dist_Map       * aMapClass,
+    Vector_Epetra(       sol::Dist_Map   * aMapClass,
                    const sint              aNumVectors );
 
     /** Destructor */
@@ -55,13 +55,13 @@ public:
     void vector_global_asembly();
 
     void vec_plus_vec( const moris::real & aScaleA,
-                             Dist_Vector & aVecA,
+                             sol::Dist_Vector & aVecA,
                        const moris::real & aScaleThis );
 
     void scale_vector( const moris::real & aValue,
                        const moris::uint & aVecIndex = 0 );
 
-    void import_local_to_global( Dist_Vector & aSourceVec );
+    void import_local_to_global( sol::Dist_Vector & aSourceVec );
 
     void vec_put_scalar( const moris::real & aValue );
 

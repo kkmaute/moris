@@ -13,9 +13,12 @@
 
 namespace moris
 {
-class Dist_Matrix;
-class Dist_Vector;
-class Dist_Map;
+    namespace sol
+    {
+        class Dist_Matrix;
+        class Dist_Vector;
+        class Dist_Map;
+    }
 class Solver_Interface;
 namespace dla
 {
@@ -24,12 +27,12 @@ namespace dla
     private:
 
     protected:
-        Dist_Matrix   * mMat           = nullptr;
-        Dist_Vector   * mVectorRHS     = nullptr;
-        Dist_Vector   * mFreeVectorLHS = nullptr;
-        Dist_Vector   * mFullVectorLHS = nullptr;
-        Dist_Map      * mMap           = nullptr;
-        Dist_Map      * mMapFree       = nullptr;
+        sol::Dist_Matrix   * mMat           = nullptr;
+        sol::Dist_Vector   * mVectorRHS     = nullptr;
+        sol::Dist_Vector   * mFreeVectorLHS = nullptr;
+        sol::Dist_Vector   * mFullVectorLHS = nullptr;
+        sol::Dist_Map      * mMap           = nullptr;
+        sol::Dist_Map      * mMapFree       = nullptr;
 
         Solver_Interface * mSolverInterface = nullptr;
 
@@ -46,21 +49,21 @@ namespace dla
         virtual ~Linear_Problem(){};
 
         void assemble_residual_and_jacobian(  );
-        void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
+        void assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector );
         void assemble_residual();
         void assemble_jacobian();
 
         virtual moris::sint solve_linear_system() = 0;
 
-        Dist_Vector * get_free_solver_LHS() { return mFreeVectorLHS; };
+        sol::Dist_Vector * get_free_solver_LHS() { return mFreeVectorLHS; };
 
-        void set_free_solver_LHS( Dist_Vector * aFullSolVector);
+        void set_free_solver_LHS( sol::Dist_Vector * aFullSolVector);
 
-        Dist_Vector * get_full_solver_LHS();
+        sol::Dist_Vector * get_full_solver_LHS();
 
-        Dist_Vector * get_solver_RHS() { return mVectorRHS; };
+        sol::Dist_Vector * get_solver_RHS() { return mVectorRHS; };
 
-        Dist_Matrix * get_matrix() { return mMat; };
+        sol::Dist_Matrix * get_matrix() { return mMat; };
 
         Solver_Interface * get_solver_input() const { return mSolverInterface; };
 

@@ -15,101 +15,120 @@ namespace moris
 {
     namespace fem
     {
-    class Set;
-//------------------------------------------------------------------------------
-    /**
-     * \brief Element_Sideset class
-     */
-    class Element_Sideset : public Element
-    {
-//------------------------------------------------------------------------------
-    public:
-//------------------------------------------------------------------------------
+        class Set;
+        //------------------------------------------------------------------------------
         /**
-         * constructor
-         *
-         * @param[ in ]     pointer to mesh interface object
-         * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
-         * @param[ in ]     cell of pointer to fem nodes
-         * @param[ in ]     Pointer to element block
+         * \brief Element_Sideset class
          */
-        Element_Sideset( mtk::Cell const  * aCell,
-                         Set              * aElementBlock,
-                         Cluster          * aCluster,
-                         moris::moris_index aCellIndexInCluster );
+        class Element_Sideset : public Element
+        {
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
+                /**
+                 * constructor
+                 * @param[ in ]     pointer to mesh interface object
+                 * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
+                 * @param[ in ]     cell of pointer to fem nodes
+                 * @param[ in ]     Pointer to element block
+                 */
+                Element_Sideset(
+                        mtk::Cell const  * aCell,
+                        Set              * aElementBlock,
+                        Cluster          * aCluster,
+                        moris::moris_index aCellIndexInCluster );
 
-//------------------------------------------------------------------------------
-        /**
-         * destructor
-         */
-        ~Element_Sideset();
+                //------------------------------------------------------------------------------
+                /**
+                 * destructor
+                 */
+                ~Element_Sideset();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute jacobian over the element
-         */
-        void compute_jacobian();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian over the element
+                 */
+                void compute_jacobian();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute residual over the element
-         */
-        void compute_residual();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute residual over the element
+                 */
+                void compute_residual();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute jacobian and residual over the element
-         */
-        void compute_jacobian_and_residual();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian and residual over the element
+                 */
+                void compute_jacobian_and_residual();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantities of interest
-         */
-        void compute_QI();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dRdp over the element
+                 */
+                void compute_dRdp();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantity of interest in a global way
-         * @param[ in ] aOutputType an enum for the output type
-         */
-        void compute_quantity_of_interest_global( const uint             aMeshIndex,
-                                                  enum  vis::Output_Type aOutputType );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantities of interest
+                 */
+                void compute_QI();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantity of interest in a nodal way
-         * @param[ in ] aOutputType an enum for the output type
-         */
-        void compute_quantity_of_interest_nodal( const uint             aMeshIndex,
-                                                 enum  vis::Output_Type aOutputType );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantity of interest in a elemental way
-         * @param[ in ] aOutputType an enum for the output type
-         */
-        void compute_quantity_of_interest_elemental( const uint             aMeshIndex,
-                                                     enum  vis::Output_Type aOutputType );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantity of interest in a global way
+                 * @param[ in ] aOutputType an enum for the output type
+                 */
+                void compute_quantity_of_interest_global(
+                        const uint             aMeshIndex,
+                        enum  vis::Output_Type aOutputType );
 
-//------------------------------------------------------------------------------
-        /**
-         * compute volume over the element
-         */
-        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantity of interest in a nodal way
+                 * @param[ in ] aOutputType an enum for the output type
+                 */
+                void compute_quantity_of_interest_nodal(
+                        const uint             aMeshIndex,
+                        enum  vis::Output_Type aOutputType );
 
-//------------------------------------------------------------------------------
-    protected:
-//------------------------------------------------------------------------------
-        /**
-         * initialize integration geometry interpolator
-         */
-        void init_ig_geometry_interpolator( uint aSideOrdinal );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantity of interest in a elemental way
+                 * @param[ in ] aOutputType an enum for the output type
+                 */
+                void compute_quantity_of_interest_elemental(
+                        const uint             aMeshIndex,
+                        enum  vis::Output_Type aOutputType );
 
-//------------------------------------------------------------------------------
-    };
+                //------------------------------------------------------------------------------
+                /**
+                 * compute volume over the element
+                 */
+                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+            protected:
+
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize integration geometry interpolator
+                 */
+                void init_ig_geometry_interpolator( uint aSideOrdinal );
+                void init_ig_geometry_interpolator_with_pdv(
+                        uint                              aSideOrdinal,
+                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
+
+                //------------------------------------------------------------------------------
+        };
+
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

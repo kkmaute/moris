@@ -542,7 +542,7 @@ namespace moris
 
      }
 
-    TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[Dof_create_dof_and_dv_type_maps][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[Dof_create_dof_type_map][MSI_parallel]")
     {
         // Create generic equation objects
         Equation_Set EquObj_1;
@@ -605,7 +605,7 @@ namespace moris
         tDofMgn.initialize_pdof_type_list( tListEqnObj );
 
         // Call initialize pdof type list function
-        tDofMgn.create_dof_and_dv_type_maps();
+        tDofMgn.create_dof_type_map();
 
         // Check pdof type list
         CHECK( equal_to( tDofMgn.mPdofTypeMap( 0, 0 ), 0 ) );

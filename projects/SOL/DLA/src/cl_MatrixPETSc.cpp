@@ -21,7 +21,7 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
-                            const moris::Dist_Map        * aMap ) : Dist_Matrix( aMap )
+                            const moris::sol::Dist_Map        * aMap ) : sol::Dist_Matrix( aMap )
 {
     moris::uint aNumMyDofs = aInput->get_my_local_global_map().numel();
 

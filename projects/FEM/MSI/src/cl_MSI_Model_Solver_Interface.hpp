@@ -21,8 +21,6 @@
 
 namespace moris
 {
-    class Dist_Vector;
-
     namespace mtk
     {
         class Mesh;

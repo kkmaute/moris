@@ -18,12 +18,17 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_MSI_Equation_Model.hpp"
-
 namespace moris
 {
+
+    namespace sol
+    {
+        class Dist_Vector;
+    }
+
     namespace MSI
     {
+        class Equation_Model;
         class Design_Variable_Interface
         {
         private:
@@ -70,10 +75,7 @@ namespace moris
              * set requested IQI type for sensitivity analysis
              * @param[ in ] aRequestedIQIType
              */
-            void set_requested_IQIs( const moris::Cell< std::string > & aRequestedIQIs )
-            {
-                mModel->set_requested_IQI_names(aRequestedIQIs);
-            };
+            void set_requested_IQIs( const moris::Cell< std::string > & aRequestedIQIs );
 
 //------------------------------------------------------------------------------
             /**
@@ -141,14 +143,28 @@ namespace moris
             virtual void reshape_pdv_values( const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
                                                    moris::Matrix< DDRMat >                & aReshapedPdvValues )
             {
-                MORIS_ERROR( false, "Design_Variable_Interface::reshape_pdv_values - not implemented for base class." );
+                MORIS_ASSERT( aPdvValues.size() != 0,
+                              "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty.");
+
+                // get the number of rows and columns
+                uint tRows = aPdvValues( 0 ).numel();
+                uint tCols = aPdvValues.size();
+
+                // set size for the reshaped matrix
+                aReshapedPdvValues.set_size( tRows, tCols );
+
+                for( uint iCol = 0; iCol < tCols; iCol++ )
+                {
+                    aReshapedPdvValues( { 0, tRows - 1 }, { iCol, iCol } )
+                    = aPdvValues( iCol ).matrix_data();
+                }
             }
 
 //------------------------------------------------------------------------------
             /**
              * return local to global dv map
              */
-            virtual moris::Matrix< DDSMat > get_my_local_global_map() = 0;
+            virtual const moris::Matrix< DDSMat > & get_my_local_global_map() = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -179,6 +195,16 @@ namespace moris
             virtual void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes ) = 0;
 
 //------------------------------------------------------------------------------
+            /**
+             * returns the explicit dQidu
+             */
+            sol::Dist_Vector * get_implicit_dQidu();
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the explicit dQidu
+             */
+            sol::Dist_Vector * get_explicit_dQidu();
 
         };
     }
