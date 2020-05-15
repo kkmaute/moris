@@ -202,7 +202,7 @@ namespace moris
              * @param aNodeIndex     a node index
              * @param aPdvType         a list of dv types
              */
-            std::shared_ptr<GEN_Pdv> get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
+            std::shared_ptr<Pdv> get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
             /**
              * Get pdv by type and node index
@@ -210,7 +210,7 @@ namespace moris
              * @param aNodeIndex     a node index
              * @param aPdvType         a list of dv types
              */
-            std::shared_ptr<GEN_Pdv> get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
+            std::shared_ptr<Pdv> get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
             /**
              * Create the pdv hosts on interpolation nodes based on the pdv types per set
