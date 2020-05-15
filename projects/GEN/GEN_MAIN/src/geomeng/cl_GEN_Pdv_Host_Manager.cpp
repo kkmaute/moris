@@ -22,28 +22,40 @@ namespace moris
 
         void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
-            aPdvTypes = mIpPdvTypes(aIPMeshSetIndex);
+            if (mIpPdvTypes.size() > 0)
+            {
+                aPdvTypes = mIpPdvTypes(aIPMeshSetIndex);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
-            aPdvTypes = mIgPdvTypes(aIGMeshSetIndex);
+            if (mIgPdvTypes.size() > 0)
+            {
+                aPdvTypes = mIgPdvTypes(aIGMeshSetIndex);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ip_unique_dv_types_for_set(const moris_index aIPMeshSetIndex, Cell<PDV_Type>& aPdvTypes)
         {
-            aPdvTypes =  mUniqueIpPdvTypes(aIPMeshSetIndex);
+            if (mUniqueIpPdvTypes.size() > 0)
+            {
+                aPdvTypes =  mUniqueIpPdvTypes(aIPMeshSetIndex);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::get_ig_unique_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes)
         {
-            aPdvTypes =  mUniqueIgPdvTypes(aIGMeshSetIndex);
+            if (mUniqueIgPdvTypes.size() > 0)
+            {
+                aPdvTypes =  mUniqueIgPdvTypes(aIGMeshSetIndex);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
