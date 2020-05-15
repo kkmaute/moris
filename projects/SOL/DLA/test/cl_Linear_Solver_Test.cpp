@@ -201,7 +201,7 @@ TEST_CASE("Linear Solver Belos multiple RHS","[Linear Solver multiple RHS],[Dist
         moris::Matrix< DDRMat > tSol;
         tLinProblem->get_solution( tSol );
 
-//        print(tSol,"tSol");
+        print(tSol,"tSol");
 
         moris::Cell< moris::Matrix< DDRMat > > tSol1;
         tLinProblem->get_free_solver_LHS()->extract_my_values( 2,

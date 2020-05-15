@@ -443,8 +443,6 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
 
-        tGeometryEngine.set_equation_model(tModel->get_fem_model() );
-
         tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
 
 //        Cell<Matrix<DDRMat>> tDvValues;
@@ -501,7 +499,9 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tModel->perform_sensitivity_analysis();
 
-        tModel->get_fem_model()->compute_implicit_dQIdp();
+//        tModel->get_fem_model()->compute_implicit_dQIdp();
+
+        tModel->get_fem_model()->compute_explicit_dQIdp();
 
 
         delete tModel;

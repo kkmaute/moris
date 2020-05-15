@@ -86,7 +86,31 @@ int main( int argc, char * argv[] )
     //dynamically linked file
     std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
 
+
+    // load the HMR parameter list
+    std::string tOPTString = "OPTParameterList";
+    MORIS_PARAMETER_FUNCTION tOPTParameterListFunc = tLibrary->load_parameter_file( tOPTString );
+    moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
+    tOPTParameterListFunc( tOPTParameterList );
+
+    if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
     {
+//        moris::opt::Manager tManager( tOPTParameterList );
+//
+//        // these curly brackets are crutial even without if else
+//        wrk::Performer_Manager tPerformerManager( tLibrary );
+//
+//        tPerformerManager.initialize_performers();
+//
+//        tPerformerManager.set_performer_cooperations();
+//
+//        wrk::Workflow tWorkflow( &tPerformerManager );
+//
+//        tManager.set_workflow( tWorkflow );
+
+    }
+    else
+    {  // these curly brackets are crutial even without if else
         wrk::Performer_Manager tPerformerManager( tLibrary );
 
         tPerformerManager.initialize_performers();

@@ -180,7 +180,7 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 {
     //std::cout<<*mEpetraVector<<std::endl;
 
-	moris::sint tVectorLenght = this->vec_local_length();
+    moris::sint tVectorLenght = this->vec_local_length();
 
     LHSValues.set_size( tVectorLenght, mNumVectors );
 

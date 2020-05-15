@@ -113,7 +113,7 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
         this->free_block_memory( Ii );
     }
 
-    // global assembly to switch entries to the right proceccor
+    // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_asembly();
 
 //    std::cout<<"Assembled Residual Vector"<<std::endl;

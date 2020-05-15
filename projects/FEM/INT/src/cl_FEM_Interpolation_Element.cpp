@@ -461,7 +461,7 @@ namespace moris
             mSet->set_IQI_field_interpolator_managers();
 
             // set cluster for stabilization parameter
-            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );\
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdp_explicit();
@@ -555,16 +555,19 @@ namespace moris
                 }
 
                 mEquationSet->get_equation_model()
-                            ->get_implicit_dQidu()
+                            ->get_explicit_dQidu()
                             ->sum_into_global_values( tLocalToGlobalIds,
                                                       mSet->mdQIdp( 1 )( Ik ),
                                                       Ik );
             }
+
+            // global assembly to switch entries to the right processor
+            mEquationSet->get_equation_model()->get_explicit_dQidu()->vector_global_asembly();
         }
 
 //-------------------------------------------------------------------------------------------------
 
-        void Interpolation_Element::compute_dQIdp()
+        void Interpolation_Element::compute_dQIdp_implicit()
         {
             this->compute_dRdp();
 
@@ -685,6 +688,9 @@ namespace moris
                                                                                        tLocalIGdQiDp,
                                                                                        Ik );
             }
+
+            // global assembly to switch entries to the right processor
+            mEquationSet->get_equation_model()->get_implicit_dQidu()->vector_global_asembly();
         }
 
 //------------------------------------------------------------------------------

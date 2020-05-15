@@ -341,11 +341,11 @@ namespace moris
 
                     // compute dQIdpGeo at evaluation point
                     Matrix< DDRMat > tdQIdpGeoFD;
-                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
-                            tWStar,
-                            tPerturbation,
-                            tIsActiveDv,
-                            tVertexIndices );
+//                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
+//                            tWStar,
+//                            tPerturbation,
+//                            tIsActiveDv,
+//                            tVertexIndices );
                 }
             }
         }

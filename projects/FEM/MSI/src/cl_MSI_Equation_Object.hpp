@@ -332,9 +332,9 @@ namespace moris
             /**
              * compute dQIdp
              */
-            virtual void compute_dQIdp()
+            virtual void compute_dQIdp_implicit()
             {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_implicit - not implemented in msi." );
             };
 
 //------------------------------------------------------------------------------

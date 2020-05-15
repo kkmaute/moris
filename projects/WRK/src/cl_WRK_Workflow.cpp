@@ -62,6 +62,9 @@ namespace moris
             //                               Stage 3: MDL perform
             //---------------------------------------------------------------------------------------
 
+            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
+                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
@@ -70,23 +73,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::get_criteria(Matrix<DDRMat> aNewADVs)
-        {
-            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface( mPerformerManager->mGENPerformer( 0 )
-                                                            ->get_design_variable_interface() );
-
-            // FIXME set requeted IQIs
-//            mPerformerManager->mMDLPerformer( 0 )->
-
-            mPerformerManager->mMDLPerformer( 0 )->perform_sensitivity_analysis();
-
-            return Matrix<DDRMat>(1, 1 , 0.0);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Matrix<DDRMat> Workflow::get_dcriteria_dadv()
         {
+            mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
+
             return Matrix<DDRMat>(1, 1 , 0.0);
         }
 
