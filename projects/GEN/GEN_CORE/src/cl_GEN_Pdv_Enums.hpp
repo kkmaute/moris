@@ -1,6 +1,8 @@
 #ifndef MORIS_CL_PDV_Type_ENUMS_HPP_
 #define MORIS_CL_PDV_Type_ENUMS_HPP_
 
+#include "cl_Map.hpp"
+
 namespace moris
 {
     enum class PDV_Type
