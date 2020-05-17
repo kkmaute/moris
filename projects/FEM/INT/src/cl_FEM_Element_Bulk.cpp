@@ -146,8 +146,7 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()
-                            ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *

@@ -41,7 +41,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
         {
             // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( aSideOrdinal );
 
             // get the geometry XYZ values
             Matrix< DDRMat > tXYZValues =
@@ -106,12 +106,11 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()
-                                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute the integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP )
-                                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
@@ -198,7 +197,7 @@ namespace moris
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tSideOrd );
 
             // set the IG geometry interpolator physical/param space and time coefficients
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
@@ -297,7 +296,7 @@ namespace moris
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tSideOrd );
 
             // set the IG geometry interpolator physical/param space and time coefficients
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
@@ -316,8 +315,7 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()
-                                    ->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
@@ -398,7 +396,7 @@ namespace moris
             this->init_ig_geometry_interpolator( tSideOrd );
 
             // get the vertices
-            moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
+            moris::Cell< mtk::Vertex const * > tVertices = mMasterCell->get_vertices_on_side_ordinal( tSideOrd );
 
             // loop over the vertices
             uint tNumNodes = tVertices.size();
@@ -450,8 +448,8 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP )
-                                            * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
                 mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
@@ -461,8 +459,8 @@ namespace moris
                 mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
-                ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
-                                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 ) +=
+                        tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 

@@ -535,8 +535,8 @@ namespace moris
                  * @param[ in ]  aInterpolationOrder an interpolation order
                  * @param[ out ] aIntegrationOrder   an integration order
                  */
-                fem::Integration_Order get_auto_integration_order
-                ( const mtk::Geometry_Type       aGeometryType,
+                fem::Integration_Order get_auto_integration_order(
+                        const mtk::Geometry_Type       aGeometryType,
                         const mtk::Interpolation_Order aInterpolationOrder );
 
                 //------------------------------------------------------------------------------
@@ -546,7 +546,8 @@ namespace moris
                  * @param[ in ] aGeometryType geometry type
                  * FIXME: works for Lagrange only
                  */
-                mtk::Interpolation_Order get_auto_interpolation_order( const moris::uint        aNumVertices,
+                mtk::Interpolation_Order get_auto_interpolation_order(
+                        const moris::uint        aNumVertices,
                         const mtk::Geometry_Type aGeometryType );
 
                 //------------------------------------------------------------------------------
@@ -669,6 +670,13 @@ namespace moris
                  * @param[ in ] aGeoPdvType list of ig unique pdv types on set
                  */
                 void get_ig_unique_dv_types_for_set( moris::Cell < enum PDV_Type > & aGeoPdvType );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get ip dv types for set from design variable interface
+                 * @param[ in ] aMatPdvType list of group of ip pdv types on set
+                 */
+                void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > > & aMatPdvType );
 
         };
         //------------------------------------------------------------------------------
