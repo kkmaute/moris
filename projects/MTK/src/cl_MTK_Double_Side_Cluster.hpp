@@ -427,6 +427,17 @@ public:
         return mRightSideCluster->get_vertex_ordinal_on_facet(aCellClusterIndex,aRightVertex);
     }
 
+    moris::Matrix<moris::IndexMat>
+    get_left_vertex_indices_in_cluster() const
+    {
+        return this->get_left_side_cluster().get_vertex_indices_in_cluster();
+    }
+
+    moris::Matrix<moris::IndexMat>
+    get_right_vertex_indices_in_cluster() const
+    {
+        return this->get_right_side_cluster().get_vertex_indices_in_cluster();
+    }
 
     //##############################################
     // Local Coordinate Access
