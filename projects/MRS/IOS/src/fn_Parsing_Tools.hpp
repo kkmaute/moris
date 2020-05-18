@@ -100,8 +100,6 @@ namespace moris
             return;
         }
 
-        std::cout << aString.length() << " x " << aDelimiter.length() << "\n";
-
         // loop over all delimiter characters
         for (uint id=0;id<aDelimiter.length();id++)
         {
