@@ -61,12 +61,15 @@ namespace moris
             //---------------------------------------------------------------------------------------
             //                               Stage 3: MDL perform
             //---------------------------------------------------------------------------------------
+            mPerformerManager->mMDLPerformer( 0 )->initialize();
 
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
                     mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
+
+            mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
 
             return Matrix<DDRMat>(1, 1 , 0.0);
         }

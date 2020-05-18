@@ -20,6 +20,33 @@ namespace moris
 {
     namespace MSI
     {
+//------------------------------------------------------------------------------
+        void Equation_Model::compute_IQIs()
+        {
+            // Get local number of elements
+            moris::uint tNumSets = mFemSets.size();
+
+            // Loop over all local elements to build matrix graph
+            for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
+            {
+                if( mFemSets( Ii )->get_element_type() == fem::Element_Type::BULK )
+                {
+                    moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
+
+                    mFemSets( Ii )->initialize_set( true );   //FIXME
+
+                    for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+                    {
+                        // FIXME this is elemental right now
+                        mFemSets( Ii )->get_equation_object_list()( Ik )->compute_QI();
+
+                        // could sum it here
+                    }
+
+                    //this->free_block_memory( Ii );
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
         void Equation_Model::compute_implicit_dQIdp()

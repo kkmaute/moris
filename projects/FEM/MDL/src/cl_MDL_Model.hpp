@@ -169,16 +169,20 @@ class Library_IO;
 
             void perform_forward_analysis();
 
-            void perform_forward_analysis_temporary_hack();
+//------------------------------------------------------------------------------
+
+            void perform_post_processing();
+
+//------------------------------------------------------------------------------
+
+            void perform_sensitivity_analysis();
+
+//------------------------------------------------------------------------------
 
             void set_solver_warehouse_hack( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse)
             {
                 mSolverWarehouse = aSolverWarehouse;
             };
-
-//------------------------------------------------------------------------------
-
-            void perform_sensitivity_analysis();
 
 //------------------------------------------------------------------------------
             /**

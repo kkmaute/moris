@@ -481,21 +481,17 @@ namespace moris
 //------------------------------------------------------------------------------
         void Model::perform_forward_analysis()
         {
-            // initialize MDL - build FEM, MSI, SOL and VIS
-            this->initialize();
-
             mEquationModel->set_is_forward_analysis();
 
             mSolverWarehouse->get_main_time_solver()->solve();
         }
 
-        void Model::perform_forward_analysis_temporary_hack()
+//------------------------------------------------------------------------------
+
+        void Model::perform_post_processing()
         {
-            mEquationModel->set_is_forward_analysis();
-
-            mSolverWarehouse->get_main_time_solver()->solve();
+            mEquationModel->compute_IQIs();
         }
-
 
 //------------------------------------------------------------------------------
         void Model::perform_sensitivity_analysis()

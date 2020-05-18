@@ -489,7 +489,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tModel->set_solver_warehouse_hack( tSolverWarehouse );
 
-        tModel->perform_forward_analysis_temporary_hack();
+        tModel->perform();
 
         //--------------------------------------------------------------------------
         //                          Sensitivity analysis
@@ -499,7 +499,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tModel->perform_sensitivity_analysis();
 
-//        tModel->get_fem_model()->compute_implicit_dQIdp();
+        tModel->get_fem_model()->compute_implicit_dQIdp();
 
         tModel->get_fem_model()->compute_explicit_dQIdp();
 
