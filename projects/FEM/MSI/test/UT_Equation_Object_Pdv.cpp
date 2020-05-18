@@ -223,28 +223,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         Design_Variable_Interface * tDesignVariableInterface = new Design_Variable_Interface_Proxy();
 
-        /*
-        MSI::Equation_Set * tSet = new fem::Set();
-
-        tSet->set_dv_interface( tDesignVariableInterface );
-
-        // Create generic equation objects
-        MSI::Equation_Object * EquObj = new fem::Interpolation_Element();
-
-        EquObj->mEquationSet = tSet;
-        reinterpret_cast< fem::Interpolation_Element *> ( EquObj )->mSet = reinterpret_cast< fem::Set *> (tSet);
-
-        tSet->mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
-
-
-        std::shared_ptr< fem::Cluster > tFemCluster = std::make_shared< fem::Cluster >( fem::Element_Type::BULK,
-                                                                                        tCluster,
-                                                                                        reinterpret_cast< fem::Set *> (tSet),
-                                                                                        EquObj );
-
-        reinterpret_cast< fem::Interpolation_Element * >( EquObj )->mFemCluster = {tFemCluster};
-        */
-
         // FEM inputs
         //------------------------------------------------------------------------------
         // create the properties
@@ -411,8 +389,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // compute dRdp
         tWorkEqObj->compute_dRdp();
-        //print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
-        //print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
+        print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
+        print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
 
         // compute QIs
         tWorkSet->mQI.resize( 1 );
@@ -427,7 +405,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tWorkEqObj->compute_dQIdu();
         print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
-        // compute dQIdp
+//        // compute dQIdp
 //        tWorkEqObj->compute_dQIdp_explicit();
 //        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
 //        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
