@@ -603,6 +603,10 @@ namespace moris
                         moris::real aWStar,
                         moris::real aPerturbation );
 
+                void compute_dRdp_FD_material_double(
+                        moris::real aWStar,
+                        moris::real aPerturbation );
+
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the residual
@@ -617,6 +621,14 @@ namespace moris
                         moris::real                       aPerturbation,
                         moris::Cell< Matrix< DDSMat > > & aIsActive,
                         Matrix< IndexMat >              & aVertexIndices );
+
+                void compute_dRdp_FD_geometry_double(
+                        moris::real                       aWStar,
+                        moris::real                       aPerturbation,
+                        moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
+                        Matrix< IndexMat >              & aMasterVertexIndices,
+                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
+                        Matrix< IndexMat >              & aSlaveVertexIndices );
 
                 //------------------------------------------------------------------------------
                 /**

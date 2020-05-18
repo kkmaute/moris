@@ -1524,7 +1524,8 @@ namespace moris
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
 
             // get the GI for the IG element considered
-            Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
             // get the residual dof type index in the set
             uint tResDofIndex = mSet->get_dof_index_for_type(
@@ -1534,11 +1535,14 @@ namespace moris
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
             // get number of master GI bases and space dimensions
-            uint tDerNumBases      = tGI->get_number_of_space_bases();
-            uint tDerNumDimensions = tGI->get_number_of_space_dimensions();
+            uint tDerNumBases      = tIGGI->get_number_of_space_bases();
+            uint tDerNumDimensions = tIGGI->get_number_of_space_dimensions();
 
             // coefficients for dv type wrt which derivative is computed
-            Matrix< DDRMat > tCoeff = tGI->get_space_coeff();
+            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
+            Matrix< DDRMat > tEvaluationPoint;
+            tIGGI->get_space_time( tEvaluationPoint );
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1553,15 +1557,28 @@ namespace moris
                         tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
-                        tGI->set_space_coeff( tCoeffPert );
+                        tIGGI->set_space_coeff( tCoeffPert );
+
+                        // update local coordinates
+                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                        Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                        tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                        // set evaluation point for interpolators (FIs and GIs)
+                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual plus
+                        // reset and evaluate the residual plus
                         mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-                        Matrix< DDRMat > tResidual_Plus =
+
+                        // get the residual plus
+                        Matrix< DDRMat > tResidualPlus =
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // perturbation of the coefficient
@@ -1569,15 +1586,28 @@ namespace moris
                         tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
-                        tGI->set_space_coeff( tCoeffPert );
+                        tIGGI->set_space_coeff( tCoeffPert );
+
+                        // update local coordinates
+                        tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                        tParamCoeffPert = tParamCoeff;
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                        tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                        // set evaluation point for interpolators (FIs and GIs)
+                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual minus
+                        // reset and evaluate the residual minus
                         mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-                        Matrix< DDRMat > tResidual_Minus =
+
+                        // get the residual minus
+                        Matrix< DDRMat > tResidualMinus =
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // get the geometry pdv assembly index
@@ -1587,11 +1617,275 @@ namespace moris
 
                         // evaluate dRdpGeo
                         mSet->get_drdpgeo()( { tResDofAssemblyStart, tResDofAssemblyStop }, { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                                ( tResidualPlus - tResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
                     }
                 }
                 // reset the coefficients values
-                tGI->set_space_coeff( tCoeff );
+                tIGGI->set_space_coeff( tCoeff );
+                tIGGI->set_space_param_coeff( tParamCoeff );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG::compute_dRdp_FD_geometry_double(
+                moris::real                       aWStar,
+                moris::real                       aPerturbation,
+                moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
+                Matrix< IndexMat >              & aMasterVertexIndices,
+                moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
+                Matrix< IndexMat >              & aSlaveVertexIndices )
+        {
+            // get requested geometry pdv types
+            moris::Cell< PDV_Type > tRequestedGeoPdvType;
+            mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
+
+            // get the master GI for the IG and IP element considered
+            Geometry_Interpolator * tMasterIGGI =
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tMasterIPGI =
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator();
+
+            // get the slave GI for the IG and IP element considered
+            Geometry_Interpolator * tSlaveIGGI =
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tSlaveIPGI =
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
+
+            // get the master residual dof type index in the set
+            uint tMasterResDofIndex = mSet->get_dof_index_for_type(
+                    mResidualDofType( 0 ),
+                    mtk::Master_Slave::MASTER );
+            uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
+            uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
+
+            // get the slave residual dof type index in the set
+            uint tSlaveResDofIndex = mSet->get_dof_index_for_type(
+                    mResidualDofType( 0 ),
+                    mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+            uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+
+            if( aMasterIsActive.size() != 0 )
+            {
+                // get number of master GI bases and space dimensions
+                uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
+                uint tDerNumDimensions = tMasterIGGI->get_number_of_space_dimensions();
+
+                // coefficients for dv type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tMasterIGGI->get_space_coeff();
+                Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
+                Matrix< DDRMat > tEvaluationPoint;
+                tMasterIGGI->get_space_time( tEvaluationPoint );
+
+                // loop over the spatial directions
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+                {
+                    // loop over the IG nodes
+                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+                    {
+                        if ( aMasterIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+                        {
+                            // perturbation of the coefficent
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            tMasterIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                            tMasterIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            tMasterIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset and evaluate the residual plus
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            this->compute_residual( aWStar );
+
+                            // get the master residual plus
+                            Matrix< DDRMat > tMasterResidualPlus =
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                            // get the slave residual plus
+                            Matrix< DDRMat > tSlaveResidualPlus =
+                                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                            // perturbation of the coefficient
+                            tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            tMasterIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                            tMasterIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            tParamCoeffPert = tParamCoeff;
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            tMasterIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // evaluate the residual minus
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            this->compute_residual( aWStar );
+
+                            // get the slave residual minus
+                            Matrix< DDRMat > tMasterResidualMinus =
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                            // get the slave residual minus
+                            Matrix< DDRMat > tSlaveResidualMinus =
+                                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                            // get the geometry pdv assembly index
+                            std::pair< moris_index, PDV_Type > tKeyPair =
+                                    std::make_pair( aMasterVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
+                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+
+                            // evaluate dMasterRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                            ( tMasterResidualPlus - tMasterResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                            // evaluate dSlaveRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                            ( tSlaveResidualPlus - tSlaveResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        }
+                    }
+                    // reset the coefficients values
+                    tMasterIGGI->set_space_coeff( tCoeff );
+                    tMasterIGGI->set_space_param_coeff( tParamCoeff );
+                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                }
+            }
+
+            if( aSlaveIsActive.size() != 0 )
+            {
+                // get number of master GI bases and space dimensions
+                uint tDerNumBases      = tSlaveIGGI->get_number_of_space_bases();
+                uint tDerNumDimensions = tSlaveIGGI->get_number_of_space_dimensions();
+
+                // coefficients for dv type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tSlaveIGGI->get_space_coeff();
+                Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
+                Matrix< DDRMat > tEvaluationPoint;
+                tSlaveIGGI->get_space_time( tEvaluationPoint );
+
+                // loop over the spatial directions
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+                {
+                    // loop over the IG nodes
+                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+                    {
+                        if ( aSlaveIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+                        {
+                            // perturbation of the coefficent
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            tSlaveIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                            tSlaveIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            tSlaveIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset and evaluate the residual
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            this->compute_residual( aWStar );
+
+                            // get the master residual plus
+                            Matrix< DDRMat > tMasterResidualPlus =
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                            // get the master residual plus
+                            Matrix< DDRMat > tSlaveResidualPlus =
+                                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                            // perturbation of the coefficient
+                            tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            tSlaveIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                            tSlaveIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            tParamCoeffPert = tParamCoeff;
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            tSlaveIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset and evaluate the residual
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            this->compute_residual( aWStar );
+
+                            // get the master residual minus
+                            Matrix< DDRMat > tMasterResidualMinus =
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                            // get the master residual minus
+                            Matrix< DDRMat > tSlaveResidualMinus =
+                                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                            // get the geometry pdv assembly index
+                            std::pair< moris_index, PDV_Type > tKeyPair =
+                                    std::make_pair( aSlaveVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
+                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+
+                            // evaluate dMasterRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                            ( tMasterResidualPlus - tMasterResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                            // evaluate dSlaveRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                            ( tSlaveResidualPlus - tSlaveResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        }
+                    }
+                    // reset the coefficients values
+                    tSlaveIGGI->set_space_coeff( tCoeff );
+                    tSlaveIGGI->set_space_param_coeff( tParamCoeff );
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
+                }
             }
         }
 
@@ -1617,6 +1911,11 @@ namespace moris
             // loop over the dv types associated with a FI
             for( uint iFI = 0; iFI < tNumDvType; iFI++ )
             {
+                // get dv index
+                sint tDvDepIndex = mSet->get_dv_index_for_type(
+                        tRequestedPdvTypes( iFI )( 0 ),
+                        mtk::Master_Slave::MASTER );
+
                 // get the FI for the dv type
                 Field_Interpolator * tFI =
                         mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
@@ -1647,10 +1946,12 @@ namespace moris
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual plus
+                        // reset and evaluate the residual plus
                         mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-                        Matrix< DDRMat > tResidual_Plus =
+
+                        // get the residual plus
+                        Matrix< DDRMat > tResidualPlus =
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // perturbation of the coefficent
@@ -1663,18 +1964,237 @@ namespace moris
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
 
-                        // evaluate the residual minus
+                        // reset and evaluate the residual minus
                         mSet->get_residual()( 0 ).fill( 0.0 );
                         this->compute_residual( aWStar );
-                        Matrix< DDRMat > tResidual_Minus =
+
+                        // get the residual minus
+                        Matrix< DDRMat > tResidualMinus =
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
                         // get mat pdv index
-                        uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tCoeffCounter;
+                        uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
                         // evaluate dRdpMat
                         mSet->get_drdpmat()( { tResDofAssemblyStart, tResDofAssemblyStop }, { tPdvIndex, tPdvIndex } ) +=
-                                ( tResidual_Plus - tResidual_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                                ( tResidualPlus - tResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update coefficient counter
+                        tCoeffCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG::compute_dRdp_FD_material_double(
+                moris::real aWStar,
+                moris::real aPerturbation )
+        {
+            // get the requested ip pdv types
+            moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes;
+            mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
+
+            // get number of requested dv types
+            uint tNumDvType = tRequestedPdvTypes.size();
+
+            // get the master residual dof type index in the set
+            uint tMasterResDofIndex = mSet->get_dof_index_for_type(
+                    mResidualDofType( 0 ),
+                    mtk::Master_Slave::MASTER );
+            uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
+            uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
+
+            // get the slave residual dof type index in the set
+            uint tSlaveResDofIndex = mSet->get_dof_index_for_type(
+                    mResidualDofType( 0 ),
+                    mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+            uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+
+            // loop over the master dv types associated with a FI
+            for( uint iFI = 0; iFI < tNumDvType; iFI++ )
+            {
+                // get dv index
+                sint tDvDepIndex = mSet->get_dv_index_for_type(
+                        tRequestedPdvTypes( iFI )( 0 ),
+                        mtk::Master_Slave::MASTER );
+
+                // get the FI for the dv type
+                Field_Interpolator * tFI =
+                        mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+
+                // get number of master FI bases and fields
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                // init coeff counter
+                uint tCoeffCounter = 0;
+
+                // loop over the coefficient column
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over the coefficient row
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // reset and evaluate the residual plus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        // get the master residual plus
+                        Matrix< DDRMat > tMasterResidualPlus =
+                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                        // get the slave residual plus
+                        Matrix< DDRMat > tSlaveResidualPlus =
+                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // reset and evaluate the residual minus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        // get the master residual minus
+                        Matrix< DDRMat > tMasterResidualMinus =
+                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                        // get the slave residual minus
+                        Matrix< DDRMat > tSlaveResidualMinus =
+                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                        // get mat pdv index
+                        uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                        // evaluate dMasterRdpMat
+                        mSet->get_drdpmat()(
+                                { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                { tPdvIndex, tPdvIndex } ) +=
+                                        ( tMasterResidualPlus - tMasterResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // evaluate dSlaveRdpMat
+                        mSet->get_drdpmat()(
+                                { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                { tPdvIndex, tPdvIndex } ) +=
+                                        ( tSlaveResidualPlus - tSlaveResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update coefficient counter
+                        tCoeffCounter++;
+                    }
+                }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
+            }
+
+            // loop over the slave dv types associated with a FI
+            for( uint iFI = 0; iFI < tNumDvType; iFI++ )
+            {
+                // get dv index
+                sint tDvDepIndex = mSet->get_dv_index_for_type(
+                        tRequestedPdvTypes( iFI )( 0 ),
+                        mtk::Master_Slave::SLAVE );
+
+                // get the FI for the dv type
+                Field_Interpolator * tFI =
+                        mSlaveFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+
+                // get number of master FI bases and fields
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                // init coeff counter
+                uint tCoeffCounter = 0;
+
+                // loop over the coefficient column
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
+                {
+                    // loop over the coefficient row
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // reset and evaluate the residual plus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        // get the master residual plus
+                        Matrix< DDRMat > tMasterResidualPlus =
+                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                        // get the slave residual plus
+                        Matrix< DDRMat > tSlaveResidualPlus =
+                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // reset and evaluate the residual minus
+                        mSet->get_residual()( 0 ).fill( 0.0 );
+                        this->compute_residual( aWStar );
+
+                        // get the master residual minus
+                        Matrix< DDRMat > tMasterResidualMinus =
+                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+
+                        // get the slave residual minus
+                        Matrix< DDRMat > tSlaveResidualMinus =
+                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+                        // get mat pdv index
+                        uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                        // evaluate dMasterRdpMat
+                        mSet->get_drdpmat()(
+                                { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                { tPdvIndex, tPdvIndex } ) +=
+                                        ( tMasterResidualPlus - tMasterResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // evaluate dSlaveRdpMat
+                        mSet->get_drdpmat()(
+                                { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                { tPdvIndex, tPdvIndex } ) +=
+                                        ( tSlaveResidualPlus - tSlaveResidualMinus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // update coefficient counter
                         tCoeffCounter++;
