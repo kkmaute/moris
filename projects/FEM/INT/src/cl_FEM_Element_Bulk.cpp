@@ -189,7 +189,6 @@ namespace moris
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -220,11 +219,14 @@ namespace moris
                             tPerturbation );
 
                     // compute dRdpGeo at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
-                            tWStar,
-                            tPerturbation,
-                            tIsActiveDv,
-                            tVertexIndices );
+                    if( tIsActiveDv.size() != 0 )
+                    {
+                        mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
+                                tWStar,
+                                tPerturbation,
+                                tIsActiveDv,
+                                tVertexIndices );
+                    }
                 }
             }
         }
@@ -304,18 +306,19 @@ namespace moris
                     real tPerturbation = 1E-6;
 
                     // compute dQIdpMat at evaluation point
-                    Matrix< DDRMat > tdQIdpMatFD;
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
                             tWStar,
                             tPerturbation );
 
                     // compute dQIdpGeo at evaluation point
-                    Matrix< DDRMat > tdQIdpGeoFD;
-                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
-                            tWStar,
-                            tPerturbation,
-                            tIsActiveDv,
-                            tVertexIndices );
+                    if( tIsActiveDv.size() != 0 )
+                    {
+                        mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
+                                tWStar,
+                                tPerturbation,
+                                tIsActiveDv,
+                                tVertexIndices );
+                    }
                 }
             }
         }
