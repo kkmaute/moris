@@ -338,9 +338,9 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-//                // compute the integration point weight
-//                real tWStar = mSet->get_integration_weights()( iGP ) *
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute the integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh and set if for the IWG
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -351,11 +351,22 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
-//                    // set a perturbation size
-//                    real tPerturbation = 1E-6;
+                    // set a perturbation size
+                    real tPerturbation = 1E-6;
 
-                    // compute dRdp
-                    MORIS_ERROR( false, "dRdp_FD not there yet for double sided" );
+                    // compute dRdpMat at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material_double(
+                            tWStar,
+                            tPerturbation );
+
+                    // compute dRdpGeo at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry_double(
+                            tWStar,
+                            tPerturbation,
+                            tMasterIsActiveDv,
+                            tMasterVertexIndices,
+                            tSlaveIsActiveDv,
+                            tSlaveVertexIndices );
                 }
             }
         }
