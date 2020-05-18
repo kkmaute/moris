@@ -82,9 +82,11 @@ cd $workdir
 
 workdir=`pwd`
 
+rm -f $cppfile.so
+
 mv $MORISROOT/projects/mains/input_file.cpp /tmp/.
 
-cp $cppfile.cpp $MORISROOT/projects/mains/input_file.cpp
+ln -s $workdir/$cppfile.cpp $MORISROOT/projects/mains/input_file.cpp
 
 touch $MORISROOT/projects/mains/input_file.cpp
 
@@ -98,4 +100,18 @@ mv $MORISROOT/$builddir/lib/input_file.so $cppfile.so
 
 rm $MORISROOT/projects/mains/input_file.cpp
 
-mv /tmp/input_file.cpp $MORISROOT/projects/mains/.
+tmpfilehead=`head -1 /tmp/input_file.cpp`
+
+if [ "$tmpfilehead" == '//dummy file - placeholder for dynamically linked object file' ];then
+    echo ""
+    echo " restoring input_file.cpp from /tmp"
+    echo ""
+    mv /tmp/input_file.cpp $MORISROOT/projects/mains/.
+else
+    echo ""
+    echo " restoring input_file.cpp from git repository"
+    echo ""
+    
+    cd $MORISROOT/$builddir
+    git checkout -- $MORISROOT/projects/mains/input_file.cpp
+fi
