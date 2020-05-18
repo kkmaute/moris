@@ -92,26 +92,29 @@ namespace moris
                                                 Cell<Matrix<DDRMat>>&     aDvValues,
                                                 Cell<Matrix<DDSMat>>&     aIsActiveDv)
         {
-            get_ip_pdv_value(aNodeIndices, aPdvTypes, aDvValues);
-
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
 
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
+            // set size for list of dv values
+            aDvValues.resize( tNumTypes );
+
             // set size for list of active flags
-            aIsActiveDv.resize(tNumIndices);
+            aIsActiveDv.resize( tNumTypes );
 
-            // loop over the node indices
-            for (uint iInd = 0; iInd < tNumIndices; iInd++)
+            // loop over the requested dv types
+            for ( uint iType = 0; iType < tNumTypes; iType++ )
             {
-                aIsActiveDv(iInd).resize(tNumTypes, 1);
+                aDvValues( iType ).resize( tNumIndices, 1 );
+                aIsActiveDv( iType ).resize( tNumIndices, 1 );
 
-                // loop over the requested dv types
-                for (uint iType = 0; iType < tNumTypes; iType++)
+                // loop over the node indices
+                for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
                 {
-                    aIsActiveDv(iInd)(iType) = mIpPdvHosts(aNodeIndices(iInd))->is_active_type(aPdvTypes(iType));
+                    aDvValues( iType )( iInd )   = mIpPdvHosts( aNodeIndices( iInd ) )->get_pdv_value( aPdvTypes( iType ) );
+                    aIsActiveDv( iType )( iInd ) = mIpPdvHosts( aNodeIndices( iInd ) )->is_active_type( aPdvTypes( iType ) );
                 }
             }
         }
@@ -145,10 +148,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<PDV_Type>&       aPdvTypes,
-                                                Cell<Matrix<DDRMat>>&     aDvValues,
-                                                Cell<Matrix<DDSMat>>&     aIsActiveDv)
+        void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat> & aNodeIndices,
+                                                const Cell<PDV_Type>   & aPdvTypes,
+                                                Cell<Matrix<DDRMat>>   & aDvValues,
+                                                Cell<Matrix<DDSMat>>   & aIsActiveDv )
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -156,18 +159,23 @@ namespace moris
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
+            // set size for list of dv values
+            //aDvValues.resize( tNumTypes );
+
             // set size for list of active flags
-            aIsActiveDv.resize(tNumIndices);
+            aIsActiveDv.resize( tNumTypes );
 
-            // loop over the node indices
-            for (uint iInd = 0; iInd < tNumIndices; iInd++)
+            // loop over the requested dv types
+            for ( uint iType = 0; iType < tNumTypes; iType++ )
             {
-                aIsActiveDv(iInd).resize(tNumTypes, 1);
+                aIsActiveDv( iType ).resize( tNumTypes, 1 );
+                //aDvValues( iType ).resize( tNumTypes, 1 );
 
-                // loop over the requested dv types
-                for (uint iType = 0; iType < tNumTypes; iType++)
+                // loop over the node indices
+                for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
                 {
-                    aIsActiveDv(iInd)(iType) = mIgPdvHosts(aNodeIndices(iInd))->is_active_type(aPdvTypes(iType));
+                    aIsActiveDv( iType )( iInd ) = mIgPdvHosts( aNodeIndices( iInd ) )->is_active_type( aPdvTypes( iType ) );
+                    aDvValues( iType )( iInd )   = mIgPdvHosts( aNodeIndices( iInd ) )->get_pdv_value( aPdvTypes( iType ) );
                 }
             }
         }
@@ -213,22 +221,23 @@ namespace moris
                                                               Cell<Matrix<IdMat>>&        aDvIds)
         {
             // get the number of node indices requested
-            uint tNumIndices = aNodeIndices.length();
+            uint tNumIndices = aNodeIndices.numel();
 
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
             // set size for list of dv values
-            aDvIds.resize(tNumTypes);
+            aDvIds.resize( tNumTypes );
 
-            // loop over the node indices
-            for (uint iInd = 0; iInd < tNumIndices; iInd++)
+            // loop over the requested dv types
+            for ( uint iType = 0; iType < tNumTypes; iType++ )
             {
-                // loop over the requested dv types
-                for (uint iType = 0; iType < tNumTypes; iType++)
+                aDvIds( iType ).resize( tNumIndices, 1 );
+
+                // loop over the node indices
+                for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
                 {
-                    aDvIds(iType).resize(tNumIndices, 1);
-                    aDvIds(iType)(iInd) = mIgPdvHosts(aNodeIndices(iInd))->get_global_index_for_pdv_type(aPdvTypes(iType));
+                    aDvIds( iType )( iInd ) = mIgPdvHosts( aNodeIndices( iInd ) )->get_global_index_for_pdv_type( aPdvTypes( iType ) );
                 }
             }
         }
