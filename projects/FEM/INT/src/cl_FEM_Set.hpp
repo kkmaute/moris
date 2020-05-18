@@ -203,7 +203,8 @@ namespace moris
                  * set visualization mesh set
                  * @param[ in ] aVisMeshSet a mesh set pointer for visualization
                  */
-                void set_visualization_set( const uint              aMeshIndex,
+                void set_visualization_set(
+                        const uint              aMeshIndex,
                         moris::mtk::Set * aVisMeshSet,
                         const bool              aOnlyPrimayCells);
 

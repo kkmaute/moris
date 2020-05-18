@@ -1748,11 +1748,10 @@ namespace moris
                 // set size for dQIdp
                 mdQIdp( 0 ).resize( tNumRequestedIQIs );
 
-                // FIXME get the requested pdv types
-                moris::Cell < enum PDV_Type > tRequestedDvTypes;
-                mEquationModel->get_design_variable_interface()->get_ip_unique_dv_types_for_set(
-                        mMeshSet->get_set_index(),
-                        tRequestedDvTypes );
+                // get the requested pdv types
+                moris::Cell< moris::Cell < enum PDV_Type > > tRequestedDvTypes;
+                this->get_ip_dv_types_for_set( tRequestedDvTypes );
+
                 uint tNumRequestedPdvTypes = tRequestedDvTypes.size();
 
                 // init pdv coefficient counter
@@ -1763,27 +1762,30 @@ namespace moris
                 {
                     // get the set index for the master dof type
                     sint tDvIndex = this->get_dv_index_for_type(
-                            tRequestedDvTypes( Ik ),
+                            tRequestedDvTypes( Ik )( 0 ),
                             mtk::Master_Slave::MASTER );
 
                     // if this master dv is active
                     if( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumPdvCoefficients += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
-                                                                       ->get_number_of_space_time_coefficients();
+                        tNumPdvCoefficients += mMasterFIManager->
+                                get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->
+                                get_number_of_space_time_coefficients();
                     }
 
                     // get the set index for the slave dv type
-                    tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                    tDvIndex = this->get_dv_index_for_type(
+                            tRequestedDvTypes( Ik )( 0 ),
                             mtk::Master_Slave::SLAVE  );
 
                     // if this slave dv is active
                     if( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumPdvCoefficients += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
-                                                                      ->get_number_of_space_time_coefficients();
+                        tNumPdvCoefficients += mSlaveFIManager->
+                                get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->
+                                get_number_of_space_time_coefficients();
                     }
                 }
                 // loop over requested IQIs
@@ -1818,18 +1820,17 @@ namespace moris
 
             // get the requested geo pdv types
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            mEquationModel->get_design_variable_interface()->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
-                    tRequestedDvTypes );
+            this->get_ig_unique_dv_types_for_set( tRequestedDvTypes );
 
             // init active geo pdv counter
             uint tActiveGeoPdvCounter = 0;
 
             // get node indices on cluster
-            moris::Cell< moris_index > tNodeIndicesOnCluster
-            = aFemCluster->get_vertex_indices_in_cluster();
+            moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
+            aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
             // loop over the ig nodes on cluster
-            uint tNumIGNodes = tNodeIndicesOnCluster.size();
+            uint tNumIGNodes = tNodeIndicesOnCluster.numel();
 
             // loop over the requested pdv types
             for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
@@ -1882,34 +1883,37 @@ namespace moris
                 for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                 {
                     // get the set index for the master dof type
-                    sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                    sint tDofIndex = this->get_dof_index_for_type(
+                            tRequestedDofTypes( Ik ),
                             mtk::Master_Slave::MASTER );
 
                     // if this master dof is active
                     if( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumRows += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                            ->get_number_of_space_time_coefficients();
+                        tNumRows += mMasterFIManager->
+                                get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
+                                get_number_of_space_time_coefficients();
                     }
 
                     // get the set index for the slave dof type
-                    tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                    tDofIndex = this->get_dof_index_for_type(
+                            tRequestedDofTypes( Ik ),
                             mtk::Master_Slave::SLAVE  );
 
                     // if this slave dof is active
                     if( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                           ->get_number_of_space_time_coefficients();
+                        tNumRows += mSlaveFIManager->
+                                get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
+                                get_number_of_space_time_coefficients();
                     }
                 }
 
-                // FIXME get the dv types requested by the opt
-                moris::Cell < enum PDV_Type > tRequestedDvTypes;
-                mEquationModel->get_design_variable_interface()->get_ip_unique_dv_types_for_set( mMeshSet->get_set_index(),
-                        tRequestedDvTypes );
+                // get the dv types requested by the opt
+                moris::Cell< moris::Cell < enum PDV_Type > > tRequestedDvTypes;
+                this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
                 // init dv coefficient counter
                 uint tNumCols = 0;
@@ -1918,27 +1922,31 @@ namespace moris
                 for( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
                     // get the set index for the master dof type
-                    sint tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                    sint tDvIndex = this->get_dv_index_for_type(
+                            tRequestedDvTypes( Ik )( 0 ),
                             mtk::Master_Slave::MASTER );
 
                     // if this master dv is active
                     if( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
-                                                            ->get_number_of_space_time_coefficients();
+                        tNumCols += mMasterFIManager->
+                                get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->
+                                get_number_of_space_time_coefficients();
                     }
 
                     // get the set index for the slave dv type
-                    tDvIndex = this->get_dv_index_for_type( tRequestedDvTypes( Ik ),
+                    tDvIndex = this->get_dv_index_for_type(
+                            tRequestedDvTypes( Ik )( 0 ),
                             mtk::Master_Slave::SLAVE  );
 
                     // if this slave dv is active
                     if( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) )
-                                                           ->get_number_of_space_time_coefficients();
+                        tNumCols += mSlaveFIManager->
+                                get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->
+                                get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -1994,20 +2002,19 @@ namespace moris
                 }
             }
 
-            // FIXME get the geo dv types requested by the opt
+            // get the geo dv types requested by the opt
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            mEquationModel->get_design_variable_interface()->get_ig_unique_dv_types_for_set( mMeshSet->get_set_index(),
-                    tRequestedDvTypes );
+            this->get_ig_unique_dv_types_for_set( tRequestedDvTypes );
 
             // init active geo pdv counter
             uint tActiveGeoPdvCounter = 0;
 
             // get node indices on cluster
-            moris::Cell< moris_index > tNodeIndicesOnCluster
-            = aFemCluster->get_vertex_indices_in_cluster();
+            moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
+            aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
             // loop over the ig nodes on cluster
-            uint tNumIGNodes = tNodeIndicesOnCluster.size();
+            uint tNumIGNodes = tNodeIndicesOnCluster.numel();
 
             // loop over the requested pdv types
             for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
@@ -2420,7 +2427,12 @@ namespace moris
         //------------------------------------------------------------------------------
         void Set::get_ig_unique_dv_types_for_set( moris::Cell < enum PDV_Type > & aGeoPdvType )
         {
-            mEquationModel->get_design_variable_interface()->get_ig_unique_dv_types_for_set(
+            // get design variable interface
+            MSI::Design_Variable_Interface * tPdvInterface =
+                    mEquationModel->get_design_variable_interface();
+
+            // get ig unique pdv types for set
+            tPdvInterface->get_ig_unique_dv_types_for_set(
                     mMeshSet->get_set_index(),
                     aGeoPdvType );
         }
@@ -2428,9 +2440,18 @@ namespace moris
         //------------------------------------------------------------------------------
         void Set::get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > > & aMatPdvType )
         {
-            mDesignVariableInterface->get_ip_dv_types_for_set(
-                    mMeshSet->get_set_index(),
-                    aMatPdvType );
+            //
+            aMatPdvType = mMasterDvTypes;
+
+            std::cout<<"Set::get_ip_dv_types_for_set - should come from design variable interface"<<std::endl;
+//            // get design variable interface
+//            MSI::Design_Variable_Interface * tPdvInterface =
+//                    mEquationModel->get_design_variable_interface();
+//
+//            // get ip pdv types for set
+//            tPdvInterface->get_ip_dv_types_for_set(
+//                    mMeshSet->get_set_index(),
+//                    aMatPdvType );
         }
 
 
