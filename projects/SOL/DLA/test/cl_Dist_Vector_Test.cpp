@@ -18,6 +18,8 @@
 
 namespace moris
 {
+    namespace sol
+    {
 TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
 {
     // Determine process rank
@@ -347,6 +349,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
         delete( tVectorFree );
         delete( tVectorFull );
     }
+}
 }
 }
 

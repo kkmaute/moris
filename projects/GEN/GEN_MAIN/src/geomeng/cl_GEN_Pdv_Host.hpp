@@ -18,7 +18,7 @@ namespace moris
             
         private :
             // Information about the contained PDVs
-            Cell<std::shared_ptr<GEN_Pdv>> mPdvList;
+            Cell<std::shared_ptr<Pdv>> mPdvList;
             moris::map<PDV_Type, uint> mPdvTypeMap;
             Matrix<DDUMat> mGlobalPdvIndices;
             Cell<bool> mActivePdvs;

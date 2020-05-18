@@ -71,8 +71,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                                Dist_Map        * aFreeMap,
-                                                Dist_Map        * aFullMap,
+                                                sol::Dist_Map    * aFreeMap,
+                                                sol::Dist_Map    * aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {

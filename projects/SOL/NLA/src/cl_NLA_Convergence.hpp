@@ -12,7 +12,10 @@
 
 namespace moris
 {
-    class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
     namespace NLA
     {
         class Convergence

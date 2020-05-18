@@ -66,7 +66,7 @@ namespace moris
                     "Tried to call Pdv_Host.create_pdv() using GEN field with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with field pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared<GEN_Pdv>(aFieldPointer, aNodeIndex);
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared<Pdv>(aFieldPointer, aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ namespace moris
                     "Tried to call Pdv_Host.create_pdv() using GEN property with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with property pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< GEN_Pdv >( aPropertyPointer );
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPropertyPointer );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ namespace moris
                     "Tried to call Pdv_Host.create_pdv() using pdv value with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with pdv value
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< GEN_Pdv >( aPdvVal );
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPdvVal );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace moris
                          "Tried to call Pdv_Host.get_pdv_value() with type that doesn't exist on this host.");
 
             // Return value
-            return mPdvList(mPdvTypeMap[aPdvType])->get_val()(0);
+            return mPdvList(mPdvTypeMap[aPdvType])->get_value();
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_INTEGRATION_MESH_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_INTEGRATION_MESH_HPP_
 
+#include <string>
+
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
@@ -88,6 +90,7 @@ public:
 
     moris_index get_set_index_by_name( std::string aSetLabel )
     {
+        MORIS_ASSERT( mSetNameToIndexMap.key_exists( aSetLabel), aSetLabel.data() );
         return mSetNameToIndexMap.find( aSetLabel );
     }
 

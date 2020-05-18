@@ -20,9 +20,10 @@
 
 namespace moris
 {
-class Dist_Map;
 namespace sol
 {
+    class Dist_Vector;
+    class Dist_Map;
     class SOL_Warehouse;
 }
 
@@ -51,10 +52,10 @@ namespace tsa
         //! List with time sub solvers
         moris::Cell< Time_Solver * > mTimeSubSolverList;
 
-        Dist_Vector * mFullVector = nullptr;
-        Dist_Vector * mFullVectorSensitivity = nullptr;
+        sol::Dist_Vector * mFullVector = nullptr;
+        sol::Dist_Vector * mFullVectorSensitivity = nullptr;
 
-        Dist_Map * mFullMap = nullptr;
+        sol::Dist_Map * mFullMap = nullptr;
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;
@@ -86,6 +87,8 @@ namespace tsa
         moris::sint mLevel = 0;
 
         bool mIsMasterTimeSolver = false;
+
+        bool mIsForwardSolve = true;
 
         //--------------------------------------------------------------------------------------------------
 
@@ -261,7 +264,7 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        void solve( Dist_Vector * aFullVector);
+        void solve( sol::Dist_Vector * aFullVector);
 
         //--------------------------------------------------------------------------------------------------
 

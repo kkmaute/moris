@@ -17,12 +17,12 @@ TSA_Solver_Interface_Proxy_II::TSA_Solver_Interface_Proxy_II()
 {
 }
 
-void TSA_Solver_Interface_Proxy_II::set_solution_vector( Dist_Vector * aSolutionVector )
+void TSA_Solver_Interface_Proxy_II::set_solution_vector( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
 }
 
-void TSA_Solver_Interface_Proxy_II::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+void TSA_Solver_Interface_Proxy_II::set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVectorPrev = aSolutionVector;
 

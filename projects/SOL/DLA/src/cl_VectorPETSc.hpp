@@ -16,7 +16,7 @@
 namespace moris
 {
 
-class Vector_PETSc : public moris::Dist_Vector
+class Vector_PETSc : public moris::sol::Dist_Vector
 {
 private:
 
@@ -32,7 +32,7 @@ protected:
 public:
     /** Default contructor */
     Vector_PETSc(       moris::Solver_Interface * aInput,
-                        moris::Dist_Map        * aMap,
+                        moris::sol::Dist_Map    * aMap,
                   const sint                      aNumVectores );
 
     /** Destructor */
@@ -49,14 +49,14 @@ public:
 
     void vector_global_asembly();
 
-    void vec_plus_vec( const moris::real & aScaleA,
-                             Dist_Vector & aVecA,
-                       const moris::real & aScaleThis );
+    void vec_plus_vec( const moris::real      & aScaleA,
+                             sol::Dist_Vector & aVecA,
+                       const moris::real      & aScaleThis );
 
     void scale_vector( const moris::real & aValue,
                        const moris::uint & aVecIndex = 0 );
 
-    void import_local_to_global( Dist_Vector & aSourceVec );
+    void import_local_to_global( sol::Dist_Vector & aSourceVec );
 
     void vec_put_scalar( const moris::real & aValue );
 

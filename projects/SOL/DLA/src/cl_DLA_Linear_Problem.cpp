@@ -18,7 +18,7 @@ namespace moris
 {
 namespace dla
 {
-    Dist_Vector * Linear_Problem::get_full_solver_LHS()
+    sol::Dist_Vector * Linear_Problem::get_full_solver_LHS()
     {
         // zero out full LHS vec
         mFullVectorLHS->vec_put_scalar( 0.0 );
@@ -30,13 +30,13 @@ namespace dla
     }
 
 //----------------------------------------------------------------------------------------
-    void Linear_Problem::set_free_solver_LHS( Dist_Vector * aFullSolVector)
+    void Linear_Problem::set_free_solver_LHS( sol::Dist_Vector * aFullSolVector)
     {
         mFreeVectorLHS->import_local_to_global( *aFullSolVector );
     }
 
 //----------------------------------------------------------------------------------------
-    void Linear_Problem::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
+    void Linear_Problem::assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector )
     {
         // zero out RHS
         mVectorRHS->vec_put_scalar( 0.0 );

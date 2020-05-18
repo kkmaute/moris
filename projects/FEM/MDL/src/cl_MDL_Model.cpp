@@ -489,6 +489,14 @@ namespace moris
             mSolverWarehouse->get_main_time_solver()->solve();
         }
 
+        void Model::perform_forward_analysis_temporary_hack()
+        {
+            mEquationModel->set_is_forward_analysis();
+
+            mSolverWarehouse->get_main_time_solver()->solve();
+        }
+
+
 //------------------------------------------------------------------------------
         void Model::perform_sensitivity_analysis()
         {

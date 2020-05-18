@@ -310,8 +310,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         //
         Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
-        Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
+        sol::Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
+        sol::Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
         mVector->sum_into_global_values( {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});
 
@@ -328,8 +328,10 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // get a working set
         MSI::Equation_Set* tWorkSet = tSets( 0 );
 
+        tWorkSet->set_equation_model( tEquationModel.get() );
+
         // set the dv interface to the set
-        tWorkSet->set_dv_interface( tDesignVariableInterface );
+        tEquationModel->set_design_variable_interface( tDesignVariableInterface );
 
         // set the IWG and IQI to the set
         reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIWGs = { tIWG };
@@ -426,9 +428,11 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
         // compute dQIdp
-        tWorkEqObj->compute_dQIdp_explicit();
-        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
-        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
+//        tWorkEqObj->compute_dQIdp_explicit();
+//        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
+//        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
+
+//        tEquationModel->compute_explicit_dQIdp();
 
     }
 

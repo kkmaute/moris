@@ -424,6 +424,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
         void Cluster::compute_dQIdp_explicit()
         {
             // loop over the IG elements

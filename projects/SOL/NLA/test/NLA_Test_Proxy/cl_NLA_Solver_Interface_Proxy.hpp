@@ -16,7 +16,10 @@ extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 namespace NLA
 {
     class Nonlinear_Algorithm;
@@ -34,7 +37,7 @@ namespace NLA
 
         bool mUseMatrixMarketFiles;                       // determines is matrix and RHS comes from MatrixMarket files
 
-        Dist_Vector * mSolutionVector;
+        sol::Dist_Vector * mSolutionVector = nullptr;
         Matrix< DDRMat > mMySolVec;
 
         Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
@@ -49,7 +52,7 @@ namespace NLA
         Matrix< DDSMat > mTimeLevelIdsMinus;
         Matrix< DDSMat > mTimeLevelIdsPlus;
 
-        Dist_Vector * mSolutionVectorPrev;
+        sol::Dist_Vector * mSolutionVectorPrev = nullptr;
 
         moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
 
@@ -73,12 +76,12 @@ namespace NLA
         void set_time_value( const moris::real & aLambda,
                                    moris::uint   aPos = 1 );
         void set_time( const Matrix< DDRMat> & aTime );
-        void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
+        void set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector );
         void perform_mapping();
 
         // ----------------------------------------------------------------------------------------------
 
-        void set_solution_vector( Dist_Vector * aSolutionVector );
+        void set_solution_vector( sol::Dist_Vector * aSolutionVector );
 
         void free_block_memory( const uint aBlockInd ){};
 

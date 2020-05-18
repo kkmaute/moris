@@ -59,13 +59,13 @@ public :
 
     void free_block_memory( const uint aBlockInd ){};
 
-    void set_solution_vector( Dist_Vector * aSolutionVector ){};
+    void set_solution_vector( sol::Dist_Vector * aSolutionVector ){};
 
     // ----------------------------------------------------------------------------------------------
     // local-to-global map
     Matrix< DDSMat > get_my_local_global_map(){ return mMyGlobalElements; };
 
-    virtual moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
+    moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
     {
         return mMyGlobalElements;
     };

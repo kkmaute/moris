@@ -19,8 +19,6 @@
 
 namespace moris
 {
-class Dist_Vector;
-class Dist_Matrix;
 namespace dla
 {
 class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm

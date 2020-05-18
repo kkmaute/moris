@@ -182,7 +182,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // create a GEN/MSI interface
     MSI::Design_Variable_Interface * tGENMSIInterface = new fem::FEM_Design_Variable_Interface_Proxy();
-    tSet->set_dv_interface( tGENMSIInterface );
+    tModel.set_design_variable_interface( tGENMSIInterface );
 
     // set fem set pointer for IQI
     tIQI->set_set_pointer( static_cast< fem::Set* >( tSet ) );

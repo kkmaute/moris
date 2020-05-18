@@ -252,7 +252,7 @@ public :
     }
 
 //------------------------------------------------------------------------------
-    moris::Matrix< DDSMat > get_my_local_global_map()
+    const moris::Matrix< DDSMat > & get_my_local_global_map()
     {
         return mMap;
     }
@@ -285,7 +285,8 @@ public :
 //------------------------------------------------------------------------------
     void get_ip_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
     {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
+        aDvTypes = {{ PDV_Type::DENSITY }};
+//        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
     }
 
 //------------------------------------------------------------------------------

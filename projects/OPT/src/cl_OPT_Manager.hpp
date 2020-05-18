@@ -1,14 +1,10 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTMANAGER_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTMANAGER_HPP_
+#ifndef MORIS_CL_OPT_MANAGER_HPP_
+#define MORIS_CL_OPT_MANAGER_HPP_
 
-// C++ header files.
-#include <utility>
-
-// MORIS project header files.
-#include "cl_Cell.hpp" // CON/src
-#include "core.hpp"
-#include "cl_OPT_Algorithm_API.hpp" // OPT/src
-#include "cl_OPT_Problem.hpp" // OPT/src
+#include "cl_Cell.hpp"
+#include "cl_OPT_Algorithm_API.hpp"
+#include "cl_OPT_Problem.hpp"
+#include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
 
 namespace moris
@@ -22,14 +18,15 @@ namespace moris
             std::shared_ptr<Problem> mProblem;
 
         public:
+
             /**
-             * Constructor
+             * Constructor with both parameter list and a cell of criteria interfaces
              *
-             * @param[in] aOptProb Object of type Problem containing relevant
-             *            data regarding ADVs, the objective and constraints
+             * @param aParameterLists parameter lists for defining an optimization problem
+             * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
              */
-            // Manager(Cell< Algorithm_API > aAlgorithms, Problem* aProblem);
-            Manager(moris::Cell<moris::Cell<ParameterList>>& tParameterlist);
+            Manager(Cell<moris::Cell<ParameterList>>& aParameterLists,
+                    Cell<std::shared_ptr<Criteria_Interface>> aInterfaces = Cell<std::shared_ptr<Criteria_Interface>>(0));
 
             /**
              * Destructor
@@ -57,6 +54,6 @@ namespace moris
 
         };
     }  // namespace opt
-}      // namespace moris
+}  // namespace moris
 
-#endif  /* MORIS_OPTIMIZATION_CL_OPTDATA_HPP_ */
+#endif  /* MORIS_CL_OPT_MANAGER_HPP_ */

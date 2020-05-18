@@ -20,7 +20,7 @@
 #include "cl_MSI_Pdof_Host.hpp"
 namespace moris
 {
-    class Dist_Vector;
+class Dist_Vector;
     namespace mtk
     {
         class Set;

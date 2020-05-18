@@ -11,7 +11,7 @@
 using namespace moris;
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::build_graph( moris::Dist_Matrix * aMat )
+void Solver_Interface::build_graph( moris::sol::Dist_Matrix * aMat )
 {
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
@@ -36,9 +36,9 @@ void Solver_Interface::build_graph( moris::Dist_Matrix * aMat )
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
-                                            moris::Dist_Vector   * aVectorRHS,
-                                            moris::Dist_Vector   * aFullSolutionVector )
+void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
+                                            moris::sol::Dist_Vector   * aVectorRHS,
+                                            moris::sol::Dist_Vector   * aFullSolutionVector )
 {
     this->set_solution_vector( aFullSolutionVector );
 
@@ -73,7 +73,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS )
+void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
     moris::uint tNumBlocks = this->get_num_my_blocks();
@@ -85,7 +85,9 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS )
     {
         moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        this->initialize_set( Ii, true );
+        this->initialize_set( Ii, false );                     // FIXME FIXME shoudl be true. this is a brutal hack and will be changed in a few days
+
+//        std::cout<<"Set "<<Ii<<std::endl;
 
         for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
@@ -97,7 +99,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS )
             Cell< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_rhs( Ii, Ik, tElementRHS );
 
-//            print(tElementRHS,"tElementRHS");
+            //print(tElementRHS,"tElementRHS");
 
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
@@ -119,7 +121,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS )
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat )
+void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 {
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
@@ -164,8 +166,8 @@ void Solver_Interface::assemble_jacobian( moris::Dist_Matrix * aMat )
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::Dist_Matrix * aMat,
-                                            moris::Dist_Vector * aVectorRHS )
+void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
+                                            moris::sol::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();

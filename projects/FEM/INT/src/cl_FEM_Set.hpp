@@ -656,16 +656,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set dv interface
-                 * @param[ in ] aDesignVariableInterface a design variable pointer
-                 */
-                void set_dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
-                {
-                    mDesignVariableInterface = aDesignVariableInterface;
-                };
-
-                //------------------------------------------------------------------------------
-                /**
                  * get ig unique dv types for set from design variable interface
                  * @param[ in ] aGeoPdvType list of ig unique pdv types on set
                  */

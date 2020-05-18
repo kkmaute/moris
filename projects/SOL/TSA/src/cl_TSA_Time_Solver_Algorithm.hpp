@@ -18,8 +18,11 @@
 
 namespace moris
 {
-class Dist_Map;
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Map;
+        class Dist_Vector;
+    }
 class Solver_Interface;
 namespace NLA
 {
@@ -49,10 +52,10 @@ namespace tsa
         Time_Solver * mMyTimeSolver;
 
         //! Full Vector
-        Dist_Vector * mFullVector = nullptr;
+        sol::Dist_Vector * mFullVector = nullptr;
 
         //! Full Vector
-        Dist_Vector * mPrevFullVector = nullptr;
+        sol::Dist_Vector * mPrevFullVector = nullptr;
 
         moris::uint mCallCounter = 0;
 
@@ -61,7 +64,7 @@ namespace tsa
         //!  flag indicating if this is the master time solver
         bool mIsMasterTimeSolver = false;
 
-        Dist_Map * mFullMap = nullptr;
+        sol::Dist_Map * mFullMap = nullptr;
 
         //! Parameterlist for this nonlinear solver
         moris::ParameterList mParameterListTimeSolver;
@@ -109,7 +112,7 @@ namespace tsa
          *
          * @param[in] aFullVector     Solution Vector
          */
-        virtual void solve( Dist_Vector * aFullVector ){};
+        virtual void solve( sol::Dist_Vector * aFullVector ){};
 
         //-------------------------------------------------------------------------------
         /**

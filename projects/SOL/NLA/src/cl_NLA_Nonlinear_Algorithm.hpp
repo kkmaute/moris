@@ -18,8 +18,11 @@
 
 namespace moris
 {
-class Dist_Map;
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Map;
+        class Dist_Vector;
+    }
 class Solver_Interface;
 namespace tsa
 {
