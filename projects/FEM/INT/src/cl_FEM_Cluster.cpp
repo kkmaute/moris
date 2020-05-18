@@ -148,41 +148,45 @@ namespace moris
         //------------------------------------------------------------------------------
         void Cluster::get_vertex_indices_in_cluster_for_sensitivity( moris::Matrix< moris::IndexMat > & aVerticesIndices )
         {
-            // switch on set type
-            switch ( mElementType )
+            // if mesh cluster is not trivial
+            if( !mMeshCluster->is_trivial() )
             {
-                case fem::Element_Type::BULK:
-                case fem::Element_Type::SIDESET:
+                // switch on set type
+                switch ( mElementType )
                 {
-                    aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
-                    break;
-                }
-                case fem::Element_Type::DOUBLE_SIDESET:
-                {
-                    moris::Matrix< moris::IndexMat > tMasterVerticesIndices =
-                            reinterpret_cast< const mtk::Double_Side_Cluster* >( mMeshCluster )->get_left_vertex_indices_in_cluster();
-                    moris::Matrix< moris::IndexMat > tSlaveVerticesIndices =
-                            reinterpret_cast< const mtk::Double_Side_Cluster* >( mMeshCluster )->get_right_vertex_indices_in_cluster();
-
-                    uint tNumMaster = tMasterVerticesIndices.numel();
-                    uint tNumSlave  = tSlaveVerticesIndices.numel();
-
-                    aVerticesIndices.set_size( 1, tNumMaster + tNumSlave );
-
-                    for ( uint iMasterVertex = 0; iMasterVertex < tNumMaster; iMasterVertex++ )
+                    case fem::Element_Type::BULK:
+                    case fem::Element_Type::SIDESET:
                     {
-                        aVerticesIndices( iMasterVertex ) = tMasterVerticesIndices( iMasterVertex );
+                        aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
+                        break;
                     }
-
-                    for( uint iSlaveVertex = 0; iSlaveVertex < tNumSlave; iSlaveVertex++ )
+                    case fem::Element_Type::DOUBLE_SIDESET:
                     {
-                        aVerticesIndices( tNumMaster + iSlaveVertex ) = tSlaveVerticesIndices( iSlaveVertex );
+                        moris::Matrix< moris::IndexMat > tMasterVerticesIndices =
+                                reinterpret_cast< const mtk::Double_Side_Cluster* >( mMeshCluster )->get_left_vertex_indices_in_cluster();
+                        moris::Matrix< moris::IndexMat > tSlaveVerticesIndices =
+                                reinterpret_cast< const mtk::Double_Side_Cluster* >( mMeshCluster )->get_right_vertex_indices_in_cluster();
+
+                        uint tNumMaster = tMasterVerticesIndices.numel();
+                        uint tNumSlave  = tSlaveVerticesIndices.numel();
+
+                        aVerticesIndices.set_size( 1, tNumMaster + tNumSlave );
+
+                        for ( uint iMasterVertex = 0; iMasterVertex < tNumMaster; iMasterVertex++ )
+                        {
+                            aVerticesIndices( iMasterVertex ) = tMasterVerticesIndices( iMasterVertex );
+                        }
+
+                        for( uint iSlaveVertex = 0; iSlaveVertex < tNumSlave; iSlaveVertex++ )
+                        {
+                            aVerticesIndices( tNumMaster + iSlaveVertex ) = tSlaveVerticesIndices( iSlaveVertex );
+                        }
+                        break;
                     }
-                    break;
+                    default:
+                        MORIS_ERROR( false, "Cluster::get_vertex_indices_in_cluster_for_sensitivity - not implemented or undefined set type" );
+                        break;
                 }
-                default:
-                    MORIS_ERROR( false, "Cluster::get_vertex_indices_in_cluster_for_sensitivity - not implemented or undefined set type" );
-                    break;
             }
         }
 
