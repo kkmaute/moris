@@ -126,7 +126,7 @@ namespace moris
         operator()(
                 moris::size_t const i_index )
         -> decltype(
-#ifndef NDEBUG
+#ifdef DEBUG
                 ( mCell.at( i_index ) )
 #else
                 ( mCell[ i_index ] )
@@ -134,7 +134,7 @@ namespace moris
         )
         {
 //            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
-#ifndef NDEBUG
+#ifdef DEBUG
             return( mCell.at( i_index ) );
 #else
             return( mCell[ i_index ] );
@@ -148,7 +148,7 @@ namespace moris
         operator()(
                 moris::size_t const i_index ) const
         -> decltype(
-#ifndef NDEBUG
+#ifdef DEBUG
                 ( mCell.at( i_index ) )
 #else
                 ( mCell[ i_index ] )
@@ -156,7 +156,7 @@ namespace moris
         )
         {
 //            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
-#ifndef NDEBUG
+#ifdef DEBUG
             return( mCell.at( i_index ) );
 #else
             return( mCell[ i_index ] );
