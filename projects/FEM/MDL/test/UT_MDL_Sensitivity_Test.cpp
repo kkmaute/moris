@@ -432,8 +432,6 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
 
-        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
-                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(15), tIGPdvTypes);
 
         Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
@@ -441,6 +439,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 set_ip_requested_dv_types( tMatPdvTypes );
+
         std::shared_ptr<ge::GEN_Property> tDensityProperty1 = std::make_shared<ge::GEN_Property>();
         std::shared_ptr<ge::GEN_Property> tDensityProperty2 = std::make_shared<ge::GEN_Property>();
         tDensityProperty1->set_val_function(&density_function_1);
@@ -505,11 +504,6 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.communicate_requested_IQIs(tRequestedIQINames);
 
         tModel->perform_sensitivity_analysis();
-
-        tModel->get_fem_model()->compute_implicit_dQIdp();
-
-        tModel->get_fem_model()->compute_explicit_dQIdp();
-
 
         delete tModel;
         delete tInterpMesh;

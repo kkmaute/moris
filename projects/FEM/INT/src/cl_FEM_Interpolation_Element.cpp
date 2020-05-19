@@ -490,7 +490,8 @@ namespace moris
 
                     mEquationSet->get_equation_model()
                                     ->get_design_variable_interface()
-                                    ->get_ip_dv_ids_for_type_and_ind( tVerticesInds,
+                                    ->get_ip_dv_ids_for_type_and_ind(
+                                            tVerticesInds,
                                             tRequestedIPDvTypes,
                                             tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
 
@@ -523,48 +524,52 @@ namespace moris
 
             for( uint Ik = 0; Ik < mSet->mdQIdp( 1 ).size(); Ik++ )
             {
-                Cell< enum PDV_Type > tRequestedIGDvTypes;
-
-                mEquationSet->get_equation_model()
-                            ->get_design_variable_interface()
-                            ->get_ip_requested_dv_types( tRequestedIGDvTypes );
-
-                moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
-
-                // get vertices from cell
-                Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()
-                                                                   ->get_vertex_indices_in_cluster();
-
-                mEquationSet->get_equation_model()
-                            ->get_design_variable_interface()
-                            ->get_ig_dv_ids_for_type_and_ind( tVerticesInds,
-                                                              tRequestedIGDvTypes,
-                                                              tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
-
-                moris::uint tCounter = 0;
-
-                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                if( !mFemCluster( 0 )->get_mesh_cluster()->is_trivial() )
                 {
-                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                    Cell< enum PDV_Type > tRequestedIGDvTypes;
+
+                    mEquationSet->get_equation_model()
+                                ->get_design_variable_interface()
+                                ->get_ig_requested_dv_types( tRequestedIGDvTypes );
+
+                    moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
+
+                    // get vertices from cell
+                    Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()
+                                                                       ->get_vertex_indices_in_cluster();
+
+                    mEquationSet->get_equation_model()
+                                ->get_design_variable_interface()
+                                ->get_ig_dv_ids_for_type_and_ind(
+                                        tVerticesInds,
+                                        tRequestedIGDvTypes,
+                                        tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
+
+                    moris::uint tCounter = 0;
+
+                    for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                    {
+                        tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                    }
+
+                    moris::Matrix< IdMat > tLocalToGlobalIds( tCounter, 1, moris::gNoIndex );
+
+                    tCounter = 0;
+
+                    for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                    {
+                        tLocalToGlobalIds( { tCounter, tTypeListOfLocalToGlobalIds( Ii ).numel() -1 },{ 0, 0 } )
+                                = tTypeListOfLocalToGlobalIds( Ii ).matrix_data();
+
+                        tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                    }
+
+                    mEquationSet->get_equation_model()
+                                ->get_explicit_dQidu()
+                                ->sum_into_global_values( tLocalToGlobalIds,
+                                                          mSet->mdQIdp( 1 )( Ik ),
+                                                          Ik );
                 }
-
-                moris::Matrix< IdMat > tLocalToGlobalIds( tCounter, 1, moris::gNoIndex );
-
-                tCounter = 0;
-
-                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
-                {
-                    tLocalToGlobalIds( { tCounter, tTypeListOfLocalToGlobalIds( Ii ).numel() -1 },{ 0, 0 } )
-                            = tTypeListOfLocalToGlobalIds( Ii ).matrix_data();
-
-                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
-                }
-
-                mEquationSet->get_equation_model()
-                            ->get_explicit_dQidu()
-                            ->sum_into_global_values( tLocalToGlobalIds,
-                                                      mSet->mdQIdp( 1 )( Ik ),
-                                                      Ik );
             }
 
             // global assembly to switch entries to the right processor

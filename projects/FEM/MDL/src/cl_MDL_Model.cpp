@@ -499,6 +499,10 @@ namespace moris
             mEquationModel->set_is_sensitivity_analysis();
 
             mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+
+            mEquationModel->compute_implicit_dQIdp();
+
+            //mEquationModel->compute_explicit_dQIdp();
         }
 
 //------------------------------------------------------------------------------
