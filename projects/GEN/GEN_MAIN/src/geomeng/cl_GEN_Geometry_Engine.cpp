@@ -534,8 +534,8 @@ namespace moris
                 aADVIndices = get_node_adv_indices_analytic();
                 for(moris::size_t i = 0; i < tNumNodes; i++)
                 {
-                    tDPhiiDp(i) = mGeometryAnalytic(this->analytic_geometry_index(mActiveGeometryIndex))
-                            ->evaluate_sensitivity(aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)));
+                    mGeometryAnalytic(this->analytic_geometry_index(mActiveGeometryIndex))
+                            ->evaluate_sensitivity(aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)), tDPhiiDp(i));
                 }
 
                 compute_dx_dp_with_linear_basis( tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp );
@@ -544,7 +544,7 @@ namespace moris
             // Get information from a discrete geometry
             else
             {
-                aADVIndices = aEntityNodeIndices; // FIXME I don't undestand what noah originally intended
+                aADVIndices = aEntityNodeIndices;
                 compute_dx_dp_finite_difference( mPerturbationValue, aGlobalNodeCoordinates, tEntityNodeCoordinates,
                         aIntersectionLclCoordinate, aEntityNodeIndices, aEntityNodeVars, aDxDp );
             }
@@ -1102,7 +1102,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
-                                                              std::shared_ptr< GEN_Property > aPropertyPointer,
+                                                              std::shared_ptr< Property > aPropertyPointer,
                                                               PDV_Type                     aPdvType,
                                                               moris_index                     aWhichMesh)
         {
@@ -1182,7 +1182,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                                                std::shared_ptr< GEN_Property > aPropertyPointer,
+                                                                std::shared_ptr< Property > aPropertyPointer,
                                                                 PDV_Type                     aPdvType,
                                                                 moris_index                     aWhichMesh)
         {

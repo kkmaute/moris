@@ -19,10 +19,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv::Pdv(std::shared_ptr< GEN_Property > aPropertyPointer )
+        Pdv::Pdv(std::shared_ptr<Property> aPropertyPointer, const Matrix<DDRMat>& aCoordinates )
         {
             // assign pdv value from the property pointer
-            mValue = aPropertyPointer->val()(0);
+            mValue = aPropertyPointer->evaluate_field_value(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

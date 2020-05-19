@@ -71,14 +71,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer)
+        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             // Check PDV_Type type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
                     "Tried to call Pdv_Host.create_pdv() using GEN property with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with property pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPropertyPointer );
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPropertyPointer, mCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

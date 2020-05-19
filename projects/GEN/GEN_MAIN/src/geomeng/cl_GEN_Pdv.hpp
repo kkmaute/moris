@@ -30,7 +30,7 @@ namespace moris
              * constructor
              * @param[ in ] aPropertyPointer a GEN property pointer
              */
-            Pdv(std::shared_ptr< GEN_Property > aPropertyPointer );
+            Pdv(std::shared_ptr< Property > aPropertyPointer, const Matrix<DDRMat>& aCoordinates );
 
             /**
              * constructor

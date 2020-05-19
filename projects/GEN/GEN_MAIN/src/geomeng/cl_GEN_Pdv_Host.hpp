@@ -23,8 +23,8 @@ namespace moris
             Matrix<DDUMat> mGlobalPdvIndices;
             Cell<bool> mActivePdvs;
             
-            // list of properties for the dv types
-            Cell< std::shared_ptr< GEN_Property > > mPdvProperties;
+            // Coordinates
+            Matrix<DDRMat> mCoordinates = {{0.0, 0.0, 0.0}};
             
         public:
             
@@ -65,7 +65,7 @@ namespace moris
              * @param aPdvType PDV_Type type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
+            void create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
             
             /**
              * Create PDV_Type with real value

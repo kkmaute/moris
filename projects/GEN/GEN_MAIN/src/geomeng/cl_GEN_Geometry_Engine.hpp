@@ -27,6 +27,7 @@
 // MRS
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -498,7 +499,7 @@ namespace moris
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
-                                              std::shared_ptr< GEN_Property > aPropertyPointer,
+                                              std::shared_ptr< Property > aPropertyPointer,
                                               PDV_Type                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
 
@@ -514,7 +515,7 @@ namespace moris
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                               std::shared_ptr< GEN_Property > aPropertyPointer,
+                                               std::shared_ptr< Property > aPropertyPointer,
                                                PDV_Type                     aPdvType,
                                                moris_index                     aWhichMesh = 0 );
 
