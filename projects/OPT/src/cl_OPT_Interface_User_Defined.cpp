@@ -14,9 +14,9 @@ namespace moris
         Interface_User_Defined::Interface_User_Defined(ParameterList aParameterList) : mLibrary(aParameterList.get<std::string>("library"))
         {
             // Set user-defined functions
-            initialize_user_defined = mLibrary.load_ddrmat3_ref_function("initialize");
-            get_criteria_user_defined = mLibrary.load_ddrmat1_function("get_criteria");
-            get_dcriteria_dadv_user_defined = mLibrary.load_ddrmat1_function("get_dcriteria_dadv");
+            initialize_user_defined = mLibrary.load_criteria_initialize_function("initialize");
+            get_criteria_user_defined = mLibrary.load_criteria_function("get_criteria");
+            get_dcriteria_dadv_user_defined = mLibrary.load_criteria_function("get_dcriteria_dadv");
         }
 
         //--------------------------------------------------------------------------------------------------------------

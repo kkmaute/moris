@@ -79,13 +79,13 @@ namespace moris
             Matrix<DDRMat> compute_dconstraint_dcriteria();
 
         private:
-            MORIS_DDSMAT0_FUNCTION get_constraint_types_user_defined;
-            MORIS_DDRMAT2_FUNCTION compute_objectives_user_defined;
-            MORIS_DDRMAT2_FUNCTION compute_constraints_user_defined;
-            MORIS_DDRMAT2_FUNCTION compute_dobjective_dadv_user_defined;
-            MORIS_DDRMAT2_FUNCTION compute_dobjective_dcriteria_user_defined;
-            MORIS_DDRMAT2_FUNCTION compute_dconstraint_dadv_user_defined;
-            MORIS_DDRMAT2_FUNCTION compute_dconstraint_dcriteria_user_defined;
+            MORIS_CONSTRAINT_TYPES_FUNCTION get_constraint_types_user_defined;
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_objectives_user_defined;
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_constraints_user_defined;
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dobjective_dadv_user_defined;
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dobjective_dcriteria_user_defined;
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dconstraint_dadv_user_defined;
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dconstraint_dcriteria_user_defined;
         };
     }
 }
