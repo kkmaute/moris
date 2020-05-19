@@ -49,6 +49,8 @@ set(HEADERS
 	
 	property/cl_GEN_Property.hpp
 	property/cl_GEN_User_Defined_Property.hpp
+	property/fn_GEN_create_property.hpp
+	property/fn_GEN_create_properties.hpp
 	
     )
     
@@ -114,6 +116,8 @@ set(LIB_SOURCES
 	
 	property/cl_GEN_Property.cpp
 	property/cl_GEN_User_Defined_Property.cpp
+	property/fn_GEN_create_property.cpp
+	property/fn_GEN_create_properties.cpp
 	
     )
 

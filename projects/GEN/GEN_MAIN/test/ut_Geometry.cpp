@@ -81,7 +81,7 @@ namespace moris
         {
             // Test parameter list
             // Set up default parameter lists
-            moris::Cell<moris::Cell<ParameterList>> tParameterLists(2);
+            moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
             tParameterLists(0).resize(1);
             tParameterLists(1).resize(2);
             tParameterLists(0)(0) = moris::prm::create_gen_parameter_list();

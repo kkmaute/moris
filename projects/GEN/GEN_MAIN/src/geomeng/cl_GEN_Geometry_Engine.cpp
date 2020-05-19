@@ -1,6 +1,7 @@
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_create_geometry.hpp"
+#include "fn_GEN_create_properties.hpp"
 
 // LINALG
 #include "cl_Matrix.hpp"
@@ -44,13 +45,15 @@ namespace moris
             // Build geometry (just analytic for right now)
             if (aParameterLists(1).size() > 0)
             {
-                // Create geometry
                 mGeometryAnalytic.resize(aParameterLists(1).size());
                 for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
                 {
                     mGeometryAnalytic(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
                 }
             }
+
+            // Create properties
+            mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
         }
 
         //--------------------------------------------------------------------------------------------------------------

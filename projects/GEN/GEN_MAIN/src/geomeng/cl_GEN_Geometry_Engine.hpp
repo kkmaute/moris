@@ -111,6 +111,9 @@ namespace moris
             Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
             Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
 
+            // Property
+            Cell<std::shared_ptr<Property>> mProperties;
+
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
 

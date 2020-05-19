@@ -10,6 +10,7 @@ set(TEST_SOURCES
 	ut_Pdvs.cpp
 	ut_Bounding_Box.cpp
 	ut_Geometry.cpp
+	ut_Property.cpp
 
 #    cl_Fiber_Problem.cpp TODO definitely will be removed
 #    cl_For_Thesis.cpp
