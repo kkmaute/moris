@@ -35,9 +35,8 @@ public:
         return 0;
     }
 
-    virtual moris::Matrix<moris::DDRMat> evaluate_sensitivity(const moris::Matrix<moris::DDRMat> &aCoordinates)
+    void evaluate_all_sensitivities(const moris::Matrix<moris::DDRMat> &aCoordinates, Matrix<DDRMat>& aSensitivities)
     {
-        return Matrix<DDRMat>(1, 1, 0.0);
     }
 
     bool is_analytic() const

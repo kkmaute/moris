@@ -15,8 +15,8 @@ namespace moris
                                                      Matrix<DDUMat> aGeometryVariableIndices,
                                                      Matrix<DDUMat> aADVIndices,
                                                      Matrix<DDRMat> aConstantParameters,
-                                                     MORIS_GEOMETRY_FUNCTION aFieldEvaluationFunction,
-                                                     MORIS_GEOMETRY_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
+                                                     MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
+                                                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
                                                      : Geometry_Analytic(aADVs,
                                                              aGeometryVariableIndices,
                                                              aADVIndices,
@@ -30,19 +30,17 @@ namespace moris
 
         real User_Defined_Geometry::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
         {
-            return this->evaluate_field_value_user_defined(aCoordinates, mGeometryVariables);
+            return this->evaluate_field_value_user_defined(aCoordinates, mFieldVariables);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> User_Defined_Geometry::evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates)
+        void User_Defined_Geometry::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
-            return this->evaluate_sensitivity_user_defined(aCoordinates, mGeometryVariables);
+            this->evaluate_sensitivity_user_defined(aCoordinates, mFieldVariables, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
     }
 }
-
-

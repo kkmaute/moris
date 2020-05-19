@@ -11,15 +11,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Plane::Plane(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-        : Geometry_Analytic(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
+        Plane::Plane(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aFieldVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
+        : Geometry_Analytic(aADVs, aFieldVariableIndices, aADVIndices, aConstantParameters)
         {
-            if (mGeometryVariables.size() == 4)
+            if (mFieldVariables.size() == 4)
             {
                 m_eval_field = &Plane::eval_field_2d;
                 m_eval_sensitivity = &Plane::eval_sensitivity_2d;
             }
-            else if (mGeometryVariables.size() == 6)
+            else if (mFieldVariables.size() == 6)
             {
                 m_eval_field = &Plane::eval_field_3d;
                 m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -57,19 +57,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Plane::evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates)
+        void Plane::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
-            return (this->*m_eval_sensitivity)(aCoordinates);
+            (this->*m_eval_sensitivity)(aCoordinates, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         moris::real Plane::eval_field_2d(Matrix<DDRMat> const & aCoordinates)
         {
-            real tXCenter = *(mGeometryVariables(0));
-            real tYCenter = *(mGeometryVariables(1));
-            real tXNormal = *(mGeometryVariables(2));
-            real tYNormal = *(mGeometryVariables(3));
+            real tXCenter = *(mFieldVariables(0));
+            real tYCenter = *(mFieldVariables(1));
+            real tXNormal = *(mFieldVariables(2));
+            real tYNormal = *(mFieldVariables(3));
 
             return tXNormal * (aCoordinates(0) - tXCenter) + tYNormal * (aCoordinates(1) - tYCenter);
         }
@@ -78,30 +78,28 @@ namespace moris
         
         moris::real Plane::eval_field_3d(Matrix<DDRMat> const & aCoordinates)
         {
-            real tXCenter = *(mGeometryVariables(0));
-            real tYCenter = *(mGeometryVariables(1));
-            real tZCenter = *(mGeometryVariables(2));
-            real tXNormal = *(mGeometryVariables(3));
-            real tYNormal = *(mGeometryVariables(4));
-            real tZNormal = *(mGeometryVariables(5));
+            real tXCenter = *(mFieldVariables(0));
+            real tYCenter = *(mFieldVariables(1));
+            real tZCenter = *(mFieldVariables(2));
+            real tXNormal = *(mFieldVariables(3));
+            real tYNormal = *(mFieldVariables(4));
+            real tZNormal = *(mFieldVariables(5));
 
             return tXNormal * (aCoordinates(0) - tXCenter) + tYNormal * (aCoordinates(1) - tYCenter) + tZNormal * (aCoordinates(2) - tZCenter);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Plane::eval_sensitivity_2d(Matrix<DDRMat> const & aCoordinates)
+        void Plane::eval_sensitivity_2d(Matrix<DDRMat> const & aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             MORIS_ERROR(false, "Sensitivities not implemented for 2d plane.");
-            return Matrix<DDRMat>(1, 1, 0.0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Plane::eval_sensitivity_3d(Matrix<DDRMat> const & aCoordinates)
+        void Plane::eval_sensitivity_3d(Matrix<DDRMat> const & aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             MORIS_ERROR(false, "Sensitivities not implemented for 3d plane.");
-            return Matrix<DDRMat>(1, 1, 0.0);
         }
 
         //--------------------------------------------------------------------------------------------------------------

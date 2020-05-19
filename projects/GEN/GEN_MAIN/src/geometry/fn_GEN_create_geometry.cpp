@@ -35,8 +35,8 @@ namespace moris
             else if (tGeometryType == "user_defined")
             {
                 return std::make_shared<User_Defined_Geometry>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters,
-                        aLibrary->load_geometry_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                        aLibrary->load_geometry_sensitivity_function(aGeometryParameterList.get<std::string>("sensitivity_function_name")));
+                        aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                        aLibrary->load_gen_sensitivity_function(aGeometryParameterList.get<std::string>("sensitivity_function_name")));
             }
             else
             {
