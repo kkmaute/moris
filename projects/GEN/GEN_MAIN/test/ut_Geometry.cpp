@@ -25,11 +25,12 @@ namespace moris
         return tFunctionValue;
     }
 
-    Matrix<DDRMat> circle_evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-                                               const moris::Cell< moris::real* > & aParameters)
+    void circle_evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
+                                     const moris::Cell< moris::real* > & aParameters,
+                                     moris::Matrix< DDRMat >    & aSensitivities)
     {
         // Initialize sensitivity matrix
-        moris::Matrix< moris::DDRMat > tSensitivityDxDp(3, 2, 0.0);
+        aSensitivities.resize(3, 2);
 
         // Get variables
         moris::real tXCenter = *(aParameters(0));
@@ -50,7 +51,7 @@ namespace moris
         }
 
         // Calculate
-        tSensitivityDxDp(0, 0) = sign * tRadius / std::sqrt(std::abs(tSqrt));
+        aSensitivities(0, 0) = sign * tRadius / std::sqrt(std::abs(tSqrt));
 
         // dy/dr
         // Set sign based on value under square root
@@ -65,15 +66,13 @@ namespace moris
         }
 
         // Calculate
-        tSensitivityDxDp(0, 1) = sign * tRadius / std::sqrt(std::abs(tSqrt));
+        aSensitivities(0, 1) = sign * tRadius / std::sqrt(std::abs(tSqrt));
 
         // Fill remaining values in tSensitivity
-        tSensitivityDxDp(1,0) = 1.0; // dx/dxc
-        tSensitivityDxDp(1,1) = 0.0; // dy/dxc
-        tSensitivityDxDp(2,0) = 0.0; // dx/dyc
-        tSensitivityDxDp(2,1) = 1.0; // dy/dyc
-
-        return tSensitivityDxDp;
+        aSensitivities(1,0) = 1.0; // dx/dxc
+        aSensitivities(1,1) = 0.0; // dy/dxc
+        aSensitivities(2,0) = 0.0; // dx/dyc
+        aSensitivities(2,1) = 1.0; // dy/dyc
     }
 
     namespace ge
