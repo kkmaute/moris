@@ -137,8 +137,13 @@ namespace moris
         /**
          * get the vertices indices in cluster
          */
-        moris::Cell< moris_index >
-        get_vertex_indices_in_cluster();
+        moris::Cell< moris_index > get_vertex_indices_in_cluster();
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the vertices indices in cluster
+         */
+        void get_vertex_indices_in_cluster_for_sensitivity( moris::Matrix< moris::IndexMat > & aVerticesIndices );
 
 //------------------------------------------------------------------------------
         /**

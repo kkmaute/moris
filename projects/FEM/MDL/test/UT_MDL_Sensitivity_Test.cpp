@@ -422,8 +422,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // PDVs and design variable interface
         tGeometryEngine.register_mesh(&tMeshManager);
 
-        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(7);
-        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(15);
+        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(15);
+        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(100);
         for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
         {
             tPdvTypes(tBulkSetIndex).resize(1);
@@ -437,8 +437,10 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
-                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(15), tIGPdvTypes);
-
+                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
+        moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
+        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
+                set_ip_requested_dv_types( tMatPdvTypes );
         std::shared_ptr<ge::GEN_Property> tDensityProperty1 = std::make_shared<ge::GEN_Property>();
         std::shared_ptr<ge::GEN_Property> tDensityProperty2 = std::make_shared<ge::GEN_Property>();
         tDensityProperty1->set_val_function(&density_function_1);
