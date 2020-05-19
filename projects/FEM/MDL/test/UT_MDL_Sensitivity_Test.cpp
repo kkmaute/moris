@@ -431,6 +431,11 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
             tPdvTypes(tBulkSetIndex)(0)(0) = PDV_Type::DENSITY;
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
+
+        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
+                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(15), tIGPdvTypes);
+
+        Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(15), tIGPdvTypes);
 

@@ -21,10 +21,21 @@ namespace moris
     namespace MSI
     {
 //------------------------------------------------------------------------------
-        void Equation_Model::compute_IQIs()
+        moris::Cell< moris::Matrix< DDRMat > > Equation_Model::compute_IQIs()
         {
             // Get local number of elements
             moris::uint tNumSets = mFemSets.size();
+
+            moris::uint tNumIQIs = this->get_requested_IQI_names().size();
+
+            moris::Cell< moris::Matrix< DDRMat > > tGloablIQIVal( tNumIQIs );
+
+            for( auto & tQI : tGloablIQIVal )
+            {
+                // set size for the QI value
+                // FIXME assumed scalar
+                tQI.set_size( 1, 1, 0.0 );
+            }
 
             // Loop over all local elements to build matrix graph
             for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
@@ -40,12 +51,16 @@ namespace moris
                         // FIXME this is elemental right now
                         mFemSets( Ii )->get_equation_object_list()( Ik )->compute_QI();
 
-                        // could sum it here
+                        for( moris::uint Ij = 0; Ij < tNumIQIs; Ij++ )
+                        {
+                            tGloablIQIVal( Ij )( 0 ) += mFemSets( Ii )->get_QI()( Ij )( 0 );
+                        }
                     }
 
                     //this->free_block_memory( Ii );
                 }
             }
+            return tGloablIQIVal;
         }
 
 //------------------------------------------------------------------------------
@@ -88,6 +103,7 @@ namespace moris
         {
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+            // FIXME create map only once. eiteher implicit or explicit
             mdQiduMap = tMatFactory.create_map( mDesignVariableInterface->get_my_local_global_map() );
 
             uint tNumRHMS = this->get_num_rhs();
@@ -116,6 +132,25 @@ namespace moris
 
                 //this->free_block_memory( Ii );
             }
+        }
+
+//-------------------------------------------------------------------------------------------------
+
+        sol::Dist_Vector * Equation_Model::get_dQidu()
+        {
+            moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+
+            uint tNumRHMS = this->get_num_rhs();
+
+            // full vector and prev full vector
+            mQidu = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
+
+            mQidu->vec_put_scalar( 0.0 );
+
+            mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
+            mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );
+
+            return mQidu;
         }
 
 //-------------------------------------------------------------------------------------------------

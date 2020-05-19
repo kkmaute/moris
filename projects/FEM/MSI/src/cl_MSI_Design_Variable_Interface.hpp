@@ -196,15 +196,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns the explicit dQidu
+             * returns the dQidu
              */
-            sol::Dist_Vector * get_implicit_dQidu();
+            sol::Dist_Vector * get_dQidu();
 
-//------------------------------------------------------------------------------
-            /**
-             * returns the explicit dQidu
-             */
-            sol::Dist_Vector * get_explicit_dQidu();
+
 
         };
     }

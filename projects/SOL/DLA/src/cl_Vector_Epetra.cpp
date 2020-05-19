@@ -47,7 +47,7 @@ void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlo
                                             const moris::Matrix< DDRMat > & aValues,
                                             const uint                    & aVectorIndex )
 {
-    // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+    // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
                                                                                 aGlobalIds.data(),
                                                                                 aValues.data(),

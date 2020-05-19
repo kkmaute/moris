@@ -69,9 +69,16 @@ namespace moris
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
+            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
 
-            return Matrix<DDRMat>(1, 1 , 0.0);
+            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
+
+            for( uint Ik = 0; Ik < tVal.size(); Ik ++ )
+            {
+                tMat( Ik ) = tVal( Ik )( 0 );
+            }
+
+            return tMat;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -651,7 +651,7 @@ namespace moris
 
                 mEquationSet->get_equation_model()
                             ->get_design_variable_interface()
-                            ->get_ip_requested_dv_types( tRequestedIGDvTypes );
+                            ->get_ig_requested_dv_types( tRequestedIGDvTypes );
 
                 moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
 

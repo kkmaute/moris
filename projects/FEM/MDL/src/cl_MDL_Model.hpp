@@ -171,7 +171,7 @@ class Library_IO;
 
 //------------------------------------------------------------------------------
 
-            void perform_post_processing();
+            moris::Cell< moris::Matrix< DDRMat > > perform_post_processing();
 
 //------------------------------------------------------------------------------
 

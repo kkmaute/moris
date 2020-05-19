@@ -488,9 +488,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Model::perform_post_processing()
+        moris::Cell< moris::Matrix< DDRMat > > Model::perform_post_processing()
         {
-            mEquationModel->compute_IQIs();
+            return mEquationModel->compute_IQIs();
         }
 
 //------------------------------------------------------------------------------

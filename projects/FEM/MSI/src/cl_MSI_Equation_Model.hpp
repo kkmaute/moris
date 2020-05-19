@@ -55,6 +55,7 @@ namespace moris
 
             sol::Dist_Vector * mImplicitdQidu = nullptr;
             sol::Dist_Vector * mExplicitdQidu = nullptr;
+            sol::Dist_Vector * mQidu = nullptr;
 
             // matrices for current and previous time slabs
             Matrix< DDRMat > mTime;
@@ -223,6 +224,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * returns the dQidu
+             * @param[ out ] mQidu returns a pointer to dQidu
+             */
+            sol::Dist_Vector * get_dQidu();
+
+//------------------------------------------------------------------------------
+            /**
              * set time for current time slab
              * @param[ in ] aTime matrix for time in current time slab
              */
@@ -343,7 +351,7 @@ namespace moris
             /**
              * compute explicit dQidp
              */
-            void compute_IQIs();
+            moris::Cell< moris::Matrix< DDRMat > > compute_IQIs();
 
 //------------------------------------------------------------------------------
         };
