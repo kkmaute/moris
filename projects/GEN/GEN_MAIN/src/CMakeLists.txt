@@ -6,6 +6,9 @@ set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+
+	cl_GEN_Field_Base.hpp
+
 	additional/cl_GEN_Basis_Function.hpp
 	additional/cl_GEN_Edge_Topology.hpp
 	additional/cl_GEN_Enums.hpp
@@ -45,6 +48,7 @@ set(HEADERS
 	geometry/fn_GEN_create_geometry.hpp
 	
 	property/cl_GEN_Property.hpp
+	property/cl_GEN_User_Defined_Property.hpp
 	
     )
     
@@ -89,6 +93,9 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+
+	cl_GEN_Field_Base.cpp
+
 	additional/cl_GEN_Phase_Table.cpp
 
 	geomeng/cl_GEN_Geometry_Engine.cpp
@@ -106,6 +113,7 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Discrete_Level_Set.cpp
 	
 	property/cl_GEN_Property.cpp
+	property/cl_GEN_User_Defined_Property.cpp
 	
     )
 
