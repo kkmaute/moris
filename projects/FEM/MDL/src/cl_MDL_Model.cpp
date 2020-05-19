@@ -481,21 +481,17 @@ namespace moris
 //------------------------------------------------------------------------------
         void Model::perform_forward_analysis()
         {
-            // initialize MDL - build FEM, MSI, SOL and VIS
-            this->initialize();
-
             mEquationModel->set_is_forward_analysis();
 
             mSolverWarehouse->get_main_time_solver()->solve();
         }
 
-        void Model::perform_forward_analysis_temporary_hack()
+//------------------------------------------------------------------------------
+
+        moris::Cell< moris::Matrix< DDRMat > > Model::perform_post_processing()
         {
-            mEquationModel->set_is_forward_analysis();
-
-            mSolverWarehouse->get_main_time_solver()->solve();
+            return mEquationModel->compute_IQIs();
         }
-
 
 //------------------------------------------------------------------------------
         void Model::perform_sensitivity_analysis()
@@ -503,6 +499,10 @@ namespace moris
             mEquationModel->set_is_sensitivity_analysis();
 
             mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+
+            mEquationModel->compute_implicit_dQIdp();
+
+            //mEquationModel->compute_explicit_dQIdp();
         }
 
 //------------------------------------------------------------------------------
@@ -511,6 +511,8 @@ namespace moris
             mDesignVariableInterface = aDesignVariableInterface;
 
             mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+
+            mDesignVariableInterface->set_equation_model( mEquationModel );
         }
 
 //------------------------------------------------------------------------------

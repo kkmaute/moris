@@ -83,8 +83,6 @@ class Library_IO;
              */
             Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
 
-            Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs);
-
             /**
              * Gets the derivative of the criteria with respect to the advs
              *

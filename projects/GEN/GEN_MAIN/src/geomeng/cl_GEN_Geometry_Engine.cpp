@@ -119,17 +119,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_equation_model(std::shared_ptr<MSI::Equation_Model> aModel)
-        {
-            mPdvHostManager.set_equation_model(aModel);
-            mModelSet = true;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Geometry_Engine::communicate_requested_IQIs()
         {
-            MORIS_ERROR(mModelSet, "Geometry_Engine::set_equation_model() must be called before communicate_requested_IQIs()");
             mPdvHostManager.set_requested_IQIs(mRequestedIQIs);
         }
 
@@ -137,7 +128,6 @@ namespace moris
 
         void Geometry_Engine::communicate_requested_IQIs(Cell<std::string> aIQINames)
         {
-            MORIS_ERROR(mModelSet, "Geometry_Engine::set_equation_model() must be called before communicate_requested_IQIs()");
             mPdvHostManager.set_requested_IQIs(aIQINames);
         }
 

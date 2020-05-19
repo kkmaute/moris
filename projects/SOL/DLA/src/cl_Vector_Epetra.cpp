@@ -47,7 +47,7 @@ void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlo
                                             const moris::Matrix< DDRMat > & aValues,
                                             const uint                    & aVectorIndex )
 {
-    // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+    // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
                                                                                 aGlobalIds.data(),
                                                                                 aValues.data(),
@@ -180,7 +180,7 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 {
     //std::cout<<*mEpetraVector<<std::endl;
 
-	moris::sint tVectorLenght = this->vec_local_length();
+    moris::sint tVectorLenght = this->vec_local_length();
 
     LHSValues.set_size( tVectorLenght, mNumVectors );
 
