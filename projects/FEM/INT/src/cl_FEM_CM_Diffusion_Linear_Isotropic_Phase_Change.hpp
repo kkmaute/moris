@@ -73,8 +73,9 @@ namespace moris
                  * @param[ in ] aProperty     a property pointer
                  * @param[ in ] aPropertyType a char
                  */
-                void set_property( std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString )
+                void set_property( std::shared_ptr<
+                        fem::Property > aProperty,
+                        std::string     aPropertyString )
                 {
                     // check that aPropertyString makes sense
                     MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),

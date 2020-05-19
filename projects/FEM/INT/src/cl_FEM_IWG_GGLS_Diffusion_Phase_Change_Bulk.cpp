@@ -60,7 +60,6 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > tGGLSParam
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
 
-
             // FIXME: remove cast
             // compute the residual from bulk diffusion term
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
