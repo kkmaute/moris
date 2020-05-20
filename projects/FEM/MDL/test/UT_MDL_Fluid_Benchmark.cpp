@@ -326,6 +326,7 @@ namespace moris
         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+        tSPIncFlow->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
                 = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
@@ -736,6 +737,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+        tSPIncFlow->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
                 = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
@@ -2471,6 +2473,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+        tSPIncFlow->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
         = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );

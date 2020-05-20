@@ -56,7 +56,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     real tEpsilon = 1E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-4;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -82,7 +82,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
         // switch on space dimension
         switch( iSpaceDim )
         {
-            case( 2 ):
+            case 2 :
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
@@ -104,7 +104,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
                break;
             }
-            case( 3 ):
+            case 3 :
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
@@ -177,7 +177,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             // switch on interpolation order
             switch( iInterpOrder )
             {
-                case ( 1 ):
+                case 1 :
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
@@ -191,7 +191,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     tMasterMatrixVis.randu( tNumCoeffs( 0 ), 1 );
                     break;
                 }
-                case ( 2 ):
+                case 2 :
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
@@ -262,6 +262,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             tPropViscosity->set_parameters( { {{ 2.0 }} } );
             tPropViscosity->set_val_function( tConstValFunction_SATurbulenceBulk );
 
+            // define stabilization parameters
+            fem::SP_Factory tSPFactory;
+
+            std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
+                    tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
+            tSPSUPG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY }}, mtk::Master_Slave::MASTER );
+            tSPSUPG->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPSUPG->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+            tSPSUPG->set_space_dim( iSpaceDim );
+
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
@@ -271,6 +281,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             tIWG->set_dof_type_list( { tVelDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWG->set_property( tPropWallDistance, "WallDistance" );
             tIWG->set_property( tPropViscosity, "Viscosity" );
+            tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();
@@ -329,7 +340,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             // check evaluation of the residual for IWG
             //------------------------------------------------------------------------------
             // evaluate the residual
-            //tIWG->compute_residual( 1.0 );
+            tIWG->compute_residual( 1.0 );
 
             // check evaluation of the jacobian by FD
             //------------------------------------------------------------------------------
@@ -349,7 +360,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 //            print( tJacobian(   { 0, tNumDofVis-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 }), "tJacobianVV" );
 //            print( tJacobianFD( { 0, tNumDofVis-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 }), "tJacobianFDVV" );
 
-            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 
             // require check is true
             REQUIRE( tCheckJacobian );
