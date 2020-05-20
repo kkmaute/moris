@@ -7,20 +7,21 @@
 
 #include <memory>
 #include "assert.hpp"
-#include "cl_FEM_IQI_Factory.hpp"       //FEM/INT/src
-#include "cl_FEM_IQI_Volume.hpp"        //FEM/INT/src
-#include "cl_FEM_IQI_Strain_Energy.hpp" //FEM/INT/src
-#include "cl_FEM_IQI_Stress.hpp"        //FEM/INT/src
+//FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"
+#include "cl_FEM_IQI_Volume.hpp"
+#include "cl_FEM_IQI_Strain_Energy.hpp"
+#include "cl_FEM_IQI_Stress.hpp"
 #include "cl_FEM_IQI_Analytic.hpp"
-#include "cl_FEM_IQI_Dof.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_Property.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_L2_Error_Analytic.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_H1_Error_Analytic.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_H1_Semi_Error.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_J_Integral.hpp"           //FEM/INT/src
-#include "cl_FEM_IQI_K1_SENT.hpp"                //FEM/INT/src
-#include "cl_FEM_IQI_Volume_Fraction.hpp"           //FEM/INT/src
-
+#include "cl_FEM_IQI_Dof.hpp"
+#include "cl_FEM_IQI_Property.hpp"
+#include "cl_FEM_IQI_L2_Error_Analytic.hpp"
+#include "cl_FEM_IQI_H1_Error_Analytic.hpp"
+#include "cl_FEM_IQI_H1_Semi_Error.hpp"
+#include "cl_FEM_IQI_J_Integral.hpp"
+#include "cl_FEM_IQI_K1_SENT.hpp"
+#include "cl_FEM_IQI_Volume_Fraction.hpp"
+#include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
 namespace moris
 {
     namespace fem
@@ -65,6 +66,12 @@ namespace moris
 
                 case ( IQI_Type::K1_SENT ):
                     return std::make_shared< IQI_K1_SENT >();
+
+                case ( IQI_Type::DRAG_COEFF ):
+                    return std::make_shared< IQI_Drag_Lift_Coefficient >( 1 );
+
+                case ( IQI_Type::LIFT_COEFF ):
+                    return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
