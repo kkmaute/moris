@@ -10,13 +10,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Circle::Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-        : Geometry_Analytic(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
+        : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real aXCenter, real aYCenter, real aRadius) : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
+        Circle::Circle(real aXCenter, real aYCenter, real aRadius)
+        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
         {
         }
 

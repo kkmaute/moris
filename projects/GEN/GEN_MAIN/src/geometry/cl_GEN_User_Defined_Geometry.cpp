@@ -17,7 +17,7 @@ namespace moris
                                                      Matrix<DDRMat> aConstantParameters,
                                                      MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                                                      MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
-                                                     : Geometry_Analytic(aADVs,
+                                                     : Field(aADVs,
                                                              aGeometryVariableIndices,
                                                              aADVIndices,
                                                              aConstantParameters)

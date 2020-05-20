@@ -2,13 +2,13 @@
 #define MORIS_CL_GEN_PLANE_HPP
 
 #include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_Matrix.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Plane : public Geometry_Analytic
+        class Plane : public Geometry_Analytic, public Field_Analytic
         {
         private:
             real ( Plane:: * m_eval_field )(const Matrix<DDRMat>&) = nullptr;
@@ -23,7 +23,10 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              */
-            Plane(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters);
+            Plane(Matrix<DDRMat>& aADVs,
+                  Matrix<DDUMat> aGeometryVariableIndices,
+                  Matrix<DDUMat> aADVIndices,
+                  Matrix<DDRMat> aConstantParameters);
 
             /**
              * Constructor with only constant parameters, 3D

@@ -11,8 +11,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Plane::Plane(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aFieldVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-        : Geometry_Analytic(aADVs, aFieldVariableIndices, aADVIndices, aConstantParameters)
+        Plane::Plane(Matrix<DDRMat>& aADVs,
+                     Matrix<DDUMat> aFieldVariableIndices,
+                     Matrix<DDUMat> aADVIndices,
+                     Matrix<DDRMat> aConstantParameters)
+        : Field(aADVs, aFieldVariableIndices, aADVIndices, aConstantParameters)
         {
             if (mFieldVariables.size() == 4)
             {
@@ -33,7 +36,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Plane::Plane(real aXCenter, real aYCenter, real aZCenter, real aXNormal, real aYNormal, real aZNormal)
-        : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}})) 
+        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}))
         {
             m_eval_field = &Plane::eval_field_3d;
             m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -42,7 +45,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
     
         Plane::Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal)
-        : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}))
+        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}))
         {
             m_eval_field = &Plane::eval_field_2d;
             m_eval_sensitivity = &Plane::eval_sensitivity_2d;

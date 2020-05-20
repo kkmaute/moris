@@ -2,13 +2,13 @@
 #define MORIS_CL_GEN_CIRCLE_HPP
 
 #include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_Matrix.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Circle : public Geometry_Analytic
+        class Circle : public Geometry_Analytic, public Field_Analytic
         {
         public:
 
