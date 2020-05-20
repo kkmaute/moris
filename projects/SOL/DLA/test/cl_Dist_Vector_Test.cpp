@@ -216,7 +216,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
     }
 }
 
-TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
+TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 {
     // Determine process rank
     size_t rank = par_rank();
@@ -253,7 +253,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         tVectorA->vector_global_asembly();
 
         // Get Vector norm
-        moris::real tNorm = tVectorA->vec_norm2();
+        moris::Cell< moris::real > tNorm = tVectorA->vec_norm2();
         // Get local vector lengt
         moris::uint tLocLength = tVectorA->vec_local_length();
         // Get global vector lengt
@@ -261,13 +261,13 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 
         if (rank == 0)
         {
-            CHECK( equal_to( tNorm, 1.0 ) );
+            CHECK( equal_to( tNorm( 0 ), 1.0 ) );
             CHECK( equal_to( tLocLength, 6.0 ) );
             CHECK( equal_to( tGlobLength, 15.0 ) );
         }
         if (rank == 2)
         {
-            CHECK( equal_to( tNorm, 1.0 ) );
+            CHECK( equal_to( tNorm( 0 ), 1.0 ) );
             CHECK( equal_to( tLocLength, 2.0 ) );
             CHECK( equal_to( tGlobLength, 15.0 ) );
         }

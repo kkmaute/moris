@@ -64,7 +64,7 @@ public:
 
     moris::sint vec_global_length() const;
 
-    moris::real vec_norm2();
+    Cell< moris::real > vec_norm2();
 
     void extract_copy( moris::Matrix< DDRMat > & LHSValues );
 

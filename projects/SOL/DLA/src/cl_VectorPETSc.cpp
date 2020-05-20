@@ -152,10 +152,11 @@ moris::sint Vector_PETSc::vec_global_length() const
 
 //-----------------------------------------------------------------------------
 
-moris::real Vector_PETSc::vec_norm2()
+Cell< moris::real > Vector_PETSc::vec_norm2()
 {
-    moris::real tVecNorm = 0 ;
-    VecNorm( mPetscVector, NORM_2, &tVecNorm );
+    Cell< moris::real > tVecNorm( mNumVectors, 0.0);
+
+    VecNorm( mPetscVector, NORM_2, tVecNorm.data().data() );
     return tVecNorm;
 }
 

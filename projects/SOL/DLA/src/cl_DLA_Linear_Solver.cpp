@@ -115,10 +115,10 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
         if ( par_rank() == 0 )
         {
             // Compute current solution vector norm
-            moris::real tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
+            Cell< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
             MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
-                                   tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm);
+                                   tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm( 0 ));
         }
 
         // Re-solve scaled linear system with current solution as an initial guess
