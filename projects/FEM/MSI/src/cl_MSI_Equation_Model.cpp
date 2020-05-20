@@ -96,6 +96,11 @@ namespace moris
 
                 //this->free_block_memory( Ii );
             }
+
+            // global assembly to switch entries to the right processor
+            mImplicitdQidu->vector_global_asembly();
+
+            //mImplicitdQidu->print();
         }
 
 //------------------------------------------------------------------------------
@@ -132,6 +137,9 @@ namespace moris
 
                 //this->free_block_memory( Ii );
             }
+
+            // global assembly to switch entries to the right processor
+            mExplicitdQidu->vector_global_asembly();
         }
 
 //-------------------------------------------------------------------------------------------------
