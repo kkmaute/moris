@@ -14,7 +14,7 @@
 /**
  * @brief Assertion, only active if DEBUG is defined.
  */
-#if !defined(NDEBUG) || defined(DEBUG)
+#if defined(DEBUG)
 #define XTK_ASSERT(check, msg) \
     do \
     { \

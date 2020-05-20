@@ -93,6 +93,7 @@ namespace moris
             return "unknown";
         }
     }
+
 //------------------------------------------------------------------------------
 
     /*
@@ -108,7 +109,7 @@ namespace moris
         {
             print_logo();
 
-#if !defined(NDEBUG) || defined(DEBUG)
+#if defined(DEBUG)
             std::fprintf( stdout, "     DEBUG flags are on.\n\n");
 #endif
 
