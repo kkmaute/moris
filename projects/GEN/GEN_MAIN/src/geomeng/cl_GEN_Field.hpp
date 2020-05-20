@@ -65,7 +65,7 @@ public :
         Matrix< DDRMat > tAllVals(tNumVertices, 1);
         for(uint i=0; i<tNumVertices; i++)  // fill the parameter cell with all the node coordinates
         {
-            tAllVals(i) = mProperty->evaluate_field_value(mAllVertices(i)->get_coords());
+            tAllVals(i) = mProperty->evaluate_field_value(mAllVertices(i)->get_id(), mAllVertices(i)->get_coords());
         }
 
         // check to see that the provided property is returning a row vector with values at all the nodes

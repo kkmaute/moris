@@ -188,7 +188,7 @@ namespace moris
                 for (moris::size_t tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
                 {
                     mNodePhaseVals(tNodeIndex, tGeometryIndex) =
-                            mGeometryAnalytic(this->analytic_geometry_index(tGeometryIndex))->evaluate_field_value(aNodeCoords.get_row(tNodeIndex));
+                            mGeometryAnalytic(this->analytic_geometry_index(tGeometryIndex))->evaluate_field_value(tNodeIndex, aNodeCoords.get_row(tNodeIndex));
                 }
             }
 
@@ -538,7 +538,7 @@ namespace moris
                 for(moris::size_t i = 0; i < tNumNodes; i++)
                 {
                     mGeometryAnalytic(this->analytic_geometry_index(mActiveGeometryIndex))
-                            ->evaluate_sensitivity(aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)), tDPhiiDp(i));
+                            ->evaluate_sensitivity(aEntityNodeIndices(0, i), aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)), tDPhiiDp(i));
                 }
 
                 compute_dx_dp_with_linear_basis( tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp );
@@ -830,7 +830,7 @@ namespace moris
                 {
                     mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ij ), 0 );
                 }
-        
+
                 mHMRPerformer( 0 )->perform_refinement_based_on_working_pattern( 0, false );
             }
         }
@@ -1045,7 +1045,7 @@ namespace moris
                 for( uint iVert = 0; iVert <tNumVertices; iVert++)
                 {
                     Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
-                    aAllFieldVals( Ik )( iVert ) = mGeometryAnalytic(this->analytic_geometry_index(Ik))->evaluate_field_value(tCoord);
+                    aAllFieldVals( Ik )( iVert ) = mGeometryAnalytic(this->analytic_geometry_index(Ik))->evaluate_field_value(iVert, tCoord);
         
                     // FIXME will not work in parallel. Ind are not consistent because of aura
                 }

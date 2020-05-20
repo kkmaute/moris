@@ -5,13 +5,8 @@ namespace moris
     namespace ge
     {
 
-        Property::Property(Matrix<DDRMat>& aADVs,
-                           Matrix<DDUMat> aPropertyVariableIndices,
-                           Matrix<DDUMat> aADVIndices,
-                           Matrix<DDRMat> aConstantParameters,
-                           Cell<std::shared_ptr<Property>> aPropertyDependencies)
-                           : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstantParameters),
-                           mPropertyDependencies(aPropertyDependencies)
+        Property::Property(Cell<std::shared_ptr<Property>> aPropertyDependencies)
+                           : mPropertyDependencies(aPropertyDependencies)
         {
         }
 

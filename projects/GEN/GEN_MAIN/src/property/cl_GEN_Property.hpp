@@ -1,13 +1,13 @@
 #ifndef MORIS_CL_GEN_PROPERTY_HPP_
 #define MORIS_CL_GEN_PROPERTY_HPP_
 
-#include "cl_GEN_Field_Base.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Property : public Field
+        class Property : virtual public Field
         {
 
         protected:
@@ -16,19 +16,11 @@ namespace moris
         public:
 
             /**
-             * Constructor
+             * Constructor for property, needs to know about other properties that it depends on
              *
-             * @param aADVs Reference to the full advs
-             * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the property variables
-             * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aPropertyDependencies Other created properties that this property depends on
+             * @param aPropertyDependencies This property's dependencies
              */
-            Property(Matrix<DDRMat>& aADVs,
-                     Matrix<DDUMat> aPropertyVariableIndices,
-                     Matrix<DDUMat> aADVIndices,
-                     Matrix<DDRMat> aConstantParameters,
-                     Cell<std::shared_ptr<Property>> aPropertyDependencies = Cell<std::shared_ptr<Property>>(0));
+            Property(Cell<std::shared_ptr<Property>> aPropertyDependencies = Cell<std::shared_ptr<Property>>(0));
 
         };
 
