@@ -44,7 +44,6 @@ namespace moris
                         tBuild = true;
                         
                         // Check if dependencies are built
-                        std::cout << "building " << tBuildPropertyIndex << ", " << tPropertyDependencies(tBuildPropertyIndex).size() << std::endl;
                         if (tPropertyDependencies(tBuildPropertyIndex).size() > 0)
                         {
                             for (uint tDependencyIndex = 0; tDependencyIndex < tPropertyDependencies(tBuildPropertyIndex).size(); tDependencyIndex++)
@@ -63,14 +62,13 @@ namespace moris
                         // Build
                         if (tBuild)
                         {
-                            std::cout << "building..." << std::endl;
                             create_property(aPropertyParameterLists(tBuildPropertyIndex), aADVs, tNeededProperties(tBuildPropertyIndex), aLibrary);
                             tNumPropertiesLeft--;
                         }
                     }
                 }
                 tLoopCount++;
-                MORIS_ERROR(tLoopCount > tNumProperties, "In fn_GEN_create_properties, a circular property dependency was detected. Exiting.");
+                MORIS_ERROR(tLoopCount <= tNumProperties, "In fn_GEN_create_properties, a circular property dependency was detected. Exiting.");
             }
             
             return tProperties;
