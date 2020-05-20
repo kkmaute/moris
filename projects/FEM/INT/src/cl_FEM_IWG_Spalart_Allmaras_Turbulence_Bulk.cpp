@@ -30,7 +30,6 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "SUPG" ] = IWG_Stabilization_Type::SUPG;
-
         }
 
 //------------------------------------------------------------------------------
@@ -47,21 +46,25 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the velocity FI
             // FIXME protect dof type
-            Field_Interpolator * tFIVelocity
-            = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator * tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+
+            // get the SUPG stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSPSUPG =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute ft2
             real tFt2 = this->compute_ft2();
@@ -84,7 +87,7 @@ namespace moris
                           + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * trans( tFIViscosity->val() ) * tFIViscosity->val() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
                           + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * tFIViscosity->gradx( 1 ) / mSigma
                           - trans( tFIViscosity->N() ) * mCb2 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->gradx( 1 ) / mSigma
-                          + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tR( 0 ) );
+                          + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tSPSUPG->val()( 0 ) * tR( 0 ) );
         }
 
 //------------------------------------------------------------------------------
@@ -101,21 +104,25 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the velocity FI
-            // FISME protect dof type
-            Field_Interpolator * tFIVelocity
-            = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            // FIXME protect dof type
+            Field_Interpolator * tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+
+            // get the SUPG stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSPSUPG =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute ft2
             real tFt2 = this->compute_ft2();
@@ -164,10 +171,11 @@ namespace moris
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * (   trans( tFIViscosity->N() ) * trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N()
-                                  + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->N() * tR( 0 ) );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tFIViscosity->N() ) * trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N()
+                                    + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->N() * tSPSUPG->val()( 0 ) * tR( 0 ) );
                 }
 
                 if( tPropViscosity->check_dof_dependency( tDofType ) )
@@ -176,6 +184,16 @@ namespace moris
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( tDofType ) / mSigma );
+                }
+
+                if( tSPSUPG->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution to jacobian
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+
                 }
 
                 // compute jacobian of the strong form
@@ -200,8 +218,7 @@ namespace moris
                 += aWStar * (   trans( tFIViscosity->N() ) * mCb1 * tSTilde * tFIViscosity->val() * tdft2du
                               - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tFIViscosity->val() * tdSTildedu
                               + trans( tFIViscosity->N() ) * trans( tFIViscosity->val() ) * tFIViscosity->val() * ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 ))
-                              + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tJ;
-
+                              + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tSPSUPG->val()( 0 ) * tJ;
             }
 
         }
@@ -232,17 +249,17 @@ namespace moris
         void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual_strong_form( Matrix< DDRMat > & aR )
         {
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the velocity FI
             // FIXME protect dof type
-            Field_Interpolator * tFIVelocity
-            = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator * tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // compute ft2
             real tFt2 = this->compute_ft2();
@@ -272,13 +289,13 @@ namespace moris
           Matrix< DDRMat >             & aJ )
         {
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the velocity FI
             // FIXME protect dof type
-            Field_Interpolator * tFIVelocity
-            = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator * tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the der FI
             Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -343,12 +360,12 @@ namespace moris
         void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_divflux( Matrix< DDRMat > & aDivFlux )
         {
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
 
             // FIXME Assumed that the viscosity property does not depend on x!
 
@@ -365,12 +382,12 @@ namespace moris
                                                                        Matrix< DDRMat >             & adDivFluxdu )
         {
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
 
             // get the der FI
             Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -561,12 +578,12 @@ namespace moris
         real IWG_Spalart_Allmaras_Turbulence_Bulk::compute_chi()
         {
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
 
             // compute chi
             real tChi = tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
@@ -585,12 +602,12 @@ namespace moris
             adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
 
             // compute chi
             real tChi = tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
@@ -675,12 +692,12 @@ namespace moris
         real IWG_Spalart_Allmaras_Turbulence_Bulk::compute_stilde()
         {
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // compute SBar
             real tSBar = this->compute_sbar();
@@ -705,12 +722,12 @@ namespace moris
             adstildedu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the wall distance properties
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // compute dSBardu
             Matrix< DDRMat > tdSBardu;
@@ -771,12 +788,12 @@ namespace moris
             real tSTilde = this->compute_stilde();
 
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity
-            = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
@@ -807,12 +824,12 @@ namespace moris
             if( tR < 10.0 )
             {
                 // get the residual dof FI (here viscosity)
-                Field_Interpolator * tFIViscosity
-                = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                Field_Interpolator * tFIViscosity =
+                        mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
                 // get the wall distance property
-                std::shared_ptr< Property > tPropWallDistance
-                = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+                std::shared_ptr< Property > tPropWallDistance =
+                        mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
                 // compute stilde
                 real tSTilde = this->compute_stilde();
