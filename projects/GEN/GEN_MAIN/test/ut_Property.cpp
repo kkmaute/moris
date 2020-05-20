@@ -29,9 +29,10 @@ namespace moris
             tParameterLists(0)(0).set("initial_advs_fill", 2.0);
             tParameterLists(2)(0).set("type", "discrete");
             tParameterLists(2)(0).set("name", "density");
+            tParameterLists(2)(0).set("property_variable_indices", "all");
+            tParameterLists(2)(0).set("adv_indices", "all");
 
             Geometry_Engine tGeometryEngine(tParameterLists);
-            moris::print(tGeometryEngine.get_advs(), "ADVs");
         }
 
         TEST_CASE("Property dependency test", "[GE], [GE_PROPERTY_DEPENDENCY]")
