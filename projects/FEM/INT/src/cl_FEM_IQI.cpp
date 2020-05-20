@@ -1109,16 +1109,19 @@ namespace moris
             // get the IQI index
             uint tIQIAssemblyIndex = 0;
 
-            // get the GI for the IG element considered
-            Geometry_Interpolator * tGI =
-                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            // get the GI for the IP and IG element considered
+            Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+            Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
             // get number of master GI bases and space dimensions
-            uint tDerNumBases      = tGI->get_number_of_space_bases();
-            uint tDerNumDimensions = tGI->get_number_of_space_dimensions();
+            uint tDerNumBases      = tIGGI->get_number_of_space_bases();
+            uint tDerNumDimensions = tIGGI->get_number_of_space_dimensions();
 
             // coefficients for dv type wrt which derivative is computed
-            Matrix< DDRMat > tCoeff = tGI->get_space_coeff();
+            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
+            Matrix< DDRMat > tEvaluationPoint;
+            tIGGI->get_space_time( tEvaluationPoint );
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1133,7 +1136,18 @@ namespace moris
                         tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
-                        tGI->set_space_coeff( tCoeffPert );
+                        tIGGI->set_space_coeff( tCoeffPert );
+
+                        // update local coordinates
+                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                        Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                        tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                        // set evaluation point for interpolators (FIs and GIs)
+                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
@@ -1147,7 +1161,18 @@ namespace moris
                         tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
-                        tGI->set_space_coeff( tCoeffPert );
+                        tIGGI->set_space_coeff( tCoeffPert );
+
+                        // update local coordinates
+                        tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                        tParamCoeffPert = tParamCoeff;
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                        tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                        // set evaluation point for interpolators (FIs and GIs)
+                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
@@ -1167,7 +1192,9 @@ namespace moris
                     }
                 }
                 // reset the coefficients values
-                tGI->set_space_coeff( tCoeff );
+                tIGGI->set_space_coeff( tCoeff );
+                tIGGI->set_space_param_coeff( tParamCoeff );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
             }
         }
 
