@@ -5,6 +5,7 @@
 #include "fn_GEN_create_property.hpp"
 #include "fn_Parsing_Tools.hpp"
 
+#include "cl_GEN_Discrete_Property.hpp"
 #include "cl_GEN_User_Defined_Property.hpp"
 
 namespace moris
@@ -30,7 +31,11 @@ namespace moris
             string_to_mat(aPropertyParameterList.get<std::string>("constant_parameters"), tConstantParameters);
 
             // Build Property
-            if (tPropertyType == "user_defined")
+            if (tPropertyType == "discrete")
+            {
+                return std::make_shared<Discrete_Property>(aADVs, tPropertyVariableIndices, tADVIndices, tConstantParameters);
+            }
+            else if (tPropertyType == "user_defined")
             {
                 return std::make_shared<User_Defined_Property>(
                         aADVs, tPropertyVariableIndices, tADVIndices, tConstantParameters, aPropertyDependencies,
