@@ -31,7 +31,7 @@ namespace moris
         mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
         // ADVs/IQIs
-        mADVs(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
+        mADVs((uint)aParameterLists(0)(0).get<int>("initial_advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
         mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
         mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
         mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
@@ -42,6 +42,17 @@ namespace moris
               : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
 
         {
+            // Set explicit ADVs
+            Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
+            if (tInitialADVs.length() > mADVs.length())
+            {
+                mADVs.resize(tInitialADVs.length(), 1);
+            }
+            for (uint tADVIndex = 0; tADVIndex < tInitialADVs.length(); tADVIndex++)
+            {
+                mADVs(tADVIndex) = tInitialADVs(tADVIndex);
+            }
+
             // Build geometry (just analytic for right now)
             if (aParameterLists(1).size() > 0)
             {

@@ -40,6 +40,8 @@ namespace moris
 
             // ADVs/IQIs
             tParameterList.insert("initial_advs", ""); // Initial advs, string converted into vector
+            tParameterList.insert("initial_advs_size", 0);   // Specify size and fill value for ADVs in addition to
+            tParameterList.insert("initial_advs_fill", 0.0); // explicitly defined ADVs (above)
             tParameterList.insert("lower_bounds", ""); // Lower bounds on advs, string converted into vector
             tParameterList.insert("upper_bounds", ""); // Upper bounds on advs, string converted into vector
             tParameterList.insert("IQI_types", ""); // Requested IQI types for sensitivity analysis
