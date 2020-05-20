@@ -15,9 +15,13 @@ namespace moris
         {
         protected:
             Cell<real*> mFieldVariables;
+
+        private:
             Cell<bool> mActiveVariables;
             Matrix<DDUMat> mADVIndices;
             Matrix<DDRMat> mConstantParameters;
+
+        protected:
 
             /**
              * Constructor, sets the pointers to advs and constant parameters for evaluations
@@ -44,26 +48,7 @@ namespace moris
             /**
              * Destructor
              */
-            ~Field()
-            {
-            }
-
-            /**
-             * Given a node coordinate, returns the field value
-             *
-             * @param aCoordinates vector of coordinate values
-             * @return Field value
-             */
-            virtual real evaluate_field_value(const Matrix<DDRMat>& aCoordinates) = 0;
-
-            /**
-             * Given a node coordinate @param aCoordinates, the function returns a matrix of relevant sensitivities
-             *
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivity Matrix of sensitivities
-             */
-            void evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates,
-                                            Matrix<DDRMat>& aSensitivities);
+            ~Field();
 
             /**
              * Get the indices of the ADVs which this field depends on
@@ -71,6 +56,27 @@ namespace moris
              * @return Vector of ADV indices
              */
             Matrix<DDUMat> get_adv_indices();
+
+            /**
+             * Given a node index or coordinate, returns the field value
+             *
+             * @param aIndex Node index
+             * @param aCoordinates Vector of coordinate values
+             * @return Field value
+             */
+            virtual real evaluate_field_value(      uint            aIndex,
+                                              const Matrix<DDRMat>& aCoordinates) = 0;
+
+            /**
+             * Given a node index or coordinate, returns a matrix of relevant sensitivities
+             *
+             * @param aIndex Node index
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivity Matrix of sensitivities
+             */
+            void evaluate_sensitivity(      uint            aIndex,
+                                      const Matrix<DDRMat>& aCoordinates,
+                                            Matrix<DDRMat>& aSensitivities);
 
         private:
 
@@ -80,7 +86,8 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            virtual void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates,
+            virtual void evaluate_all_sensitivities(      uint            aIndex,
+                                                    const Matrix<DDRMat>& aCoordinates,
                                                           Matrix<DDRMat>& aSensitivities) = 0;
 
         };

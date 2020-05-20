@@ -19,11 +19,11 @@ namespace moris
                 mConstantParameters(aConstantParameters)
 
         {
-            // Check that the number of geometry variables indices equals the number of ADV indices, resize geometry variables
+            // Check that the number of field variables indices equals the number of ADV indices, resize field variables
             MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
-                        "gen::Geometry: Number of geometry variables indices must equal the number of ADV indices");
+                        "gen::Field: Number of field variables indices must equal the number of ADV indices");
 
-            // Resize geometry variables
+            // Resize field variables
             uint tNumInputs = aFieldVariableIndices.length() + mConstantParameters.length();
             mFieldVariables.resize(tNumInputs);
 
@@ -49,15 +49,22 @@ namespace moris
         Field::Field(Matrix<DDRMat> aConstantParameters)
                 : mConstantParameters(aConstantParameters)
         {
-            // Resize geometry variables
+            // Resize field variables
             uint tNumInputs = mConstantParameters.length();
             mFieldVariables.resize(tNumInputs);
 
-            // Fill geometry variables
+            // Fill field variables
             for (uint tVariableIndex = 0; tVariableIndex < tNumInputs; tVariableIndex++)
             {
                 mFieldVariables(tVariableIndex) = &(mConstantParameters(tVariableIndex));
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Field::~Field()
+        {
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -69,11 +76,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates,
+        void Field::evaluate_sensitivity(      uint            aIndex,
+                                         const Matrix<DDRMat>& aCoordinates,
                                                Matrix<DDRMat>& aSensitivities)
         {
             // Evaluate all sensitivities
-            this->evaluate_all_sensitivities(aCoordinates, aSensitivities);
+            this->evaluate_all_sensitivities(aIndex, aCoordinates, aSensitivities);
 
             // Return only what is needed
             uint tVariableIndex = 0;
