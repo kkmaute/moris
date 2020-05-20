@@ -23,9 +23,11 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------------
 
-        sol::Dist_Vector * Design_Variable_Interface::get_dQidu()
+        Matrix<DDRMat> Design_Variable_Interface::get_dQidu()
         {
-            return mModel->get_dQidu();
+            Matrix<DDRMat> tSensitivities;
+            mModel->get_dQidu()->extract_copy(tSensitivities);
+            return tSensitivities;
         }
 
 

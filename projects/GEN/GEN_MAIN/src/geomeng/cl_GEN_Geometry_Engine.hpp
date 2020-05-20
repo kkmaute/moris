@@ -209,6 +209,13 @@ namespace moris
             void communicate_requested_IQIs(Cell<std::string> aIQINames);
 
             /**
+             * Gets the sensitivities of the critieria with respect to the advs
+             *
+             * @return Matrix of sensitivities
+             */
+            Matrix<DDRMat> get_dcriteria_dadv();
+
+            /**
              * Gets the design variable interface from the geometry engine
              *
              * @return member pdv host manager pointer

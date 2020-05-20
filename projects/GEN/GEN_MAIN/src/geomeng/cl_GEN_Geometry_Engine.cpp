@@ -148,6 +148,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Matrix<DDRMat> Geometry_Engine::get_dcriteria_dadv() // TODO
+        {
+            return mPdvHostManager.get_dQidu();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         MSI::Design_Variable_Interface* Geometry_Engine::get_design_variable_interface()
         {
             return &mPdvHostManager;

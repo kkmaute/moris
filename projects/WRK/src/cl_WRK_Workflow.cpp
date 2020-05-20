@@ -69,7 +69,7 @@ namespace moris
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            // FIXME GE set requested IQIs
+            mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
 
@@ -87,15 +87,9 @@ namespace moris
 
         Matrix<DDRMat> Workflow::get_dcriteria_dadv()
         {
-            // FIXME GE set requested IQIs
-
             mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
-
-            // FIXME GE get dQidp
-
-            // FIXME GE return advs
-
-            return Matrix<DDRMat>(1, 1 , 0.0);
+            mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+            return mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
         }
 
         //--------------------------------------------------------------------------------------------------------------
