@@ -8,6 +8,8 @@ set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 set(HEADERS
 
 	cl_GEN_Field_Base.hpp
+	cl_GEN_Field_Analytic.hpp
+	cl_GEN_Field_Discrete.hpp
 
 	additional/cl_GEN_Basis_Function.hpp
 	additional/cl_GEN_Edge_Topology.hpp
@@ -30,6 +32,7 @@ set(HEADERS
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp
 	geomeng/cl_GEN_Pdv.hpp
+	geomeng/cl_GEN_Pdv_Property.hpp
 	geomeng/cl_GEN_Pdv_Host.hpp
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
 	geomeng/fn_GEN_Triangle_Geometry.hpp
@@ -48,6 +51,7 @@ set(HEADERS
 	geometry/fn_GEN_create_geometry.hpp
 	
 	property/cl_GEN_Property.hpp
+	property/cl_GEN_Discrete_Property.hpp
 	property/cl_GEN_User_Defined_Property.hpp
 	property/fn_GEN_create_property.hpp
 	property/fn_GEN_create_properties.hpp
@@ -97,6 +101,8 @@ endforeach()
 set(LIB_SOURCES
 
 	cl_GEN_Field_Base.cpp
+	cl_GEN_Field_Analytic.cpp
+	cl_GEN_Field_Discrete.cpp
 
 	additional/cl_GEN_Phase_Table.cpp
 
@@ -105,6 +111,7 @@ set(LIB_SOURCES
 	geomeng/cl_GEN_Pdv_Host_Manager.cpp
 	geomeng/cl_GEN_Pdv_Host.cpp
 	geomeng/cl_GEN_Pdv.cpp
+	geomeng/cl_GEN_Pdv_Property.cpp
 
     geometry/cl_GEN_Geometry_Analytic.cpp
 	geometry/cl_GEN_Geometry_Discrete.cpp
@@ -115,6 +122,7 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Discrete_Level_Set.cpp
 	
 	property/cl_GEN_Property.cpp
+	property/cl_GEN_Discrete_Property.cpp
 	property/cl_GEN_User_Defined_Property.cpp
 	property/fn_GEN_create_property.cpp
 	property/fn_GEN_create_properties.cpp
