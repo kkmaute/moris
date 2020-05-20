@@ -568,6 +568,9 @@ namespace moris
                 // set name
                 mSPs( iSP )->set_name( tSPParameterList( iSP ).get< std::string >( "stabilization_name" ) );
 
+                // set SP space dimension
+                mSPs( iSP )->set_space_dim( mSpaceDim );
+
                 // fill stabilization map
                 aSPMap[ tSPParameterList( iSP ).get< std::string >( "stabilization_name" ) ] = iSP;
 
