@@ -304,7 +304,7 @@ namespace moris
 
             // get string to dv type map
             moris::map< std::string, PDV_Type > tMSIDvTypeMap
-            = get_dv_type_map();
+            = get_pdv_type_map();
 
             // create properties
             moris::map< std::string, uint > tPropertyMap;
