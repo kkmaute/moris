@@ -16,6 +16,8 @@
 
 #include "cl_Communication_Tools.hpp"
 
+#include "cl_PRM_SOL_Parameters.hpp"
+
 extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
@@ -58,49 +60,7 @@ void Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonli
 void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
 {
     // Allowable Newton solver iterations
-    mParameterListNonlinearSolver.insert( "NLA_max_iter", 10 );
-
-    // Allowable Newton solver iterations
-    mParameterListNonlinearSolver.insert( "NLA_restart", 0 );
-
-    // Desired total residual norm drop
-    // mParameterListNonlinearSolver.insert( "NLA_rel_res_norm_drop" , 1e-02 );
-    mParameterListNonlinearSolver.insert( "NLA_rel_res_norm_drop" , 1e-08 );
-
-    // Desired total residual norm
-    // mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-12 );
-    mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-12 );
-
-    // Maximal residual norm drop
-    // mParameterListNonlinearSolver.insert( "NLA_max_res_norm_drop" , 1e-2 );
-    mParameterListNonlinearSolver.insert( "NLA_max_rel_res_norm" , 1e12 );
-
-    // Maximal number of linear solver restarts on fail
-    mParameterListNonlinearSolver.insert( "NLA_max_lin_solver_restarts" , 0 );
-
-    // Maximal number of linear solver restarts on fail
-    mParameterListNonlinearSolver.insert( "NLA_relaxation_parameter" , 1.0 );
-
-    // Maximal number of linear solver restarts on fail
-    mParameterListNonlinearSolver.insert( "NLA_hard_break" , false );
-
-    // Determines if lin solve should restart on fail
-    mParameterListNonlinearSolver.insert( "NLA_rebuild_lin_solv_on_fail" , false );
-
-    // Determines if lin solve should restart on fail
-    mParameterListNonlinearSolver.insert( "NLA_rebuild_jacobian" , true );
-
-    // Determines if newton should restart on fail
-    mParameterListNonlinearSolver.insert( "NLA_rebuild_nonlin_solv_on_fail" , false );
-
-    // Specifying the number of newton retries
-    mParameterListNonlinearSolver.insert( "NLA_num_nonlin_rebuild_iterations" , 1 );
-
-    // Determines relaxation multiplier
-    mParameterListNonlinearSolver.insert( "NLA_relaxation_multiplier_on_fail" , 0.5 );
-
-    // Determines newton maxits multiplier
-    mParameterListNonlinearSolver.insert( "NLA_maxits_multiplier_on_fail" , 2 );
+    mParameterListNonlinearSolver = prm::create_nonlinear_algorithm_parameter_list();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

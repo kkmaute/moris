@@ -168,6 +168,7 @@ void Nonlinear_Problem::delete_pointers()
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
+                                                  const bool & aCombinedResJacAssebly,
                                                   const sint aNonLinearIt )
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
@@ -177,12 +178,19 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
 //    this->print_sol_vec( aNonLinearIt );
 
-    if( aRebuildJacobian )
+    if( aCombinedResJacAssebly )
     {
-        mLinearProblem->assemble_jacobian();
+        mLinearProblem->assemble_residual_and_jacobian();
     }
+    else
+    {
+        if( aRebuildJacobian )
+        {
+            mLinearProblem->assemble_jacobian();
+        }
 
-    mLinearProblem->assemble_residual();
+        mLinearProblem->assemble_residual();
+    }
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
