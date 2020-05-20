@@ -582,6 +582,14 @@ namespace moris
                                                                      moris::size_t                  const & aGeometryIndex,
                                                                      moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                                      moris::Matrix< moris::DDRMat >       & aLevelSetValues );
+
+            /**
+             * Assign PDV hosts based on properties constructed through parameter lists
+             *
+             * @param aPropertyParameterLists Parameter lists used to construct GEN properties
+             */
+            void assign_pdv_hosts(Cell<ParameterList> aPropertyParameterLists);
+
         };
     }
 }

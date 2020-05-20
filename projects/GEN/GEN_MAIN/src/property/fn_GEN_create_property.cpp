@@ -77,8 +77,6 @@ namespace moris
             string_to_mat(aPropertyParameterList.get<std::string>("constant_parameters"), tConstantParameters);
 
             // Build Property
-            print(tPropertyVariableIndices, "prop ind");
-            print(tADVIndices, "adv ind");
             if (tPropertyType == "discrete")
             {
                 return std::make_shared<Discrete_Property>(aADVs, tPropertyVariableIndices, tADVIndices, tConstantParameters);

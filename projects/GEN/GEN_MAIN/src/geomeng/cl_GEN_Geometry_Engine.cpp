@@ -63,8 +63,9 @@ namespace moris
                 }
             }
 
-            // Create properties
+            // Create and assign properties
             mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
+            this->assign_pdv_hosts(aParameterLists(2));
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1338,6 +1339,48 @@ namespace moris
                 if (mSpatialDim == 3)
                 {
                     mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tCoordinates(2));
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::assign_pdv_hosts(Cell<ParameterList> aPropertyParameterLists)
+        {
+            // Initialize
+            PDV_Type tPdvType;
+            Cell<std::string> tMeshSetNames(0);
+            Matrix<DDUMat> tMeshSetIndices(0, 0);
+
+            // PDV type map
+            moris::map< std::string, PDV_Type > tPdvTypes = get_pdv_type_map();
+
+            // Loop over properties
+            for (uint tPropertyIndex = 0; tPropertyIndex < aPropertyParameterLists.size(); tPropertyIndex++)
+            {
+                // PDV type and mesh set names/indices from parameter list
+                tPdvType = tPdvTypes[aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+                string_to_cell(aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
+                string_to_mat(aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
+
+                // Assign PDVs
+                if (aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
+                {
+                    // Set names
+                    for (uint tNameIndex = 0; tNameIndex < tMeshSetNames.size(); tNameIndex++)
+                    {
+                        this->assign_ip_hosts_by_set_name(tMeshSetNames(tNameIndex), mProperties(tPropertyIndex), tPdvType);
+                    }
+
+                    // Set indices
+                    for (uint tIndex = 0; tIndex < tMeshSetIndices.length(); tIndex++)
+                    {
+                        this->assign_ip_hosts_by_set_index(tMeshSetIndices(tIndex), mProperties(tPropertyIndex), tPdvType);
+                    }
+                }
+                else
+                {
+                    MORIS_ERROR(false, "Assignment of PDVs is only supported with an interpolation mesh right now.");
                 }
             }
         }

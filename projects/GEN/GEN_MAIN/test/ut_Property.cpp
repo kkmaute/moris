@@ -31,6 +31,7 @@ namespace moris
             tParameterLists(2)(0).set("name", "density");
             tParameterLists(2)(0).set("property_variable_indices", "all");
             tParameterLists(2)(0).set("adv_indices", "all");
+            tParameterLists(2)(0).set("pdv_type", "DENSITY");
 
             Geometry_Engine tGeometryEngine(tParameterLists);
         }

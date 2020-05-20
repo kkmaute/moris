@@ -101,6 +101,12 @@ namespace moris
                                                               // remaining geometry parameters that are constant
             tParameterList.insert("dependencies", ""); // Names of other properties that this property depends on
 
+            // Assignment to PDVs
+            tParameterList.insert("pdv_type", "");
+            tParameterList.insert("pdv_mesh_type", "interpolation");
+            tParameterList.insert("pdv_mesh_set_names", "");
+            tParameterList.insert("pdv_mesh_set_indices", "");
+
             return tParameterList;
         }
 
