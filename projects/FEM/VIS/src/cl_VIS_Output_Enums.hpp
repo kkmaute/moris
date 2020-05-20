@@ -43,6 +43,8 @@ namespace vis
         PROPERTY, //Property
         J_INTEGRAL,  // J-Integral
         K1_SENT,     // 1st stress intensity factor for the case of a single edge notch tension analysis
+        DRAG_COEFF,
+        LIFT_COEFF,
         END_ENUM//
     };
 
@@ -76,6 +78,8 @@ namespace vis
         tVisOutputTypeMap["PROPERTY"]          = vis::Output_Type::PROPERTY;
         tVisOutputTypeMap["J_INTEGRAL"]        = vis::Output_Type::J_INTEGRAL;
         tVisOutputTypeMap["K1_SENT"]           = vis::Output_Type::K1_SENT;
+        tVisOutputTypeMap["DRAG_COEFF"]        = vis::Output_Type::DRAG_COEFF;
+        tVisOutputTypeMap["LIFT_COEFF"]        = vis::Output_Type::LIFT_COEFF;
         tVisOutputTypeMap["END_ENUM"]          = vis::Output_Type::END_ENUM;
 
         return tVisOutputTypeMap;
