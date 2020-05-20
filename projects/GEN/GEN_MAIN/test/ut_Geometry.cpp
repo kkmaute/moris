@@ -113,16 +113,16 @@ namespace moris
             Matrix<DDRMat> tCoordinates(1, 2);
             tCoordinates(0) = 0.0;
             tCoordinates(1) = 0.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
             tCoordinates(0) = 1.0;
             tCoordinates(1) = 1.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates) - (sqrt(2.0) - 2.0)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates) - (sqrt(2.0) - 2.0)) <= 1E-8);
             tCoordinates(0) = 2.0;
             tCoordinates(1) = 2.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates) - (sqrt(5.0) - 1.0)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates) - (sqrt(5.0) - 1.0)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
 
             // Change ADVs and check again
             tADVs(0) = 1.0;
@@ -131,16 +131,16 @@ namespace moris
 
             tCoordinates(0) = 1.0;
             tCoordinates(1) = -1.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
             tCoordinates(0) = 3.0;
             tCoordinates(1) = 1.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates) - (sqrt(5.0) - 3.0)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates) - (sqrt(5.0) - 3.0)) <= 1E-8);
             tCoordinates(0) = 4.0;
             tCoordinates(1) = 2.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates) - (sqrt(10.0) - 2.0)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates) - (sqrt(10.0) - 2.0)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
 
             Geometry_Engine tGeometryEngine(tParameterLists);
 
@@ -185,16 +185,16 @@ namespace moris
             Matrix<DDRMat> tCoordinates(1, 2);
             tCoordinates(0) = 0.0;
             tCoordinates(1) = 0.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
             tCoordinates(0) = 1.0;
             tCoordinates(1) = 1.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates) - (sqrt(2.0) - 2.0)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates) - (sqrt(2.0) - 2.0)) <= 1E-8);
             tCoordinates(0) = 2.0;
             tCoordinates(1) = 2.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates) - (sqrt(5.0) - 1.0)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates) - (sqrt(5.0) - 1.0)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
 
             // Change ADVs and check again
             tADVs(0) = 1.0;
@@ -203,16 +203,16 @@ namespace moris
 
             tCoordinates(0) = 1.0;
             tCoordinates(1) = -1.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
             tCoordinates(0) = 3.0;
             tCoordinates(1) = 1.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates) - (sqrt(5.0) - 3.0)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates) - (sqrt(5.0) - 3.0)) <= 1E-8);
             tCoordinates(0) = 4.0;
             tCoordinates(1) = 2.0;
-            CHECK(std::abs(tCircle1->evaluate_field_value(tCoordinates) - (sqrt(10.0) - 2.0)) <= 1E-8);
-            CHECK(std::abs(tCircle2->evaluate_field_value(tCoordinates)) <= 1E-8);
+            CHECK(std::abs(tCircle1->evaluate_field_value(0, tCoordinates) - (sqrt(10.0) - 2.0)) <= 1E-8);
+            CHECK(std::abs(tCircle2->evaluate_field_value(0, tCoordinates)) <= 1E-8);
 
         }   // end test case
     }   // end ge namespace

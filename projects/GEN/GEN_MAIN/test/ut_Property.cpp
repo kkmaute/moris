@@ -13,41 +13,29 @@
 
 namespace moris
 {
-
-//    // User-defined property functions
-//    real property1_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-//                                     const moris::Cell< moris::real* > & aParameters)
-//    {
-//        return 1.0;
-//    }
-//    real property2_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-//                                        const moris::Cell< moris::real* > & aParameters)
-//    {
-//        return 1.0;
-//    }
-//    real property3_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-//                                        const moris::Cell< moris::real* > & aParameters)
-//    {
-//        return 1.0;
-//    }
-//    real property4_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-//                                        const moris::Cell< moris::real* > & aParameters)
-//    {
-//        return 1.0;
-//    }
-//
-//    void property_evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-//                                     const moris::Cell< moris::real* > & aParameters,
-//                                     moris::Matrix< DDRMat >    & aSensitivities)
-//    {
-//        MORIS_ERROR(false, "sensitivities not defined");
-//    }
-
     namespace ge
     {
-        TEST_CASE("Property dependency test", "[GE], [GE_PROP]")
+        TEST_CASE("Discrete property based on ADVs", "[GE], [GE_DISCRETE_PROPERTY]")
         {
-            // Test parameter list
+            // Set up default parameter lists
+            moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
+            tParameterLists(0).resize(1);
+            tParameterLists(2).resize(1);
+            tParameterLists(0)(0) = moris::prm::create_gen_parameter_list();
+            tParameterLists(2)(0) = moris::prm::create_gen_property_parameter_list();
+
+            // Modify parameters
+            tParameterLists(0)(0).set("initial_advs_size", 4);
+            tParameterLists(0)(0).set("initial_advs_fill", 2.0);
+            tParameterLists(2)(0).set("type", "discrete");
+            tParameterLists(2)(0).set("name", "density");
+
+            Geometry_Engine tGeometryEngine(tParameterLists);
+            moris::print(tGeometryEngine.get_advs(), "ADVs");
+        }
+
+        TEST_CASE("Property dependency test", "[GE], [GE_PROPERTY_DEPENDENCY]")
+        {
             // Set up default parameter lists
             moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
             tParameterLists(0).resize(1);
@@ -63,17 +51,17 @@ namespace moris
             tParameterLists(2)(0).set("name", "property_1");
             tParameterLists(2)(0).set("dependencies", "");
 
-            tParameterLists(2)(0).set("type", "");
-            tParameterLists(2)(0).set("name", "property_2");
-            tParameterLists(2)(0).set("dependencies", "property_1");
+            tParameterLists(2)(1).set("type", "");
+            tParameterLists(2)(1).set("name", "property_2");
+            tParameterLists(2)(1).set("dependencies", "property_1");
 
-            tParameterLists(2)(0).set("type", "");
-            tParameterLists(2)(0).set("name", "property_3");
-            tParameterLists(2)(0).set("dependencies", "property_1");
+            tParameterLists(2)(2).set("type", "");
+            tParameterLists(2)(2).set("name", "property_3");
+            tParameterLists(2)(2).set("dependencies", "property_1");
 
-            tParameterLists(2)(0).set("type", "");
-            tParameterLists(2)(0).set("name", "property_4");
-            tParameterLists(2)(0).set("dependencies", "property_2,property_3");
+            tParameterLists(2)(3).set("type", "");
+            tParameterLists(2)(3).set("name", "property_4");
+            tParameterLists(2)(3).set("dependencies", "property_2,property_3");
 
             //Geometry_Engine tGeometryEngine(tParameterLists);
         }
