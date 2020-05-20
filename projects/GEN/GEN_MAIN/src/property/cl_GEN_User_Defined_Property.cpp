@@ -18,11 +18,11 @@ namespace moris
                                                      Cell<std::shared_ptr<Property>> aPropertyDependencies,
                                                      MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                                                      MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
-                                                    : Property(aADVs,
-                                                      aPropertyVariableIndices,
-                                                      aADVIndices,
-                                                      aConstantParameters,
-                                                      aPropertyDependencies)
+                                                     : Field(aADVs,
+                                                       aPropertyVariableIndices,
+                                                       aADVIndices,
+                                                       aConstantParameters),
+                                                     Property(aPropertyDependencies)
         {
             evaluate_field_value_user_defined = aFieldEvaluationFunction;
             evaluate_sensitivity_user_defined = aSensitivityEvaluationFunction;

@@ -6,13 +6,14 @@
 #define MORIS_CL_GEN_USER_DEFINED_PROPERTY_HPP
 
 #include "cl_GEN_Property.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class User_Defined_Property : public Property
+        class User_Defined_Property : public Property, public Field_Analytic
         {
         private:
             MORIS_GEN_FIELD_FUNCTION evaluate_field_value_user_defined;
@@ -38,13 +39,17 @@ namespace moris
                      MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction);
 
             /**
-             * evaluate property in terms of coefficients and variables
+             * Evaluate the property field based on the given coordinates
+             *
+             * @param aCoordinates Coordinate values
              */
             real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * evaluate property derivatives wrt a design variable
-             * @param[ in ] aDvType cell of dv type
+             * Evaluate the sensitivities of the property value with respect to all internal variables
+             *
+             * @param aCoordinates Coordinate values
+             * @param aSensitivities Sensitivity matrix to fill
              */
             void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
