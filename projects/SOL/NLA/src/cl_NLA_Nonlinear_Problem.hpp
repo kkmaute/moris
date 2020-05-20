@@ -102,6 +102,7 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
         void build_linearized_problem( const bool        & aRebuildJacobian,
+                                       const bool        & aCombinedResJacAssebly,
                                              sint          aNonLinearIt );
 
         //--------------------------------------------------------------------------------------------------

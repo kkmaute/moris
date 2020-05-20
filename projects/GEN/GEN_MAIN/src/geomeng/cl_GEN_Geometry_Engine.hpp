@@ -127,8 +127,6 @@ namespace moris
             moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
             moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
-            //
-            bool mModelSet = false;
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
 
@@ -199,11 +197,6 @@ namespace moris
              * @return vector of upper bounds
              */
             Matrix<DDRMat>& get_upper_bounds();
-
-            /**
-             * Sets the fem model for the design variable interface
-             */
-            void set_equation_model(std::shared_ptr<MSI::Equation_Model> aModel);
 
             /**
              * Lets MDL know about the stored requested IQIs through the PDV host manager

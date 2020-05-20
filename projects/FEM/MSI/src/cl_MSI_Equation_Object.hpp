@@ -331,7 +331,7 @@ class Dist_Vector;
                 /**
                  * compute dQIdp
                  */
-                virtual void compute_dQIdp()
+                virtual void compute_dQIdp_implicit()
                 {
                     MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
                 };
@@ -440,8 +440,6 @@ class Dist_Vector;
                 {
                     MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class." );
                 }
-
-                //-------------------------------------------------------------------------------------------------
         };
     }
 }

@@ -16,6 +16,8 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 
+#include "cl_PRM_SOL_Parameters.hpp"
+
 // Detailed Logging package
 //#include "cl_Tracer.hpp"
 

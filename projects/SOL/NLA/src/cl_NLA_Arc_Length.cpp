@@ -150,13 +150,13 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinear
     }
     mFArc = std::sqrt((1-mB)*(mArcNumer/mArcDenom)+mB*std::pow(mDeltaLambda,2));
 
-    mR0 = mGlobalRHS->vec_norm2();
+    mR0 = mGlobalRHS->vec_norm2()(0);
     mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()->vec_put_scalar(0.0);
     //------------------------------------------------------------------------------
     // Arc Length loop
     //------------------------------------------------------------------------------
     sint tIter = 1;
-    while ( ((std::abs(mGlobalRHS->vec_norm2()/mR0) > mResTol) || ((mFArc-mDeltaA)/mDeltaA > mForTol))  &&  (tIter<=tMaxIts) )
+    while ( ((std::abs(mGlobalRHS->vec_norm2()(0)/mR0) > mResTol) || ((mFArc-mDeltaA)/mDeltaA > mForTol))  &&  (tIter<=tMaxIts) )
     {
         clock_t tArcLengthLoopStart = clock();
         clock_t tStartAssemblyTime  = clock();

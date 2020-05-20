@@ -415,7 +415,7 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log_debug.inc"
  */
-#if !defined(NDEBUG) || defined(DEBUG)
+#if defined(DEBUG)
 #define MORIS_LOG_DEBUG( ... ) \
     do \
     { \

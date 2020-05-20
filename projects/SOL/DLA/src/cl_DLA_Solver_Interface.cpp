@@ -113,7 +113,7 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
         this->free_block_memory( Ii );
     }
 
-    // global assembly to switch entries to the right proceccor
+    // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_asembly();
 
 //    std::cout<<"Assembled Residual Vector"<<std::endl;
@@ -170,32 +170,48 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
                                             moris::sol::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
-    moris::uint numLocElements = this->get_num_my_elements();
+    moris::uint numBlocks = this->get_num_my_blocks();
 
-    // Loop over all local elements to fill matrix and RHS
-    for (moris::uint Ii=0; Ii< numLocElements; Ii++)
+    moris::uint tNumRHS = this->get_num_rhs();
+
+    // Loop over all local elements to build matrix graph
+    for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
-        moris::Matrix< DDSMat > tElementTopology;
-        this->get_element_topology( Ii, tElementTopology );
+//        std::cout<<"Block "<<Ii<<std::endl;
+        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        Matrix< DDRMat > tElementMatrix;
-        this->get_equation_object_operator( Ii, tElementMatrix );
+        this->initialize_set( Ii, false );
 
-        Cell< Matrix< DDRMat > >tElementRHS;
-        this->get_equation_object_rhs( Ii, tElementRHS );
+        for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+        {
+            Matrix< DDSMat > tElementTopology;
+            this->get_element_topology(Ii, Ik, tElementTopology );
 
-        // Fill element in distributed matrix
-        aMat->fill_matrix( tElementTopology.length(),
-                           tElementMatrix,
-                           tElementTopology );
+            Matrix< DDRMat > tElementMatrix;
+            this->get_equation_object_operator( Ii, Ik, tElementMatrix );
 
-        // Fill elementRHS in distributed RHS
-        aVectorRHS->sum_into_global_values( tElementTopology,
-                                            tElementRHS(0) );
+            // Fill element in distributed matrix
+            aMat->fill_matrix( tElementTopology.length(),
+                               tElementMatrix,
+                               tElementTopology );
+
+            Cell< Matrix< DDRMat > > tElementRHS;
+            this->get_equation_object_rhs( Ii, Ik, tElementRHS );
+
+            for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+            {
+                // Fill elementRHS in distributed RHS
+                aVectorRHS->sum_into_global_values( tElementTopology,
+                                                    tElementRHS( Ia ),
+                                                    Ia );
+            }
+        }
+        aMat->matrix_global_assembly();
+        this->free_block_memory( Ii );
     }
-
-    // global assembly to switch entries to the right proceccor
+    // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
+
     aVectorRHS->vector_global_asembly();
 }
 

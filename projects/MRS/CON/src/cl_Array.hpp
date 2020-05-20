@@ -70,14 +70,14 @@ namespace moris
         operator[](
                 const moris::size_t i_index )
         -> decltype(
-#ifndef NDEBUG
+#ifdef DEBUG
                 ( mArray.at( i_index ) )
 #else
                 ( mArray[ i_index ] )
 #endif
         )
         {
-#ifndef NDEBUG
+#ifdef DEBUG
             return( mArray.at( i_index ) );
 #else
             return( mArray[ i_index ] );

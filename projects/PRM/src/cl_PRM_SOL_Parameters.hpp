@@ -311,8 +311,11 @@ namespace moris
             // Determines if lin solve should restart on fail
             tNonLinAlgorithmParameterList.insert( "NLA_rebuild_lin_solv_on_fail" , false );
 
-            // Determines if lin solve should restart on fail
+            // Determines if jacobian is rebuild for every nonlinear iteration
             tNonLinAlgorithmParameterList.insert( "NLA_rebuild_jacobian" , true );
+
+            // Determines if lin solve should restart on fail
+            tNonLinAlgorithmParameterList.insert( "NLA_combined_res_jac_assembly" , false );
 
             // Determines if newton should restart on fail
             tNonLinAlgorithmParameterList.insert( "NLA_rebuild_nonlin_solv_on_fail" , false );

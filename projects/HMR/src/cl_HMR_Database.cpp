@@ -246,7 +246,7 @@ namespace moris
                     }
                     else
                     {
-                    	tBsplineMeshes( Ik ) = nullptr;
+                        tBsplineMeshes( Ik ) = nullptr;
                     }
                 }
 

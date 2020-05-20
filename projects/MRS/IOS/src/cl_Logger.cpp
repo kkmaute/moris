@@ -246,10 +246,10 @@ void Logger::print_header()
     mStream << "Git hash: " << get_moris_git_hash() << "\n";
     mStream << "DEBUG: ";
 
-#if !defined(NDEBUG) || defined(DEBUG)
+#if defined(DEBUG)
     mStream << "ON\n";
 #endif
-#if defined(NDEBUG) || !defined(DEBUG)
+#if !defined(DEBUG)
     mStream << "OFF\n";
 #endif
 

@@ -8,7 +8,7 @@
 /**
  * @brief Assertion, only active if DEBUG is defined.
  */
-#if !defined(NDEBUG) || defined(DEBUG)
+#if defined(DEBUG)
 #define MORIS_ASSERT( check, ...  ) \
     do \
     { \

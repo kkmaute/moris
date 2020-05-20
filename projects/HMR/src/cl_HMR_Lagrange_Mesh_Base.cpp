@@ -40,6 +40,8 @@ namespace moris
         {
             mNumBSplineMeshes = mBSplineMeshes.size();
 
+            this->check_if_bspline_mesh_is_trivial_interpolation();
+
             // allocate T-Matrix cell
 //            mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
             mTMatrix.resize( mBSplineMeshes.size(), nullptr );

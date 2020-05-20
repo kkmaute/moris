@@ -14,7 +14,7 @@ using namespace moris;
 Vector_Epetra::Vector_Epetra(       sol::Dist_Map   * aMapClass,
                               const sint              aNumVectors ) : sol::Dist_Vector( aMapClass )
 {
-	mNumVectors = aNumVectors;
+    mNumVectors = aNumVectors;
 
     // Build Epetra Vector
     mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_map(), aNumVectors );
@@ -47,7 +47,7 @@ void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlo
                                             const moris::Matrix< DDRMat > & aValues,
                                             const uint                    & aVectorIndex )
 {
-    // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+    // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
                                                                                 aGlobalIds.data(),
                                                                                 aValues.data(),
@@ -164,12 +164,12 @@ moris::sint Vector_Epetra::vec_global_length() const
 
 //----------------------------------------------------------------------------------------------
 
-moris::real Vector_Epetra::vec_norm2()
+Cell< moris::real > Vector_Epetra::vec_norm2()
 {
-    moris::real tNorm = 0.0;
+    Cell< moris::real > tNorm( mNumVectors, 0.0);
 
     // get the norm2 of this vector
-    mEpetraVector->Norm2( &tNorm );
+    mEpetraVector->Norm2( tNorm.data().data() );
 
     return tNorm;
 }
@@ -180,7 +180,7 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 {
     //std::cout<<*mEpetraVector<<std::endl;
 
-	moris::sint tVectorLenght = this->vec_local_length();
+    moris::sint tVectorLenght = this->vec_local_length();
 
     LHSValues.set_size( tVectorLenght, mNumVectors );
 
