@@ -571,9 +571,6 @@ namespace moris
                                                           Ik );
                 }
             }
-
-            // global assembly to switch entries to the right processor
-            mEquationSet->get_equation_model()->get_explicit_dQidu()->vector_global_asembly();
         }
 
 //-------------------------------------------------------------------------------------------------
@@ -705,9 +702,6 @@ namespace moris
                                                                                        tLocalIGdQiDp,
                                                                                        Ik );
             }
-
-            // global assembly to switch entries to the right processor
-            mEquationSet->get_equation_model()->get_implicit_dQidu()->vector_global_asembly();
         }
 
 //------------------------------------------------------------------------------
