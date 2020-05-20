@@ -1422,15 +1422,15 @@ namespace moris
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-                    //                    // for debug
-                    //                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
-                    //                    {
-                    //                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
-                    //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
-                    //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
-                    //                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
-                    //                        std::cout<<"Relative difference "<<tRelative<<std::endl;
-                    //                    }
+//                    // for debug
+//                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+//                    {
+//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
+//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
+//                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
+//                        std::cout<<"Relative difference "<<tRelative<<std::endl;
+//                    }
                 }
             }
 
@@ -1528,9 +1528,7 @@ namespace moris
             Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
             // get the residual dof type index in the set
-            uint tResDofIndex = mSet->get_dof_index_for_type(
-                    mResidualDofType( 0 ),
-                    mtk::Master_Slave::MASTER );
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
@@ -2001,16 +1999,12 @@ namespace moris
             uint tNumDvType = tRequestedPdvTypes.size();
 
             // get the master residual dof type index in the set
-            uint tMasterResDofIndex = mSet->get_dof_index_for_type(
-                    mResidualDofType( 0 ),
-                    mtk::Master_Slave::MASTER );
+            uint tMasterResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
             uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
 
             // get the slave residual dof type index in the set
-            uint tSlaveResDofIndex = mSet->get_dof_index_for_type(
-                    mResidualDofType( 0 ),
-                    mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
 
