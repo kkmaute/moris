@@ -75,6 +75,7 @@ using namespace dla;
 
         moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
         moris::real tRelaxation = mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_parameter" );
+        bool tCombinedResJacAssembly = mParameterListNonlinearSolver.get< bool >( "NLA_combined_res_jac_assembly" );
 //        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
 
         bool tIsConverged            = false;
@@ -109,7 +110,7 @@ using namespace dla;
                 else
                 {
 
-                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It );
+                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
                 }
 
                 tMaxAssemblyTime = this->calculate_time_needed( tStartAssemblyTime );

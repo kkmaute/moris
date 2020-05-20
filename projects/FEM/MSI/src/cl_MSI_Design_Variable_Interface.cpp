@@ -23,17 +23,11 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------------
 
-        sol::Dist_Vector * Design_Variable_Interface::get_implicit_dQidu()
+        sol::Dist_Vector * Design_Variable_Interface::get_dQidu()
         {
-            return mModel->get_implicit_dQidu();
+            return mModel->get_dQidu();
         }
 
-//------------------------------------------------------------------------------
-
-        sol::Dist_Vector * Design_Variable_Interface::get_explicit_dQidu()
-        {
-            return mModel->get_explicit_dQidu();;
-        }
 
     }
 }

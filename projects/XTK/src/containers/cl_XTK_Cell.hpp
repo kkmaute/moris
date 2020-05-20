@@ -120,7 +120,7 @@
 //    T & operator()(size_t const i_index)
 //
 //    {
-//#ifndef NDEBUG
+//#ifdef DEBUG
 //        return (mCell.at(i_index));
 //#else
 //        return( mCell[ i_index ] );
@@ -132,7 +132,7 @@
 //     */
 //    T const & operator()(size_t const i_index) const
 //    {
-//#ifndef NDEBUG
+//#ifdef DEBUG
 //        return (mCell.at(i_index));
 //#else
 //        return( mCell[ i_index ] );

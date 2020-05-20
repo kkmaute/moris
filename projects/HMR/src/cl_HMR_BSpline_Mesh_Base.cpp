@@ -1861,7 +1861,7 @@ namespace moris
                 this->link_basis_to_parents();
             }
 /*
-#if !defined(NDEBUG) || defined(DEBUG)
+#if defined(DEBUG)
             // Test sanity #CHRISTIAN
             luint tNumberOfBSplines = this->get_number_of_active_basis_on_proc();
             Matrix< DDLUMat > tIDs( tNumberOfBSplines, 1 );

@@ -900,8 +900,8 @@ namespace moris
                         Matrix< DDRMat > tQI_Minus = mSet->get_QI()( tQIIndex );
 
                         // evaluate Jacobian
-                        adQIduFD( tDofCounter )
-                        = ( tQI_Plus( 0 ) - tQI_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        adQIduFD( tDofCounter ) =
+                                ( tQI_Plus( 0 ) - tQI_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // update dof counter
                         tDofCounter++;
@@ -973,12 +973,13 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        bool IQI::check_dQIdu_FD( real              aWStar,
-                                  real              aPerturbation,
-                                  real              aEpsilon,
-                                  Matrix< DDRMat > & adQIdu,
-                                  Matrix< DDRMat > & adQIduFD )
+        //------------------------------------------------------------------------------
+        bool IQI::check_dQIdu_FD(
+                real              aWStar,
+                real              aPerturbation,
+                real              aEpsilon,
+                Matrix< DDRMat > & adQIdu,
+                Matrix< DDRMat > & adQIduFD )
         {
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
@@ -1012,166 +1013,192 @@ namespace moris
             return tCheckdQIdDof;
         }
 
-//------------------------------------------------------------------------------
-            void IQI::compute_dQIdp_FD_material( moris::real aWStar,
-                                                 moris::real aPerturbation )
+        //------------------------------------------------------------------------------
+        void IQI::compute_dQIdp_FD_material(
+                moris::real aWStar,
+                moris::real aPerturbation )
+        {
+            // get the requested ip pdv types
+            moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes;
+            mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
+
+            // get number of requested dv types
+            uint tNumPdvType = tRequestedPdvTypes.size();
+
+            // get the IQI index
+            uint tIQIAssemblyIndex = 0;
+
+            // loop over the pdv types
+            for( uint iFI = 0; iFI < tNumPdvType; iFI++ )
             {
-                // FIXME
-                // get list of requested pdv types
-                moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes
-                = mMasterGlobalDvTypes;
+                // get the FI for the dv type
+                Field_Interpolator * tFI
+                = mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
-                // get number of requested pdv types
-                uint tNumPdvType = tRequestedPdvTypes.size();
+                // get number of master FI bases and fields
+                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFI->get_number_of_fields();
 
-                // get the IQI index
-                uint tIQIAssemblyIndex = 0;
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
-                // loop over the pdv types
-                for( uint iFI = 0; iFI < tNumPdvType; iFI++ )
+                // init pdv coeff counter
+                uint tPdvCoeffCounter = 0;
+
+                // loop over the pdv coefficient column
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
                 {
-                    // get the FI for the dv type
-                    Field_Interpolator * tFI
-                    = mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
-
-                    // get number of master FI bases and fields
-                    uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-                    uint tDerNumFields = tFI->get_number_of_fields();
-
-                    // coefficients for dof type wrt which derivative is computed
-                    Matrix< DDRMat > tCoeff = tFI->get_coeff();
-
-                    // init pdv coeff counter
-                    uint tPdvCoeffCounter = 0;
-
-                    // loop over the pdv coefficient column
-                    for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
+                    // loop over the pdv coefficient row
+                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
                     {
-                        // loop over the pdv coefficient row
-                        for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
-                        {
-                            // perturbation of the pdv coefficent
-                            Matrix< DDRMat > tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        // perturbation of the pdv coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                            // setting the perturbed coefficients
-                            tFI->set_coeff( tCoeffPert );
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
 
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                            // evaluate the QI
-                            Matrix< DDRMat > tQIValPlus;
-                            this->compute_QI( tQIValPlus );
+                        // evaluate the QI
+                        Matrix< DDRMat > tQIValPlus;
+                        this->compute_QI( tQIValPlus );
 
-                            // perturbation of the coefficent
-                            tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                            // setting the perturbed coefficients
-                            tFI->set_coeff( tCoeffPert );
+                        // setting the perturbed coefficients
+                        tFI->set_coeff( tCoeffPert );
 
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                            // evaluate the QI
-                            Matrix< DDRMat > tQIValMinus;
-                            this->compute_QI( tQIValMinus );
+                        // evaluate the QI
+                        Matrix< DDRMat > tQIValMinus;
+                        this->compute_QI( tQIValMinus );
 
-                            // get the pdv index for assembly
-                            uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
+                        // get the pdv index for assembly
+                        uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
 
-                            // evaluate dQIqp
-                            mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex )
-                            = ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // evaluate dQIqp
+                        mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
+                                ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
-                            // update the pdv coefficient counter
-                            tPdvCoeffCounter++;
-                        }
+                        // update the pdv coefficient counter
+                        tPdvCoeffCounter++;
                     }
-                    // reset the coefficients values
-                    tFI->set_coeff( tCoeff );
                 }
+                // reset the coefficients values
+                tFI->set_coeff( tCoeff );
             }
+        }
 
-//------------------------------------------------------------------------------
-            void IQI::compute_dQIdp_FD_geometry
-            ( moris::real                       aWStar,
-              moris::real                       aPerturbation,
-              moris::Cell< Matrix< DDSMat > > & aIsActive,
-              Matrix< IndexMat >              & aVertexIndices )
+        //------------------------------------------------------------------------------
+        void IQI::compute_dQIdp_FD_geometry(
+                moris::real                       aWStar,
+                moris::real                       aPerturbation,
+                moris::Cell< Matrix< DDSMat > > & aIsActive,
+                Matrix< IndexMat >              & aVertexIndices )
+        {
+            // get requested geometry pdv types
+            moris::Cell< PDV_Type > tRequestedGeoPdvType;
+            mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
+
+            // get the IQI index
+            uint tIQIAssemblyIndex = 0;
+
+            // get the GI for the IP and IG element considered
+            Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+            Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
+            // get number of master GI bases and space dimensions
+            uint tDerNumBases      = tIGGI->get_number_of_space_bases();
+            uint tDerNumDimensions = tIGGI->get_number_of_space_dimensions();
+
+            // coefficients for dv type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
+            Matrix< DDRMat > tEvaluationPoint;
+            tIGGI->get_space_time( tEvaluationPoint );
+
+            // loop over the spatial directions
+            for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
-                // FIXME
-                // get requested geometry pdv type
-                moris::Cell< PDV_Type > tRequestedGeoPdvType
-                = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
-
-                // get the IQI index
-                uint tIQIAssemblyIndex = 0;
-
-                // get the GI for the IG element considered
-                Geometry_Interpolator * tGI = mSet->get_field_interpolator_manager()
-                                                  ->get_IG_geometry_interpolator();
-
-                // get number of master GI bases and space dimensions
-                uint tDerNumBases      = tGI->get_number_of_space_bases();
-                uint tDerNumDimensions = tGI->get_number_of_space_dimensions();
-
-                // coefficients for dv type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = tGI->get_space_coeff();
-
-                // loop over the spatial directions
-                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+                // loop over the IG nodes
+                for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
                 {
-                    // loop over the IG nodes
-                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+                    if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                     {
-                        if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
-                        {
-                            // perturbation of the coefficent
-                            Matrix< DDRMat > tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                            // setting the perturbed coefficients
-                            tGI->set_space_coeff( tCoeffPert );
+                        // setting the perturbed coefficients
+                        tIGGI->set_space_coeff( tCoeffPert );
 
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
+                        // update local coordinates
+                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                        Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                        tIGGI->set_space_param_coeff( tParamCoeffPert );
 
-                            // evaluate the QI
-                            Matrix< DDRMat > tQIValPlus;
-                            this->compute_QI( tQIValPlus );
+                        // set evaluation point for interpolators (FIs and GIs)
+                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
-                            // perturbation of the coefficient
-                            tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
 
-                            // setting the perturbed coefficients
-                            tGI->set_space_coeff( tCoeffPert );
+                        // evaluate the QI
+                        Matrix< DDRMat > tQIValPlus;
+                        this->compute_QI( tQIValPlus );
 
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
+                        // perturbation of the coefficient
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                            // evaluate the QI
-                            Matrix< DDRMat > tQIValMinus;
-                            this->compute_QI( tQIValMinus );
+                        // setting the perturbed coefficients
+                        tIGGI->set_space_coeff( tCoeffPert );
 
-                            // get the geometry pdv assembly index
-                            std::pair< moris_index, PDV_Type > tKeyPair
-                            = std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
-                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+                        // update local coordinates
+                        tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                        tParamCoeffPert = tParamCoeff;
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                        tIGGI->set_space_param_coeff( tParamCoeffPert );
 
-                            // evaluate dqidpdv
-                            mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex )
-                            += ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                        }
+                        // set evaluation point for interpolators (FIs and GIs)
+                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                        // reset properties, CM and SP for IWG
+                        this->reset_eval_flags();
+
+                        // evaluate the QI
+                        Matrix< DDRMat > tQIValMinus;
+                        this->compute_QI( tQIValMinus );
+
+                        // get the geometry pdv assembly index
+                        std::pair< moris_index, PDV_Type > tKeyPair =
+                                std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
+                        uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+
+                        // evaluate dqidpdv
+                        mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
+                                ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
                     }
-                    // reset the coefficients values
-                     tGI->set_space_coeff( tCoeff );
                 }
+                // reset the coefficients values
+                tIGGI->set_space_coeff( tCoeff );
+                tIGGI->set_space_param_coeff( tParamCoeff );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
             }
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
 

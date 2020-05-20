@@ -139,6 +139,8 @@ namespace moris
             K1_SENT,
             ANALYTIC,
             STRESS,
+            LIFT_COEFF,
+            DRAG_COEFF,
             END_IQI_TYPE
         };
 
@@ -185,6 +187,7 @@ namespace moris
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
+            SUPG_SPALART_ALLMARAS_TURBULENCE,
             END_STABILIZATION_TYPE
         };
 

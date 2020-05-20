@@ -28,623 +28,647 @@ namespace moris
     {
         class Set;
         class Field_Interpolator_Manager;
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /**
          * Integrand of Weak Form of Governing Equations
          */
         class IWG
         {
-        protected :
+            protected :
 
-            // FEM set pointer
-            fem::Set * mSet = nullptr;
+                // FEM set pointer
+                fem::Set * mSet = nullptr;
 
-            // nodal weak BCs
-            Matrix< DDRMat > mNodalWeakBCs;
+                // nodal weak BCs
+                Matrix< DDRMat > mNodalWeakBCs;
 
-            // normal
-            Matrix< DDRMat > mNormal;
+                // normal
+                Matrix< DDRMat > mNormal;
 
-            // residual dof type
-            moris::Cell< MSI::Dof_Type > mResidualDofType;
+                // residual dof type
+                moris::Cell< MSI::Dof_Type > mResidualDofType;
 
-            // master and slave dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
+                // master and slave dof type lists
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
 
-            // bool for building global dof type list and map
-            bool mGlobalDofBuild = true;
-            bool mGlobalDvBuild = true;
+                // bool for building global dof type list and map
+                bool mGlobalDofBuild = true;
+                bool mGlobalDvBuild = true;
 
-            // master and slave global dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
+                // master and slave global dof type lists
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
 
-            // master and slave requested global dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
+                // master and slave requested global dof type lists
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
-            // master and slave field interpolator managers
-            Field_Interpolator_Manager * mMasterFIManager = nullptr;
-            Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
-            Field_Interpolator_Manager * mMasterPreviousFIManager  = nullptr;
+                // master and slave field interpolator managers
+                Field_Interpolator_Manager * mMasterFIManager = nullptr;
+                Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
+                Field_Interpolator_Manager * mMasterPreviousFIManager  = nullptr;
 
-            // master and slave dv type lists
-            moris::Cell< moris::Cell< PDV_Type > > mMasterDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mSlaveDvTypes;
+                // master and slave dv type lists
+                moris::Cell< moris::Cell< PDV_Type > > mMasterDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > mSlaveDvTypes;
 
-            // master and slave global dv type list
-            moris::Cell< moris::Cell< PDV_Type > > mMasterGlobalDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mSlaveGlobalDvTypes;
+                // master and slave global dv type list
+                moris::Cell< moris::Cell< PDV_Type > > mMasterGlobalDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > mSlaveGlobalDvTypes;
 
-            // master and slave properties
-            moris::Cell< std::shared_ptr< Property > > mMasterProp;
-            moris::Cell< std::shared_ptr< Property > > mSlaveProp;
+                // master and slave properties
+                moris::Cell< std::shared_ptr< Property > > mMasterProp;
+                moris::Cell< std::shared_ptr< Property > > mSlaveProp;
 
-            // master and slave constitutive models
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mMasterCM;
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mSlaveCM;
+                // master and slave constitutive models
+                moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mMasterCM;
+                moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mSlaveCM;
 
-            // stabilization parameters
-            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
+                // stabilization parameters
+                moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
-            // string for IWG name
-            std::string mName;
+                // string for IWG name
+                std::string mName;
 
-//------------------------------------------------------------------------------
-        public :
+                //------------------------------------------------------------------------------
+            public :
 
-//------------------------------------------------------------------------------
-            /**
-             * constructor
-             */
-            IWG(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * constructor
+                 */
+                IWG(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * virtual destructor
-             */
-            virtual ~IWG(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * virtual destructor
+                 */
+                virtual ~IWG(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * set name
-             * param[ in ] aName a string for CM name
-             */
-            void set_name( std::string aName )
-            {
-                mName = aName;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get name
-             * param[ out ] mName a string for CM name
-             */
-            std::string get_name()
-            {
-                return mName;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * print name
-             */
-            void print_names();
-
-//------------------------------------------------------------------------------
-            /*
-             * set member set pointer
-             * @param[ in ] aSetPointer a FEM set pointer
-             */
-            void set_set_pointer( Set * aSetPointer )
-            {
-                mSet = aSetPointer;
-            }
-
-//------------------------------------------------------------------------------
-            /*
-             * get member set pointer
-             * @param[ out ] aSetPointer a FEM set pointer
-             */
-            Set * get_set_pointer()
-            {
-                return mSet;
-            }
-
-//------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsMaster                 an enum for master or slave
-             */
-            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
-                                                 mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
-
-//------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager for previous time step
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsMaster                 an enum for master or slave
-             */
-            void set_field_interpolator_manager_previous_time( Field_Interpolator_Manager * aFieldInterpolatorManager,
-                                                               mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
-
-//------------------------------------------------------------------------------
-            /*
-             * get field interpolator manager
-             * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ]  aIsMaster                 an enum for master or slave
-             */
-            Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                switch ( aIsMaster )
+                //------------------------------------------------------------------------------
+                /**
+                 * set name
+                 * param[ in ] aName a string for CM name
+                 */
+                void set_name( std::string aName )
                 {
-                    case ( mtk::Master_Slave::MASTER ) :
-                        return mMasterFIManager;
+                    mName = aName;
+                }
 
-                    case ( mtk::Master_Slave::SLAVE ) :
-                        return mSlaveFIManager;
+                //------------------------------------------------------------------------------
+                /**
+                 * get name
+                 * param[ out ] mName a string for CM name
+                 */
+                std::string get_name()
+                {
+                    return mName;
+                }
 
-                    default :
+                //------------------------------------------------------------------------------
+                /**
+                 * print name
+                 */
+                void print_names();
+
+                //------------------------------------------------------------------------------
+                /*
+                 * set member set pointer
+                 * @param[ in ] aSetPointer a FEM set pointer
+                 */
+                void set_set_pointer( Set * aSetPointer )
+                {
+                    mSet = aSetPointer;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * get member set pointer
+                 * @param[ out ] aSetPointer a FEM set pointer
+                 */
+                Set * get_set_pointer()
+                {
+                    return mSet;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * set field interpolator manager
+                 * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+                 * @param[ in ] aIsMaster                 an enum for master or slave
+                 */
+                void set_field_interpolator_manager(
+                        Field_Interpolator_Manager * aFieldInterpolatorManager,
+                        mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /*
+                 * set field interpolator manager for previous time step
+                 * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+                 * @param[ in ] aIsMaster                 an enum for master or slave
+                 */
+                void set_field_interpolator_manager_previous_time(
+                        Field_Interpolator_Manager * aFieldInterpolatorManager,
+                        mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /*
+                 * get field interpolator manager
+                 * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
+                 * @param[ in ]  aIsMaster                 an enum for master or slave
+                 */
+                Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    switch ( aIsMaster )
                     {
-                        MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
-                        return mMasterFIManager;
+                        case mtk::Master_Slave::MASTER :
+                            return mMasterFIManager;
+
+                        case mtk::Master_Slave::SLAVE :
+                            return mSlaveFIManager;
+
+                        default :
+                            MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
+                            return mMasterFIManager;
                     }
                 }
-            }
 
-//------------------------------------------------------------------------------
-            /*
-             * free memory
-             */
-            void free_memory()
-            {
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set nodal weak BCs
-             * @param[ in ] aNodalWeakBCs matrix with nodal values
-             */
-            void set_nodal_weak_bcs( Matrix< DDRMat > & aNodalWeakBCs )
-            {
-                mNodalWeakBCs = aNodalWeakBCs;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set normal
-             * @param[ in ] aNormal normal vector
-             */
-            void set_normal( Matrix< DDRMat > & aNormal )
-            {
-                mNormal = aNormal;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set residual dof type
-             * @param[ in ] aResidualdofType a cell of residual dof types
-             */
-            void set_residual_dof_type( const moris::Cell< MSI::Dof_Type > & aResidualDofType )
-            {
-                mResidualDofType = aResidualDofType;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * return a dof type for the residual
-             * @param[ out ] aResidualdofType a cell of residual dof types
-             */
-            const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
-            {
-                return mResidualDofType;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * set IWG active dof types
-             * @param[ in ] aDofTypes a list of group of dof types
-             * @param[ in ] aIsMaster enum for master or slave
-             */
-            void set_dof_type_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                                    mtk::Master_Slave                                   aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                switch ( aIsMaster )
+                //------------------------------------------------------------------------------
+                /*
+                 * free memory
+                 */
+                void free_memory()
                 {
-                    case( mtk::Master_Slave::MASTER ) :
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set nodal weak BCs
+                 * @param[ in ] aNodalWeakBCs matrix with nodal values
+                 */
+                void set_nodal_weak_bcs( Matrix< DDRMat > & aNodalWeakBCs )
+                {
+                    mNodalWeakBCs = aNodalWeakBCs;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set normal
+                 * @param[ in ] aNormal normal vector
+                 */
+                void set_normal( Matrix< DDRMat > & aNormal )
+                {
+                    mNormal = aNormal;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set residual dof type
+                 * @param[ in ] aResidualdofType a cell of residual dof types
+                 */
+                void set_residual_dof_type( const moris::Cell< MSI::Dof_Type > & aResidualDofType )
+                {
+                    mResidualDofType = aResidualDofType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return a dof type for the residual
+                 * @param[ out ] aResidualdofType a cell of residual dof types
+                 */
+                const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
+                {
+                    return mResidualDofType;
+                };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set IWG active dof types
+                 * @param[ in ] aDofTypes a list of group of dof types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dof_type_list(
+                        const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        mtk::Master_Slave                                   aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    switch ( aIsMaster )
                     {
-                        mMasterDofTypes = aDofTypes;
-                        break;
-                    }
-                    case( mtk::Master_Slave::SLAVE ) :
-                    {
-                        mSlaveDofTypes = aDofTypes;
-                        break;
-                    }
-                    default :
-                    {
-                        MORIS_ERROR( false, "IWG::set_dof_type_list - can only be MASTER or SLAVE.");
-                        break;
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            mMasterDofTypes = aDofTypes;
+                            break;
+                        }
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            mSlaveDofTypes = aDofTypes;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "IWG::set_dof_type_list - can only be MASTER or SLAVE.");
+                            break;
+                        }
                     }
                 }
-            }
 
-//------------------------------------------------------------------------------
-            /**
-             * return a cell of dof types active for the IWG
-             * @param[ in ] aIsMaster enum master or slave
-             * @param[ out ] aDofTypes a list of group of dof types
-             */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-            {
-                // switch on master/slave
-                switch( aIsMaster )
+                //------------------------------------------------------------------------------
+                /**
+                 * return a cell of dof types active for the IWG
+                 * @param[ in ] aIsMaster enum master or slave
+                 * @param[ out ] aDofTypes a list of group of dof types
+                 */
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
                 {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
+                    // switch on master/slave
+                    switch( aIsMaster )
                     {
-                        // return master global dof type list
-                        return mMasterDofTypes;
-                        break;
+                        // if master
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            // return master global dof type list
+                            return mMasterDofTypes;
+                            break;
+                        }
+                        // if slave
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            // return slave global dof type list
+                            return mSlaveDofTypes;
+                            break;
+                        }
+                        // if none
+                        default:
+                        {
+                            MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
+                            return mMasterDofTypes;
+                            break;
+                        }
                     }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
+                };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set IWG active dv types
+                 * @param[ in ] aDvTypes a list of group of dv types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dv_type_list(
+                        const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                              mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    switch ( aIsMaster )
                     {
-                        // return slave global dof type list
-                        return mSlaveDofTypes;
-                        break;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
-                        return mMasterDofTypes;
-                        break;
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            mMasterDvTypes = aDvTypes;
+                            break;
+                        }
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            mSlaveDvTypes = aDvTypes;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "IWG::set_dv_type_list - can only be MASTER or SLAVE.");
+                            break;
+                        }
                     }
                 }
-            };
 
-//------------------------------------------------------------------------------
-            /**
-             * set IWG active dv types
-             * @param[ in ] aDvTypes a list of group of dv types
-             * @param[ in ] aIsMaster enum for master or slave
-             */
-            void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                                    mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                switch ( aIsMaster )
+                //------------------------------------------------------------------------------
+                /**
+                 * return a cell of dv types active for the IWG
+                 * @param[ in ]  aIsMaster enum master or slave
+                 * @param[ out ] aDvTypes a list of group of dv types
+                 */
+                const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
                 {
-                    case( mtk::Master_Slave::MASTER ) :
+                    // switch on master/slave
+                    switch( aIsMaster )
                     {
-                        mMasterDvTypes = aDvTypes;
-                        break;
+                        // if master
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            // return master global dof type list
+                            return mMasterDvTypes;
+                            break;
+                        }
+                        // if slave
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            // return slave global dof type list
+                            return mSlaveDvTypes;
+                            break;
+                        }
+                        // if none
+                        default:
+                        {
+                            MORIS_ASSERT( false, "IWG::get_dv_type_list - can only be master or slave." );
+                            return mMasterDvTypes;
+                            break;
+                        }
                     }
-                    case( mtk::Master_Slave::SLAVE ) :
-                    {
-                        mSlaveDvTypes = aDvTypes;
-                        break;
-                    }
-                    default :
-                    {
-                        MORIS_ERROR( false, "IWG::set_dv_type_list - can only be MASTER or SLAVE.");
-                        break;
-                    }
-                }
-            }
+                };
 
-//------------------------------------------------------------------------------
-            /**
-             * return a cell of dv types active for the IWG
-             * @param[ in ]  aIsMaster enum master or slave
-             * @param[ out ] aDvTypes a list of group of dv types
-             */
-            const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-            {
-                // switch on master/slave
-                switch( aIsMaster )
+                //------------------------------------------------------------------------------
+                /**
+                 * check that field interpolators were assigned
+                 * @param[ in ]  aIsMaster enum master or slave
+                 */
+                void check_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string describing the property
+                 * @param[ in ] aIsMaster       enum master or slave
+                 */
+                virtual void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
                 {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master global dof type list
-                        return mMasterDvTypes;
-                        break;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave global dof type list
-                        return mSlaveDvTypes;
-                        break;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::get_dv_type_list - can only be master or slave." );
-                        return mMasterDvTypes;
-                        break;
-                    }
+                    MORIS_ASSERT( false, "IWG::set_property - This function does nothing.");
                 }
-            };
 
-//------------------------------------------------------------------------------
-            /**
-             * check that field interpolators were assigned
-             * @param[ in ]  aIsMaster enum master or slave
-             */
-             void check_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-//------------------------------------------------------------------------------
-             /**
-              * set property
-              * @param[ in ] aProperty       a property pointer
-              * @param[ in ] aPropertyString a string describing the property
-              * @param[ in ] aIsMaster       enum master or slave
-              */
-              virtual void set_property( std::shared_ptr< Property > aProperty,
-                                         std::string                 aPropertyString,
-                                         mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-              {
-                  MORIS_ASSERT( false, "IWG::set_property - This function does nothing.");
-              }
-
-//------------------------------------------------------------------------------
-             /**
-              * get properties
-              * @param[ in ]  aIsMaster   enum master or slave
-              * @param[ out ] aProperties cell of property pointers
-              */
-             moris::Cell< std::shared_ptr< Property > > & get_properties( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // switch on master/slave
-                 switch( aIsMaster )
-                 {
-                     // if master
-                     case( mtk::Master_Slave::MASTER ):
+                //------------------------------------------------------------------------------
+                /**
+                 * get properties
+                 * @param[ in ]  aIsMaster   enum master or slave
+                 * @param[ out ] aProperties cell of property pointers
+                 */
+                moris::Cell< std::shared_ptr< Property > > & get_properties( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
                      {
-                         // return master property pointers
-                         return mMasterProp;
+                    // switch on master/slave
+                    switch( aIsMaster )
+                    {
+                        // if master
+                        case mtk::Master_Slave::MASTER :
+                         {
+                            // return master property pointers
+                            return mMasterProp;
+                         }
+                        // if slave
+                        case mtk::Master_Slave::SLAVE :
+                         {
+                            // return slave property pointers
+                            return mSlaveProp;
+                         }
+                        // if none
+                        default:
+                        {
+                            MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
+                            return mMasterProp;
+                        }
+                    }
                      }
-                     // if slave
-                     case( mtk::Master_Slave::SLAVE ):
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model
+                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
+                 * @param[ in ] aConstitutiveString a string defining the constitutive model
+                 * @param[ in ] aIsMaster           an enum for master or slave
+                 */
+                virtual void set_constitutive_model(
+                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                        std::string                           aConstitutiveString,
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    MORIS_ERROR( false, "IWG::set_constitutive_model - This function does nothing." );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get constitutive models
+                 * @param[ in ]  aIsMaster           enum master or slave
+                 * @param[ out ] aConstitutiveModels cell of constitutive model pointers
+                 */
+                moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
                      {
-                         // return slave property pointers
-                         return mSlaveProp;
+                    // switch on master/slave
+                    switch( aIsMaster )
+                    {
+                        // if master
+                        case mtk::Master_Slave::MASTER :
+                         {
+                            // return master property pointers
+                            return mMasterCM;
+                         }
+                        // if slave
+                        case mtk::Master_Slave::SLAVE :
+                         {
+                            // return slave property pointers
+                            return mSlaveCM;
+                         }
+                        // if none
+                        default:
+                        {
+                            MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
+                            return mMasterCM;
+                        }
+                    }
                      }
-                     // if none
-                     default:
-                     {
-                         MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
-                         return mMasterProp;
-                     }
-                 }
-             }
 
-//------------------------------------------------------------------------------
-             /**
-              * set constitutive model
-              * @param[ in ] aConstitutiveModel  a constitutive model pointer
-              * @param[ in ] aConstitutiveString a string defining the constitutive model
-              * @param[ in ] aIsMaster           an enum for master or slave
-              */
-             virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                                  std::string                           aConstitutiveString,
-                                                  mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 MORIS_ERROR( false, "IWG::set_constitutive_model - This function does nothing." );
-             }
+                //------------------------------------------------------------------------------
+                /**
+                 * set stabilization parameter
+                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+                 */
+                virtual void set_stabilization_parameter(
+                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                        std::string                                aStabilizationString )
+                {
+                    MORIS_ERROR( false, "IWG::set_stabilization_parameter - This function does nothing." );
+                }
 
-//------------------------------------------------------------------------------
-             /**
-              * get constitutive models
-              * @param[ in ]  aIsMaster           enum master or slave
-              * @param[ out ] aConstitutiveModels cell of constitutive model pointers
-              */
-             moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // switch on master/slave
-                 switch( aIsMaster )
-                 {
-                     // if master
-                     case( mtk::Master_Slave::MASTER ):
-                     {
-                         // return master property pointers
-                         return mMasterCM;
-                     }
-                     // if slave
-                     case( mtk::Master_Slave::SLAVE ):
-                     {
-                         // return slave property pointers
-                         return mSlaveCM;
-                     }
-                     // if none
-                     default:
-                     {
-                         MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
-                         return mMasterCM;
-                     }
-                 }
-             }
+                //------------------------------------------------------------------------------
+                /**
+                 * get stabilization parameters
+                 * @param[ out ] mStabilizationParam cell of stabilization parameter pointers
+                 */
+                moris::Cell< std::shared_ptr< Stabilization_Parameter > > & get_stabilization_parameters()
+                {
+                    // return penalty parameter pointers
+                    return mStabilizationParam;
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            virtual void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                                      std::string                                aStabilizationString )
-            {
-                MORIS_ERROR( false, "IWG::set_stabilization_parameter - This function does nothing." );
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * create a global dof type list including
+                 * IWG, property, constitutive and stabilization dependencies
+                 */
+                void build_global_dof_and_dv_type_list();
 
-//------------------------------------------------------------------------------
-             /**
-              * get stabilization parameters
-              * @param[ out ] mStabilizationParam cell of stabilization parameter pointers
-              */
-             moris::Cell< std::shared_ptr< Stabilization_Parameter > > & get_stabilization_parameters()
-             {
-                 // return penalty parameter pointers
-                 return mStabilizationParam;
-             }
+                //------------------------------------------------------------------------------
+                /**
+                 * get a non unique list of dof type including
+                 * IWG, property, constitutive and stabilization dependencies
+                 * for both master and slave
+                 */
+                void get_non_unique_dof_and_dv_types(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        moris::Cell< PDV_Type >        & aDvTypes );
 
-//------------------------------------------------------------------------------
-             /**
-              * create a global dof type list including
-              * IWG, property, constitutive and stabilization dependencies
-              */
-             void build_global_dof_and_dv_type_list();
+                //------------------------------------------------------------------------------
+                /**
+                 * get global dof type list
+                 * @param[ in ]  aIsMaster       enum master or slave
+                 * @param[ out ] mGlobalDofTypes global list of group of dof types
+                 */
+                moris::Cell< moris::Cell< MSI::Dof_Type > > &
+                get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-             /**
-              * get a non unique list of dof type including
-              * IWG, property, constitutive and stabilization dependencies
-              * for both master and slave
-              */
-             void get_non_unique_dof_and_dv_types( moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                   moris::Cell< PDV_Type >        & aDvTypes );
+                //------------------------------------------------------------------------------
+                /**
+                 * get global dv type list
+                 * @param[ in ]  aIsMaster       enum master or slave
+                 * @param[ out ] mGlobalDvTypes global list of group of dv types
+                 */
+                moris::Cell< moris::Cell< PDV_Type > > &
+                get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-              /**
-               * get global dof type list
-               * @param[ in ]  aIsMaster       enum master or slave
-               * @param[ out ] mGlobalDofTypes global list of group of dof types
-               */
-              moris::Cell< moris::Cell< MSI::Dof_Type > > &
-              get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the residual
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                virtual void compute_residual( real aWStar ) = 0;
 
-//------------------------------------------------------------------------------
-              /**
-               * get global dv type list
-               * @param[ in ]  aIsMaster       enum master or slave
-               * @param[ out ] mGlobalDvTypes global list of group of dv types
-               */
-              moris::Cell< moris::Cell< PDV_Type > > &
-              get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the Jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                virtual void compute_jacobian( real aWStar ) = 0;
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the residual
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            virtual void compute_residual( real aWStar ) = 0;
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the residual and the Jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                virtual void compute_jacobian_and_residual( real aWStar ) = 0;
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the Jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            virtual void compute_jacobian( real aWStar ) = 0;
+                //------------------------------------------------------------------------------
+                /**
+                 * check the Jacobian with FD
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aEpsilon      real for check
+                 * @param[ in ] aWStar        real weight associated to evaluation point
+                 * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
+                 * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+                 */
+                bool check_jacobian(
+                        real               aPerturbation,
+                        real               aEpsilon,
+                        real               aWStar,
+                        Matrix< DDRMat > & aJacobians,
+                        Matrix< DDRMat > & aJacobiansFD );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the residual and the Jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            virtual void compute_jacobian_and_residual( real aWStar ) = 0;
+                //------------------------------------------------------------------------------
+                /**
+                 * check the Jacobian with FD double
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aEpsilon      real for check
+                 * @param[ in ] aWStar        real weight associated to evaluation point
+                 * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
+                 * @param[ in ] aJacobiansFD cell of cell of matrices to fill with Jacobians by FD
+                 */
+                bool check_jacobian_double(
+                        real               aPerturbation,
+                        real               aEpsilon,
+                        real               aWStar,
+                        Matrix< DDRMat > & aJacobians,
+                        Matrix< DDRMat > & aJacobiansFD );
 
-//------------------------------------------------------------------------------
-            /**
-             * check the Jacobian with FD
-             * @param[ in ] aPerturbation real to perturb for FD
-             * @param[ in ] aEpsilon      real for check
-             * @param[ in ] aWStar        real weight associated to evaluation point
-             * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
-             * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
-             */
-            bool check_jacobian( real               aPerturbation,
-                                 real               aEpsilon,
-                                 real               aWStar,
-                                 Matrix< DDRMat > & aJacobians,
-                                 Matrix< DDRMat > & aJacobiansFD );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the derivative of the residual wrt the design variables
+                 * @param[ in ] aWStar weight associated to evaluation point
+                 */
+                virtual void compute_dRdp( real aWStar ) = 0;
 
-//------------------------------------------------------------------------------
-            /**
-             * check the Jacobian with FD double
-             * @param[ in ] aPerturbation real to perturb for FD
-             * @param[ in ] aEpsilon      real for check
-             * @param[ in ] aWStar        real weight associated to evaluation point
-             * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
-             * @param[ in ] aJacobiansFD cell of cell of matrices to fill with Jacobians by FD
-             */
-            bool check_jacobian_double( real               aPerturbation,
-                                        real               aEpsilon,
-                                        real               aWStar,
-                                        Matrix< DDRMat > & aJacobians,
-                                        Matrix< DDRMat > & aJacobiansFD );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the derivative of the residual
+                 * wrt the material design variables by finite difference
+                 * @param[ in ] aWStar        weight associated to evaluation point
+                 * @param[ in ] aPerturbation real for dv perturbation
+                 */
+                void compute_dRdp_FD_material(
+                        moris::real aWStar,
+                        moris::real aPerturbation );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the derivative of the residual wrt the design variables
-             * @param[ in ] aWStar weight associated to evaluation point
-             */
-            virtual void compute_dRdp( real aWStar ) = 0;
+                void compute_dRdp_FD_material_double(
+                        moris::real aWStar,
+                        moris::real aPerturbation );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the derivative of the residual
-             * wrt the material design variables by finite difference
-             * @param[ in ] aWStar        weight associated to evaluation point
-             * @param[ in ] aPerturbation real for dv perturbation
-             */
-            void compute_dRdp_FD_material( moris::real aWStar,
-                                           moris::real aPerturbation );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the derivative of the residual
+                 * wrt the geometry design variables by finite difference
+                 * @param[ in ] aWStar         weight associated to evaluation point
+                 * @param[ in ] aPerturbation  real for dv perturbation
+                 * @param[ in ] aIsActive      cell of vectors for active dv
+                 * @param[ in ] aVertexIndices vertices indices
+                 */
+                void compute_dRdp_FD_geometry(
+                        moris::real                       aWStar,
+                        moris::real                       aPerturbation,
+                        moris::Cell< Matrix< DDSMat > > & aIsActive,
+                        Matrix< IndexMat >              & aVertexIndices );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the derivative of the residual
-             * wrt the geometry design variables by finite difference
-             * @param[ in ] aWStar         weight associated to evaluation point
-             * @param[ in ] aPerturbation  real for dv perturbation
-             * @param[ in ] aIsActive      cell of vectors for active dv
-             * @param[ in ] aVertexIndices vertices indices
-             */
-            void compute_dRdp_FD_geometry( moris::real                       aWStar,
-                                           moris::real                       aPerturbation,
-                                           moris::Cell< Matrix< DDSMat > > & aIsActive,
-                                           Matrix< IndexMat >              & aVertexIndices );
+                void compute_dRdp_FD_geometry_double(
+                        moris::real                       aWStar,
+                        moris::real                       aPerturbation,
+                        moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
+                        Matrix< IndexMat >              & aMasterVertexIndices,
+                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
+                        Matrix< IndexMat >              & aSlaveVertexIndices );
 
-//------------------------------------------------------------------------------
-            /**
-             * reset evaluation flags
-             */
-            void reset_eval_flags();
+                //------------------------------------------------------------------------------
+                /**
+                 * reset evaluation flags
+                 */
+                void reset_eval_flags();
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the Jacobian by finite difference
-             * @param[ in ] aPerturbation real to perturb for FD
-             * @param[ in ] aWStar        weight associated to evaluation point
-             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
-             */
-            void compute_jacobian_FD( real               aWStar,
-                                      real               aPerturbation,
-                                      Matrix< DDRMat > & aJacobiansFD );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the Jacobian by finite difference
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aWStar        weight associated to evaluation point
+                 * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
+                 */
+                void compute_jacobian_FD(
+                        real               aWStar,
+                        real               aPerturbation,
+                        Matrix< DDRMat > & aJacobiansFD );
 
-//------------------------------------------------------------------------------
-            /**
-            * evaluate the Jacobian by finite difference
-            * @param[ in ] aWStar        weight associated with evaluation point
-            * @param[ in ] aPerturbation real to perturb for FD
-            * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
-            */
-            void compute_jacobian_FD_double( real               aWStar,
-                                             real               aPerturbation,
-                                             Matrix< DDRMat > & aJacobiansFD );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the Jacobian by finite difference
+                 * @param[ in ] aWStar        weight associated with evaluation point
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
+                 */
+                void compute_jacobian_FD_double(
+                        real               aWStar,
+                        real               aPerturbation,
+                        Matrix< DDRMat > & aJacobiansFD );
 
-//------------------------------------------------------------------------------
-            /**
-             * build a list of dof types requested by the solver and owned by the IWG
-             * @param[ in ] aItResidual bool true if ???
-             */
-            void build_requested_dof_type_list( const bool aItResidual );
+                //------------------------------------------------------------------------------
+                /**
+                 * build a list of dof types requested by the solver and owned by the IWG
+                 * @param[ in ] aItResidual bool true if ???
+                 */
+                void build_requested_dof_type_list( const bool aItResidual );
 
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
 
     } /* namespace fem */

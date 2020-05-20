@@ -22,17 +22,157 @@
 namespace moris
 {
     // -----------------------------------------------------------------------------
-
     /**
-     * Converts a given string into a matrix of templated type
+     * removes leading whitespace of string
+     *
+     * @param s std::string
+     */
+    void ltrim_string(std::string& aString )
+    {
+        auto it = std::find_if(aString.begin(), aString.end(),
+                [](char c) {
+            return !std::isspace<char>(c, std::locale::classic());
+        });
+        aString.erase(aString.begin(), it);
+    }
+
+    // -----------------------------------------------------------------------------
+    /**
+     * removes trailing whitespace of string
+     *
+     * @param aString std::string
+     */
+    void rtrim_string(std::string& aString)
+    {
+        auto it = std::find_if(aString.rbegin(), aString.rend(),
+                [](char c) {
+            return !std::isspace<char>(c, std::locale::classic());
+        });
+        aString.erase(it.base(), aString.end());
+    }
+
+    // -----------------------------------------------------------------------------
+    /**
+     * removes leading and trailing whitespace of string
+     *
+     * @param aString std::string
+     */
+    void trim_string(std::string& aString)
+    {
+        // if aString is empty return
+        if  ( aString.length() == 0 )
+        {
+            return;
+        }
+
+        // trim off trailing whitespaces
+        rtrim_string(aString);
+
+        // trim off leading whitespaces
+        ltrim_string(aString);
+    }
+
+    // -----------------------------------------------------------------------------
+    /**
+     * splits a string in sub-strings defined by a set of delimiters, removes leading and trailing whitespace
+     *  of sub-string, and reassembles sub-strings into single string; if not delimiter is provides input string
+     *  will be trimmed.
+     *
+     * @param aString std::string
+     * @param aDelimiter const std::string
+     */
+    void split_trim_string(
+            std::string       & aString,
+            const std::string & aDelimiter)
+    {
+        char tDelim[] = " ";
+
+        // if aString is empty return
+        if  ( aString.empty() )
+        {
+            return;
+        }
+        // if no delimiter is provided just trim the given string
+        if ( aDelimiter.empty() )
+        {
+            // trim substring
+            trim_string(aString);
+            return;
+        }
+
+        // loop over all delimiter characters
+        for (uint id=0;id<aDelimiter.length();id++)
+        {
+            // check if delimiter is first element of string
+            bool isFirst = aString.front() ==aDelimiter[id] ? true : false;
+
+            // check if delimiter is first element of string
+            bool isLast = aString.back() == aDelimiter[id] ? true : false;
+
+            // get char* of current delimiter
+            strncpy(tDelim,&aDelimiter[id],1);
+
+            // allocate vector for storing substrings
+            std::vector<std::string> tSubStringVec;
+
+            // get first substring
+            char *token = strtok(const_cast<char*>(aString.c_str()), tDelim);
+
+            // loop over all substrings
+            while (token != nullptr)
+            {
+                // create substring
+                std::string tSubstring(token);
+
+                // trim substring
+                trim_string(tSubstring);
+
+                // check if substring is empty or has only white spaces
+                if ( ! tSubstring.empty())
+                {
+                    if ( ! std::all_of(tSubstring.begin(), tSubstring.end(), isspace) )
+                    {
+                        tSubStringVec.push_back(tSubstring);
+                    }
+                }
+
+                // get next substring substring
+                token = strtok(nullptr, tDelim);
+            }
+
+            // reassemble substrings
+            aString.clear();
+
+            if (isFirst) aString = tDelim;
+
+            if ( tSubStringVec.size() > 0 )
+            {
+                aString+=tSubStringVec[0];
+
+                for (uint is=1;is<tSubStringVec.size();++is)
+                {
+                    aString+=tDelim;
+                    aString+=tSubStringVec[is];
+                }
+            }
+            if (isLast) aString += tDelim;
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+    /**
+     * Converts a given string into a matrix of templated type;
+     * rows are separated by ";", columns are separated by ","
      *
      * @tparam T Type of moris::Matrix
      * @param aString String to be converted into a matrix
      * @param aMat Matrix converted from string, returned as reference
      */
+
     template < typename T >
-    void string_to_mat( const std::string & aString,
-                              Matrix< T > & aMat )
+    void string_to_mat(
+            const std::string & aString,
+            Matrix< T >       & aMat )
     {
         if( aString.size() > 0 )
         {
@@ -88,13 +228,16 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
     /**
      * Converts a given string into a matrix of templated type, which is returned instead of passed by reference
+     * rows are separated by ";", columns are separated by ","
      *
      * @tparam T Type of moris::Matrix
      * @param aString String to be converted into a matrix
      * @return Matrix converted from string
      */
+
     template < typename T >
     Matrix<T> string_to_mat( const std::string & aString)
     {
@@ -105,10 +248,18 @@ namespace moris
     }
 
     // -----------------------------------------------------------------------------
+    /**
+     * Converts a matrix into a string with the matrix components separated by ","
+     *
+     * @tparam T Type of moris::Matrix
+     * @param aMat Matrix to be converted into a string
+     * @return String converted from matrix
+     */
 
     template < typename T >
-    void mat_to_string( const Matrix< T > & aMat,
-                              std::string & aString )
+    void mat_to_string(
+            const Matrix< T > & aMat,
+            std::string & aString )
     {
         aString = "";
 
@@ -125,10 +276,19 @@ namespace moris
     }
 
     // -----------------------------------------------------------------------------
+    /**
+     * Converts a string into a cell of vectors (1-D matrices)
+     * Cells are separated by ";", vector components are separated by ","
+     *
+     * @tparam T Type of moris::Matrix
+     * @param aString String to be converted into cell of vectors
+     * @return aCellMat cell of vectors converted from string
+     */
 
     template < typename T >
-    void string_to_cell_mat( const std::string         & aString,
-                                   Cell< Matrix< T > > & aCellMat )
+    void string_to_cell_mat(
+            const std::string   & aString,
+            Cell< Matrix< T > > & aCellMat )
     {
         if( aString.size() > 0 )
         {
@@ -220,8 +380,9 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     template < typename T >
-    void string_to_cell_mat_2( const std::string         & aString,
-                                     Cell< Matrix< T > > & aCellMat )
+    void string_to_cell_mat_2(
+            const std::string   & aString,
+            Cell< Matrix< T > > & aCellMat )
     {
         // if non-empty string
         if( aString.size() > 0 )
@@ -299,13 +460,13 @@ namespace moris
                         // set local reading position
                         size_t tPosSubSubString = 0;
 
-                       // set col counter
-                       uint tCount2 = 0;
+                        // set col counter
+                        uint tCount2 = 0;
 
-                       if( tBoolMat )
-                       {
-                           // get string for row
-                           std::string tStringRow =  tStringMat.substr( 0, tPosSubString );
+                        if( tBoolMat )
+                        {
+                            // get string for row
+                            std::string tStringRow =  tStringMat.substr( 0, tPosSubString );
 
                             while( tPosSubSubString < tStringRow.size() )
                             {
@@ -323,25 +484,25 @@ namespace moris
                             aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringRow );
                             tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
                         }
-                       else
-                       {
-                           while( tPosSubSubString < tStringMat.size() )
-                           {
-                               // find string
-                               tPosSubSubString = tStringMat.find( "," );
+                        else
+                        {
+                            while( tPosSubSubString < tStringMat.size() )
+                            {
+                                // find string
+                                tPosSubSubString = tStringMat.find( "," );
 
-                               // copy value into output matrix
-                               if( tPosSubSubString < tStringMat.size() )
-                               {
-                                   aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringMat.substr( 0, tPosSubSubString ) );
-                                   tStringMat =  tStringMat.substr( tPosSubSubString+1, tStringMat.size() );
-                               }
-                           }
-                           // copy value into output matrix
-                           aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringMat );
-                           tStringMat = tStringMat.substr( tPosSubString+1, tStringMat.size() );
+                                // copy value into output matrix
+                                if( tPosSubSubString < tStringMat.size() )
+                                {
+                                    aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringMat.substr( 0, tPosSubSubString ) );
+                                    tStringMat =  tStringMat.substr( tPosSubSubString+1, tStringMat.size() );
+                                }
+                            }
+                            // copy value into output matrix
+                            aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringMat );
+                            tStringMat = tStringMat.substr( tPosSubString+1, tStringMat.size() );
                         }
-                       tCount1++;
+                        tCount1++;
                     }
                     tString =  tString.substr( tPos+1, tString.size() );
                 }
@@ -377,13 +538,13 @@ namespace moris
                         // set local reading position
                         size_t tPosSubSubString = 0;
 
-                       // set col counter
-                       uint tCount2 = 0;
+                        // set col counter
+                        uint tCount2 = 0;
 
-                       if( tBoolMat )
-                       {
-                           // get string for row
-                           std::string tStringRow =  tString.substr( 0, tPosSubString );
+                        if( tBoolMat )
+                        {
+                            // get string for row
+                            std::string tStringRow =  tString.substr( 0, tPosSubString );
 
                             while( tPosSubSubString < tStringRow.size() )
                             {
@@ -401,42 +562,43 @@ namespace moris
                             aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringRow );
                             tString =  tString.substr( tPosSubString+1, tString.size() );
                         }
-                       else
-                       {
-                           while( tPosSubSubString < tString.size() )
-                           {
-                               // find string
-                               tPosSubSubString = tString.find( "," );
+                        else
+                        {
+                            while( tPosSubSubString < tString.size() )
+                            {
+                                // find string
+                                tPosSubSubString = tString.find( "," );
 
-                               // copy value into output matrix
-                               if( tPosSubSubString < tString.size() )
-                               {
-                                   aCellMat( tCount )( tCount1, tCount2++ ) = stod( tString.substr( 0, tPosSubSubString ) );
-                                   tString =  tString.substr( tPosSubSubString+1, tString.size() );
-                               }
-                           }
-                           // copy value into output matrix
-                           aCellMat( tCount )( tCount1, tCount2++ ) = stod( tString );
+                                // copy value into output matrix
+                                if( tPosSubSubString < tString.size() )
+                                {
+                                    aCellMat( tCount )( tCount1, tCount2++ ) = stod( tString.substr( 0, tPosSubSubString ) );
+                                    tString =  tString.substr( tPosSubSubString+1, tString.size() );
+                                }
+                            }
+                            // copy value into output matrix
+                            aCellMat( tCount )( tCount1, tCount2++ ) = stod( tString );
                         }
-                       tCount1++;
+                        tCount1++;
                     }
                 }
                 tCount++;
             }
         }
-    //    // if empty string
-    //    else
-    //    {
-    //        aCellMat( 0 );
-    //    }
+        //    // if empty string
+        //    else
+        //    {
+        //        aCellMat( 0 );
+        //    }
     }
 
     // -----------------------------------------------------------------------------
 
     template < typename T >
-    void string_to_cell_of_cell( const std::string                     & aString,
-                                       moris::Cell< moris::Cell< T > > & aCellCell,
-                                       moris::map< std::string, T >    & aMap )
+    void string_to_cell_of_cell(
+            const std::string               & aString,
+            moris::Cell< moris::Cell< T > > & aCellCell,
+            moris::map< std::string, T >    & aMap )
     {
         if( aString.size() > 0 )
         {
@@ -528,9 +690,12 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
+
     template < typename T >
-    void string_to_cell_of_cell( const std::string                     & aString,
-                                       moris::Cell< moris::Cell< T > > & aCellCell )
+    void string_to_cell_of_cell(
+            const std::string               & aString,
+            moris::Cell< moris::Cell< T > > & aCellCell )
     {
         if( aString.size() > 0 )
         {
@@ -618,10 +783,13 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
+
     template < typename T >
-    void string_to_cell( const std::string & aString,
-                         moris::Cell< T >  & aCell,
-                         moris::map< std::string, T >    & aMap )
+    void string_to_cell(
+            const std::string             & aString,
+            moris::Cell< T >              & aCell,
+            moris::map< std::string, T >  & aMap )
     {
         if( aString.size() > 0 )
         {
@@ -671,9 +839,12 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
+
     template < typename T >
-    void string_to_cell( const std::string & aString,
-                         moris::Cell< T >  & aCell )
+    void string_to_cell(
+            const std::string & aString,
+            moris::Cell< T >  & aCell )
     {
         if( aString.size() > 0 )
         {

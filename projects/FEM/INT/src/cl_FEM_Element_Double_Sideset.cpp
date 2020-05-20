@@ -18,7 +18,8 @@ namespace moris
                 Set              * aSet,
                 Cluster          * aCluster,
                 moris::moris_index aCellIndexInCluster )
-        : Element( aMasterIGCell,
+        : Element(
+                aMasterIGCell,
                 aSlaveIGCell,
                 aSet,
                 aCluster,
@@ -313,8 +314,8 @@ namespace moris
             rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
 
             // get the vertices indices
-            Matrix< IndexMat > tMasterVertexIndices = mMasterCell->get_vertex_inds();
-            Matrix< IndexMat > tSlaveVertexIndices = mSlaveCell->get_vertex_inds();
+            Matrix< IndexMat > tMasterVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
+            Matrix< IndexMat > tSlaveVertexIndices  = mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -337,9 +338,9 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-//                // compute the integration point weight // fixme both side?
-//                real tWStar = mSet->get_integration_weights()( iGP )*
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute the integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh and set if for the IWG
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -350,11 +351,22 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
-//                    // set a perturbation size
-//                    real tPerturbation = 1E-6;
+                    // set a perturbation size
+                    real tPerturbation = 1E-6;
 
-                    // compute dRdp
-                    MORIS_ERROR( false, "dRdp_FD not there yet for double sided" );
+                    // compute dRdpMat at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material_double(
+                            tWStar,
+                            tPerturbation );
+
+                    // compute dRdpGeo at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry_double(
+                            tWStar,
+                            tPerturbation,
+                            tMasterIsActiveDv,
+                            tMasterVertexIndices,
+                            tSlaveIsActiveDv,
+                            tSlaveVertexIndices );
                 }
             }
         }

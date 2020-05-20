@@ -419,8 +419,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // PDVs and design variable interface
         tGeometryEngine.register_mesh(&tMeshManager);
 
-        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(7);
-        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(15);
+        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(15);
+        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(100);
         for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
         {
             tPdvTypes(tBulkSetIndex).resize(1);
@@ -428,8 +428,14 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
             tPdvTypes(tBulkSetIndex)(0)(0) = PDV_Type::DENSITY;
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
+
+
+        Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
-                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(15), tIGPdvTypes);
+                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
+        moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
+        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
+                set_ip_requested_dv_types( tMatPdvTypes );
 
         Matrix<DDRMat> tAdvs(1, 1, 0.0);
         std::shared_ptr<ge::Property> tDensityProperty1 = std::make_shared<ge::User_Defined_Property>(tAdvs,
@@ -450,8 +456,6 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
-
-        tGeometryEngine.set_equation_model(tModel->get_fem_model() );
 
         tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
 
@@ -499,7 +503,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         tModel->set_solver_warehouse_hack( tSolverWarehouse );
 
-        tModel->perform_forward_analysis_temporary_hack();
+        tModel->perform();
 
         //--------------------------------------------------------------------------
         //                          Sensitivity analysis
@@ -508,9 +512,6 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tGeometryEngine.communicate_requested_IQIs(tRequestedIQINames);
 
         tModel->perform_sensitivity_analysis();
-
-        tModel->get_fem_model()->compute_implicit_dQIdp();
-
 
         delete tModel;
         delete tInterpMesh;

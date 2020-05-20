@@ -44,9 +44,6 @@ namespace moris
             // local string to property enum map
             std::map< std::string, Property_Type > mPropertyMap;
 
-            // space dimension FIXME
-            uint mSpaceDim = 2;
-
             // pointer to function for G evaluation
             void ( * mEvalGFunc )( Matrix< DDRMat >   & aG,
                                    Matrix< DDRMat >   & aInvSpaceJacobian );

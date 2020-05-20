@@ -42,10 +42,10 @@ namespace moris
             private:
             protected:
 
-                Epetra_Import   * mImporter;
-                sol::Dist_Map       * mMap;
+                Epetra_Import   * mImporter = nullptr;
+                sol::Dist_Map       * mMap = nullptr;
 
-                moris::sint       mNumVectors;
+                moris::sint       mNumVectors = 1;
             public:
                 Dist_Vector(): mImporter( NULL ),
                                mMap( NULL )
@@ -140,7 +140,7 @@ namespace moris
                  *
                  * @return  Euclidean Vector norm.
                  */
-                virtual moris::real vec_norm2() = 0;
+                virtual Cell< moris::real > vec_norm2() = 0;
 
                 virtual void print() const = 0;
 

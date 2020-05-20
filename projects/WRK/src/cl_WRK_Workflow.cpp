@@ -61,32 +61,40 @@ namespace moris
             //---------------------------------------------------------------------------------------
             //                               Stage 3: MDL perform
             //---------------------------------------------------------------------------------------
+            mPerformerManager->mMDLPerformer( 0 )->initialize();
+
+            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
+                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            return Matrix<DDRMat>(1, 1 , 0.0);
-        }
+            // FIXME GE set requested IQIs
 
-        //--------------------------------------------------------------------------------------------------------------
+            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
 
-        Matrix<DDRMat> Workflow::get_criteria(Matrix<DDRMat> aNewADVs)
-        {
-            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface( mPerformerManager->mGENPerformer( 0 )
-                                                            ->get_design_variable_interface() );
+            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 
-            // FIXME set requeted IQIs
-//            mPerformerManager->mMDLPerformer( 0 )->
+            for( uint Ik = 0; Ik < tVal.size(); Ik ++ )
+            {
+                tMat( Ik ) = tVal( Ik )( 0 );
+            }
 
-            mPerformerManager->mMDLPerformer( 0 )->perform_sensitivity_analysis();
-
-            return Matrix<DDRMat>(1, 1 , 0.0);
+            return tMat;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Workflow::get_dcriteria_dadv()
         {
+            // FIXME GE set requested IQIs
+
+            mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
+
+            // FIXME GE get dQidp
+
+            // FIXME GE return advs
+
             return Matrix<DDRMat>(1, 1 , 0.0);
         }
 

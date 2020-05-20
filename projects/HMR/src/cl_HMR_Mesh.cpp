@@ -743,7 +743,16 @@ namespace moris
         uint
         Mesh::get_num_basis_functions(const uint aMeshIndex)
         {
-            return mMesh->get_bspline_mesh(aMeshIndex)->get_number_of_indexed_basis();
+            BSpline_Mesh_Base * tMesh = mMesh->get_bspline_mesh(aMeshIndex);
+
+            if( tMesh != nullptr )
+            {
+                return tMesh->get_number_of_indexed_basis();
+            }
+            else
+            {
+                return this->get_num_nodes();
+            }
         }
 
 //-------------------------------------------------------------------------------
@@ -1094,7 +1103,14 @@ namespace moris
                 }
                 case( EntityRank::BSPLINE ) :
                 {
-                    return mMesh->get_bspline( aIndex, aEntityIndex )->get_id();
+                    if( !mMesh->get_bspline_mesh_is_trivial_interpolation( aIndex ) )
+                      {
+                          return mMesh->get_bspline( aIndex, aEntityIndex )->get_id();
+                      }
+                      else
+                      {
+                          return this->get_glb_entity_id_from_entity_loc_index( aEntityIndex, EntityRank::NODE, aIndex);
+                      }
                     break;
                 }
                 default :
@@ -1226,7 +1242,14 @@ namespace moris
                 }
                 case( EntityRank::BSPLINE ) :
                 {
-                    return mMesh->get_bspline( aIndex, aEntityIndex )->get_owner();
+                    if( !mMesh->get_bspline_mesh_is_trivial_interpolation( aIndex ) )
+                    {
+                        return mMesh->get_bspline( aIndex, aEntityIndex )->get_owner();
+                    }
+                    else
+                    {
+                        return this->get_entity_owner( aEntityIndex, EntityRank::NODE, aIndex);
+                    }
                     break;
                 }
                 default :

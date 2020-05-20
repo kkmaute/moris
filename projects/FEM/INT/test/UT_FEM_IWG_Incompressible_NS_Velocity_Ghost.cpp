@@ -293,18 +293,18 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
-            = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
+                    tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
             tSPViscousGhost->set_parameters( {{{ 1.0 }} });
             tSPViscousGhost->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPTimeGhost
-            = tSPFactory.create_SP( fem::Stabilization_Type::TIME_VELOCITY_GHOST );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPTimeGhost =
+                    tSPFactory.create_SP( fem::Stabilization_Type::TIME_VELOCITY_GHOST );
             tSPTimeGhost->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
             tSPTimeGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
-            = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
+                    tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
             tSPConvectiveGhost->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
             tSPConvectiveGhost->set_parameters( {{{ 1.0 }} });
             tSPConvectiveGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
@@ -312,16 +312,16 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWGViscous
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
+            std::shared_ptr< fem::IWG > tIWGViscous =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
             tIWGViscous->set_residual_dof_type( tDofTypes );
             tIWGViscous->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
             tIWGViscous->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
             tIWGViscous->set_stabilization_parameter( tSPViscousGhost, "ViscousGhost" );
             tIWGViscous->set_stabilization_parameter( tSPTimeGhost, "TimeVelocityGhost" );
 
-            std::shared_ptr< fem::IWG > tIWGConvective
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
+            std::shared_ptr< fem::IWG > tIWGConvective =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
             tIWGConvective->set_residual_dof_type( tDofTypes );
             tIWGConvective->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
             tIWGConvective->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );

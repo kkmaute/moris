@@ -38,14 +38,14 @@ namespace moris
             switch( mSpaceDim )
             {
                 // if 2D
-                case( 2 ) :
+                case 2 :
                 {
                     mEvalGFunc = this->eval_G_2d;
                     break;
                 }
 
                 // if 3D
-                case( 3 ) :
+                case 3 :
                 {
                     mEvalGFunc = this->eval_G_3d;
                     break;

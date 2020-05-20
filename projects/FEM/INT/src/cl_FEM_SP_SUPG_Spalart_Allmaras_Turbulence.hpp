@@ -1,21 +1,25 @@
 /*
- * cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
+ * cl_FEM_SP_Spalart_Allmaras_Turbulence.hpp
  *
- *  Created on: Mar 23, 2020
- *      Author: noel
+ *  Created on: May 19, 2020
+ *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_BULK_HPP_
-//MRS/COR/src
+#ifndef SRC_FEM_CL_FEM_SP_SUPG_SPALART_ALLMARAS_TURBULENCE_HPP_
+#define SRC_FEM_CL_FEM_SP_SUPG_SPALART_ALLMARAS_TURBULENCE_HPP_
+
 #include <map>
+//MRS/COR/src
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
-#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
+#include "cl_FEM_Stabilization_Parameter.hpp"
+#include "cl_FEM_Cluster.hpp"
 
 namespace moris
 {
@@ -23,41 +27,14 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Spalart_Allmaras_Turbulence_Bulk : public IWG
+        class SP_SUPG_Spalart_Allmaras_Turbulence : public Stabilization_Parameter
         {
 
                 //------------------------------------------------------------------------------
-            public:
+            private :
 
-                // local property enums
-                enum class IWG_Property_Type
-                {
-                    WALL_DISTANCE,
-                    VISCOSITY,
-                    MAX_ENUM
-                };
-
-                // local string to property enum map
-                std::map< std::string, IWG_Property_Type > mPropertyMap;
-
-                // local constitutive enums
-                enum class IWG_Constitutive_Type
-                {
-                    MAX_ENUM
-                };
-
-                // local string to constitutive enum map
-                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
-                // local stabilization enums
-                enum class IWG_Stabilization_Type
-                {
-                    SUPG,
-                    MAX_ENUM
-                };
-
-                // local string to constitutive enum map
-                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+                // cluster measures
+                real mElementSize = 1.0;
 
                 // FIXME temp all the constants
                 real mCb1 = 0.1355;
@@ -71,17 +48,47 @@ namespace moris
                 real mCt4 = 0.5;
                 real mCv1 = 7.1;
 
+            public :
+
+                // property type for the SP
+                enum class Property_Type
+                {
+                    DENSITY,   // fluid density
+                    VISCOSITY, // fluid viscosity
+                    WALL_DISTANCE,
+                    MAX_ENUM
+                };
+
+                // local string to property enum map
+                std::map< std::string, Property_Type > mPropertyMap;
+
+                /*
+                 * Rem: mParameters( 0 ) -
+                 */
+
                 //------------------------------------------------------------------------------
                 /*
-                 *  constructor
+                 * constructor
                  */
-                IWG_Spalart_Allmaras_Turbulence_Bulk();
+                SP_SUPG_Spalart_Allmaras_Turbulence();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Spalart_Allmaras_Turbulence_Bulk(){};
+                ~SP_SUPG_Spalart_Allmaras_Turbulence(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * reset the cluster measures required for this SP
+                 */
+                void reset_cluster_measures();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set function pointers for evaluation
+                 */
+                void set_function_pointers();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -93,127 +100,33 @@ namespace moris
                 void set_property(
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter value
+                 */
+                void eval_SP();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 */
+                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_property - Unknown aPropertyString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_property - No slave allowed." );
-
-                    // set the property in the property cell
-                    this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+                    MORIS_ERROR( false, "SP_SUPG_Spalart_Allmaras_Turbulence::eval_dSPdMasterDV - not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_constitutive_model - No slave allowed." );
-
-                    // set the constitutive model in the constitutive model cell
-                    this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set stabilization parameter
-                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-                 */
-                void set_stabilization_parameter(
-                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_stabilization_parameter - Unknown aStabilizationString." );
-
-                    // set the stabilization parameter in the stabilization parameter cell
-                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual and the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian_and_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the residual wrt design variables
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dRdp( real aWStar );
-
             private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual strong form
-                 * @param[ in ] aR real to fill with R
-                 */
-                void compute_residual_strong_form( Matrix< DDRMat > & aR );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian strong form
-                 * @param[ in ] aDofTypes a list of dof type wrt which
-                 *                        the derivative is requested
-                 * @param[ in ] aJ        a matrix to fill with dRdDof
-                 */
-                void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & aJ );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute Wij = 0.5 * ( dui/dxj - duj/dxi )
-                 * @param[ out ] Wij
-                 */
-                void compute_divflux( Matrix< DDRMat > & aDivFlux );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of Wij wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adwijdu    a matrix to fill with dwijdu
-                 */
-                void compute_ddivfluxdu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & adDivFluxdu );
-
                 //------------------------------------------------------------------------------
                 /**
                  * compute Wij = 0.5 * ( dui/dxj - duj/dxi )
@@ -402,4 +315,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_SPALART_ALLMARAS_TURBULENCE_HPP_ */
