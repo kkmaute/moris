@@ -19,14 +19,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv::Pdv(std::shared_ptr<Property> aPropertyPointer, const Matrix<DDRMat>& aCoordinates )
-        {
-            // assign pdv value from the property pointer
-            mValue = aPropertyPointer->evaluate_field_value(aCoordinates);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Pdv::Pdv(moris::real aPdvVal )
         {
             // assign pdv value directly
@@ -41,7 +33,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Pdv::get_value()
+        real Pdv::get_value(uint aNodeIndex, Matrix<DDRMat> aCoordinates)
         {
             return mValue;
         }

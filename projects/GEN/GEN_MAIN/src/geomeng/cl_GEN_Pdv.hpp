@@ -28,12 +28,6 @@ namespace moris
 
             /**
              * constructor
-             * @param[ in ] aPropertyPointer a GEN property pointer
-             */
-            Pdv(std::shared_ptr< Property > aPropertyPointer, const Matrix<DDRMat>& aCoordinates );
-
-            /**
-             * constructor
              * @param[ in ] aPdvVal a value for the pdv
              */
             Pdv(moris::real aPdvVal );
@@ -44,10 +38,14 @@ namespace moris
             ~Pdv();
 
             /**
-             * get value
-             * @param[ out ] mVal a value for the pdv
+             * Get the PDV value
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Coordinate values
+             * @return Current value of this PDV
              */
-            real get_value();
+            virtual real get_value(uint aNodeIndex = 0, Matrix<DDRMat> aCoordinates = {{}});
+
         };
     }   // end ge namespace
 }   // end moris namespace

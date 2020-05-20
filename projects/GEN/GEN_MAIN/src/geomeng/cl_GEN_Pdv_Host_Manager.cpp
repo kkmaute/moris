@@ -318,7 +318,9 @@ namespace moris
                     if (mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
                     {
                         mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Pdv_Host>(mUniqueIpPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                        = std::make_shared<Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
+                                                     mUniqueIpPdvTypes(tMeshSetIndex),
+                                                     mGlobalPdvIndex);
                     }
                     else
                     {
@@ -383,7 +385,9 @@ namespace moris
                     if (mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
                     {
                         mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Pdv_Host>(mUniqueIgPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                        = std::make_shared<Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
+                                                     mUniqueIgPdvTypes(tMeshSetIndex),
+                                                     mGlobalPdvIndex);
                     }
                     else
                     {
