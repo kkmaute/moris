@@ -62,7 +62,7 @@ namespace moris
                         // Build
                         if (tBuild)
                         {
-                            create_property(aPropertyParameterLists(tBuildPropertyIndex), aADVs, tNeededProperties(tBuildPropertyIndex), aLibrary);
+                            tProperties(tBuildPropertyIndex) = create_property(aPropertyParameterLists(tBuildPropertyIndex), aADVs, tNeededProperties(tBuildPropertyIndex), aLibrary);
                             tNumPropertiesLeft--;
                         }
                     }
