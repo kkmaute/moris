@@ -19,7 +19,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Pdv_Property::get_value(uint aNodeIndex, Matrix<DDRMat> aCoordinates)
+        real Pdv_Property::get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return mProperty->evaluate_field_value(aNodeIndex, aCoordinates);
         }
