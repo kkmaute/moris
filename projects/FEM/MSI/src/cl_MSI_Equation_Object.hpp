@@ -20,7 +20,7 @@
 #include "cl_MSI_Pdof_Host.hpp"
 namespace moris
 {
-class Dist_Vector;
+    class Dist_Vector;
     namespace mtk
     {
         class Set;
@@ -240,7 +240,7 @@ class Dist_Vector;
                 void get_my_pdof_values(
                         const moris::Cell< Matrix< DDRMat > >  & aPdofValues,
                         const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
-                        Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
+                        Cell< Cell< Matrix< DDRMat > > >       & aRequestedPdofValues,
                         const mtk::Master_Slave                  aIsMaster = mtk::Master_Slave::MASTER );
 
                 //-------------------------------------------------------------------------------------------------
@@ -260,6 +260,12 @@ class Dist_Vector;
                 //-------------------------------------------------------------------------------------------------
 
                 void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
+
+                //-------------------------------------------------------------------------------------------------
+
+                void get_egn_obj_jacobian_and_residual(
+                               Matrix< DDRMat >         & aEqnObjMatrix,
+                               Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
                 //-------------------------------------------------------------------------------------------------
 
@@ -283,10 +289,10 @@ class Dist_Vector;
                 //-------------------------------------------------------------------------------------------------
 
                 virtual Matrix< DDSMat > get_adof_indices()
-                    {
+                {
                     MORIS_ERROR( false, "this function does nothing");
                     return Matrix< DDSMat >(0,0);
-                    }
+                }
 
                 //-------------------------------------------------------------------------------------------------
 
@@ -376,18 +382,18 @@ class Dist_Vector;
                  * return Neumann boundary conditions, writable version
                  */
                 virtual Matrix< DDRMat > & get_weak_bcs()
-                    {
+                {
                     return mNodalWeakBCs;
-                    }
+                }
 
                 //-------------------------------------------------------------------------------------------------
                 /**
                  * return Neumann boundary conditions, const version
                  */
                 const Matrix< DDRMat > & get_weak_bcs() const
-                    {
+                {
                     return mNodalWeakBCs;
-                    }
+                }
 
                 ////-------------------------------------------------------------------------------------------------
                 //            /**
