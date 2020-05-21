@@ -113,6 +113,7 @@ namespace moris
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;
+            Cell<ParameterList> mPropertyParameterLists;
 
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
@@ -537,6 +538,11 @@ namespace moris
              */
             void create_ig_pdv_hosts(moris_index aMeshIndex = 0);
 
+            /**
+             * Assign PDV hosts based on properties constructed through parameter lists
+             */
+            void assign_pdv_hosts();
+
         private:
 
             /**
@@ -582,13 +588,6 @@ namespace moris
                                                                      moris::size_t                  const & aGeometryIndex,
                                                                      moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                                      moris::Matrix< moris::DDRMat >       & aLevelSetValues );
-
-            /**
-             * Assign PDV hosts based on properties constructed through parameter lists
-             *
-             * @param aPropertyParameterLists Parameter lists used to construct GEN properties
-             */
-            void assign_pdv_hosts(Cell<ParameterList> aPropertyParameterLists);
 
         };
     }

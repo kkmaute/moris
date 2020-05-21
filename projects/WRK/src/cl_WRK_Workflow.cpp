@@ -58,6 +58,10 @@ namespace moris
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform();
 
+            // Assign PDVs
+            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ).get() );
+            mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
+
             //---------------------------------------------------------------------------------------
             //                               Stage 3: MDL perform
             //---------------------------------------------------------------------------------------
