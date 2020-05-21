@@ -12,7 +12,6 @@
 #include <cstdio>
 
 #include "assert.hpp"
-//#include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -22,7 +21,7 @@
 
 #include "cl_SOL_Enums.hpp"
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"       //CON/src
-#include "cl_TSA_Time_Solver_Enums.hpp"       //CON/src
+#include "cl_TSA_Time_Solver_Enums.hpp"            //CON/src
 
 
 namespace moris
@@ -62,7 +61,7 @@ namespace moris
             // Allowable Aztec solver iterations
             tLinAlgorithmParameterList.insert( "AZ_max_iter", INT_MAX   );
 
-            // Allowable Aztec irelative residual
+            // Allowable Aztec iterative residual
             tLinAlgorithmParameterList.insert( "rel_residual" , 1e-08 );
 
             // set Az_conv -convergence criteria
@@ -263,7 +262,7 @@ namespace moris
             // Maximal number of linear solver restarts on fail
             tLinSolverParameterList.insert( "DLA_hard_break" , true );
 
-            // Determines if lin solve should restart on fail
+            // Determines if linear solve should restart on fail
             tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail" , false );
 
             return tLinSolverParameterList;
@@ -288,15 +287,12 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_restart", 0 );
 
             // Desired total residual norm drop
-            // mParameterListNonlinearSolver.insert( "NLA_rel_res_norm_drop" , 1e-08 );
             tNonLinAlgorithmParameterList.insert( "NLA_rel_res_norm_drop" , 1e-08 );
 
             // Desired total residual norm
-            // mParameterListNonlinearSolver.insert( "NLA_tot_res_norm" , 1e-12 );
             tNonLinAlgorithmParameterList.insert( "NLA_tot_res_norm" , 1e-12 );
 
             // Maximal residual norm
-            // mParameterListNonlinearSolver.insert( "NLA_max_rel_res_norm" , 1e12 );
             tNonLinAlgorithmParameterList.insert( "NLA_max_rel_res_norm" , 1e12 );
 
             // Maximal number of linear solver restarts on fail
@@ -308,25 +304,25 @@ namespace moris
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_hard_break" , false );
 
-            // Determines if lin solve should restart on fail
+            // Determines if linear solve should restart on fail
             tNonLinAlgorithmParameterList.insert( "NLA_rebuild_lin_solv_on_fail" , false );
 
             // Determines if jacobian is rebuild for every nonlinear iteration
             tNonLinAlgorithmParameterList.insert( "NLA_rebuild_jacobian" , true );
 
-            // Determines if lin solve should restart on fail
-            tNonLinAlgorithmParameterList.insert( "NLA_combined_res_jac_assembly" , false );
+            // Determines if linear solve should restart on fail
+            tNonLinAlgorithmParameterList.insert( "NLA_combined_res_jac_assembly" , true );
 
-            // Determines if newton should restart on fail
+            // Determines if Newton should restart on fail
             tNonLinAlgorithmParameterList.insert( "NLA_rebuild_nonlin_solv_on_fail" , false );
 
-            // Specifying the number of newton retries
+            // Specifying the number of Newton retries
             tNonLinAlgorithmParameterList.insert( "NLA_num_nonlin_rebuild_iterations" , 1 );
 
             // Determines relaxation multiplier
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_multiplier_on_fail" , 0.5 );
 
-            // Determines newton maxits multiplier
+            // Determines Newton maxits multiplier
             tNonLinAlgorithmParameterList.insert( "NLA_maxits_multiplier_on_fail" , 2 );
 
             return tNonLinAlgorithmParameterList;
@@ -413,19 +409,19 @@ namespace moris
             switch( aSolverType )
             {
                 case ( sol::SolverType::AZTEC_IMPL ):
-                        return create_linear_algorithm_parameter_list_aztec( );
+                                return create_linear_algorithm_parameter_list_aztec( );
                 break;
                 case ( sol::SolverType::AMESOS_IMPL ):
-                        return create_linear_algorithm_parameter_list_amesos();
+                                return create_linear_algorithm_parameter_list_amesos();
                 break;
                 case ( sol::SolverType::BELOS_IMPL ):
-                        return create_linear_algorithm_parameter_list_belos();
+                                return create_linear_algorithm_parameter_list_belos();
                 break;
                 case ( sol::SolverType::PETSC ):
-                        return create_linear_algorithm_parameter_list_petsc( );
+                                return create_linear_algorithm_parameter_list_petsc( );
                 break;
                 default:
-                    MORIS_ERROR( false, "Parameterlist for this solver not implemented yet" );
+                    MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
                     break;
             }
             return tParameterList;
