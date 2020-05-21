@@ -21,7 +21,6 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-    fn_PRM_GEN_Parameters.cpp
     cl_PRM_FEM_Parameters.cpp )
 
 # List library dependencies
