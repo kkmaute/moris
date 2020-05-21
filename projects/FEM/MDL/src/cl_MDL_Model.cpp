@@ -502,7 +502,7 @@ namespace moris
 
             mEquationModel->compute_implicit_dQIdp();
 
-            //mEquationModel->compute_explicit_dQIdp();
+            mEquationModel->compute_explicit_dQIdp();
         }
 
 //------------------------------------------------------------------------------
