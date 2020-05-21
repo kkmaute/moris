@@ -1162,7 +1162,7 @@ namespace moris
                     moris_index tVertIndex = tVertices(iVert)->get_index();
 
                     // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.assign_property_to_pdv_type_by_vertex_index( aPropertyPointer, aPdvType, tVertIndex );
+                    mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer);
                 }
             }
         }
@@ -1242,7 +1242,7 @@ namespace moris
                     moris_index tVertIndex = tVertices(iVert)->get_index();
 
                     // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.assign_property_to_pdv_type_by_vertex_index( aPropertyPointer, aPdvType, tVertIndex );
+                    mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
                 }
             }
         }

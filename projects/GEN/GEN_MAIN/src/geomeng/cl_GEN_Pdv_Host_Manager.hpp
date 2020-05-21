@@ -261,15 +261,6 @@ namespace moris
             void set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
 
             /**
-             * Create PDV_Type on interpolation mesh node with GEN field
-             *
-             * @param aNodeIndex Node index for pulling a value from the field
-             * @param aPdvType PDV_Type type
-             * @param aFieldPointer Pointer to a GEN field
-             */
-            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer);
-
-            /**
              * Create PDV_Type on interpolation mesh node with GEN property
              *
              * @param aNodeIndex Node index
