@@ -31,9 +31,9 @@ namespace moris
         mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
         // ADVs/IQIs
-        mADVs((uint)aParameterLists(0)(0).get<int>("initial_advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
-        mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
-        mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
+        mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
+        mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
+        mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
         mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
         // Phase table
@@ -42,15 +42,31 @@ namespace moris
               : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
 
         {
-            // Set explicit ADVs
+            // Explicit ADVs and bounds
             Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
+            Matrix<DDRMat> tLowerBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"));
+            Matrix<DDRMat> tUpperBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"));
+
+            // Resize if needed
             if (tInitialADVs.length() > mADVs.length())
             {
                 mADVs.resize(tInitialADVs.length(), 1);
+                mLowerBounds.resize(tInitialADVs.length(), 1);
+                mUpperBounds.resize(tInitialADVs.length(), 1);
             }
+
+            // Copy over values
             for (uint tADVIndex = 0; tADVIndex < tInitialADVs.length(); tADVIndex++)
             {
                 mADVs(tADVIndex) = tInitialADVs(tADVIndex);
+            }
+            for (uint tADVIndex = 0; tADVIndex < tLowerBounds.length(); tADVIndex++)
+            {
+                mADVs(tADVIndex) = tLowerBounds(tADVIndex);
+            }
+            for (uint tADVIndex = 0; tADVIndex < tUpperBounds.length(); tADVIndex++)
+            {
+                mADVs(tADVIndex) = tUpperBounds(tADVIndex);
             }
 
             // Build geometry (just analytic for right now)
