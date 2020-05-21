@@ -1379,10 +1379,11 @@ namespace moris
                 string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
 
                 // Convert mesh set names to indices
-                tMeshSetIndices.resize(tMeshSetIndices.length() + tMeshSetNames.size(), 1);
-                for (uint tIndex = tMeshSetIndices.length(); tIndex < tMeshSetIndices.length() + tMeshSetNames.size(); tIndex++)
+                uint tNumSetIndices = tMeshSetIndices.length();
+                tMeshSetIndices.resize(tNumSetIndices + tMeshSetNames.size(), 1);
+                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndices.length(); tIndex++)
                 {
-                    tMeshSetIndices(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tMeshSetIndices.length()));
+                    tMeshSetIndices(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
                 }
 
                 // Assign PDV types
