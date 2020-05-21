@@ -26,5 +26,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Property::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        {
+            mProperty->evaluate_sensitivity(aNodeIndex, aCoordinates, aSensitivities);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

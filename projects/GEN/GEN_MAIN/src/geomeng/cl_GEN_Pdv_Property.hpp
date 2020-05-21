@@ -35,6 +35,15 @@ namespace moris
              */
             real get_value(uint aNodeIndex, Matrix<DDRMat> aCoordinates);
 
+            /**
+             * Get the PDV sensitivity with respect to ADVs
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Coordinate values
+             * @param aSensitivities Matrix of sensitivities to be returned
+             */
+            virtual void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+
         };
     }
 }
