@@ -55,6 +55,7 @@ namespace moris
                     mCellIndexInCluster,
                     aMasterSideOrdinal,
                     mtk::Master_Slave::MASTER ) );
+
             tMasterIGGI->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
             // set the geometry interpolator param space and time coefficients for slave integration cell
@@ -62,13 +63,14 @@ namespace moris
                     mCellIndexInCluster,
                     aSlaveSideOrdinal,
                     mtk::Master_Slave::SLAVE ) );
+
             tSlaveIGGI->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
         }
 
         //------------------------------------------------------------------------------
         void Element_Double_Sideset::init_ig_geometry_interpolator_with_pdv(
-                uint aMasterSideOrdinal,
-                uint aSlaveSideOrdinal,
+                uint                              aMasterSideOrdinal,
+                uint                              aSlaveSideOrdinal,
                 moris::Cell< Matrix< DDSMat > > & aMasterIsActiveDv,
                 moris::Cell< Matrix< DDSMat > > & aSlaveIsActiveDv )
         {
@@ -104,6 +106,7 @@ namespace moris
                     tGeoPdvType,
                     tMasterPdvValueList,
                     aMasterIsActiveDv );
+
             mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
                     tSlaveVertexIndices,
                     tGeoPdvType,
@@ -113,9 +116,11 @@ namespace moris
             // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
             Matrix< DDRMat > tMasterPdvValues;
             Matrix< DDRMat > tSlavePdvValues;
+
             mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
                     tMasterPdvValueList,
                     tMasterPdvValues );
+
             mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
                     tSlavePdvValueList,
                     tSlavePdvValues );
@@ -141,6 +146,7 @@ namespace moris
                     mCellIndexInCluster,
                     aMasterSideOrdinal,
                     mtk::Master_Slave::MASTER ) );
+
             tMasterIGGI->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
             // set the geometry interpolator param space and time coefficients for slave integration cell
@@ -148,6 +154,7 @@ namespace moris
                     mCellIndexInCluster,
                     aSlaveSideOrdinal,
                     mtk::Master_Slave::SLAVE ) );
+
             tSlaveIGGI->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
         }
 
@@ -164,6 +171,7 @@ namespace moris
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
                     mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+
             moris_index tSlaveNodeOrdOnSide =
                     mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tSlaveNode );
 
@@ -176,6 +184,7 @@ namespace moris
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
@@ -187,14 +196,14 @@ namespace moris
                 = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                 // set evaluation point for master and slave interpolators
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )
-                            ->set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
-                            ->set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                        set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                        set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
                 // compute the integration point weight // fixme both side?
-                real tWStar = mSet->get_integration_weights()( iGP )
-                                    * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -231,6 +240,7 @@ namespace moris
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
                     mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+
             moris_index tSlaveNodeOrdOnSide =
                     mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode);
 
@@ -243,6 +253,7 @@ namespace moris
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
@@ -250,18 +261,19 @@ namespace moris
 
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0})
-                = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+
+                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0}) +
+                        tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                 // set evaluation point for master and slave interpolators
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )
-                            ->set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )
-                            ->set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                        set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                        set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
                 // compute the integration point weight // fixme both side?
-                real tWStar = mSet->get_integration_weights()( iGP )
-                                    * mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // get the normal from mesh and set if for the IWG
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -284,7 +296,69 @@ namespace moris
         //------------------------------------------------------------------------------
         void Element_Double_Sideset::compute_jacobian_and_residual()
         {
-            MORIS_ERROR( false, " Element_Double_Sideset::compute_jacobian_and_residual - not implemented. ");
+            // get treated side ordinal on the master and on the slave
+            uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the master/slave ig geometry interpolator physical/parm space and time coefficients
+            this->init_ig_geometry_interpolator( tMasterSideOrd, tSlaveSideOrd );
+
+            // get first corresponding node from master to slave
+            moris::mtk::Vertex const * tSlaveNode =
+                    mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+
+            moris_index tSlaveNodeOrdOnSide =
+                    mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode);
+
+            // get rotation matrix from left to right
+            Matrix< DDRMat> tR;
+            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // loop over the integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get local integration point for the master integration cell
+                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // get local integration point for the slave integration cell
+                Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0})=
+                        tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+
+                // set evaluation point for master and slave interpolators
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                        set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                        set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
+
+                // compute the integration point weight // fixme both side?
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // get the normal from mesh and set if for the IWG
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+
+                    // compute residual at integration point
+                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+
+                    // compute residual at integration point
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -297,6 +371,7 @@ namespace moris
             // set the master/slave ig geometry interpolator physical/parm space and time coefficients
             moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
             moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
+
             this->init_ig_geometry_interpolator_with_pdv(
                     tMasterSideOrd,
                     tSlaveSideOrd,
@@ -306,6 +381,7 @@ namespace moris
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
                     mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+
             moris_index tSlaveNodeOrdOnSide =
                     mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode );
 
@@ -322,6 +398,7 @@ namespace moris
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
@@ -335,6 +412,7 @@ namespace moris
                 // set evaluation point for master and slave interpolators
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
                         set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
@@ -384,7 +462,7 @@ namespace moris
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
 
-            // init volume
+            // initialize volume
             real tVolume = 0;
 
             // get geometry interpolator
