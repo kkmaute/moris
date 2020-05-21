@@ -258,7 +258,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Property> aPropertyPointer,
+        void Pdv_Host_Manager::assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<Property> aPropertyPointer,
                                                                            PDV_Type                        aPdvType,
                                                                            moris_index                   aNodeIndex)
         {
@@ -327,7 +327,9 @@ namespace moris
                     if (mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
                     {
                         mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Pdv_Host>(mUniqueIpPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                        = std::make_shared<Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
+                                                     mUniqueIpPdvTypes(tMeshSetIndex),
+                                                     mGlobalPdvIndex);
                     }
                     else
                     {
@@ -392,7 +394,9 @@ namespace moris
                     if (mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
                     {
                         mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Pdv_Host>(mUniqueIgPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
+                        = std::make_shared<Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
+                                                     mUniqueIgPdvTypes(tMeshSetIndex),
+                                                     mGlobalPdvIndex);
                     }
                     else
                     {
@@ -449,7 +453,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer)
+        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
         }

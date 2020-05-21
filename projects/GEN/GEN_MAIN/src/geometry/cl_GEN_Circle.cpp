@@ -10,13 +10,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Circle::Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-        : Geometry_Analytic(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
+        : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real aXCenter, real aYCenter, real aRadius) : Geometry_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
+        Circle::Circle(real aXCenter, real aYCenter, real aRadius)
+        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
         {
         }
 
@@ -26,26 +27,26 @@ namespace moris
         {
             // Get variables
             Matrix<DDRMat> tCenter(1, 2);
-            tCenter(0) = *(mGeometryVariables(0));
-            tCenter(1) = *(mGeometryVariables(1));
+            tCenter(0) = *(mFieldVariables(0));
+            tCenter(1) = *(mFieldVariables(1));
 
             // Evaluate field
-            moris::real tFunctionValue = norm(aCoordinates - tCenter) - *(mGeometryVariables(2));
+            moris::real tFunctionValue = norm(aCoordinates - tCenter) - *(mFieldVariables(2));
             
             return tFunctionValue;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Circle::evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates)
+        void Circle::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             // Initialize sensitivity matrix
-            moris::Matrix< moris::DDRMat > tSensitivityDxDp(3, 2, 0.0);
+            aSensitivities.resize(3, 2);
 
             // Get variables
-            moris::real tXCenter = *(mGeometryVariables(0));
-            moris::real tYCenter = *(mGeometryVariables(1));
-            moris::real tRadius = *(mGeometryVariables(2));
+            moris::real tXCenter = *(mFieldVariables(0));
+            moris::real tYCenter = *(mFieldVariables(1));
+            moris::real tRadius = *(mFieldVariables(2));
 
             // dx/dr
             // Set sign based on value under square root
@@ -61,7 +62,7 @@ namespace moris
             }
 
             // Calculate
-            tSensitivityDxDp(0, 0) = sign * tRadius / std::sqrt(std::abs(tSqrt));
+            aSensitivities(0, 0) = sign * tRadius / std::sqrt(std::abs(tSqrt));
 
             // dy/dr
             // Set sign based on value under square root
@@ -76,15 +77,13 @@ namespace moris
             }
 
             // Calculate
-            tSensitivityDxDp(0, 1) = sign * tRadius / std::sqrt(std::abs(tSqrt));
+            aSensitivities(0, 1) = sign * tRadius / std::sqrt(std::abs(tSqrt));
 
             // Fill remaining values in tSensitivity
-            tSensitivityDxDp(1,0) = 1.0; // dx/dxc
-            tSensitivityDxDp(1,1) = 0.0; // dy/dxc
-            tSensitivityDxDp(2,0) = 0.0; // dx/dyc
-            tSensitivityDxDp(2,1) = 1.0; // dy/dyc
-
-            return tSensitivityDxDp;
+            aSensitivities(1,0) = 1.0; // dx/dxc
+            aSensitivities(1,1) = 0.0; // dy/dxc
+            aSensitivities(2,0) = 0.0; // dx/dyc
+            aSensitivities(2,1) = 1.0; // dy/dyc
         }
 
         //--------------------------------------------------------------------------------------------------------------

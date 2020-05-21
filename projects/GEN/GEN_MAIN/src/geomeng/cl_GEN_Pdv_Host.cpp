@@ -7,8 +7,9 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        Pdv_Host::Pdv_Host(const Cell<PDV_Type>& aPdvTypes, uint aGlobalIndex)
-        : mPdvList(aPdvTypes.size(), nullptr),
+        Pdv_Host::Pdv_Host(uint aNodeIndex, const Cell<PDV_Type>& aPdvTypes, uint aGlobalIndex)
+        : mNodeIndex(aNodeIndex),
+          mPdvList(aPdvTypes.size(), nullptr),
           mGlobalPdvIndices(aPdvTypes.size(), 1),
           mActivePdvs(aPdvTypes.size(), true)
         {
@@ -71,14 +72,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer)
+        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             // Check PDV_Type type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
                     "Tried to call Pdv_Host.create_pdv() using GEN property with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with property pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPropertyPointer );
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv_Property >(aPropertyPointer);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -138,7 +139,7 @@ namespace moris
                          "Tried to call Pdv_Host.get_pdv_value() with type that doesn't exist on this host.");
 
             // Return value
-            return mPdvList(mPdvTypeMap[aPdvType])->get_value();
+            return mPdvList(mPdvTypeMap[aPdvType])->get_value(mNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------

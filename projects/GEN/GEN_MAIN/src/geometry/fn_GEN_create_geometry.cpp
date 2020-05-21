@@ -18,13 +18,59 @@ namespace moris
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
 
             // Geometry inputs
-            Matrix<DDUMat> tGeometryVariableIndices(1, 1);
-            Matrix<DDUMat> tADVIndices(1, 1);
-            Matrix<DDRMat> tConstantParameters(1, 1);
+            Matrix<DDUMat> tGeometryVariableIndices(0, 0);
+            Matrix<DDUMat> tADVIndices(0, 0);
+            Matrix<DDRMat> tConstantParameters(0, 0);
+            bool tFillVariables = false;
+            bool tFillADVs = false;
 
-            // Get from parameter list
-            string_to_mat(aGeometryParameterList.get<std::string>("geometry_variable_indices"), tGeometryVariableIndices);
-            string_to_mat(aGeometryParameterList.get<std::string>("adv_indices"), tADVIndices);
+            // Determine if variable or ADV indices need to be filled (specified by "all")
+            if (aGeometryParameterList.get<std::string>("geometry_variable_indices") == "all")
+            {
+                tFillVariables = true;
+            }
+            else
+            {
+                string_to_mat(aGeometryParameterList.get<std::string>("geometry_variable_indices"), tGeometryVariableIndices);
+            }
+            if (aGeometryParameterList.get<std::string>("adv_indices") == "all")
+            {
+                tFillADVs = true;
+            }
+            else
+            {
+                string_to_mat(aGeometryParameterList.get<std::string>("adv_indices"), tADVIndices);
+            }
+
+            // Perform fill
+            if (tFillVariables and tFillADVs)
+            {
+                tGeometryVariableIndices.resize(aADVs.length(), 1);
+                tADVIndices.resize(aADVs.length(), 1);
+                for (uint tIndex = 0; tIndex < aADVs.length(); tIndex++)
+                {
+                    tGeometryVariableIndices(tIndex) = tIndex;
+                    tADVIndices(tIndex) = tIndex;
+                }
+            }
+            else if (tFillVariables)
+            {
+                tGeometryVariableIndices.resize(tADVIndices.length(), 1);
+                for (uint tIndex = 0; tIndex < tADVIndices.length(); tIndex++)
+                {
+                    tGeometryVariableIndices(tIndex) = tIndex;
+                }
+            }
+            else if (tFillADVs)
+            {
+                tADVIndices.resize(tGeometryVariableIndices.length(), 1);
+                for (uint tIndex = 0; tIndex < tGeometryVariableIndices.length(); tIndex++)
+                {
+                    tADVIndices(tIndex) = tIndex;
+                }
+            }
+
+            // Get constant parameters
             string_to_mat(aGeometryParameterList.get<std::string>("constant_parameters"), tConstantParameters);
 
             // Build Geometry
@@ -35,8 +81,8 @@ namespace moris
             else if (tGeometryType == "user_defined")
             {
                 return std::make_shared<User_Defined_Geometry>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters,
-                        aLibrary->load_geometry_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                        aLibrary->load_geometry_sensitivity_function(aGeometryParameterList.get<std::string>("sensitivity_function_name")));
+                        aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                        aLibrary->load_gen_sensitivity_function(aGeometryParameterList.get<std::string>("sensitivity_function_name")));
             }
             else
             {

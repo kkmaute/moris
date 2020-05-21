@@ -242,6 +242,7 @@ set(LIB_SOURCES
     cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
+	cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
@@ -255,6 +256,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_H1_Semi_Error.cpp
     cl_FEM_IQI_J_Integral.cpp
     cl_FEM_IQI_K1_SENT.cpp
+    cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_Interpolation_Element.cpp

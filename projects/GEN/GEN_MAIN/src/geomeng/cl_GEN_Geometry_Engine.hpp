@@ -27,6 +27,7 @@
 // MRS
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -109,6 +110,9 @@ namespace moris
             moris::size_t mActiveGeometryIndex = 0;
             Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
             Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
+
+            // Property
+            Cell<std::shared_ptr<Property>> mProperties;
 
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
@@ -203,6 +207,13 @@ namespace moris
              */
             void communicate_requested_IQIs();
             void communicate_requested_IQIs(Cell<std::string> aIQINames);
+
+            /**
+             * Gets the sensitivities of the critieria with respect to the advs
+             *
+             * @return Matrix of sensitivities
+             */
+            Matrix<DDRMat> get_dcriteria_dadv();
 
             /**
              * Gets the design variable interface from the geometry engine
@@ -491,7 +502,7 @@ namespace moris
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
-                                              std::shared_ptr< GEN_Property > aPropertyPointer,
+                                              std::shared_ptr< Property > aPropertyPointer,
                                               PDV_Type                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
 
@@ -507,7 +518,7 @@ namespace moris
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                               std::shared_ptr< GEN_Property > aPropertyPointer,
+                                               std::shared_ptr< Property > aPropertyPointer,
                                                PDV_Type                     aPdvType,
                                                moris_index                     aWhichMesh = 0 );
 
@@ -571,6 +582,14 @@ namespace moris
                                                                      moris::size_t                  const & aGeometryIndex,
                                                                      moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                                      moris::Matrix< moris::DDRMat >       & aLevelSetValues );
+
+            /**
+             * Assign PDV hosts based on properties constructed through parameter lists
+             *
+             * @param aPropertyParameterLists Parameter lists used to construct GEN properties
+             */
+            void assign_pdv_hosts(Cell<ParameterList> aPropertyParameterLists);
+
         };
     }
 }

@@ -57,25 +57,7 @@ namespace moris
         void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                 moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            //FIXME set unfiltered velocity values at nodes
-//            Matrix< DDRMat > tVHat  = mNodalWeakBCs;
-//
-//            // set field interpolator
-//            Field_Interpolator* vN = mMasterFI( 0 );
-//
-//            // set residual size
-//            this->set_residual( aResidual );
-//
-//            // compute the residual
-//            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
-//                           + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
-//
-//            // set the jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            // compute the residual
-//            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 )
-//                                 + trans( vN->N() ) * vN->N();
+            MORIS_ERROR( false, " IWG_Helmholtz_Bulk::compute_jacobian_and_residual - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

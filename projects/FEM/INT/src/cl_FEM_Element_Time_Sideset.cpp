@@ -49,7 +49,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Element_Time_Sideset::compute_residual()
         {
-            // set the integtaion cell geometry interpolator
+            // set the integration cell geometry interpolator
             this->init_ig_geometry_interpolator();
 
             // get number of IWGs
@@ -63,8 +63,10 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
-                mSet->get_field_interpolator_manager_previous_time()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager_previous_time()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
@@ -89,7 +91,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Element_Time_Sideset::compute_jacobian()
         {
-            // set the integtaion cell geometry interpolator
+            // set the integration cell geometry interpolator
             this->init_ig_geometry_interpolator();
 
             // get number of IWGs
@@ -103,8 +105,10 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
-                mSet->get_field_interpolator_manager_previous_time()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager_previous_time()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
@@ -125,7 +129,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Element_Time_Sideset::compute_jacobian_and_residual()
         {
-            // set the integtaion cell geometry interpolator
+            // set the integration cell geometry interpolator
             this->init_ig_geometry_interpolator();
 
             // get number of IWGs
@@ -139,8 +143,10 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
-                mSet->get_field_interpolator_manager_previous_time()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager_previous_time()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
@@ -153,7 +159,10 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // compute jacobian at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian_and_residual( tWStar );
+                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+
+                    // compute jacobian at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
             }
         }

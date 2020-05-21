@@ -143,19 +143,19 @@ namespace moris
             tPdvList(1) = PDV_Type::DENSITY1;
             tPdvList(2) = PDV_Type::DENSITY2;
 
-            std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp0 = std::make_shared< Property >();
             tConstDensityProp0->set_parameters( { {{ 1234 }} } );
             tConstDensityProp0->set_val_function( tConstValFunction );
 
-            std::shared_ptr< GEN_Property > tConstDensityProp1 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp1 = std::make_shared< Property >();
             tConstDensityProp1->set_parameters( { {{ 4321 }} } );
             tConstDensityProp1->set_val_function( tConstValFunction );
 
-            std::shared_ptr< GEN_Property > tConstDensityProp2 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp2 = std::make_shared< Property >();
             tConstDensityProp2->set_parameters( { {{ 1000 }} } );
             tConstDensityProp2->set_val_function( tConstValFunction );
 
-            Cell< std::shared_ptr< GEN_Property > > tPropertyList(3);
+            Cell< std::shared_ptr< Property > > tPropertyList(3);
             tPropertyList(0) = tConstDensityProp0;
             tPropertyList(1) = tConstDensityProp1;
             tPropertyList(2) = tConstDensityProp2;
@@ -363,15 +363,15 @@ namespace moris
             tPdvList(0) = PDV_Type::DENSITY;
             tPdvList(1) = PDV_Type::DENSITY1;
 
-            std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp0 = std::make_shared< Property >();
             tConstDensityProp0->set_parameters( { {{ 1234 }} } );
             tConstDensityProp0->set_val_function( tConstValFunction );
 
-            std::shared_ptr< GEN_Property > tConstDensityProp1 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp1 = std::make_shared< Property >();
             tConstDensityProp1->set_parameters( { {{ 4321 }} } );
             tConstDensityProp1->set_val_function( tConstValFunction );
 
-            Cell< std::shared_ptr< GEN_Property > > tPropertyList(2);
+            Cell< std::shared_ptr< Property > > tPropertyList(2);
             tPropertyList(0) = tConstDensityProp0;
             tPropertyList(1) = tConstDensityProp1;
             //------------------------------------------------------------------------------
@@ -473,14 +473,14 @@ namespace moris
             tPdvList(0) = PDV_Type::DENSITY;
             tPdvList(1) = PDV_Type::DENSITY1;
 
-            std::shared_ptr< GEN_Property > tConstDensityProp0 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp0 = std::make_shared< Property >();
             tConstDensityProp0->set_val_function( tFieldPropFunc0 );
 
-            std::shared_ptr< GEN_Property > tConstDensityProp1 = std::make_shared< GEN_Property >();
+            std::shared_ptr< Property > tConstDensityProp1 = std::make_shared< Property >();
             tConstDensityProp1->set_parameters( { {{ 4321 }} } );
             tConstDensityProp1->set_val_function( tConstValFunction );
 
-            Cell< std::shared_ptr< GEN_Property > > tPropertyList(2);
+            Cell< std::shared_ptr< Property > > tPropertyList(2);
             tPropertyList(0) = tConstDensityProp0;
             tPropertyList(1) = tConstDensityProp1;
             //------------------------------------------------------------------------------

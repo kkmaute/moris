@@ -198,7 +198,7 @@ namespace moris
             /**
              * returns the dQidu
              */
-            sol::Dist_Vector * get_dQidu();
+            Matrix<DDRMat> get_dQidu();
 
 
 

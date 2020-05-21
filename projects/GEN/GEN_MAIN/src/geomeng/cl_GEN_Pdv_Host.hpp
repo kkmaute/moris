@@ -4,7 +4,7 @@
 // GEN_MAIN
 #include "cl_GEN_Field.hpp"
 #include "cl_GEN_Pdv.hpp"
-#include "cl_GEN_Property.hpp"
+#include "cl_GEN_Pdv_Property.hpp"
 
 // GEN_CORE
 #include "cl_GEN_Pdv_Enums.hpp"
@@ -17,14 +17,14 @@ namespace moris
         {
             
         private :
+            // Node index
+            uint mNodeIndex;
+
             // Information about the contained PDVs
             Cell<std::shared_ptr<Pdv>> mPdvList;
             moris::map<PDV_Type, uint> mPdvTypeMap;
             Matrix<DDUMat> mGlobalPdvIndices;
             Cell<bool> mActivePdvs;
-            
-            // list of properties for the dv types
-            Cell< std::shared_ptr< GEN_Property > > mPdvProperties;
             
         public:
             
@@ -34,7 +34,7 @@ namespace moris
              * @param aPdvTypes PDV_Type types for this host
              * @param aStartingGlobalIndex Global index to start assigning new PDV_Type types
              */
-            Pdv_Host(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
+            Pdv_Host(uint aNodeIndex, const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
             
             /**
              * destructor
@@ -65,7 +65,7 @@ namespace moris
              * @param aPdvType PDV_Type type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
+            void create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
             
             /**
              * Create PDV_Type with real value

@@ -1,6 +1,8 @@
 #ifndef MORIS_CL_PDV_Type_ENUMS_HPP_
 #define MORIS_CL_PDV_Type_ENUMS_HPP_
 
+#include "cl_Map.hpp"
+
 namespace moris
 {
     enum class PDV_Type
@@ -16,7 +18,7 @@ namespace moris
         UNDEFINED
     };
 
-    moris::map< std::string, PDV_Type > get_dv_type_map()
+    moris::map< std::string, PDV_Type > get_pdv_type_map()
     {
         moris::map< std::string, PDV_Type > tPdvTypeMap;
 
@@ -28,6 +30,7 @@ namespace moris
         tPdvTypeMap["ELASTIC_MODULUS"]  = PDV_Type::ELASTIC_MODULUS;
         tPdvTypeMap["LS1"]              = PDV_Type::LS1;
         tPdvTypeMap["LS2"]              = PDV_Type::LS2;
+        tPdvTypeMap[""]                 = PDV_Type::UNDEFINED;
         return tPdvTypeMap;
     }
 

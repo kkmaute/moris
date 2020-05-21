@@ -52,6 +52,7 @@
 
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
+#include "cl_GEN_User_Defined_Property.hpp"
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -68,15 +69,11 @@ real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
     return (mNx*(aCoordinates(0)-mXC) + mNy*(aCoordinates(1)-mYC));
 }
 
-Matrix<DDRMat> plane_evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-                                           const moris::Cell< moris::real* > & aParameters)
+void evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
+                                const moris::Cell< moris::real* > & aParameters,
+                                Matrix<DDRMat>& aSensitivities)
 {
-    // Initialize sensitivity matrix
-    moris::Matrix< moris::DDRMat > tSensitivityDxDp(3, 2, 0.0);
-
-    MORIS_ERROR( false, " plane sensitivities not implemented");
-
-    return tSensitivityDxDp;
+    MORIS_ERROR( false, "sensitivities not implemented");
 }
 
 void tConstValFunction2MatMDL
@@ -103,14 +100,14 @@ void tFIDerDvFunction_FDTest
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
 }
 
-Matrix<DDRMat> density_function_1(moris::Cell<Matrix<DDRMat>>& aCoeff)
+real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
 {
-    return Matrix<DDRMat>(1, 1, 1.0);
+    return 1.0;
 }
 
-Matrix<DDRMat> density_function_2(moris::Cell<Matrix<DDRMat>>& aCoeff)
+real density_function_2(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
 {
-    return Matrix<DDRMat>(1, 1, 2.0);
+    return 2.0;
 }
 
 TEST_CASE("Sensitivity test","[Sensitivity test]")
@@ -202,7 +199,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDRMat> (0, 0),
                                                                             &plane_evaluate_field_value,
-                                                                            &plane_evaluate_sensitivity);
+                                                                            &evaluate_sensitivity);
 
         size_t tModelDimension = 2;
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -440,10 +437,21 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 set_ip_requested_dv_types( tMatPdvTypes );
 
-        std::shared_ptr<ge::GEN_Property> tDensityProperty1 = std::make_shared<ge::GEN_Property>();
-        std::shared_ptr<ge::GEN_Property> tDensityProperty2 = std::make_shared<ge::GEN_Property>();
-        tDensityProperty1->set_val_function(&density_function_1);
-        tDensityProperty2->set_val_function(&density_function_2);
+        Matrix<DDRMat> tAdvs(1, 1, 0.0);
+        std::shared_ptr<ge::Property> tDensityProperty1 = std::make_shared<ge::User_Defined_Property>(tAdvs,
+                                                                                                      Matrix<DDUMat>(0, 0),
+                                                                                                      Matrix<DDUMat>(0, 0),
+                                                                                                      Matrix<DDRMat>(0, 0),
+                                                                                                      Cell<std::shared_ptr<ge::Property>>(0),
+                                                                                                      &density_function_1,
+                                                                                                      &evaluate_sensitivity);
+        std::shared_ptr<ge::Property> tDensityProperty2 = std::make_shared<ge::User_Defined_Property>(tAdvs,
+                                                                                                      Matrix<DDUMat>(0, 0),
+                                                                                                      Matrix<DDUMat>(0, 0),
+                                                                                                      Matrix<DDRMat>(0, 0),
+                                                                                                      Cell<std::shared_ptr<ge::Property>>(0),
+                                                                                                      &density_function_2,
+                                                                                                      &evaluate_sensitivity);
         tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);

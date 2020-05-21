@@ -181,7 +181,7 @@ namespace moris
              * @param aPdvType         a list of dv types
              * @param aNodeIndex     a node index
              */
-            void assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Property>  aPropertyPointer,
+            void assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<Property>  aPropertyPointer,
                                                               PDV_Type                        aPdvType,
                                                               moris_index                   aNodeIndex);
             
@@ -276,7 +276,7 @@ namespace moris
              * @param aPdvType PDV_Type type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Property> aPropertyPointer);
+            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
 
             /**
              * Create PDV_Type on interpolation mesh node with real value

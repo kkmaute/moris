@@ -62,7 +62,8 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // set evaluation point for interpolators (FIs and GIs)
-                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                    mSet->get_field_interpolator_manager()->
+                            set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                     // compute integration point weight
                     real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
@@ -102,13 +103,15 @@ namespace moris
 
                 // loop over integration points
                 uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get local integration point location
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // set evaluation point for interpolators (FIs and GIs)
-                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                    mSet->get_field_interpolator_manager()->
+                            set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                     // compute integration point weight
                     real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
@@ -150,7 +153,8 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // set evaluation point for interpolators (FIs and GIs)
-                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                    mSet->get_field_interpolator_manager()->
+                            set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                     // compute integration point weight
                     real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
@@ -162,8 +166,11 @@ namespace moris
                         // reset IWG
                         mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
+                        // compute residual at evaluation point
+                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+
                         // compute jacobian at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian_and_residual( tWStar );
+                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                     }
                 }
             }

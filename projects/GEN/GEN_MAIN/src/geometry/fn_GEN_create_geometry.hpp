@@ -5,8 +5,6 @@
 #ifndef MORIS_FN_CREATE_GEOMETRY_HPP
 #define MORIS_FN_CREATE_GEOMETRY_HPP
 
-#endif //MORIS_FN_CREATE_GEOMETRY_HPP
-
 #include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
@@ -27,3 +25,5 @@ namespace moris
 
     }
 }
+
+#endif //MORIS_FN_CREATE_GEOMETRY_HPP
