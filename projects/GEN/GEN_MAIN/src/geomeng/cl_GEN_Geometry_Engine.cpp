@@ -63,9 +63,9 @@ namespace moris
                 }
             }
 
-            // Create and assign properties
+            // Create properties
             mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
-            this->assign_pdv_hosts(aParameterLists(2));
+            mPropertyParameterLists = aParameterLists(2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1342,7 +1342,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_pdv_hosts(Cell<ParameterList> aPropertyParameterLists)
+        void Geometry_Engine::assign_pdv_hosts()
         {
             // Initialize
             PDV_Type tPdvType;
@@ -1353,15 +1353,15 @@ namespace moris
             moris::map< std::string, PDV_Type > tPdvTypes = get_pdv_type_map();
 
             // Loop over properties
-            for (uint tPropertyIndex = 0; tPropertyIndex < aPropertyParameterLists.size(); tPropertyIndex++)
+            for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
             {
                 // PDV type and mesh set names/indices from parameter list
-                tPdvType = tPdvTypes[aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
-                string_to_cell(aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
-                string_to_mat(aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
+                tPdvType = tPdvTypes[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+                string_to_cell(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
+                string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
 
                 // Assign PDVs
-                if (aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
+                if (mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
                 {
                     // Set names
                     for (uint tNameIndex = 0; tNameIndex < tMeshSetNames.size(); tNameIndex++)
