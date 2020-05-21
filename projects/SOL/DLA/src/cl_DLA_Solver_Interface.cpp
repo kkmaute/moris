@@ -30,15 +30,16 @@ void Solver_Interface::build_graph( moris::sol::Dist_Matrix * aMat )
         }
     }
 
-//    aMat->print();
+    //    aMat->print();
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_assembly();
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
-                                            moris::sol::Dist_Vector   * aVectorRHS,
-                                            moris::sol::Dist_Vector   * aFullSolutionVector )
+void Solver_Interface::fill_matrix_and_RHS(
+        moris::sol::Dist_Matrix * aMat,
+        moris::sol::Dist_Vector * aVectorRHS,
+        moris::sol::Dist_Vector * aFullSolutionVector )
 {
     this->set_solution_vector( aFullSolutionVector );
 
@@ -51,25 +52,25 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
         moris::Matrix< DDSMat > tElementTopology;
         this->get_element_topology( Ii, tElementTopology );
 
-        Matrix< DDRMat > tElementMatrix;
-        this->get_equation_object_operator( Ii, tElementMatrix );
-
+        Matrix< DDRMat >         tElementMatrix;
         Cell< Matrix< DDRMat > > tElementRHS;
-        this->get_equation_object_rhs( Ii, tElementRHS );
+        this->get_equation_object_operator_and_rhs( Ii, tElementMatrix, tElementRHS );
 
         // Fill element in distributed matrix
-        aMat->fill_matrix( tElementTopology.length(),
-                           tElementMatrix,
-                           tElementTopology );
+        aMat->fill_matrix(
+                tElementTopology.length(),
+                tElementMatrix,
+                tElementTopology );
 
         // Fill elementRHS in distributed RHS
-        aVectorRHS->sum_into_global_values( tElementTopology,
-                                            tElementRHS(0) );
+        aVectorRHS->sum_into_global_values(
+                tElementTopology,
+                tElementRHS(0) );
     }
-    // global assembly to switch entries to the right proceccor
+
+    // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_asembly();
     aMat->matrix_global_assembly();
-
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -87,26 +88,21 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 
         this->initialize_set( Ii, false );                     // FIXME FIXME shoudl be true. this is a brutal hack and will be changed in a few days
 
-//        std::cout<<"Set "<<Ii<<std::endl;
-
         for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-//            print(tElementTopology,"tElementTopology");
-
             Cell< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_rhs( Ii, Ik, tElementRHS );
-
-            //print(tElementRHS,"tElementRHS");
 
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
                 // Fill elementRHS in distributed RHS
-                aVectorRHS->sum_into_global_values( tElementTopology,
-                                                    tElementRHS( Ia ),
-                                                    Ia );
+                aVectorRHS->sum_into_global_values(
+                        tElementTopology,
+                        tElementRHS( Ia ),
+                        Ia );
             }
         }
 
@@ -115,9 +111,6 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_asembly();
-
-//    std::cout<<"Assembled Residual Vector"<<std::endl;
-//    aVectorRHS->print();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -129,7 +122,6 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
-//        std::cout<<"Block "<<Ii<<std::endl;
         moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
         this->initialize_set( Ii, false );
@@ -139,35 +131,25 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-//            print(tElementTopology,"tElementTopology");
-
             Matrix< DDRMat > tElementMatrix;
             this->get_equation_object_operator( Ii, Ik, tElementMatrix );
 
-//            print(tElementMatrix,"tElementMatrix");
-
             // Fill element in distributed matrix
             aMat->fill_matrix( tElementTopology.length(),
-                               tElementMatrix,
-                               tElementTopology );
+                    tElementMatrix,
+                    tElementTopology );
         }
-        aMat->matrix_global_assembly();
+        aMat->matrix_global_assembly();   // Mathias: check whether this needs to be done for each block
         this->free_block_memory( Ii );
     }
+
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
-
-//    aMat->save_matrix_to_matlab_file( "Matrix.dat");
-//    std::cout<<"-----------------Matrix output finished---------------------"<<std::endl;
-
-//    std::cout<<"Assembled Jacobian Vector"<<std::endl;
-//    aMat->print();
-
 }
 
 //---------------------------------------------------------------------------------------------------------
 void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
-                                            moris::sol::Dist_Vector * aVectorRHS )
+        moris::sol::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
@@ -177,7 +159,6 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
-//        std::cout<<"Block "<<Ii<<std::endl;
         moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
         this->initialize_set( Ii, false );
@@ -187,23 +168,24 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            Matrix< DDRMat > tElementMatrix;
-            this->get_equation_object_operator( Ii, Ik, tElementMatrix );
+            Matrix< DDRMat >         tElementMatrix;
+            Cell< Matrix< DDRMat > > tElementRHS;
+            this->get_equation_object_operator_and_rhs( Ii, Ik, tElementMatrix, tElementRHS );
 
             // Fill element in distributed matrix
-            aMat->fill_matrix( tElementTopology.length(),
-                               tElementMatrix,
-                               tElementTopology );
+            aMat->fill_matrix(
+                    tElementTopology.length(),
+                    tElementMatrix,
+                    tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
-            this->get_equation_object_rhs( Ii, Ik, tElementRHS );
-
+            // Loop over all RHS vectors
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
                 // Fill elementRHS in distributed RHS
-                aVectorRHS->sum_into_global_values( tElementTopology,
-                                                    tElementRHS( Ia ),
-                                                    Ia );
+                aVectorRHS->sum_into_global_values(
+                        tElementTopology,
+                        tElementRHS( Ia ),
+                        Ia );
             }
         }
         aMat->matrix_global_assembly();
@@ -216,8 +198,8 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
 }
 
 void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
-                                                       const moris::real                       aThreshold  )       // FIXME find better name
-{
+        const moris::real                       aThreshold  )       // FIXME find better name
+                {
     // Get number of Sets
     moris::uint tNumSets = this->get_num_my_blocks();
 
@@ -227,7 +209,7 @@ void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matri
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
     {
-    	// only check bulk sets
+        // only check bulk sets
         if( this->get_set_type( Ii ) == fem::Element_Type::BULK )
         {
             // get number of equations on set
@@ -269,6 +251,6 @@ void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matri
         // resize cell to number of triggered equation objects
         aCriteriaIds.resize( tCounter );
     }
-}
+                }
 
 

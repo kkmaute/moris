@@ -408,11 +408,8 @@ namespace moris
              // loop over the IG elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
-                 // compute the jacobian for the IG element
-                 mElements( iElem )->compute_jacobian();
-
-                 // compute the residual for the IG element
-                 mElements( iElem )->compute_residual();
+                 // compute the jacobian and residual for the IG element
+                 mElements( iElem )->compute_jacobian_and_residual();
              }
          }
 

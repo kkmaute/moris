@@ -118,54 +118,7 @@ namespace moris
         void IWG_Helmholtz_Bulk2::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // set field interpolator
-//            Field_Interpolator* vN  = mMasterFI( 0 );
-//            Field_Interpolator* phi = mMasterFI( 1 );
-//
-//            //FIXME set unfiltered velocity value
-//            uint tVNBases = vN->get_number_of_space_time_bases();
-//            uint tVNFields = vN->get_number_of_fields();
-//            Matrix< DDRMat > aVHat( tVNBases, tVNFields, 1.0 );
-//
-//            // compute norm( phi ) and derivative wrt phiHat
-//            real tNormPhi                     = norm( phi->gradx( 1 ) );
-//            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
-//
-//            // If all values of level set in this element are the same,
-//            // then gradient is zero, protect from going to NAN/inf
-//            if( tNormPhi < 1.0e-12 )
-//            {
-//                tNormPhi = 1.0e-12;
-//                uint tNPhiCoeff = phi->get_number_of_space_time_coefficients();
-//                tDNormPhiDPhiHat.set_size( tNPhiCoeff, 1, 0.0 );
-//            }
-//
-//            // compute Dirac filter and derivative wrt phi / norm( phi )
-//            real tDiracFilter = 0.0;
-//            real tDDiracFilter = 0.0;
-//            if ( phi->val()( 0 ) < 3 * mHe )
-//            {
-//                real tTanh = std::tanh( mSharpParam * phi->val()( 0 ) / tNormPhi );
-//                tDiracFilter  = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
-//                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
-//            }
-//
-//            // set residual size
-//            this->set_residual( aResidual );
-//
-//            // compute the residual r_vN
-//            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
-//                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
-//
-//            // set the jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            // compute the jacobian j_vN_vN
-//            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 ) + trans( vN->N() ) * vN->N() * tDiracFilter;
-//
-//           // compute the jacobian j_vN_phi
-//           aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
-//                               * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            MORIS_ERROR( false, " IWG_Helmholtz_Bulk2::compute_jacobian_and_residual - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

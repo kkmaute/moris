@@ -102,7 +102,7 @@ namespace moris
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
-                // get the ith integration point in the IG param space
+                // get the current integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
@@ -141,6 +141,7 @@ namespace moris
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -171,7 +172,43 @@ namespace moris
         //------------------------------------------------------------------------------
         void Element_Bulk::compute_jacobian_and_residual()
         {
-            MORIS_ERROR( false, "Element_Bulk::compute_jacobian_and_residual - not implemented." );
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator();
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                    // FIXME set nodal weak BCs
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // compute residual at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+
+                    // compute jacobian at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -460,7 +497,7 @@ namespace moris
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
-                        += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 
