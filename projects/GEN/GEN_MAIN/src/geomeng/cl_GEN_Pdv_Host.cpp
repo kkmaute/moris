@@ -139,7 +139,7 @@ namespace moris
                          "Tried to call Pdv_Host.get_pdv_value() with type that doesn't exist on this host.");
 
             // Return value
-            return mPdvList(mPdvTypeMap[aPdvType])->get_value(mNodeIndex);
+            return mPdvList(mPdvTypeMap[aPdvType])->get_value(mNodeIndex, mCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
