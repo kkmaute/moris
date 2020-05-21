@@ -188,7 +188,48 @@ namespace moris
         //------------------------------------------------------------------------------
         void Element_Sideset::compute_jacobian_and_residual()
         {
-            MORIS_ERROR( false, " Element_Sideset::compute_jacobian_and_residual - not implemented. ");
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the ig geometry interpolator physical/param space and time coefficients
+            this->init_ig_geometry_interpolator( tSideOrd );
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get integration point location in the reference surface
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute the integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                    // FIXME
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+
+                    // compute residual at integration point
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian_and_residual( tWStar );
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
