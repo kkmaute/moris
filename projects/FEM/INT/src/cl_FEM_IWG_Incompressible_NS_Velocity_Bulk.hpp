@@ -45,8 +45,8 @@ namespace moris
                 // local constitutive enums
                 enum class IWG_Constitutive_Type
                 {
-                        INCOMPRESSIBLE_FLUID,
-                        MAX_ENUM
+                    INCOMPRESSIBLE_FLUID,
+                    MAX_ENUM
                 };
 
                 // local string to constitutive enum map
@@ -55,8 +55,9 @@ namespace moris
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                        INCOMPRESSIBLE_FLOW,
-                        MAX_ENUM
+                    INCOMPRESSIBLE_FLOW,
+                    TURBULENCE_VISCOSITY,
+                    MAX_ENUM
                 };
 
                 // local string to constitutive enum map
