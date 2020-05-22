@@ -1032,8 +1032,8 @@ namespace moris
             for( uint iFI = 0; iFI < tNumPdvType; iFI++ )
             {
                 // get the FI for the dv type
-                Field_Interpolator * tFI
-                = mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                Field_Interpolator * tFI =
+                        mMasterFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of master FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -1062,8 +1062,9 @@ namespace moris
                         this->reset_eval_flags();
 
                         // evaluate the QI
-                        Matrix< DDRMat > tQIValPlus;
-                        this->compute_QI( tQIValPlus );
+                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+                        this->compute_QI( aWStar );
+                        Matrix< DDRMat > tQIValPlus = mSet->get_QI()( tIQIAssemblyIndex );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
@@ -1076,8 +1077,9 @@ namespace moris
                         this->reset_eval_flags();
 
                         // evaluate the QI
-                        Matrix< DDRMat > tQIValMinus;
-                        this->compute_QI( tQIValMinus );
+                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+                        this->compute_QI( aWStar );
+                        Matrix< DDRMat > tQIValMinus = mSet->get_QI()( tIQIAssemblyIndex );
 
                         // get the pdv index for assembly
                         uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
@@ -1153,8 +1155,9 @@ namespace moris
                         this->reset_eval_flags();
 
                         // evaluate the QI
-                        Matrix< DDRMat > tQIValPlus;
-                        this->compute_QI( tQIValPlus );
+                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+                        this->compute_QI( aWStar );
+                        Matrix< DDRMat > tQIValPlus = mSet->get_QI()( tIQIAssemblyIndex );
 
                         // perturbation of the coefficient
                         tCoeffPert = tCoeff;
@@ -1178,8 +1181,9 @@ namespace moris
                         this->reset_eval_flags();
 
                         // evaluate the QI
-                        Matrix< DDRMat > tQIValMinus;
-                        this->compute_QI( tQIValMinus );
+                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+                        this->compute_QI( aWStar );
+                        Matrix< DDRMat > tQIValMinus = mSet->get_QI()( tIQIAssemblyIndex );
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
