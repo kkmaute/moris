@@ -26,10 +26,16 @@ namespace moris
             mDivStrainEval    = true;
             mTestStrainEval   = true;
             mConstEval        = true;
+            mHdotEval         = true;
+            mGradHdotEval     = true;
+            mGradDivFluxEval  = true;
 
             // reset the dof derivative flag
             uint tNumDofTypes = mGlobalDofTypes.size();
             mdFluxdDofEval.assign( tNumDofTypes, true );
+            mHdotDofEval.assign( tNumDofTypes, true );
+            mGradHdotDofEval.assign( tNumDofTypes, true );
+            mGradDivFluxDofEval.assign( tNumDofTypes, true );
             mddivfluxduEval.assign( tNumDofTypes, true );
             mdTractiondDofEval.assign( tNumDofTypes, true );
             for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
@@ -60,17 +66,6 @@ namespace moris
                 }
             }
 
-            // ------------------------------------ //
-            // FIXME: Remove once unified.
-            // flags specific to PCM constitutive model
-            mHdotEval         = true;
-            mGradHdotEval     = true;
-            mGradDivFluxEval  = true;
-
-            mHdotDofEval.assign( tNumDofTypes, true );
-            mGradHdotDofEval.assign( tNumDofTypes, true );
-            mGradDivFluxDofEval.assign( tNumDofTypes, true );
-            // ------------------------------------ //
         }
 
 //------------------------------------------------------------------------------
