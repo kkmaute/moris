@@ -66,6 +66,9 @@ namespace moris
 //------------------------------------------------------------------------------
         void Equation_Model::compute_implicit_dQIdp()
         {
+//            mSolutionVector->print();
+//             mSensitivitySolutionVector->print();
+
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
             mdQiduMap = tMatFactory.create_map( mDesignVariableInterface->get_my_local_global_map() );
@@ -101,11 +104,15 @@ namespace moris
             mImplicitdQidu->vector_global_asembly();
 
             //mImplicitdQidu->print();
+
+            sleep( 5 );
         }
 
 //------------------------------------------------------------------------------
         void Equation_Model::compute_explicit_dQIdp()
         {
+
+
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
             // FIXME create map only once. eiteher implicit or explicit
@@ -155,13 +162,13 @@ namespace moris
 
             mQidu->vec_put_scalar( 0.0 );
 
-            //mExplicitdQidu->print();
-            //mImplicitdQidu->print();
+//            mExplicitdQidu->print();
+//            mImplicitdQidu->print();
 
             mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
             mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );
 
-            //mQidu->print();
+//            mQidu->print();
 
             return mQidu;
         }

@@ -34,7 +34,7 @@ namespace moris
             uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
 
             // evaluate the QI
-            aQI = trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
+            aQI = 0.5 * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }
 
 //------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ namespace moris
 
             //print( mSet->get_QI(), "mSet->get_QI()");
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
+            mSet->get_QI()( tQIIndex ).matrix_data() += 0.5 * aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }
 
 //------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace moris
                 {
                     // compute dQIdDof
                    mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } )
-                    += aWStar * ( trans( mMasterCM( tElastIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastIndex )->strain( )
+                    += 0.5 * aWStar * ( trans( mMasterCM( tElastIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastIndex )->strain( )
                     +  trans( trans( mMasterCM( tElastIndex )->flux() )             * mMasterCM( tElastIndex )->dStraindDOF( { tDofType } ) ) );
                 }
             }

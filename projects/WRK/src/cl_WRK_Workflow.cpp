@@ -119,7 +119,7 @@ namespace moris
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
 
-            //print( tMat,"tMat");
+            print( tMat,"tMat");
             return tMat;
         }
 
