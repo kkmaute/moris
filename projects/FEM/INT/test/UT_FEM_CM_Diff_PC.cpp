@@ -42,59 +42,68 @@ namespace moris
 {
     namespace fem
     {
-        TEST_CASE( "CM_Diff_Lin_Iso_PC", "[moris],[fem],[CM_Diff_Lin_Iso_PC]" )
+        moris::Cell<bool> test_phase_change_constitutive_model(
+                Matrix< DDRMat > aXHat,
+                Matrix< DDRMat > aTHat,
+                Interpolation_Rule aGeomInterpRule,
+                Interpolation_Rule aIPRule,
+                Matrix< DDRMat > aUHat0,
+                Matrix< DDRMat > aParametricPoint)
         {
+            // initialize cell of checks
+            moris::Cell<bool> tChecks( 3, false );
+
             // real for check
-            real tEpsilon = 1E-6;
+            real tEpsilonRel = 1E-6;
 
             // create the properties --------------------------------------------------------------------- //
 
             // conductivity
             std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
             tPropMasterConductivity->set_parameters( {{{ 1.0}}, {{1.0 }}} );
-            tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterConductivity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // density
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
             tPropMasterDensity->set_parameters( {{{ 1.0}}} );
-            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterDensity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // heat capacity
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
             tPropMasterHeatCapacity->set_parameters( {{{ 1.0}}} );
-            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterHeatCapacity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // latent heat
             std::shared_ptr< fem::Property > tPropMasterLatentHeat = std::make_shared< fem::Property >();
             tPropMasterLatentHeat->set_parameters( {{{ 100.0}}} );
-            tPropMasterLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterLatentHeat->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // lower phase change temp
             std::shared_ptr< fem::Property > tPropMasterTlower = std::make_shared< fem::Property >();
             tPropMasterTlower->set_parameters( {{{ 8.0 }}} );
-            tPropMasterTlower->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterTlower->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTlower->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // upper phase change temp
             std::shared_ptr< fem::Property > tPropMasterTupper = std::make_shared< fem::Property >();
             tPropMasterTupper->set_parameters( {{{ 12.0 }}} );
-            tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTupper->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // phase change constant
             std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
             tPropMasterPCconst->set_parameters( {{{ 0.0 }}} );
-            tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // phase state function type
             std::shared_ptr< fem::Property > tPropMasterPCfunction = std::make_shared< fem::Property >();
             tPropMasterPCfunction->set_parameters( {{{ 1 }}} );
-            tPropMasterPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //tPropMasterPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCfunction->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // temperature load
@@ -115,47 +124,20 @@ namespace moris
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "Phase_Change_Const" );
             tCMMasterDiffLinIsoPC->set_space_dim( 2 );
 
-            //create a quad4 space element
-//            Matrix< DDRMat > tXHat( 4, 2 );
-            Matrix< DDRMat > tXHat = {{ 0.0, 0.0},
-                                      { 1.0, 0.0},
-                                      { 1.0, 1.0},
-                                      { 0.0, 1.0}};
-
-            //create a line time element
-            Matrix< DDRMat > tTHat( 2, 1 );
-            tTHat( 0 ) = 0.0;
-            tTHat( 1 ) = 1.0;
-
-            //create a space geometry interpolation rule
-            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-                                                Interpolation_Type::LAGRANGE,
-                                                mtk::Interpolation_Order::LINEAR,
-                                                Interpolation_Type::LAGRANGE,
-                                                mtk::Interpolation_Order::LINEAR );
-
             //create a space and a time geometry interpolator
-            Geometry_Interpolator tGI( tGeomInterpRule );
+            Geometry_Interpolator tGI( aGeomInterpRule );
 
             //set the coefficients xHat, tHat
-            tGI.set_coeff( tXHat, tTHat );
-            tGI.set_space_time({{0.0}, {0.0}, {-1.0}});
-
-            // create an interpolation rule
-            Interpolation_Rule tIPRule ( mtk::Geometry_Type::QUAD,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            tGI.set_coeff( aXHat, aTHat );
+            tGI.set_space_time(aParametricPoint);
 
             // create a TEMP field interpolator
             Cell< Field_Interpolator* > tFIs( 1, nullptr );
-            tFIs( 0 ) = new Field_Interpolator ( 1, tIPRule, & tGI, { MSI::Dof_Type::TEMP } );
+            tFIs( 0 ) = new Field_Interpolator ( 1, aIPRule, & tGI, { MSI::Dof_Type::TEMP } );
 
             // set coefficients for field interpolators
-            Matrix< DDRMat > tUHat0 = {{7.0},{8.0},{9.0},{10.0},{11.0},{12.0},{13.0},{14.0}};
-            tFIs( 0 )->set_coeff( tUHat0 );
-            tFIs( 0 )->set_space_time({{0.0}, {0.0}, {-1.0}});
+            tFIs( 0 )->set_coeff( aUHat0 );
+            tFIs( 0 )->set_space_time(aParametricPoint);
 
             // create a fem set
             //MSI::Equation_Set * tSet = new fem::Set();
@@ -194,14 +176,20 @@ namespace moris
 
             //check stress derivative
             bool tCheckHdot = true;
+            real tEpsilon = std::abs( tEpsilonRel * tdHdotdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdHdotdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdHdotdDOF.n_cols(); jStress++ )
                 {
-                    tCheckHdot = tCheckHdot && ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckHdot = tCheckHdot && ( std::abs( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
-            REQUIRE( tCheckHdot );
+            //REQUIRE( tCheckHdot );
+            tChecks(0) = tCheckHdot;
+
+// debug
+//moris::print(tdHdotdDOF, "tdHdotdDOF");
+//moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
 
 
             // check gradHdot --------------------------------------------------------------
@@ -217,14 +205,20 @@ namespace moris
 
             //check stress derivative
             bool tCheckGradHdot = true;
+            tEpsilon = std::abs( tEpsilonRel * tdGradHdotdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdGradHdotdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
                 {
-                    tCheckGradHdot = tCheckGradHdot && ( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckGradHdot = tCheckGradHdot && ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
-            REQUIRE( tCheckGradHdot );
+            //REQUIRE( tCheckGradHdot );
+            tChecks(1) = tCheckGradHdot;
+
+// debug
+//moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
+//moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
 
 
             // check graddivflux -----------------------------------------------------------
@@ -240,20 +234,223 @@ namespace moris
 
             //check strain derivative
             bool tCheckGradDivFlux = true;
+            tEpsilon = std::abs( tEpsilonRel );
             for ( uint iStress = 0; iStress < tdGradDivFluxdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdGradDivFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckGradDivFlux = tCheckGradDivFlux && ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckGradDivFlux = tCheckGradDivFlux && ( std::abs( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
-            REQUIRE( tCheckGradDivFlux );
+            //REQUIRE( tCheckGradDivFlux );
+            tChecks(2) = tCheckGradDivFlux;
+// debug
+//moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
+//moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
+
+
+            //------------------------------------------------------------------------------
 
             // clean up
-            //------------------------------------------------------------------------------
             tFIs.clear();
 
-        }/* TEST_CASE */
+            // return cell of checks
+            return tChecks;
+
+        }/* TEST Function */
+
+
+        // ------------------------------------------------------------------------------------- //
+        // ------------------------------------------------------------------------------------- //
+        TEST_CASE( "CM_Diff_Lin_Iso_PC_Linear", "[moris],[fem],[CM_Diff_Lin_Iso_PC_Linear]" )
+        {
+            //create a quad4 space element
+            Matrix< DDRMat > tXHat = {
+                    { 0.0, 0.0},
+                    { 1.0, 0.0},
+                    { 1.0, 1.0},
+                    { 0.0, 1.0}};
+
+            //create a line time element
+            Matrix< DDRMat > tTHat( 2, 1 );
+            tTHat( 0 ) = 1.0e-3;
+            tTHat( 1 ) = 1.1e-3;
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // create an interpolation rule
+            Interpolation_Rule tIPRule (
+                    mtk::Geometry_Type::QUAD,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // set coefficients for field interpolators
+            Matrix< DDRMat > tUHat0 = {{3.9},{4.4},{4.9},{4.2},{4.9},{5.4},{5.9},{6.0}};
+            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+
+            // run test
+            moris::Cell<bool> tChecks = test_phase_change_constitutive_model(
+                            tXHat,
+                            tTHat,
+                            tGeomInterpRule,
+                            tIPRule,
+                            tUHat0,
+                            tParametricPoint);
+
+            // checks
+            bool tCheckHdot = tChecks(0);
+            bool tCheckGradHdot = tChecks(1);
+            bool tCheckGradDivFlux = tChecks(2);
+            REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradHdot );
+            REQUIRE( tCheckGradDivFlux );
+
+        }
+
+        // ------------------------------------------------------------------------------------- //
+        // ------------------------------------------------------------------------------------- //
+        TEST_CASE( "CM_Diff_Lin_Iso_PC_Quadratic", "[moris],[fem],[CM_Diff_Lin_Iso_PC_Quadratic]" )
+        {
+            //create a quad4 space element
+            Matrix< DDRMat > tXHat = {
+                    { 0.0, 0.0},
+                    { 1.0, 0.0},
+                    { 1.0, 1.0},
+                    { 0.0, 1.0},
+                    { 0.5, 0.0},
+                    { 1.0, 0.5},
+                    { 0.5, 1.0},
+                    { 0.0, 0.5},
+                    { 0.5, 0.5}};
+
+            //create a line time element
+            Matrix< DDRMat > tTHat( 3, 1 );
+            tTHat( 0 ) = 1.00e-3;
+            tTHat( 2 ) = 1.05e-3;
+            tTHat( 1 ) = 1.10e-3;
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::QUADRATIC,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::QUADRATIC );
+
+            // create an interpolation rule
+            Interpolation_Rule tIPRule (
+                    mtk::Geometry_Type::QUAD,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::QUADRATIC,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::QUADRATIC );
+
+
+            // set coefficients for field interpolators
+            Matrix< DDRMat > tUHat0 = {
+                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+                    {5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},{5.8},{5.9},
+                    {6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9},};
+            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+
+            // run test
+            moris::Cell<bool> tChecks = test_phase_change_constitutive_model(
+                            tXHat,
+                            tTHat,
+                            tGeomInterpRule,
+                            tIPRule,
+                            tUHat0,
+                            tParametricPoint);
+
+            // checks
+            bool tCheckHdot = tChecks(0);
+            bool tCheckGradHdot = tChecks(1);
+            bool tCheckGradDivFlux = tChecks(2);
+            REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradHdot );
+            REQUIRE( tCheckGradDivFlux );
+
+        }
+
+        // ------------------------------------------------------------------------------------- //
+        // ------------------------------------------------------------------------------------- //
+        TEST_CASE( "CM_Diff_Lin_Iso_PC_Cubic", "[moris],[fem],[CM_Diff_Lin_Iso_PC_Cubic]" )
+        {
+
+            //create a quad4 space element
+            Matrix< DDRMat > tXHat = {
+                    { 0.0, 0.0},
+                    { 3.0, 0.0},
+                    { 3.0, 3.0},
+                    { 0.0, 3.0},
+                    { 1.0, 0.0},
+                    { 2.0, 0.0},
+                    { 3.0, 1.0},
+                    { 3.0, 2.0},
+                    { 2.0, 3.0},
+                    { 1.0, 3.0},
+                    { 0.0, 2.0},
+                    { 0.0, 1.0},
+                    { 1.0, 1.0},
+                    { 2.0, 1.0},
+                    { 2.0, 2.0},
+                    { 1.0, 2.0}};
+
+            //create a line time element
+            Matrix< DDRMat > tTHat( 4, 1 );
+            tTHat( 0 ) = 1.00e-3;
+            tTHat( 2 ) = 1.05e-3;
+            tTHat( 3 ) = 1.10e-3;
+            tTHat( 1 ) = 1.15e-3;
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::CUBIC,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::CUBIC );
+
+            // create an interpolation rule
+            Interpolation_Rule tIPRule (
+                    mtk::Geometry_Type::QUAD,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::CUBIC,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::CUBIC );
+
+
+            // set coefficients for field interpolators
+            Matrix< DDRMat > tUHat0 = {
+                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},
+                    {5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},{5.8},{5.9},{5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},
+                    {6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9},{6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},
+                    {7.1},{7.2},{7.3},{7.4},{7.5},{7.6},{7.7},{7.8},{7.9},{7.1},{7.2},{7.3},{7.4},{7.5},{7.6},{7.7},};
+            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+
+            // run test
+            moris::Cell<bool> tChecks = test_phase_change_constitutive_model(
+                            tXHat,
+                            tTHat,
+                            tGeomInterpRule,
+                            tIPRule,
+                            tUHat0,
+                            tParametricPoint);
+
+            // checks
+            bool tCheckHdot = tChecks(0);
+            bool tCheckGradHdot = tChecks(1);
+            bool tCheckGradDivFlux = tChecks(2);
+            REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradHdot );
+            REQUIRE( tCheckGradDivFlux );
+
+        }
 
 
     }/* namespace fem */
