@@ -2443,7 +2443,7 @@ namespace moris
             //
             aMatPdvType = mMasterDvTypes;
 
-            std::cout<<"Set::get_ip_dv_types_for_set - should come from design variable interface"<<std::endl;
+            //std::cout<<"Set::get_ip_dv_types_for_set - should come from design variable interface"<<std::endl;
 //            // get design variable interface
 //            MSI::Design_Variable_Interface * tPdvInterface =
 //                    mEquationModel->get_design_variable_interface();
