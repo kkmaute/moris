@@ -82,6 +82,16 @@ namespace moris
             // Create properties
             mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
             mPropertyParameterLists = aParameterLists(2);
+
+            // Set requested PDVs
+            Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
+            Cell<PDV_Type> tRequestedPdvTypes(tRequestedPdvNames.size());
+            moris::map<std::string, PDV_Type> tPdvTypeMap = get_pdv_type_map();
+            for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tRequestedPdvTypes.size(); tPdvTypeIndex++)
+            {
+                tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
+            }
+            mPdvHostManager.set_ip_requested_dv_types(tRequestedPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------

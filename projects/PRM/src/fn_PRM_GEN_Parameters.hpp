@@ -33,6 +33,7 @@ namespace moris
             tParameterList.insert("upper_bounds", ""); // Upper bounds on advs, string converted into vector
             tParameterList.insert("upper_bounds_fill", 0.0); // Fill value for upper bounds up to size of ADV vector
             tParameterList.insert("IQI_types", ""); // Requested IQI types for sensitivity analysis
+            tParameterList.insert("PDV_types", ""); // Requested PDV types for sensitivity analysis
 
             // Phase table
             tParameterList.insert("phase_table", ""); // Construct phase table directly
