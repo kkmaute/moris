@@ -124,7 +124,7 @@ namespace moris
                 // Split and get local criteria
                 comm_split(tColor, tKey, "criteria_communicator");
                 tLocalADVs = get_local_advs(aNewADVs, tColor);
-                tLocalCriteria = mInterfaces(tColor)->perform(tLocalADVs);
+                tLocalCriteria = mInterfaces(tColor)->get_criteria(tLocalADVs);
                 barrier("criteria_evaluation");
                 comm_join();
 
@@ -176,7 +176,7 @@ namespace moris
                 for (uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
                 {
                     tLocalADVs = get_local_advs(aNewADVs, tInterfaceIndex);
-                    tReceiveMats(tInterfaceIndex) = mInterfaces(tInterfaceIndex)->perform(tLocalADVs);
+                    tReceiveMats(tInterfaceIndex) = mInterfaces(tInterfaceIndex)->get_criteria(tLocalADVs);
                 }
             }
 
@@ -202,7 +202,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_Manager::get_dcriteria_dadv()
+        Matrix<DDRMat> Interface_Manager::compute_dcriteria_dadv()
         {
             // Set up global criteria gradients
             Matrix<DDRMat> tGlobalCriteriaGradients(sum(mNumCriteriaPerInterface), sum(mNumADVsPerInterface), 0.0);

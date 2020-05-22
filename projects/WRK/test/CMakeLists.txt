@@ -5,7 +5,8 @@
 set(TEST_SOURCES 
     test_main.cpp
     UT_WRK_Performer_Manager.cpp
-    UT_WRK_Workflow.cpp )
+    UT_WRK_Workflow.cpp
+    UT_WRK_L2.cpp )
 
 # List snippet includes
 set(SNIPPET_INCLUDES
@@ -19,7 +20,40 @@ endforeach()
 set(TEST_DEPENDENCIES
     test-libs
     ${WRK}-lib
+    ${XTK}-lib
+    ${HMR}-lib
     )
+    
+    set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )  
+    
+    # Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()  
+
+set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_INCLUDES ${GEN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+endforeach()
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

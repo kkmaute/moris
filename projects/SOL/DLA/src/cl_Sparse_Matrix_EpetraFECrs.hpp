@@ -71,7 +71,11 @@ public:
 
     void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec );
 
-    void  print() const;
+    void mat_vec_product( const moris::sol::Dist_Vector & aInputVec,
+                                moris::sol::Dist_Vector & aResult,
+                          const bool                      aUseTranspose );
+
+    void print() const;
 
     void save_matrix_to_matlab_file( const char* aFilename );
 

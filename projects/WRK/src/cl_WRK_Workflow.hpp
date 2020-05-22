@@ -88,7 +88,7 @@ class Library_IO;
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_dcriteria_dadv();
+            Matrix<DDRMat> compute_dcriteria_dadv();
 
 //------------------------------------------------------------------------------
         };

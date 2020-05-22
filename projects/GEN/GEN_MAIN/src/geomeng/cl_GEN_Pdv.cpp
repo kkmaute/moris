@@ -33,9 +33,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Pdv::get_value(uint aNodeIndex, Matrix<DDRMat> aCoordinates)
+        real Pdv::get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return mValue;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        {
+
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -131,6 +131,10 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
+        void delete_pointers();
+
+        //--------------------------------------------------------------------------------------------------
+
         /**
          * @brief Sets one of the lists this time solver is operating on. Should be called multiple times for black solvers
          *

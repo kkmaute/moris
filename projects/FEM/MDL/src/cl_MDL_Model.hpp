@@ -17,6 +17,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -93,8 +94,6 @@ class Library_IO;
             // pointer to solver warehouse
             std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
 
-            // fixme: maybe introduce a cell of maps for different orders?
-            moris::map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
             // pointer to output manager
@@ -105,9 +104,14 @@ class Library_IO;
             bool mUseMultigrid = false;
 
             // pointer to library for input reading
-            std::shared_ptr< Library_IO > mLibrary;
+            std::shared_ptr< Library_IO > mLibrary = nullptr;
 
             MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
+            moris::Cell< moris::Cell< ParameterList > > mFEMParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mMSIParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mSOLParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mVISParameterList;
 
 //------------------------------------------------------------------------------
         public:

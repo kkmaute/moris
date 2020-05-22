@@ -201,7 +201,7 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight // fixme both side?
+                // compute the integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
@@ -261,8 +261,7 @@ namespace moris
 
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-
-                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0}) +
+                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0}) =
                         tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                 // set evaluation point for master and slave interpolators
@@ -271,7 +270,7 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight // fixme both side?
+                // compute the integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
@@ -306,9 +305,8 @@ namespace moris
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
                     mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
-
             moris_index tSlaveNodeOrdOnSide =
-                    mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode);
+                    mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tSlaveNode );
 
             // get rotation matrix from left to right
             Matrix< DDRMat> tR;
@@ -319,7 +317,6 @@ namespace moris
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
@@ -327,7 +324,7 @@ namespace moris
 
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0})=
+                tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}) =
                         tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                 // set evaluation point for master and slave interpolators
@@ -336,11 +333,11 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight // fixme both side?
+                // compute the integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
-                // get the normal from mesh and set if for the IWG
+                // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
 
                 // loop over the IWGs
@@ -355,7 +352,7 @@ namespace moris
                     // compute residual at integration point
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
 
-                    // compute residual at integration point
+                    // compute jacobian at integration point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
             }

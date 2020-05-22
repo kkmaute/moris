@@ -26,23 +26,17 @@ namespace moris
             // get param space time
             real tTimeParamCoeff = 2.0 * aTimeOrdinal - 1.0;
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->
-                    get_IG_geometry_interpolator()->
-                    set_space_coeff( mMasterCell->get_vertex_coords());
+            // get geometry interpolator
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
-            mSet->get_field_interpolator_manager()->
-                    get_IG_geometry_interpolator()->
-                    set_time_coeff( {{ mCluster->mInterpolationElement->get_time()( aTimeOrdinal ) }} );
+            // set the geometry interpolator physical space and time coefficients for integration cell
+            tIGGI->set_space_coeff( mMasterCell->get_vertex_coords());
+            tIGGI->set_time_coeff( {{ mCluster->mInterpolationElement->get_time()( aTimeOrdinal ) }} );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            mSet->get_field_interpolator_manager()->
-                    get_IG_geometry_interpolator()->
-                    set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-
-            mSet->get_field_interpolator_manager()->
-                    get_IG_geometry_interpolator()->
-                    set_time_param_coeff( {{ tTimeParamCoeff }} );
+            tIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            tIGGI->set_time_param_coeff( {{ tTimeParamCoeff }} );
         }
 
         //------------------------------------------------------------------------------

@@ -10,6 +10,8 @@ namespace moris
 
         Pdv_Host_Manager::Pdv_Host_Manager()
         {
+            moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
+            this->set_ip_requested_dv_types( tMatPdvTypes );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -442,13 +444,6 @@ namespace moris
         void Pdv_Host_Manager::set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
         {
             mRequestedIgPdvTypes = aPdvTypes;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer)
-        {
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aFieldPointer, aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------

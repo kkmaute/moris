@@ -16,7 +16,7 @@ namespace moris
             // Set user-defined functions
             initialize_user_defined = mLibrary.load_criteria_initialize_function("initialize");
             get_criteria_user_defined = mLibrary.load_criteria_function("get_criteria");
-            get_dcriteria_dadv_user_defined = mLibrary.load_criteria_function("get_dcriteria_dadv");
+            compute_dcriteria_dadv_user_defined = mLibrary.load_criteria_function("get_dcriteria_dadv");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -36,9 +36,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_User_Defined::get_dcriteria_dadv()
+        Matrix<DDRMat> Interface_User_Defined::compute_dcriteria_dadv()
         {
-            return this->get_dcriteria_dadv_user_defined(mADVs);
+            return this->compute_dcriteria_dadv_user_defined(mADVs);
         }
 
         //--------------------------------------------------------------------------------------------------------------

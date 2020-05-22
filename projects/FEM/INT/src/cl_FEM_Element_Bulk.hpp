@@ -15,131 +15,135 @@ namespace moris
 {
     namespace fem
     {
-    class Set;
-//------------------------------------------------------------------------------
-    /**
-     * \brief element class that communicates with the mesh interface
-     */
-    class Element_Bulk : public Element
-    {
-
-//------------------------------------------------------------------------------
-    public:
-//------------------------------------------------------------------------------
+        class Set;
+        //------------------------------------------------------------------------------
         /**
-         * trivial constructor
+         * \brief element class that communicates with the mesh interface
          */
-        Element_Bulk(){};
+        class Element_Bulk : public Element
+        {
 
-        /**
-         * constructor
-         * @param[ in ] aCell               a mesh cell pointer
-         * @param[ in ] aSet                a fem set pointer
-         * @param[ in ] aCluster            a fem cluster pointer
-         * @param[ in ] aCellIndexInCluster an index for cell in cluster
-         */
-        Element_Bulk( mtk::Cell    const * aCell,
-                      Set                * aSet,
-                      Cluster            * aCluster,
-                      moris::moris_index   aCellIndexInCluster );
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial constructor
+                 */
+                Element_Bulk(){};
 
-//------------------------------------------------------------------------------
-        /**
-         * trivial destructor
-         */
-        ~Element_Bulk();
+                /**
+                 * constructor
+                 * @param[ in ] aCell               a mesh cell pointer
+                 * @param[ in ] aSet                a fem set pointer
+                 * @param[ in ] aCluster            a fem cluster pointer
+                 * @param[ in ] aCellIndexInCluster an index for cell in cluster
+                 */
+                Element_Bulk(
+                        mtk::Cell    const * aCell,
+                        Set                * aSet,
+                        Cluster            * aCluster,
+                        moris::moris_index   aCellIndexInCluster );
 
-//------------------------------------------------------------------------------
-        /**
-         * compute jacobian
-         */
-        void compute_jacobian();
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~Element_Bulk();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute residual
-         */
-        void compute_residual();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian
+                 */
+                void compute_jacobian();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute jacobian and residual
-         */
-        void compute_jacobian_and_residual();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute residual
+                 */
+                void compute_residual();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute dRdp
-         */
-        void compute_dRdp();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian and residual
+                 */
+                void compute_jacobian_and_residual();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantities of interest in a global way
-         */
-        void compute_QI();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dRdp
+                 */
+                void compute_dRdp();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute dQIdp
-         */
-        void compute_dQIdp_explicit();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantities of interest in a global way
+                 */
+                void compute_QI();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute dQIdu
-         */
-        void compute_dQIdu();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantity of interest in a global way
-         * @param[ in ] aOutputType an enum for the output type
-         */
-        void compute_quantity_of_interest_global( const uint aMeshIndex,
-                                                  enum vis::Output_Type aOutputType );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu();
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantity of interest in a nodal way
-         * @param[ in ] aOutputType an enum for the output type
-         */
-        void compute_quantity_of_interest_nodal( const uint aMeshIndex,
-                                                 enum vis::Output_Type aOutputType );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantity of interest in a global way
+                 * @param[ in ] aOutputType an enum for the output type
+                 */
+                void compute_quantity_of_interest_global(
+                        const uint aMeshIndex,
+                        enum vis::Output_Type aOutputType );
 
-//------------------------------------------------------------------------------
-        /**
-         * compute quantity of interest in a elemental way
-         * @param[ in ] aOutputType an enum for the output type
-         */
-        void compute_quantity_of_interest_elemental( const uint aMeshIndex,
-                                                     enum vis::Output_Type aOutputType );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantity of interest in a nodal way
+                 * @param[ in ] aOutputType an enum for the output type
+                 */
+                void compute_quantity_of_interest_nodal(
+                        const uint aMeshIndex,
+                        enum vis::Output_Type aOutputType );
 
-//------------------------------------------------------------------------------
-        /**
-         * compute volume over the element
-         */
-        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute quantity of interest in a elemental way
+                 * @param[ in ] aOutputType an enum for the output type
+                 */
+                void compute_quantity_of_interest_elemental(
+                        const uint aMeshIndex,
+                        enum vis::Output_Type aOutputType );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * compute volume over the element
+                 */
+                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
-//        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                //        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
-//        real compute_element_average_of_scalar_field();
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-    protected:
-//------------------------------------------------------------------------------
-        /**
-         * initialize integration geometry interpolator
-         */
-        void init_ig_geometry_interpolator();
-        void init_ig_geometry_interpolator_with_pdv( moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
-    };
+                //        real compute_element_average_of_scalar_field();
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+            protected:
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize integration geometry interpolator
+                 */
+                void init_ig_geometry_interpolator();
+                void init_ig_geometry_interpolator_with_pdv( moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
+        };
+
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

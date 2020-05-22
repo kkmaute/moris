@@ -15,10 +15,10 @@ namespace moris
     {
         class Pdv_Host
         {
-            
         private :
-            // Node index
+            // Identifies the host node
             uint mNodeIndex;
+            Matrix<DDRMat> mCoordinates;
 
             // Information about the contained PDVs
             Cell<std::shared_ptr<Pdv>> mPdvList;

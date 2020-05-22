@@ -28,7 +28,7 @@ namespace moris
             Matrix<DDRMat> mFiniteDifferenceEpsilons; // Epsilon for finite differencing
 
             std::string mFiniteDifferenceType;
-            real mADVNormTolerance = 0.0;
+            real mADVNormTolerance = 1E-12;
 
         protected:
             Matrix<DDRMat> mADVs;    // Abstract Design Variable vector

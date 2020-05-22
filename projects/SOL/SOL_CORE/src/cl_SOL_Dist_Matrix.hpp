@@ -84,6 +84,11 @@ namespace moris
 
                 virtual void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec ) = 0;
 
+                virtual void mat_vec_product(
+                        const moris::sol::Dist_Vector & aInputVec,
+                              moris::sol::Dist_Vector & aResult,
+                        const bool                      aUseTranspose ) = 0;
+
                 virtual void print() const = 0;
 
                 virtual void save_matrix_to_matlab_file( const char* aFilename ) = 0;
