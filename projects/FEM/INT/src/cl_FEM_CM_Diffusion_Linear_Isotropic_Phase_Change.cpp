@@ -8,6 +8,7 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
+#include "fn_FEM_CM_Phase_State_Functions.hpp"
 
 namespace moris
 {
@@ -24,13 +25,33 @@ namespace moris
             mPropertyMap[ "Density" ]               = Property_Type::DENSITY;
             mPropertyMap[ "Heat_Capacity" ]         = Property_Type::HEAT_CAPACITY;
             mPropertyMap[ "Latent_Heat" ]           = Property_Type::LATENT_HEAT;
-            mPropertyMap[ "Lower_PC_Temp" ]         = Property_Type::LOWER_PC_TEMP;
-            mPropertyMap[ "Upper_PC_Temp" ]         = Property_Type::UPPER_PC_TEMP;
+            mPropertyMap[ "PC_Temp" ]               = Property_Type::PC_TEMP;
             mPropertyMap[ "Phase_State_Function" ]  = Property_Type::PHASE_STATE_FUNCTION;
             mPropertyMap[ "Phase_Change_Const" ]    = Property_Type::PHASE_CHANGE_CONST;
 
             // populate dof map
             mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
+        }
+
+        //------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_Hdot()
+        {
+            // get properties
+            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
+
+            // compute derivative of Phase State Function
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] ) );
+
+            // compute derivative of enthalpy
+            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
+                             * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt( 1 );
         }
 
         //------------------------------------------------------------------------------
@@ -41,7 +62,12 @@ namespace moris
             moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
 
             // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] ) );
 
             // compute gradient of
             mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) *
@@ -219,7 +245,12 @@ namespace moris
             mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] ) );
 
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
@@ -252,7 +283,12 @@ namespace moris
             mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] ) );
 
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
@@ -506,76 +542,6 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dStraindDV( const moris::Cell< PDV_Type > & aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented.");
-        }
-
-        //------------------------------------------------------------------------------
-        moris::real CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dFdTemp()
-        {
-            moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
-            moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
-            moris::uint tPCfunc  = mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
-
-            // get temperature
-            real tTemp = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->val()( 0 );
-
-            moris::real tdfdT;
-
-            switch ( tPCfunc )
-            {
-                // linear phase change model
-                case 1:
-                {
-                    if ( (tTemp > tTupper) || (tTemp < tTlower) )
-                        tdfdT = 0;
-                    else
-                        tdfdT = 1 / (tTupper - tTlower);
-                    break;
-                }
-
-                // cubic phase change model
-                case 2:
-                {
-                    // cubic function: f(T)=( (tTemp - tTlower)^2 * (2*tTemp + tTlower - 3*tTupper))/(tTlower - tTupper)^3
-                    if ( (tTemp > tTupper) || (tTemp < tTlower) )
-                        tdfdT = 0;
-                    else
-                        tdfdT = 6.0*(tTemp - tTlower)*(tTemp - tTupper)/std::pow(tTlower - tTupper,3.0);
-                    break;
-                }
-
-                // logistic function
-                case 3:
-                {
-                    moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
-
-                    // logistic function parameter k
-                    real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
-
-                    real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
-                    tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
-                    break;
-                }
-                default:
-                    MORIS_ERROR(false,"wrong option for phase change function.");
-            }
-
-            return tdfdT;
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_Hdot()
-        {
-            // get properties
-            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
-            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
-
-            // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
-
-            // compute derivative of enthalpy
-            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
-                             * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt( 1 );
         }
 
         //------------------------------------------------------------------------------

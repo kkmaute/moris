@@ -82,21 +82,15 @@ namespace moris
             //tPropMasterLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterLatentHeat->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
-            // lower phase change temp
-            std::shared_ptr< fem::Property > tPropMasterTlower = std::make_shared< fem::Property >();
-            tPropMasterTlower->set_parameters( {{{ 8.0 }}} );
-            //tPropMasterTlower->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterTlower->set_val_function( tConstValFunction_UT_CM_Diff_PC );
-
-            // upper phase change temp
-            std::shared_ptr< fem::Property > tPropMasterTupper = std::make_shared< fem::Property >();
-            tPropMasterTupper->set_parameters( {{{ 12.0 }}} );
+            // phase change temp
+            std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
+            tPropMasterTmelt->set_parameters( {{{ 5.0 }}} );
             //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterTupper->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+            tPropMasterTmelt->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // phase change constant
             std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-            tPropMasterPCconst->set_parameters( {{{ 0.0 }}} );
+            tPropMasterPCconst->set_parameters( {{{ 2.7 }}} );
             //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
@@ -118,8 +112,7 @@ namespace moris
             tCMMasterDiffLinIsoPC->set_property( tPropMasterDensity     , "Density" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterHeatCapacity, "Heat_Capacity" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterLatentHeat  , "Latent_Heat" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterTlower      , "Lower_PC_Temp" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterTupper      , "Upper_PC_Temp" );
+            tCMMasterDiffLinIsoPC->set_property( tPropMasterTmelt       , "PC_Temp" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "Phase_State_Function" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "Phase_Change_Const" );
             tCMMasterDiffLinIsoPC->set_space_dim( 2 );

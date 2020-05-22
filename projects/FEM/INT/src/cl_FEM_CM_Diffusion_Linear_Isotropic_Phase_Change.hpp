@@ -40,14 +40,13 @@ namespace moris
                 // property type for CM
                 enum class Property_Type
                 {
-                    UPPER_PC_TEMP,
-                    LOWER_PC_TEMP,
-                    PHASE_STATE_FUNCTION,
-                    PHASE_CHANGE_CONST,
                     CONDUCTIVITY,
                     HEAT_CAPACITY,
                     LATENT_HEAT,
                     DENSITY,
+                    PC_TEMP,
+                    PHASE_STATE_FUNCTION,
+                    PHASE_CHANGE_CONST,
                     MAX_ENUM
                 };
 
@@ -314,12 +313,6 @@ namespace moris
                  * dStraindDV ( mSpaceDim x numDerDV )
                  */
                 void eval_dStraindDV( const moris::Cell< PDV_Type > & aDofTypes );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the derivative of phase change function wrt to temperature
-                 */
-                 moris::real eval_dFdTemp();
 
                 //------------------------------------------------------------------------------
         };
