@@ -93,8 +93,9 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
 
         // dof type list
         moris::Cell< MSI::Dof_Type > tVelDofTypes;
-        moris::Cell< MSI::Dof_Type > tPDofTypes = { MSI::Dof_Type::P };
+        moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
         moris::Cell< MSI::Dof_Type > tTEMPDofTypes = { MSI::Dof_Type::TEMP };
+        moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
 
         // gravity
         Matrix< DDRMat > tGravity( iSpaceDim, 1, 10.0 );
@@ -190,11 +191,13 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             arma::Mat< double > tMasterMatrixVel;
             arma::Mat< double > tMasterMatrixP;
             arma::Mat< double > tMasterMatrixTEMP;
+            arma::Mat< double > tMasterMatrixVis;
 
             // get number of dof
-            int tNumDofVel = 0;
-            int tNumDofP = 0;
+            int tNumDofVel  = 0;
+            int tNumDofP    = 0;
             int tNumDofTEMP = 0;
+            int tNumDofVis  = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -205,14 +208,16 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
                     // get number of dof
-                    tNumDofVel = tNumCoeffs( 0 ) * iSpaceDim;
-                    tNumDofP = tNumCoeffs( 0 );
+                    tNumDofVel  = tNumCoeffs( 0 ) * iSpaceDim;
+                    tNumDofP    = tNumCoeffs( 0 );
                     tNumDofTEMP = tNumCoeffs( 0 );
+                    tNumDofVis  = tNumCoeffs( 0 );
 
                     // create random coefficients for master FI
                     tMasterMatrixVel.randu( tNumCoeffs( 0 ), iSpaceDim );
                     tMasterMatrixP.randu( tNumCoeffs( 0 ), 1 );
                     tMasterMatrixTEMP.randu( tNumCoeffs( 0 ), 1 );
+                    tMasterMatrixVis.randu( tNumCoeffs( 0 ), 1 );
                     break;
                 }
                 case 2 :
@@ -224,11 +229,13 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
                     tNumDofVel = tNumCoeffs( 1 ) * iSpaceDim;
                     tNumDofP = tNumCoeffs( 1 );
                     tNumDofTEMP = tNumCoeffs( 1 );
+                    tNumDofVis = tNumCoeffs( 1 );
 
                     // create random coefficients for master FI
                     tMasterMatrixVel.randu( tNumCoeffs( 1 ), iSpaceDim );
                     tMasterMatrixP.randu( tNumCoeffs( 1 ), 1 );
                     tMasterMatrixTEMP.randu( tNumCoeffs( 1 ), 1 );
+                    tMasterMatrixVis.randu( tNumCoeffs( 1 ), 1 );
                     break;
                 }
                 case 3 :
@@ -240,11 +247,13 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
                     tNumDofVel = tNumCoeffs( 2 ) * iSpaceDim;
                     tNumDofP = tNumCoeffs( 2 );
                     tNumDofTEMP = tNumCoeffs( 2 );
+                    tNumDofVis = tNumCoeffs( 2 );
 
                     // create random coefficients for master FI
                     tMasterMatrixVel.randu( tNumCoeffs( 2 ), iSpaceDim );
                     tMasterMatrixP.randu( tNumCoeffs( 2 ), 1 );
                     tMasterMatrixTEMP.randu( tNumCoeffs( 2 ), 1 );
+                    tMasterMatrixVis.randu( tNumCoeffs( 2 ), 1 );
                     break;
                 }
                 default:
@@ -268,9 +277,11 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             tMasterDOFHatP.matrix_data() = 10.0 * tMasterMatrixP;
             Matrix< DDRMat > tMasterDOFHatTEMP;
             tMasterDOFHatTEMP.matrix_data() = 10.0 * tMasterMatrixTEMP;
+            Matrix< DDRMat > tMasterDOFHatVis;
+            tMasterDOFHatVis.matrix_data() = 10.0 * tMasterMatrixVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( 3 );
+            Cell< Field_Interpolator* > tMasterFIs( 4 );
 
             // create the field interpolator velocity
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -282,10 +293,15 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
             tMasterFIs( 1 )->set_space_time( tParamPoint );
 
-            // create the field interpolator pressure
+            // create the field interpolator temperature
             tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTEMPDofTypes );
             tMasterFIs( 2 )->set_coeff( tMasterDOFHatTEMP );
             tMasterFIs( 2 )->set_space_time( tParamPoint );
+
+            // create the field interpolator viscosity
+            tMasterFIs( 3 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 3 )->set_coeff( tMasterDOFHatVis );
+            tMasterFIs( 3 )->set_space_time( tParamPoint );
 
             // create the properties
             std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -321,7 +337,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
+                    tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
             tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
             tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
             tCMMasterIncFluid->set_property( tPropDensity, "Density" );
@@ -330,26 +347,32 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
+                    tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
             tSPIncFlow->set_dof_type_list( { tVelDofTypes, tPDofTypes }, mtk::Master_Slave::MASTER );
             tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
             tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
             tSPIncFlow->set_parameters( { {{ 36.0 }} } );
             tSPIncFlow->set_space_dim( iSpaceDim );
 
+            std::shared_ptr< fem::Stabilization_Parameter > tSTurbulenceViscosity =
+                    tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_VISCOSITY );
+            tSTurbulenceViscosity->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
+            tSTurbulenceViscosity->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWG->set_residual_dof_type( tVelDofTypes );
-            tIWG->set_dof_type_list( { tVelDofTypes, tPDofTypes, tTEMPDofTypes }, mtk::Master_Slave::MASTER );
+            tIWG->set_dof_type_list( { tVelDofTypes, tPDofTypes, tTEMPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWG->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
             tIWG->set_property( tPropDensity, "Density" );
             tIWG->set_property( tPropGravity, "Gravity" );
             tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
             tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
             tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
-
+            tIWG->set_stabilization_parameter( tSTurbulenceViscosity, "TurbulenceViscosity" );
 
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();
@@ -360,38 +383,68 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
 
             // set size and populate the set dof type map
             tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 3;
 
             // set size and populate the set master dof type map
             tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 3;
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 3 );
+            tIWG->mSet->mResDofAssemblyMap.resize( 4 );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 3 ) = { { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
-            tIWG->mSet->mJacDofAssemblyMap.resize( 3 );
-            tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap( 2 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( 4 );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = {
+                    { 0, tNumDofVel - 1 },
+                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 },
+                    { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = {
+                    { 0, tNumDofVel - 1 },
+                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 },
+                    { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap( 2 ) = {
+                    { 0, tNumDofVel - 1 },
+                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 },
+                    { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap( 3 ) = {
+                    { 0, tNumDofVel - 1 },
+                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 },
+                    { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofP + tNumDofTEMP, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size(
+                    tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis,
+                    1,
+                    0.0 );
+            tIWG->mSet->mJacobian.set_size(
+                    tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis,
+                    tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis,
+                    0.0 );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::P }, { MSI::Dof_Type::TEMP } };
+            tIWG->mRequestedMasterGlobalDofTypes = {
+                    { MSI::Dof_Type::VX },
+                    { MSI::Dof_Type::P },
+                    { MSI::Dof_Type::TEMP },
+                    { MSI::Dof_Type::VISCOSITY } };
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
@@ -433,6 +486,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
 //            print( tJacobianFD( { 0, tNumDofVel-1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }), "tJacobianFDVP" );
 //            print( tJacobian(   { 0, tNumDofVel-1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 }), "tJacobianVTEMP" );
 //            print( tJacobianFD( { 0, tNumDofVel-1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 }), "tJacobianFDVTEMP" );
+//            print( tJacobian(   { 0, tNumDofVel-1 }, { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 }), "tJacobianVTEMP" );
+//            print( tJacobianFD( { 0, tNumDofVel-1 }, { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 }), "tJacobianFDVTEMP" );
 
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 

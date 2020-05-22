@@ -201,7 +201,6 @@ namespace moris
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get integration point location in the reference surface
@@ -268,8 +267,7 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
-                real tWStar =
-                        mSet->get_integration_weights()( iGP ) *
+                real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // loop over the IWGs

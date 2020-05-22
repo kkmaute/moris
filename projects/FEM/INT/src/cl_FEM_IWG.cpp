@@ -1140,7 +1140,7 @@ namespace moris
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
 
                         // setting the perturbed coefficients
                         tFI->set_coeff( tCoeffPert );

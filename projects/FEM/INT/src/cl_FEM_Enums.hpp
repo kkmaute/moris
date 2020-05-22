@@ -188,6 +188,7 @@ namespace moris
             VELOCITY_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
+            TURBULENCE_VISCOSITY,
             END_STABILIZATION_TYPE
         };
 
