@@ -29,7 +29,6 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     cl_FEM_IWG_Diffusion_Bulk.hpp
-    cl_FEM_IWG_Diffusion_Phase_Change_Bulk.hpp
     cl_FEM_IWG_Advection_Bulk.hpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Diffusion_Neumann.hpp
@@ -182,7 +181,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     cl_FEM_IWG_Diffusion_Bulk.cpp
-    cl_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     cl_FEM_IWG_Advection_Bulk.cpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Diffusion_Neumann.cpp

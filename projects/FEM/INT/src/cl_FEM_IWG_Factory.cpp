@@ -16,7 +16,6 @@
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
 //Diffusion
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
-#include "cl_FEM_IWG_Diffusion_Phase_Change_Bulk.hpp"
 #include "cl_FEM_IWG_GGLS_Diffusion_Phase_Change_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Diffusion_Neumann.hpp"
@@ -79,9 +78,6 @@ namespace moris
 
                 case IWG_Type::SPATIALDIFF_BULK :
                     return std::make_shared< IWG_Diffusion_Bulk >();
-
-                case IWG_Type::SPATIALDIFF_PC_BULK :
-                    return std::make_shared< IWG_Diffusion_Phase_Change_Bulk >();
 
                 case IWG_Type::SPATIALDIFF_GGLS_PC :
                     return std::make_shared< IWG_GGLS_Diffusion_Phase_Change_Bulk >();
