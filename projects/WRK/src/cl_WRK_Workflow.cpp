@@ -58,6 +58,10 @@ namespace moris
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform();
 
+            // Assign PDVs
+            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ).get() );
+            mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
+
             //---------------------------------------------------------------------------------------
             //                               Stage 3: MDL perform
             //---------------------------------------------------------------------------------------
@@ -85,7 +89,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::get_dcriteria_dadv()
+        Matrix<DDRMat> Workflow::compute_dcriteria_dadv()
         {
             mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
             mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();

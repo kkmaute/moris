@@ -446,13 +446,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer)
-        {
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aFieldPointer, aNodeIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);

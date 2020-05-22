@@ -31,9 +31,9 @@ namespace moris
         mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
         // ADVs/IQIs
-        mADVs((uint)aParameterLists(0)(0).get<int>("initial_advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
-        mLowerBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
-        mUpperBounds(string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
+        mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
+        mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
+        mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
         mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
         // Phase table
@@ -42,15 +42,31 @@ namespace moris
               : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
 
         {
-            // Set explicit ADVs
+            // Explicit ADVs and bounds
             Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
+            Matrix<DDRMat> tLowerBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"));
+            Matrix<DDRMat> tUpperBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"));
+
+            // Resize if needed
             if (tInitialADVs.length() > mADVs.length())
             {
                 mADVs.resize(tInitialADVs.length(), 1);
+                mLowerBounds.resize(tInitialADVs.length(), 1);
+                mUpperBounds.resize(tInitialADVs.length(), 1);
             }
+
+            // Copy over values
             for (uint tADVIndex = 0; tADVIndex < tInitialADVs.length(); tADVIndex++)
             {
                 mADVs(tADVIndex) = tInitialADVs(tADVIndex);
+            }
+            for (uint tADVIndex = 0; tADVIndex < tLowerBounds.length(); tADVIndex++)
+            {
+                mADVs(tADVIndex) = tLowerBounds(tADVIndex);
+            }
+            for (uint tADVIndex = 0; tADVIndex < tUpperBounds.length(); tADVIndex++)
+            {
+                mADVs(tADVIndex) = tUpperBounds(tADVIndex);
             }
 
             // Build geometry (just analytic for right now)
@@ -63,9 +79,9 @@ namespace moris
                 }
             }
 
-            // Create and assign properties
+            // Create properties
             mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
-            this->assign_pdv_hosts(aParameterLists(2));
+            mPropertyParameterLists = aParameterLists(2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1146,7 +1162,7 @@ namespace moris
                     moris_index tVertIndex = tVertices(iVert)->get_index();
 
                     // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.assign_property_to_pdv_type_by_vertex_index( aPropertyPointer, aPdvType, tVertIndex );
+                    mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer);
                 }
             }
         }
@@ -1226,7 +1242,7 @@ namespace moris
                     moris_index tVertIndex = tVertices(iVert)->get_index();
 
                     // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.assign_property_to_pdv_type_by_vertex_index( aPropertyPointer, aPdvType, tVertIndex );
+                    mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
                 }
             }
         }
@@ -1342,37 +1358,63 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_pdv_hosts(Cell<ParameterList> aPropertyParameterLists)
+        void Geometry_Engine::assign_pdv_hosts()
         {
             // Initialize
-            PDV_Type tPdvType;
+            mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(0);
+            Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
+            Cell<PDV_Type> tPdvTypeGroup(1);
             Cell<std::string> tMeshSetNames(0);
             Matrix<DDUMat> tMeshSetIndices(0, 0);
 
             // PDV type map
-            moris::map< std::string, PDV_Type > tPdvTypes = get_pdv_type_map();
+            moris::map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
-            // Loop over properties
-            for (uint tPropertyIndex = 0; tPropertyIndex < aPropertyParameterLists.size(); tPropertyIndex++)
+            // Loop over properties to create PDVs
+            for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
             {
                 // PDV type and mesh set names/indices from parameter list
-                tPdvType = tPdvTypes[aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
-                string_to_cell(aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
-                string_to_mat(aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
+                tPdvTypeGroup(0) = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+                string_to_cell(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
+                string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
+
+                // Convert mesh set names to indices
+                uint tNumSetIndices = tMeshSetIndices.length();
+                tMeshSetIndices.resize(tNumSetIndices + tMeshSetNames.size(), 1);
+                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndices.length(); tIndex++)
+                {
+                    tMeshSetIndices(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
+                }
+
+                // Assign PDV types
+                for (uint tIndex = 0; tIndex < tMeshSetIndices.length(); tIndex++)
+                {
+                    tPdvTypes(tMeshSetIndices(tIndex)).push_back(tPdvTypeGroup);
+                }
+            }
+            this->create_ip_pdv_hosts(tPdvTypes);
+
+            // Loop over properties to assign PDVs
+            for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
+            {
+                // PDV type and mesh set names/indices from parameter list
+                tPdvTypeGroup(0) = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+                string_to_cell(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
+                string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
 
                 // Assign PDVs
-                if (aPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
+                if (mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
                 {
                     // Set names
                     for (uint tNameIndex = 0; tNameIndex < tMeshSetNames.size(); tNameIndex++)
                     {
-                        this->assign_ip_hosts_by_set_name(tMeshSetNames(tNameIndex), mProperties(tPropertyIndex), tPdvType);
+                        this->assign_ip_hosts_by_set_name(tMeshSetNames(tNameIndex), mProperties(tPropertyIndex), tPdvTypeGroup(0));
                     }
 
                     // Set indices
                     for (uint tIndex = 0; tIndex < tMeshSetIndices.length(); tIndex++)
                     {
-                        this->assign_ip_hosts_by_set_index(tMeshSetIndices(tIndex), mProperties(tPropertyIndex), tPdvType);
+                        this->assign_ip_hosts_by_set_index(tMeshSetIndices(tIndex), mProperties(tPropertyIndex), tPdvTypeGroup(0));
                     }
                 }
                 else
