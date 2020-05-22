@@ -17,70 +17,73 @@
 #include "cl_FEM_SP_SUPG_Advection.hpp"
 #include "cl_FEM_SP_GGLS_Diffusion.hpp"
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
+//#include "cl_FEM_SP_Turbulence_Viscosity.hpp"
 
 namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-        std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP
-        ( fem::Stabilization_Type aStabilizationType )
+        //------------------------------------------------------------------------------
+        std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP( fem::Stabilization_Type aStabilizationType )
         {
             switch( aStabilizationType )
             {
-                case ( fem::Stabilization_Type::DIRICHLET_NITSCHE ):
+                case fem::Stabilization_Type::DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Dirichlet_Nitsche >();
 
-                case ( fem::Stabilization_Type::GGLS_DIFFUSION_PC ):
+                case fem::Stabilization_Type::GGLS_DIFFUSION_PC :
                     return std::make_shared< SP_GGLS_Diffusion >();
 
-                case ( fem::Stabilization_Type::GHOST_DISPL ):
+                case fem::Stabilization_Type::GHOST_DISPL :
                     return std::make_shared< SP_Ghost_Displacement >();
 
-                case ( fem::Stabilization_Type::GHOST_VW ):
+                case fem::Stabilization_Type::GHOST_VW :
                     return std::make_shared< SP_Ghost_Virtual_Work >();
 
-                case ( fem::Stabilization_Type::NITSCHE_INTERFACE ):
+                case fem::Stabilization_Type::NITSCHE_INTERFACE :
                     return std::make_shared< SP_Nitsche_Interface >();
 
-                case ( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ):
+                case fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE :
                     return std::make_shared< SP_Master_Weight_Interface >();
 
-                case ( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ):
+                case fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE :
                     return std::make_shared< SP_Slave_Weight_Interface >();
 
-                case ( fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME ):
+                case fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME :
                     return std::make_shared< SP_Reciprocal_Total_Volume >();
 
-                case ( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ):
+                case fem::Stabilization_Type::INCOMPRESSIBLE_FLOW :
                     return std::make_shared< SP_Incompressible_Flow >();
 
-                case ( fem::Stabilization_Type::VISCOUS_GHOST ):
+                case fem::Stabilization_Type::VISCOUS_GHOST :
                     return std::make_shared< SP_Viscous_Ghost >();
 
-                case ( fem::Stabilization_Type::CONVECTIVE_GHOST ):
+                case fem::Stabilization_Type::CONVECTIVE_GHOST :
                     return std::make_shared< SP_Convective_Ghost >();
 
-                case ( fem::Stabilization_Type::PRESSURE_GHOST ):
+                case fem::Stabilization_Type::PRESSURE_GHOST :
                     return std::make_shared< SP_Pressure_Ghost >();
 
-                case ( fem::Stabilization_Type::TIME_VELOCITY_GHOST ):
+                case fem::Stabilization_Type::TIME_VELOCITY_GHOST :
                     return std::make_shared< SP_Time_Velocity_Ghost >();
 
-                case ( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ):
+                case fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Velocity_Dirichlet_Nitsche >();
 
-                case ( fem::Stabilization_Type::SUPG_ADVECTION ):
+                case fem::Stabilization_Type::SUPG_ADVECTION :
                     return std::make_shared< SP_SUPG_Advection >();
 
-                case ( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE ):
+                case fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE :
                     return std::make_shared< SP_SUPG_Spalart_Allmaras_Turbulence >();
+
+//                case fem::Stabilization_Type::TURBULENCE_VISCOSITY :
+//                    return std::make_shared< SP_Turbulence_Viscosity >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );
                     return nullptr;
             }
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

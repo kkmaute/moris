@@ -979,8 +979,8 @@ public:
     virtual uint
     get_num_coeffs(const uint aBSplineMeshIndex) const
     {
-        MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
-        return 0;
+        MORIS_LOG_WARNING( "for STK meshes the number of coeffs is hardcoded to 10000000" );
+        return 10000000;
     }
 
     //------------------------------------------------------------------------------
@@ -1021,7 +1021,7 @@ public:
     get_adof_map( const uint                     aBSplineIndex,
                   map< moris_id, moris_index > & aAdofMap ) const
     {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        MORIS_ERROR(0,"Entered virtual function get_adof_map() in Mesh base class, (function is not implemented)");
     }
 
     /**

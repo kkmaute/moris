@@ -1026,7 +1026,7 @@ namespace moris
             uint tNumPdvType = tRequestedPdvTypes.size();
 
             // get the IQI index
-            uint tIQIAssemblyIndex = 0;
+            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
 
             // loop over the pdv types
             for( uint iFI = 0; iFI < tNumPdvType; iFI++ )
@@ -1107,7 +1107,7 @@ namespace moris
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
 
             // get the IQI index
-            uint tIQIAssemblyIndex = 0;
+            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
 
             // get the GI for the IP and IG element considered
             Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();

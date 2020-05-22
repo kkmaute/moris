@@ -197,6 +197,19 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const sol::Dist_Vector 
 
 // ----------------------------------------------------------------------------------------------------------------------
 
+void Sparse_Matrix_EpetraFECrs::mat_vec_product(
+        const moris::sol::Dist_Vector & aInputVec,
+              moris::sol::Dist_Vector & aResult,
+        const bool                      aUseTranspose )
+{
+    mEpetraMat->Multiply(
+            aUseTranspose,
+            *aInputVec.get_epetra_vector(),
+            *aResult.get_epetra_vector() );
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
 void  Sparse_Matrix_EpetraFECrs::print() const
 {
     std::cout << *mEpetraMat <<std::endl;

@@ -155,8 +155,13 @@ namespace moris
 
             mQidu->vec_put_scalar( 0.0 );
 
+            //mExplicitdQidu->print();
+            //mImplicitdQidu->print();
+
             mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
             mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );
+
+            //mQidu->print();
 
             return mQidu;
         }

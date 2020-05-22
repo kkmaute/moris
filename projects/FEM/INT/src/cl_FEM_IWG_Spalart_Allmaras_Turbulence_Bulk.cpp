@@ -620,7 +620,7 @@ namespace moris
 
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidu.matrix_data() += tChi * tPropViscosity->dPropdDOF( aDofTypes ) / tPropViscosity->val()( 0 );
+                adchidu.matrix_data() -= tChi * tPropViscosity->dPropdDOF( aDofTypes ) / tPropViscosity->val()( 0 );
             }
         }
 
