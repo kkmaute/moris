@@ -89,7 +89,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::get_dcriteria_dadv()
+        Matrix<DDRMat> Workflow::compute_dcriteria_dadv()
         {
             mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 

@@ -61,7 +61,7 @@ namespace moris
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_dcriteria_dadv();
+            Matrix<DDRMat> compute_dcriteria_dadv();
 
             /**
              * Gets the local advs based on whether or not they are shared

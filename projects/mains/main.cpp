@@ -112,7 +112,7 @@ int main( int argc, char * argv[] )
             Matrix< DDRMat > tDummyMat;
             tWorkflows(0)->initialize( tDummyMat,tDummyMat,tDummyMat );
             Matrix<DDRMat> tADVs(1, 1, 0.0);
-            tWorkflows(0)->perform(tADVs);
+            tWorkflows(0)->get_criteria(tADVs);
         }
     }
 
