@@ -29,6 +29,8 @@ namespace moris
             tParameterLists(0)(0).set("initial_advs_fill", 0.3);
             tParameterLists(0)(0).set("lower_bounds_fill", 0.0);
             tParameterLists(0)(0).set("upper_bounds_fill", 1.0);
+            tParameterLists(0)(0).set("PDV_types", "DENSITY");
+
             tParameterLists(2)(0).set("type", "discrete");
             tParameterLists(2)(0).set("name", "density");
             tParameterLists(2)(0).set("property_variable_indices", "all");
@@ -51,23 +53,23 @@ namespace moris
             tParameterLists(2)(3) = moris::prm::create_gen_property_parameter_list();
 
             // Modify parameters
-            tParameterLists(2)(0).set("type", "");
+            tParameterLists(2)(0).set("type", "discrete");
             tParameterLists(2)(0).set("name", "property_1");
             tParameterLists(2)(0).set("dependencies", "");
 
-            tParameterLists(2)(1).set("type", "");
+            tParameterLists(2)(1).set("type", "discrete");
             tParameterLists(2)(1).set("name", "property_2");
             tParameterLists(2)(1).set("dependencies", "property_1");
 
-            tParameterLists(2)(2).set("type", "");
+            tParameterLists(2)(2).set("type", "discrete");
             tParameterLists(2)(2).set("name", "property_3");
             tParameterLists(2)(2).set("dependencies", "property_1");
 
-            tParameterLists(2)(3).set("type", "");
+            tParameterLists(2)(3).set("type", "discrete");
             tParameterLists(2)(3).set("name", "property_4");
             tParameterLists(2)(3).set("dependencies", "property_2,property_3");
 
-            //Geometry_Engine tGeometryEngine(tParameterLists);
+            Geometry_Engine tGeometryEngine(tParameterLists);
         }
     }   // end ge namespace
 }   // end moris namespace
