@@ -23,13 +23,13 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "Diffusion_Phase_Change" ] = IWG_Constitutive_Type::DIFF_LIN_ISO_PC;
+            mConstitutiveMap[ "Diffusion" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "GGLS_Param" ] = IWG_Stabilization_Type::GGLS_DIFFUSION_PC;
+            mStabilizationMap[ "GGLS_Param" ] = IWG_Stabilization_Type::GGLS_DIFFUSION;
         }
 
 //------------------------------------------------------------------------------
@@ -54,13 +54,12 @@ namespace moris
 
             // get the Phase Change CM
             std::shared_ptr< Constitutive_Model > tCMDiffusionPhaseChange
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO_PC ) );
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the Stabilization Parameter
             std::shared_ptr< Stabilization_Parameter > tGGLSParam
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION) );
 
-            // FIXME: remove cast
             // compute the residual from bulk diffusion term
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += aWStar * ( trans( tCMDiffusionPhaseChange->testStrain() ) * tGGLSParam->val()(0) *
@@ -98,11 +97,11 @@ namespace moris
 
             // get the Phase Change CM
             std::shared_ptr< Constitutive_Model > tCMDiffusionPhaseChange
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO_PC ) );
+            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the Stabilization Parameter
             std::shared_ptr< Stabilization_Parameter > tGGLSParam
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION_PC ) );
+            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

@@ -132,8 +132,7 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
     // define stabilization parameter ----------------------------------------------------------- //
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam
-    = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION_PC );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION_PC );
     tSPGGLSParam->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tSPGGLSParam->set_parameters( { {{ 1.0 }} });
     tSPGGLSParam->set_property( tPropMasterConductivity, "Conductivity", mtk::Master_Slave::MASTER );
@@ -144,14 +143,12 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GGLS_PC );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion_Phase_Change", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPGGLSParam, "GGLS_Param");
     tIWG->set_property( tPropMasterBodyLoad, "Load", mtk::Master_Slave::MASTER );
-
-
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------

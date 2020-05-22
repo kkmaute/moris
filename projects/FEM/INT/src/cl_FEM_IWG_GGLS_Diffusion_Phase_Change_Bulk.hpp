@@ -40,7 +40,7 @@ namespace moris
 
             enum class IWG_Constitutive_Type
             {
-                DIFF_LIN_ISO_PC,
+                DIFF_LIN_ISO,
                 MAX_ENUM
             };
 
@@ -49,7 +49,7 @@ namespace moris
 
             enum class IWG_Stabilization_Type
             {
-                GGLS_DIFFUSION_PC,
+                GGLS_DIFFUSION,
                 MAX_ENUM
             };
 
