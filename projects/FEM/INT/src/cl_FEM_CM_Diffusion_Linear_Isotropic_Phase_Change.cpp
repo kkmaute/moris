@@ -85,13 +85,15 @@ namespace moris
             {
                 case 2:
                 {
-                    tKijIsotropic = {{tK,  0,  0, tK},
+                    tKijIsotropic = {
+                            {tK,  0,  0, tK},
                             { 0, tK, tK,  0}};
                     break;
                 }
                 case 3:
                 {
-                    tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+                    tKijIsotropic = {
+                            {tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
                             { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
                             { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
                     break;
@@ -326,13 +328,15 @@ namespace moris
             {
                 case 2:
                 {
-                    tKijIsotropic = {{tK,  0,  0, tK},
+                    tKijIsotropic = {
+                            {tK,  0,  0, tK},
                             { 0, tK, tK,  0}};
                     break;
                 }
                 case 3:
                 {
-                    tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+                    tKijIsotropic = {
+                            {tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
                             { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
                             { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
                     break;

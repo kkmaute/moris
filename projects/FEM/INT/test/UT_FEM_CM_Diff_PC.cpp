@@ -19,7 +19,7 @@ void tValFunctionCM_Diff_Lin_Iso
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 )
-         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+         + aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
 void tConstValFunction_UT_CM_Diff_PC
@@ -35,7 +35,7 @@ void tDerFunctionCM_Diff_Lin_Iso
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris
@@ -60,19 +60,19 @@ namespace moris
 
             // conductivity
             std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-            tPropMasterConductivity->set_parameters( {{{ 1.0}}, {{1.0 }}} );
+            tPropMasterConductivity->set_parameters( {{{ 1.1 }}, {{ 1.1 }}} );
             //tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterConductivity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // density
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-            tPropMasterDensity->set_parameters( {{{ 1.0}}} );
+            tPropMasterDensity->set_parameters( {{{ 1.2 }}} );
             //tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterDensity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // heat capacity
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-            tPropMasterHeatCapacity->set_parameters( {{{ 1.0}}} );
+            tPropMasterHeatCapacity->set_parameters( {{{ 1.3 }}} );
             //tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterHeatCapacity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
@@ -84,7 +84,7 @@ namespace moris
 
             // phase change temp
             std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-            tPropMasterTmelt->set_parameters( {{{ 5.0 }}} );
+            tPropMasterTmelt->set_parameters( {{{ 15.0 }}} );
             //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTmelt->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
@@ -238,8 +238,8 @@ namespace moris
             //REQUIRE( tCheckGradDivFlux );
             tChecks(2) = tCheckGradDivFlux;
 // debug
-//moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
-//moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
+moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
+moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
 
             //------------------------------------------------------------------------------
