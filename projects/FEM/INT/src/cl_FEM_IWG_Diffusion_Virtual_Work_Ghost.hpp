@@ -23,121 +23,123 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IWG_Diffusion_Virtual_Work_Ghost : public IWG
         {
-            // order of Shape functions
-            uint mOrder;
+                // order of Shape functions
+                uint mOrder;
 
-//------------------------------------------------------------------------------
-        public:
+                //------------------------------------------------------------------------------
+            public:
 
-            enum class IWG_Constitutive_Type
-            {
-                DIFF_LIN_ISO,
-                MAX_ENUM
-            };
+                enum class IWG_Constitutive_Type
+                {
+                    DIFF_LIN_ISO,
+                    MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
-            enum class IWG_Stabilization_Type
-            {
-                GHOST_VW,
-                MAX_ENUM
-            };
+                enum class IWG_Stabilization_Type
+                {
+                        GHOST_VW,
+                        MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
-//------------------------------------------------------------------------------
-            /*
-             *  constructor
-             */
-            IWG_Diffusion_Virtual_Work_Ghost();
+                //------------------------------------------------------------------------------
+                /*
+                 *  constructor
+                 */
+                IWG_Diffusion_Virtual_Work_Ghost();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IWG_Diffusion_Virtual_Work_Ghost(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IWG_Diffusion_Virtual_Work_Ghost(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aConstitutiveString makes sense
-                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IWG_Diffusion_Virtual_Work_Ghost::set_constitutive_model - Unknown aConstitutiveString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model
+                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
+                 * @param[ in ] aConstitutiveString a string defining the constitutive model
+                 * @param[ in ] aIsMaster           an enum for master or slave
+                 */
+                void set_constitutive_model(
+                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                        std::string                           aConstitutiveString,
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    // check that aConstitutiveString makes sense
+                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                            "IWG_Diffusion_Virtual_Work_Ghost::set_constitutive_model - Unknown aConstitutiveString." );
 
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
+                    // set the constitutive model in the constitutive model cell
+                    this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // check that aConstitutiveString makes sense
-                MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                             "IWG_Diffusion_Virtual_Work_Ghost::set_stabilization_parameter - Unknown aStabilizationString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * set stabilization parameter
+                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+                 */
+                void set_stabilization_parameter(
+                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                        std::string                                aStabilizationString )
+                {
+                    // check that aConstitutiveString makes sense
+                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
+                            "IWG_Diffusion_Virtual_Work_Ghost::set_stabilization_parameter - Unknown aStabilizationString." );
 
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-            }
+                    // set the stabilization parameter in the stabilization parameter cell
+                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_residual( real aWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_jacobian( real aWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_jacobian( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_jacobian_and_residual( real aWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual and the jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_jacobian_and_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the residual wrt design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dRdp( real aWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the residual wrt design variables
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_dRdp( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * method to assemble "normal matrix" from normal vector needed for
-             * 2nd and 3rd order Ghost formulations
-             * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
-             */
-            Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
+                //------------------------------------------------------------------------------
+                /**
+                 * method to assemble "normal matrix" from normal vector needed for
+                 * 2nd and 3rd order Ghost formulations
+                 * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
+                 */
+                Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

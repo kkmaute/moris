@@ -26,51 +26,51 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         std::shared_ptr< IQI > IQI_Factory::create_IQI( IQI_Type aIQIType )
         {
             switch( aIQIType )
             {
-                case ( IQI_Type::DOF ):
+                case IQI_Type::DOF :
                     return std::make_shared< IQI_Dof >();
 
-                case ( IQI_Type::PROPERTY ):
+                case IQI_Type::PROPERTY :
                     return std::make_shared< IQI_Property >();
 
-                case ( IQI_Type::VOLUME ):
+                case IQI_Type::VOLUME :
                     return std::make_shared< IQI_Volume >();
 
-                case ( IQI_Type::VOLUME_FRACTION ):
+                case IQI_Type::VOLUME_FRACTION :
                     return std::make_shared< IQI_Volume_Fraction >();
 
-                case ( IQI_Type::STRAIN_ENERGY ):
+                case IQI_Type::STRAIN_ENERGY :
                     return std::make_shared< IQI_Strain_Energy >();
 
-                case( IQI_Type::STRESS):
+                case IQI_Type::STRESS :
                     return std::make_shared< IQI_Stress >();
 
-                case( IQI_Type::ANALYTIC):
+                case IQI_Type::ANALYTIC :
                     return std::make_shared< IQI_Analytic >();
 
-                case ( IQI_Type::L2_ERROR_ANALYTIC ):
+                case IQI_Type::L2_ERROR_ANALYTIC :
                     return std::make_shared< IQI_L2_Error_Analytic >();
 
-                case ( IQI_Type::H1_ERROR_ANALYTIC ):
+                case IQI_Type::H1_ERROR_ANALYTIC :
                     return std::make_shared< IQI_H1_Error_Analytic >();
 
-                case ( IQI_Type::H1_SEMI_ERROR ):
+                case IQI_Type::H1_SEMI_ERROR :
                     return std::make_shared< IQI_H1_Semi_Error >();
 
-                case ( IQI_Type::J_INTEGRAL ):
+                case IQI_Type::J_INTEGRAL :
                     return std::make_shared< IQI_J_Integral >();
 
-                case ( IQI_Type::K1_SENT ):
+                case IQI_Type::K1_SENT :
                     return std::make_shared< IQI_K1_SENT >();
 
-                case ( IQI_Type::DRAG_COEFF ):
+                case IQI_Type::DRAG_COEFF :
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( 1 );
 
-                case ( IQI_Type::LIFT_COEFF ):
+                case IQI_Type::LIFT_COEFF :
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
 
                 default:
@@ -79,7 +79,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

@@ -16,11 +16,25 @@ namespace moris
 //------------------------------------------------------------------------------
         void IQI_Volume::compute_QI( Matrix< DDRMat > & aQI )
         {
-            // set the size for the QI
-            aQI.set_size( 1, 1 );
+            // get property index
+            uint tPropertyIndex = static_cast< uint >( IQI_Property_Type::DENSITY );
+
+            std::shared_ptr< Property > tPropDensity = mMasterProp( tPropertyIndex );
+
+            Matrix< DDRMat > tPropVal;
+
+            if ( tPropDensity != nullptr )
+            {
+                // evaluate the QI
+                tPropVal = mMasterProp( tPropertyIndex )->val();
+            }
+            else
+            {
+                tPropVal = {{ 1.0 }};
+            }
 
             // evaluate the QI
-            aQI = {{ 1.0 }};
+            aQI = tPropVal;
         }
 
 //------------------------------------------------------------------------------
@@ -66,6 +80,13 @@ namespace moris
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+//------------------------------------------------------------------------------
+
+        void IQI_Volume::compute_dQIdu( real aWStar )
+        {
+             // Empty member function
         }
 
 //------------------------------------------------------------------------------

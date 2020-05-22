@@ -133,7 +133,7 @@ set(HEADERS
     cl_FEM_IQI_J_Integral.hpp
     cl_FEM_IQI_K1_SENT.hpp
     cl_FEM_IQI_Volume_Fraction.hpp
-	cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
+    cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -151,7 +151,7 @@ set(HEADERS
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_SP_SUPG_Advection.hpp
     cl_FEM_SP_GGLS_Diffusion.hpp
-	cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
+    cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -240,6 +240,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Time_Velocity_Ghost.cpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_SP_SUPG_Advection.cpp
+    cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
 	cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_IQI.cpp
@@ -255,8 +256,9 @@ set(LIB_SOURCES
     cl_FEM_IQI_H1_Semi_Error.cpp
     cl_FEM_IQI_J_Integral.cpp
     cl_FEM_IQI_K1_SENT.cpp
-	cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
+    cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Volume_Fraction.cpp
+    cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )

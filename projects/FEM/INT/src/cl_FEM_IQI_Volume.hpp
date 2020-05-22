@@ -82,6 +82,10 @@ namespace moris
             void compute_QI( moris::real aWStar );
 
 //------------------------------------------------------------------------------
+
+            void compute_dQIdu( real aWStar );
+
+//------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

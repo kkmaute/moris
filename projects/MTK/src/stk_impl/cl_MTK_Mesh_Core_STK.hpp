@@ -156,6 +156,14 @@ public:
             enum EntityRank aEntityRank,
 			const moris_index     aIndex = 0) const;
 
+    void
+
+    get_adof_map( const uint                     aBSplineIndex,
+                  map< moris_id, moris_index > & aAdofMap ) const
+    {
+        MORIS_LOG_WARNING("get_adof_map() not implemented in STK. will cause problems in parallel");
+    }
+
 
     //##############################################
     // Access Mesh Data by index Functions
