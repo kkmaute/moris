@@ -48,7 +48,8 @@ namespace moris
                 Interpolation_Rule aGeomInterpRule,
                 Interpolation_Rule aIPRule,
                 Matrix< DDRMat > aUHat0,
-                Matrix< DDRMat > aParametricPoint)
+                Matrix< DDRMat > aParametricPoint,
+                uint aSpatialDim = 2)
         {
             // initialize cell of checks
             moris::Cell<bool> tChecks( 3, false );
@@ -90,7 +91,7 @@ namespace moris
 
             // phase change constant
             std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-            tPropMasterPCconst->set_parameters( {{{ 2.7 }}} );
+            tPropMasterPCconst->set_parameters( {{{ 1.7 }}} );
             //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
@@ -115,7 +116,7 @@ namespace moris
             tCMMasterDiffLinIsoPC->set_property( tPropMasterTmelt       , "PC_Temp" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "Phase_State_Function" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "Phase_Change_Const" );
-            tCMMasterDiffLinIsoPC->set_space_dim( 2 );
+            tCMMasterDiffLinIsoPC->set_space_dim( aSpatialDim );
 
             //create a space and a time geometry interpolator
             Geometry_Interpolator tGI( aGeomInterpRule );
@@ -255,7 +256,7 @@ namespace moris
 
         // ------------------------------------------------------------------------------------- //
         // ------------------------------------------------------------------------------------- //
-        TEST_CASE( "CM_Diff_Lin_Iso_PC_Linear", "[moris],[fem],[CM_Diff_Lin_Iso_PC_Linear]" )
+        TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD4]" )
         {
             //create a quad4 space element
             Matrix< DDRMat > tXHat = {
@@ -309,19 +310,46 @@ namespace moris
 
         // ------------------------------------------------------------------------------------- //
         // ------------------------------------------------------------------------------------- //
-        TEST_CASE( "CM_Diff_Lin_Iso_PC_Quadratic", "[moris],[fem],[CM_Diff_Lin_Iso_PC_Quadratic]" )
+        TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX27]" )
         {
+            // set number of spatial dimensions
+            uint tSpatialDims = 3;
+
             //create a quad4 space element
             Matrix< DDRMat > tXHat = {
-                    { 0.0, 0.0},
-                    { 1.0, 0.0},
-                    { 1.0, 1.0},
-                    { 0.0, 1.0},
-                    { 0.5, 0.0},
-                    { 1.0, 0.5},
-                    { 0.5, 1.0},
-                    { 0.0, 0.5},
-                    { 0.5, 0.5}};
+                    { 0.0, 0.0, 0.0},
+                    { 1.0, 0.0, 0.0},
+                    { 1.0, 1.0, 0.0},
+                    { 0.0, 1.0, 0.0},
+
+                    { 0.0, 0.0, 1.0},
+                    { 1.0, 0.0, 1.0},
+                    { 1.0, 1.0, 1.0},
+                    { 0.0, 1.0, 1.0},
+
+                    { 0.5, 0.0, 0.0},
+                    { 1.0, 0.5, 0.0},
+                    { 0.5, 1.0, 0.0},
+                    { 0.0, 0.5, 0.0},
+
+                    { 0.0, 0.0, 0.5},
+                    { 1.0, 0.0, 0.5},
+                    { 1.0, 1.0, 0.5},
+                    { 0.0, 1.0, 0.5},
+
+                    { 0.5, 0.0, 1.0},
+                    { 1.0, 0.5, 1.0},
+                    { 0.5, 1.0, 1.0},
+                    { 0.0, 0.5, 1.0},
+
+                    { 0.5, 0.5, 0.5},
+                    { 0.5, 0.5, 0.0},
+                    { 0.5, 0.5, 1.0},
+
+                    { 0.5, 0.0, 0.5},
+                    { 1.0, 0.5, 0.5},
+                    { 0.5, 1.0, 0.5},
+                    { 0.0, 0.5, 0.5}};
 
             //create a line time element
             Matrix< DDRMat > tTHat( 3, 1 );
@@ -330,7 +358,7 @@ namespace moris
             tTHat( 1 ) = 1.10e-3;
 
             //create a space geometry interpolation rule
-            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
                     Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC,
                     Interpolation_Type::LAGRANGE,
@@ -338,7 +366,7 @@ namespace moris
 
             // create an interpolation rule
             Interpolation_Rule tIPRule (
-                    mtk::Geometry_Type::QUAD,
+                    mtk::Geometry_Type::HEX,
                     Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC,
                     Interpolation_Type::LAGRANGE,
@@ -347,10 +375,10 @@ namespace moris
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0 = {
-                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
-                    {5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},{5.8},{5.9},
-                    {6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9},};
-            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+                    {5.1},{5.2},{5.3},{5.3},{5.5},{5.6},{5.7},{5.8},{5.9},{5.3},{5.2},{5.3},{5.4},{5.5},{5.2},{5.7},{5.8},{5.9},{5.1},{5.4},{5.3},{5.6},{5.5},{5.9},{5.7},{5.8},{5.9},
+                    {6.4},{6.2},{6.3},{6.4},{6.2},{6.6},{6.7},{6.1},{6.9},{6.1},{6.1},{6.3},{6.4},{6.9},{6.8},{6.7},{6.6},{6.5},{6.6},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9}};
+            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}, {0.3}};
 
             // run test
             moris::Cell<bool> tChecks = test_phase_change_constitutive_model(
@@ -359,7 +387,8 @@ namespace moris
                             tGeomInterpRule,
                             tIPRule,
                             tUHat0,
-                            tParametricPoint);
+                            tParametricPoint,
+                            tSpatialDims);
 
             // checks
             bool tCheckHdot = tChecks(0);
@@ -373,7 +402,7 @@ namespace moris
 
         // ------------------------------------------------------------------------------------- //
         // ------------------------------------------------------------------------------------- //
-        TEST_CASE( "CM_Diff_Lin_Iso_PC_Cubic", "[moris],[fem],[CM_Diff_Lin_Iso_PC_Cubic]" )
+        TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD16]" )
         {
 
             //create a quad4 space element
