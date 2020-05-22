@@ -74,14 +74,31 @@ using namespace tsa;
 
     Time_Solver::~Time_Solver()
     {
+         this->delete_pointers();
+    }
+
+//--------------------------------------------------------------------------------------------------
+
+    void Time_Solver::delete_pointers()
+    {
         if( mIsMasterTimeSolver )
         {
-            delete( mFullMap );
-            delete( mFullVector );
+            if ( mFullMap != nullptr )
+            {
+                delete( mFullMap );
+                mFullMap = nullptr;
+            }
+
+            if ( mFullVector != nullptr )
+            {
+                delete( mFullVector );
+                mFullVector = nullptr;
+            }
 
             if ( mFullVectorSensitivity != nullptr )
             {
                 delete( mFullVectorSensitivity );
+                mFullVectorSensitivity = nullptr;
             }
         }
     }
@@ -276,6 +293,8 @@ using namespace tsa;
     {
         mIsMasterTimeSolver = true;
         mIsForwardSolve = true;
+
+        this->delete_pointers();
 
         // get solver interface
         mSolverInterface = mSolverWarehouse->get_solver_interface();

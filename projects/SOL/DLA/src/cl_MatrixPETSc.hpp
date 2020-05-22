@@ -72,11 +72,20 @@ public:
 //      MORIS_ERROR(false, "mat_put_scalar only implemented for zeros with petsc. has to be changed.");
     }
 
-    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector ){};
+    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector )
+    { MORIS_ERROR(false, "not yet implemented for petsc");};
 
-    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector ){};
+    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector )
+    { MORIS_ERROR(false, "not yet implemented for petsc");};
 
-    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec ){};
+    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec )
+    { MORIS_ERROR(false, "not yet implemented for petsc");};
+
+    virtual void mat_vec_product(
+            const moris::sol::Dist_Vector & aInputVec,
+                  moris::sol::Dist_Vector & aResult,
+            const bool                      aUseTranspose )
+    { MORIS_ERROR(false, "not yet implemented for petsc");};
 
     void print() const;
 

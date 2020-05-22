@@ -10,6 +10,8 @@ namespace moris
 
         Pdv_Host_Manager::Pdv_Host_Manager()
         {
+            moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
+            this->set_ip_requested_dv_types( tMatPdvTypes );
         }
 
         //--------------------------------------------------------------------------------------------------------------
