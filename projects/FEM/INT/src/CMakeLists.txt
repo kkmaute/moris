@@ -152,6 +152,7 @@ set(HEADERS
     cl_FEM_SP_SUPG_Advection.hpp
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
+    cl_FEM_SP_Turbulence_Viscosity.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -242,7 +243,8 @@ set(LIB_SOURCES
     cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
-	cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
+    cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
+    cl_FEM_SP_Turbulence_Viscosity.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
