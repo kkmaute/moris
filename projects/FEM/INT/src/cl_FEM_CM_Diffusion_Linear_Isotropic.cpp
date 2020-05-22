@@ -20,7 +20,9 @@ namespace moris
             mProperties.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Conductivity" ] = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Conductivity" ]  = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Density" ]       = Property_Type::DENSITY;
+            mPropertyMap[ "Heat_Capacity" ] = Property_Type::HEAT_CAPACITY;
 
             // populate dof map
             mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
@@ -39,6 +41,47 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_Hdot()
+        {
+            // get properties
+            std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tPropHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+
+            if (tPropDensity != nullptr && tPropHeatCap != nullptr)
+            {
+                // compute rate of enthalpy
+                mHdot = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 )
+                                                 * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt( 1 );
+            }
+            else
+            {
+                // if no capacity or density is given, set Hdot to zero
+                mHdot = 0.0 * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt( 1 );
+            }
+
+        }
+
+//------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_gradHdot()
+        {
+            // get properties
+            std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tPropHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+
+            if (tPropDensity != nullptr && tPropHeatCap != nullptr)
+            {
+                // compute rate of gradient of enthalpy
+                mGradHdot = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 )
+                        * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
+            }
+            else
+            {
+                // if no capacity or density is given, set gradHdot to zero
+                mGradHdot = 0.0 * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
+            }
+
+        }
+//------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic::eval_divflux()
         {
             // get the conductivity property
@@ -49,6 +92,38 @@ namespace moris
             mDivFlux = tPropConductivity->val() * this->divstrain();
         }
 
+//------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_graddivflux()
+        {
+            moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
+
+            // matrix for purely isotropic case
+            // FIXME: this implementation is slow and needs to be improved
+            Matrix< DDRMat > tKijIsotropic;
+            switch( mSpaceDim )
+            {
+                case 2:
+                {
+                    tKijIsotropic = {
+                            {tK,  0,  0, tK},
+                            { 0, tK, tK,  0}};
+                    break;
+                }
+                case 3:
+                {
+                    tKijIsotropic = {
+                            {tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
+                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+                    break;
+                }
+                default:
+                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux: Number of spatial dimensions must be 2 or 3");
+                    break;
+            }
+
+            mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx(3);
+        }
 //------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic::eval_traction( const Matrix< DDRMat > & aNormal )
         {
@@ -143,6 +218,160 @@ namespace moris
             }
         }
 
+
+//------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get properties
+            std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tPropHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init the matrix
+            mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // if direct dependency on the dof type
+            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
+            {
+                // compute derivative with direct dependency
+                mHdotDof( tDofIndex ).matrix_data() +=
+                        tPropDensity->val()( 0 ) * tPropHeatCap->val()( 0 )
+                        * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
+            }
+
+//            // if indirect dependency of density on the dof type
+//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+//            {
+//                // compute derivative with indirect dependency through properties
+//                mHdotDof( tDofIndex ).matrix_data() +=
+//                        tPropHeatCap->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt(1)
+//                        * tPropDensity->dPropdDOF( aDofTypes );
+//            }
+//
+//            // if indirect dependency of heat capacity on the dof type
+//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+//            {
+//                // compute derivative with indirect dependency through properties
+//                mHdotDof( tDofIndex ).matrix_data() +=
+//                        tPropDensity->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt(1)
+//                        * tPropHeatCap->dPropdDOF( aDofTypes );
+//            }
+
+
+        }
+
+
+//--------------------------------------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get properties
+            std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tPropHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init the matrix
+            mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // if direct dependency on the dof type
+            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
+            {
+                // compute derivative with direct dependency
+                mGradHdotDof( tDofIndex ).matrix_data() +=
+                        tPropDensity->val()( 0 ) * tPropHeatCap->val()( 0 ) *
+                        mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
+            }
+
+//            // if indirect dependency of density on the dof type
+//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+//            {
+//                // compute derivative with indirect dependency through properties
+//                mGradHdotDof( tDofIndex ).matrix_data()
+//                                    += tPropHeatCap->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt()
+//                                    * tPropDensity->dPropdDOF( aDofTypes );
+//            }
+//
+//            // if indirect dependency of heat capacity on the dof type
+//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+//            {
+//                // compute derivative with indirect dependency through properties
+//                mGradHdotDof( tDofIndex ).matrix_data()
+//                                    +=  tPropDensity->val()( 0 )
+//                                    * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt()
+//                                    * tPropHeatCap->dPropdDOF( aDofTypes );
+//            }
+
+        }
+
+//--------------------------------------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // gets added later
+            mGradDivFlux = {{0}};
+
+            moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
+
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init the matrix
+            mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // matrix for purely isotropic case
+            // FIXME: this implementation is slow and doesn't support indirect DoF dependency of conductivity
+            Matrix< DDRMat > tKijIsotropic;
+            switch( mSpaceDim )
+            {
+                case 2:
+                {
+                    tKijIsotropic = {
+                            {tK,  0,  0, tK},
+                            { 0, tK, tK,  0}};
+                    break;
+                }
+                case 3:
+                {
+                    tKijIsotropic = {
+                            {tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
+                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
+                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
+                    break;
+                }
+                default:
+                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
+                    break;
+            }
+
+            // FIXME: indirect dependencies missing, spatial derivatives of properties needed
+            // if direct dependency on the dof type
+            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
+            {
+                // compute derivative with direct dependency
+                mGradDivFluxDof( tDofIndex ).matrix_data() +=
+                        tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 3 ).matrix_data();
+            }
+        }
 //--------------------------------------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic::eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
