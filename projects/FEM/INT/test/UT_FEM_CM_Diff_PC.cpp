@@ -84,7 +84,7 @@ namespace moris
 
             // phase change temp
             std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-            tPropMasterTmelt->set_parameters( {{{ 15.0 }}} );
+            tPropMasterTmelt->set_parameters( {{{ 5.0 }}} );
             //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTmelt->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
