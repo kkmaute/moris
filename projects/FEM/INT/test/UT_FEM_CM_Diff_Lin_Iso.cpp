@@ -312,8 +312,8 @@ namespace moris
             //REQUIRE( tCheckGradDivFlux );
             tChecks(4) = tCheckGradDivFlux;
 // debug
-moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
-moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
+//moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
+//moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
 
             // clean up

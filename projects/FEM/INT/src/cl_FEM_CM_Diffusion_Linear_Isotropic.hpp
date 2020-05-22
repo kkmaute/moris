@@ -36,8 +36,8 @@ namespace moris
             enum class Property_Type
             {
                 CONDUCTIVITY,
-                DENSITY,
                 HEAT_CAPACITY,
+                DENSITY,
                 MAX_ENUM
             };
 
@@ -84,13 +84,13 @@ namespace moris
             /**
              * evaluates the constitutive model change rate of enthalpy
              */
-            void eval_Hdot();
+            virtual void eval_Hdot();
 
 //------------------------------------------------------------------------------
             /**
              * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
              */
-            void eval_gradHdot();
+            virtual void eval_gradHdot();
 
 //------------------------------------------------------------------------------
             /**
@@ -168,7 +168,7 @@ namespace moris
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              * dHdotdDOF ( 1 x numDerDof )
              */
-            void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+            virtual void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -176,7 +176,7 @@ namespace moris
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              * dgradHdotdDOF ( mSpaceDim x numDerDof )
              */
-            void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+            virtual void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
