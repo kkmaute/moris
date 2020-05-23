@@ -53,13 +53,10 @@ namespace moris
                 uint aSpatialDim = 2)
         {
             // real for check
-            real tEpsilon = 1E-6;
+            real tEpsilonRel = 5E-5;
 
             // initialize cell of checks
             moris::Cell<bool> tChecks( 5, false );
-
-            // real for check
-            real tEpsilonRel = 1E-6;
 
             // create the properties --------------------------------------------------------------------- //
             std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
@@ -71,17 +68,17 @@ namespace moris
 
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
             tPropMasterDensity->set_parameters( {{{ 1.2 }}} );
-//            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-//            tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-            tPropMasterDensity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+//            tPropMasterDensity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
             tPropMasterHeatCapacity->set_parameters( {{{ 1.3 }}} );
-//            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-            tPropMasterHeatCapacity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+//            tPropMasterHeatCapacity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
             // define constitutive models ---------------------------------------------------------------- //
             fem::CM_Factory tCMFactory;
@@ -150,11 +147,12 @@ namespace moris
 
             //check stress derivative
             bool tCheckdStress = true;
+            real tEpsilon = std::abs( tEpsilonRel * tdFluxdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdFluxdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStress = tCheckdStress && ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckdStress = tCheckdStress && ( std::abs( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
             //REQUIRE( tCheckdStress );
@@ -181,11 +179,12 @@ namespace moris
 
             //check strain derivative
             bool tCheckdStrain = true;
+            tEpsilon = std::abs( tEpsilonRel * tdStraindDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdStraindDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdStraindDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStrain = tCheckdStrain && ( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckdStrain = tCheckdStrain && ( std::abs( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
             //REQUIRE( tCheckdStrain );
@@ -283,6 +282,15 @@ namespace moris
                 for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
                 {
                     tCheckGradHdot = tCheckGradHdot && ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
+
+// debug
+//if ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) > tEpsilon )
+//{
+//    std::cout << "tdGradHdotdDOF: failed Jacobian check at: " << iStress << "x" << jStress
+//            << " with difference: " << std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) )
+//            << " , allowed tolerance: " << tEpsilon << "\n" << std::flush;
+//}
+
                 }
             }
             //REQUIRE( tCheckGradHdot );
@@ -400,39 +408,13 @@ namespace moris
 
             //create a quad4 space element
             Matrix< DDRMat > tXHat = {
-                    { 0.0, 0.0, 0.0},
-                    { 1.0, 0.0, 0.0},
-                    { 1.0, 1.0, 0.0},
-                    { 0.0, 1.0, 0.0},
-
-                    { 0.0, 0.0, 1.0},
-                    { 1.0, 0.0, 1.0},
-                    { 1.0, 1.0, 1.0},
-                    { 0.0, 1.0, 1.0},
-
-                    { 0.5, 0.0, 0.0},
-                    { 1.0, 0.5, 0.0},
-                    { 0.5, 1.0, 0.0},
-                    { 0.0, 0.5, 0.0},
-
-                    { 0.0, 0.0, 0.5},
-                    { 1.0, 0.0, 0.5},
-                    { 1.0, 1.0, 0.5},
-                    { 0.0, 1.0, 0.5},
-
-                    { 0.5, 0.0, 1.0},
-                    { 1.0, 0.5, 1.0},
-                    { 0.5, 1.0, 1.0},
-                    { 0.0, 0.5, 1.0},
-
-                    { 0.5, 0.5, 0.5},
-                    { 0.5, 0.5, 0.0},
-                    { 0.5, 0.5, 1.0},
-
-                    { 0.5, 0.0, 0.5},
-                    { 1.0, 0.5, 0.5},
-                    { 0.5, 1.0, 0.5},
-                    { 0.0, 0.5, 0.5}};
+                    { 0.0, 0.0, 0.0}, { 1.0, 0.0, 0.0}, { 1.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
+                    { 0.0, 0.0, 1.0}, { 1.0, 0.0, 1.0}, { 1.0, 1.0, 1.0}, { 0.0, 1.0, 1.0},
+                    { 0.5, 0.0, 0.0}, { 1.0, 0.5, 0.0}, { 0.5, 1.0, 0.0}, { 0.0, 0.5, 0.0},
+                    { 0.0, 0.0, 0.5}, { 1.0, 0.0, 0.5}, { 1.0, 1.0, 0.5}, { 0.0, 1.0, 0.5},
+                    { 0.5, 0.0, 1.0}, { 1.0, 0.5, 1.0}, { 0.5, 1.0, 1.0}, { 0.0, 0.5, 1.0},
+                    { 0.5, 0.5, 0.5}, { 0.5, 0.5, 0.0}, { 0.5, 0.5, 1.0},
+                    { 0.5, 0.0, 0.5}, { 1.0, 0.5, 0.5}, { 0.5, 1.0, 0.5}, { 0.0, 0.5, 0.5}};
 
             //create a line time element
             Matrix< DDRMat > tTHat( 3, 1 );

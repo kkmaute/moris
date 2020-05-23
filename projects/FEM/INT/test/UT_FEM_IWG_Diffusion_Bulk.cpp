@@ -84,31 +84,31 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
     tPropMasterConductivity->set_parameters( { {{ 1.2 }} } );
-    //tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    //tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
     tPropMasterTempLoad->set_parameters( { {{ 2.0 }} } );
-    //tPropMasterTempLoad->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //tPropMasterTempLoad->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    //tPropMasterTempLoad->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    tPropMasterTempLoad->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    tPropMasterTempLoad->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropMasterTempLoad->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropMasterTempLoad->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterTempLoad->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
     tPropMasterDensity->set_parameters( { {{ 3.0 }} } );
-    //tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //tPropMasterDensity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    //tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    tPropMasterDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropMasterDensity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
     tPropMasterHeatCapacity->set_parameters( { {{ 4.0 }} } );
-    //tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    //tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;

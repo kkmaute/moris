@@ -55,27 +55,33 @@ namespace moris
             moris::Cell<bool> tChecks( 3, false );
 
             // real for check
-            real tEpsilonRel = 1E-6;
+            real tEpsilonRel = 5E-5;
 
             // create the properties --------------------------------------------------------------------- //
 
             // conductivity
             std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
             tPropMasterConductivity->set_parameters( {{{ 1.1 }}, {{ 1.1 }}} );
-            //tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//            tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//            tPropMasterConductivity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+//            tPropMasterConductivity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
             tPropMasterConductivity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // density
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
             tPropMasterDensity->set_parameters( {{{ 1.2 }}} );
-            //tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterDensity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+//            tPropMasterDensity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // heat capacity
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
             tPropMasterHeatCapacity->set_parameters( {{{ 1.3 }}} );
-            //tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+//            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // latent heat
             std::shared_ptr< fem::Property > tPropMasterLatentHeat = std::make_shared< fem::Property >();
@@ -205,6 +211,15 @@ namespace moris
                 for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
                 {
                     tCheckGradHdot = tCheckGradHdot && ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
+
+// debug
+//if ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) > tEpsilon )
+//{
+//    std::cout << "tdGradHdotdDOF: failed Jacobian check at: " << iStress << "x" << jStress
+//            << " with difference: " << std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) )
+//            << " , allowed tolerance: " << tEpsilon << "\n" << std::flush;
+//}
+
                 }
             }
             //REQUIRE( tCheckGradHdot );

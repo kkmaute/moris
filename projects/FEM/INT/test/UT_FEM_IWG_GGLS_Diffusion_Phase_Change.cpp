@@ -70,22 +70,25 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
 
     // create the properties ------------------------------------------------------------------- //
 
-    // conductivity
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
+    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
     tPropMasterConductivity->set_parameters( {{{ 1.1 }}, {{ 1.1 }}} );
-    //tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+//    tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
     tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
-    // density
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( {{{ 1.2 }}} );
-    //tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
+    tPropMasterDensity->set_parameters( { {{ 1.2 }} } );
+//    tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+//    tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
     tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
-    // heat capacity
-    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-    tPropMasterHeatCapacity->set_parameters( {{{ 1.3 }}} );
-    //tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
+    tPropMasterHeatCapacity->set_parameters( { {{ 1.3 }} } );
+//    tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+//    tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
     tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
     // latent heat
