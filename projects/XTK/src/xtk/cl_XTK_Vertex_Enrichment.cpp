@@ -155,6 +155,12 @@ Vertex_Enrichment::get_basis_weights() const
 {
     return mBasisWeights;
 }
+moris::Matrix< moris::IndexMat > const &
+Vertex_Enrichment::get_basis_ids() const
+{
+    return mBasisIds;
+}
+
 //------------------------------------------------------------------------------
 moris::Matrix< moris::DDRMat > &
 Vertex_Enrichment::get_basis_weights()

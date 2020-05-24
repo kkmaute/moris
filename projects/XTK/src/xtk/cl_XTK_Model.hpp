@@ -542,6 +542,32 @@ protected:
                                     moris::moris_id &    aNodeInd,
                                     moris::moris_id &    aNodeId);
 
+    // moris real versions of above
+    void
+    send_outward_requests_reals(
+            moris_index const    & aMPITag,
+            Cell<uint>  const    & aProcRanks,
+            Cell<Matrix<DDRMat>> & aOutwardRequests);
+
+    void
+    inward_receive_requests_reals(
+            moris_index const &    aMPITag,
+            moris::uint            aNumRows,
+            Cell<Matrix<DDRMat>> & aReceivedData,
+            Cell<uint>           & aProcRanksReceivedFrom);
+
+    void
+    return_request_answers_reals(
+            moris_index const & aMPITag,
+            Cell<Matrix<DDRMat>> const & aRequestAnswers,
+            Cell<uint>              const & aProcRanks);
+
+    void
+    inward_receive_request_answers_reals(moris_index            const & aMPITag,
+            moris::uint            const & aNumRows,
+            Cell<uint>             const & aProcRanks,
+            Cell<Matrix<DDRMat>> &       aReceivedData);
+
 private:
 
     /*!

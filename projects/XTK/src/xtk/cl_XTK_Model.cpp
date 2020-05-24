@@ -1638,6 +1638,76 @@ Model::handle_received_request_answers(Decomposition_Data & aDecompData,
     }
 }
 
+void
+Model::send_outward_requests_reals(
+        moris_index const    & aMPITag,
+        Cell<uint>  const    & aProcRanks,
+        Cell<Matrix<DDRMat>> & aOutwardRequests)
+{
+    // iterate through owned requests and send
+    for(moris::uint i = 0; i < aProcRanks.size(); i++)
+    {
+        nonblocking_send(aOutwardRequests(i),aOutwardRequests(i).n_rows(),aOutwardRequests(i).n_cols(),aProcRanks(i),aMPITag);
+    }
+}
+
+void
+Model::inward_receive_requests_reals(
+        moris_index const &    aMPITag,
+        moris::uint            aNumRows,
+        Cell<Matrix<DDRMat>> & aReceivedData,
+        Cell<uint>           & aProcRanksReceivedFrom)
+{
+    {
+        moris::moris_index tParRank = par_rank();
+        moris::uint tCount = 0;
+        for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+        {
+            if((moris_index)i != tParRank)
+            {
+                // if there is a sent message from a processor go receive it
+                if(sent_message_exists(i,aMPITag))
+                {
+                    aReceivedData.push_back(Matrix<DDRMat>(1,1));
+                    aProcRanksReceivedFrom.push_back(i);
+                    receive(aReceivedData(tCount),aNumRows, i,aMPITag);
+                    tCount++;
+                }
+            }
+        }
+    }
+}
+
+void
+Model::return_request_answers_reals(
+        moris_index const & aMPITag,
+        Cell<Matrix<DDRMat>> const & aRequestAnswers,
+        Cell<uint>              const & aProcRanks)
+{
+    // iterate through owned requests and send
+    for(moris::uint i = 0; i < aProcRanks.size(); i++)
+    {
+        nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),aProcRanks(i),aMPITag);
+    }
+}
+
+void
+Model::inward_receive_request_answers_reals(moris_index            const & aMPITag,
+        moris::uint            const & aNumRows,
+        Cell<uint>             const & aProcRanks,
+        Cell<Matrix<DDRMat>> &       aReceivedData)
+{
+    for(moris::uint i = 0; i<aProcRanks.size(); i++)
+    {
+        // if there is a sent message from a processor go receive it
+        if(sent_message_exists(aProcRanks(i),aMPITag))
+        {
+            aReceivedData.push_back(Matrix<DDRMat>(1,1));
+            receive(aReceivedData(i),aNumRows, aProcRanks(i),aMPITag);
+        }
+    }
+}
+
 
 void
 Model::prepare_request_answers( Decomposition_Data & aDecompData,
@@ -3203,7 +3273,6 @@ Model::construct_subphase_neighborhood()
                     moris_index tNeighborBulkIndex = tNeighborSubphaseBulkIndices(j);
                     moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices(j);
 
-                    //fixme: This needs to use a better metric to determine neighbors
                     if(tMyBulkIndex == tNeighborBulkIndex)
                     {
                         mSubphaseToSubPhase(tMySubphaseIndex).push_back(tNeighborSubphaseIndex);
