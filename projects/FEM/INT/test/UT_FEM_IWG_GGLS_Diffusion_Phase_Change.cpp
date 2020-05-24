@@ -70,22 +70,25 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
 
     // create the properties ------------------------------------------------------------------- //
 
-    // conductivity
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
+    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
     tPropMasterConductivity->set_parameters( {{{ 1.1 }}, {{ 1.1 }}} );
-    //tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+//    tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
     tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
-    // density
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( {{{ 1.2 }}} );
-    //tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
+    tPropMasterDensity->set_parameters( { {{ 1.2 }} } );
+//    tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+//    tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
     tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
-    // heat capacity
-    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-    tPropMasterHeatCapacity->set_parameters( {{{ 1.3 }}} );
-    //tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
+    tPropMasterHeatCapacity->set_parameters( { {{ 1.3 }} } );
+//    tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//    tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+//    tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
     tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
     // latent heat
@@ -132,8 +135,7 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
     // define stabilization parameter ----------------------------------------------------------- //
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam
-    = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION_PC );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION_PC );
     tSPGGLSParam->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tSPGGLSParam->set_parameters( { {{ 1.0 }} });
     tSPGGLSParam->set_property( tPropMasterConductivity, "Conductivity", mtk::Master_Slave::MASTER );
@@ -144,43 +146,47 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GGLS_PC );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion_Phase_Change", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPGGLSParam, "GGLS_Param");
     tIWG->set_property( tPropMasterBodyLoad, "Load", mtk::Master_Slave::MASTER );
 
-
-
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
+    Matrix< DDRMat > tParamPoint = {{-0.4}, { 0.1}, {-0.6}, {0.3}};
 
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR );
+    //create a space time interpolation rule
+    Interpolation_Rule tGIRule (
+            mtk::Geometry_Type::HEX,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC );
 
     // create a space time geometry interpolator
     Geometry_Interpolator tGI( tGIRule );
 
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
-                              { 1.0, 0.0, 0.0 },
-                              { 1.0, 1.0, 0.0 },
-                              { 0.0, 1.0, 0.0 },
-                              { 0.0, 0.0, 1.0 },
-                              { 1.0, 0.0, 1.0 },
-                              { 1.0, 1.0, 1.0 },
-                              { 0.0, 1.0, 1.0 }};
+    //create a quad4 space element
+    Matrix< DDRMat > tXHat = {
+            { 0.0, 0.0, 0.0}, { 1.0, 0.0, 0.0}, { 1.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
+            { 0.0, 0.0, 1.0}, { 1.0, 0.0, 1.0}, { 1.0, 1.0, 1.0}, { 0.0, 1.0, 1.0},
+            { 0.5, 0.0, 0.0}, { 1.0, 0.5, 0.0}, { 0.5, 1.0, 0.0}, { 0.0, 0.5, 0.0},
+            { 0.0, 0.0, 0.5}, { 1.0, 0.0, 0.5}, { 1.0, 1.0, 0.5}, { 0.0, 1.0, 0.5},
+            { 0.5, 0.0, 1.0}, { 1.0, 0.5, 1.0}, { 0.5, 1.0, 1.0}, { 0.0, 0.5, 1.0},
+            { 0.5, 0.5, 0.5}, { 0.5, 0.5, 0.0}, { 0.5, 0.5, 1.0},
+            { 0.5, 0.0, 0.5}, { 1.0, 0.5, 0.5}, { 0.5, 1.0, 0.5}, { 0.0, 0.5, 0.5}};
+
 
     // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+    Matrix< DDRMat > tTHat( 3, 1 );
+    tTHat( 0 ) = 1.00e-3;
+    tTHat( 2 ) = 1.05e-3;
+    tTHat( 1 ) = 1.10e-3;
+
 
     // set the coefficients xHat, tHat
     tGI.set_coeff( tXHat, tTHat );
@@ -191,18 +197,20 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
     // field interpolators
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR );
+    Interpolation_Rule tFIRule (
+            mtk::Geometry_Type::HEX,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC );
+
 
     // create random coefficients
-//    arma::Mat< double > tMatrix;
-//    tMatrix.randu( 16, 1 );
-    Matrix< DDRMat > tDOFHat = {{  7.0 }, {  7.5 }, {  8.0 }, {  8.5 }, {  9.0 }, {  9.5 }, { 10.0 }, { 10.5 },
-                                { 11.0 }, { 11.5 }, { 12.0 }, { 12.5 }, { 13.0 }, { 13.5 }, { 14.0 }, { 14.5 }};
-//    tDOFHat.matrix_data() = 10.0 * tMatrix;
+    Matrix< DDRMat > tDOFHat = {
+            {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+            {5.1},{5.2},{5.3},{5.3},{5.5},{5.6},{5.7},{5.8},{5.9},{5.3},{5.2},{5.3},{5.4},{5.5},{5.2},{5.7},{5.8},{5.9},{5.1},{5.4},{5.3},{5.6},{5.5},{5.9},{5.7},{5.8},{5.9},
+            {6.4},{6.2},{6.3},{6.4},{6.2},{6.6},{6.7},{6.1},{6.9},{6.1},{6.1},{6.3},{6.4},{6.9},{6.8},{6.7},{6.6},{6.5},{6.6},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9}};
+
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tFIs( 1 );
@@ -233,16 +241,16 @@ TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change", "[moris],[fem],[IWG_GGLS_Diffusion
 
     // set size and fill the set residual assembly map
     tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 15 } };
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 80 } };
 
     // set size and fill the set jacobian assembly map
     tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 80 } };
 
     // set size and init the set residual and jacobian
     tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 16, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );
+    tIWG->mSet->mResidual( 0 ).set_size( 81, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 81, 81, 0.0 );
 
     // build global dof type list
     tIWG->get_global_dof_type_list();

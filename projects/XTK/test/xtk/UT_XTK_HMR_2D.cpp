@@ -63,7 +63,7 @@ CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 {
-    if(par_size()<=4)
+    if(par_size()<=2)
     {
         for( moris::uint iOrder = 1; iOrder < 4; iOrder ++)
         {
@@ -145,7 +145,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
 
-//            tXTKModel.construct_face_oriented_ghost_penalization_cells();
+            tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
 
             // output to exodus file ----------------------------------------------------------

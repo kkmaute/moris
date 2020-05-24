@@ -18,14 +18,18 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Load" ]         = IWG_Property_Type::BODY_LOAD;
-            mPropertyMap[ "Density" ]      = IWG_Property_Type::DENSITY;
-            mPropertyMap[ "HeatCapacity" ] = IWG_Property_Type::HEAT_CAPACITY;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = IWG_Constitutive_Type::DIFFUSION;
+
+            // set size for the stabilization parameter pointer cell
+            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+
+            // populate the stabilization map
+            mStabilizationMap[ "GGLS_Param" ] = IWG_Stabilization_Type::GGLS_DIFFUSION;
         }
 
         //------------------------------------------------------------------------------
@@ -48,21 +52,18 @@ namespace moris
             std::shared_ptr< Property > tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
-            // get density property
-            std::shared_ptr< Property > tPropDensity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
-
-            // get heat capacity property
-            std::shared_ptr< Property > tPropHeatCapacity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
-
             // get the elasticity CM
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
+            // get the Stabilization Parameter
+            std::shared_ptr< Stabilization_Parameter > tGGLSParam =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
+
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                    += aWStar * ( trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux() );
+                    += aWStar * (  trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux()
+                                 + trans( tFITemp->N() ) * tCMDiffusion->Hdot() );
 
             // if body load
             if ( tPropLoad != nullptr )
@@ -72,13 +73,15 @@ namespace moris
                         -= aWStar * ( trans( tFITemp->N() ) * tPropLoad->val()( 0 ) );
             }
 
-            // if density and heat capacity
-            if( tPropDensity != nullptr && tPropHeatCapacity != nullptr )
+            // if stabilization parameter is defined
+            if ( tGGLSParam != nullptr )
             {
-                // add contribution to residual
+                // compute the residual from bulk diffusion term
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) );
+                    += aWStar * ( trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
+                            ( tCMDiffusion->gradHdot() - tCMDiffusion->graddivflux() ) );
             }
+
         }
 
         //------------------------------------------------------------------------------
@@ -101,17 +104,13 @@ namespace moris
             std::shared_ptr< Property > tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
-            // get density property
-            std::shared_ptr< Property > tPropDensity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
-
-            // get heat capacity property
-            std::shared_ptr< Property > tPropHeatCapacity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
-
             // get the elasticity CM
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+
+            // get the Stabilization Parameter
+            std::shared_ptr< Stabilization_Parameter > tGGLSParam =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -141,38 +140,38 @@ namespace moris
                     }
                 }
 
-                if( tPropDensity != nullptr && tPropHeatCapacity != nullptr )
-                {
-                    // if residual dof type (here temperature)
-                    if( tDofType( 0 ) == mResidualDofType( 0 ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->dnNdtn( 1 ) );
-                    }
-
-                    // if density property has dependency on the dof type
-                    if ( tPropDensity->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) * tPropDensity->dPropdDOF( tDofType ) );
-                    }
-
-                    // if heat capacity property has dependency on the dof type
-                    if ( tPropHeatCapacity->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( tPropDensity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) * tPropHeatCapacity->dPropdDOF( tDofType ) );
-                    }
-                }
+//                if( tPropDensity != nullptr && tPropHeatCapacity != nullptr )
+//                {
+//                    // if residual dof type (here temperature)
+//                    if( tDofType( 0 ) == mResidualDofType( 0 ) )
+//                    {
+//                        // add contribution to jacobian
+//                        mSet->get_jacobian()(
+//                                { tMasterResStartIndex, tMasterResStopIndex },
+//                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+//                                += aWStar * ( tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->dnNdtn( 1 ) );
+//                    }
+//
+//                    // if density property has dependency on the dof type
+//                    if ( tPropDensity->check_dof_dependency( tDofType ) )
+//                    {
+//                        // add contribution to jacobian
+//                        mSet->get_jacobian()(
+//                                { tMasterResStartIndex, tMasterResStopIndex },
+//                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+//                                += aWStar * ( tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) * tPropDensity->dPropdDOF( tDofType ) );
+//                    }
+//
+//                    // if heat capacity property has dependency on the dof type
+//                    if ( tPropHeatCapacity->check_dof_dependency( tDofType ) )
+//                    {
+//                        // add contribution to jacobian
+//                        mSet->get_jacobian()(
+//                                { tMasterResStartIndex, tMasterResStopIndex },
+//                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+//                                += aWStar * ( tPropDensity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) * tPropHeatCapacity->dPropdDOF( tDofType ) );
+//                    }
+//                }
 
                 // if constitutive model has dependency on the dof type
                 if ( tCMDiffusion->check_dof_dependency( tDofType ) )
@@ -181,9 +180,41 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * ( trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) );
+                            += aWStar * (  trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType )
+                                         + trans( tFITemp->N() ) * tCMDiffusion->dHdotdDOF( tDofType )  );
                     // FIXME add derivative of the test strain
                 }
+
+
+                // if stabilization parameter is defined
+                 if ( tGGLSParam != nullptr )
+                 {
+                     // FIXME: spatial derivative of body load property needed
+                     // if body load
+//                     if ( tPropLoad != nullptr )
+//                     {
+//                         // if body load property has dependency on the dof type
+//                         if ( tPropLoad->check_dof_dependency( tDofType ) )
+//                         {
+//                             // compute contribution of body load to jacobian
+//                             mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+//                                                   { tMasterDepStartIndex, tMasterDepStopIndex } )
+//                             -= aWStar * ( trans( tFITemp->N() ) * tGGLSParam->val()( 0 ) * tPropLoad->dPropdDOF( tDofType ) );
+//                         }
+//                     }
+
+                     // if constitutive model has dependency on the dof type
+                     if ( tCMDiffusion->check_dof_dependency( tDofType ) )
+                     {
+                         // FIXME: remove cast
+                         // compute the jacobian
+                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                                               { tMasterDepStartIndex, tMasterDepStopIndex } )
+                         +=   aWStar * ( trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
+                                        ( tCMDiffusion->dGradHdotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
+                     }
+                 }
+
             }
         }
 

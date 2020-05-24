@@ -247,23 +247,24 @@ namespace moris
                         * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
             }
 
-//            // if indirect dependency of density on the dof type
-//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-//            {
-//                // compute derivative with indirect dependency through properties
-//                mHdotDof( tDofIndex ).matrix_data() +=
-//                        tPropHeatCap->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt(1)
-//                        * tPropDensity->dPropdDOF( aDofTypes );
-//            }
-//
-//            // if indirect dependency of heat capacity on the dof type
-//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-//            {
-//                // compute derivative with indirect dependency through properties
-//                mHdotDof( tDofIndex ).matrix_data() +=
-//                        tPropDensity->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt(1)
-//                        * tPropHeatCap->dPropdDOF( aDofTypes );
-//            }
+            // if indirect dependency of density on the dof type
+            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mHdotDof( tDofIndex ).matrix_data()
+                        += tPropHeatCap->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt(1)
+                        * tPropDensity->dPropdDOF( aDofTypes );
+            }
+
+            // if indirect dependency of heat capacity on the dof type
+            if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mHdotDof( tDofIndex ).matrix_data()
+                        += tPropDensity->val()( 0 )
+                        * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt(1)
+                        * tPropHeatCap->dPropdDOF( aDofTypes );
+            }
 
 
         }
@@ -297,24 +298,25 @@ namespace moris
                         mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
             }
 
-//            // if indirect dependency of density on the dof type
-//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-//            {
-//                // compute derivative with indirect dependency through properties
-//                mGradHdotDof( tDofIndex ).matrix_data()
-//                                    += tPropHeatCap->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt()
-//                                    * tPropDensity->dPropdDOF( aDofTypes );
-//            }
-//
-//            // if indirect dependency of heat capacity on the dof type
-//            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-//            {
-//                // compute derivative with indirect dependency through properties
-//                mGradHdotDof( tDofIndex ).matrix_data()
-//                                    +=  tPropDensity->val()( 0 )
-//                                    * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt()
-//                                    * tPropHeatCap->dPropdDOF( aDofTypes );
-//            }
+            // if indirect dependency of density on the dof type
+            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mGradHdotDof( tDofIndex ).matrix_data()
+                                    += tPropHeatCap->val()( 0 )
+                                    * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt()
+                                    * tPropDensity->dPropdDOF( aDofTypes );
+            }
+
+            // if indirect dependency of heat capacity on the dof type
+            if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mGradHdotDof( tDofIndex ).matrix_data()
+                                    +=  tPropDensity->val()( 0 )
+                                    * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt()
+                                    * tPropHeatCap->dPropdDOF( aDofTypes );
+            }
 
         }
 

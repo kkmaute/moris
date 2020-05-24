@@ -83,28 +83,32 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
 
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
-    tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
+    tPropMasterConductivity->set_parameters( { {{ 1.2 }} } );
     tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
     tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
     tPropMasterTempLoad->set_parameters( { {{ 2.0 }} } );
     tPropMasterTempLoad->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterTempLoad->set_val_function( tFIValFunction_UTIWGDIFFBULK );
     tPropMasterTempLoad->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterTempLoad->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
     tPropMasterDensity->set_parameters( { {{ 3.0 }} } );
     tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterDensity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
     tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
     tPropMasterHeatCapacity->set_parameters( { {{ 4.0 }} } );
     tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
     tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+//    tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -112,6 +116,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
+    tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density");
+    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "Heat_Capacity");
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
@@ -122,8 +128,6 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropMasterHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -259,6 +263,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
 
 }/*END_TEST_CASE*/
 
+
 TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop]" )
 {
     // define an epsilon environment
@@ -272,6 +277,14 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
     tPropMasterConductivity->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
 
+    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
+    tPropMasterDensity->set_parameters( { {{ 0.0 }} } );
+    tPropMasterDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+
+    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
+    tPropMasterHeatCapacity->set_parameters( { {{ 0.0 }} } );
+    tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+
     std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
     tPropMasterTempLoad->set_parameters( { {{ 1.0 }} } );
     tPropMasterTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
@@ -282,6 +295,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
+    tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density");
+    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "Heat_Capacity");
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
