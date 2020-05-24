@@ -13,41 +13,52 @@ using namespace moris;
 using namespace NLA;
 using namespace tsa;
 
+// ----------------------------------------------------------------------------------------------
+
 TSA_Solver_Interface_Proxy::TSA_Solver_Interface_Proxy()
 {
 }
 
-void TSA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVector )
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::set_solution_vector( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
 }
 
-void TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVectorPrev = aSolutionVector;
 
     mSolutionVectorPrev->extract_copy( mMySolVecPrev );
 }
 
-void TSA_Solver_Interface_Proxy::get_equation_object_rhs( const uint                     & aMyElementInd,
-                                                        Cell< Matrix< DDRMat > > & aElementRHS )
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::get_equation_object_rhs(
+        const uint               & aMyElementInd,
+        Cell< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
     Matrix< DDRMat > tMat;
     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
 
-    //print(mMySolVecPrev,"mMySolVecPrev");
-    //print(mMySolVec,"mMySolVec");
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+
     aElementRHS.resize(1);
     aElementRHS(0).resize(1,1);
     aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 }
 
-void TSA_Solver_Interface_Proxy::get_equation_object_rhs( const uint                     & aMyBlockInd,
-                                                  const uint                     & aMyElementInd,
-                                                        Cell< Matrix< DDRMat > > & aElementRHS )
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::get_equation_object_rhs(
+        const uint               & aMyBlockInd,
+        const uint               & aMyElementInd,
+        Cell< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -55,56 +66,115 @@ void TSA_Solver_Interface_Proxy::get_equation_object_rhs( const uint            
     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
 
-    //print(mMySolVecPrev,"mMySolVecPrev");
-    //print(mMySolVec,"mMySolVec");
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+
     aElementRHS.resize(1);
     aElementRHS(0).resize(1,1);
     aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 }
 
- moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_minus()
+// ----------------------------------------------------------------------------------------------
+
+moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_minus()
 {
     mTimeLevelIdsMinus.set_size( 1, 1, 0 );
     return mTimeLevelIdsMinus;
 }
- moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_plus()
+
+// ----------------------------------------------------------------------------------------------
+
+moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_plus()
 {
     mTimeLevelIdsPlus.set_size( 1, 1 , 1 );
     return mTimeLevelIdsPlus;
 }
 
- void TSA_Solver_Interface_Proxy::perform_mapping()
- {
-     moris::Cell< Matrix< DDRMat > > tMat;
-     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
+// ----------------------------------------------------------------------------------------------
 
-     mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
+void TSA_Solver_Interface_Proxy::perform_mapping()
+{
+    moris::Cell< Matrix< DDRMat > > tMat;
+    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
+    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
 
-     mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
+    mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
 
-     mSolutionVectorPrev->vector_global_asembly();
- }
+    mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
 
- void TSA_Solver_Interface_Proxy::get_equation_object_operator(const uint             & aMyElementInd,
-                                         Matrix< DDRMat > & aElementMatrix)
- {
-     mSolutionVector->extract_copy( mMySolVec );
+    mSolutionVectorPrev->vector_global_asembly();
+}
 
-     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
-     aElementMatrix.resize(1, 1);
-     aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
- }
+// ----------------------------------------------------------------------------------------------
 
- void TSA_Solver_Interface_Proxy::get_equation_object_operator( const uint             & aMyBlockInd,
-                                    const uint             & aMyElementInd,
-                                          Matrix< DDRMat > & aElementMatrix)
- {
-     mSolutionVector->extract_copy( mMySolVec );
+void TSA_Solver_Interface_Proxy::get_equation_object_operator(
+        const uint       & aMyElementInd,
+        Matrix< DDRMat > & aElementMatrix)
+{
+    mSolutionVector->extract_copy( mMySolVec );
 
-     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
-     aElementMatrix.resize(1, 1);
-     aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
- }
+    mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+    aElementMatrix.resize(1, 1);
+    aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+}
 
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::get_equation_object_operator(
+        const uint       & aMyBlockInd,
+        const uint       & aMyElementInd,
+        Matrix< DDRMat > & aElementMatrix)
+{
+    mSolutionVector->extract_copy( mMySolVec );
+
+    mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+    aElementMatrix.resize(1, 1);
+    aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+}
+
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
+        const moris::uint        & aMyElementInd,
+        Matrix< DDRMat >         & aElementMatrix,
+        Cell< Matrix< DDRMat > > & aElementRHS )
+{
+    mSolutionVector->extract_copy( mMySolVec );
+
+    Matrix< DDRMat > tMat;
+    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
+    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
+
+    mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+
+    aElementRHS.resize(1);
+    aElementRHS(0).resize(1,1);
+    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
+
+    aElementMatrix.resize(1, 1);
+    aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+
+}
+
+// ----------------------------------------------------------------------------------------------
+
+void TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
+        const moris::uint        & aMyEquSetInd,
+        const moris::uint        & aMyElementInd,
+        Matrix< DDRMat >         & aElementMatrix,
+        Cell< Matrix< DDRMat > > & aElementRHS )
+{
+    mSolutionVector->extract_copy( mMySolVec );
+
+    Matrix< DDRMat > tMat;
+    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
+    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
+
+    mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+
+    aElementRHS.resize(1);
+    aElementRHS(0).resize(1,1);
+    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
+
+    aElementMatrix.resize(1, 1);
+    aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+}

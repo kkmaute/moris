@@ -47,6 +47,7 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow.hpp"
+#include "cl_OPT_Manager.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -87,16 +88,31 @@ int main( int argc, char * argv[] )
     std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
 
     {
+        // load the OPT parameter list
+        std::string tOPTString = "OPTParameterList";
+        MORIS_PARAMETER_FUNCTION tOPTParameterListFunc = tLibrary->load_parameter_file( tOPTString );
+        moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
+        tOPTParameterListFunc( tOPTParameterList );
+
+        // Create workflow
         wrk::Performer_Manager tPerformerManager( tLibrary );
-
         tPerformerManager.initialize_performers();
-
         tPerformerManager.set_performer_cooperations();
-        {
-            wrk::Workflow tWorkflow( &tPerformerManager );
 
+        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { std::make_shared<wrk::Workflow>( &tPerformerManager ) };
+
+        if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
+        {
+            moris::opt::Manager tManager( tOPTParameterList, tWorkflows );
+            tManager.perform();
+
+        }
+        else
+        {
+            Matrix< DDRMat > tDummyMat;
+            tWorkflows(0)->initialize( tDummyMat,tDummyMat,tDummyMat );
             Matrix<DDRMat> tADVs(1, 1, 0.0);
-            tWorkflow.perform(tADVs);
+            tWorkflows(0)->get_criteria(tADVs);
         }
     }
 

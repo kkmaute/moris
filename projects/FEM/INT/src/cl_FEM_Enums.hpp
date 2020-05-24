@@ -74,6 +74,7 @@ namespace moris
             SIDESET,
             DOUBLE_SIDESET,
             TIME_SIDESET,
+            TIME_BOUNDARY,
             END_ELEMENT_TYPE
         };
 
@@ -138,11 +139,12 @@ namespace moris
             K1_SENT,
             ANALYTIC,
             STRESS,
+            LIFT_COEFF,
+            DRAG_COEFF,
             END_IQI_TYPE
         };
 
 //------------------------------------------------------------------------------
-
         enum class Constitutive_Type
         {
             UNDEFINED,
@@ -153,8 +155,8 @@ namespace moris
             FLUID_INCOMPRESSIBLE,
             END_CONSTITUTIVE_TYPE
         };
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
         enum class Model_Type
         {
             UNDEFINED,
@@ -185,6 +187,8 @@ namespace moris
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
+            SUPG_SPALART_ALLMARAS_TURBULENCE,
+            TURBULENCE_VISCOSITY,
             END_STABILIZATION_TYPE
         };
 

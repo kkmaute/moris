@@ -16,14 +16,5 @@ namespace moris
     namespace fem
     {
 
-//-------------------------------------------------------------------------------------------------------
-
-    void FEM_Design_Variable_Interface_Proxy::set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames )
-    {
-        mModel->get_fem_model()->set_requested_IQI_names(aRequestedIQINames);
-    }
-
-//-------------------------------------------------------------------------------------------------------
-
     }
 }

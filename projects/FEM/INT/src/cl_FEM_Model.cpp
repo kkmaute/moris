@@ -31,7 +31,7 @@
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_VIS_Output_Enums.hpp"
 
 namespace moris
@@ -121,8 +121,7 @@ namespace moris
                 }
 
                 // fill the mesh set index to fem set index map
-                //mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
-                mMeshSetToFemSetMap[ std::make_pair( tMeshSetIndex, aSetInfo( iSet ).get_time_continuity() ) ] = iSet;
+                mMeshSetToFemSetMap[ std::make_tuple( tMeshSetIndex, aSetInfo( iSet ).get_time_continuity(),  aSetInfo( iSet ).get_time_boundary() ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
@@ -255,8 +254,7 @@ namespace moris
                 moris_index tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
 
                 // fill the mesh set index to fem set index map
-                //mMeshSetToFemSetMap[ tMeshSetIndex ] = iSet;
-                mMeshSetToFemSetMap[ std::make_pair( tMeshSetIndex, mSetInfo( iSet ).get_time_continuity() ) ] = iSet;
+                mMeshSetToFemSetMap[ std::make_tuple( tMeshSetIndex, mSetInfo( iSet ).get_time_continuity(), mSetInfo( iSet ).get_time_boundary() ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
@@ -305,8 +303,8 @@ namespace moris
             = moris::MSI::get_msi_dof_type_map();
 
             // get string to dv type map
-            moris::map< std::string, GEN_DV > tMSIDvTypeMap
-            = get_dv_type_map();
+            moris::map< std::string, PDV_Type > tMSIDvTypeMap
+            = get_pdv_type_map();
 
             // create properties
             moris::map< std::string, uint > tPropertyMap;
@@ -367,7 +365,7 @@ namespace moris
         void FEM_Model::create_properties
         ( moris::map< std::string, uint >                 & aPropertyMap,
           moris::map< std::string, MSI::Dof_Type >        & aMSIDofTypeMap,
-          moris::map< std::string, GEN_DV >               & aDvTypeMap,
+          moris::map< std::string, PDV_Type >               & aDvTypeMap,
           std::shared_ptr< Library_IO >                     aLibrary )
         {
             // get the property parameter list
@@ -399,7 +397,7 @@ namespace moris
                 mProperties( iProp )->set_dof_type_list( tDofTypes );
 
                 // set dof dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell( tPropParameterList( iProp ).get< std::string >( "dv_dependencies" ),
                                         tDvTypes,
                                         aDvTypeMap );
@@ -459,7 +457,7 @@ namespace moris
         ( moris::map< std::string, uint >                           & aCMMap,
           moris::map< std::string, uint >                           & aPropertyMap,
           moris::map< std::string, MSI::Dof_Type >                  & aMSIDofTypeMap,
-          moris::map< std::string, GEN_DV >                         & aDvTypeMap )
+          moris::map< std::string, PDV_Type >                         & aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
@@ -510,7 +508,7 @@ namespace moris
                 mCMs( iCM )->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set CM dv dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell( std::get< 0 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                                         tDvTypes,
                                         aDvTypeMap );
@@ -543,7 +541,7 @@ namespace moris
           moris::map< std::string, uint >                                & aPropertyMap,
           moris::map< std::string, uint >                                & aCMMap,
           moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-          moris::map< std::string, GEN_DV >                              & aDvTypeMap )
+          moris::map< std::string, PDV_Type >                              & aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
@@ -569,6 +567,9 @@ namespace moris
 
                 // set name
                 mSPs( iSP )->set_name( tSPParameterList( iSP ).get< std::string >( "stabilization_name" ) );
+
+                // set SP space dimension
+                mSPs( iSP )->set_space_dim( mSpaceDim );
 
                 // fill stabilization map
                 aSPMap[ tSPParameterList( iSP ).get< std::string >( "stabilization_name" ) ] = iSP;
@@ -600,7 +601,7 @@ namespace moris
                 mSPs( iSP )->set_dof_type_list( tSlaveDofTypes, tSlaveDofTypeNames, mtk::Master_Slave::SLAVE );
 
                 // set master dv dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell( std::get< 0 >( tSPParameterList( iSP ).get< std::pair< std::string, std::string > >( "master_dv_dependencies" ) ),
                                         tDvTypes,
                                         aDvTypeMap );
@@ -610,7 +611,7 @@ namespace moris
                 mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames );
 
                 // set slave dof dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tSlaveDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tSlaveDvTypes;
                 string_to_cell_of_cell( std::get< 0 >( tSPParameterList( iSP ).get< std::pair< std::string, std::string > >( "slave_dv_dependencies" ) ),
                                         tSlaveDvTypes,
                                         aDvTypeMap );
@@ -685,7 +686,7 @@ namespace moris
           moris::map< std::string, uint >                                & aCMMap,
           moris::map< std::string, uint >                                & aSPMap,
           moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-          moris::map< std::string, GEN_DV >                              & aDvTypeMap )
+          moris::map< std::string, PDV_Type >                              & aDvTypeMap )
         {
             // create an IWG factory
             IWG_Factory tIWGFactory;
@@ -734,14 +735,14 @@ namespace moris
                 mIWGs( iIWG )->set_dof_type_list( tSlaveDofTypes, mtk::Master_Slave::SLAVE );
 
                 // set master dv dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "master_dv_dependencies" ),
                                         tDvTypes,
                                         aDvTypeMap );
                 mIWGs( iIWG )->set_dv_type_list( tDvTypes, mtk::Master_Slave::MASTER );
 
                 // set slave dv dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tSlaveDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tSlaveDvTypes;
                 string_to_cell_of_cell( tIWGParameterList( iIWG ).get< std::string >( "slave_dv_dependencies" ),
                                         tSlaveDvTypes,
                                         aDvTypeMap );
@@ -828,7 +829,7 @@ namespace moris
           moris::map< std::string, uint >                                & aCMMap,
           moris::map< std::string, uint >                                & aSPMap,
           moris::map< std::string, MSI::Dof_Type >                       & aMSIDofTypeMap,
-          moris::map< std::string, GEN_DV >                              & aDvTypeMap )
+          moris::map< std::string, PDV_Type >                              & aDvTypeMap )
         {
             // create an IQI factory
             IQI_Factory tIQIFactory;
@@ -868,7 +869,7 @@ namespace moris
                 mIQIs( iIQI )->set_dof_type_list( tDofTypes );
 
                 // set master dv dependencies
-                moris::Cell< moris::Cell< GEN_DV > > tDvTypes;
+                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell( tIQIParameterList( iIQI ).get< std::string >( "master_dv_dependencies" ),
                                         tDvTypes,
                                         aDvTypeMap );
@@ -935,7 +936,8 @@ namespace moris
             moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // create a map of the set
-            std::map< std::pair< std::string, bool >, uint > tMeshtoFemSet;
+            //std::map< std::pair< std::string, bool >, uint > tMeshtoFemSet;
+            std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
@@ -947,16 +949,17 @@ namespace moris
                 // get the time continuity flag from the IWG parameter list
                 bool tTimeContinuity = tIWGParameterList( iIWG ).get< bool >( "time_continuity" );
 
+                // get the time boundary flag from the IQI parameter list
+                bool tTimeBoundary = tIWGParameterList( iIWG ).get< bool >( "time_boundary" );
+
                 // loop over the mesh set names
                 for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
                 {
                     // check if the mesh set name already in map
-                    //if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
-                    if( tMeshtoFemSet.find( std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ) == tMeshtoFemSet.end() )
+                    if( tMeshtoFemSet.find( std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ) == tMeshtoFemSet.end() )
                     {
                         // add the mesh set name map
-                        //tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
-                        tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] = tNumFEMSets++;
+                        tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
@@ -966,6 +969,9 @@ namespace moris
 
                         // set its time continuity flag
                         aSetUserInfo.set_time_continuity( tTimeContinuity );
+
+                        // set its time boundary flag
+                        aSetUserInfo.set_time_boundary( tTimeBoundary );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -976,8 +982,7 @@ namespace moris
                     else
                     {
                         // set the IWG
-                        mSetInfo( tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] ).set_IWG( mIWGs( iIWG ) );
-                        //mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IWG( mIWGs( iIWG ) );
+                        mSetInfo( tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] ).set_IWG( mIWGs( iIWG ) );
                     }
                 }
             }
@@ -985,23 +990,24 @@ namespace moris
             // loop over the IQIs
             for( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
             {
-                // get the mesh set names from the IWG parameter list
+                // get the mesh set names from the IQI parameter list
                 moris::Cell< std::string > tMeshSetNames;
                 string_to_cell( tIQIParameterList( iIQI ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
 
-                // get the time continuity flag from the IWG parameter list
+                // get the time continuity flag from the IQI parameter list
                 bool tTimeContinuity = tIQIParameterList( iIQI ).get< bool >( "time_continuity" );
+
+                // get the time boundary flag from the IQI parameter list
+                bool tTimeBoundary = tIQIParameterList( iIQI ).get< bool >( "time_boundary" );
 
                 // loop over the mesh set names
                 for( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
                 {
                     // if the mesh set name not in map
-                    //if( tMeshtoFemSet.find( tMeshSetNames( iSetName ) ) == tMeshtoFemSet.end() )
-                    if( tMeshtoFemSet.find( std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ) == tMeshtoFemSet.end() )
+                    if( tMeshtoFemSet.find( std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ) == tMeshtoFemSet.end() )
                     {
                         // add the mesh set name map
-                        //tMeshtoFemSet[ tMeshSetNames( iSetName ) ] = tNumFEMSets++;
-                        tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] = tNumFEMSets++;
+                        tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
@@ -1012,6 +1018,9 @@ namespace moris
                         // set its time continuity flag
                         aSetUserInfo.set_time_continuity( tTimeContinuity );
 
+                        // set its time boundary flag
+                        aSetUserInfo.set_time_boundary( tTimeBoundary );
+
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );
 
@@ -1021,8 +1030,7 @@ namespace moris
                     else
                     {
                         // set the IQI
-                        mSetInfo( tMeshtoFemSet[ std::make_pair( tMeshSetNames( iSetName ), tTimeContinuity ) ] ).set_IQI( mIQIs( iIQI ) );
-                        //mSetInfo( tMeshtoFemSet[ tMeshSetNames( iSetName ) ] ).set_IQI( mIQIs( iIQI ) );
+                        mSetInfo( tMeshtoFemSet[ std::make_tuple( tMeshSetNames( iSetName ), tTimeContinuity, tTimeBoundary ) ] ).set_IQI( mIQIs( iIQI ) );
                     }
                 }
             }

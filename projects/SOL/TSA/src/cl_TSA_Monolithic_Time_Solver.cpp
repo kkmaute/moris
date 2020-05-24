@@ -108,7 +108,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve( Dist_Vector * aFullVector )
+void Monolithic_Time_Solver::solve( sol::Dist_Vector * aFullVector )
 {
     mFullVector = aFullVector;
 

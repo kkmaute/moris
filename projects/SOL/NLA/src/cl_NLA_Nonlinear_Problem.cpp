@@ -28,7 +28,7 @@ using namespace dla;
 
 Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase,
                                             Solver_Interface   * aSolverInterface,
-                                            Dist_Vector        * aFullVector,
+                                            sol::Dist_Vector   * aFullVector,
                                       const moris::sint          aNonlinearSolverManagerIndex,
                                       const bool                 aBuildLinerSystemFlag,
                                       const enum sol::MapType    aMapType) :     mFullVector( aFullVector ),
@@ -80,10 +80,8 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 {
     mSolverInterface = aSolverInterface;
 
-    std::cout<<"build linear system"<<std::endl;
     if( mMapType == sol::MapType::Petsc )
     {
-        std::cout<<"build linear system"<<std::endl;
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
@@ -170,6 +168,7 @@ void Nonlinear_Problem::delete_pointers()
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
+                                                  const bool & aCombinedResJacAssebly,
                                                   const sint aNonLinearIt )
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
@@ -179,12 +178,19 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
 //    this->print_sol_vec( aNonLinearIt );
 
-    if( aRebuildJacobian )
+    if( aCombinedResJacAssebly )
     {
-        mLinearProblem->assemble_jacobian();
+        mLinearProblem->assemble_residual_and_jacobian();
     }
+    else
+    {
+        if( aRebuildJacobian )
+        {
+            mLinearProblem->assemble_jacobian();
+        }
 
-    mLinearProblem->assemble_residual();
+        mLinearProblem->assemble_residual();
+    }
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
@@ -212,7 +218,7 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     mLinearProblem->assemble_residual();
 }
 
-Dist_Vector * Nonlinear_Problem::get_full_vector()
+sol::Dist_Vector * Nonlinear_Problem::get_full_vector()
 {
     return mFullVector;
 }

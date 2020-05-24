@@ -43,13 +43,13 @@ namespace moris
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_dcriteria_dadv();
+            Matrix<DDRMat> compute_dcriteria_dadv();
             
         private:
             // Loaded user-defined functions
-            MORIS_DDRMAT3_REF_FUNCTION initialize_user_defined;
-            MORIS_DDRMAT1_FUNCTION get_criteria_user_defined;
-            MORIS_DDRMAT1_FUNCTION get_dcriteria_dadv_user_defined;
+            MORIS_CRITERIA_INITIALIZE_FUNCTION initialize_user_defined;
+            MORIS_CRITERIA_FUNCTION get_criteria_user_defined;
+            MORIS_CRITERIA_FUNCTION compute_dcriteria_dadv_user_defined;
 
         };
     }   // namespace opt

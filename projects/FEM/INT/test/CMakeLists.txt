@@ -47,7 +47,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Interface.cpp
     UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
-    UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
+    #UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Velocity_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
@@ -55,6 +55,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_Input.cpp
+    UT_FEM_Geometry_Interpolator.cpp
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
     )
 

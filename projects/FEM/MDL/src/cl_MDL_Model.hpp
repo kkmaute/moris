@@ -11,9 +11,13 @@
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
 
+#include "cl_Map.hpp"                        //MRS/CON/src
+
+
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -90,8 +94,6 @@ class Library_IO;
             // pointer to solver warehouse
             std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
 
-            // fixme: maybe introduce a cell of maps for different orders?
-            map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
             // pointer to output manager
@@ -102,9 +104,14 @@ class Library_IO;
             bool mUseMultigrid = false;
 
             // pointer to library for input reading
-            std::shared_ptr< Library_IO > mLibrary;
+            std::shared_ptr< Library_IO > mLibrary = nullptr;
 
             MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+
+            moris::Cell< moris::Cell< ParameterList > > mFEMParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mMSIParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mSOLParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mVISParameterList;
 
 //------------------------------------------------------------------------------
         public:
@@ -168,7 +175,18 @@ class Library_IO;
 
 //------------------------------------------------------------------------------
 
+            moris::Cell< moris::Matrix< DDRMat > > perform_post_processing();
+
+//------------------------------------------------------------------------------
+
             void perform_sensitivity_analysis();
+
+//------------------------------------------------------------------------------
+
+            void set_solver_warehouse_hack( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse)
+            {
+                mSolverWarehouse = aSolverWarehouse;
+            };
 
 //------------------------------------------------------------------------------
             /**

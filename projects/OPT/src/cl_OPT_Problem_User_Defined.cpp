@@ -17,13 +17,13 @@ namespace moris
             moris::Library_IO tLibrary(aParameterList.get<std::string>("library"));
 
             // Set user-defined functions
-            get_constraint_types_user_defined = tLibrary.load_ddsmat0_function("get_constraint_types");
-            compute_objectives_user_defined = tLibrary.load_ddrmat2_function("compute_objectives");
-            compute_constraints_user_defined = tLibrary.load_ddrmat2_function("compute_constraints");
-            compute_dobjective_dadv_user_defined = tLibrary.load_ddrmat2_function("compute_dobjective_dadv");
-            compute_dobjective_dcriteria_user_defined = tLibrary.load_ddrmat2_function("compute_dobjective_dcriteria");
-            compute_dconstraint_dadv_user_defined = tLibrary.load_ddrmat2_function("compute_dconstraint_dadv");
-            compute_dconstraint_dcriteria_user_defined = tLibrary.load_ddrmat2_function("compute_dconstraint_dcriteria");
+            get_constraint_types_user_defined = tLibrary.load_constraint_types_function("get_constraint_types");
+            compute_objectives_user_defined = tLibrary.load_objective_constraint_function("compute_objectives");
+            compute_constraints_user_defined = tLibrary.load_objective_constraint_function("compute_constraints");
+            compute_dobjective_dadv_user_defined = tLibrary.load_objective_constraint_function("compute_dobjective_dadv");
+            compute_dobjective_dcriteria_user_defined = tLibrary.load_objective_constraint_function("compute_dobjective_dcriteria");
+            compute_dconstraint_dadv_user_defined = tLibrary.load_objective_constraint_function("compute_dconstraint_dadv");
+            compute_dconstraint_dcriteria_user_defined = tLibrary.load_objective_constraint_function("compute_dconstraint_dcriteria");
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -16,8 +16,11 @@
 
 namespace moris
 {
-    class Dist_Vector;
-    class Dist_Map;
+    namespace sol
+    {
+        class Dist_Vector;
+        class Dist_Map;
+    }
 //------------------------------------------------------------------------------
 
     namespace MSI
@@ -41,17 +44,18 @@ namespace moris
             moris::Cell< MSI::Equation_Object* > mFemClusters;
 
             // map from mesh set indices to fem set indices
-            //map< moris_index, moris_index >   mMeshSetToFemSetMap;
-            map< std::pair< moris_index, bool >, moris_index > mMeshSetToFemSetMap;
+            map< std::tuple< moris_index, bool, bool >, moris_index > mMeshSetToFemSetMap;
 
             // distributed solution vectors for current and previous time slabs
-            Dist_Vector * mSolutionVector     = nullptr;
-            Dist_Vector * mPrevSolutionVector = nullptr;
-            Dist_Vector * mSensitivitySolutionVector = nullptr;
+            sol::Dist_Vector * mSolutionVector     = nullptr;
+            sol::Dist_Vector * mPrevSolutionVector = nullptr;
+            sol::Dist_Vector * mSensitivitySolutionVector = nullptr;
 
-            Dist_Map * mdQiduMap = nullptr;
+            sol::Dist_Map * mdQiduMap = nullptr;
 
-            Dist_Vector * mdQidu = nullptr;
+            sol::Dist_Vector * mImplicitdQidu = nullptr;
+            sol::Dist_Vector * mExplicitdQidu = nullptr;
+            sol::Dist_Vector * mQidu = nullptr;
 
             // matrices for current and previous time slabs
             Matrix< DDRMat > mTime;
@@ -91,7 +95,7 @@ namespace moris
                 {
                     mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
 
-                    MORIS_ASSERT( mNumSensitivityAnalysisRHS <= 0, "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
+                    MORIS_ASSERT( mNumSensitivityAnalysisRHS > 0, "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
 
                     return mNumSensitivityAnalysisRHS;
                 }
@@ -123,8 +127,7 @@ namespace moris
             /**
              * MTK set to fem set index map
              */
-            //map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map( )
-            map< std::pair< moris_index, bool >, moris_index > & get_mesh_set_to_fem_set_index_map( )
+            map< std::tuple< moris_index, bool, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
             {
                 return mMeshSetToFemSetMap;
             };
@@ -144,7 +147,7 @@ namespace moris
              * set solution vector
              * @param[ in ] aSolutionVector distributed solution vector
              */
-            void set_solution_vector( Dist_Vector * aSolutionVector )
+            void set_solution_vector( sol::Dist_Vector * aSolutionVector )
             {
                 mSolutionVector = aSolutionVector;
             }
@@ -154,7 +157,7 @@ namespace moris
              * get solution vector
              * @param[ out ] aSolutionVector distributed solution vector
              */
-            Dist_Vector * get_solution_vector()
+            sol::Dist_Vector * get_solution_vector()
             {
                 return mSolutionVector;
             }
@@ -164,7 +167,7 @@ namespace moris
              * set previous solution vector
              * @param[ in ] aSolutionVector previous distributed solution vector
              */
-            void set_previous_solution_vector( Dist_Vector * aSolutionVector )
+            void set_previous_solution_vector( sol::Dist_Vector * aSolutionVector )
             {
                 mPrevSolutionVector = aSolutionVector;
             }
@@ -174,7 +177,7 @@ namespace moris
              * get previous solution vector
              * @param[ out ] aSolutionVector previous distributed solution vector
              */
-            Dist_Vector * get_previous_solution_vector()
+            sol::Dist_Vector * get_previous_solution_vector()
             {
                 return mPrevSolutionVector;
             }
@@ -184,7 +187,7 @@ namespace moris
              * set sensitivity solution vector
              * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
              */
-            void set_adjoint_solution_vector( Dist_Vector * aSolutionVector )
+            void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
             {
                 mSensitivitySolutionVector = aSolutionVector;
             }
@@ -194,20 +197,37 @@ namespace moris
              * get adjoint solution vector
              * @param[ out ] aSolutionVector adjoint distributed solution vector
              */
-            Dist_Vector * get_adjoint_solution_vector()
+            sol::Dist_Vector * get_adjoint_solution_vector()
             {
                 return mSensitivitySolutionVector;
             }
 
 //------------------------------------------------------------------------------
             /**
-             * returns dQidu
-             * @param[ out ] mdQidu returns a pointer to dQidu
+             * returns the implicit dQidu
+             * @param[ out ] mImplicitdQidu returns a pointer to dQidu
              */
-            Dist_Vector * get_dQidu()
+            sol::Dist_Vector * get_implicit_dQidu()
             {
-                return mdQidu;
+                return mImplicitdQidu;
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the explicit dQidu
+             * @param[ out ] mExplicitdQidu returns a pointer to dQidu
+             */
+            sol::Dist_Vector * get_explicit_dQidu()
+            {
+                return mExplicitdQidu;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the dQidu
+             * @param[ out ] mQidu returns a pointer to dQidu
+             */
+            sol::Dist_Vector * get_dQidu();
 
 //------------------------------------------------------------------------------
             /**
@@ -317,9 +337,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * retruns if this is the a forward analysis
+             * compute implicit dQidp
              */
-            void compute_dQIdp();
+            void compute_implicit_dQIdp();
+
+//------------------------------------------------------------------------------
+            /**
+             * compute explicit dQidp
+             */
+            void compute_explicit_dQIdp();
+
+//------------------------------------------------------------------------------
+            /**
+             * compute explicit dQidp
+             */
+            moris::Cell< moris::Matrix< DDRMat > > compute_IQIs();
 
 //------------------------------------------------------------------------------
         };

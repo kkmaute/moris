@@ -7,6 +7,9 @@ set(${SOL_CORE}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_SOL_Warehouse.hpp
+    cl_SOL_Dist_Vector.hpp
+    cl_SOL_Dist_Matrix.hpp
+    cl_SOL_Dist_Map.hpp
  )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

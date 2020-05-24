@@ -201,7 +201,7 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Struc_Bulk_Const_Prop]" )
     
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
     
     // populate the field interpolator manager
@@ -389,7 +389,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Struc_Bulk_Mixed_Disp
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
 
     // populate the field interpolator manager
@@ -565,7 +565,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Geo_Prop", "[moris],[fem],[IWG_Struc_Bulk_Geo_Pr
     
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum GEN_DV > > tDummyDv;
+    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
     Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
     
     // populate the field interpolator manager

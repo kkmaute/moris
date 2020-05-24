@@ -92,43 +92,7 @@ namespace moris
         void IWG_Olsson_CLS_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // check master field interpolators
-//            this->check_dof_field_interpolators();
-//            this->check_dv_field_interpolators();
-//
-//            // set field interpolators
-//            Field_Interpolator* phi  = mMasterFI( 0 );
-//            Field_Interpolator* nPhi = mMasterFI( 1 );
-//
-//            // set residual size
-//            this->set_residual( aResidual );
-//
-//            // compute the residual
-//            aResidual( 0 ) = trans( phi->N() ) * phi->gradt( 1 )
-//                           - trans( phi->dnNdxn( 1 ) ) * ( ( phi->val()( 0 ) - mPhiLB ) * (mPhiUB - phi->val()( 0 ) )
-//                           - mEpsilon  * dot( phi->gradx( 1 ), nPhi->val() ) ) * nPhi->val();
-//
-//            // set the jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            //compute the jacobians
-//            aJacobians( 0 )( 0 ) = trans( phi->N() )  * phi->dnNdtn( 1 )
-//                                 - trans( phi->dnNdxn( 1 ) ) * ( ( mPhiUB + mPhiLB - 2 * phi->val()( 0 ) ) * trans( nPhi->val() ) * phi->N()
-//                                                          - mEpsilon * ( trans( nPhi->val() ) * nPhi->val() * phi->dnNdxn( 1 ) ) );
-//
-//            // build the global shape functions matrix for vectorial field nPhi
-//            uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
-//            uint tNFieldsNPhi = nPhi->get_number_of_fields();
-//            Matrix< DDRMat > tNNPhi( tNFieldsNPhi, tNFieldsNPhi * tNBasesNPhi, 0.0 );
-//            for( uint i = 0; i < tNFieldsNPhi; i++ )
-//            {
-//                tNNPhi({i,i},{i * tNBasesNPhi, (i+1) * tNBasesNPhi - 1}) = nPhi->N().get_row( 0 );
-//            }
-//
-//            aJacobians( 0 )( 1 ) = - trans( phi->dnNdxn( 1 ) ) *(
-//                                    ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) * tNNPhi
-//                                   - mEpsilon * trans( nPhi->val() ) * trans( phi->gradx( 1 ) ) * tNNPhi
-//                                   - mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) * tNNPhi );
+            MORIS_ERROR( false, "IWG_Olsson_CLS_Bulk::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

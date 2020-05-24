@@ -18,7 +18,9 @@ namespace moris
          * @param aParameterLists Cell<moris::ParameterList> parameter lists for individual interfaces
          * @return std::shared_ptr<Interface>
          */
-        std::shared_ptr<Criteria_Interface> create_interface(Cell<ParameterList> aParameterLists);
+        std::shared_ptr<Criteria_Interface> create_interface(
+                Cell<ParameterList> aParameterLists,
+                Cell<std::shared_ptr<Criteria_Interface>> aInterfaces = Cell<std::shared_ptr<Criteria_Interface>>(0));
 
         /**
          * Creates an instance of the specified Interface class and returns a shared pointer to it

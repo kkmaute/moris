@@ -88,28 +88,6 @@ namespace moris
         // start timer
         tic tTimer2;
 
-        //--------------------------FIXME------------------------------------
-        // This part should not be needed anymore when MTK has all the functionalities
-        Matrix< IdMat > tCommTable;
-        moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
-        moris::uint tMaxNumAdofs;
-
-        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR || tInterpolationMesh->get_mesh_type()  == MeshType::XTK )
-        {
-            // get map from mesh
-            tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
-
-            tCommTable   = tInterpolationMesh->get_communication_table();
-            tIdToIndMap  = mCoefficientsMap;
-            tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mBSplineIndex );
-        }
-        else
-        {
-            tCommTable.set_size( 1, 1, 0 );
-            tMaxNumAdofs = 15000000;
-        }
-        //--------------------------END FIXME--------------------------------
-
         // create the MSI parameter list
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
         tMSIParameters.set( "multigrid", mUseMultigrid );
@@ -123,9 +101,6 @@ namespace moris
         // build the model solver interface from the MSI parameter list
         mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
                                                                         mEquationModel,
-                                                                        tCommTable,
-                                                                        tIdToIndMap,
-                                                                        tMaxNumAdofs,
                                                                         tInterpolationMesh );
 
         // finalize the fem sets
@@ -164,6 +139,39 @@ namespace moris
       mBSplineIndex( aBSplineIndex ),
 	  mLibrary( aLibrary )
     {
+        // start timer
+        tic tTimer0;
+
+        // load the MSI parameter list
+        std::string tMSIString = "MSIParameterList";
+        MORIS_PARAMETER_FUNCTION tMSIParameterListFunc = mLibrary->load_parameter_file( tMSIString );
+        tMSIParameterListFunc( mMSIParameterList );
+
+        // load the SOL parameter list
+        std::string tSOLString = "SOLParameterList";
+        MORIS_PARAMETER_FUNCTION tSOLParameterListFunc = mLibrary->load_parameter_file( tSOLString );
+        tSOLParameterListFunc( mSOLParameterList );
+
+        // load the FEM parameter list
+        std::string tFEMString = "FEMParameterList";
+        MORIS_PARAMETER_FUNCTION tFEMParameterListFunc = mLibrary->load_parameter_file( tFEMString );
+        tFEMParameterListFunc( mFEMParameterList );
+
+        // load the VIS parameter list
+        std::string tVISString = "VISParameterList";
+        MORIS_PARAMETER_FUNCTION tVISParameterListFunc = mLibrary->load_parameter_file( tVISString );
+        tVISParameterListFunc( mVISParameterList );
+
+        if( par_rank() == 0)
+        {
+            // stop timer
+            real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
+
+            // print output
+            MORIS_LOG_INFO( "Model: unpack of the inputs in %5.3f seconds.",
+                            ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -211,28 +219,6 @@ namespace moris
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
             mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
-            //--------------------------FIXME------------------------------------
-            // This part should not be needed anymore when MTK has all the functionalities
-            Matrix< IdMat > tCommTable;
-            moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
-            moris::uint tMaxNumAdofs;
-
-            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
-            {
-                // get map from mesh
-                tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
-
-                tCommTable   = tInterpolationMesh->get_communication_table();
-                tIdToIndMap  = mCoefficientsMap;
-                tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mBSplineIndex );
-            }
-            else
-            {
-                tCommTable.set_size( 1, 1, 0 );
-                tMaxNumAdofs = 15000000;
-            }
-            //--------------------------END FIXME--------------------------------
-
             // create the MSI parameter list
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
             tMSIParameters.set( "multigrid", mUseMultigrid );
@@ -240,9 +226,6 @@ namespace moris
             // create the model solver interface from the MSI parameter list
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
                                                                             mEquationModel,
-                                                                            tCommTable,
-                                                                            tIdToIndMap,
-                                                                            tMaxNumAdofs,
                                                                             tInterpolationMesh );
 
             // finalize the fem sets
@@ -303,47 +286,6 @@ namespace moris
         void Model::initialize()
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 0: unpack the inputs and the mesh
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer0;
-
-            // load the MSI parameter list
-            std::string tMSIString = "MSIParameterList";
-            MORIS_PARAMETER_FUNCTION tMSIParameterListFunc = mLibrary->load_parameter_file( tMSIString );
-            moris::Cell< moris::Cell< ParameterList > > tMSIParameterList;
-            tMSIParameterListFunc( tMSIParameterList );
-
-            // load the SOL parameter list
-            std::string tSOLString = "SOLParameterList";
-            MORIS_PARAMETER_FUNCTION tSOLParameterListFunc = mLibrary->load_parameter_file( tSOLString );
-            moris::Cell< moris::Cell< ParameterList > > tSOLParameterList;
-            tSOLParameterListFunc( tSOLParameterList );
-
-            // load the FEM parameter list
-            std::string tFEMString = "FEMParameterList";
-            MORIS_PARAMETER_FUNCTION tFEMParameterListFunc = mLibrary->load_parameter_file( tFEMString );
-            moris::Cell< moris::Cell< ParameterList > > tFEMParameterList;
-            tFEMParameterListFunc( tFEMParameterList );
-
-            // load the VIS parameter list
-            std::string tVISString = "VISParameterList";
-            MORIS_PARAMETER_FUNCTION tVISParameterListFunc = mLibrary->load_parameter_file( tVISString );
-            moris::Cell< moris::Cell< ParameterList > > tVISParameterList;
-            tVISParameterListFunc( tVISParameterList );
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: unpack of the inputs in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
-            }
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
@@ -352,7 +294,7 @@ namespace moris
             // build the FEM model from FEM parameter list
             mEquationModel = std::make_shared< fem::FEM_Model >( mMeshManager,
                                                                  mMeshPairIndex,
-                                                                 tFEMParameterList,
+                                                                 mFEMParameterList,
                                                                  mLibrary );
 
             if( par_rank() == 0)
@@ -380,16 +322,9 @@ namespace moris
             // Does not work with STK
             MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
 
-            // get map from mesh
-            tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
-            moris::map< moris::moris_id, moris::moris_index > tIdToIndMap  = mCoefficientsMap;
-
             // build the model solver interface
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameterList( 0 )( 0 ),
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mMSIParameterList( 0 )( 0 ),
                                                                             mEquationModel,
-                                                                            tInterpolationMesh->get_communication_table(),
-                                                                            tIdToIndMap,
-                                                                            tInterpolationMesh->get_num_coeffs( mBSplineIndex ),
                                                                             tInterpolationMesh );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -406,7 +341,7 @@ namespace moris
             tic tTimerSolver;
             mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
 
-            mSolverWarehouse->set_parameterlist( tSOLParameterList );
+            mSolverWarehouse->set_parameterlist( mSOLParameterList );
 
             mSolverWarehouse->initialize();
 
@@ -446,7 +381,7 @@ namespace moris
             // start timer
             tic tTimerVisMesh;
 
-            mOutputManager = new vis::Output_Manager( tVISParameterList( 0 )( 0 ) );
+            mOutputManager = new vis::Output_Manager( mVISParameterList( 0 )( 0 ) );
 
             mOutputManagerOwned = true;
 
@@ -477,12 +412,16 @@ namespace moris
 //------------------------------------------------------------------------------
         void Model::perform_forward_analysis()
         {
-            // initialize MDL - build FEM, MSI, SOL and VIS
-            this->initialize();
-
             mEquationModel->set_is_forward_analysis();
 
             mSolverWarehouse->get_main_time_solver()->solve();
+        }
+
+//------------------------------------------------------------------------------
+
+        moris::Cell< moris::Matrix< DDRMat > > Model::perform_post_processing()
+        {
+            return mEquationModel->compute_IQIs();
         }
 
 //------------------------------------------------------------------------------
@@ -491,6 +430,10 @@ namespace moris
             mEquationModel->set_is_sensitivity_analysis();
 
             mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+
+            mEquationModel->compute_implicit_dQIdp();
+
+            mEquationModel->compute_explicit_dQIdp();
         }
 
 //------------------------------------------------------------------------------
@@ -499,6 +442,8 @@ namespace moris
             mDesignVariableInterface = aDesignVariableInterface;
 
             mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+
+            mDesignVariableInterface->set_equation_model( mEquationModel );
         }
 
 //------------------------------------------------------------------------------

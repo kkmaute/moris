@@ -14,6 +14,10 @@ namespace moris
     {
         class Criteria_Interface
         {
+        private:
+            bool mEvaluated = false;
+            Matrix<DDRMat> mSensitivities;
+
         public:
 
             /**
@@ -40,14 +44,30 @@ namespace moris
              *
              * @return vector of criteria
              */
-            virtual Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs) = 0;
+            Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs);
 
             /**
-             * Gets the derivative of the criteria with respect to the advs
+             * Gets the derivatives of the criteria with respect to the advs, and computes if not already done
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */
-            virtual Matrix<DDRMat> get_dcriteria_dadv() = 0;
+            Matrix<DDRMat> get_dcriteria_dadv();
+
+        private:
+
+            /**
+             * Gets the criteria values given a new set of ADVs
+             *
+             * @return vector of criteria
+             */
+            virtual Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs) = 0;
+
+            /**
+             * Computes the derivatives of the criteria with respect to the advs
+             *
+             * @return matrix d(criteria)_i/d(adv)_j
+             */
+            virtual Matrix<DDRMat> compute_dcriteria_dadv() = 0;
 
         };
     }   // namespace opt

@@ -86,37 +86,7 @@ namespace moris
         void IWG_Hamilton_Jacobi_Bulk2::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // set field interpolators
-//            Field_Interpolator* phi = mMasterFI( 0 );
-//            Field_Interpolator* vN  = mMasterFI( 1 );
-//
-//            // compute norm( phi ) and derivative wrt phiHat
-//            real tNormPhi                     = norm( phi->gradx( 1 ) );
-//            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
-//
-//            // If all values of level set in this element are the same,
-//            // then gradient is zero, protect from going to NAN/inf
-//            if( tNormPhi < 1.0e-12 )
-//            {
-//                tNormPhi = 1.0e-12;
-//                uint tNPhiBases = phi->get_number_of_space_time_bases();
-//                tDNormPhiDPhiHat.set_size( tNPhiBases, 1, 0.0 );
-//            }
-//
-//            // set the residual size
-//            this->set_residual( aResidual );
-//
-//            //compute the residual
-//            aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi );
-//
-//            // set the jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            // compute the jacobian Jphiphi
-//            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
-//
-//            // compute the jacobian JphivN
-//            aJacobians( 0 )( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;
+            MORIS_ERROR( false, " IWG_Hamilton_Jacobi_Bulk2::compute_jacobian_and_residual - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

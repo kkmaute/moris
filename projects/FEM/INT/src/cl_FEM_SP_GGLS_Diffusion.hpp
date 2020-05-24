@@ -49,6 +49,10 @@ namespace moris
                 CONDUCTIVITY,
                 DENSITY,
                 HEAT_CAPACITY,
+                LATENT_HEAT,
+                PC_TEMP,
+                PHASE_STATE_FUNCTION,
+                PHASE_CHANGE_CONST,
                 MAX_ENUM
             };
 
@@ -121,7 +125,7 @@ namespace moris
              * evaluate the penalty parameter derivative wrt to a master dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
             }

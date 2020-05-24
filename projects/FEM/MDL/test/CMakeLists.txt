@@ -24,7 +24,8 @@ set(TEST_SOURCES
     UT_MDL_FEM_DQ_Dp.cpp
     UT_MDL_Input.cpp
     UT_MDL_Fluid_Benchmark.cpp
-    UT_XFEM_Measure.cpp    
+    UT_XFEM_Measure.cpp
+    #UT_MDL_Sensitivity_Test.cpp
     #UT_MDL_Transient.cpp
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp

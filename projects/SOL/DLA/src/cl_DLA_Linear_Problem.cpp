@@ -18,7 +18,7 @@ namespace moris
 {
 namespace dla
 {
-    Dist_Vector * Linear_Problem::get_full_solver_LHS()
+    sol::Dist_Vector * Linear_Problem::get_full_solver_LHS()
     {
         // zero out full LHS vec
         mFullVectorLHS->vec_put_scalar( 0.0 );
@@ -30,13 +30,13 @@ namespace dla
     }
 
 //----------------------------------------------------------------------------------------
-    void Linear_Problem::set_free_solver_LHS( Dist_Vector * aFullSolVector)
+    void Linear_Problem::set_free_solver_LHS( sol::Dist_Vector * aFullSolVector)
     {
         mFreeVectorLHS->import_local_to_global( *aFullSolVector );
     }
 
 //----------------------------------------------------------------------------------------
-    void Linear_Problem::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
+    void Linear_Problem::assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector )
     {
         // zero out RHS
         mVectorRHS->vec_put_scalar( 0.0 );
@@ -93,7 +93,15 @@ namespace dla
         mVectorRHS->vec_put_scalar( 0.0 );
         mMat->mat_put_scalar( 0.0 );
 
-        mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS);
+        // start timer
+        tic tTimer;
+
+        mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS );
+
+        // stop timer
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+        MORIS_LOG_INFO( " Assembly of Residual and Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
 }

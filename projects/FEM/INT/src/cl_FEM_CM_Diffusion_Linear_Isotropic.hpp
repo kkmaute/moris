@@ -36,6 +36,8 @@ namespace moris
             enum class Property_Type
             {
                 CONDUCTIVITY,
+                HEAT_CAPACITY,
+                DENSITY,
                 MAX_ENUM
             };
 
@@ -78,6 +80,23 @@ namespace moris
              */
             void eval_flux();
 
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the constitutive model change rate of enthalpy
+             */
+            virtual void eval_Hdot();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
+             */
+            virtual void eval_gradHdot();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the gradient of the divergence of the flux (needed for GGLS-stabilization)
+             */
+            void eval_graddivflux();
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model test flux
@@ -143,7 +162,31 @@ namespace moris
              */
             void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//--------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model enthalpy change rate wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dHdotdDOF ( 1 x numDerDof )
+             */
+            virtual void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model gradient of enthalpy change rate wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dgradHdotdDOF ( mSpaceDim x numDerDof )
+             */
+            virtual void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model gradient of divergence of flux wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dGradDivFluxdDOF ( mSpaceDim x numDerDof )
+             */
+            void eval_dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the divergence of the flux wrt dof type
              */
@@ -207,7 +250,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dFluxdDV ( mSpaceDim x numDerDv )
              */
-            void eval_dFluxdDV( const moris::Cell< GEN_DV > & aDofTypes );
+            void eval_dFluxdDV( const moris::Cell< PDV_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -215,7 +258,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dStraindDV ( mSpaceDim x numDerDV )
              */
-            void eval_dStraindDV( const moris::Cell< GEN_DV > & aDofTypes );
+            void eval_dStraindDV( const moris::Cell< PDV_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
         };

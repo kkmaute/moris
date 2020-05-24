@@ -361,7 +361,7 @@ void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
 
 void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
 {       
-    tParameterlist.resize( 2 );
+    tParameterlist.resize( 3 );
     tParameterlist( 0 ).resize( 1 );
     tParameterlist( 1 ).resize( 1 );
 

@@ -11,7 +11,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Diffusion_Virtual_Work_Ghost::IWG_Diffusion_Virtual_Work_Ghost()
         {
             // set size for the constitutive model pointer cell
@@ -28,7 +28,7 @@ namespace moris
             mStabilizationMap[ "GhostVWOrder" ] = IWG_Stabilization_Type::GHOST_VW;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Diffusion_Virtual_Work_Ghost::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -58,17 +58,17 @@ namespace moris
             tInterpOrder = tMasterFI->get_space_interpolation_order();
             switch ( tInterpOrder )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
@@ -81,14 +81,14 @@ namespace moris
             }
 
             // get the diffusion constitutive model for master and slave
-            std::shared_ptr< Constitutive_Model > tCMMasterDiff
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveDiff
-            = mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > tCMMasterDiff =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > tCMSlaveDiff =
+                    mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPGhost
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
+            std::shared_ptr< Stabilization_Parameter > tSPGhost =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // FIXME get the conductivity for master and slave
             real tMasterConductivity = tCMMasterDiff->constitutive()( 0, 0 );
@@ -100,25 +100,25 @@ namespace moris
                 // set the order for the stabilization parameter
                 tSPGhost->set_interpolation_order( iOrder );
 
-                 // get normal matrix
-                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
+                // get normal matrix
+                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
 
-                 // multiply common terms
-                 Matrix< DDRMat > tPreMultiply
-                 = tSPGhost->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix
-                 * ( tMasterConductivity * tMasterFI->gradx( iOrder ) - tSlaveConductivity * tSlaveFI->gradx( iOrder ) );
+                // multiply common terms
+                Matrix< DDRMat > tPreMultiply =
+                        tSPGhost->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix
+                        * ( tMasterConductivity * tMasterFI->gradx( iOrder ) - tSlaveConductivity * tSlaveFI->gradx( iOrder ) );
 
-                 // compute master residual
-                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                 += aWStar * ( trans( tMasterFI->dnNdxn( iOrder ) ) * tPreMultiply );
+                // compute master residual
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                                 += aWStar * ( trans( tMasterFI->dnNdxn( iOrder ) ) * tPreMultiply );
 
-                 // compute slave residual
-                 mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                 -= aWStar * ( trans( tSlaveFI->dnNdxn( iOrder ) ) * tPreMultiply );
+                // compute slave residual
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
+                                 -= aWStar * ( trans( tSlaveFI->dnNdxn( iOrder ) ) * tPreMultiply );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Diffusion_Virtual_Work_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -147,17 +147,17 @@ namespace moris
             mtk::Interpolation_Order tInterpOrder = tMasterFI->get_space_interpolation_order();
             switch ( tInterpOrder )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
@@ -170,14 +170,14 @@ namespace moris
             }
 
             // get the diffusion constitutive model for master and slave
-            std::shared_ptr< Constitutive_Model > tCMMasterDiff
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveDiff
-            = mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > tCMMasterDiff =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > tCMSlaveDiff =
+                    mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPGhost
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
+            std::shared_ptr< Stabilization_Parameter > tSPGhost =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // FIXME get the conductivity for master and slave
             real tMasterConductivity = tCMMasterDiff->constitutive()( 0, 0 );
@@ -210,34 +210,38 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tDepStartIndex,       tDepStopIndex } )
-                        += aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tDepStartIndex,       tDepStopIndex } )
+                                += aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tDepStartIndex,      tDepStopIndex } )
-                        -= aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tDepStartIndex,      tDepStopIndex } )
+                                -= aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
                     }
 
                     // if diffusion CM depends on dof type
                     if( tCMMasterDiff->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tDepStartIndex,       tDepStopIndex } )
-                        -= aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tDepStartIndex,       tDepStopIndex } )
+                                -= aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tDepStartIndex,      tDepStopIndex } )
-                        += aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tDepStartIndex,      tDepStopIndex } )
+                                += aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
                     }
                 }
 
@@ -257,52 +261,56 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tDepStartIndex,       tDepStopIndex } )
-                        -= aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tDepStartIndex,       tDepStopIndex } )
+                                -= aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tDepStartIndex,      tDepStopIndex } )
-                        += aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tDepStartIndex,      tDepStopIndex } )
+                                += aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
                     }
 
                     // if diffusion CM depends on dof type
                     if( tCMSlaveDiff->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tDepStartIndex,       tDepStopIndex } )
-                        -= aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tDepStartIndex,       tDepStopIndex } )
+                                -= aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tDepStartIndex,      tDepStopIndex } )
-                        += aWStar * (   tSPGhost->val()( 0 )
-                                      * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                      * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tDepStartIndex,      tDepStopIndex } )
+                                += aWStar * (   tSPGhost->val()( 0 )
+                                        * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                        * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
                     }
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Diffusion_Virtual_Work_Ghost::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_dRdp - This function does nothing.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         Matrix< DDRMat > IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix ( uint aOrderGhost )
         {
             // init the normal matrix
@@ -314,16 +322,16 @@ namespace moris
             // switch on the ghost order
             switch( aOrderGhost )
             {
-                case ( 1 ):
+                case 1 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             tNormalMatrix = trans( mNormal );
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             tNormalMatrix = trans( mNormal );
                             break;
@@ -337,11 +345,11 @@ namespace moris
                     break;
                 }
 
-                case ( 2 ):
+                case 2 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             tNormalMatrix.set_size( 2, 3, 0.0 );
@@ -355,7 +363,7 @@ namespace moris
 
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             tNormalMatrix.set_size( 3, 6, 0.0 );
@@ -385,11 +393,11 @@ namespace moris
                     break;
                 }
 
-                case ( 3 ):
+                case 3 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2:
                         {
                             // set the normal matrix size
                             tNormalMatrix.set_size( 3, 4, 0.0 );
@@ -407,7 +415,7 @@ namespace moris
 
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             tNormalMatrix.set_size( 6, 10, 0.0 );
@@ -459,6 +467,6 @@ namespace moris
             return tNormalMatrix;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

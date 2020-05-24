@@ -44,9 +44,6 @@ namespace moris
             // local string to property enum map
             std::map< std::string, Property_Type > mPropertyMap;
 
-            // space dimension FIXME
-            uint mSpaceDim = 2;
-
             // pointer to function for G evaluation
             void ( * mEvalGFunc )( Matrix< DDRMat >   & aG,
                                    Matrix< DDRMat >   & aInvSpaceJacobian );
@@ -119,7 +116,7 @@ namespace moris
              * evaluate the penalty parameter derivative wrt to a master dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Incompressible_Flow::eval_dSPdMasterDV - not implemented." );
             }

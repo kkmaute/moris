@@ -124,7 +124,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dPPdMasterDV ( 1 x numDerDv )
              */
-            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Master_Weight_Interface::eval_dSPdMasterDV: not implemented." );
             }
@@ -135,7 +135,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dSPdSlaveDV ( 1 x numDerDv )
              */
-             void eval_dSPdSlaveDV( const moris::Cell< GEN_DV > & aDvTypes )
+             void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
              {
                  MORIS_ERROR( false, "SP_Master_Weight_Interface::eval_dSPdSlaveDV: not implemented." );
              }

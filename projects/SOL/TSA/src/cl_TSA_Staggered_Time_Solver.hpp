@@ -12,7 +12,10 @@
 
 namespace moris
 {
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Vector;
+    }
 class Solver_Interface;
 
 namespace tsa
@@ -50,7 +53,7 @@ namespace tsa
          *
          * @param[in] aFullVector     Solution Vector
          */
-        void solve( Dist_Vector * aFullVector );
+        void solve( sol::Dist_Vector * aFullVector );
 
         //-------------------------------------------------------------------------------
         /**

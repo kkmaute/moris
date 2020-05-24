@@ -18,7 +18,7 @@
 #include "cl_MTK_Cell.hpp"                  //MTK/src
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"          //FEM/MSI/src
-#include "cl_MSI_Model_Solver_Interface.hpp"          //FEM/MSI/src
+#include "cl_MSI_Model_Solver_Interface.hpp"//FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
 #include "cl_FEM_Node.hpp"                  //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
@@ -53,19 +53,19 @@ namespace moris
                 // dof type map
                 moris::Matrix< DDSMat > mDofTypeMap;
 
-                // list of field intepolators
+                // list of field interpolators
                 moris::Cell< Field_Interpolator* > mFI;
 
                 // maximum number of field interpolators
                 moris::uint mMaxNumDofFI;
 
                 // dof type list for the FI manager
-                const moris::Cell< moris::Cell< enum GEN_DV > > mDvTypes;
+                const moris::Cell< moris::Cell< enum PDV_Type > > mDvTypes;
 
                 // dof type map
                 moris::Matrix< DDSMat > mDvTypeMap;
 
-                // list of field intepolators
+                // list of field interpolators
                 moris::Cell< Field_Interpolator* > mDvFI;
 
                 // maximum number of field interpolators
@@ -77,8 +77,8 @@ namespace moris
                 // pointer to geometry interpolator for IG element
                 Geometry_Interpolator* mIGGeometryInterpolator = nullptr;
 
-                // flag that geometry interpolators were created by Field_Interpolator_Manager
-                bool mGeometryInterpolatorsOwned = false;
+                // flag to indicate that geometry interpolators are owned
+                bool mGeometryInterpolatorOwned = false;
 
                 //------------------------------------------------------------------------------
             public:
@@ -89,10 +89,10 @@ namespace moris
                  * @param[ in ] aEquationSet a pointer to the corresponding equation set
                  * @param[ in ] aIsMaster    enum for master or slave
                  */
-                Field_Interpolator_Manager(
-                        const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
-                        MSI::Equation_Set                                      * aEquationSet,
-                        mtk::Master_Slave                                        aIsMaster = mtk::Master_Slave::MASTER );
+                Field_Interpolator_Manager
+                ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+                        MSI::Equation_Set                                * aEquationSet,
+                        mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
 
                 /**
                  * constructor
@@ -101,11 +101,11 @@ namespace moris
                  * @param[ in ] aEquationSet a pointer to the corresponding equation set
                  * @param[ in ] aIsMaster    enum for master or slave
                  */
-                Field_Interpolator_Manager(
-                        const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
-                        const moris::Cell< moris::Cell< enum GEN_DV > >        & aDvTypes,
-                        MSI::Equation_Set                                      * aEquationSet,
-                        mtk::Master_Slave                                        aIsMaster = mtk::Master_Slave::MASTER );
+                Field_Interpolator_Manager
+                ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+                        const moris::Cell< moris::Cell< enum PDV_Type > >        & aDvTypes,
+                        MSI::Equation_Set                                * aEquationSet,
+                        mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
 
                 /**
                  * constructor
@@ -114,8 +114,8 @@ namespace moris
                  * @param[ in ] aModelSolverInterface a pointer to the corresponding model solver interface
                  * @param[ in ] aIsMaster    enum for master or slave
                  */
-                Field_Interpolator_Manager(
-                        const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+                Field_Interpolator_Manager
+                ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
                         MSI::Equation_Set                                * aEquationSet,
                         MSI::Model_Solver_Interface                      * aModelSolverInterface,
                         mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
@@ -213,7 +213,7 @@ namespace moris
                  * get the field interpolator for a given dv type
                  * @param[ in ] aDvType a dv type enum
                  */
-                Field_Interpolator * get_field_interpolators_for_type( enum GEN_DV aDvType );
+                Field_Interpolator * get_field_interpolators_for_type( enum PDV_Type aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -246,7 +246,7 @@ namespace moris
                  * @param[ in ] aCoeff   coefficients to be set
                  */
                 void set_coeff_for_type(
-                        enum GEN_DV        aDvType,
+                        enum PDV_Type      aDvType,
                         Matrix< DDRMat > & aCoeff );
 
                 //------------------------------------------------------------------------------

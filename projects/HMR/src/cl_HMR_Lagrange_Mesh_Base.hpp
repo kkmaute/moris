@@ -51,6 +51,8 @@ namespace moris
         {
             Cell< BSpline_Mesh_Base *  > mBSplineMeshes;
 
+            Cell< bool >mBSplineMeshIsTrivialInterpoaltion;
+
             moris::uint mNumBSplineMeshes = 0;
 
             // @fixme: confirm that this is not identical to mAllNodesOnProc
@@ -518,6 +520,26 @@ namespace moris
                 return mNumBSplineMeshes;
             }
 
+// ----------------------------------------------------------------------------
+
+            void check_if_bspline_mesh_is_trivial_interpolation()
+            {
+                mBSplineMeshIsTrivialInterpoaltion.resize( mNumBSplineMeshes, false );
+
+                for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
+                {
+                    if( mBSplineMeshes( Ik ) == nullptr )
+                    {
+                        mBSplineMeshIsTrivialInterpoaltion( Ik ) = true;
+                    }
+                }
+            }
+// ----------------------------------------------------------------------------
+
+            bool get_bspline_mesh_is_trivial_interpolation( const uint aMeshIndex )
+            {
+                return mBSplineMeshIsTrivialInterpoaltion( aMeshIndex );
+            }
 // ----------------------------------------------------------------------------
             /**
              * return the order of the underlying bspline mesh

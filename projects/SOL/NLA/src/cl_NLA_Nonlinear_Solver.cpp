@@ -16,6 +16,8 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 
+#include "cl_PRM_SOL_Parameters.hpp"
+
 // Detailed Logging package
 //#include "cl_Tracer.hpp"
 
@@ -269,7 +271,7 @@ void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehou
 
 //-------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Solver::solve( Dist_Vector * aFullVector )
+void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
 {
     //Tracer tTracer(EntityBase::NonLinearSolver, EntityType::Unknown, EntityAction::Solve);
 

@@ -14,12 +14,10 @@
 
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-
 #include "cl_GEN_Geometry_Analytic.hpp"
 #include "cl_GEN_Geometry_Discrete.hpp"
-
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
 #include "cl_MTK_Cluster.hpp"
@@ -29,7 +27,7 @@
 // MRS
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
-#include "../../../../MRS/IOS/src/fn_Exec_load_user_library.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -102,15 +100,20 @@ namespace moris
             // HMR refinements
             uint mNumRefinements;
 
-            // ADVs
+            // ADVs/IQIs
             Matrix<DDRMat> mADVs;
             Matrix<DDRMat> mLowerBounds;
             Matrix<DDRMat> mUpperBounds;
+            Cell<std::string> mRequestedIQIs;
 
             // Geometry
-            moris::size_t mActiveGeometryIndex;
+            moris::size_t mActiveGeometryIndex = 0;
             Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
             Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
+
+            // Property
+            Cell<std::shared_ptr<Property>> mProperties;
+            Cell<ParameterList> mPropertyParameterLists;
 
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
@@ -119,27 +122,18 @@ namespace moris
             Pdv_Host_Manager mPdvHostManager;
 
             // Phase Table
-            moris::Matrix<moris::IndexMat> tPhaseTableExplicit; // temporary explicit phase table
             Phase_Table mPhaseTable;
 
             // Node Entity Phase Vals - only analytic phase values are stored here to prevent duplicate storage of discrete geometries
             moris::Matrix< moris::DDRMat > mNodePhaseVals;
 
             // Mesh
-            mtk::Mesh_Manager* mMesh;
+            mtk::Mesh_Manager* mMeshManager;
             moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
             moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 
-
-            // Library
-//            Library_IO mLibrary;
-
-            //
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
-
-            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
-
 
         public:
 
@@ -208,6 +202,26 @@ namespace moris
              * @return vector of upper bounds
              */
             Matrix<DDRMat>& get_upper_bounds();
+
+            /**
+             * Lets MDL know about the stored requested IQIs through the PDV host manager
+             */
+            void communicate_requested_IQIs();
+            void communicate_requested_IQIs(Cell<std::string> aIQINames);
+
+            /**
+             * Gets the sensitivities of the critieria with respect to the advs
+             *
+             * @return Matrix of sensitivities
+             */
+            Matrix<DDRMat> get_dcriteria_dadv();
+
+            /**
+             * Gets the design variable interface from the geometry engine
+             *
+             * @return member pdv host manager pointer
+             */
+            MSI::Design_Variable_Interface* get_design_variable_interface();
 
             /**
              * @brief Initial allocation of geometry objects,
@@ -408,13 +422,13 @@ namespace moris
             void advance_geometry_index();
 
             /**
-             * this function need to be deleted as they are not used in the current PDV interface implementation !!!
+             * this function need to be deleted as they are not used in the current PDV_Type interface implementation !!!
              */
             moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
 
             /**
              * @brief Returns the ADV indices of the provided nodes
-             * this function need to be deleted as they are not used in the current PDV interface implementation !!!
+             * this function need to be deleted as they are not used in the current PDV_Type interface implementation !!!
              */
             moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
             ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
@@ -423,11 +437,6 @@ namespace moris
              * Returns the number of advs
              */
             moris::size_t get_num_design_variables();
-
-            /**
-             * returns a pointer to the PDV host manager ( FEM <-> GEN interface needs this manager )
-             */
-            Pdv_Host_Manager* get_pdv_host_manager();
 
             /**
              * returns a pointer to the geometry object manager
@@ -463,11 +472,6 @@ namespace moris
              */
             void perform_refinement( );
 
-            /**
-             * Build Design Variable Interface
-             */
-            MSI::Design_Variable_Interface * build_design_variable_interface();
-
         //    /*
         //     * @brief function specific to fiber problem TODO this will be removed
         //     */
@@ -488,32 +492,19 @@ namespace moris
                                                       const moris_index                 aWhichMesh = 0 );
 
             /**
-             * Add geometry dv type to dv type list
-             * @param[ in ] aPdvType          list of dv types (material only)
-             * @param[ in ] aUsingGeometryDvs bool true if geometry dv types used
-             */
-            void set_pdv_types( Cell< enum GEN_DV > aPdvType );
-
-            /**
-             * initialize interpolation pdv host list
-             * @param[ in ] aWhichMesh a mesh index
-             */
-            void initialize_interp_pdv_host_list( moris_index aWhichMesh = 0 );
-
-            /**
              * @brief assign the pdv type and property for each pdv host in a given set via a GEN_Field class
              */
             void assign_ip_hosts_by_set_name( std::string                  aSetName,
                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                              enum GEN_DV                  aPdvType,
+                                              PDV_Type                  aPdvType,
                                               moris_index                  aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
-                                              std::shared_ptr< GEN_Property > aPropertyPointer,
-                                              enum GEN_DV                     aPdvType,
+                                              std::shared_ptr< Property > aPropertyPointer,
+                                              PDV_Type                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
 
             /**
@@ -521,32 +512,39 @@ namespace moris
              */
             void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
                                                std::shared_ptr< GEN_Field > aFieldPointer,
-                                               enum GEN_DV                  aPdvType,
+                                               PDV_Type                  aPdvType,
                                                moris_index                  aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                               std::shared_ptr< GEN_Property > aPropertyPointer,
-                                               enum GEN_DV                     aPdvType,
+                                               std::shared_ptr< Property > aPropertyPointer,
+                                               PDV_Type                     aPdvType,
                                                moris_index                     aWhichMesh = 0 );
 
             /**
-             * @brief create pdv objects for the spatial dimensions
-             *        - if the hosts have already been initialized via the interpolation mesh, add new PDV objects to them
-             *        - if not, initialize the hosts and add PDV objects to them
+             * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
+             *
+             * @param aPdvTypes PDV_Type types; set->group->individual
+             * @param aMeshIndex Interpolation mesh index
              */
-            void initialize_integ_pdv_host_list( moris_index aWhichMesh = 0 );
+            void create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex = 0);
 
             /**
-             * Mark an integration design variable type as being unchanging
+             * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
              *
-             * @param aPdvType The pdv type to be marked
+             * @param aMeshIndex Integration mesh index
              */
-            void mark_ig_dv_type_as_unchanging( enum GEN_DV aPdvType );
+            void create_ig_pdv_hosts(moris_index aMeshIndex = 0);
+
+            /**
+             * Assign PDV hosts based on properties constructed through parameter lists
+             */
+            void assign_pdv_hosts();
 
         private:
+
             /**
              * Get the index of analytic geometry
              *
@@ -562,8 +560,6 @@ namespace moris
              * @return Index for the discrete geometry cell
              */
             size_t discrete_geometry_index(size_t aGlobalGeometryIndex);
-
-
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
@@ -592,6 +588,7 @@ namespace moris
                                                                      moris::size_t                  const & aGeometryIndex,
                                                                      moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
                                                                      moris::Matrix< moris::DDRMat >       & aLevelSetValues );
+
         };
     }
 }

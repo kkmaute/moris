@@ -24,7 +24,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Writer_Exodus::Writer_Exodus(moris::mtk::Mesh* aMeshPointer)
-                : mMesh(aMeshPointer)
+        : mMesh(aMeshPointer)
         {
             this->set_error_options(true, true, true);
         }
@@ -73,7 +73,7 @@ namespace moris
             mExoid = -1;
             if (aRename)
             {
-                std::rename(mTempFileName.c_str(), mPermFileName.c_str());
+                MORIS_ERROR( std::rename(mTempFileName.c_str(), mPermFileName.c_str()) == 0 ,"Cannot save exodus file");
             }
         }
 
@@ -240,8 +240,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_point_field(       std::string                    aFieldName,
-                                                     const moris::Matrix<moris::DDRMat> & aFieldValues)
+        void Writer_Exodus::write_point_field(       
+                std::string                          aFieldName,
+                const moris::Matrix<moris::DDRMat> & aFieldValues)
         {
             // Field name to index
             int tFieldIndex = mNodalFieldNamesMap[aFieldName];
@@ -255,8 +256,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_nodal_field(       std::string                    aFieldName,
-                                                     const moris::Matrix<moris::DDRMat> & aFieldValues)
+        void Writer_Exodus::write_nodal_field(       
+                std::string                    aFieldName,
+                const moris::Matrix<moris::DDRMat> & aFieldValues)
         {
             // Field name to index
             int tFieldIndex = mNodalFieldNamesMap[aFieldName];
@@ -275,9 +277,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_elemental_field(       std::string                    aBlockName,
-                                                         std::string                    aFieldName,
-                                                         const moris::Matrix<moris::DDRMat> & aFieldValues)
+        void Writer_Exodus::write_elemental_field(       
+               std::string                           aBlockName,
+                std::string                          aFieldName,
+                const moris::Matrix<moris::DDRMat> & aFieldValues)
         {
             // Block name to index
             int tBlockIndex = mBlockNamesMap[aBlockName];
@@ -299,13 +302,14 @@ namespace moris
 
             // Write the field
             ex_put_var(mExoid, mTimeStep, EX_ELEM_BLOCK, tFieldIndex + 1, tBlockIndex + 1, aFieldValues.numel(),
-                       aFieldValues.data());
+                    aFieldValues.data());
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_global_variable(       std::string   aVariableName,
-                                                         const moris::real & aVariableValue)
+        void Writer_Exodus::write_global_variable(
+                std::string         aVariableName,
+                const moris::real & aVariableValue)
         {
             // Variable name to index
             int tVariableIndex = mGlobalVariableNamesMap[aVariableName];
@@ -314,7 +318,7 @@ namespace moris
                     " is not a global variable name on this mesh!").c_str());
 
             // Write the variable
-            ex_put_var(mExoid, mTimeStep, EX_GLOBAL, tVariableIndex + 1, 0, 1, &aVariableValue);
+            ex_put_var(mExoid, (int) mTimeStep, EX_GLOBAL, tVariableIndex + 1, 0, 1, &aVariableValue);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -434,7 +438,7 @@ namespace moris
             for (moris::uint tNodeSetIndex = 0; tNodeSetIndex < tNumNodeSets; tNodeSetIndex++)
             {
                 moris::Matrix<moris::IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(moris::EntityRank::NODE,
-                                                                                             tNodeSetNames(tNodeSetIndex));
+                        tNodeSetNames(tNodeSetIndex));
                 ex_put_set_param(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.numel(), 0);
                 ex_put_set(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.data(), nullptr);
             }
@@ -473,22 +477,22 @@ namespace moris
                     //CellTopology tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
 
                     // Get a description of the type of elements in this block FIXME once we always have a CellTopology on the mesh
-//            CellTopology tMorisBlockTopology;
-//            if (mMesh->get_spatial_dim() == 2)
-//            {
-//                if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
-//                {
-//                    tMorisBlockTopology = CellTopology::TRI3;
-//                }
-//                else
-//                {
-//                    tMorisBlockTopology = CellTopology::QUAD4;
-//                }
-//            }
-//            else
-//            {
-//                tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
-//            }
+                    //            CellTopology tMorisBlockTopology;
+                    //            if (mMesh->get_spatial_dim() == 2)
+                    //            {
+                    //                if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
+                    //                {
+                    //                    tMorisBlockTopology = CellTopology::TRI3;
+                    //                }
+                    //                else
+                    //                {
+                    //                    tMorisBlockTopology = CellTopology::QUAD4;
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
+                    //            }
 
                     const char* tExodusBlockTopology = this->get_exodus_block_topology(tMorisBlockTopology);
 
@@ -500,7 +504,7 @@ namespace moris
 
                     // Make a block and name it
                     ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tExodusBlockTopology, tElementsInBlock.size(),
-                                 tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
+                            tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
                     ex_put_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNames(tBlockIndex).c_str());
 
                     // Construct matrix of node indices per element

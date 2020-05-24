@@ -36,7 +36,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
     mLinearSolverAlgoritm->mSolverInterface->build_multigrid_operators();
 
     // get multigrid operators
-    moris::Cell< Dist_Matrix * > tProlongationList = mLinearSolverAlgoritm->mSolverInterface
+    moris::Cell< sol::Dist_Matrix * > tProlongationList = mLinearSolverAlgoritm->mSolverInterface
                                                                           ->get_multigrid_operator_pointer()
                                                                           ->get_prolongation_list();
 
