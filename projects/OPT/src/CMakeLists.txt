@@ -45,8 +45,9 @@ set(LIB_DEPENDENCIES
 	${CON}-lib
 	${LINALG}-lib
 	${COM}-lib
+	${MORIS_BASE_LIBS}
 	)
-
+#message(INFO "base lib = ${MORIS_BASE_LIBS}\n\n\n\n\n")
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

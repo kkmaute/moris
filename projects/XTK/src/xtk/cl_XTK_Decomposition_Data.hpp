@@ -360,7 +360,7 @@ namespace xtk
                 std::cout<<" | Parent Rank: "<<std::right<<std::setw(8)<<get_enum_str(tNewNodeParentRank(i));
 
                 std::cout<<" | Coords: ";
-                for(moris::uint j = 0; j < 3; j++)
+                for(moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++)
                 {
                     std::cout<<std::scientific<<std::setw(14)<<tNewNodeCoordinate(i)(j)<< "   ";
                 }
@@ -369,15 +369,28 @@ namespace xtk
         }
 
         void
-        print()
+        print(moris::mtk::Mesh const & aBackgroundMesh)
         {
             std::cout<<"========================"<<std::endl;
+            if(tNewNodeId.size() > 0)
+            {
             auto it = max_element(std::begin(tNewNodeId), std::end(tNewNodeId));
             std::cout<<"Max Id:"<<*it<<std::endl;
 
             for(moris::uint  i = 0 ; i < tNewNodeId.size(); i++)
             {
-                std::cout<<"Node Id: "<<std::setw(8)<< tNewNodeId(i)<<" | Node Index: "<<std::setw(8)<<tNewNodeIndex(i)<<" | Coords: "<<std::setw(8)<<tNewNodeCoordinate(i)(0)<<" "<<std::setw(8)<<tNewNodeCoordinate(i)(1)<<" "<<std::setw(8)<<tNewNodeCoordinate(i)(2)<<std::endl;
+                std::cout<<"Node Id: "<<std::setw(8)<< tNewNodeId(i)<<" | Node Index: "<<std::setw(8)<<tNewNodeIndex(i);
+                std::cout<<" | Coords: ";
+                for(moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++)
+                {
+                    std::cout<<std::scientific<<std::setw(14)<<tNewNodeCoordinate(i)(j)<< "   ";
+                }
+                std::cout<<std::endl;
+            }
+            }
+            else
+            {
+                std::cout<<"No Node Requests"<<std::endl;
             }
         }
 
