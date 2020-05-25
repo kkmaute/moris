@@ -287,6 +287,22 @@ namespace moris
              */
             void create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
 
+            /**
+             * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
+             * derivatives with respect to the ADVs, to obtain the complete sensitivities.
+             *
+             * @return Matrix of optimization sensitivities
+             */
+            Matrix<DDRMat> compute_diqi_dadv();
+
+        private:
+            /**
+             * Computes the derivatives of the PDVs with respect to the ADVs
+             *
+             * @return Matrix of pdv/adv sensitivities
+             */
+            Matrix<DDRMat> compute_dpdv_dadv();
+
 //            /**
 //             * communicate dv types
 //             * @param aPdvTypeList a local list of dv types

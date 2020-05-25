@@ -132,6 +132,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        const Matrix<DDUMat>& Pdv_Host::get_all_global_indices()
+        {
+            return mGlobalPdvIndices;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Pdv_Host::get_pdv_value(PDV_Type aPdvType)
         {
             // Check PDV_Type type
@@ -140,6 +147,23 @@ namespace moris
 
             // Return value
             return mPdvList(mPdvTypeMap[aPdvType])->get_value(mNodeIndex, mCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host::get_all_sensitivities(Matrix<DDRMat>& aSensitivities)
+        {
+            if (mPdvList.size() > 0)
+            {
+                mPdvList(0)->get_sensitivity(mNodeIndex, mCoordinates, aSensitivities);
+                aSensitivities.resize(mPdvList.size(), aSensitivities.n_cols());
+                Matrix<DDRMat> tSensitivities(0, 0);
+                for (uint tPdvIndex = 0; tPdvIndex < mPdvList.size(); tPdvIndex++)
+                {
+                    mPdvList(tPdvIndex)->get_sensitivity(mNodeIndex, mCoordinates, tSensitivities);
+                    aSensitivities.set_row(tPdvIndex, tSensitivities);
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

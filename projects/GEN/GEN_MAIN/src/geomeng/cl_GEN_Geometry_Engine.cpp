@@ -176,7 +176,7 @@ namespace moris
 
         Matrix<DDRMat> Geometry_Engine::get_dcriteria_dadv() // TODO
         {
-            return mPdvHostManager.get_dQidu();
+            return mPdvHostManager.compute_diqi_dadv();
         }
 
         //--------------------------------------------------------------------------------------------------------------

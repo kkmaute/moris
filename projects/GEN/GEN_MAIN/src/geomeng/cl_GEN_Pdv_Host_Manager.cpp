@@ -467,5 +467,44 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
+        {
+            return this->get_dQidu() * this->compute_dpdv_dadv();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Pdv_Host_Manager::compute_dpdv_dadv()
+        {
+            // Information from each host
+            Matrix<DDRMat> tTotalAdvSensitivities(0, 0);
+            Matrix<DDRMat> tHostAdvSensitivities(0, 0);
+
+            // Need to know the size of the sensitivities
+            if (mIpPdvHosts.size() > 0)
+            {
+                mIpPdvHosts(0)->get_all_sensitivities(tHostAdvSensitivities);
+                tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
+            }
+
+            // Loop over PDV hosts
+            for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
+            {
+                // Get sensitivities
+                mIpPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
+                const Matrix<DDUMat>& tHostPdvIndices = mIpPdvHosts(tPdvHostIndex)->get_all_global_indices();
+
+                // Add to total matrix
+                for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
+                {
+                    tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
+                }
+            }
+
+            return tTotalAdvSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

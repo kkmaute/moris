@@ -100,12 +100,26 @@ namespace moris
             uint get_global_index_for_pdv_type(PDV_Type aPdvType);
 
             /**
+             * Get all of the global PDV indices on this host
+             *
+             * @param aGlobalPdvIndices matrix of indices to be returned
+             */
+            const Matrix<DDUMat>& get_all_global_indices();
+
+            /**
              * Get the value of a PDV_Type by type
              *
              * @param aPdvType PDV_Type type
-             * @return PDV_Type value
+             * @return Value on this PDV
              */
             real get_pdv_value(PDV_Type aPdvType);
+
+            /**
+             * Gets all of the sensitivity vectors on each PDV
+             *
+             * @param aSensitivities
+             */
+            void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
             
         };
     }  // end ge namepsace
