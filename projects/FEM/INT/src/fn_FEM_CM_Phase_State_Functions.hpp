@@ -38,27 +38,35 @@ namespace moris
                 // linear phase change model
                 case 1:
                 {
-                    real tTupper = (aTmelt + aPCconst/2);
-                    real tTlower = (aTmelt - aPCconst/2);
+                    real tTupper = aTmelt + aPCconst/2.0;
+                    real tTlower = aTmelt - aPCconst/2.0;
 
                     if ( (tTemp > tTupper) || (tTemp < tTlower) )
-                        tdfdT = 0;
+                    {
+                        tdfdT = 0.0;
+                    }
                     else
-                        tdfdT = 1 / aPCconst;
+                    {
+                        tdfdT = 1.0 / aPCconst;
+                    }
                     break;
                 }
 
                 // cubic phase change model
                 case 2:
                 {
-                    real tTupper = (aTmelt + aPCconst/2);
-                    real tTlower = (aTmelt - aPCconst/2);
+                    real tTupper = aTmelt + aPCconst/2.0;
+                    real tTlower = aTmelt - aPCconst/2.0;
 
                     // cubic function: f(T)=( (tTemp - tTlower)^2 * (2*tTemp + tTlower - 3*tTupper))/(tTlower - tTupper)^3
                     if ( (tTemp > tTupper) || (tTemp < tTlower) )
+                    {
                         tdfdT = 0;
+                    }
                     else
-                        tdfdT = 6.0 * (tTemp - tTlower) * (tTemp - tTupper) / std::pow(aPCconst, 3.0);
+                    {
+                        tdfdT = 6.0 * (tTemp - tTlower) * (tTupper - tTemp) / std::pow(aPCconst, 3.0);
+                    }
                     break;
                 }
 
@@ -70,25 +78,19 @@ namespace moris
                     real tLogisticParam = aPCconst;
 
                     real tExp = tLogisticParam * ( tTemp - aTmelt );
-                    tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
+                    tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2.0 + std::exp(tExp) );
                     break;
                 }
                 default:
                     MORIS_ERROR(false,"wrong option for phase change function.");
             }
 
-            // debug - check inputs
-            //std::cout << "Tmelt = " <<  aTmelt << " .\n" << std::flush;
-            //std::cout << "T = " <<  tTemp << " .\n" << std::flush;
-            //std::cout << "PC constant = " <<  aPCconst << " .\n" << std::flush;
-            //std::cout << "Phase state function = " <<  aPCfunc << " .\n" << std::flush;
-            //std::cout << "df/dT = " <<  tdfdT << " .\n" << std::flush;
-
             return tdfdT;
         }
 
         //------------------------------------------------------------------------------
         // 2nd derivative of phase state function wrt temperature
+
         moris::real eval_d2FdTemp2(
                 moris::real aTmelt,
                 moris::real aPCconst,
@@ -112,14 +114,18 @@ namespace moris
                 // cubic phase change model
                 case 2:
                 {
-                    real tTupper = (aTmelt + aPCconst/2);
-                    real tTlower = (aTmelt - aPCconst/2);
+                    real tTupper = aTmelt + aPCconst/2.0;
+                    real tTlower = aTmelt - aPCconst/2.0;
 
                     // cubic function: f(T)=( (tTemp - tTlower)^2 * (2*tTemp + tTlower - 3*tTupper))/(tTlower - tTupper)^3
                     if ( (tTemp > tTupper) || (tTemp < tTlower) )
+                    {
                         td2fdT2 = 0;
+                    }
                     else
-                        td2fdT2 = ( 12.0 * tTemp + 6.0 * (tTlower + tTupper) )  / std::pow(aPCconst, 3.0);
+                    {
+                        td2fdT2 = ( 6.0 * (tTlower + tTupper) - 12.0 * tTemp  )  / std::pow(aPCconst, 3.0);
+                    }
                     break;
                 }
 
@@ -131,8 +137,8 @@ namespace moris
                     real tLogisticParam = aPCconst;
 
                     real tExp = tLogisticParam * ( tTemp - aTmelt );
-                    td2fdT2 = std::pow(tLogisticParam, 2) * (
-                            ( std::exp(-tExp) - 1 ) / ( std::exp(tExp) + 3 + 3*std::exp(-tExp) + std::exp(- 2.0 * tExp) )    );
+                    td2fdT2 = std::pow(tLogisticParam, 2) *
+                            ( ( std::exp(-tExp) - 1 ) / ( std::exp(tExp) + 3 + 3*std::exp(-tExp) + std::exp(- 2.0 * tExp) ) );
                     break;
                 }
                 default:
@@ -144,6 +150,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // derivative of the phase state function wrt temperature wrt the DoFs
+
         moris::Matrix<DDRMat> eval_dFdTempdDOF(
                 moris::real aTmelt,
                 moris::real aPCconst,
