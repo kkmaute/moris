@@ -105,8 +105,14 @@ namespace moris
                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
                 {
                     // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                            "IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
+                    if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
+                    {
+                        std::string tErrMsg =
+                                std::string("IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                                aConstitutiveString;
+
+                         MORIS_ERROR( false, tErrMsg.c_str() );
+                    }
 
                     // check no slave allowed
                     MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
