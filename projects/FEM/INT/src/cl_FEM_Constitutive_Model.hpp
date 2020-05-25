@@ -44,9 +44,6 @@ namespace moris
                 // dof type list
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
-                // local string to dof enum map
-                std::map< std::string, MSI::Dof_Type > mDofMap;
-
                 // dof type map
                 Matrix< DDSMat > mDofTypeMap;
 
@@ -247,7 +244,9 @@ namespace moris
                 virtual void set_space_dim( uint aSpaceDim )
                 {
                     // check that space dimension is 1, 2, 3
-                    MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "Constitutive_Model::set_space_dim - wrong space dimension." );
+                    MORIS_ERROR(
+                            aSpaceDim > 0 && aSpaceDim < 4,
+                            "Constitutive_Model::set_space_dim - wrong space dimension." );
 
                     // set space dimension
                     mSpaceDim = aSpaceDim;
@@ -272,8 +271,12 @@ namespace moris
                  * @param[ in ] aDofTypes a list of group of dof types
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
-                void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                virtual void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                        moris::Cell< std::string >                  aDofStrings )
+                {
+                    MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -314,9 +317,12 @@ namespace moris
                  * @param[ in ] aDvTypes   a list of group of dv types
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
-                void set_dv_type_list( moris::Cell<
-                        moris::Cell< PDV_Type > >  aDvTypes,
-                        moris::Cell< std::string > aDvStrings );
+                virtual void set_dv_type_list(
+                        moris::Cell< moris::Cell< PDV_Type > > aDvTypes,
+                        moris::Cell< std::string >             aDvStrings )
+                {
+                    MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**

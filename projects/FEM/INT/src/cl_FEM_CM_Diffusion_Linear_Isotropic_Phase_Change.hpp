@@ -29,12 +29,16 @@ namespace moris
 
         class CM_Diffusion_Linear_Isotropic_Phase_Change : public CM_Diffusion_Linear_Isotropic
         {
+
                 //------------------------------------------------------------------------------
             protected:
 
                 // nothing
 
             private:
+
+                // default dof type for CM
+                MSI::Dof_Type mTempDof = MSI::Dof_Type::TEMP;
 
                 // property type for CM
                 enum class Property_Type
@@ -64,6 +68,29 @@ namespace moris
                  * trivial destructor
                  */
                 ~CM_Diffusion_Linear_Isotropic_Phase_Change(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model dof types
+                 * @param[ in ] aDofTypes a list of group of dof types
+                 * @param[ in ] aDofStrings a list of strings to describe the dof types
+                 */
+                void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                        moris::Cell< std::string >                  aDofStrings );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model dv types
+                 * @param[ in ] aDvTypes a list of group of dv types
+                 * @param[ in ] aDvStrings a list of strings to describe the dv types
+                 */
+                void set_dv_type_list(
+                        moris::Cell< moris::Cell< PDV_Type > > aDvTypes,
+                        moris::Cell< std::string >             aDvStrings )
+                {
+                    Constitutive_Model::set_dv_type_list( aDvTypes );
+                }
 
                 //------------------------------------------------------------------------------
                 /**

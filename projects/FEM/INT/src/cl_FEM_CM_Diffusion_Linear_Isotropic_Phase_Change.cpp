@@ -29,13 +29,41 @@ namespace moris
             mPropertyMap[ "PC_Temp" ]               = Property_Type::PC_TEMP;
             mPropertyMap[ "Phase_State_Function" ]  = Property_Type::PHASE_STATE_FUNCTION;
             mPropertyMap[ "Phase_Change_Const" ]    = Property_Type::PHASE_CHANGE_CONST;
-
-            // populate dof map
-            mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
         }
 
         //------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                moris::Cell< std::string >                  aDofStrings )
+        {
+            // set dof type list
+            Constitutive_Model::set_dof_type_list( aDofTypes );
 
+            // loop over the provided dof type
+            for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+            {
+                // get dof type string
+                std::string tDofString = aDofStrings( iDof );
+
+                // get dof type
+                MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
+
+                // switch on dof type string
+                if( tDofString == "Temp" )
+                {
+                    mTempDof = tDofType;
+                }
+                else
+                {
+                    std::string tErrMsg =
+                            std::string("CM_Diffusion_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
+                            tDofString;
+                    MORIS_ERROR( false , tErrMsg.c_str() );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic_Phase_Change::set_property(
                  std::shared_ptr< fem::Property > aProperty,
                  std::string                      aPropertyString )
@@ -63,8 +91,9 @@ namespace moris
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
             moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
 
-            // temperature dof type
-            MSI::Dof_Type tTempDof = mDofMap[ "Temp" ];
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
@@ -72,11 +101,10 @@ namespace moris
                     mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
                     mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
                     mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
-                    mFIManager->get_field_interpolators_for_type( tTempDof ) );
+                    tFITemp );
 
             // compute derivative of enthalpy
-            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) *
-                    mFIManager->get_field_interpolators_for_type( tTempDof )->gradt( 1 );
+            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) * tFITemp->gradt( 1 );
         }
 
         //------------------------------------------------------------------------------
@@ -87,8 +115,9 @@ namespace moris
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
             moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
 
-            // temperature dof type
-            MSI::Dof_Type tTempDof = mDofMap[ "Temp" ];
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
@@ -96,16 +125,14 @@ namespace moris
                     mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
                     mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
                     mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
-                    mFIManager->get_field_interpolators_for_type( tTempDof ) );
+                    tFITemp );
 
             // compute gradient of
-            mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) *
-                    mFIManager->get_field_interpolators_for_type( tTempDof )->gradxt();
+            mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) * tFITemp->gradxt();
         }
 
 
         //------------------------------------------------------------------------------
-
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get properties
@@ -128,8 +155,9 @@ namespace moris
             // initialize the matrix
             mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
-            // temperature dof type
-            MSI::Dof_Type tTempDof = mDofMap[ "Temp" ];
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
@@ -137,15 +165,15 @@ namespace moris
                     tPropPCtemp->val()( 0 ),
                     tPropPCconst->val()( 0 ),
                     tPropPSfunct->val()( 0 ),
-                    mFIManager->get_field_interpolators_for_type( tTempDof ) );
+                    tFITemp );
 
             // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == tTempDof )
+            if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
                 mHdotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
-                        mFIManager->get_field_interpolators_for_type( tTempDof )->dnNdtn(1);
+                        tFITemp->dnNdtn(1);
             }
 
             // if indirect dependency of density on the dof type
@@ -154,7 +182,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mHdotDof( tDofIndex ).matrix_data() +=
                         ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
-                        mFIManager->get_field_interpolators_for_type( tTempDof )->gradt(1) *
+                        tFITemp->gradt(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
             }
 
@@ -164,7 +192,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mHdotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
-                        mFIManager->get_field_interpolators_for_type( tTempDof )->gradt(1) *
+                        tFITemp->gradt(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
             }
         }
@@ -192,8 +220,9 @@ namespace moris
             // initialize the matrix
             mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
-            // temperature dof type
-            MSI::Dof_Type tTempDof = mDofMap[ "Temp" ];
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
@@ -201,15 +230,15 @@ namespace moris
                     tPropPCtemp->val()( 0 ),
                     tPropPCconst->val()( 0 ),
                     tPropPSfunct->val()( 0 ),
-                    mFIManager->get_field_interpolators_for_type( tTempDof ) );
+                    tFITemp );
 
             // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == tTempDof )
+            if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
                 mGradHdotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
-                        mFIManager->get_field_interpolators_for_type( tTempDof )->d2Ndxt();
+                        tFITemp->d2Ndxt();
             }
 
             // if indirect dependency of density on the dof type
@@ -218,7 +247,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mGradHdotDof( tDofIndex ).matrix_data() +=
                         ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
-                        mFIManager->get_field_interpolators_for_type( tTempDof )->gradxt() *
+                        tFITemp->gradxt() *
                         tPropDensity->dPropdDOF( aDofTypes );
             }
 
@@ -228,7 +257,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mGradHdotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
-                        mFIManager->get_field_interpolators_for_type( tTempDof )->gradxt() *
+                        tFITemp->gradxt() *
                         tPropHeatCap->dPropdDOF( aDofTypes );
             }
         }
