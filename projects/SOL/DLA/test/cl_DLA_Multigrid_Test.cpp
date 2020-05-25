@@ -27,6 +27,8 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
+#include "cl_FEM_Model.hpp"
+
 #include "cl_PRM_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
@@ -154,12 +156,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tSetInfo( 0 ).set_mesh_index( 0 );
         tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
-        map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;
         Cell< MSI::Equation_Object* >  tElements;
-
-        // get map from mesh
-        tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tCoefficientsMap );
 
         // ask mesh about number of nodes on proc
         luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
@@ -180,7 +178,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         Cell< MSI::Equation_Set * > tElementBlocks(1,nullptr);
 
-        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< MSI::Equation_Model >();
+        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< fem::FEM_Model >();
 
         // init the fem set counter
         moris::uint tFemSetCounter = 0;
@@ -234,9 +232,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
                                                                                      tEquationModel,
-                                                                                     tInterpolationMesh->get_communication_table(),
-                                                                                     tCoefficientsMap,
-                                                                                     tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
                                                                                      tInterpolationMesh );
 
         tElementBlocks( 0 )->finalize( tMSI );
@@ -362,12 +357,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              delete k ;
          }
          tNodes.clear();
-
-         for( auto k :tElementBlocks)
-         {
-             delete k ;
-         }
-         tElementBlocks.clear();
 
          delete tIntegrationMesh;
          delete tInterpolationMesh;

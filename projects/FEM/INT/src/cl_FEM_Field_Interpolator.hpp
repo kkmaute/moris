@@ -17,7 +17,7 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"     //FEM/MSI/src
 
-#include "cl_GEN_Dv_Enums.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -64,7 +64,7 @@ class Property;
             moris::Cell< MSI::Dof_Type > mDofType;
 
             // dv type
-            moris::Cell< GEN_DV > mDvType;
+            moris::Cell< PDV_Type > mDvType;
 
             // flag for evaluation
             bool mNBuildEval = true;
@@ -74,6 +74,7 @@ class Property;
             bool md3Ndx3Eval = true;
             bool mdNdtEval   = true;
             bool md2Ndt2Eval = true;
+            bool md2NdxtEval = true;
 
             // storage
             Matrix< DDRMat > mNBuild;
@@ -83,6 +84,7 @@ class Property;
             Matrix< DDRMat > md3Ndx3;
             Matrix< DDRMat > mdNdt;
             Matrix< DDRMat > md2Ndt2;
+            Matrix< DDRMat > md2Ndxt;
 
 //------------------------------------------------------------------------------
         public:
@@ -109,7 +111,7 @@ class Property;
             Field_Interpolator( const uint                         & aNumberOfFields,
                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                const moris::Cell< GEN_DV >          aDvType );
+                                const moris::Cell< PDV_Type >          aDvType );
 
             /**
              * trivial constructor for unit test
@@ -125,7 +127,7 @@ class Property;
               * trivial constructor for unit test
               */
              Field_Interpolator( const uint                  & aNumberOfFields,
-                                 const moris::Cell< GEN_DV >   aDvType ) : mNumberOfFields( aNumberOfFields ),
+                                 const moris::Cell< PDV_Type >   aDvType ) : mNumberOfFields( aNumberOfFields ),
                                                                                  mDvType( aDvType )
              {
                  mNFieldCoeff = mNumberOfFields;
@@ -150,7 +152,7 @@ class Property;
             /**
              * get dof type
              */
-            const moris::Cell< GEN_DV > & get_dv_type() const
+            const moris::Cell< PDV_Type > & get_dv_type() const
             {
                 return mDvType;
             }
@@ -332,6 +334,20 @@ class Property;
 
 //------------------------------------------------------------------------------
             /**
+             * return the 1st order mixed derivatives of the space time shape functions
+             * @param[ out ] d2Ndxt  mixed space & time derivative of the shape functions
+             */
+            const Matrix< DDRMat > & d2Ndxt();
+
+//------------------------------------------------------------------------------
+            /**
+             * mixed space & time derivative of the space time shape functions
+             * wrt time x & t
+             */
+            void eval_d2Ndxt();
+
+//------------------------------------------------------------------------------
+            /**
             * evaluates the field at given space and time Xi, Tau
             * @param[ out ]          interpolated field
             */
@@ -365,6 +381,13 @@ class Property;
              * @param[ out ] gradt            time derivatives
              */
             Matrix< DDRMat > gradt( const uint & aDerivativeOrder );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the mixed field space & time derivative at given space and time evaluation point
+             * @param[ out ] gradxt            mixed space time derivatives
+             */
+            Matrix< DDRMat > gradxt();
 
 //------------------------------------------------------------------------------
         };

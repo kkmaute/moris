@@ -70,7 +70,7 @@ void Staggered_Time_Solver::solve_staggered_time_system()
 
 //-------------------------------------------------------------------------------
 
-void Staggered_Time_Solver::solve( Dist_Vector * aFullVector )
+void Staggered_Time_Solver::solve( sol::Dist_Vector * aFullVector )
  {
      mFullVector = aFullVector;
 

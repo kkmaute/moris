@@ -21,8 +21,6 @@
 
 namespace moris
 {
-    class Dist_Vector;
-
     namespace mtk
     {
         class Mesh;
@@ -48,12 +46,12 @@ namespace moris
             Dof_Manager                      mDofMgn;
 
             //! Pointer to Mesh. Only used in multigrid
-            mtk::Mesh                      * mMesh;
+            mtk::Mesh                      * mMesh = nullptr;
 
             //! Multigrid object pointer
             Multigrid * mMultigrid = nullptr;
 
-            MSI::MSI_Solver_Interface * mSolverInterface;
+            MSI::MSI_Solver_Interface * mSolverInterface = nullptr;
 
             std::shared_ptr< MSI::Equation_Model > mEquationModel = nullptr;
 
@@ -124,9 +122,6 @@ namespace moris
 
         Model_Solver_Interface(      ParameterList                                       aMSIParameterList,
                                      std::shared_ptr< MSI::Equation_Model >              aEquationModel,
-                               const Matrix< IdMat >                                   & aCommTable,
-                               const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
-                               const moris::uint                                         aNumMaxAdofs,
                                      mtk::Mesh                                         * aMesh );
 
 //------------------------------------------------------------------------------
@@ -160,35 +155,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void finalize()
-        {
-            for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
-            {
-                mEquationBlocks( Ik )->set_model_solver_interface( this );
-            }
-
-            mDofMgn.initialize_pdof_host_list( mEquationObjectList );
-
-            mDofMgn.create_adofs();
-
-            mDofMgn.set_pdof_t_matrix();
-
-            for ( Equation_Object* tElement : mEquationObjectList )
-            {
-                tElement->create_my_pdof_list();
-
-                tElement->create_my_list_of_adof_ids();
-
-                tElement->set_unique_adof_map();
-            }
-
-            if ( mMSIParameterList.get< bool >( "multigrid" ) )
-            {
-                mMultigrid = new Multigrid( this, mMesh );
-
-                mMultigrid->multigrid_initialize();
-            }
-        };
+        void finalize();
 
 //------------------------------------------------------------------------------
 
@@ -218,6 +185,12 @@ namespace moris
             return mEquationBlocks( aMyEquSetInd );
         };
 
+//------------------------------------------------------------------------------
+
+        std::shared_ptr< MSI::Equation_Model > get_equation_model()
+        {
+            return mEquationModel;
+        };
 //------------------------------------------------------------------------------
 
         Equation_Object * get_eqn_obj( const moris::uint & aMyEquObjInd )

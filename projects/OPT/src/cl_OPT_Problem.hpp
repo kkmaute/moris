@@ -28,7 +28,7 @@ namespace moris
             Matrix<DDRMat> mFiniteDifferenceEpsilons; // Epsilon for finite differencing
 
             std::string mFiniteDifferenceType;
-            real mADVNormTolerance = 0.0;
+            real mADVNormTolerance = 1E-12;
 
         protected:
             Matrix<DDRMat> mADVs;    // Abstract Design Variable vector
@@ -82,10 +82,10 @@ namespace moris
              */
             uint get_num_equality_constraints();
 
-            /**
-             * Get the adv vector
+	    /**
+             * Get reference to the adv vector
              */
-            Matrix<DDRMat> get_advs()
+            Matrix<DDRMat> & get_advs()
             {
                 return mADVs;
             }
@@ -97,26 +97,26 @@ namespace moris
              */
             void set_advs(Matrix<DDRMat> aNewADVs);
 
-            /**
-             * Get the adv upper bounds
+             /**
+             * Get reference to the adv upper bounds
              *
              * @return vector of upper bounds
              */
-            Matrix<DDRMat> get_upper_bounds()
+            Matrix<DDRMat> & get_upper_bounds()
             {
                 return mUpperBounds;
             }
 
-            /**
-             * Get the adv lower bounds
+           /**
+             * Get reference to the adv lower bounds
              *
              * @return vector of lower bounds
              */
-            Matrix<DDRMat> get_lower_bounds()
+            Matrix<DDRMat> & get_lower_bounds()
             {
                 return mLowerBounds;
             }
-
+            
             /**
              * Initializes the ADVs and the upper and lower bounds, plus gets constraint types
              */

@@ -13,8 +13,8 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
-                                  moris::Dist_Map        * aMap,
-                            const sint                      aNumVectors ) : moris::Dist_Vector( aMap )
+                                  moris::sol::Dist_Map    * aMap,
+                            const sint                      aNumVectors ) : moris::sol::Dist_Vector( aMap )
 {
     //PetscScalar    tZero = 0;
     //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
@@ -103,7 +103,7 @@ void Vector_PETSc::vector_global_asembly()
 //-----------------------------------------------------------------------------
 
 void Vector_PETSc::vec_plus_vec( const moris::real & aScaleA,
-                                       Dist_Vector & aVecA,
+                                       sol::Dist_Vector & aVecA,
                                  const moris::real & aScaleThis )
 {
     PetscScalar tValueA = aScaleA;
@@ -152,10 +152,11 @@ moris::sint Vector_PETSc::vec_global_length() const
 
 //-----------------------------------------------------------------------------
 
-moris::real Vector_PETSc::vec_norm2()
+Cell< moris::real > Vector_PETSc::vec_norm2()
 {
-    moris::real tVecNorm = 0 ;
-    VecNorm( mPetscVector, NORM_2, &tVecNorm );
+    Cell< moris::real > tVecNorm( mNumVectors, 0.0);
+
+    VecNorm( mPetscVector, NORM_2, tVecNorm.data().data() );
     return tVecNorm;
 }
 
@@ -203,7 +204,7 @@ void Vector_PETSc::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 
 //-----------------------------------------------------------------------------
 
-void Vector_PETSc::import_local_to_global( Dist_Vector & aSourceVec )
+void Vector_PETSc::import_local_to_global( sol::Dist_Vector & aSourceVec )
 {
     // FIXME change this to scatter thus that it works better in parallel
     PetscScalar tValueA = 1;

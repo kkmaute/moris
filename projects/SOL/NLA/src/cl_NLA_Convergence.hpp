@@ -12,35 +12,39 @@
 
 namespace moris
 {
-class Dist_Vector;
-namespace NLA
-{
-    class Convergence
+    namespace sol
     {
-    private:
+        class Dist_Vector;
+    }
+    namespace NLA
+    {
+        class Convergence
+        {
+            private:
 
-    public:
-        Convergence()
-        {};
+            public:
+                Convergence(){};
 
-        ~Convergence(){};
+                ~Convergence(){};
 
-        bool check_for_convergence(       Nonlinear_Algorithm * tNonLinSolver,
-                                          moris::sint & aIt,
-                                          moris::real & aRefNorm,
-                                          moris::real & aResNorm,
-                                    const moris::real & aAssemblyTime,
-                                    const moris::real & aSolvTime,
-                                          bool        & aHartBreak);
+                bool check_for_convergence(
+                        Nonlinear_Algorithm * tNonLinSolver,
+                        moris::sint         & aIt,
+                        moris::real         & aRefNorm,
+                        moris::real         & aResNorm,
+                        const moris::real   & aAssemblyTime,
+                        const moris::real   & aSolvTime,
+                        bool                & aHartBreak);
 
-        bool check_for_convergence(       Nonlinear_Algorithm * tNonLinSolver,
-                                          moris::sint & aIt,
-                                          moris::real & aRefNorm,
-                                          moris::real & aResNorm,
-                                    const moris::real & aSolvTime,
-                                          bool        & aHartBreak);
-    };
-}
+                bool check_for_convergence(
+                        Nonlinear_Algorithm * tNonLinSolver,
+                        moris::sint         & aIt,
+                        moris::real         & aRefNorm,
+                        moris::real         & aResNorm,
+                        const moris::real   & aSolvTime,
+                        bool                & aHartBreak);
+        };
+    }
 }
 
 #endif /* SRC_FEM_CL_NLA_CONVERGENCE_HPP_ */

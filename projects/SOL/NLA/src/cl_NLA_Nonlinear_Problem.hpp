@@ -18,8 +18,11 @@
 
 namespace moris
 {
-class Dist_Map;
-class Dist_Vector;
+    namespace sol
+    {
+        class Dist_Map;
+        class Dist_Vector;
+    }
 class Solver_Interface;
 namespace dla
 {
@@ -40,11 +43,11 @@ namespace NLA
     protected:
         Solver_Interface * mSolverInterface;
 
-        Dist_Vector * mFullVector = nullptr;
-        Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
+        sol::Dist_Vector * mFullVector = nullptr;
+        sol::Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
 
-        Dist_Map   * mMap = nullptr;
-        Dist_Map   * mMapFull = nullptr;               //FIXME replace with marketplace
+        sol::Dist_Map   * mMap = nullptr;
+        sol::Dist_Map   * mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 
@@ -86,7 +89,7 @@ namespace NLA
          */
         Nonlinear_Problem(       sol::SOL_Warehouse    * aNonlinDatabase,
                                  Solver_Interface * aSolverInterface,
-                                 Dist_Vector      * aFullVector,
+                                 sol::Dist_Vector      * aFullVector,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
                            const enum sol::MapType   aMapType = sol::MapType::Epetra);
@@ -99,6 +102,7 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
         void build_linearized_problem( const bool        & aRebuildJacobian,
+                                       const bool        & aCombinedResJacAssebly,
                                              sint          aNonLinearIt );
 
         //--------------------------------------------------------------------------------------------------
@@ -117,7 +121,7 @@ namespace NLA
 
 
         //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_full_vector();
+        sol::Dist_Vector * get_full_vector();
 
         //--------------------------------------------------------------------------------------------------
         void extract_my_values( const moris::uint                            & aNumIndices,

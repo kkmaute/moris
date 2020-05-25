@@ -220,7 +220,7 @@ Model::perform()
 
         // Write mesh
         moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
-        writer.write_mesh("", "./xtk_exo/xtk_temp.exo");
+        writer.write_mesh("", "./xtk_temp.exo");
 
         // Write the fields
         writer.set_time(0.0);
@@ -391,8 +391,6 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods)
     if(moris::par_rank() == 0 && mVerbose)
     {
         std::cout<<"XTK: Decomposition completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        std::cout<<"--------------------------------------------------------"<<std::endl;
-
     }
 }
 
@@ -1324,60 +1322,65 @@ void
 Model::assign_node_requests_identifiers(Decomposition_Data & aDecompData,
                                         moris::moris_index   aMPITag)
 {
-        // asserts
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),      "Dimension mismatch in assign_node_requests_identifiers");
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(), "Dimension mismatch in assign_node_requests_identifiers");
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),"Dimension mismatch in assign_node_requests_identifiers");
+    barrier();
+    // asserts
+    MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),      "Dimension mismatch in assign_node_requests_identifiers");
+    MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(), "Dimension mismatch in assign_node_requests_identifiers");
+    MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),"Dimension mismatch in assign_node_requests_identifiers");
 
-        // owned requests and shared requests sorted by owning proc
-        Cell<uint> tOwnedRequest;
-        Cell<Cell<uint>> tNotOwnedRequests;
-        Cell<uint> tProcRanks;
-        std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
-        this->sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
+    // owned requests and shared requests sorted by owning proc
+    Cell<uint> tOwnedRequest;
+    Cell<Cell<uint>> tNotOwnedRequests;
+    Cell<uint> tProcRanks;
+    std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
+    this->sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
 
-        // allocate ids for nodes I own
-        moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
+    // allocate ids for nodes I own
+    moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
 
-        // get first available index
-        moris::moris_id tNodeInd = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+    // get first available index
+    moris::moris_id tNodeInd = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
 
-        // Assign owned request identifiers
-        this->assign_owned_request_identifiers(aDecompData, tOwnedRequest, tNodeInd, tNodeId);
+    // Assign owned request identifiers
+    this->assign_owned_request_identifiers(aDecompData, tOwnedRequest, tNodeInd, tNodeId);
 
-        // prepare node information request data
-        Cell<Matrix<IndexMat>> tOutwardRequests;
-        this->setup_outward_requests(aDecompData, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests);
+    // prepare node information request data
+    Cell<Matrix<IndexMat>> tOutwardRequests;
+    this->setup_outward_requests(aDecompData, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests);
 
-        // send requests to owning processor
-        this->send_outward_requests(aMPITag,tProcRanks,tOutwardRequests);
+    // send requests to owning processor
+    this->send_outward_requests(aMPITag,tProcRanks,tOutwardRequests);
 
-        // hold on to make sure everyone has sent all their information
-        barrier();
+    // hold on to make sure everyone has sent all their information
+    barrier();
 
-        // receive the requests
-        Cell<Matrix<IndexMat>> tReceivedRequests;
-        Cell<uint> tProcsReceivedFrom;
-        this->inward_receive_requests(aMPITag,3, tReceivedRequests, tProcsReceivedFrom);
+    // receive the requests
+    Cell<Matrix<IndexMat>> tReceivedRequests;
+    Cell<uint> tProcsReceivedFrom;
+    this->inward_receive_requests(aMPITag,3, tReceivedRequests, tProcsReceivedFrom);
 
-        // Prepare request answers
-        Cell<Matrix<IndexMat>> tRequestAnwers;
-        this->prepare_request_answers(aDecompData,tReceivedRequests,tRequestAnwers);
+    // Prepare request answers
+    Cell<Matrix<IndexMat>> tRequestAnwers;
+    this->prepare_request_answers(aDecompData,tReceivedRequests,tRequestAnwers);
 
-        // send the answers back
-        this->return_request_answers(aMPITag+1, tRequestAnwers, tProcsReceivedFrom);
+    // send the answers back
+    this->return_request_answers(aMPITag+1, tRequestAnwers, tProcsReceivedFrom);
 
-        barrier();
+    barrier();
 
-        // receive the answers
-        Cell<Matrix<IndexMat>> tReceivedRequestsAnswers;
-        this->inward_receive_request_answers(aMPITag+1,1,tProcRanks,tReceivedRequestsAnswers);
+    // receive the answers
+    Cell<Matrix<IndexMat>> tReceivedRequestsAnswers;
+    this->inward_receive_request_answers(aMPITag+1,1,tProcRanks,tReceivedRequestsAnswers);
 
-        // handle received information
-        this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeInd,tNodeId);
+    // handle received information
+    this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeInd,tNodeId);
 
-        // return index to update
-        mBackgroundMesh.update_first_available_index(tNodeInd,EntityRank::NODE);
+    // return index to update
+    mBackgroundMesh.update_first_available_index(tNodeInd,EntityRank::NODE);
+
+    MORIS_ASSERT(this->verify_successful_node_assignment(aDecompData),"Unsuccesssful node assignment detected.");
+
+    barrier();
 }
 
 
@@ -1500,6 +1503,21 @@ Model::setup_outward_requests(Decomposition_Data              const & aDecompDat
     }
 }
 
+bool
+Model::verify_successful_node_assignment(Decomposition_Data & aDecompData)
+{
+    for(moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++)
+    {
+        if(aDecompData.tNewNodeId(i) == MORIS_INDEX_MAX)
+        {
+            return false;
+        }
+    }
+
+    return true;
+
+}
+
 void
 Model::send_outward_requests(moris_index            const & aMPITag,
                              Cell<uint>             const & aProcRanks,
@@ -1616,6 +1634,76 @@ Model::handle_received_request_answers(Decomposition_Data & aDecompData,
             {
                 MORIS_ASSERT(0,"Request does not exist.");
             }
+        }
+    }
+}
+
+void
+Model::send_outward_requests_reals(
+        moris_index const    & aMPITag,
+        Cell<uint>  const    & aProcRanks,
+        Cell<Matrix<DDRMat>> & aOutwardRequests)
+{
+    // iterate through owned requests and send
+    for(moris::uint i = 0; i < aProcRanks.size(); i++)
+    {
+        nonblocking_send(aOutwardRequests(i),aOutwardRequests(i).n_rows(),aOutwardRequests(i).n_cols(),aProcRanks(i),aMPITag);
+    }
+}
+
+void
+Model::inward_receive_requests_reals(
+        moris_index const &    aMPITag,
+        moris::uint            aNumRows,
+        Cell<Matrix<DDRMat>> & aReceivedData,
+        Cell<uint>           & aProcRanksReceivedFrom)
+{
+    {
+        moris::moris_index tParRank = par_rank();
+        moris::uint tCount = 0;
+        for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+        {
+            if((moris_index)i != tParRank)
+            {
+                // if there is a sent message from a processor go receive it
+                if(sent_message_exists(i,aMPITag))
+                {
+                    aReceivedData.push_back(Matrix<DDRMat>(1,1));
+                    aProcRanksReceivedFrom.push_back(i);
+                    receive(aReceivedData(tCount),aNumRows, i,aMPITag);
+                    tCount++;
+                }
+            }
+        }
+    }
+}
+
+void
+Model::return_request_answers_reals(
+        moris_index const & aMPITag,
+        Cell<Matrix<DDRMat>> const & aRequestAnswers,
+        Cell<uint>              const & aProcRanks)
+{
+    // iterate through owned requests and send
+    for(moris::uint i = 0; i < aProcRanks.size(); i++)
+    {
+        nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),aProcRanks(i),aMPITag);
+    }
+}
+
+void
+Model::inward_receive_request_answers_reals(moris_index            const & aMPITag,
+        moris::uint            const & aNumRows,
+        Cell<uint>             const & aProcRanks,
+        Cell<Matrix<DDRMat>> &       aReceivedData)
+{
+    for(moris::uint i = 0; i<aProcRanks.size(); i++)
+    {
+        // if there is a sent message from a processor go receive it
+        if(sent_message_exists(aProcRanks(i),aMPITag))
+        {
+            aReceivedData.push_back(Matrix<DDRMat>(1,1));
+            receive(aReceivedData(i),aNumRows, aProcRanks(i),aMPITag);
         }
     }
 }
@@ -1799,6 +1887,8 @@ Model::assign_child_element_identifiers()
 
     // tell the background mesh about the new first available index
     mBackgroundMesh.update_first_available_index(tElementIndOffset,EntityRank::ELEMENT);
+
+    barrier();
 
 }
 
@@ -2338,6 +2428,8 @@ Model::assign_subphase_glob_ids()
 
     // add child cell ids to not owned child meshes
     this->handle_received_subphase_id_request_answers(tNotOwnedSubphasesToProcs,tCMSubphaseIndices,tReceivedSubphaseIds);
+
+    barrier();
 
 }
 
@@ -2920,10 +3012,8 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
 
     if(moris::par_rank() == 0 && mVerbose)
     {
-        std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
-        std::cout<<"--------------------------------------------------------"<<std::endl;
     }
 }
 // ----------------------------------------------------------------------------------
@@ -2947,7 +3037,6 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
 
     if(moris::par_rank() == 0 && mVerbose)
     {
-        std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         std::cout<<"XTK: Basis enrichment performed on meshes:";
         for(moris::uint i = 0; i < aMeshIndex.numel(); i++)
@@ -2955,7 +3044,6 @@ Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
             std::cout<<std::setw(6)<<aMeshIndex(i);
         }
         std::cout<<std::endl;
-        std::cout<<"--------------------------------------------------------"<<std::endl;
     }
 }
 // ----------------------------------------------------------------------------------
@@ -3185,7 +3273,6 @@ Model::construct_subphase_neighborhood()
                     moris_index tNeighborBulkIndex = tNeighborSubphaseBulkIndices(j);
                     moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices(j);
 
-                    //fixme: This needs to use a better metric to determine neighbors
                     if(tMyBulkIndex == tNeighborBulkIndex)
                     {
                         mSubphaseToSubPhase(tMySubphaseIndex).push_back(tNeighborSubphaseIndex);

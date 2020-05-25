@@ -59,6 +59,7 @@ namespace moris
         friend class Element_Sideset;
         friend class Element_Double_Sideset;
         friend class Element_Time_Sideset;
+        friend class Element_Time_Boundary;
         friend class Element;
 //------------------------------------------------------------------------------
     public:
@@ -123,7 +124,13 @@ namespace moris
         /**
          * compute dQIdp
          */
-        void compute_dQIdp();
+        void compute_dQIdp_explicit();
+
+//------------------------------------------------------------------------------
+        /**
+         * compute dQIdp
+         */
+        void compute_dQIdp_implicit();
 
 //------------------------------------------------------------------------------
         /**
@@ -158,44 +165,6 @@ namespace moris
         {
             return mNodalWeakBCs;
         }
-
-////------------------------------------------------------------------------------
-//        /**
-//         * get the nodal pdof values on an element
-//         * @param[ in ] aVertexIndex a vertex index
-//         * @param[ in ] aDofType     a dof type
-//         */
-//        real get_element_nodal_pdof_value( moris_index   aVertexIndex,
-//                                           moris::Cell< MSI::Dof_Type > aDofType )
-//        {
-//            // get pdofs values for the element
-//            this->compute_my_pdof_values();
-//
-//            // get a specific dof type pdofs values
-//            Matrix< DDRMat > tPdofValues;
-//
-//            moris::Cell< moris::Cell< Matrix< DDRMat > > > tPdofValues_Original;
-//
-//            this->get_my_pdof_values( aDofType, tPdofValues_Original );
-//
-//            // reshape tCoeffs into the order the cluster expects them
-//            this->reshape_pdof_values( tPdofValues_Original( 0 ), tPdofValues );
-//
-//            // select the required nodal value
-//            Matrix< IndexMat > tElemVerticesIndices = mMasterInterpolationCell->get_vertex_inds();
-//            uint tElemNumOfVertices = mMasterInterpolationCell->get_number_of_vertices();
-//
-//            moris_index tVertexIndex = MORIS_INDEX_MAX;
-//            for( uint i = 0; i < tElemNumOfVertices; i++ )
-//            {
-//                if ( tElemVerticesIndices( i ) == aVertexIndex )
-//                {
-//                    tVertexIndex =  i ;
-//                    break;
-//                }
-//            }
-//            return tPdofValues( tVertexIndex );
-//        }
 
 //------------------------------------------------------------------------------
     protected:

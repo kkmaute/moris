@@ -99,7 +99,7 @@ namespace moris
         this->communicate_dof_types( tTemporaryPdofTypeList );
 
         // Create a map
-        this->create_dof_and_dv_type_maps();
+        this->create_dof_type_map();
     }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -175,13 +175,11 @@ namespace moris
         // Bcast unique mPdofTypeList to all processors
         MPI_Bcast( (mPdofTypeList.data()).data(), mPdofTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
 
-        //------------------------------------------------------------------------------------------------------
-
         mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    void Dof_Manager::create_dof_and_dv_type_maps()
+    void Dof_Manager::create_dof_type_map()
     {
         //Get number of unique adofs of this equation object
         moris::uint tNumUniquePdofTypes = mPdofTypeList.size();

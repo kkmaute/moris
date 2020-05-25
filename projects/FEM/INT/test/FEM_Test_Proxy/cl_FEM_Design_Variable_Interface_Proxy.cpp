@@ -16,18 +16,5 @@ namespace moris
     namespace fem
     {
 
-//-------------------------------------------------------------------------------------------------------
-    void FEM_Design_Variable_Interface_Proxy::set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
-    {
-	    uint tNumEquationSets = mModel->get_fem_model()->get_equation_sets().size();
-		
-		for( uint Ik = 0; Ik <tNumEquationSets; Ik++ )
-		{
-			mModel->get_fem_model()->get_equation_sets()( Ik )->set_requested_IQI_types( aRequestedIQIType );
-		}
-    }
-
-//-------------------------------------------------------------------------------------------------------
-
     }
 }

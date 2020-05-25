@@ -89,7 +89,7 @@ void tFIValDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
 }
 
 void tFIDerDvFunction_FDTest
@@ -97,7 +97,7 @@ void tFIDerDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( GEN_DV::DENSITY0 )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
 }
 
 TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
@@ -156,7 +156,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // Tetrathedral cells in material phase 1
         CellTopology     tPhase0ChildTopo  = CellTopology::TRI3;
         Matrix<IndexMat> tCellIdsPhase0    = {{1,2,3,4}};
-        Matrix<IndexMat> tCellToNodePhase0 = {{1, 5, 6},{2,3,5},{5,3,6},{6,3,4}};
+        Matrix<IndexMat> tCellToNodePhase0 = {{1,5,6},{2,3,5},{5,3,6},{6,3,4}};
 
 //        CellTopology     tPhase0ChildTopo  = CellTopology::TRI3;
 //        Matrix<IndexMat> tCellIdsPhase1    = {{2, 3, 4}};
@@ -223,34 +223,12 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         Design_Variable_Interface * tDesignVariableInterface = new Design_Variable_Interface_Proxy();
 
-        /*
-        MSI::Equation_Set * tSet = new fem::Set();
-
-        tSet->set_dv_interface( tDesignVariableInterface );
-
-        // Create generic equation objects
-        MSI::Equation_Object * EquObj = new fem::Interpolation_Element();
-
-        EquObj->mEquationSet = tSet;
-        reinterpret_cast< fem::Interpolation_Element *> ( EquObj )->mSet = reinterpret_cast< fem::Set *> (tSet);
-
-        tSet->mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
-
-
-        std::shared_ptr< fem::Cluster > tFemCluster = std::make_shared< fem::Cluster >( fem::Element_Type::BULK,
-                                                                                        tCluster,
-                                                                                        reinterpret_cast< fem::Set *> (tSet),
-                                                                                        EquObj );
-
-        reinterpret_cast< fem::Interpolation_Element * >( EquObj )->mFemCluster = {tFemCluster};
-        */
-
         // FEM inputs
         //------------------------------------------------------------------------------
         // create the properties
         std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
         tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-        tPropMasterConductivity->set_dv_type_list( {{ GEN_DV::DENSITY0 }} );
+        tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
         tPropMasterConductivity->set_val_function( tFIValDvFunction_FDTest );
         tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
@@ -261,7 +239,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso
+        = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
         tCMMasterDiffLinIso->set_space_dim( 2 );
@@ -278,9 +257,9 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // define an IQI
         fem::IQI_Factory tIQIFactory;
         std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
         tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
+        tIQI->set_name("IQI_1");
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -300,16 +279,19 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
                                                tSetInfo,
                                                tDesignVariableInterface );
 
+        // get the solver interface
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
-        std::cout<<tSolverInterface->get_requested_dof_types().size()<<std::endl;
 
+        // set requested dof types for solver interface
+        moris::Cell< MSI::Dof_Type > tRequestedDofTypes = { MSI::Dof_Type::TEMP };
+        tSolverInterface->set_requested_dof_types( tRequestedDofTypes );
+
+        //
         Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
-        Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
+        sol::Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
+        sol::Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
         mVector->sum_into_global_values( {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});
-
-//        tSolverInterface->set_solution_vector( mVector );
 
         // FEM set
         //------------------------------------------------------------------------------
@@ -324,8 +306,10 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // get a working set
         MSI::Equation_Set* tWorkSet = tSets( 0 );
 
+        tWorkSet->set_equation_model( tEquationModel.get() );
+
         // set the dv interface to the set
-        tWorkSet->set_dv_interface( tDesignVariableInterface );
+        tEquationModel->set_design_variable_interface( tDesignVariableInterface );
 
         // set the IWG and IQI to the set
         reinterpret_cast< fem::Set * >( tWorkSet )->mRequestedIWGs = { tIWG };
@@ -340,8 +324,23 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         reinterpret_cast< fem::Set * >( tWorkSet )->mJacDofAssemblyMap( 0 ) = { { 0, 3 } };
 
         // set size and fill the set dv assembly map
-        reinterpret_cast< fem::Set * >( tWorkSet )->mDvAssemblyMap.resize( 1 );
-        reinterpret_cast< fem::Set * >( tWorkSet )->mDvAssemblyMap( 0 ) = { { 0, 3 } };
+        reinterpret_cast< fem::Set * >( tWorkSet )->mPdvMatAssemblyMap.resize( 1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mPdvMatAssemblyMap( 0 ) = { { 0, 3 } };
+
+        // set size for the set EqnObjDofTypeList
+        reinterpret_cast< fem::Set * >( tWorkSet )->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+        // set size and populate the set dof type map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+        // set size and populate the set master dof type map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+        // set size and populate the set master dof type map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
         // MSI Equation object
         //------------------------------------------------------------------------------
@@ -352,23 +351,21 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         MSI::Equation_Object * tWorkEqObj = tEqObjs( 0 );
 
         // set the solution vector
-//        tEquationObject( 0 )->mPdofValues = {{ 0},{0},{0},{0}};
-        tEquationModel->set_solution_vector( mVector);
+        tEquationModel->set_solution_vector( mVector );
 
         // set the time
-        tWorkEqObj->set_time( { { 0 }, { 1 } } );
-		
-		moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
-        tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
-		
-		tDesignVariableInterface->set_model( tModel );
-		tDesignVariableInterface->set_requested_IQI_type( tRequestedIQITypes );
-		tWorkSet->create_requested_IQI_type_map();
+        Matrix< DDRMat > tTime = { { 0.0 }, { 1.0 } };
+        tEquationModel->set_time( tTime );
+
+        tDesignVariableInterface->set_equation_model( tModel->get_fem_model() );
+        tDesignVariableInterface->set_requested_IQIs( {"IQI_1"} );
+        tWorkSet->create_requested_IQI_type_map();
 
         // Init IWG and IQI for forward analysis
         //------------------------------------------------------------------------------
-        // set the IWG fem set
+        // set the IWG/IQI fem set
         tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
+        tIQI->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
         // build global dof type list
         tIWG->get_global_dof_type_list();
@@ -381,27 +378,26 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tWorkSet->mResidual.resize( 1 );
         tWorkSet->mResidual( 0 ).set_size( 4, 1, 0.0 );
         tWorkSet->mResidualExist = true;
-        tWorkSet->mJacobian.set_size( 4, 4, 0.0 );
-        tWorkSet->mJacobianExist = true;
         tWorkEqObj->compute_residual();
-        print( tWorkSet->get_residual()( 0 ), "R" );
+        //print( tWorkSet->get_residual()( 0 ), "R" );
 
         // compute jacobian
+        tWorkSet->mJacobian.set_size( 4, 4, 0.0 );
+        tWorkSet->mJacobianExist = true;
         tWorkEqObj->compute_jacobian();
-        print( tWorkSet->get_jacobian(), "dRdu" );
+        //print( tWorkSet->get_jacobian(), "dRdu" );
 
         // compute dRdp
         tWorkEqObj->compute_dRdp();
-
-        // set the IQI fem set
-        tIQI->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
+        print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
+        print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
 
         // compute QIs
         tWorkSet->mQI.resize( 1 );
         tWorkSet->mQI( 0 ).set_size( 1, 1, 0.0 );
         tWorkSet->mQIExist = true;
         tWorkEqObj->compute_QI();
-        print( tWorkSet->get_QI()( 0 ), "QI" );
+        //print( tWorkSet->get_QI()( 0 ), "QI" );
 
         // compute dQIdu
         reinterpret_cast< fem::Set * >( tWorkSet )->mResidual.resize( 1 );
@@ -410,38 +406,12 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
 //        // compute dQIdp
-//        tWorkEqObj->compute_dQIdp();
+//        tWorkEqObj->compute_dQIdp_explicit();
+//        print( tWorkSet->get_dqidp()( 0 )( 0 ), "dQIdpMat" );
+//        print( tWorkSet->get_dqidp()( 1 )( 0 ), "dQIdpGeo" );
 
-//        // Create the pdof hosts of this equation object
-//        moris::Cell < Pdof_Host * > tPdofHostList;
-//        tPdofHostList.resize( 3, nullptr );
-//        moris::uint tNumMaxPdofTypes = 1;
-//
-//        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-//        tDofTypeIndexMap(3, 0) = 0;
-//
-//        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
-//
-//        Equation_Set tEqnBlock;
-//        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-//        EquObj.mEquationSet = &tEqnBlock;
-//
-//        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
-//
-//        // Check if right pdof host was created in given pdof host list
-//        CHECK( equal_to( tPdofHostList( 0 )->mNodeID, 0 ) );
-//        REQUIRE( tPdofHostList( 1 ) == NULL );
-//        CHECK( equal_to( tPdofHostList( 2 )->mNodeID, 2 ) );
-//
-//        // Check equation objects internal pdof host list
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 ).size(), 2 ) );
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 0 )->mNodeID, 0 ) );
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 1 )->mNodeID, 2 ) );
-//        delete Node1;
-//        delete Node2;
-//        delete tPdofHostList(0);
-//        delete tPdofHostList(1);
-//        delete tPdofHostList(2);
+//        tEquationModel->compute_explicit_dQIdp();
+
     }
 
 }/* END_TEST_CASE */

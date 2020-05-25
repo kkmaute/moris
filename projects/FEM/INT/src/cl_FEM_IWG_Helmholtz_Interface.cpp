@@ -64,23 +64,7 @@ namespace moris
         void IWG_Helmholtz_Interface::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // set the field interpolator
-//            Field_Interpolator* vN = mMasterFI( 0 );
-//
-//            //FIXME set the interface normal
-//            Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
-//
-//            // set resiaul size
-//            this->set_residual( aResidual );
-//
-//            // compute the residual
-//            aResidual( 0 ) = - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal;
-//
-//            // set the jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            // compute the residual
-//            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->dnNdxn( 1 );
+            MORIS_ERROR( false, " IWG_Helmholtz_Interface::compute_jacobian_and_residual - Not implemented.");
         }
 
 //------------------------------------------------------------------------------

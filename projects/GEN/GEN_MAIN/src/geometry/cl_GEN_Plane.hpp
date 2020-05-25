@@ -2,17 +2,17 @@
 #define MORIS_CL_GEN_PLANE_HPP
 
 #include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_Matrix.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Plane : public Geometry_Analytic
+        class Plane : public Geometry_Analytic, public Field_Analytic
         {
         private:
-            real ( Plane:: * m_eval_field )(Matrix<DDRMat> const &) = nullptr;
-            Matrix<DDRMat> ( Plane:: * m_eval_sensitivity )(Matrix<DDRMat> const &) = nullptr;
+            real ( Plane:: * m_eval_field )(const Matrix<DDRMat>&) = nullptr;
+            void ( Plane:: * m_eval_sensitivity )(const Matrix<DDRMat>&, Matrix<DDRMat>&) = nullptr;
 
         public:
             /**
@@ -23,7 +23,10 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              */
-            Plane(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters);
+            Plane(Matrix<DDRMat>& aADVs,
+                  Matrix<DDUMat> aGeometryVariableIndices,
+                  Matrix<DDUMat> aADVIndices,
+                  Matrix<DDRMat> aConstantParameters);
 
             /**
              * Constructor with only constant parameters, 3D
@@ -56,35 +59,35 @@ namespace moris
             real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node coordinate @param[in] aCoordinates, the function returns a matrix of relevant node coordinates
-             * Where each row represents a design variable and each column is x, y, z sensitivities
+             * Given a node coordinate @param aCoordinates, the function returns a matrix of sensitivities of the
+             * geometry location with respect to the ADVs
              *
-             * @param aCoordinates vector of coordinate values
-             * @return matrix of sensitivities
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivities Matrix of sensitivities
              */
-            Matrix<DDRMat> evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates);
+            void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
 
         private:
             /**
              * 2D evaluation for evaluate_field_value
              */
-            moris::real eval_field_2d(Matrix<DDRMat> const & aCoordinates);
+            moris::real eval_field_2d(const Matrix<DDRMat>& aCoordinates);
 
             /**
              * 3D evaluation for evaluate_field_value
              */
-            moris::real eval_field_3d(Matrix<DDRMat> const & aCoordinates);
+            moris::real eval_field_3d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 2D evaluation for evaluate_sensitivity
+             * 2D evaluation for evaluate_all_sensitivities
              */
-            Matrix<DDRMat> eval_sensitivity_2d(Matrix<DDRMat> const & aCoordinates);
+            void eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
             /**
-             * 3D evaluation for evaluate_sensitivity
+             * 3D evaluation for evaluate_all_sensitivities
              */
-            Matrix<DDRMat> eval_sensitivity_3d(Matrix<DDRMat> const & aCoordinates);
+            void eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
         };
     }
 }

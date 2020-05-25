@@ -31,7 +31,10 @@ set(TEST_SOURCES
     UT_FEM_IWG.cpp
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp
+    UT_FEM_CM_Diff_PC.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
+    UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
+    UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
     UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
@@ -44,13 +47,15 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Interface.cpp
     UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
-    UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
+    #UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Velocity_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
+    UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_Input.cpp
+    UT_FEM_Geometry_Interpolator.cpp
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
     )
 

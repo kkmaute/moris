@@ -8,6 +8,7 @@ echo ""
 echo " Input: 1. name of working directory of source file and share object"
 echo "        2. name of moris build directory under "'$MORISROOT'
 echo "        3. name of input file (without cpp suffix)"
+echo "        4. optional: keyword dbg to keep link to input file"
 echo ""
 echo " Output: .so file"
 echo ""
@@ -78,13 +79,23 @@ else
     exit
 fi
 
+dbgflag=0
+
+if [ "$4" ];then
+    if [ "$4" = 'dbg' ];then
+        dbgflag=1
+    fi
+fi
+
 cd $workdir
 
 workdir=`pwd`
 
+rm -f $cppfile.so
+
 mv $MORISROOT/projects/mains/input_file.cpp /tmp/.
 
-cp $cppfile.cpp $MORISROOT/projects/mains/input_file.cpp
+ln -s $workdir/$cppfile.cpp $MORISROOT/projects/mains/input_file.cpp
 
 touch $MORISROOT/projects/mains/input_file.cpp
 
@@ -96,6 +107,26 @@ cd $workdir
 
 mv $MORISROOT/$builddir/lib/input_file.so $cppfile.so
 
-rm $MORISROOT/projects/mains/input_file.cpp
+if [ "$dbgflag" = '0' ];then
+    rm $MORISROOT/projects/mains/input_file.cpp
 
-mv /tmp/input_file.cpp $MORISROOT/projects/mains/.
+    tmpfilehead=`head -1 /tmp/input_file.cpp`
+
+    if [ "$tmpfilehead" = '//dummy file - placeholder for dynamically linked object file' ];then
+        echo ""
+        echo " restoring input_file.cpp from /tmp"
+        echo ""
+        mv /tmp/input_file.cpp $MORISROOT/projects/mains/.
+    else
+        echo ""
+        echo " restoring input_file.cpp from git repository"
+        echo ""
+    
+        cd $MORISROOT/$builddir
+        git checkout -- $MORISROOT/projects/mains/input_file.cpp
+    fi
+else
+    echo ""
+    echo " keep soft link from $cppfile.cpp to input_file.cpp"
+    echo ""
+fi

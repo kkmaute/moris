@@ -15,6 +15,9 @@
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Paramfile.hpp"
 #include "HMR_Globals.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 

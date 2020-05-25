@@ -33,35 +33,47 @@ namespace moris
         class Field_Interpolator_Manager;
     }
 
+    namespace hmr
+    {
+        class Element;
+    }
+
 // -----------------------------------------------------------------------------
 
         /**
          * Interface for user defined function
          */
-        typedef Matrix<DDRMat> ( *MORIS_DDRMAT0_FUNCTION ) ( );
+        typedef Matrix<DDRMat> ( *MORIS_CRITERIA_FUNCTION ) (const moris::Matrix<DDRMat>& );
 
-        typedef Matrix<DDRMat> ( *MORIS_DDRMAT1_FUNCTION ) ( const moris::Matrix<DDRMat>& );
+        typedef Matrix<DDRMat> ( *MORIS_OBJECTIVE_CONSTRAINT_FUNCTION ) (const moris::Matrix<DDRMat>&,
+                                                                         const moris::Matrix<DDRMat>& );
 
-        typedef Matrix<DDRMat> ( *MORIS_DDRMAT2_FUNCTION ) ( const moris::Matrix<DDRMat>&,
-                                                             const moris::Matrix<DDRMat>& );
+        typedef void ( *MORIS_CRITERIA_INITIALIZE_FUNCTION ) (moris::Matrix<DDRMat>& aAdvs,
+                                                              moris::Matrix<DDRMat>& aLowerBounds,
+                                                              moris::Matrix<DDRMat>& aUpperBounds);
 
-        typedef void ( *MORIS_DDRMAT3_REF_FUNCTION ) (moris::Matrix<DDRMat>&,
-                                                                moris::Matrix<DDRMat>&,
-                                                                moris::Matrix<DDRMat>&);
-
-        typedef Matrix<DDSMat> ( *MORIS_DDSMAT0_FUNCTION ) ( );
+        typedef Matrix<DDSMat> ( *MORIS_CONSTRAINT_TYPES_FUNCTION ) ( );
 
         typedef bool ( *MORIS_SOL_CRITERIA_FUNC ) ( moris::tsa::Time_Solver * aTimeSolver );
 
+        typedef bool ( *MORIS_POINTER_FUNC ) ( void * aPointer );
+
         typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
-        typedef void ( *MORIS_GEN_FUNCTION ) (       moris::real                & aReturnValue,
-                                               const moris::Matrix< DDRMat >    & aPoint,
-                                               const moris::Cell< moris::real > & aConst );
+        typedef real ( *MORIS_GEN_FIELD_FUNCTION ) (const moris::Matrix< DDRMat >    & aCoordinates,
+                                                    const moris::Cell< moris::real* > & aParameters );
+
+        typedef void ( *MORIS_GEN_SENSITIVITY_FUNCTION ) ( const moris::Matrix< DDRMat >&     aCoordinates,
+                                                           const moris::Cell< moris::real* >& aParameters,
+                                                           moris::Matrix< DDRMat >&           aReturnValue);
 
         typedef void ( *MORIS_FEM_FREE_FUNCTION ) ( moris::Matrix< moris::DDRMat >                & aPropMatrix,
                                                     moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
                                                     moris::fem::Field_Interpolator_Manager        * aFIManager );
+                                                    
+        typedef sint  ( *MORIS_USER_DEFINED_REFINEMENT_FUNCTION ) (       hmr::Element             * aElement,
+                                                                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                                                                          ParameterList            & aParameters );
 
 // -----------------------------------------------------------------------------
 
@@ -115,33 +127,13 @@ namespace moris
                 dlclose( mLibraryHandle );
             }
 
-// -----------------------------------------------------------------------------
-
-            MORIS_DDRMAT0_FUNCTION
-            load_ddrmat0_function( const std::string & aFunctionName )
-            {
-                MORIS_DDRMAT0_FUNCTION aUserFunction
-                    = reinterpret_cast<MORIS_DDRMAT0_FUNCTION>
-                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
-
-                // create error message
-                std::string tError =  "Could not find symbol " + aFunctionName
-                        + "  within file " + mPath;
-
-                // make sure that loading succeeded
-                MORIS_ERROR( aUserFunction, tError.c_str() );
-
-                // return function handle
-                return aUserFunction;
-            }
-
             // -----------------------------------------------------------------------------
 
-            MORIS_DDRMAT1_FUNCTION
-            load_ddrmat1_function( const std::string & aFunctionName )
+            MORIS_CRITERIA_FUNCTION
+            load_criteria_function( const std::string & aFunctionName )
             {
-                MORIS_DDRMAT1_FUNCTION aUserFunction
-                        = reinterpret_cast<MORIS_DDRMAT1_FUNCTION>
+                MORIS_CRITERIA_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_CRITERIA_FUNCTION>
                         ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
@@ -157,11 +149,11 @@ namespace moris
 
             // -----------------------------------------------------------------------------
 
-            MORIS_DDRMAT2_FUNCTION
-            load_ddrmat2_function( const std::string & aFunctionName )
+            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION
+            load_objective_constraint_function( const std::string & aFunctionName )
             {
-                MORIS_DDRMAT2_FUNCTION aUserFunction
-                        = reinterpret_cast<MORIS_DDRMAT2_FUNCTION>
+                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_OBJECTIVE_CONSTRAINT_FUNCTION>
                         ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
@@ -177,11 +169,11 @@ namespace moris
 
             // -----------------------------------------------------------------------------
 
-            MORIS_DDRMAT3_REF_FUNCTION
-            load_ddrmat3_ref_function( const std::string & aFunctionName )
+            MORIS_CRITERIA_INITIALIZE_FUNCTION
+            load_criteria_initialize_function( const std::string & aFunctionName )
             {
-                MORIS_DDRMAT3_REF_FUNCTION aUserFunction
-                        = reinterpret_cast<MORIS_DDRMAT3_REF_FUNCTION>
+                MORIS_CRITERIA_INITIALIZE_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_CRITERIA_INITIALIZE_FUNCTION>
                         ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
@@ -197,11 +189,11 @@ namespace moris
 
             // -----------------------------------------------------------------------------
 
-            MORIS_DDSMAT0_FUNCTION
-            load_ddsmat0_function( const std::string & aFunctionName )
+            MORIS_CONSTRAINT_TYPES_FUNCTION
+            load_constraint_types_function(const std::string & aFunctionName )
             {
-                MORIS_DDSMAT0_FUNCTION aUserFunction
-                        = reinterpret_cast<MORIS_DDSMAT0_FUNCTION>
+                MORIS_CONSTRAINT_TYPES_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_CONSTRAINT_TYPES_FUNCTION>
                         ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
@@ -255,16 +247,34 @@ namespace moris
                 return aUserFunction;
             }
 
-            MORIS_GEN_FUNCTION
-            load_gen_free_functions( const std::string & aFunctionName )
+            MORIS_GEN_FIELD_FUNCTION
+            load_gen_field_function( const std::string & aFunctionName )
             {
-                MORIS_GEN_FUNCTION aUserFunction
-                    = reinterpret_cast<MORIS_GEN_FUNCTION>
+                MORIS_GEN_FIELD_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_GEN_FIELD_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message
                 std::string tError =  "Could not find symbol " + aFunctionName
                                    + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            MORIS_GEN_SENSITIVITY_FUNCTION
+            load_gen_sensitivity_function( const std::string & aFunctionName )
+            {
+                MORIS_GEN_SENSITIVITY_FUNCTION aUserFunction
+                        = reinterpret_cast<MORIS_GEN_SENSITIVITY_FUNCTION>
+                        ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                        + "  within file " + mPath;
 
                 // make sure that loading succeeded
                 MORIS_ERROR( aUserFunction, tError.c_str() );
@@ -280,6 +290,44 @@ namespace moris
             {
                 MORIS_SOL_CRITERIA_FUNC aUserFunction
                     = reinterpret_cast<MORIS_SOL_CRITERIA_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+            MORIS_POINTER_FUNC
+            load_pointer_functions( const std::string & aFunctionName )
+            {
+                MORIS_POINTER_FUNC aUserFunction
+                    = reinterpret_cast<MORIS_POINTER_FUNC>
+                    ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+                // create error message
+                std::string tError =  "Could not find symbol " + aFunctionName
+                                   + "  within file " + mPath;
+
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+
+                // return function handle
+                return aUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION
+            load_user_defined_refinement_functions( const std::string & aFunctionName )
+            {
+                MORIS_USER_DEFINED_REFINEMENT_FUNCTION aUserFunction
+                    = reinterpret_cast<MORIS_USER_DEFINED_REFINEMENT_FUNCTION>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
                 // create error message

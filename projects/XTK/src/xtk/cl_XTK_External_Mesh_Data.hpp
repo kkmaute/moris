@@ -172,7 +172,7 @@ public:
 
             if(aMeshData->get_mesh_type() == MeshType::HMR)
             {
-                mFirstAvailableIds(4) = tFirstBspline;
+                mFirstAvailableIds(4) = tFirstBspline+1;
             }
 
         }

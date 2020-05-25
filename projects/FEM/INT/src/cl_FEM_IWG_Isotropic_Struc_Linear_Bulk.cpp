@@ -60,7 +60,7 @@ namespace moris
             {
                 // compute body load contribution
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                -= aWStar * ( trans( tDisplacementFI->N() ) * tPropLoad->val()( 0 ) );
+                -= aWStar * ( trans( tDisplacementFI->N() ) * tPropLoad->val() );
             }
 
         }

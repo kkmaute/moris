@@ -42,7 +42,21 @@ stringify<bool>(bool aValue)
   return out.str();
 }
 
-template<> inline std::string stringify<real>(real aValue)
+template<> inline std::string stringify<double>(double aValue)
+{
+  std::ostringstream out;
+  out << std::setprecision(LOGGER_FLOAT_PRECISION) << aValue;
+  return out.str();
+}
+
+template<> inline std::string stringify<long double>(long double aValue)
+{
+  std::ostringstream out;
+  out << std::setprecision(LOGGER_FLOAT_PRECISION) << aValue;
+  return out.str();
+}
+
+template<> inline std::string stringify<float>(float aValue)
 {
   std::ostringstream out;
   out << std::setprecision(LOGGER_FLOAT_PRECISION) << aValue;

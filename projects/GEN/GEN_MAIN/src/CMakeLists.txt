@@ -6,6 +6,11 @@ set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+
+	cl_GEN_Field_Base.hpp
+	cl_GEN_Field_Analytic.hpp
+	cl_GEN_Field_Discrete.hpp
+
 	additional/cl_GEN_Basis_Function.hpp
 	additional/cl_GEN_Edge_Topology.hpp
 	additional/cl_GEN_Enums.hpp
@@ -21,13 +26,13 @@ set(HEADERS
 	additional/cl_GEN_Topology.hpp
 	additional/fn_GEN_approximatate.hpp
 	additional/fn_GEN_bubble_sort.hpp
-    
-	geomeng/cl_GEN_Design_Variable_Interface.hpp
+
 	gemoeng/cl_GEN_Field.hpp
 	geomeng/cl_GEN_Geometry_Engine.hpp
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp
 	geomeng/cl_GEN_Pdv.hpp
+	geomeng/cl_GEN_Pdv_Property.hpp
 	geomeng/cl_GEN_Pdv_Host.hpp
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
 	geomeng/fn_GEN_Triangle_Geometry.hpp
@@ -41,10 +46,15 @@ set(HEADERS
 	geometry/cl_GEN_Geometry_Field_HMR.hpp
 	geometry/cl_GEN_Geometry_Field.hpp
 #	geometry/cl_GEN_Sphere.hpp
+	geometry/cl_GEN_User_Defined_Geometry.hpp
 #	geometry/fn_bounding_box.hpp
 	geometry/fn_GEN_create_geometry.hpp
 	
 	property/cl_GEN_Property.hpp
+	property/cl_GEN_Discrete_Property.hpp
+	property/cl_GEN_User_Defined_Property.hpp
+	property/fn_GEN_create_property.hpp
+	property/fn_GEN_create_properties.hpp
 	
     )
     
@@ -89,19 +99,33 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+
+	cl_GEN_Field_Base.cpp
+	cl_GEN_Field_Analytic.cpp
+	cl_GEN_Field_Discrete.cpp
+
 	additional/cl_GEN_Phase_Table.cpp
 
 	geomeng/cl_GEN_Geometry_Engine.cpp
 	geomeng/cl_GEN_Geometry_Object.cpp
+	geomeng/cl_GEN_Pdv_Host_Manager.cpp
+	geomeng/cl_GEN_Pdv_Host.cpp
+	geomeng/cl_GEN_Pdv.cpp
+	geomeng/cl_GEN_Pdv_Property.cpp
 
     geometry/cl_GEN_Geometry_Analytic.cpp
 	geometry/cl_GEN_Geometry_Discrete.cpp
 	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Circle.cpp
 	geometry/cl_GEN_Plane.cpp
+	geometry/cl_GEN_User_Defined_Geometry.cpp
 	geometry/cl_GEN_Discrete_Level_Set.cpp
 	
 	property/cl_GEN_Property.cpp
+	property/cl_GEN_Discrete_Property.cpp
+	property/cl_GEN_User_Defined_Property.cpp
+	property/fn_GEN_create_property.cpp
+	property/fn_GEN_create_properties.cpp
 	
     )
 

@@ -41,6 +41,7 @@
 #include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
@@ -383,11 +384,11 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tSetBulk2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
+        tSetDirichlet1.set_mesh_set_name( "iside_b0_1_b1_0" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
+        tSetNeumann1.set_mesh_set_name( "iside_b0_1_b1_3" );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
@@ -556,10 +557,6 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tHMR.perform_initial_refinement( 0 );
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        //  create field
-        std::shared_ptr< moris::hmr::Field > tOuterField = tMesh->create_field( tOuterFieldName, tLagrangeMeshIndex );
-        std::shared_ptr< moris::hmr::Field > tInnerField = tMesh->create_field( tInnerFieldName, tLagrangeMeshIndex );
 
         for( uint k=0; k<tNumRef; ++k )
         {
@@ -748,11 +745,11 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tSetBulk2.set_IQIs( { tIQITEMP, tIQIL2, tIQITempExact } );
 
         fem::Set_User_Info tSetDirichlet1;
-        tSetDirichlet1.set_mesh_set_name( "iside_g_1_b0_1_b1_0" );
+        tSetDirichlet1.set_mesh_set_name( "iside_b0_1_b1_0" );
         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
 
         fem::Set_User_Info tSetNeumann1;
-        tSetNeumann1.set_mesh_set_name( "iside_g_0_b0_1_b1_3" );
+        tSetNeumann1.set_mesh_set_name( "iside_b0_1_b1_3" );
         tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
         fem::Set_User_Info tSetDisplGhost;

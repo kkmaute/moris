@@ -153,6 +153,9 @@ public:
     moris::Matrix< moris::IndexMat > const &
     get_basis_indices() const;
 
+    moris::Matrix< moris::IndexMat > const &
+    get_basis_ids() const;
+
     moris::Matrix< moris::DDRMat > const &
     get_basis_weights() const;
 

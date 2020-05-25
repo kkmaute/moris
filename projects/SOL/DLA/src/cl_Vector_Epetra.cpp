@@ -11,10 +11,10 @@ using namespace moris;
 
 //----------------------------------------------------------------------------------------------
 
-Vector_Epetra::Vector_Epetra(       Dist_Map       * aMapClass,
-                              const sint              aNumVectors ) : Dist_Vector( aMapClass )
+Vector_Epetra::Vector_Epetra(       sol::Dist_Map   * aMapClass,
+                              const sint              aNumVectors ) : sol::Dist_Vector( aMapClass )
 {
-	mNumVectors = aNumVectors;
+    mNumVectors = aNumVectors;
 
     // Build Epetra Vector
     mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_map(), aNumVectors );
@@ -47,7 +47,7 @@ void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlo
                                             const moris::Matrix< DDRMat > & aValues,
                                             const uint                    & aVectorIndex )
 {
-    // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+    // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
                                                                                 aGlobalIds.data(),
                                                                                 aValues.data(),
@@ -64,9 +64,9 @@ void Vector_Epetra::vector_global_asembly()
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vec_plus_vec( const moris::real & aScaleA,
-                                        Dist_Vector & aVecA,
-                                  const moris::real & aScaleThis )
+void Vector_Epetra::vec_plus_vec( const moris::real      & aScaleA,
+                                        sol::Dist_Vector & aVecA,
+                                  const moris::real      & aScaleThis )
 {
     // check if both vectors are build with the same map
     const Epetra_Map* tMap = aVecA.get_map()->get_epetra_map();
@@ -111,7 +111,7 @@ void Vector_Epetra::scale_vector( const moris::real & aValue,
 //----------------------------------------------------------------------------------------------
 
 // Import the local vector into the global vector object mEpetraVec
-void Vector_Epetra::import_local_to_global( Dist_Vector & aSourceVec )
+void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
 {
     // check if both vectores have the same map
     const Epetra_Map* tMap = aSourceVec.get_map()->get_epetra_map();
@@ -164,12 +164,12 @@ moris::sint Vector_Epetra::vec_global_length() const
 
 //----------------------------------------------------------------------------------------------
 
-moris::real Vector_Epetra::vec_norm2()
+Cell< moris::real > Vector_Epetra::vec_norm2()
 {
-    moris::real tNorm = 0.0;
+    Cell< moris::real > tNorm( mNumVectors, 0.0);
 
     // get the norm2 of this vector
-    mEpetraVector->Norm2( &tNorm );
+    mEpetraVector->Norm2( tNorm.data().data() );
 
     return tNorm;
 }
@@ -180,7 +180,7 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 {
     //std::cout<<*mEpetraVector<<std::endl;
 
-	moris::sint tVectorLenght = this->vec_local_length();
+    moris::sint tVectorLenght = this->vec_local_length();
 
     LHSValues.set_size( tVectorLenght, mNumVectors );
 

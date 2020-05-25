@@ -2,13 +2,13 @@
 #define MORIS_CL_GEN_CIRCLE_HPP
 
 #include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_Matrix.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Circle : public Geometry_Analytic
+        class Circle : public Geometry_Analytic, public Field_Analytic
         {
         public:
 
@@ -40,13 +40,13 @@ namespace moris
             real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node coordinate @param[in] aCoordinates, the function returns a matrix of relevant node coordinates
-             * Where each row represents a design variable and each column is x, y, z sensitivities
+             * Given a node coordinate @param aCoordinates, the function returns a matrix of sensitivities of the
+             * geometry location with respect to the ADVs
              *
-             * @param aCoordinates vector of coordinate values
-             * @return matrix of sensitivities
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivities Matrix of sensitivities
              */
-            Matrix<DDRMat> evaluate_sensitivity(const Matrix<DDRMat>& aCoordinates);
+            void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
         };
     }

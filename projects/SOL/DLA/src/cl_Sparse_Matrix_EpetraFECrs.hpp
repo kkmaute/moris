@@ -22,7 +22,7 @@
 namespace moris
 {
 // Project header files
-class Sparse_Matrix_EpetraFECrs : public Dist_Matrix
+class Sparse_Matrix_EpetraFECrs : public sol::Dist_Matrix
 {
 private:
     moris::Matrix< DDUMat > mDirichletBCVec;
@@ -34,7 +34,7 @@ protected:
 
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
-                               const moris::Dist_Map        * aMap );
+                               const moris::sol::Dist_Map    * aMap );
 
     Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
                                const moris::uint aCols )
@@ -52,22 +52,30 @@ public:
                           const moris::Matrix< DDSMat > & aCols )
 	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
 
+    void get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
+                                  moris::Matrix< DDRMat > & aValues )
+	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::get_matrix_values: not set yet with epetra"); };
+
     void matrix_global_assembly();
 
     void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );
 
-    void get_diagonal( moris::Dist_Vector & aDiagVec ) const;
+    void get_diagonal( moris::sol::Dist_Vector & aDiagVec ) const;
 
     void mat_put_scalar( const moris::real & aValue );
 
-    void sparse_mat_left_scale( const moris::Dist_Vector & aScaleVector );
+    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector );
 
-    void sparse_mat_right_scale( const moris::Dist_Vector & aScaleVector );
+    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector );
 
-    void replace_diagonal_values( const moris::Dist_Vector & aDiagVec );
+    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec );
 
-    void  print() const;
+    void mat_vec_product( const moris::sol::Dist_Vector & aInputVec,
+                                moris::sol::Dist_Vector & aResult,
+                          const bool                      aUseTranspose );
+
+    void print() const;
 
     void save_matrix_to_matlab_file( const char* aFilename );
 

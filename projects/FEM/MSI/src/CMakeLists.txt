@@ -31,19 +31,18 @@ set(LIB_SOURCES
     cl_MSI_Model_Solver_Interface.cpp
     cl_MSI_Equation_Object.cpp
     cl_MSI_Equation_Set.cpp
+    cl_MSI_Equation_Model.cpp
     cl_MSI_Multigrid.cpp
     cl_MSI_Solver_Interface.cpp
     cl_MSI_Design_Variable_Interface.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-	${LINALG}-lib
+    ${LINALG}-lib
     ${COM}-lib
     ${CON}-lib
-    ${GEN_CORE}-lib
     ${INT}-lib
     ${DLA}-lib
-    ${HMR}-lib
     ${PRM}-lib
     #${MDL}-lib
    )

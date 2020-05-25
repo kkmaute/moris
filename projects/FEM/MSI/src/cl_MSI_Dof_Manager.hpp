@@ -45,7 +45,9 @@ namespace moris
 
             bool mUseHMR = false;
 
-            Matrix< DDUMat >               mTimePerDofType; // List containing the number of time levels per dof type. // FIXME
+            // List containing the number of time levels per dof type.
+            // FIXME
+            Matrix< DDUMat > mTimePerDofType;
 
 //------------------------------------------------------------------------------
             /**
@@ -73,7 +75,7 @@ namespace moris
              * @param[in] aPdofTypeList   List of pdof types
              *
              */
-            void create_dof_and_dv_type_maps();
+            void create_dof_type_map();
 
 //------------------------------------------------------------------------------
             /**

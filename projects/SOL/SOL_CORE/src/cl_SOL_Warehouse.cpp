@@ -235,7 +235,7 @@ void SOL_Warehouse::create_time_solvers()
     for( uint Ik = 0; Ik< tNumTimeSolvers; Ik++ )
     {
         // Create time solver with user defined parameter list
-        mTimeSolvers( Ik ) = new tsa::Time_Solver( mParameterlist( 5 )( Ik ) );
+        mTimeSolvers( Ik ) = new tsa::Time_Solver( mParameterlist( 5 )( Ik ), this );
 
         // get tie solver algorithm indices for this time solver
         moris::Matrix< DDSMat > tMat;
@@ -281,14 +281,16 @@ void SOL_Warehouse::create_time_solvers()
 
             for( uint Ia = 0; Ia< tOutputCriteria.size(); Ia++ )
             {
-                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = mLibrary->load_sol_criteria_functions( tOutputCriteria( Ia ) );
+//                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = mLibrary->load_sol_criteria_functions( tOutputCriteria( Ia ) );
+                MORIS_POINTER_FUNC tCriteriaFunc = mLibrary->load_pointer_functions( tOutputCriteria( Ia ) );
 
-                mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ), tCriteriaFunc );
+                mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
+                                                reinterpret_cast< bool(*)( moris::tsa::Time_Solver * )>( tCriteriaFunc ) );
             }
         }
 
         // set warehouse to time solver
-        mTimeSolvers( Ik )->set_solver_warehouse( this );
+//        mTimeSolvers( Ik )->set_solver_warehouse( this );
     }
 }
 

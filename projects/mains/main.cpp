@@ -47,6 +47,7 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow.hpp"
+#include "cl_OPT_Manager.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -79,25 +80,47 @@ int main( int argc, char * argv[] )
         return -1;
     }
 
-    std::string tInputArg = std::string(argv[ 1 ]);
-    std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
-    MORIS_LOG( tString.c_str() );
-
-    //dynamically linked file
-    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
-
+    try
     {
-        wrk::Performer_Manager tPerformerManager( tLibrary );
+        std::string tInputArg = std::string(argv[ 1 ]);
+        std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
+        MORIS_LOG( tString.c_str() );
 
-        tPerformerManager.initialize_performers();
+        //dynamically linked file
+        std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
 
-        tPerformerManager.set_performer_cooperations();
         {
-            wrk::Workflow tWorkflow( &tPerformerManager );
+            // load the OPT parameter list
+            std::string tOPTString = "OPTParameterList";
+            MORIS_PARAMETER_FUNCTION tOPTParameterListFunc = tLibrary->load_parameter_file( tOPTString );
+            moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
+            tOPTParameterListFunc( tOPTParameterList );
 
-            Matrix<DDRMat> tADVs(1, 1, 0.0);
-            tWorkflow.get_criteria(tADVs);
+            // Create workflow
+            wrk::Performer_Manager tPerformerManager( tLibrary );
+            tPerformerManager.initialize_performers();
+            tPerformerManager.set_performer_cooperations();
+
+            moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { std::make_shared<wrk::Workflow>( &tPerformerManager ) };
+
+            if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
+            {
+                moris::opt::Manager tManager( tOPTParameterList, tWorkflows );
+                tManager.perform();
+
+            }
+            else
+            {
+                Matrix< DDRMat > tDummyMat;
+                tWorkflows(0)->initialize( tDummyMat,tDummyMat,tDummyMat );
+                Matrix<DDRMat> tADVs(1, 1, 0.0);
+                tWorkflows(0)->get_criteria(tADVs);
+            }
         }
+    }
+    catch(...)
+    {
+        std::cerr << "\n\n" << "MORIS encountered an error - see information above - Exit" << "\n\n";
     }
 
     // finalize MORIS global communication manager

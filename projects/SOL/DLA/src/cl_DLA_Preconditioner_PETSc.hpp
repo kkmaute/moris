@@ -19,8 +19,13 @@
 
 namespace moris
 {
-class Dist_Vector;
-class Dist_Matrix;
+    namespace sol
+    {
+        class Dist_Map;
+        class Dist_Vector;
+        class Dist_Matrix;
+    }
+
 namespace dla
 {
 class Linear_Solver_PETSc;
@@ -31,16 +36,33 @@ class Preconditioner_PETSc
 
         Linear_Solver_PETSc * mLinearSolverAlgoritm;
 
+        sol::Dist_Matrix   * mPreconMat = nullptr;
+        sol::Dist_Map      * mMapFree= nullptr;
+
     protected:
 
     public:
         Preconditioner_PETSc( Linear_Solver_PETSc * aLinearSolverAlgoritm );
 
-        ~Preconditioner_PETSc(){};
+        ~Preconditioner_PETSc()
+        {
+//            if( mPreconMat != nullptr )
+//            {
+//                delete mPreconMat;
+//            }
+//            if( mMapFree != nullptr )
+//            {
+//                delete mMapFree;
+//            }
+        };
+
+        sol::Dist_Matrix * get_preconditioner_matrix(){ return mPreconMat; };
 
         void build_multigrid_preconditioner( Linear_Problem * aLinearSystem );
 
-        void build_schwarz_preconditioner();
+        void build_schwarz_preconditioner_petsc();
+
+        void build_schwarz_preconditioner( Linear_Problem * aLinearSystem );
 
 };
 }

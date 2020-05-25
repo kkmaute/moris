@@ -35,6 +35,8 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"
 
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 

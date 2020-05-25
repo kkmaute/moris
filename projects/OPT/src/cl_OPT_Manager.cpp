@@ -9,16 +9,17 @@ namespace moris
 {
     namespace opt
     {
-        Manager::Manager(moris::Cell<moris::Cell<ParameterList>>& tParameterLists)
+        Manager::Manager(Cell<moris::Cell<ParameterList>>& aParameterLists,
+                         Cell<std::shared_ptr<Criteria_Interface>> aInterfaces)
         {
             // Problem
-            mProblem = create_problem(tParameterLists(0)(0), create_interface(tParameterLists(1)));
+            mProblem = create_problem(aParameterLists(0)(0), create_interface(aParameterLists(1), aInterfaces));
 
             // Algorithm Cell
-            uint tNumAlgorithms = tParameterLists(2).size();
+            uint tNumAlgorithms = aParameterLists(2).size();
             for (uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++)
             {
-                Algorithm_API tNewAlgorithm(tParameterLists(2)(tAlgorithmIndex));
+                Algorithm_API tNewAlgorithm(aParameterLists(2)(tAlgorithmIndex));
                 mAlgorithms.push_back(tNewAlgorithm);
             }
         }

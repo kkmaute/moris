@@ -13,12 +13,16 @@
 // GE include -----------------------------------
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Field.hpp"
+#include "cl_GEN_User_Defined_Property.hpp"
 #include "cl_GEN_Geometry_Field.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
 // HMR includes ---------------------------------
 #include "cl_HMR.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Field.hpp"
 
 // MTK includes ---------------------------------
@@ -46,20 +50,14 @@ real tTempCircleLS( const Matrix< DDRMat > & aPoint )
     return norm( aPoint ) - 0.6;
 }
 //-----------------------------------------------------------------------------
-Matrix< DDRMat > tSimpleFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff )
+real tSimpleFunc(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
 {
     // f(x,y) = 2*x + 3*(y*y)
+    return (2 * aCoordinates(0) + 3 * aCoordinates(1) * aCoordinates(1));
+}
 
-    uint tSize = aCoeff.size();
-
-    Matrix< DDRMat > tAllVals(tSize,1);
-
-    for(uint i=0; i<tSize; i++)
-    {
-        tAllVals(i) = 2*aCoeff(i)(0) + 3*(aCoeff(i)(1)*aCoeff(i)(1));
-    }
-
-    return tAllVals;
+void tSimpleFunc2(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables, Matrix<DDRMat>& aSensitivities)
+{
 }
 //-----------------------------------------------------------------------------
 
@@ -124,8 +122,14 @@ TEST_CASE("general_test_00","[GE],[geom_field_functionality_check]")
             tCoords.set_row( i, tAllVertices(i)->get_coords() );
         }
 
-        std::shared_ptr< GEN_Property > tFieldProperty = std::make_shared< GEN_Property >();
-        tFieldProperty->set_val_function( tSimpleFunc );
+        Matrix<DDRMat> tAdvs(1, 1, 0.0);
+        std::shared_ptr< Property > tFieldProperty = std::make_shared< User_Defined_Property >(tAdvs,
+                                                                                               Matrix<DDUMat>(0, 0),
+                                                                                               Matrix<DDUMat>(0, 0),
+                                                                                               Matrix<DDRMat>(0, 0),
+                                                                                               Cell<std::shared_ptr<Property>>(0),
+                                                                                               &tSimpleFunc,
+                                                                                               &tSimpleFunc2);
 
         GEN_Field tField( tFieldProperty );
         tField.initialize( &tMesh );

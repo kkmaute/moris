@@ -566,6 +566,11 @@ public:
     moris_index
     get_element_subphase_index(moris::size_t const & aEntityIndex) const;
 
+    /*!
+     * Returns the active bulk phases in this child mesh
+     */
+    Cell<moris_index>
+    get_active_bulk_phases(Cell<moris_index> & aBulkPhasesIndex) const;
 
     moris::Matrix< moris::IndexMat > const &
     get_element_phase_indices() const;
@@ -660,208 +665,36 @@ public:
 
     void pack_child_mesh_by_phase(moris::size_t const & aNumPhases,
                                   Cell<moris::Matrix< moris::IdMat >> & aElementIds,
-                                  Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const
-    {
-        moris::size_t tNumElems = get_num_entities(EntityRank::ELEMENT);
-
-        aElementIds = Cell<moris::Matrix< moris::IdMat >>(aNumPhases);
-        aElementCMInds = Cell<moris::Matrix< moris::IdMat >>(aNumPhases);
-
-        for(moris::size_t i = 0; i<aNumPhases; i++)
-        {
-            aElementIds(i) = moris::Matrix< moris::IdMat >(1,tNumElems);
-            aElementCMInds(i) = moris::Matrix< moris::IdMat >(1,tNumElems);
-        }
-
-        Cell<moris::size_t> tPhaseCounter(aNumPhases,0);
-
-        moris::Matrix< moris::IndexMat > const & tElementPhaseIndices = get_element_phase_indices();
-        moris::Matrix< moris::IdMat > const & tElementIds  = get_element_ids();
-
-        for(moris::size_t i = 0; i < tNumElems; i++)
-        {
-            moris::size_t tPhaseIndex = tElementPhaseIndices(0,i);
-            moris::size_t tPhaseCount = tPhaseCounter(tPhaseIndex);
-            aElementIds(tPhaseIndex)(0,tPhaseCount) = tElementIds(0,i);
-            aElementCMInds(tPhaseIndex)(0,tPhaseCount) = i;
-            tPhaseCounter(tPhaseIndex)++;
-        }
-
-        for(moris::size_t i = 0; i<aNumPhases; i++)
-        {
-            aElementIds(i).resize(1,tPhaseCounter(i));
-            aElementCMInds(i).resize(1,tPhaseCounter(i));
-        }
-    }
+                                  Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const;
 
 
+    /*
+     * Fora a given interface on geometry, pack the sides
+     */
     moris::Matrix< moris::IdMat >
     pack_interface_sides( moris_index aGeometryIndex,
                           moris_index aPhaseIndex0,
                           moris_index aPhaseIndex1,
-                          moris_index aIndexFlag              = 0) const
-                          {
-        // if this geometry index does not show up in this child mesh
-        if(!this->has_interface_along_geometry(aGeometryIndex))
-        {
-            return Matrix<moris::IdMat>(0,0);
-        }
-        // Loop bound and sizing
-        moris::size_t tNumElem = get_num_entities(EntityRank::ELEMENT);
-
-        // local geometry index
-        moris_index tLocGeomIndex = this->get_local_geom_index(aGeometryIndex);
-
-        moris::Matrix< moris::IdMat > tInterfaceCMInfo(tNumElem,2,MORIS_ID_MAX);
-
-        // Keep track of the number of interface sides
-        moris::size_t tCount = 0;
-
-        // construct a membership map in interface side set
-        Matrix<IndexMat> tCellsIndexInSet(this->get_num_entities(EntityRank::ELEMENT),1,MORIS_INDEX_MAX);
-
-        // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
-        for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
-        {
-            if(mElementInterfaceSides(iEl,tLocGeomIndex) != std::numeric_limits<moris::size_t>::max())
-            {
-                if((moris_index)this->get_element_phase_index(iEl) == aPhaseIndex0 || (moris_index)this->get_element_phase_index(iEl) == aPhaseIndex1)
-                {
-                    tInterfaceCMInfo(tCount,0) = iEl;
-
-                    tCellsIndexInSet(iEl) = tCount;
-
-                    tInterfaceCMInfo(tCount,1) = mElementInterfaceSides(iEl,tLocGeomIndex);
-                    tCount++;
-                }
-            }
-        }
-
-        // Size out extra space
-        tInterfaceCMInfo.resize(tCount,2);
-
-        // get the interface pairs with respect to this geometry
-        bool tNoPair = true;
-        moris::Matrix<moris::IndexMat> tInterfaceElementPairs;
-        moris::Matrix<moris::IndexMat> tInterfacePairSideOrds;
-        unzip_child_mesh_interface_get_interface_element_pairs(tLocGeomIndex,tNoPair,tInterfaceElementPairs,tInterfacePairSideOrds);
-
-        MORIS_ASSERT(!tNoPair,"No pair found");
-
-        Matrix<IndexMat> tCellsToKeepInSet(this->get_num_entities(EntityRank::ELEMENT),1,MORIS_INDEX_MAX);
-
-        // iterate through element pairs
-        uint tKeepCount = 0;
-        for(moris::uint i = 0; i < tInterfaceElementPairs.n_cols(); i ++)
-        {
-            moris_index tCell0 = tInterfaceElementPairs(0,i);
-            moris_index tCell1 = tInterfaceElementPairs(1,i);
-
-            if(tCellsIndexInSet(tCell0) != MORIS_INDEX_MAX && tCellsIndexInSet(tCell1) != MORIS_INDEX_MAX )
-            {
-                tCellsToKeepInSet(tCell0) = 1;
-                tCellsToKeepInSet(tCell1) = 1;
-                tKeepCount = tKeepCount+2;
-            }
-        }
-
-        moris::Matrix< moris::IdMat > tInterfaceInfo(tKeepCount,2);
-        tCount = 0;
-        for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
-        {
-            if(tCellsToKeepInSet(iEl) == 1 && (moris_index)get_element_phase_index(iEl) == aPhaseIndex0)
-            {
-                moris_index tIndexInSet = tCellsIndexInSet(iEl);
-                tInterfaceInfo(tCount,1) = tInterfaceCMInfo(tIndexInSet,1);
-
-                if(aIndexFlag == 1)
-                {
-                    tInterfaceInfo(tCount,0) = mChildElementInds(tInterfaceCMInfo(tIndexInSet,0));
-                }
-                else if (aIndexFlag == 0)
-                {
-                    tInterfaceInfo(tCount,0) = mChildElementIds(tInterfaceCMInfo(tIndexInSet,0));
-                }
-                else
-                {
-                    tInterfaceInfo(tCount,0) = tInterfaceCMInfo(tIndexInSet,0);
-                }
-                tCount++;
-            }
-        }
-
-        // convert to procs indices or global ids
-        tInterfaceInfo.resize(tCount,2);
-
-
-        return tInterfaceInfo;
-                          }
+                          moris_index aIndexFlag              = 0) const;
+//
+//    /*
+//     * Packs all interface sides on this mesh
+//     */
+//    void
+//    pack_all_interface_sides( Cell<moris_index>       & aGeometryIndex,
+//                              Cell<moris_index>       & aPhaseIndex0,
+//                              Cell<moris_index>       & aPhaseIndex1,
+//                              Cell<Cell<moris_index>> & aNeighborCell0,
+//                              Cell<Cell<moris_index>> & aNeighborCellSideOrd0,
+//                              Cell<Cell<moris_index>> & aNeighborCell1,
+//                              Cell<Cell<moris_index>> & aNeighborCellSideOrd1,
+//                              moris_index               aIndexFlag  = 0) const;
 
     moris::Matrix< moris::IdMat >
-    pack_interface_sides_loc_inds() const
-    {
-        // Loop bound and sizing
-        moris::size_t tNumElem = get_num_entities(EntityRank::ELEMENT);
-
-        moris::Matrix< moris::IdMat > tInterfaceSideSetInfo(tNumElem,2);
-
-        // Keep track of the number of interface sides
-        moris::size_t tCount = 0;
-
-        // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
-        for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
-        {
-            //TODO: NOTE THIS WILL NOT WORK WITH MULTI-MATERIAL YET (AT LEAST NOT SPLIT THEM UP)
-            if(mElementInterfaceSides(iEl) != std::numeric_limits<moris::size_t>::max())
-            {
-                tInterfaceSideSetInfo(tCount,0) = mChildElementInds(iEl);
-                tInterfaceSideSetInfo(tCount,1) = mElementInterfaceSides(iEl);
-                tCount++;
-            }
-        }
-
-        // Size out space
-        tInterfaceSideSetInfo.resize(tCount,2);
-
-        return tInterfaceSideSetInfo;
-    }
+    pack_interface_sides_loc_inds() const;
 
     enum CellTopology
-    template_to_cell_topology(enum TemplateType aTemplateType)
-    {
-        switch(aTemplateType)
-        {
-            case(TemplateType::REGULAR_SUBDIVISION_HEX8):
-            case(TemplateType::TET_4):
-            {
-                return CellTopology::TET4;
-                break;
-            }
-            case(TemplateType::HEX_8):
-                  {
-                return CellTopology::HEX8;
-                break;
-                  }
-            case(TemplateType::REGULAR_SUBDIVISION_QUAD4):
-            case(TemplateType::TRI_3):
-            {
-                return CellTopology::TRI3;
-                break;
-            }
-            case(TemplateType::QUAD_4):
-                  {
-                return CellTopology::QUAD4;
-                break;
-                  }
-            default:
-            {
-                MORIS_ASSERT(0, "Invalid topology for this function at present.");
-            }
-        }
-
-        return CellTopology::INVALID;
-    }
-
+    template_to_cell_topology(enum TemplateType aTemplateType);
 
     void
     mark_as_hmr_child_mesh(){ mHMR = true; };

@@ -34,7 +34,7 @@ namespace moris
         private:
 
             // cluster measures
-            real mElementSize      = 1.0; // element size
+            real mElementSize = 1.0;
 
         public:
 
@@ -52,7 +52,6 @@ namespace moris
             /*
              * constructor
              * Rem: mParameters( 0 ) - gamma penalty parameter
-             *      mParameters( 1 ) - interpolation order
              */
             SP_Ghost_Displacement();
 
@@ -107,7 +106,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              * dPPdMasterDV ( 1 x numDerDv )
              */
-            void eval_dSPdMasterDV( const moris::Cell< GEN_DV > & aDvTypes )
+            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Ghost_Displacement::eval_dSPdMasterDV: not implemented." );
             }

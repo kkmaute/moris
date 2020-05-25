@@ -81,14 +81,14 @@ class Library_IO;
              *
              * @return vector of criteria
              */
-            Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs);
+            Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
 
             /**
              * Gets the derivative of the criteria with respect to the advs
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_dcriteria_dadv();
+            Matrix<DDRMat> compute_dcriteria_dadv();
 
 //------------------------------------------------------------------------------
         };

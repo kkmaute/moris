@@ -67,6 +67,7 @@ namespace moris
         friend class Element_Sideset;
         friend class Element_Double_Sideset;
         friend class Element_Time_Sideset;
+        friend class Element_Time_Boundary;
         friend class Element;
 //------------------------------------------------------------------------------
     public:
@@ -136,8 +137,13 @@ namespace moris
         /**
          * get the vertices indices in cluster
          */
-        moris::Cell< moris_index >
-        get_vertex_indices_in_cluster();
+        moris::Cell< moris_index > get_vertex_indices_in_cluster();
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the vertices indices in cluster
+         */
+        void get_vertex_indices_in_cluster_for_sensitivity( moris::Matrix< moris::IndexMat > & aVerticesIndices );
 
 //------------------------------------------------------------------------------
         /**
@@ -234,7 +240,7 @@ namespace moris
         /**
          * compute dQIdp
          */
-        void compute_dQIdp();
+        void compute_dQIdp_explicit();
 
 //------------------------------------------------------------------------------
         /**

@@ -80,8 +80,8 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
 //----------------------------------------------------------------------------------------
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
-                                                Dist_Map *        aFreeMap,
-                                                Dist_Map *        aFullMap ) : moris::dla::Linear_Problem( aInput )
+                                                sol::Dist_Map    * aFreeMap,
+                                                sol::Dist_Map    * aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 
@@ -91,7 +91,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
         uint tNumRHMS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
+        mVectorRHS     = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
         mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHMS );

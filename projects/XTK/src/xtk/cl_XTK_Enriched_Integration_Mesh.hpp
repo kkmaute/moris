@@ -229,7 +229,8 @@ public:
     //--------------------------------------------------------------------------------
     moris_index
     create_side_set_from_dbl_side_set(moris_index const & aDblSideSetIndex,
-                                      std::string const & aSideSetName);
+                                      std::string const & aSideSetName,
+                                      bool aCollectSets = true);
 
     moris_index
     create_block_set_from_cells_of_side_set(moris_index const & aSideSetIndex,
@@ -367,6 +368,11 @@ private:
     void
     construct_color_to_set_relationship(moris::Cell<moris::Matrix<IndexMat>> const & aSetColors,
                                         moris::Cell<moris::Cell<moris_index>> & aColorToSetIndex);
+
+    //------------------------------------------------------------------------------
+    void
+    create_interface_side_sets_from_interface_double_side_set(moris_index const & aBulkphase0,
+                                                              moris_index const & aBulkphase1);
 
     //------------------------------------------------------------------------------
     // Internal Additional Field Functions

@@ -98,7 +98,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_Manager::get_criteria(Matrix<DDRMat> aNewADVs)
+        Matrix<DDRMat> Interface_Manager::perform(Matrix<DDRMat> aNewADVs)
         {
             // Set up global criteria
             Matrix<DDRMat> tGlobalCriteria(1, 1);
@@ -202,7 +202,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_Manager::get_dcriteria_dadv()
+        Matrix<DDRMat> Interface_Manager::compute_dcriteria_dadv()
         {
             // Set up global criteria gradients
             Matrix<DDRMat> tGlobalCriteriaGradients(sum(mNumCriteriaPerInterface), sum(mNumADVsPerInterface), 0.0);

@@ -1,7 +1,7 @@
 /*
  * cl_MSI_Design_Variable_Interface.cpp
  *
- *  Created on: Jan 10, 20120
+ *  Created on: Jan 10, 2020
  *      Author: schmidt
  */
 #include "cl_MSI_Design_Variable_Interface_Proxy.hpp"
@@ -15,19 +15,6 @@ namespace moris
 {
     namespace MSI
     {
-
-//-------------------------------------------------------------------------------------------------------
-    void Design_Variable_Interface_Proxy::set_requested_IQI_type( const moris::Cell< moris::Cell< enum fem::IQI_Type > > & aRequestedIQIType )
-    {
-	    uint tNumEquationSets = mModel->get_fem_model()->get_equation_sets().size();
-		
-		for( uint Ik = 0; Ik <tNumEquationSets; Ik++ )
-		{
-			mModel->get_fem_model()->get_equation_sets()( Ik )->set_requested_IQI_types( aRequestedIQIType );
-		}
-    }
-
-//-------------------------------------------------------------------------------------------------------
-
+    //---------------------------------------------------------------------------------------------------
     }
 }

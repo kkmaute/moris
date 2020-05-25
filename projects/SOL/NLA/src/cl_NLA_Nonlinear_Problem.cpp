@@ -28,7 +28,7 @@ using namespace dla;
 
 Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase,
                                             Solver_Interface   * aSolverInterface,
-                                            Dist_Vector        * aFullVector,
+                                            sol::Dist_Vector   * aFullVector,
                                       const moris::sint          aNonlinearSolverManagerIndex,
                                       const bool                 aBuildLinerSystemFlag,
                                       const enum sol::MapType    aMapType) :     mFullVector( aFullVector ),
@@ -80,10 +80,8 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 {
     mSolverInterface = aSolverInterface;
 
-    std::cout<<"build linear system"<<std::endl;
     if( mMapType == sol::MapType::Petsc )
     {
-        std::cout<<"build linear system"<<std::endl;
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
@@ -97,6 +95,8 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );
+
+    mSolverInterface->set_solution_vector( mFullVector );
 
 //    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
 //    mDummyFullVector->vec_put_scalar( 0.0 );
@@ -150,9 +150,9 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc)
         {
-            std::cout<<"selete linear system"<<std::endl;
+            std::cout<<"delete linear system"<<std::endl;
             PetscFinalize();
-            std::cout<<"selete linear system"<<std::endl;
+            std::cout<<"delete linear system"<<std::endl;
         }
     }
 }
@@ -162,10 +162,13 @@ void Nonlinear_Problem::delete_pointers()
     if( mLinearProblem != nullptr )
     {
         delete( mLinearProblem );
+
+        mLinearProblem = nullptr;
     }
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
+                                                  const bool & aCombinedResJacAssebly,
                                                   const sint aNonLinearIt )
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
@@ -175,12 +178,19 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
 //    this->print_sol_vec( aNonLinearIt );
 
-    if( aRebuildJacobian )
+    if( aCombinedResJacAssebly )
     {
-        mLinearProblem->assemble_jacobian( mFullVector );
+        mLinearProblem->assemble_residual_and_jacobian();
     }
+    else
+    {
+        if( aRebuildJacobian )
+        {
+            mLinearProblem->assemble_jacobian();
+        }
 
-    mLinearProblem->assemble_residual( mFullVector );
+        mLinearProblem->assemble_residual();
+    }
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
@@ -202,13 +212,13 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
     if( aRebuildJacobian )
     {
-        mLinearProblem->assemble_jacobian( mFullVector );
+        mLinearProblem->assemble_jacobian();
     }
 
-    mLinearProblem->assemble_residual( mFullVector );
+    mLinearProblem->assemble_residual();
 }
 
-Dist_Vector * Nonlinear_Problem::get_full_vector()
+sol::Dist_Vector * Nonlinear_Problem::get_full_vector()
 {
     return mFullVector;
 }
