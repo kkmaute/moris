@@ -22,96 +22,81 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IQI_Strain_Energy : public IQI
         {
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            enum class IQI_Property_Type
-            {
-                MAX_ENUM
-            };
+                enum class IQI_Constitutive_Type
+                {
+                    ELAST,
+                    MAX_ENUM
+                };
 
-            // Local string to property enum map
-            std::map< std::string, IQI_Property_Type > mPropertyMap;
+                // Local string to constitutive enum map
+                std::map< std::string, IQI_Constitutive_Type > mConstitutiveMap;
 
-            enum class IQI_Constitutive_Type
-            {
-                ELAST,
-                MAX_ENUM
-            };
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IQI_Strain_Energy();
 
-            // Local string to constitutive enum map
-            std::map< std::string, IQI_Constitutive_Type > mConstitutiveMap;
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_Strain_Energy(){};
 
-            enum class IQI_Stabilization_Type
-            {
-                MAX_ENUM
-            };
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model
+                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
+                 * @param[ in ] aConstitutiveString a string defining the constitutive model
+                 * @param[ in ] aIsMaster           an enum for master or slave
+                 */
+                void set_constitutive_model(
+                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                        std::string                           aConstitutiveString,
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    // check that aConstitutiveString makes sense
+                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                            "IQI_Strain_Energy::set_constitutive_model - Unknown aConstitutiveString." );
 
-            // Local string to constitutive enum map
-            std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
+                    // check no slave allowed
+                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                            "IQI_Strain_Energy::set_constitutive_model - No slave allowed." );
 
-        public:
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Strain_Energy();
+                    // set the constitutive model in the constitutive model cell
+                    this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Strain_Energy(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-//------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aConstitutiveString makes sense
-                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IQI_Strain_Energy::set_constitutive_model - Unknown aConstitutiveString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_QI( moris::real aWStar );
 
-                // check no slave allowed
-                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IQI_Strain_Energy::set_constitutive_model - No slave allowed." );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest
+                 * wrt requested dof types
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_dQIdu( moris::real aWStar );
 
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_QI( moris::real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest
-             * wrt requested dof types
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dQIdu( moris::real aWStar );
-
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */
