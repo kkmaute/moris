@@ -769,7 +769,7 @@ namespace moris
                 Matrix< DDRMat > & aParamCoordinates )
         {
             // set max iteration
-            std::cout<<"Geometry_Interpolator::update_local_coordinates - Force 10 iterations"<<std::endl;
+            // std::cout<<"Geometry_Interpolator::update_local_coordinates - Force 10 iterations"<<std::endl;
             uint tMaxIter = 10;
 
             // newton loop

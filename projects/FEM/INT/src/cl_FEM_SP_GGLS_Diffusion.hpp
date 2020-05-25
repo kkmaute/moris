@@ -49,6 +49,10 @@ namespace moris
                 CONDUCTIVITY,
                 DENSITY,
                 HEAT_CAPACITY,
+                LATENT_HEAT,
+                PC_TEMP,
+                PHASE_STATE_FUNCTION,
+                PHASE_CHANGE_CONST,
                 MAX_ENUM
             };
 

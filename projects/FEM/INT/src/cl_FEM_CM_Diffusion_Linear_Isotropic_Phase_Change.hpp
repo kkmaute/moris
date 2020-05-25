@@ -29,7 +29,6 @@ namespace moris
 
         class CM_Diffusion_Linear_Isotropic_Phase_Change : public CM_Diffusion_Linear_Isotropic
         {
-
                 //------------------------------------------------------------------------------
             protected:
 
@@ -72,18 +71,9 @@ namespace moris
                  * @param[ in ] aProperty     a property pointer
                  * @param[ in ] aPropertyType a char
                  */
-                void set_property( std::shared_ptr<
-                        fem::Property > aProperty,
-                        std::string     aPropertyString )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString." );
-
-                    // set the property in the property cell
-                    mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-                };
-
+                void set_property(
+                        std::shared_ptr<fem::Property > aProperty,
+                        std::string                     aPropertyString );
 
                 //------------------------------------------------------------------------------
                 /**

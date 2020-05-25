@@ -32,8 +32,6 @@ namespace moris
                 enum class IWG_Property_Type
                 {
                     BODY_LOAD,
-                    DENSITY,
-                    HEAT_CAPACITY,
                     MAX_ENUM
                 };
 
@@ -48,6 +46,15 @@ namespace moris
 
                 // Local string to constitutive enum map
                 std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+
+                enum class IWG_Stabilization_Type
+                {
+                        GGLS_DIFFUSION,
+                        MAX_ENUM
+                };
+
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
                 //------------------------------------------------------------------------------
                 /*
@@ -98,8 +105,14 @@ namespace moris
                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
                 {
                     // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                            "IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
+                    if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
+                    {
+                        std::string tErrMsg =
+                                std::string("IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                                aConstitutiveString;
+
+                         MORIS_ERROR( false, tErrMsg.c_str() );
+                    }
 
                     // check no slave allowed
                     MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
@@ -107,6 +120,23 @@ namespace moris
 
                     // set the constitutive model in the constitutive model cell
                     this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set stabilization parameter
+                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+                 */
+                void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                        std::string                                aStabilizationString )
+                {
+                    // check that aStabilization Parameter String makes sense
+                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
+                            "IWG_GGLS_Diffusion_Phase_Change_Bulk::set_stabilization_parameter - Unknown aStabilizationString." );
+
+                    // set the stabilization parameter in the stabilization parameter cell
+                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
                 }
 
                 //------------------------------------------------------------------------------
