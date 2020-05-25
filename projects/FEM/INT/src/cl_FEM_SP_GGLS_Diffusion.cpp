@@ -12,7 +12,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         SP_GGLS_Diffusion::SP_GGLS_Diffusion()
         {
             // set the property pointer cell size
@@ -26,25 +26,40 @@ namespace moris
             mPropertyMap[ "PC_Temp" ]              = Property_Type::PC_TEMP;
             mPropertyMap[ "Phase_State_Function" ] = Property_Type::PHASE_STATE_FUNCTION;
             mPropertyMap[ "Phase_Change_Const" ]   = Property_Type::PHASE_CHANGE_CONST;
-
-            // populate the dof map (default)
-            mMasterDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void SP_GGLS_Diffusion::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
+            {
+                std::string tErrMsg =
+                        "SP_GGLS_Diffusion::set_property - Unknown aPropertyString: " + aPropertyString;
+
+                MORIS_ERROR( false , tErrMsg.c_str() );
+            }
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
         void SP_GGLS_Diffusion::eval_SP()
         {
-
             // get the property values
             real tConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
             real tDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             real tHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
-            std::shared_ptr< Property > tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
 
+            std::shared_ptr< Property > tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
 
             // time step size
             real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
 
             // get alpha
             real tAlpha = 0.0;
@@ -59,7 +74,7 @@ namespace moris
                 real tPSfunc     = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
 
                 // get the dof type FI
-                Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Temp" ] );
+                Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( mTempDof );
 
                 // get phase state function
                 moris::real tdfdT = eval_dFdTemp( tMeltTemp, tPCconst, tPSfunc, tFIDer);
@@ -78,11 +93,10 @@ namespace moris
         }
 
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         // FIXME: this function needs separate testing
         void SP_GGLS_Diffusion::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-
             // get the property values
             std::shared_ptr< Property > tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
             std::shared_ptr< Property > tPropDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
@@ -93,7 +107,6 @@ namespace moris
             std::shared_ptr< Property > tPropPCconst      = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
             std::shared_ptr< Property > tPropPSfunc       = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
 
-
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -103,7 +116,6 @@ namespace moris
             // set size for dSPdMasterDof
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
-
             // time step size
             real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
@@ -111,17 +123,16 @@ namespace moris
             real tConductivity = tPropConductivity->val()( 0 );
             real tDensity      = tPropDensity->val()( 0 );
             real tHeatCapacity = tPropHeatCapacity->val()( 0 );
-            real tLatentHeat = 0.0;
-            real tMeltTemp   = 0.0;
-            real tPCconst    = 0.0;
-            real tPSfunc     = 0.0;
-            real tAlpha      = 0.0;
-            real tdfdT       = 0.0;
+            real tLatentHeat   = 0.0;
+            real tMeltTemp     = 0.0;
+            real tPCconst      = 0.0;
+            real tPSfunc       = 0.0;
+            real tAlpha        = 0.0;
+            real tdfdT         = 0.0;
 
             // if there is a phase change
             if (tPropLatentHeat != nullptr)
             {
-
                 // get values of properties
                 tLatentHeat = tPropLatentHeat->val()( 0 );
                 tMeltTemp   = tPropMeltTemp->val()( 0 );
@@ -142,20 +153,18 @@ namespace moris
 
             // get derivative of SP wrt to alpha d(k*tau)/d(alpha)
             real dGammadAlpha =
-                    -(   4 * std::cosh(std::sqrt(6*tAlpha))
-                       - 2 * std::pow(std::cosh(std::sqrt(6*tAlpha)), 2)
-                       + 3 * std::sqrt(6 * std::pow(tAlpha,3) ) * std::sinh(std::sqrt(6*tAlpha))
-                       - 2 ) /
-                       ( 2 * std::pow(tAlpha,2) * std::pow((std::cosh(std::sqrt(6*tAlpha)) - 1), 2) );
+                    -1.0 * (4.0 * std::cosh(std::sqrt(6*tAlpha)) -
+                            2.0 * std::pow(std::cosh(std::sqrt(6*tAlpha)), 2.0) +
+                            3.0 * std::sqrt(6 * std::pow(tAlpha,3) ) * std::sinh(std::sqrt(6*tAlpha)) - 2.0 ) /
+                            ( 2.0 * std::pow(tAlpha,2) * std::pow((std::cosh(std::sqrt(6*tAlpha)) - 1), 2) );
 
-            // if dof type is termperature
-            if( aDofTypes( 0 ) == mMasterDofMap[ "Temp" ] )
+            // if dof type is temperature
+            if( aDofTypes( 0 ) == mTempDof )
             {
 
                 // if there is a phase change
                 if (tPropLatentHeat != nullptr)
                 {
-
                     // get Dof-deriv of phase state function
                     moris::Matrix<DDRMat> td2fdTdDOF = eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
 
@@ -163,7 +172,6 @@ namespace moris
                             dGammadAlpha * td2fdTdDOF * tDensity * tLatentHeat * std::pow(mElementSize, 2.0) / ( 6.0 * tConductivity * tDeltat );
                 }
                 // if no phase change defined, do nothing
-
 
             }
 
@@ -174,26 +182,25 @@ namespace moris
                 if ( mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                            dGammadAlpha * tPropConductivity->dPropdDOF( aDofTypes )
-                            * (tHeatCapacity + tLatentHeat * tdfdT) * std::pow(mElementSize, 2.0)  / ( 6.0 * std::pow(tConductivity,2) * tDeltat );
+                            dGammadAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
+                            (tHeatCapacity + tLatentHeat * tdfdT) * std::pow(mElementSize, 2.0)  / ( 6.0 * std::pow(tConductivity,2) * tDeltat );
                 }
 
                 // if indirect dependency of density
                 if ( mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dGammadAlpha * tPropDensity->dPropdDOF( aDofTypes )
-                            * (tHeatCapacity + tLatentHeat * tdfdT) * std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
+                            dGammadAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
+                            (tHeatCapacity + tLatentHeat * tdfdT) * std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
                 }
 
                 // if indirect dependency of latent heat
                 if ( mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) )->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                                                dGammadAlpha * tDensity * tPropLatentHeat->dPropdDOF( aDofTypes ) * tdfdT
-                                                * std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
+                            dGammadAlpha * tDensity * tPropLatentHeat->dPropdDOF( aDofTypes ) * tdfdT *
+                            std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
                 }
-
             }
 
             // else if there is no phase change
@@ -203,31 +210,29 @@ namespace moris
                 if ( mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                            dGammadAlpha * tPropConductivity->dPropdDOF( aDofTypes )
-                            * tHeatCapacity * std::pow(mElementSize, 2.0)  / ( 6.0 * std::pow(tConductivity,2) * tDeltat );
+                            dGammadAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
+                            tHeatCapacity * std::pow(mElementSize, 2.0)  / ( 6.0 * std::pow(tConductivity,2) * tDeltat );
                 }
 
                 // if indirect dependency of density
                 if ( mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dGammadAlpha * tPropDensity->dPropdDOF( aDofTypes )
-                            * tHeatCapacity * std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
+                            dGammadAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
+                            tHeatCapacity * std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
                 }
-
             }
 
             // if indirect dependency of heat capacity
             if ( mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->check_dof_dependency( aDofTypes ) )
             {
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                                            dGammadAlpha * tDensity * tPropHeatCapacity->dPropdDOF( aDofTypes )
-                                            * std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
+                        dGammadAlpha * tDensity * tPropHeatCapacity->dPropdDOF( aDofTypes ) *
+                        std::pow(mElementSize, 2.0)  / ( 6.0 * tConductivity * tDeltat );
             }
-
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
