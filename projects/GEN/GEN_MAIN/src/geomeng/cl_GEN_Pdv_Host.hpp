@@ -2,7 +2,6 @@
 #define MORIS_CL_GEN_PDV_Type_HOST_HPP_
 
 // GEN_MAIN
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Pdv.hpp"
 #include "cl_GEN_Pdv_Property.hpp"
 
@@ -49,15 +48,6 @@ namespace moris
              * @return Number of added PDV_Type types (unique PDVs)
              */
             uint add_pdv_types(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
-            
-            /**
-             * Create PDV_Type with GEN field
-             *
-             * @param aPdvType PDV_Type type
-             * @param aFieldPointer Pointer to a GEN field
-             * @param aNodeIndex Node index for pulling a value from the field
-             */
-            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex);
             
             /**
              * Create PDV_Type with GEN property

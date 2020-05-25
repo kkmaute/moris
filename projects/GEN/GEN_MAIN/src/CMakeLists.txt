@@ -27,7 +27,6 @@ set(HEADERS
 	additional/fn_GEN_approximatate.hpp
 	additional/fn_GEN_bubble_sort.hpp
 
-	gemoeng/cl_GEN_Field.hpp
 	geomeng/cl_GEN_Geometry_Engine.hpp
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp

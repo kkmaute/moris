@@ -59,18 +59,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex)
-        {
-            // Check PDV_Type type
-            MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                    "Tried to call Pdv_Host.create_pdv() using GEN field with PDV_Type type that doesn't exist on this host.");
-
-            // create a pdv with field pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared<Pdv>(aFieldPointer, aNodeIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {

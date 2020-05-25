@@ -9,7 +9,6 @@
 #define PROJECTS_GEN_GEN_MAIN_SRC_GEOMETRY_CL_GEN_GEOM_FIELD_HPP_
 
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Geometry_Discrete.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"

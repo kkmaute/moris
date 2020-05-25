@@ -1099,46 +1099,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_ip_hosts_by_set_name( std::string                  aSetName,
-                                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                                               PDV_Type                  aPdvType,
-                                                               moris_index                  aWhichMesh)
-        {
-            // get the mesh set from name
-            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
-
-            // get the list of cluster on mesh set
-            moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
-
-            // get number of clusters on mesh set
-            uint tNumClusters = tClusterPointers.size();
-
-            // loop over the clusters on mesh set
-            for(uint iClust=0; iClust<tNumClusters; iClust++)
-            {
-                // get the IP cell from cluster
-                moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
-
-                // get the vertices from IP cell
-                moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
-
-                // get the number of vertices on IP cell
-                uint tNumVerts = tVertices.size();
-
-                // loop over vertices on IP cell
-                for(uint iVert = 0; iVert < tNumVerts; iVert++)
-                {
-                    // get the vertex index
-                    moris_index tVertIndex = tVertices(iVert)->get_index();
-
-                    // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.assign_field_to_pdv_type_by_vertex_index( aFieldPointer, aPdvType, tVertIndex );
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
                                                               std::shared_ptr< Property > aPropertyPointer,
                                                               PDV_Type                     aPdvType,
@@ -1173,46 +1133,6 @@ namespace moris
 
                     // ask pdv host manager to assign to vertex a pdv type and a property
                     mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer);
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::assign_ip_hosts_by_set_index(moris_index                  aSetIndex,
-                                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                                               PDV_Type                  aPdvType,
-                                                               moris_index                  aWhichMesh)
-        {
-            // get the mesh set from index
-            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
-
-            // get the list of cluster on mesh set
-            moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
-
-            // get number of clusters on mesh set
-            uint tNumClusters = tClusterPointers.size();
-
-            // loop over the clusters on mesh set
-            for (uint iClust = 0; iClust < tNumClusters; iClust++)
-            {
-                // get the IP cell from cluster
-                moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
-
-                // get the vertices from IP cell
-                moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
-
-                // get the number of vertices on IP cell
-                uint tNumVerts = tVertices.size();
-
-                // loop over vertices on IP cell
-                for (uint iVert = 0; iVert < tNumVerts; iVert++)
-                {
-                    // get the vertex index
-                    moris_index tVertIndex = tVertices(iVert)->get_index();
-
-                    // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.assign_field_to_pdv_type_by_vertex_index( aFieldPointer, aPdvType, tVertIndex );
                 }
             }
         }

@@ -7,18 +7,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv::Pdv(std::shared_ptr< GEN_Field > aFieldPointer,
-            moris_index                  aEntityIndex )
-        {
-            // assign pdv value from the property pointer
-            mValue = aFieldPointer->get_field_val_at_vertex( aEntityIndex );
-
-            // flag this PDV_Type so the interface knows it is from a Field and therefore not changing
-            mIsActive = false;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Pdv::Pdv(moris::real aPdvVal )
         {
             // assign pdv value directly

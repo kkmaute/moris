@@ -1,8 +1,6 @@
-#ifndef MORIS_CL_GEN_PDV_Type_HPP_
-#define MORIS_CL_GEN_PDV_Type_HPP_
+#ifndef MORIS_CL_GEN_PDV_HPP_
+#define MORIS_CL_GEN_PDV_HPP_
 
-// GEN_MAIN
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Property.hpp"
 
 namespace moris
@@ -18,13 +16,6 @@ namespace moris
             real mValue; // PDV value
 
         public :
-            /**
-             * constructor
-             * @param[ in ] aFieldPointer a GEN Field pointer
-             * @param[ in ] aEntityIndex  an index to the associated entity (so the Field returns the correct value)
-             */
-            Pdv(std::shared_ptr< GEN_Field > aFieldPointer,
-                moris_index                  aEntityIndex );
 
             /**
              * constructor

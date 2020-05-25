@@ -258,32 +258,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<Property> aPropertyPointer,
-                                                                           PDV_Type                        aPdvType,
-                                                                           moris_index                   aNodeIndex)
-        {
-            // Check if PDV_Type host exists
-            MORIS_ASSERT(mIpPdvHosts(aNodeIndex) != nullptr, "PDV_Type attempted to be created via property when PDV_Type host doesn't exist yet.");
-
-            // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::assign_field_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Field>   aFieldPointer,
-                                                                        PDV_Type                       aPdvType,
-                                                                        moris_index                  aNodeIndex)
-        {
-            // Check if PDV_Type host exists
-            MORIS_ASSERT(mIpPdvHosts(aNodeIndex) != nullptr, "PDV_Type attempted to be created via field when PDV_Type host doesn't exist yet.");
-        
-            // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aFieldPointer, aNodeIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
         {
             // Check that number of sets is consistent

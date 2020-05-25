@@ -3,7 +3,6 @@
 
 // GE
 #include "cl_GEN_Basis_Function.hpp"
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -492,28 +491,12 @@ namespace moris
                                                       const moris_index                 aWhichMesh = 0 );
 
             /**
-             * @brief assign the pdv type and property for each pdv host in a given set via a GEN_Field class
-             */
-            void assign_ip_hosts_by_set_name( std::string                  aSetName,
-                                              std::shared_ptr< GEN_Field > aFieldPointer,
-                                              PDV_Type                  aPdvType,
-                                              moris_index                  aWhichMesh = 0 );
-
-            /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
                                               std::shared_ptr< Property > aPropertyPointer,
                                               PDV_Type                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
-
-            /**
-             * @brief assign the pdv type and property for each pdv host in a given set via a GEN Field
-             */
-            void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
-                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                               PDV_Type                  aPdvType,
-                                               moris_index                  aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
