@@ -31,6 +31,7 @@ set(HEADERS
 	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
 	geomeng/cl_GEN_Geometry_Object.hpp
 	geomeng/cl_GEN_Pdv.hpp
+	geomeng/cl_GEN_Pdv_Value.hpp
 	geomeng/cl_GEN_Pdv_Property.hpp
 	geomeng/cl_GEN_Pdv_Host.hpp
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
@@ -110,6 +111,7 @@ set(LIB_SOURCES
 	geomeng/cl_GEN_Pdv_Host_Manager.cpp
 	geomeng/cl_GEN_Pdv_Host.cpp
 	geomeng/cl_GEN_Pdv.cpp
+	geomeng/cl_GEN_Pdv_Value.cpp
 	geomeng/cl_GEN_Pdv_Property.cpp
 
     geometry/cl_GEN_Geometry_Analytic.cpp

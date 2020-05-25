@@ -1,4 +1,6 @@
 #include "cl_GEN_Pdv_Host.hpp"
+#include "cl_GEN_Pdv_Value.hpp"
+#include "cl_GEN_Pdv_Property.hpp"
 
 namespace moris
 {
@@ -72,14 +74,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, moris::real aPdvVal)
+        void Pdv_Host::create_pdv(PDV_Type aPdvType, real aPdvVal)
         {
             // Check PDV_Type type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
                     "Tried to call Pdv_Host.create_pdv() using pdv value with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with pdv value
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPdvVal );
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv_Value >(aPdvVal);
         }
 
         //--------------------------------------------------------------------------------------------------------------

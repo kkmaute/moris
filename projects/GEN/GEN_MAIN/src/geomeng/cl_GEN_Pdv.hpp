@@ -12,16 +12,14 @@ namespace moris
         public:
             bool mIsActive = true;
 
-        private:
-            real mValue; // PDV value
-
-        public :
+        protected:
 
             /**
              * constructor
-             * @param[ in ] aPdvVal a value for the pdv
              */
-            Pdv(moris::real aPdvVal );
+            Pdv();
+
+        public:
 
             /**
              * trivial destructor
@@ -35,7 +33,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Current value of this PDV
              */
-            virtual real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            virtual real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
              * Get the PDV sensitivity with respect to ADVs
@@ -44,7 +42,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @param aSensitivities Matrix of sensitivities to be returned
              */
-            virtual void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            virtual void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities) = 0;
 
         };
     }   // end ge namespace

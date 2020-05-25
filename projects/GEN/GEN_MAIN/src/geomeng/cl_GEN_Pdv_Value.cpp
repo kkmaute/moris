@@ -1,4 +1,4 @@
-#include "cl_GEN_Pdv_Property.hpp"
+#include "cl_GEN_Pdv_Value.hpp"
 
 namespace moris
 {
@@ -7,23 +7,22 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv_Property::Pdv_Property(std::shared_ptr<Property> aPropertyPointer)
-        : mProperty(aPropertyPointer)
+        Pdv_Value::Pdv_Value(real aValue)
+        : mValue(aValue)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Pdv_Property::get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Pdv_Value::get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            return mProperty->evaluate_field_value(aNodeIndex, aCoordinates);
+            return mValue;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Property::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        void Pdv_Value::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
-            mProperty->evaluate_sensitivity(aNodeIndex, aCoordinates, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------
