@@ -198,7 +198,8 @@ namespace moris
                  * @param[ out ] aFieldInteprolatorManager a field interpolator manager pointer
                  * @param[ in ] aIsMaster enum for master or slave
                  */
-                Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                Field_Interpolator_Manager * get_field_interpolator_manager(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /*
@@ -305,7 +306,8 @@ namespace moris
                  * @param[ in ]  aIsMaster enum master or slave
                  * @param[ out ] aDofTypes a list of group of dof types
                  */
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -335,7 +337,8 @@ namespace moris
                  * @param[ in ]  aIsMaster enum master or slave
                  * @param[ out ] aDvTypes a list of group of dv types
                  */
-                const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -343,7 +346,8 @@ namespace moris
                  * @param[ in ]  aIsMaster enum master or slave
                  * @param[ out ] mGlobalDofTypes global list of dof type
                  */
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
