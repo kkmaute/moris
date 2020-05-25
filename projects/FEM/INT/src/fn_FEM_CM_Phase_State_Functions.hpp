@@ -77,12 +77,12 @@ namespace moris
                     MORIS_ERROR(false,"wrong option for phase change function.");
             }
 
-// debug - check inputs
-//std::cout << "Tmelt = " <<  aTmelt << " .\n" << std::flush;
-//std::cout << "T = " <<  tTemp << " .\n" << std::flush;
-//std::cout << "PC constant = " <<  aPCconst << " .\n" << std::flush;
-//std::cout << "Phase state function = " <<  aPCfunc << " .\n" << std::flush;
-//std::cout << "df/dT = " <<  tdfdT << " .\n" << std::flush;
+            // debug - check inputs
+            //std::cout << "Tmelt = " <<  aTmelt << " .\n" << std::flush;
+            //std::cout << "T = " <<  tTemp << " .\n" << std::flush;
+            //std::cout << "PC constant = " <<  aPCconst << " .\n" << std::flush;
+            //std::cout << "Phase state function = " <<  aPCfunc << " .\n" << std::flush;
+            //std::cout << "df/dT = " <<  tdfdT << " .\n" << std::flush;
 
             return tdfdT;
         }
@@ -156,12 +156,7 @@ namespace moris
             // multiply with shape functions
             return aFieldInterpolator->N() * td2fdT2;
         }
-
-
     } // namespace fem
 } // namespace moris
-
-
-
 
 #endif /* PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_ */
