@@ -166,7 +166,7 @@ namespace moris
                     return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Bulk >();
 
                 default:
-                    MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );
+                    MORIS_ERROR( false, " IWG_Factory::create_IWGs - IWG type specified is not defined. " );
                     return nullptr;
             }
         }
