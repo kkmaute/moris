@@ -38,7 +38,7 @@
 #include "xtk_typedefs.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
@@ -131,7 +131,7 @@ main(
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
 
-    moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometryVector(1);
+    moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(1);
     tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases

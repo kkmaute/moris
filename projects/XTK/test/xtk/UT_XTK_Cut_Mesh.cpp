@@ -34,7 +34,7 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
@@ -154,7 +154,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
     moris::real tYCenter = 1.0;
     moris::real tZCenter = 2.0;
 
-    moris::Cell< std::shared_ptr<moris::ge::Geometry_Analytic> > tGeometryVector(1);
+    moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
     tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -216,7 +216,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     moris::real tYCenter = 1.0;
     moris::real tZCenter = 6.0;
 
-    moris::Cell< std::shared_ptr<moris::ge::Geometry_Analytic> > tGeometryVector(1);
+    moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
     tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -275,7 +275,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
         moris::real tYCenter = 1.0;
         moris::real tZCenter = 0;
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Analytic> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

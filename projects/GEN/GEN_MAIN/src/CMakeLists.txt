@@ -37,14 +37,12 @@ set(HEADERS
 	geomeng/cl_GEN_Pdv_Host_Manager.hpp
 	geomeng/fn_GEN_Triangle_Geometry.hpp
 
-    geometry/cl_GEN_Geometry_Analytic.hpp
-	geometry/cl_GEN_Geometry_Discrete.hpp
+	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
 #	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
 	geometry/cl_GEN_Discrete_Level_Set.hpp
 #	geometry/cl_GEN_Geom_Data.hpp
 	geometry/cl_GEN_Geometry_Field_HMR.hpp
-	geometry/cl_GEN_Geometry_Field.hpp
 #	geometry/cl_GEN_Sphere.hpp
 	geometry/cl_GEN_User_Defined_Geometry.hpp
 #	geometry/fn_bounding_box.hpp
@@ -114,8 +112,7 @@ set(LIB_SOURCES
 	geomeng/cl_GEN_Pdv_Value.cpp
 	geomeng/cl_GEN_Pdv_Property.cpp
 
-    geometry/cl_GEN_Geometry_Analytic.cpp
-	geometry/cl_GEN_Geometry_Discrete.cpp
+	geometry/cl_GEN_Geometry.cpp
 	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Circle.cpp
 	geometry/cl_GEN_Plane.cpp

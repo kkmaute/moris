@@ -89,7 +89,6 @@
 #include "fn_norm.hpp"
 #include "cl_PRM_SOL_Parameters.hpp"
 
-#include "cl_GEN_Geometry_Discrete.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
@@ -226,7 +225,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
@@ -482,7 +481,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
@@ -771,7 +770,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // start timer
         tic tTimer_XTK;
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
@@ -1079,7 +1078,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         // start timer
         tic tTimer_XTK;
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases

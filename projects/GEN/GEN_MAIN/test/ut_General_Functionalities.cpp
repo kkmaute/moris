@@ -131,7 +131,7 @@ void tSimpleFunc2(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aProper
 //
 //        tField.initialize( &tMesh );
 //
-//        Cell<std::shared_ptr<ge::Geometry_Discrete>> tGeometryVector(1);
+//        Cell<std::shared_ptr<ge::Geometry>> tGeometryVector(1);
 //        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field>(&tField);
 //
 //        moris::ge::Phase_Table      tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
@@ -219,7 +219,7 @@ TEST_CASE("general_test_01","[GE],[sensitivity_check_01]")
         uint tMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
         //------------------------------------------------------------------------------
         real tRadius = 0.6;
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, tRadius);
 
         moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
@@ -376,7 +376,7 @@ TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
         tHMR.finalize();
 //        tHMR.save_to_exodus( 0, "output_sensitivityCheck_02.g" );
         //------------------------------------------------------------------------------
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.6);
 
         moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );

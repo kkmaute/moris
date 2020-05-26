@@ -169,7 +169,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases

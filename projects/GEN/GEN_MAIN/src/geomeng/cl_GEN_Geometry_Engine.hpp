@@ -13,8 +13,7 @@
 
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
@@ -107,8 +106,7 @@ namespace moris
 
             // Geometry
             moris::size_t mActiveGeometryIndex = 0;
-            Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
-            Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
+            Cell<std::shared_ptr<Geometry>> mGeometry;
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;
@@ -140,34 +138,23 @@ namespace moris
              * Constructor using cell of cell of parameter lists
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
+             * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
+            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists,
+                            std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**
-             * Constructor using explicitly created analytic geometries and phase table
+             * Constructor using externally created geometries and phase table
              *
              * @param[ in ] aGeometry cell of shared Geometry pointers
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            Geometry_Engine(Cell< std::shared_ptr<Geometry_Analytic> >   aGeometry,
-                                Phase_Table                         aPhaseTable,
-                                uint                                aSpatialDim = 3,
-                                real                                aThresholdValue = 0.0,
-                                real                                aPerturbationValue = 1E-6);
-
-            /**
-             * Constructor using explicitly created discrete geometries and phase table
-             *
-             * @param[ in ] aGeometry cell of shared Geometry pointers
-             * @param[ in ] aPhaseTable phase table
-             * @param[ in ] aSpatialDim spatial dimensions
-             */
-            Geometry_Engine(Cell< std::shared_ptr<Geometry_Discrete> >   aGeometry,
-                                Phase_Table                         aPhaseTable,
-                                uint                                aSpatialDim = 3,
-                                real                                aThresholdValue = 0.0,
-                                real                                aPerturbationValue = 1E-6);
+            Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
+                                Phase_Table                     aPhaseTable,
+                                uint                            aSpatialDim = 3,
+                                real                            aThresholdValue = 0.0,
+                                real                            aPerturbationValue = 1E-6);
 
             /**
              * Destructor
@@ -394,11 +381,6 @@ namespace moris
             moris::size_t
             get_node_phase_index_wrt_a_geometry(moris::size_t aNodeIndex,
                                                 moris::size_t aGeometryIndex);
-
-            /**
-             * @brief Returns whether the active geometry is analytic
-             */
-            bool is_geometry_analytic();
 
             /**
              * @brief Returns the number of geometries

@@ -13,7 +13,7 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
 #include "cl_Mesh_Factory.hpp"
@@ -28,7 +28,7 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
     moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
 
-    Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+    Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
     tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

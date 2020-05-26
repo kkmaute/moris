@@ -1,14 +1,14 @@
 #ifndef MORIS_CL_GEN_PLANE_HPP
 #define MORIS_CL_GEN_PLANE_HPP
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Plane : public Geometry_Analytic, public Field_Analytic
+        class Plane : public Geometry, public Field_Analytic
         {
         private:
             real ( Plane:: * m_eval_field )(const Matrix<DDRMat>&) = nullptr;

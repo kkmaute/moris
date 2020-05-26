@@ -40,7 +40,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
@@ -180,7 +180,7 @@ namespace moris
 //
 //            moris::ge::Geometry_Field_HMR tFieldAsGeom(tField);
 //
-//            moris::Cell<moris::ge::Geometry_Discrete*> tGeometryVector = {&tFieldAsGeom};
+//            moris::Cell<moris::ge::Geometry*> tGeometryVector = {&tFieldAsGeom};
 //
 //            // Tell the geometry engine about the discrete field mesh and how to interpret phases
 //            moris::ge::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
