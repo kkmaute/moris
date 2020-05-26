@@ -87,18 +87,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set property
-                 * @param[ in ] aProperty       a property pointer
-                 * @param[ in ] aPropertyString a string defining the property
-                 * @param[ in ] aIsMaster       an enum for master or slave
-                 */
-                void set_property(
-                        std::shared_ptr< Property > aProperty,
-                        std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
                  * set dof types
                  * @param[ in ] aDofTypes a cell of cell of dof types
                  * @param[ in ] aDofStrings list of strings describing the dof types
@@ -108,6 +96,33 @@ namespace moris
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
                         mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set dv types
+                 * @param[ in ] aDvTypes   a cell of group of dv types
+                 * @param[ in ] aDvStrings list of strings describing the dv types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dv_type_list(
+                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        moris::Cell< std::string >             & aDvStrings,
+                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string defining the property
+                 * @param[ in ] aIsMaster       an enum for master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**

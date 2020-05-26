@@ -169,8 +169,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void Stabilization_Parameter::set_dv_type_list(
-                const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                mtk::Master_Slave                      aIsMaster )
+                moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                mtk::Master_Slave                        aIsMaster )
         {
             switch ( aIsMaster )
             {

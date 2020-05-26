@@ -311,8 +311,8 @@ namespace moris
                  * @param[ in ] aIsMaster enum for master or slave
                  */
                 void set_dv_type_list(
-                        const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                        mtk::Master_Slave                           aIsMaster = mtk::Master_Slave::MASTER );
+                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        mtk::Master_Slave                              aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -322,9 +322,9 @@ namespace moris
                  * @param[ in ] aIsMaster  enum for master or slave
                  */
                 virtual void set_dv_type_list(
-                        const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                        moris::Cell< std::string >           & aDvStrings,
-                        mtk::Master_Slave                      aIsMaster = mtk::Master_Slave::MASTER )
+                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        moris::Cell< std::string >                   & aDvStrings,
+                        mtk::Master_Slave                              aIsMaster = mtk::Master_Slave::MASTER )
                 {
                     MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - not implemented for base class." );
                 }

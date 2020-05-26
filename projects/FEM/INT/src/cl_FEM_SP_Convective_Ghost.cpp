@@ -34,14 +34,14 @@ namespace moris
                 moris::Cell< std::string >                  & aDofStrings,
                 mtk::Master_Slave                             aIsMaster )
         {
-            // set dof type list
-            mMasterDofTypes = aDofTypes;
-
             // switch on master slave
             switch ( aIsMaster )
             {
                 case mtk::Master_Slave::MASTER :
                 {
+                    // set dof type list
+                    mMasterDofTypes = aDofTypes;
+
                     // loop on dof type
                     for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
                     {
@@ -68,8 +68,15 @@ namespace moris
                     break;
                 }
 
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // set dof type list
+                    mSlaveDofTypes = aDofTypes;
+                    break;
+                }
+
                 default:
-                    MORIS_ERROR( false, "SP_Convective_Ghost::set_dof_type_list - unknown or incorrect master slave type." );
+                    MORIS_ERROR( false, "SP_Convective_Ghost::set_dof_type_list - unknown master slave type." );
                     break;
             }
         }
