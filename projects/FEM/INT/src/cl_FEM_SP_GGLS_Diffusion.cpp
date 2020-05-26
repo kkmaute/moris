@@ -61,7 +61,7 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if velocity
-                        if( "Temp" )
+                        if( tDofString == "Temp" )
                         {
                             mMasterDofTemp = tDofType;
                         }

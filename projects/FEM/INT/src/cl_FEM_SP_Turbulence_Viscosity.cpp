@@ -45,7 +45,7 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if viscosity
-                        if( "Viscosity" )
+                        if( tDofString == "Viscosity" )
                         {
                             mMasterDofViscosity = tDofType;
                         }

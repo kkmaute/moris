@@ -52,8 +52,8 @@ namespace moris
                         // get dof type
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
-                        // if viscosity
-                        if( "Velocity" )
+                        // if velocity
+                        if( tDofString == "Velocity" )
                         {
                             mMasterDofVelocity = tDofType;
                         }

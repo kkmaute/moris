@@ -51,7 +51,8 @@ namespace moris
                 std::map< std::string, Property_Type > mPropertyMap;
 
                 // pointer to function for G evaluation
-                void ( * mEvalGFunc )( Matrix< DDRMat >   & aG,
+                void ( * mEvalGFunc )(
+                        Matrix< DDRMat >   & aG,
                         Matrix< DDRMat >   & aInvSpaceJacobian );
 
                 /*
