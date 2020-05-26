@@ -1,5 +1,6 @@
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
+#include "fn_GEN_Matrix_Base_Utilities.hpp"
 #include "fn_GEN_create_geometry.hpp"
 #include "fn_GEN_create_properties.hpp"
 

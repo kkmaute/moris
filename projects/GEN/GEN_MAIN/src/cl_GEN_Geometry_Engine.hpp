@@ -1,18 +1,17 @@
 #ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 #define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 
-// GE
+// GEN
 #include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
-#include "fn_GEN_approximate.hpp"
 
 #include "cl_GEN_Geometry_Object.hpp"
 #include "cl_GEN_Geometry_Object_Manager.hpp"
 
-#include "cl_GEN_Pdv_Host.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "pdv/cl_GEN_Pdv_Host.hpp"
+#include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"

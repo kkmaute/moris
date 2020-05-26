@@ -11,7 +11,6 @@
 #include "op_equal_equal.hpp"
 
 // GE include -----------------------------------
-#include "cl_GEN_Enums.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
 #include "cl_GEN_Geometry_Engine.hpp"
