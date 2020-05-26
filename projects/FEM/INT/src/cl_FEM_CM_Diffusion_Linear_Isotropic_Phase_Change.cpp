@@ -39,7 +39,7 @@ namespace moris
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
 
-            // loop over the provided dof type
+            // loop over the provided dof types
             for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
             {
                 // get dof type string
@@ -65,22 +65,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic_Phase_Change::set_property(
-                 std::shared_ptr< fem::Property > aProperty,
-                 std::string                      aPropertyString )
-         {
-             // check that aPropertyString makes sense
-             if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-             {
-                 std::string tErrMsg =
-                         std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
-                         aPropertyString;
+                std::shared_ptr< fem::Property > aProperty,
+                std::string                      aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
+                        aPropertyString;
 
-                 MORIS_ERROR( false , tErrMsg.c_str() );
-             }
+                MORIS_ERROR( false , tErrMsg.c_str() );
+            }
 
-             // set the property in the property cell
-             mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-         }
+            // set the property in the property cell
+            mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
 
         //------------------------------------------------------------------------------
 

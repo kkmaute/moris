@@ -4,24 +4,24 @@
 ## Output: .so
 
 function(dynamic_link_input
-    	    	 target_name
+    	 target_name
 		 base_name 
 		 cpp_name 
 		 so_includes)
 
 set(SO_LIB_REQS
-    ${HMR}-lib
-    ${COM}-lib
-    ${WRK}-lib
-    ${MORIS_PETSC_LIBS}
-    ${MORIS_BOOST_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS}
-#     ${MORIS_MPI_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_LDLIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_BASE_LIBS}
+#    ${HMR}-lib
+#    ${COM}-lib
+#    ${WRK}-lib
+#    ${MORIS_PETSC_LIBS}
+#    ${MORIS_BOOST_LIBS}
+#    ${MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS}
+#    ${MORIS_MPI_LIBS}
+#    ${MORIS_ARMADILLO_EIGEN_LIBS}
+#    ${MORIS_SUPERLU_LIBS}
+#    ${MORIS_LDLIBS}
+#    ${MORIS_TRILINOS_LIBS}
+#    ${MORIS_BASE_LIBS}
     )
 
 

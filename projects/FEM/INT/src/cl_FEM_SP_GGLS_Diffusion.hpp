@@ -36,7 +36,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
             private:
-
                 // element size
                 real mElementSize = 1.0;
 
@@ -129,7 +128,6 @@ namespace moris
                 {
                     MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
                 }
-
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
