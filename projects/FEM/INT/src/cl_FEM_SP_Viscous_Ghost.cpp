@@ -9,7 +9,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         SP_Viscous_Ghost::SP_Viscous_Ghost()
         {
             // set the property pointer cell size
@@ -19,17 +19,44 @@ namespace moris
             mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void SP_Viscous_Ghost::reset_cluster_measures()
+        {
+            // evaluate element size from the cluster
+            mElementSize = mCluster->compute_cluster_cell_length_measure(
+                    mtk::Primary_Void::PRIMARY,
+                    mtk::Master_Slave::MASTER );
+        }
+
+        //------------------------------------------------------------------------------
+        void SP_Viscous_Ghost::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "SP_Viscous_Ghost::set_property - Unknown aPropertyString." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
         void SP_Viscous_Ghost::eval_SP()
         {
             // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tViscosityProp =
+                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * tViscosityProp->val()( 0 ) * std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 );
+            mPPVal =
+                    mParameters( 0 ) *
+                    tViscosityProp->val()( 0 ) *
+                    std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void SP_Viscous_Ghost::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -48,13 +75,14 @@ namespace moris
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ).matrix_data()
-                += mParameters( 0 ) * std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 )
-                 * tViscosityProp->dPropdDOF( aDofTypes );
+                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                        mParameters( 0 ) *
+                        std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 ) *
+                        tViscosityProp->dPropdDOF( aDofTypes );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

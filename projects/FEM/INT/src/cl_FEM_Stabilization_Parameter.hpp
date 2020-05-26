@@ -100,14 +100,6 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mdPPdMasterDv;
                 moris::Cell< Matrix< DDRMat > > mdPPdSlaveDv;
 
-                // local string to dof enum map
-                std::map< std::string, MSI::Dof_Type > mMasterDofMap;
-                std::map< std::string, MSI::Dof_Type > mSlaveDofMap;
-
-                // local string to dv enum map
-                std::map< std::string, PDV_Type > mMasterDvMap;
-                std::map< std::string, PDV_Type > mSlaveDvMap;
-
                 // spatial dimensions
                 uint mSpaceDim;
 
@@ -295,10 +287,13 @@ namespace moris
                  * @param[ in ] aDofStrings list of strings describing the dof types
                  * @param[ in ] aIsMaster enum for master or slave
                  */
-                void set_dof_type_list(
+                virtual void set_dof_type_list(
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
-                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - not implemented for base class." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -326,10 +321,13 @@ namespace moris
                  * @param[ in ] aDvStrings list of strings describing the dv types
                  * @param[ in ] aIsMaster  enum for master or slave
                  */
-                void set_dv_type_list(
+                virtual void set_dv_type_list(
                         const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                         moris::Cell< std::string >           & aDvStrings,
-                        mtk::Master_Slave                      aIsMaster = mtk::Master_Slave::MASTER );
+                        mtk::Master_Slave                      aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - not implemented for base class." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**

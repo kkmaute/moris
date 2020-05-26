@@ -25,66 +25,66 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class SP_Ghost_Virtual_Work : public Stabilization_Parameter
         {
 
-//------------------------------------------------------------------------------
-        private:
+                //------------------------------------------------------------------------------
+            private:
 
-            // cluster measures for the SP
-            moris::real mElementSize = 1.0;
+                // cluster measures for the SP
+                moris::real mElementSize = 1.0;
 
-        public:
+            public:
 
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             * Rem: mParameters( 0 ) - gamma penalty parameter
-             */
-            SP_Ghost_Virtual_Work(){};
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 * Rem: mParameters( 0 ) - gamma penalty parameter
+                 */
+                SP_Ghost_Virtual_Work(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~SP_Ghost_Virtual_Work(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~SP_Ghost_Virtual_Work(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures();
+                //------------------------------------------------------------------------------
+                /**
+                 * reset the cluster measures required for this SP
+                 */
+                void reset_cluster_measures();
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter value
-             */
-            void eval_SP();
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter value
+                 */
+                void eval_SP();
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a master dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dPPdMasterDOF ( 1 x numDerDof )
-             */
-            void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dPPdMasterDOF ( 1 x numDerDof )
+                 */
+                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a master dv type
-             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             * dPPdMasterDV ( 1 x numDerDv )
-             */
-            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
-            {
-                MORIS_ERROR( false, "SP_Ghost_Virtual_Work::eval_dSPdMasterDV: not implemented." );
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 * dPPdMasterDV ( 1 x numDerDv )
+                 */
+                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
+                {
+                    MORIS_ERROR( false, "SP_Ghost_Virtual_Work::eval_dSPdMasterDV: not implemented." );
+                }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

@@ -36,6 +36,10 @@ namespace moris
                 // cluster measures
                 real mElementSize = 1.0;
 
+                // default dof type
+                MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
+                MSI::Dof_Type mMasterDofVelocity  = MSI::Dof_Type::VX;
+
                 // FIXME temp all the constants
                 real mCb1 = 0.1355;
                 real mCb2 = 0.6220;
@@ -89,6 +93,18 @@ namespace moris
                  * set function pointers for evaluation
                  */
                 void set_function_pointers();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set dof types
+                 * @param[ in ] aDofTypes a cell of cell of dof types
+                 * @param[ in ] aDofStrings list of strings describing the dof types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**

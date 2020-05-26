@@ -25,120 +25,106 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class SP_Nitsche_Interface : public Stabilization_Parameter
         {
 
-//------------------------------------------------------------------------------
-        private:
+                //------------------------------------------------------------------------------
+            private:
 
-            real mMasterVolume     = 0.5; // volume on master
-            real mSlaveVolume      = 0.5; // volume on slave
-            real mInterfaceSurface = 1.0; // surface on master/slave interface
+                // cluster measures
+                real mMasterVolume     = 0.5; // volume on master
+                real mSlaveVolume      = 0.5; // volume on slave
+                real mInterfaceSurface = 1.0; // surface on master/slave interface
 
-        public:
+            public:
 
-            enum class SP_Property_Type
-            {
-                MATERIAL,
-                MAX_ENUM
-            };
+                enum class SP_Property_Type
+                {
+                    MATERIAL,
+                    MAX_ENUM
+                };
 
-            // Local string to property enum map
-            std::map< std::string, SP_Property_Type > mPropertyMap;
+                // local string to property enum map
+                std::map< std::string, SP_Property_Type > mPropertyMap;
 
-            enum class SP_Constitutive_Type
-            {
-                MAX_ENUM
-            };
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                SP_Nitsche_Interface();
 
-            // Local string to constitutive enum map
-            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~SP_Nitsche_Interface(){};
 
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            SP_Nitsche_Interface();
+                //------------------------------------------------------------------------------
+                /**
+                 * reset the cluster measures required for this SP
+                 */
+                void reset_cluster_measures();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~SP_Nitsche_Interface(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string defining the property
+                 * @param[ in ] aIsMaster       an enum for master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures();
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter value
+                 */
+                void eval_SP();
 
-//------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aPropertyString makes sense
-                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "SP_Nitsche_Interface::set_property - Unknown aPropertyString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the stabilization parameter derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dSPdMasterDOF ( 1 x numDerDof )
+                 */
+                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the stabilization parameter derivative wrt to a slave dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dSPdSlaveDOF ( 1 x numDerDof )
+                 */
+                void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter value
-             */
-            void eval_SP();
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 * dPPdMasterDV ( 1 x numDerDv )
+                 */
+                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
+                {
+                    MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdMasterDV: not implemented." );
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the stabilization parameter derivative wrt to a master dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dSPdMasterDOF ( 1 x numDerDof )
-             */
-            void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the stabilization parameter derivative wrt to a slave dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dSPdSlaveDOF ( 1 x numDerDof )
-             */
-             void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a master dv type
-             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             * dPPdMasterDV ( 1 x numDerDv )
-             */
-            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
-            {
-                MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdMasterDV: not implemented." );
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a slave dv type
-             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             * dSPdSlaveDV ( 1 x numDerDv )
-             */
-             void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
-             {
-                 MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdSlaveDV: not implemented." );
-             }
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a slave dv type
+                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 * dSPdSlaveDV ( 1 x numDerDv )
+                 */
+                void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
+                {
+                    MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdSlaveDV: not implemented." );
+                }
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
