@@ -158,9 +158,9 @@ namespace moris
             //REQUIRE( tCheckdStress );
             tChecks(0) = tCheckdStress;
 
-// debug
-//moris::print(tdFluxdDOF, "tdFluxdDOF");
-//moris::print(tdFluxdDOF_FD, "tdFluxdDOF_FD");
+            // debug
+            //moris::print(tdFluxdDOF, "tdFluxdDOF");
+            //moris::print(tdFluxdDOF_FD, "tdFluxdDOF_FD");
 
 
             // check strain-----------------------------------------------------------------
@@ -190,9 +190,9 @@ namespace moris
             //REQUIRE( tCheckdStrain );
             tChecks(1) = tCheckdStrain;
 
-// debug
-//moris::print(tdStraindDOF, "tdStraindDOF");
-//moris::print(tdStraindDOF_FD, "tdStraindDOF_FD");
+            // debug
+            //moris::print(tdStraindDOF, "tdStraindDOF");
+            //moris::print(tdStraindDOF_FD, "tdStraindDOF_FD");
 
 
             // check constitutive matrix----------------------------------------------------
@@ -258,9 +258,9 @@ namespace moris
             //REQUIRE( tCheckHdot );
             tChecks(2) = tCheckHdot;
 
-// debug
-//moris::print(tdHdotdDOF, "tdHdotdDOF");
-//moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
+            // debug
+            //moris::print(tdHdotdDOF, "tdHdotdDOF");
+            //moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
 
 
             // check gradHdot --------------------------------------------------------------
@@ -282,23 +282,14 @@ namespace moris
                 for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
                 {
                     tCheckGradHdot = tCheckGradHdot && ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
-
-// debug
-//if ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) > tEpsilon )
-//{
-//    std::cout << "tdGradHdotdDOF: failed Jacobian check at: " << iStress << "x" << jStress
-//            << " with difference: " << std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) )
-//            << " , allowed tolerance: " << tEpsilon << "\n" << std::flush;
-//}
-
                 }
             }
             //REQUIRE( tCheckGradHdot );
             tChecks(3) = tCheckGradHdot;
 
-// debug
-//moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
-//moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
+            // debug
+            //moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
+            //moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
 
 
             // check graddivflux -----------------------------------------------------------
@@ -324,10 +315,10 @@ namespace moris
             }
             //REQUIRE( tCheckGradDivFlux );
             tChecks(4) = tCheckGradDivFlux;
-// debug
-//moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
-//moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
+            // debug
+            //moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
+            //moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
             // clean up
             //------------------------------------------------------------------------------
