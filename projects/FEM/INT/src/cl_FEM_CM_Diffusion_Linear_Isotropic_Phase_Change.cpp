@@ -170,10 +170,17 @@ namespace moris
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mTempDof )
             {
+                const moris::Matrix<DDRMat> dfdDof = eval_dFdTempdDOF(
+                        tPropPCtemp->val()(0),
+                        tPropPCconst->val()(0),
+                        tPropPSfunct->val()(0),
+                        tFITemp);
+
                 // compute derivative with direct dependency
                 mHdotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
-                        tFITemp->dnNdtn(1);
+                        tFITemp->dnNdtn(1)
+                        + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof;
             }
 
             // if indirect dependency of density on the dof type
@@ -235,10 +242,17 @@ namespace moris
             // if direct dependency on the dof type
             if( aDofTypes( 0 ) == mTempDof )
             {
+                const moris::Matrix<DDRMat> dfdDof = eval_dFdTempdDOF(
+                        tPropPCtemp->val()(0),
+                        tPropPCconst->val()(0),
+                        tPropPSfunct->val()(0),
+                        tFITemp);
+
                 // compute derivative with direct dependency
                 mGradHdotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
-                        tFITemp->d2Ndxt();
+                        tFITemp->d2Ndxt()
+                        + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradxt() * dfdDof;
             }
 
             // if indirect dependency of density on the dof type
