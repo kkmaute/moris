@@ -92,10 +92,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	endforeach()
 endif()
 
-
-## create dynamically linked .so files
-set(GEN_TEST_INPUT_FILE_BASE benchmark04)
-
 set(SO_TPLS
 "trilinos"
 ${ARMADILLO_EIGEN}
@@ -125,8 +121,3 @@ foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
-
-foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
-    dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
-endforeach()
-
